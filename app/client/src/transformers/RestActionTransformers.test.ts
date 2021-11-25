@@ -28,7 +28,9 @@ const BASE_ACTION: ApiAction = {
     encodeParamsToggle: true,
     path: "users",
     headers: [],
-    apiContentType: "none",
+    formData: {
+      apiContentType: "none",
+    },
     timeoutInMillisecond: 5000,
   },
   jsonPathKeys: [],
@@ -142,7 +144,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
           },
         ],
         bodyFormData: [
@@ -166,7 +168,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
           },
         ],
         body: "{ name: 'test' }",
@@ -195,7 +197,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
           },
         ],
         bodyFormData: [
@@ -218,7 +220,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
           },
         ],
         body: "",
@@ -268,7 +270,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[2].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+          },
         ],
         body: "",
         bodyFormData: [
@@ -300,7 +305,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[2].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+          },
         ],
         body: "",
         bodyFormData: [

@@ -351,6 +351,10 @@ function* updateFormFields(
         header.key &&
         header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
+    // eslint-disable-next-line prefer-const
+    let formData: { apiContentType: string } = {
+      apiContentType: POST_BODY_FORMAT_OPTIONS.NONE,
+    };
     if (value !== HTTP_METHODS.GET) {
       const indexToUpdate = getIndextoUpdate(
         actionConfigurationHeaders,
@@ -360,6 +364,7 @@ function* updateFormFields(
         key: CONTENT_TYPE_HEADER_KEY,
         value: POST_BODY_FORMAT_OPTIONS.JSON,
       };
+      formData["apiContentType"] = POST_BODY_FORMAT_OPTIONS.JSON;
     } else {
       log.debug("yoyo: Got the GET request");
       if (contentTypeHeaderIndex > -1) {
@@ -369,6 +374,10 @@ function* updateFormFields(
         };
       }
     }
+    // change apiContentType when user changes api Http Method
+    yield put(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.formData", formData),
+    );
     yield put(
       change(
         API_EDITOR_FORM_NAME,
@@ -394,6 +403,12 @@ function* formValueChangeSaga(
   if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   if (!values.id) return;
+  const contentTypeHeaderIndex = values.actionConfiguration.headers.findIndex(
+    (header: { key: string; value: string }) =>
+      header &&
+      header.key &&
+      header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+  );
   if (
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
@@ -414,6 +429,18 @@ function* formValueChangeSaga(
         value: actionPayload.payload,
       }),
     );
+    // when user types a content type value, update actionConfiguration.formData.apiContent type as well.
+    if (
+      field === `actionConfiguration.headers[${contentTypeHeaderIndex}].value`
+    ) {
+      yield put(
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.formData.apiContentType",
+          actionPayload.payload,
+        ),
+      );
+    }
   }
 
   yield all([
