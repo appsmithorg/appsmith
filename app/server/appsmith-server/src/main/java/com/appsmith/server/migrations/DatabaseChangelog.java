@@ -3549,7 +3549,7 @@ public class DatabaseChangelog {
     }
 
     private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
-                                                            ObjectMapper objectMapper, NewAction s3Action) {
+                                                            ObjectMapper objectMapper, NewAction action) {
         // Return if empty.
         if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
             return dynamicBindingPathList;
@@ -3583,7 +3583,7 @@ public class DatabaseChangelog {
                     .map(property -> property.getKey())
                     .collect(Collectors.toList());
 
-            Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, s3Action, dynamicBindingPathNames);
+            Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
 
             // We have found atleast 1 invalid dynamic binding path.
             if (!pathsToRemove.isEmpty()) {
@@ -3889,7 +3889,7 @@ public class DatabaseChangelog {
     /**
      * One of the previous migrations updated the `dynamicBindingPathList` for unpublished actions of S3 plugin as part
      * of porting S3 plugin to UQI model. However, the `dynamicBindingPathList` update for published actions got
-     * skipped somehow. This fix takes care of the skip.
+     * skipped somehow. This fix updates the `dynamicBindingPathList` for published actions of S3 plugin.
      * @param mongockTemplate
      */
     @ChangeSet(order = "098", id = "fix-s3-dynamic-binding-path-list-migration", author = "")
