@@ -34,13 +34,13 @@ function PageNotFound(props: Props) {
   const { flushErrorsAndRedirect } = props;
 
   return (
-    <Wrapper>
+    <Wrapper className="space-y-6">
       <img
         alt="Page Unavailable"
-        className="page-unavailable-img"
+        className="mx-auto page-unavailable-img"
         src={PageUnavailableImage}
       />
-      <div>
+      <div className="space-y-2">
         <p className="bold-text">{createMessage(PAGE_NOT_FOUND)}</p>
         <p>
           Either this page doesn&apos;t exist, or you don&apos;t have access to{" "}

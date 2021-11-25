@@ -203,21 +203,15 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
 
     // verify menu items background color
-    cy.contains("Menu Item 1").should(
-      "have.css",
-      "background-color",
-      "rgb(3, 179, 101)",
-    );
-    cy.contains("Menu Item 2").should(
-      "have.css",
-      "background-color",
-      "rgb(255, 193, 61)",
-    );
-    cy.contains("Menu Item 3").should(
-      "have.css",
-      "background-color",
-      "rgb(51, 102, 255)",
-    );
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .should("have.css", "background-color", "rgb(3, 179, 101)");
+    cy.get(".bp3-menu-item")
+      .eq(1)
+      .should("have.css", "background-color", "rgb(255, 193, 61)");
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.css", "background-color", "rgb(51, 102, 255)");
 
     //cy.closePropertyPane();
 
@@ -244,14 +238,18 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     // check Menu Item 3 is disable
     cy.get(".bp3-menu-item")
-      .last()
+      .eq(2)
       .should("have.css", "background-color", "rgb(250, 250, 250)");
-    cy.get(".bp3-menu-item").should("have.class", "bp3-disabled");
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.class", "bp3-disabled");
 
     // Click on the Menu Item
-    cy.contains("Menu Item 1").click({
-      force: true,
-    });
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .click({
+        force: true,
+      });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     // Validating the toast message
