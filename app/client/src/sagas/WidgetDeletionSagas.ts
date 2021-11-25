@@ -204,6 +204,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
+          yield put(selectWidgetInitAction(undefined));
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
       }

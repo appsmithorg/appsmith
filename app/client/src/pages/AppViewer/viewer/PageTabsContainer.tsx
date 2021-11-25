@@ -118,7 +118,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 ? (
-    <Container>
+    <Container className="h-9">
       <ScrollBtnContainer
         onMouseDown={() => startScrolling(true)}
         onMouseLeave={stopScrolling}

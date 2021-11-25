@@ -1,4 +1,1 @@
-<svg fill="none" height="10" width="10">
-    <path d="M8.10387 0.500001L9 1.40822L3.48269 7L0.5 3.97705L1.39613 3.06883L3.48269 5.18305L8.10387 0.500001Z"
-        fill="white" transform="translate(0.5,1.5)" />
-</svg>
+<svg width="10" height="10" fill="none"><path fill="#fff" d="M8.10387 0.500001L9 1.40822L3.48269 7L0.5 3.97705L1.39613 3.06883L3.48269 5.18305L8.10387 0.500001Z" transform="translate(0.5,1.5)"/></svg>
