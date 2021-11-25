@@ -89,7 +89,7 @@ describe("Validate Validators", () => {
       type: ValidationTypes.TEXT,
       params: {
         default: "https://www.appsmith.com",
-        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
+        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/,
       },
     };
     const inputs = [
@@ -103,7 +103,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         messages: [
-          "This value does not evaluate to type (http(s)?:\\/\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)",
+          "This value does not evaluate to type (http(s)?:\\/\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&\\/=]*)",
         ],
         parsed: "https://www.appsmith.com",
       },
@@ -135,7 +135,7 @@ describe("Validate Validators", () => {
       type: ValidationTypes.TEXT,
       params: {
         default: "https://www.appsmith.com",
-        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
+        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/,
         expected: {
           type: "URL",
           example: "https://www.appsmith.com",
