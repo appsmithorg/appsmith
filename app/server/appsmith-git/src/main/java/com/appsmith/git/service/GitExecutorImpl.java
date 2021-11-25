@@ -65,6 +65,8 @@ public class GitExecutorImpl implements GitExecutor {
 
     private static final String MERGE_STATUS_BRANCH = "_merge";
 
+    private static final String SUCCESS_MERGE_STATUS = "This branch has no conflict with the base branch.";
+
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
@@ -545,14 +547,16 @@ public class GitExecutorImpl implements GitExecutor {
             MergeStatusDTO mergeStatus = new MergeStatusDTO();
             if(mergeResult.getMergeStatus().isSuccessful()) {
                 mergeStatus.setMergeAble(true);
-                mergeStatus.setStatus(mergeResult.getMergeStatus().name());
+                mergeStatus.setMessage(SUCCESS_MERGE_STATUS);
             } else {
                 //If there aer conflicts add the conflicting file names to the response structure
                 mergeStatus.setMergeAble(false);
                 List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
-                mergeStatus.setStatus(mergeResult.getMergeStatus().name());
+                String errorMessage = String.format("%s for repo %s on branch %s => %s", mergeResult.getMergeStatus().toString(), repoSuffix.getFileName(), sourceBranch, destinationBranch);
+                mergeStatus.setMessage(errorMessage);
             }
+            mergeStatus.setStatus(mergeResult.getMergeStatus().name());
             return mergeStatus;
         })
         .flatMap(status -> {

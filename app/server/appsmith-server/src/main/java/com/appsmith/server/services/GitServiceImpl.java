@@ -1244,7 +1244,8 @@ public class GitServiceImpl implements GitService {
                                         .map(reset -> {
                                                 MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                                 mergeStatus.setMergeAble(false);
-                                                mergeStatus.setStatus(error.getMessage());
+                                                mergeStatus.setStatus("Merge check failed!");
+                                                mergeStatus.setMessage(error.getMessage());
                                                 if(error instanceof CheckoutConflictException) {
                                                     mergeStatus.setConflictingFiles(((CheckoutConflictException) error)
                                                                     .getConflictingPaths());
