@@ -66,7 +66,6 @@ export function* executeActionTriggers(
         executePluginActionTriggerSaga,
         trigger.payload,
         eventType,
-        triggerMeta,
       );
       break;
     case ActionTriggerType.CLEAR_PLUGIN_ACTION:
