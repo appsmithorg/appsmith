@@ -3248,6 +3248,7 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
         fieldName +
         "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
     )
+      .wait(200)
       .then((textEle) => {
         cy.wrap(textEle)
           .last()
@@ -3258,6 +3259,7 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
       .type(valueToType, { parseSpecialCharSequences: false });
   } else {
     cy.xpath("//div//div[@class='CodeMirror-code']//span/span")
+      .wait(200)
       .then((textEle) => {
         cy.wrap(textEle)
           .last()
