@@ -583,6 +583,7 @@ Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI)
+    .last()
     .should("be.visible")
     .click({ force: true });
   cy.get(pages.integrationCreateNew)
