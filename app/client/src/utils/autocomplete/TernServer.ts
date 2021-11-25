@@ -194,6 +194,7 @@ class TernServer {
     const searchText = (bindings.jsSnippets[0] || "").trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
+      // Moment Interface objects should not be added as a completion
       if (isMomentInterfaceObject(completion)) continue;
       let className = this.typeToIcon(completion.type, completion.isKeyword);
       const dataType = this.getDataType(completion.type);
