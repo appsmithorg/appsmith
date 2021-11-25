@@ -104,7 +104,7 @@ class BoxShadowOptionsControl extends BaseControl<
     const { propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
+      <StyledButtonGroup className="ur--has-border" fill>
         {buttonConfigs.map(({ icon, variant }) => {
           const active =
             variant === ButtonBoxShadowTypes.NONE

@@ -139,7 +139,7 @@ class IconSelectControl extends BaseControl<
         >
           <StyledButton
             alignText={Alignment.LEFT}
-            className={Classes.TEXT_OVERFLOW_ELLIPSIS}
+            className={Classes.TEXT_OVERFLOW_ELLIPSIS + " ur--has-border"}
             elementRef={this.iconSelectTargetRef}
             fill
             icon={iconName || defaultIconName}

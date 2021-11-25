@@ -186,6 +186,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
       usePortal
     >
       <StyledInputGroup
+        className="ur--has-border"
         leftIcon={
           color ? (
             <ColorIcon color={color} />

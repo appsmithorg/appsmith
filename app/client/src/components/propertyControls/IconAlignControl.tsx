@@ -51,7 +51,7 @@ class IconAlignControl extends BaseControl<IconAlignControlProps> {
     const { propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
+      <StyledButtonGroup className="ur--has-border" fill>
         <StyledButton
           active={propertyValue === Alignment.LEFT || undefined}
           icon={<ControlIcons.ICON_ALIGN_LEFT color="#979797" />}
