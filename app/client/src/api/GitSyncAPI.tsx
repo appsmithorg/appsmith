@@ -85,9 +85,10 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeStatusPayload) {
-    return Api.get(
-      `${GitSyncAPI.baseURL}/merge/status/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
-    );
+    return Api.post(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
+      sourceBranch,
+      destinationBranch,
+    });
   }
 
   static pull({ applicationId }: { applicationId: string }) {

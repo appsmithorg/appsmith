@@ -281,6 +281,18 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     pullFailed: false,
   }),
+  [ReduxActionTypes.MERGE_BRANCH_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isMerging: true,
+  }),
+  [ReduxActionTypes.MERGE_BRANCH_SUCCESS]: (state: GitSyncReducerState) => ({
+    ...state,
+    isMerging: false,
+  }),
+  [ReduxActionErrorTypes.MERGE_BRANCH_ERROR]: (state: GitSyncReducerState) => ({
+    ...state,
+    isMerging: false,
+  }),
 });
 
 export type GitStatusData = {
@@ -335,6 +347,8 @@ export type GitSyncReducerState = {
   gitError?: GitErrorType;
   pullFailed?: boolean;
   pullInProgress?: boolean;
+
+  isMerging?: boolean;
 };
 
 export default gitSyncReducer;

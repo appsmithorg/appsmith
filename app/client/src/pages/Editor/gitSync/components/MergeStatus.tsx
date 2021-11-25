@@ -1,11 +1,4 @@
 import React from "react";
-import {
-  createMessage,
-  FETCH_MERGE_STATUS,
-  // FETCH_MERGE_STATUS_FAILURE,
-  MERGE_CONFLICT_ERROR,
-  NO_MERGE_CONFLICT,
-} from "constants/messages";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
 import { Space } from "./StyledComponents";
@@ -20,8 +13,8 @@ const Flex = styled.div`
 
 export const MERGE_STATUS_STATE = {
   FETCHING: "FETCHING",
-  NO_CONFLICT: "NO_CONFLICT",
-  MERGE_CONFLICT: "MERGE_CONFLICT",
+  MERGEABLE: "MERGEABLE",
+  NOT_MERGEABLE: "NOT_MERGEABLE",
   NONE: "NONE",
 };
 
@@ -31,16 +24,22 @@ const Wrapper = styled.div`
   margin-top: ${(props) => `${props.theme.spaces[3]}px`};
 `;
 
-function MergeStatus({ status }: { status: string }) {
+function MergeStatus({
+  message = "",
+  status,
+}: {
+  status: string;
+  message?: string;
+}) {
   switch (status) {
     case MERGE_STATUS_STATE.FETCHING:
       return (
         <Flex>
           <Space horizontal size={10} />
-          <StatusLoader loaderMsg={createMessage(FETCH_MERGE_STATUS)} />
+          <StatusLoader loaderMsg={message} />
         </Flex>
       );
-    case MERGE_STATUS_STATE.NO_CONFLICT:
+    case MERGE_STATUS_STATE.MERGEABLE:
       return (
         <Flex>
           <Space horizontal size={10} />
@@ -52,12 +51,12 @@ function MergeStatus({ status }: { status: string }) {
               type={TextType.P3}
               weight="600"
             >
-              {createMessage(NO_MERGE_CONFLICT)}
+              {message}
             </Text>
           </Wrapper>
         </Flex>
       );
-    case MERGE_STATUS_STATE.MERGE_CONFLICT:
+    case MERGE_STATUS_STATE.NOT_MERGEABLE:
       return (
         <Flex>
           <Space horizontal size={10} />
@@ -69,7 +68,7 @@ function MergeStatus({ status }: { status: string }) {
               type={TextType.P3}
               weight="600"
             >
-              {createMessage(MERGE_CONFLICT_ERROR)}
+              {message}
             </Text>
           </Wrapper>
         </Flex>
