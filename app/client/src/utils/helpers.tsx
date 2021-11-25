@@ -144,7 +144,7 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
-function hasClass(ele: HTMLElement, cls: string) {
+export function hasClass(ele: HTMLElement, cls: string) {
   return !!ele.className.match(new RegExp("(\\s|^)" + cls + "(\\s|$)"));
 }
 
