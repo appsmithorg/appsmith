@@ -33,8 +33,10 @@ import { ReactComponent as FullscreenIcon } from "assets/icons/widget/camera/ful
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "store";
+import { Colors } from "constants/Colors";
 
 export interface CameraContainerProps {
+  disabled: boolean;
   scaleAxis: "x" | "y";
 }
 
@@ -44,7 +46,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   align-items: center;
   justify-content: center;
   overflow: auto;
-  background: black;
+  background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};
 
   .fullscreen {
     display: flex;
@@ -53,7 +55,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
     justify-content: center;
 
     span.error-text {
-      color: white;
+      color: ${Colors.GREY_8};
     }
   }
 
@@ -996,7 +998,7 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   return (
-    <CameraContainer scaleAxis={scaleAxis}>
+    <CameraContainer disabled={!!error || disabled} scaleAxis={scaleAxis}>
       <FullScreen handle={handle}>{renderComponent()}</FullScreen>
     </CameraContainer>
   );
