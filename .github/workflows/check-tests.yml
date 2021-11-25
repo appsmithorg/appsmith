@@ -6,7 +6,7 @@ on:
     types: [opened, reopened, edited]
 
 jobs:
-  build:
+  checks:
     runs-on: ubuntu-latest
 
     steps:
