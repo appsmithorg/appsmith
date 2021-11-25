@@ -291,7 +291,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
-
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
@@ -307,6 +308,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           )
         }
         disabled={this.props.isDisabled}
+        hasError={isInvalid}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
@@ -329,6 +331,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
+
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
 
     // Check if the value has changed. If no option
     // selected till now, there is a change
@@ -382,6 +388,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectedOptionLabel: string;
   serverSideFiltering: boolean;
   onFilterUpdate: string;
+  isDirty?: boolean;
 }
 
 export default DropdownWidget;
