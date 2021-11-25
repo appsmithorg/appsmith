@@ -18,4 +18,5 @@ export default {
   mergeBranchDropdownDestination: ".t--merge-branch-dropdown-destination",
   mergeCTA: ".t--merge",
   loaderQuickGitAction: ".t--loader-quick-git-action",
+  copySshKey: ".t--copy-ssh-key",
 };

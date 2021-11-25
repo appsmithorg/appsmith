@@ -3221,7 +3221,7 @@ Cypress.Commands.add("connectToGitRepo", (repo) => {
   const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 
   let generatedKey;
-  // // open gitSync modal
+  // open gitSync modal
   cy.get(homePage.deployPopupOptionTrigger).click();
   cy.get(homePage.connectToGitBtn).click();
 

@@ -5,6 +5,8 @@ import {
   USER_PROFILE_SETTINGS_TITLE,
   AUTHOR_NAME,
   AUTHOR_EMAIL,
+  INVALID_EMAIL,
+  AUTHOR_NAME_CANNOT_BE_EMPTY,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
@@ -201,8 +203,8 @@ function UserGitProfileSettings({
             defaultValue={authorInfo.authorName}
             disabled={disableInput}
             errorMsg={
-              !authorInfo.authorName && !nameInputFocused && triedSubmit
-                ? "Author name cannot be empty"
+              !authorInfo.authorName && !nameInputFocused
+                ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY)
                 : ""
             }
             fill
@@ -225,8 +227,8 @@ function UserGitProfileSettings({
             dataType="email"
             disabled={disableInput}
             errorMsg={
-              !isValidEmail && !emailInputFocused && triedSubmit
-                ? "Please enter a valid email"
+              !isValidEmail && !emailInputFocused
+                ? createMessage(INVALID_EMAIL)
                 : ""
             }
             fill

@@ -601,6 +601,7 @@ export const GIT_UPSTREAM_CHANGES = () =>
   "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the conflicts manually on your repository.";
+export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";

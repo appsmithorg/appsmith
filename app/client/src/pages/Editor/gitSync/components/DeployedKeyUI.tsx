@@ -136,6 +136,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
           <TooltipWrapper>
             <TooltipComponent content="Copy Key">
               <Icon
+                className="t--copy-ssh-key"
                 color={Colors.DARK_GRAY}
                 hoverColor={Colors.GRAY2}
                 marginOffset={3}
