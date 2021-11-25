@@ -131,6 +131,8 @@ const DropdownStyles = createGlobalStyle<{ width: number }>`
 
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
+      width: ${(props) => props.width}px;
+      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {
