@@ -28,3 +28,9 @@ export const changeQuery = (
     payload: { id, newQuery, action },
   };
 };
+
+/* This action when executed updates the status of isSaving query to true for an actionId */
+export const updateActionStarted = (payload: ReduxAction<{ id: string }>) => ({
+  type: ReduxActionTypes.UPDATE_ACTION_STARTED,
+  payload: payload,
+});

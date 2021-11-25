@@ -89,8 +89,3 @@ export const executeCommandAction = (payload: SlashCommandPayload) => ({
   type: ReduxActionTypes.EXECUTE_COMMAND,
   payload: payload,
 });
-
-export const updateActionInit = (payload: ReduxAction<{ id: string }>) => ({
-  type: ReduxActionTypes.UPDATE_ACTION_INIT,
-  payload: payload,
-});
