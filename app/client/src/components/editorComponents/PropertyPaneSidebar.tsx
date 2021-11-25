@@ -69,7 +69,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
-      case isThemeMode || true:
+      case isThemeMode:
         return <ThemePropertyPane />;
       case selectedWidgets.length == 0:
         return <CanvasPropertyPane />;

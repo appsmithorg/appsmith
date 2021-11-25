@@ -3,7 +3,7 @@ import { ThemingMode } from "selectors/themingSelectors";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const initialState: ThemingState = {
-  mode: ThemingMode.THEME_SELECTION,
+  mode: ThemingMode.THEME_EDIT,
 };
 
 export type ThemingState = {
