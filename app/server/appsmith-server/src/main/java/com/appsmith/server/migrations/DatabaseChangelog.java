@@ -3534,7 +3534,7 @@ public class DatabaseChangelog {
             // Migrate the dynamic binding path list for unpublished action
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
             List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
-                    objectMapper, s3Action);
+                    objectMapper, s3Action, s3MigrationMap);
             unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
             actionsToSave.add(s3Action);
@@ -3548,8 +3548,19 @@ public class DatabaseChangelog {
         mongockTemplate.save(s3Plugin);
     }
 
+    /**
+     * Method to port `dynamicBindingPathList` to UQI model.
+     *
+     * @param dynamicBindingPathList : old dynamicBindingPathList
+     * @param objectMapper
+     * @param action
+     * @param migrationMap : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
+     *                     reference, please check out the `s3MigrationMap` defined above.
+     * @return : updated dynamicBindingPathList - ported to UQI model.
+     */
     private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
-                                                            ObjectMapper objectMapper, NewAction action) {
+                                                            ObjectMapper objectMapper, NewAction action,
+                                                            Map<Integer, List<String>> migrationMap) {
         // Return if empty.
         if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
             return dynamicBindingPathList;
@@ -3566,7 +3577,7 @@ public class DatabaseChangelog {
 
                 while (matcher.find()) {
                     int index = Integer.parseInt(matcher.group());
-                    List<String> partialPaths = s3MigrationMap.get(index);
+                    List<String> partialPaths = migrationMap.get(index);
                     for (String partialPath : partialPaths) {
                         Property dynamicBindingPath = new Property("formData." + partialPath, null);
                         newDynamicBindingPathList.add(dynamicBindingPath);
@@ -3918,7 +3929,7 @@ public class DatabaseChangelog {
                     ActionDTO publishedAction = action.getPublishedAction();
                     List<Property> dynamicBindingPathList = publishedAction.getDynamicBindingPathList();
                     List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
-                            objectMapper, action);
+                            objectMapper, action, s3MigrationMap);
                     publishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
                 });
 
