@@ -340,6 +340,11 @@ public class GitExecutorImpl implements GitExecutor {
                     if(!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
                         mergeConflictFiles.addAll(mergeResult.getConflicts().keySet());
                     }
+                    mergeStatus.setConflictingFiles(mergeConflictFiles);
+                    //On merge conflicts abort the merge => git merge --abort
+                    git.getRepository().writeMergeCommitMsg(null);
+                    git.getRepository().writeMergeHeads(null);
+                    Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
                     throw new IOException("Conflicted files: " + mergeConflictFiles);
                 }
                 git.close();
