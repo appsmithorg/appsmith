@@ -3,6 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
+import { TimePrecision } from "@blueprintjs/datetime";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -195,6 +196,41 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
           },
+          {
+            propertyName: "timePrecision",
+            label: "Time precision",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the different time picker or hide.",
+            defaultValue: TimePrecision.MINUTE,
+            options: [
+              {
+                label: "None",
+                value: "None",
+              },
+              {
+                label: "Minute",
+                value: TimePrecision.MINUTE,
+              },
+              {
+                label: "Second",
+                value: TimePrecision.SECOND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "None",
+                  TimePrecision.MINUTE,
+                  TimePrecision.SECOND,
+                ],
+                default: TimePrecision.MINUTE,
+              },
+            },
+          },
         ],
       },
       {
@@ -247,6 +283,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
+        timePrecision={this.props.timePrecision}
         widgetId={this.props.widgetId}
       />
     );
@@ -282,6 +319,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  timePrecision: TimePrecision | "None";
 }
 
 export default DatePickerWidget;
