@@ -6,12 +6,12 @@ const themes = [
     name: "Rounded",
     created_by: "@appsmith",
     config: {
-      boxShadow: "none",
+      boxShadow: "xl",
       boxShadowColor: "red",
       borderRadius: "2xl",
       colors: {
-        primaryColor: "red",
-        backgroundColor: "blue",
+        primaryColor: "#38AFF4",
+        backgroundColor: "#e1e1e1",
       },
     },
   },
@@ -19,12 +19,12 @@ const themes = [
     name: "Default",
     created_by: "@appsmith",
     config: {
-      boxShadow: "none",
+      boxShadow: "md",
       boxShadowColor: "red",
       borderRadius: "md",
       colors: {
-        primaryColor: "red",
-        backgroundColor: "blue",
+        primaryColor: "#F86A2B",
+        backgroundColor: "#e1e1e1",
       },
     },
   },
@@ -36,8 +36,8 @@ const themes = [
       boxShadowColor: "red",
       borderRadius: "none",
       colors: {
-        primaryColor: "red",
-        backgroundColor: "blue",
+        primaryColor: "#8B5CF6",
+        backgroundColor: "#e1e1e1",
       },
     },
   },
@@ -50,6 +50,7 @@ function ThemeList() {
         <ThemeCard
           backgroundColor={theme.config.colors.backgroundColor}
           borderRadius={theme.config.borderRadius}
+          boxShadow={theme.config.boxShadow}
           isSelected={index === 0}
           key={theme.name}
           primaryColor={theme.config.colors.primaryColor}

@@ -40,7 +40,7 @@ function ThemeColorControl() {
       changeColor={() => {
         //
       }}
-      color="red"
+      color="#8B5CF6"
     />
   );
 }

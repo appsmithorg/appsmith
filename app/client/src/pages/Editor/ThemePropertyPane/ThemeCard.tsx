@@ -12,6 +12,7 @@ interface ThemeCard {
   backgroundColor?: string;
   className?: string;
   isSelected?: boolean;
+  boxShadow?: string;
 }
 
 export function ThemeCard(props: ThemeCard) {
@@ -29,13 +30,15 @@ export function ThemeCard(props: ThemeCard) {
   return (
     <div
       className={`ring-1 ${
-        props.isSelected ? "ring-primary-500 ring-1" : "ring-gray-200"
+        props.isSelected && false ? "ring-primary-500 ring-1" : "ring-gray-200"
       } ${
         props.className
       } relative group overflow-hidden hover:shadow-xl transition-all cursor-pointer`}
     >
       <main className={isThemeEditMode ? "group-hover:blur-md filter" : ""}>
-        <hgroup className={`${tw`bg-[${props.primaryColor}]`} flex p-3`}>
+        <hgroup
+          className={`${tw`bg-[${props.primaryColor}]`} text-white flex p-3`}
+        >
           <h3 className="flex-grow">Rounded</h3>
           <aside>@appsmith</aside>
         </hgroup>
@@ -54,12 +57,12 @@ export function ThemeCard(props: ThemeCard) {
         <section className="p-3">
           <div className="flex space-x-2">
             <div
-              className={`${tw`rounded-${props.borderRadius} bg-[${props.primaryColor}]`} px-3 py-1`}
+              className={`${tw`rounded-${props.borderRadius} bg-[${props.primaryColor}] text-white shadow-${props.boxShadow}`} px-3 py-1`}
             >
               Button
             </div>
             <div
-              className={`${tw`rounded-${props.borderRadius} border-[${props.primaryColor}]`} px-3 py-1 border`}
+              className={`${tw`rounded-${props.borderRadius} bg-white border-[${props.primaryColor}]  shadow-${props.boxShadow}`} px-3 py-1 border`}
             >
               Button
             </div>
