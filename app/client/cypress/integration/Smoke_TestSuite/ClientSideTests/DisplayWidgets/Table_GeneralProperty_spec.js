@@ -84,7 +84,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.underline).click({ force: true });
     // Verify the font style is underline
     cy.readTabledataValidateCSS("1", "0", "text-decoration-line", "underline");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Test to validate vertical allignment", function() {
@@ -105,14 +104,9 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     // Verify the vertical alignment is bottom
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Table widget toggle test for text alignment", function() {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    // Open property pane of column "id"
-    cy.editColumn("id");
     // Click on text align JS
     cy.get(widgetsPage.toggleTextAlign)
       .first()
@@ -122,7 +116,7 @@ describe("Table Widget property pane feature validation", function() {
     // Change the text align value to right for michael and left for others
     cy.toggleJsAndUpdate("tabledata", testdata.bindingGenAlign);
     // Close propert pane
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     // Verify the text michael id is right aligned
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-end");
     // Verify the 2nd id is left aligned
@@ -132,10 +126,7 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget change text size and validate", function() {
     // Verify font size is 14px
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    // Open property pane
-    cy.editColumn("id");
+
     // Click on text size JS
     cy.get(widgetsPage.toggleTextAlign)
       .first()
@@ -153,7 +144,7 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the font size is 24px
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
     // close propert pane
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Verify the font size is 24px
@@ -163,6 +154,9 @@ describe("Table Widget property pane feature validation", function() {
   it("Test to validate open new tab icon shows when URL type data is hovered", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
+
+    // go back to 1st
+    cy.get(commonlocators.editPropBackButton).click({ force: true });
     // Open email property pane
     cy.editColumn("email");
     // Change column type to url
@@ -176,19 +170,17 @@ describe("Table Widget property pane feature validation", function() {
       `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=1] .hidden-icon`,
     ).should("be.visible");
     // Close property pane
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropBackButton).click({ force: true });
   });
 
   it("Edit column name and test for table header changes", function() {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
     // Open email property pane
     cy.editColumn("email");
     // CHange the Column email name to Email Address
     cy.editColName("Email Address");
     // verify changed email name is visible
     cy.get(".draggable-header:contains('Email Address')").should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropBackButton).click({ force: true });
   });
   it("Edit Row height and test table for changes", function() {
     cy.openPropertyPane("tablewidget");
@@ -200,7 +192,6 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     cy.wait(1000);
     cy.readTabledataValidateCSS("0", "0", "height", "19px");
-    cy.get(commonlocators.editPropCrossButton).click();
   });
   it("Test to validate text color and text background", function() {
     // Open property pane
@@ -253,6 +244,5 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
-    cy.get(commonlocators.editPropCrossButton).click();
   });
 });

@@ -36,9 +36,6 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getGitPushError = (state: AppState) =>
-  state.ui.gitSync.gitPushError;
-
 export const getIsImportAppViaGitModalOpen = (state: AppState) =>
   state.ui.gitSync.isImportAppViaGitModalOpen;
 
@@ -51,6 +48,18 @@ export const getGlobalGitConfig = (state: AppState) =>
 export const getLocalGitConfig = (state: AppState) =>
   state.ui.gitSync.localGitConfig;
 
+export const getIsLocalConfigDefined = createSelector(
+  getLocalGitConfig,
+  (localGitConfig) =>
+    !!(localGitConfig.authorEmail || localGitConfig.authorName),
+);
+
+export const getIsGlobalConfigDefined = createSelector(
+  getGlobalGitConfig,
+  (globalGitConfig) =>
+    !!(globalGitConfig.authorEmail || globalGitConfig.authorName),
+);
+
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingGitConfig;
 
@@ -59,14 +68,18 @@ export const getIsFetchingLocalGitConfig = (state: AppState) =>
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
+export const getGitError = (state: AppState) => state.ui.gitSync.gitError;
+
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
+
+export const getIsPullingProgress = (state: AppState) =>
+  state.ui.gitSync.pullInProgress;
 
 export const getIsFetchingMergeStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingMergeStatus;
 
-export const getIsDisconnectingGit = (state: AppState) =>
-  state.ui.gitSync.isDisconnectingGit;
+export const getMergeStatus = (state: AppState) => state.ui.gitSync.mergeStatus;
 
 export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,
@@ -91,3 +104,8 @@ export const getCurrentGitBranch = (state: AppState) => {
   const { gitApplicationMetadata } = getCurrentApplication(state) || {};
   return gitApplicationMetadata?.branchName;
 };
+
+export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
+
+export const getPullInProgress = (state: AppState) =>
+  state.ui.gitSync.pullInProgress;
