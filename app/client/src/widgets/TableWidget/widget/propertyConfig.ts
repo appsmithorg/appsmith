@@ -710,7 +710,7 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: ICON_NAMES,
-                        default: "add",
+                        default: IconNames.ADD,
                       },
                     },
                   },
