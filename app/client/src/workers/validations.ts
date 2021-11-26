@@ -862,4 +862,34 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return invalidResponse;
     }
   },
+  [ValidationTypes.TABLE_PROPERTY]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    if (!config.params?.type)
+      return {
+        isValid: false,
+        parsed: undefined,
+        messages: ["Invalid validation"],
+      };
+
+    // Validate when JS mode is disabled
+    const result = VALIDATORS[config.params.type as ValidationTypes](
+      config.params as ValidationConfig,
+      value,
+      props,
+    );
+
+    // Validate when JS mode is enabled
+    const resultArray = VALIDATORS[ValidationTypes.ARRAY](
+      config.params as ValidationConfig,
+      value,
+      props,
+    );
+
+    if (result.isValid) return result;
+    else if (resultArray.isValid) return resultArray;
+    return resultArray;
+  },
 };
