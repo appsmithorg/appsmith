@@ -20,7 +20,7 @@ function start_application() {
 }
 
 // Main application workflow
-const main = async () => {
+const main = () => {
   let errorCode = 0
   try {
 
@@ -38,7 +38,7 @@ const main = async () => {
     const collectionsLen = parseInt(shellCmdResult.stdout.toString().trimEnd())
     if (collectionsLen > 0) {
       shell.echo()
-      shell.echo('**************************** WANING ****************************')
+      shell.echo('**************************** WARNING ****************************')
       shell.echo(`Your target database is not empty, it has data in ${collectionsLen} collections.`)
       const input = readlineSync.question('Importing this DB will erase this data. Are you sure you want to proceed?[Yes/No] ')
       const answer = input && input.toLocaleUpperCase()
@@ -50,9 +50,9 @@ const main = async () => {
       }
       shell.echo(`Your input is invalid. Please try to run import command again.`)
       return
-    }
-    if (collectionsLen === 0) {
+    } else {
       import_database()
+			return
     }
   } catch (err) {
     shell.echo(err)
