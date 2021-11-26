@@ -862,6 +862,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return invalidResponse;
     }
   },
+
+  /**
+   *
+   * TABLE_PROPERTY can be used in scenarios where we wanted to validate
+   * using ValidationTypes.ARRAY or ValidationTypes.* at the same time.
+   * This is needed in case of properties inside Table widget where we use COMPUTE_VALUE
+   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
+   *
+   */
   [ValidationTypes.TABLE_PROPERTY]: (
     config: ValidationConfig,
     value: unknown,
