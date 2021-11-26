@@ -151,7 +151,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
 
-  it("Test to validate open new tab icon shows when URL type data ", function() {
+  it("Test to validate open new tab icon shows when URL type data validate link text ", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
 
@@ -161,13 +161,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.editColumn("email");
     // Change column type to url
     cy.changeColumnType("URL");
-  });
-
-  it("Test to validate link text enabled for email", function() {
     //Check all the occurance
     cy.get(".link-text").should("have.length", "3");
-    // Show the url hidden icon in front of first email
-    cy.get(".link-text").contains("tobias.funke@reqres.in");
     /*
     cy.get(
       `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=1] .hidden-icon`,
@@ -179,6 +174,7 @@ describe("Table Widget property pane feature validation", function() {
     ).should("be.visible");
     */
   });
+
   it("Edit column name and test for table header changes", function() {
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     // Open email property pane
