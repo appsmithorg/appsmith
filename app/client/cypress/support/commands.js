@@ -3252,8 +3252,7 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
       .then((textEle) => {
         cy.wrap(textEle)
           .last()
-          .invoke("text", "")
-          .trigger("change");
+          .invoke("text", "");
       })
       .closest("div")
       .click()
@@ -3264,8 +3263,7 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
       .then((textEle) => {
         cy.wrap(textEle)
           .last()
-          .invoke("text", "")
-          .trigger("change");
+          .invoke("text", "");
       })
       .closest("div")
       .click()
