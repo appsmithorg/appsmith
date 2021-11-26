@@ -1,4 +1,4 @@
-package com.external.plugins;
+package com.external.config;
 
 
 import com.appsmith.external.models.Property;
@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import java.util.*;
 
-public class GoogleSheetsPluginTest {
+public class MethodConfigTest {
 
     @Test
     public void testWhiteSpaceRemovalForIntegerParsingErrors() throws Exception {

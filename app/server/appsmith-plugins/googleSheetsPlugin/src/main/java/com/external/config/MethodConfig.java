@@ -44,7 +44,7 @@ public class MethodConfig {
         propertyList.stream().parallel().forEach(property -> {
             Object value = property.getValue();
             if (value != null) {
-                String propertyValue = String.valueOf(value);
+                String propertyValue = String.valueOf(value).trim();
                 switch (property.getKey()) {
                     case "sheetUrl":
                         this.spreadsheetUrl = propertyValue;
@@ -58,25 +58,25 @@ public class MethodConfig {
                         }
                         break;
                     case "range":
-                        this.spreadsheetRange = propertyValue.trim();
+                        this.spreadsheetRange = propertyValue;
                         break;
                     case "spreadsheetName":
                         this.spreadsheetName = propertyValue;
                         break;
                     case "tableHeaderIndex":
-                        this.tableHeaderIndex = propertyValue.trim();
+                        this.tableHeaderIndex = propertyValue;
                         break;
                     case "queryFormat":
                         this.queryFormat = propertyValue;
                         break;
                     case "rowLimit":
-                        this.rowLimit = propertyValue.trim();
+                        this.rowLimit = propertyValue;
                         break;
                     case "rowOffset":
-                        this.rowOffset = propertyValue.trim();
+                        this.rowOffset = propertyValue;
                         break;
                     case "rowIndex":
-                        this.rowIndex = propertyValue.trim();
+                        this.rowIndex = propertyValue;
                         break;
                     case "sheetName":
                         this.sheetName = propertyValue;
