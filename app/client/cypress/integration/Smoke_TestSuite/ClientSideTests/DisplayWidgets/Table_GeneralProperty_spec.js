@@ -162,8 +162,13 @@ describe("Table Widget property pane feature validation", function() {
     // Change column type to url
     cy.changeColumnType("URL");
   });
-  it("Test to validate hover action", function() {
+
+  it("Test to validate link text enabled for email", function() {
+    //Check all the occurance
+    cy.get(".link-text").should("have.length", "3");
     // Show the url hidden icon in front of first email
+    cy.get(".link-text").contains("tobias.funke@reqres.in");
+    /*
     cy.get(
       `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=1] .hidden-icon`,
     )
@@ -172,6 +177,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(
       `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=1] .hidden-icon`,
     ).should("be.visible");
+    */
   });
   it("Edit column name and test for table header changes", function() {
     cy.get(commonlocators.editPropBackButton).click({ force: true });
