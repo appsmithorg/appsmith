@@ -11,6 +11,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonPlacementTypes,
   ButtonPlacement,
+  ButtonVariantTypes,
 } from "components/constants";
 import ButtonGroupComponent from "../component";
 
@@ -39,30 +40,6 @@ class ButtonGroupWidget extends BaseWidget<
               },
             ],
             isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "buttonVariant",
-            label: "Button Variant",
-            controlType: "DROP_DOWN",
-            helpText: "Sets the variant of the icon button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-              {
-                label: "Tertiary",
-                value: "TERTIARY",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
@@ -413,6 +390,30 @@ class ButtonGroupWidget extends BaseWidget<
       {
         sectionName: "Styles",
         children: [
+          {
+            propertyName: "buttonVariant",
+            label: "Button Variant",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the variant of the button",
+            options: [
+              {
+                label: "Primary",
+                value: ButtonVariantTypes.PRIMARY,
+              },
+              {
+                label: "Secondary",
+                value: ButtonVariantTypes.SECONDARY,
+              },
+              {
+                label: "Tertiary",
+                value: ButtonVariantTypes.TERTIARY,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             propertyName: "borderRadius",
             label: "Border Radius",
