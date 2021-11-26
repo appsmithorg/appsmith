@@ -46,6 +46,8 @@ type GeneratedWidgetPayload = {
 type WidgetAddTabChild = {
   tabs: any;
   widgetId: string;
+  newTabId: string;
+  newTabLabel: string;
 };
 
 function* getEntityNames() {
@@ -391,28 +393,22 @@ const getChildTabData = (
 function* addNewTabChildSaga(
   addChildTabAction: ReduxAction<WidgetAddTabChild>,
 ) {
-  const { widgetId } = addChildTabAction.payload;
+  const { newTabId, newTabLabel, widgetId } = addChildTabAction.payload;
   const tabProps: WidgetProps = yield select(getWidget, widgetId);
-  const tabs = tabProps.tabsObj;
-  const tabsArray = Object.values(tabs);
+  let tabs = tabProps.tabsObj;
   const newTabWidgetId = generateReactKey();
-  const newTabId = generateReactKey({ prefix: "tab" });
-  const newTabLabel = getNextEntityName(
-    "Tab ",
-    tabsArray.map((tab: any) => tab.label),
-  );
-  // const newTabIndex = Object.keys(tabs)?.length - 1;
+  const newTabIndex = Object.keys(tabs)?.length - 1;
 
-  // tabs = {
-  //   ...tabs,
-  //   [newTabId]: {
-  //     id: newTabId,
-  //     label: newTabLabel,
-  //     widgetId: newTabWidgetId,
-  //     isVisible: true,
-  //     index: newTabIndex,
-  //   },
-  // };
+  tabs = {
+    ...tabs,
+    [newTabId]: {
+      id: newTabId,
+      label: newTabLabel,
+      widgetId: newTabWidgetId,
+      isVisible: true,
+      index: newTabIndex,
+    },
+  };
   const newTabProps: any = getChildTabData(tabProps, {
     id: newTabId,
     label: newTabLabel,
@@ -422,7 +418,7 @@ function* addNewTabChildSaga(
     getUpdateDslAfterCreatingChild,
     newTabProps,
   );
-  // updatedWidgets[widgetId]["tabsObj"] = tabs;
+  updatedWidgets[widgetId]["tabsObj"] = tabs;
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 

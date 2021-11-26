@@ -56,29 +56,22 @@ function AddTabButtonComponent({
 }: any) {
   const dispatch = useDispatch();
   const addOption = () => {
-    dispatch({
-      type: ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD,
-      payload: {
-        widgetId,
-      },
-    });
-
-    let tabs = propertyValue;
+    //need this as updateHook does not work without explicitly called updateProperty method
+    const tabs = propertyValue;
     const tabsArray = Object.values(tabs);
     const newTabId = generateReactKey({ prefix: "tab" });
     const newTabLabel = getNextEntityName(
       "Tab ",
       tabsArray.map((tab: any) => tab.label),
     );
-    tabs = {
-      ...tabs,
-      [newTabId]: {
-        id: newTabId,
-        label: newTabLabel,
-        widgetId: generateReactKey(),
-        isVisible: true,
+    dispatch({
+      type: ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD,
+      payload: {
+        widgetId,
+        newTabId,
+        newTabLabel,
       },
-    };
+    });
     addItem(newTabId, newTabLabel, propertyName);
   };
 
