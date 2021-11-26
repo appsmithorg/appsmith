@@ -46,12 +46,12 @@ export interface RenderDropdownOptionType {
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
   isSelectedNode?: boolean;
   extraProps?: any;
-  errorMsg?: string;
+  hasError?: boolean;
   optionWidth: string;
 }
 
 type RenderOption = ({
-  errorMsg,
+  hasError,
   index,
   option,
   optionClickHandler,
@@ -77,6 +77,7 @@ export type DropdownProps = CommonComponentProps &
     bgColor?: string;
     renderOption?: RenderOption;
     isLoading?: boolean;
+    hasError?: boolean; // should be displayed as error status without error message
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     placeholder?: string;
     helperText?: string;
@@ -96,7 +97,7 @@ export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
   showLabelOnly?: boolean;
   isOpen?: boolean;
-  errorMsg?: string;
+  hasError?: boolean;
   renderNode?: RenderOption;
   placeholder?: string;
   showDropIcon?: boolean;
@@ -478,7 +479,7 @@ function TooltipWrappedText(
 }
 
 function DefaultDropDownValueNode({
-  errorMsg,
+  hasError,
   hideSubText,
   optionWidth,
   placeholder,
@@ -495,7 +496,7 @@ function DefaultDropDownValueNode({
     ? placeholder
     : "Please select a option.";
   function Label() {
-    return errorMsg ? (
+    return hasError ? (
       <ErrorLabel>{LabelText}</ErrorLabel>
     ) : (
       <Text type={TextType.P1}>{LabelText}</Text>
@@ -508,16 +509,16 @@ function DefaultDropDownValueNode({
         renderNode({
           isSelectedNode: true,
           option: selected,
-          errorMsg,
+          hasError,
           optionWidth,
         })
       ) : (
         <>
           {selected?.icon ? (
             <SelectedIcon
-              fillColor={errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor}
+              fillColor={hasError ? Colors.POMEGRANATE2 : selected?.iconColor}
               hoverFillColor={
-                errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor
+                hasError ? Colors.POMEGRANATE2 : selected?.iconColor
               }
               name={selected.icon}
               size={selected.iconSize || IconSize.XL}
@@ -678,6 +679,7 @@ export default function Dropdown(props: DropdownProps) {
     errorMsg = "",
     placeholder,
     helperText,
+    hasError,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -703,8 +705,9 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
+  const errorFlag = hasError || errorMsg.length > 0;
   const disabled = props.disabled || isLoading;
-  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
+  const downIconColor = errorFlag ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
   const onClickHandler = () => {
     if (!props.disabled) {
@@ -745,14 +748,14 @@ export default function Dropdown(props: DropdownProps) {
         bgColor={props.bgColor}
         className={props.className}
         disabled={props.disabled}
-        hasError={!!errorMsg}
+        hasError={errorFlag}
         height={props.height || "38px"}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         selected={!!selected}
       >
         <SelectedValueNode
-          errorMsg={errorMsg}
+          hasError={errorFlag}
           hideSubText={props.hideSubText}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}

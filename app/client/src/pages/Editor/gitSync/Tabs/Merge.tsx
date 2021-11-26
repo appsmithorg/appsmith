@@ -161,6 +161,7 @@ export default function Merge() {
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
+          hasError={status === MERGE_STATUS_STATE.NOT_MERGEABLE}
           isLoading={isFetchingBranches}
           onSelect={(value?: string) => {
             if (value) setSelectedBranchOption({ label: value, value: value });
@@ -188,7 +189,7 @@ export default function Merge() {
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
       <ConflictInfo isConflicting={isConflicting} />
-      {!isConflicting && (
+      {!isConflicting && !isFetchingGitStatus && (
         <Button
           disabled={mergeBtnDisabled}
           isLoading={isMerging}
