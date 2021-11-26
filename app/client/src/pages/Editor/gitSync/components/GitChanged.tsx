@@ -10,9 +10,9 @@ import {
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
 
-const Loader = styled.div`
+const Skeleton = styled.div`
   width: 135px;
-  height: 26px;
+  height: ${(props) => props.theme.spaces[9]}px;
   background: linear-gradient(
     90deg,
     ${Colors.GREY_2} 0%,
@@ -23,9 +23,13 @@ const Loader = styled.div`
 
 const Wrapper = styled.div`
   width: 178px;
+  height: ${(props) => props.theme.spaces[9]}px;
   display: flex;
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[3]}px;
+  }
+  .${Classes.TEXT} {
+    padding-top: ${(props) => props.theme.spaces[1] - 2}px;
   }
 `;
 
@@ -50,6 +54,7 @@ function GitStatus(props: GitSyncProps) {
   const { type } = props;
   const status: any = useSelector(getGitStatus);
   const loading = useSelector(getIsFetchingGitStatus);
+  // const loading = true;
   let message = "",
     iconName: IconName;
   switch (type) {
@@ -73,7 +78,7 @@ function GitStatus(props: GitSyncProps) {
       break;
   }
   return loading ? (
-    <Loader />
+    <Skeleton />
   ) : (
     <Wrapper>
       <Icon fillColor={Colors.GREY_10} name={iconName} size={IconSize.XXL} />
