@@ -57,6 +57,16 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isLoading",
+            label: "Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "alignWidget",
             helpText: "Sets the alignment of the widget",
             label: "Alignment",

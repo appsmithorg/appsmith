@@ -79,6 +79,16 @@ class FormButtonWidget extends ButtonWidget {
           validation: { type: ValidationTypes.BOOLEAN },
         },
         {
+          propertyName: "isLoading",
+          label: "Loading",
+          controlType: "SWITCH",
+          helpText: "Controls the loading of the widget",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+        },
+        {
           propertyName: "googleRecaptchaKey",
           label: "Google Recaptcha Key",
           helpText: "Sets Google Recaptcha v3 site key for button",

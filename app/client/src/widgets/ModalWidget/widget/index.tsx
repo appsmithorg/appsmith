@@ -20,6 +20,7 @@ import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 const minSize = 100;
 
@@ -44,6 +45,16 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+          },
+          {
+            propertyName: "isLoading",
+            label: "Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

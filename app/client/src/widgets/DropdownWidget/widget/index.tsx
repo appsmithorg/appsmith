@@ -144,6 +144,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isLoading",
+            label: "Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "isFilterable",
             label: "Filterable",
             helpText: "Makes the dropdown list filterable",

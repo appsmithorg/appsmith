@@ -1427,6 +1427,16 @@ export default [
         },
       },
       {
+        propertyName: "isLoading",
+        label: "Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         helpText: "Controls sorting in View Mode",
         propertyName: "isSortable",
         isJSConvertible: true,
