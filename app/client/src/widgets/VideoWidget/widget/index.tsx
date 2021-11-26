@@ -46,7 +46,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           {
             propertyName: "autoPlay",
             label: "Auto Play",
-            helpText: "Video will be automatically played",
+            helpText:
+              "Video will be automatically played, by enabling this feature, video will be muted by default.",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

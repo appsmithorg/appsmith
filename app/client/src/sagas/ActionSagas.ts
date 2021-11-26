@@ -36,9 +36,7 @@ import {
   updateActionSuccess,
 } from "actions/pluginActionActions";
 import {
-  DynamicPath,
-  isChildPropertyPath,
-  isDynamicValue,
+  getDynamicBindingsChangesSaga,
   removeBindingsFromActionObject,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
@@ -91,7 +89,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import _, { merge, get } from "lodash";
+import { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -112,7 +110,7 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import { getSelectedWidget, getWidgetById } from "./selectors";
+import { getSelectedWidget, getWidgetByID } from "./selectors";
 import {
   onApiEditor,
   onQueryEditor,
@@ -648,38 +646,9 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   }
 }
 
-function getDynamicBindingsChangesSaga(
-  action: Action,
-  value: unknown,
-  field: string,
+export function* setActionPropertySaga(
+  action: ReduxAction<SetActionPropertyPayload>,
 ) {
-  const bindingField = field.replace("actionConfiguration.", "");
-  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
-
-  if (typeof value === "object") {
-    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
-      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
-        const childPropertyValue = _.get(value, dynamicPath.key);
-        return isDynamicValue(childPropertyValue);
-      }
-    });
-  } else if (typeof value === "string") {
-    const fieldExists = _.some(dynamicBindings, { key: bindingField });
-
-    const isDynamic = isDynamicValue(value);
-
-    if (!isDynamic && fieldExists) {
-      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
-    }
-    if (isDynamic && !fieldExists) {
-      dynamicBindings.push({ key: bindingField });
-    }
-  }
-
-  return dynamicBindings;
-}
-
-function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   const { actionId, propertyName, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
@@ -829,8 +798,7 @@ function* buildMetaForSnippets(
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
-      getWidgetById,
-      entityId,
+      getWidgetByID(entityId),
     );
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
