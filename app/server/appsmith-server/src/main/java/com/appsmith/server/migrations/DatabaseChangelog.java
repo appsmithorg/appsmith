@@ -3903,8 +3903,8 @@ public class DatabaseChangelog {
             Map.entry(1, List.of("orderBy")),
             Map.entry(2, List.of("limitDocuments")),
             Map.entry(3, List.of("where")),
-            Map.entry(4, List.of(null)), // index 4 is not used in pluginSpecifiedTemplates
-            Map.entry(5, List.of(null)), // index 5 is not used in pluginSpecifiedTemplates
+            Map.entry(4, List.of("")), // index 4 is not used in pluginSpecifiedTemplates
+            Map.entry(5, List.of("")), // index 5 is not used in pluginSpecifiedTemplates
             Map.entry(6, List.of("startAfter")),
             Map.entry(7, List.of("endBefore")),
             Map.entry(8, List.of("timestampValuePath")),
