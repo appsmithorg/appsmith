@@ -141,8 +141,7 @@ export const isQueryLimitUpdated = createSelector(getQueryAction, (query) => {
     let body = query.config.actionConfiguration.body;
     if (body) {
       // eslint-disable-next-line no-console
-      // const regex = /SELECT \* from users where id=.* order by email limit=10;/gi;
-      const regex = /SELECT \* from users limit 10;/gi;
+      const regex = /SELECT \* FROM user_data where email ilike '%{{CustomersTable.searchText}}%' ORDER BY id LIMIT 10;/gi;
       // Replacing new line characters
       body = body.replace(/(?:\r\n|\r|\n)/g, "");
       // Replace sql comments

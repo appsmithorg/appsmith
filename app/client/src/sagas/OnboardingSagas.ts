@@ -11,15 +11,15 @@ import {
 } from "utils/storage";
 
 import { getCurrentUser } from "selectors/usersSelectors";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { BUILDER_PAGE_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import TourApp from "pages/Editor/GuidedTour/app.json";
 
 import {
   getFirstTimeUserOnboardingApplicationId,
-  getGuidedTourTableWidget,
   getOnboardingOrganisations,
   getQueryAction,
+  getTableWidget,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -34,7 +34,10 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import { setActionProperty } from "actions/pluginActionActions";
+import {
+  clearActionResponse,
+  setActionProperty,
+} from "actions/pluginActionActions";
 import { QueryAction } from "entities/Action";
 import {
   importApplication,
@@ -43,6 +46,10 @@ import {
 import { setPreviewModeAction } from "actions/editorActions";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
+import {
+  batchUpdateMultipleWidgetProperties,
+  batchUpdateWidgetProperty,
+} from "actions/controlActions";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -91,16 +98,21 @@ function* setUpTourAppSaga() {
       disallowUndo: true,
     },
   });
-  // Update table widget table data property
-  const tableWidget = yield select(getGuidedTourTableWidget);
-  yield put({
-    type: WidgetReduxActionTypes.WIDGET_UPDATE_PROPERTY,
-    payload: {
-      widgetId: tableWidget,
-      propertyName: "tableData",
-      propertyValue: "",
-    },
-  });
+
+  yield delay(500);
+  const tableWidget = yield select(getTableWidget);
+  yield put(
+    batchUpdateMultipleWidgetProperties([
+      {
+        widgetId: tableWidget.widgetId,
+        updates: {
+          modify: {
+            tableData: "",
+          },
+        },
+      },
+    ]),
+  );
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
   let body = (query?.config as QueryAction).actionConfiguration.body;
@@ -112,8 +124,16 @@ function* setUpTourAppSaga() {
       value: body,
     }),
   );
-
+  yield put(clearActionResponse(query?.config.id ?? ""));
   const applicationId = yield select(getCurrentApplicationId);
+  history.push(
+    QUERIES_EDITOR_ID_URL(
+      applicationId,
+      query?.config.pageId,
+      query?.config.id,
+    ),
+  );
+
   yield put(
     updateApplicationLayout(applicationId || "", {
       appLayout: {
@@ -121,7 +141,6 @@ function* setUpTourAppSaga() {
       },
     }),
   );
-
   yield delay(1000);
   yield put(toggleLoader(false));
 }

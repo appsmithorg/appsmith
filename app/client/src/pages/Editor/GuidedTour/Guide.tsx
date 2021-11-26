@@ -299,11 +299,11 @@ const Steps: StepsType = {
               blueprint: onboardingContainerBlueprint,
             },
             bottomRow: 100,
-            rightColumn: 90,
+            rightColumn: 64,
             columns: 30,
-            leftColumn: 32,
-            topRow: 0,
-            parentColumnSpace: 0,
+            leftColumn: 34,
+            topRow: 7,
+            parentColumnSpace: 18,
             parentRowSpace: 0,
           }),
         );
@@ -376,7 +376,7 @@ const Steps: StepsType = {
   },
   6: {
     title:
-      "6. Execute updateCustomer query using the button to update the inputs ",
+      "6. Execute updateCustomer query using the button to update the inputs (UNDER DEVELOPMENT)",
     hints: [
       {
         icon: "edit-box-line",
@@ -470,7 +470,7 @@ function useUpdateName(step: number): Step {
   return replacePlaceholders(step, ["title"], substitutionMap);
 }
 
-function useComputeCurrentStep() {
+function useComputeCurrentStep(isExploring: boolean) {
   let step = 1;
   const completedSubSteps = [];
   const dispatch = useDispatch();
@@ -562,11 +562,13 @@ function useComputeCurrentStep() {
   }, [tableWidget]);
 
   useEffect(() => {
-    dispatch({
-      type: "SET_CURRENT_STEP",
-      payload: step,
-    });
-  }, [step]);
+    if (!isExploring) {
+      dispatch({
+        type: "SET_CURRENT_STEP",
+        payload: step,
+      });
+    }
+  }, [isExploring, step]);
 
   useEffect(() => {
     if (queryLimitUpdated && step === 1) {
@@ -757,15 +759,15 @@ function CompletionContent(props: CompletionContentProps) {
 }
 
 type GuideBody = {
+  exploring: boolean;
   step: number;
   completedSubSteps: number[];
 };
 
 function GuideBody(props: GuideBody) {
-  const exploring = useSelector(isExploringSelector);
   const successMessage = useSelector(showSuccessMessage);
 
-  if (exploring) {
+  if (props.exploring) {
     return <InitialContent />;
   } else if (successMessage) {
     return <CompletionContent step={props.step} />;
@@ -784,15 +786,20 @@ type GuideProps = {
 };
 // Guided tour steps
 function Guide(props: GuideProps) {
-  const completedSubSteps = useComputeCurrentStep();
+  const exploring = useSelector(isExploringSelector);
+  const completedSubSteps = useComputeCurrentStep(exploring);
   const step = useSelector(getCurrentStep);
 
   return (
     <GuideWrapper className={props.className}>
       <CardWrapper>
-        <StatusBar currentStep={step} totalSteps={6} />
+        {!exploring && <StatusBar currentStep={step} totalSteps={6} />}
         <UpperContent>
-          <GuideBody completedSubSteps={completedSubSteps} step={step} />
+          <GuideBody
+            completedSubSteps={completedSubSteps}
+            exploring={exploring}
+            step={step}
+          />
         </UpperContent>
       </CardWrapper>
     </GuideWrapper>
