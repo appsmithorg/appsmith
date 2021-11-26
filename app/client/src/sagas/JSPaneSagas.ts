@@ -354,7 +354,7 @@ function* handleExecuteJSFunctionSaga(
 }
 
 function* handleUpdateJSCollectionBody(
-  actionPayload: ReduxAction<{ body: string; id: string }>,
+  actionPayload: ReduxAction<{ body: string; id: string; isReplay: boolean }>,
 ) {
   const jsCollection = yield select(getJSCollection, actionPayload.payload.id);
   jsCollection.body = actionPayload.payload.body;
@@ -372,12 +372,13 @@ function* handleUpdateJSCollectionBody(
       payload: { error, data: jsCollection },
     });
   }
-  yield put(
-    updateReplayEntity(actionPayload.payload.id, {
-      id: actionPayload.payload.id,
-      body: actionPayload.payload.body,
-    }),
-  );
+  if (!actionPayload.payload.isReplay)
+    yield put(
+      updateReplayEntity(actionPayload.payload.id, {
+        id: actionPayload.payload.id,
+        body: actionPayload.payload.body,
+      }),
+    );
 }
 
 function* handleRefactorJSActionNameSaga(

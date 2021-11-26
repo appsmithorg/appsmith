@@ -214,7 +214,9 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         break;
       }
       case ReplayEntityType.JSACTION:
-        yield put(updateJSCollectionBody(replayEntity.body, replayEntity.id));
+        yield put(
+          updateJSCollectionBody(replayEntity.body, replayEntity.id, true),
+        );
         break;
     }
   } catch (e) {
