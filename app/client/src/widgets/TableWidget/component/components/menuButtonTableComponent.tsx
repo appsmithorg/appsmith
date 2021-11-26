@@ -20,15 +20,14 @@ import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import { ThemeProp } from "components/ads/common";
 import {
   ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
   ButtonBoxShadow,
-  ButtonBoxShadowTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
@@ -122,26 +121,10 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   `}
 
 
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+box-shadow: ${({ boxShadow, boxShadowColor }) =>
+  `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
 
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`

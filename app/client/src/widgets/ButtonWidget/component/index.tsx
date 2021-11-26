@@ -27,9 +27,7 @@ import { Colors } from "../../../constants/Colors";
 import _ from "lodash";
 import {
   ButtonBoxShadow,
-  ButtonBoxShadowTypes,
   ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";

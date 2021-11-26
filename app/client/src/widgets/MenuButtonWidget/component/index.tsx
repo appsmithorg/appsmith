@@ -21,7 +21,6 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
-import { Colors } from "constants/Colors";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 type MenuButtonContainerProps = {

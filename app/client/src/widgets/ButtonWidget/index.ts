@@ -1,7 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { Colors } from "constants/Colors";
 import { ButtonVariantTypes } from "components/constants";
 
 export const CONFIG = {

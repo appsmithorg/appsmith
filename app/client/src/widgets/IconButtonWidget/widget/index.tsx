@@ -14,7 +14,6 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { Colors } from "constants/Colors";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;

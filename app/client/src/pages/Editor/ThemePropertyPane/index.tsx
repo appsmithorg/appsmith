@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import * as Sentry from "@sentry/react";
 
 import ThemeEditor from "./ThemeEditor";

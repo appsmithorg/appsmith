@@ -10,7 +10,6 @@ import _ from "lodash";
 import {
   ButtonBorderRadius,
   ButtonBoxShadow,
-  ButtonBoxShadowTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";

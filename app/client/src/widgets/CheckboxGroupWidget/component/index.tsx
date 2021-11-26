@@ -9,7 +9,6 @@ import { generateReactKey } from "utils/generators";
 // Alternatively, they need to be replicated.
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 import { ButtonBorderRadius } from "components/constants";
-import { Colors } from "constants/Colors";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 export interface CheckboxGroupContainerProps {
