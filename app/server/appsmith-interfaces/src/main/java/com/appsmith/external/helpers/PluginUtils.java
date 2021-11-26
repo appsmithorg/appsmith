@@ -92,7 +92,7 @@ public class PluginUtils {
     }
 
     /**
-     * Get value from `fromData` map and also type cast it to the class of type `T` before returning the value. In
+     * Get value from `formData` map and also type cast it to the class of type `T` before returning the value. In
      * case the value is null, then the defaultValue is returned.
      *
      * @param formData
@@ -109,7 +109,7 @@ public class PluginUtils {
     }
 
     /**
-     * Get value from `fromData` map and also type cast it to the class of type `T` before returning the value.
+     * Get value from `formData` map and also type cast it to the class of type `T` before returning the value.
      *
      * @param formData
      * @param field : key path used to fetch value from formData
