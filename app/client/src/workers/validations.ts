@@ -344,7 +344,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {
           parsed: config.params?.default || "",
-          messages: ["Value is not allowed"],
+          messages: [`Disallowed value: ${parsed}`],
           isValid: false,
         };
       }
@@ -889,16 +889,31 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       value,
       props,
     );
+    if (result.isValid) return result;
 
     // Validate when JS mode is enabled
-    const resultArray = VALIDATORS[ValidationTypes.ARRAY](
-      config.params as ValidationConfig,
-      value,
-      props,
-    );
+    const resultValue = [];
+    if (_.isArray(value)) {
+      for (const item of value) {
+        const result = VALIDATORS[config.params.type](
+          config.params as ValidationConfig,
+          item,
+          props,
+        );
+        if (!result.isValid) return result;
+        resultValue.push(result.parsed);
+      }
+    } else {
+      return {
+        isValid: false,
+        parsed: config.params?.params?.default,
+        messages: result.messages,
+      };
+    }
 
-    if (result.isValid) return result;
-    else if (resultArray.isValid) return resultArray;
-    return resultArray;
+    return {
+      isValid: true,
+      parsed: resultValue,
+    };
   },
 };

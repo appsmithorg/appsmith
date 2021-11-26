@@ -38,7 +38,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "abc",
-        messages: ["Value is not allowed"],
+        messages: ["Disallowed value: xyz"],
       },
       {
         isValid: false,
@@ -123,7 +123,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "abc",
-        messages: ["Value is not allowed"],
+        messages: ["Disallowed value: xyz"],
       },
       {
         isValid: false,
@@ -596,7 +596,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        messages: ["Invalid entry at index: 2. Value is not allowed"],
+        messages: ["Invalid entry at index: 2. Disallowed value: q"],
       },
       {
         isValid: true,
@@ -1123,7 +1123,7 @@ describe("Validate Validators", () => {
         type: ValidationTypes.TEXT,
         params: {
           allowedValues: ["a", "b", "c"],
-          default: ["a"],
+          default: "a",
         },
       },
     };
@@ -1135,21 +1135,20 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: ["a", "b"],
-        messages: [],
       },
       {
         isValid: false,
-        parsed: ["a"],
-        messages: ["This value does not evaluate to type string ( a | b | c )"],
-      },
-      {
-        isValid: false,
-        parsed: ["a"],
+        parsed: "a",
         messages: ["Disallowed value: x"],
       },
       {
         isValid: false,
-        parsed: ["a"],
+        parsed: "a",
+        messages: ["Disallowed value: x"],
+      },
+      {
+        isValid: false,
+        parsed: "a",
         messages: ["Disallowed value: x"],
       },
     ];
