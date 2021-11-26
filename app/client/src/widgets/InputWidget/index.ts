@@ -9,7 +9,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     inputType: "TEXT",
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    rows: GRID_DENSITY_MIGRATION_V1,
     label: "",
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Input",
@@ -17,7 +17,7 @@ export const CONFIG = {
     defaultText: "",
     iconAlign: "left",
     autoFocus: false,
-    labelStyle: "BOLD",
+    labelStyle: "",
     resetOnSubmit: true,
     isRequired: false,
     isDisabled: false,

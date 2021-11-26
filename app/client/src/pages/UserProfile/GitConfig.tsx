@@ -4,7 +4,6 @@ import {
   FieldWrapper,
   LabelWrapper,
   Loader,
-  TextLoader,
 } from "./StyledComponents";
 import {
   createMessage,
@@ -17,6 +16,8 @@ import { Classes } from "@blueprintjs/core";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
+import { emailValidator } from "components/ads/TextInput";
+import { Toaster } from "components/ads/Toast";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
@@ -55,14 +56,21 @@ export default function GitConfig() {
   useEffect(() => {
     setAuthorName(globalGitConfig.authorName);
     setAuthorEmail(globalGitConfig.authorEmail);
-  }, [globalGitConfig]);
+  }, [globalGitConfig.authorName, globalGitConfig.authorEmail]);
 
   const updateConfig = () => {
-    setAreFormValuesUpdated(false);
-    dispatch(updateGlobalGitConfigInit({ authorName, authorEmail }));
+    if (authorName && authorEmail && emailValidator(authorEmail).isValid) {
+      setAreFormValuesUpdated(false);
+      dispatch(updateGlobalGitConfigInit({ authorName, authorEmail }));
+    } else {
+      Toaster.show({
+        text: "Please enter valid user details",
+      });
+    }
   };
 
   useEffect(() => {
+    // onMount Fetch Global config
     dispatch(fetchGlobalGitConfigInit());
   }, []);
 
@@ -70,10 +78,7 @@ export default function GitConfig() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          {!isFetching && (
-            <Text type={TextType.H4}>{createMessage(AUTHOR_NAME)}</Text>
-          )}
-          {isFetching && <TextLoader className={Classes.SKELETON} />}
+          <Text type={TextType.H4}>{createMessage(AUTHOR_NAME)}</Text>
         </LabelWrapper>
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
@@ -91,10 +96,7 @@ export default function GitConfig() {
       </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
-          {!isFetching && (
-            <Text type={TextType.H4}>{createMessage(AUTHOR_EMAIL)}</Text>
-          )}
-          {isFetching && <TextLoader className={Classes.SKELETON} />}
+          <Text type={TextType.H4}>{createMessage(AUTHOR_EMAIL)}</Text>
         </LabelWrapper>
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
@@ -105,7 +107,7 @@ export default function GitConfig() {
               fill={false}
               onChange={setAuthorEmail}
               placeholder={createMessage(AUTHOR_EMAIL)}
-              validator={notEmptyValidator}
+              validator={emailValidator}
             />
           </div>
         )}

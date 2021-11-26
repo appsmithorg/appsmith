@@ -17,6 +17,7 @@ import history from "utils/history";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -89,11 +90,11 @@ type DatasourceCardProps = {
 function DatasourceCard(props: DatasourceCardProps) {
   const pluginImages = useSelector(getPluginImages);
   const params = useParams<{
-    applicationId: string;
     pageId: string;
     pluginPackageName: string;
   }>();
   const { datasource } = props;
+  const applicationId = useSelector(getCurrentApplicationId);
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
@@ -111,7 +112,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const editDatasource = () => {
     history.push(
       SAAS_EDITOR_DATASOURCE_ID_URL(
-        params.applicationId,
+        applicationId,
         params.pageId,
         params.pluginPackageName,
         datasource.id,

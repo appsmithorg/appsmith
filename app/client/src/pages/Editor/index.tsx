@@ -28,7 +28,6 @@ import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
-import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
@@ -36,6 +35,9 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
+import { getCurrentPageId } from "selectors/editorSelectors";
+
+import { getSearchQuery } from "utils/helpers";
 import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 import {
@@ -46,7 +48,7 @@ import {
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
-  initEditor: (applicationId: string, pageId: string) => void;
+  initEditor: (applicationId: string, pageId: string, branch?: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
@@ -59,6 +61,8 @@ type EditorProps = {
   handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
+  handleBranchChange: (branch: string) => void;
+  currentPageId?: string;
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
@@ -77,9 +81,15 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
+
     const { applicationId, pageId } = this.props.match.params;
-    if (applicationId && pageId) {
-      this.props.initEditor(applicationId, pageId);
+    if (applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
@@ -89,8 +99,25 @@ class Editor extends Component<Props> {
     }
   }
 
+  getIsBranchUpdated(props1: Props, props2: Props) {
+    const {
+      location: { search: search1 },
+    } = props1;
+    const {
+      location: { search: search2 },
+    } = props2;
+
+    const branch1 = getSearchQuery(search1, "branch");
+    const branch2 = getSearchQuery(search2, "branch");
+
+    return branch1 !== branch2;
+  }
+
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, nextProps);
+
     return (
+      isBranchUpdated ||
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
@@ -109,12 +136,28 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { pageId } = this.props.match.params || {};
+    const { applicationId, pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
+
+    const branch = getSearchQuery(this.props.location.search, "branch");
+    const prevBranch = getSearchQuery(prevProps.location.search, "branch");
+
     const isPageIdUpdated = pageId !== prevPageId;
-    if (pageId && isPageIdUpdated) {
-      this.props.updateCurrentPage(pageId);
-      this.props.fetchPage(pageId);
+
+    // to prevent re-init during connect
+    if (prevBranch && isBranchUpdated && applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
+    } else {
+      /**
+       * First time load is handled by init sagas
+       * If we don't check for `prevPageId`: fetch page is retriggered
+       * when redirected to the default page
+       */
+      if (prevPageId && pageId && isPageIdUpdated) {
+        this.props.updateCurrentPage(pageId);
+        this.props.fetchPage(pageId);
+      }
     }
 
     if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
@@ -162,7 +205,6 @@ class Editor extends Component<Props> {
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
-              <AppComments />
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
@@ -187,13 +229,14 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
+  currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string) =>
-      dispatch(initEditor(applicationId, pageId)),
+    initEditor: (applicationId: string, pageId: string, branch?: string) =>
+      dispatch(initEditor(applicationId, pageId, branch)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),

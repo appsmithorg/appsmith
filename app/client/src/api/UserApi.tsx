@@ -54,6 +54,8 @@ export interface InviteUserRequest {
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
+  role?: string;
+  useCase?: string;
 }
 
 export interface CommentsOnboardingStateRequest {
@@ -89,6 +91,10 @@ class UserApi extends Api {
   static featureFlagsURL = "v1/users/features";
   static superUserURL = "v1/users/super";
   static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
+  static adminSettingsURL = "v1/admin/env";
+  static restartServerURL = "v1/admin/restart";
+  static downloadConfigURL = "v1/admin/env/download";
+  static sendTestEmailURL = "/v1/admin/send-test-email";
 
   static createUser(
     request: CreateUserRequest,
@@ -181,6 +187,28 @@ class UserApi extends Api {
     request: CommentsOnboardingStateRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.patch(UserApi.commentsOnboardingStateURL, request);
+  }
+
+  /*
+   * Super user endpoints
+   */
+
+  static fetchAdminSettings(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.adminSettingsURL);
+  }
+
+  static saveAdminSettings(
+    request: Record<string, string>,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(UserApi.adminSettingsURL, request);
+  }
+
+  static restartServer(): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.restartServerURL);
+  }
+
+  static sendTestEmail(): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.sendTestEmailURL);
   }
 }
 

@@ -389,8 +389,9 @@ export const entityDefinitions: Record<string, unknown> = {
       "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
     "!url": "https://docs.appsmith.com/widget-reference/recorder",
     isVisible: isVisible,
-    value: "blob",
-    url: "string",
+    blobUrl: "string",
+    dataURL: "string",
+    rawBinary: "string",
   },
 };
 
@@ -461,6 +462,14 @@ export const GLOBAL_FUNCTIONS = {
   resetWidget: {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
+  },
+  setInterval: {
+    "!doc": "Execute triggers at a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+  clearInterval: {
+    "!doc": "Stop executing a setInterval with id",
+    "!type": "fn(id: string) -> void",
   },
 };
 

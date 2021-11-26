@@ -14,7 +14,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 7 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7.5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 8.5 * GRID_DENSITY_MIGRATION_V1,
     defaultSelectedRow: "0",
     label: "Data",
     widgetName: "Table",
@@ -137,6 +137,7 @@ export const CONFIG = {
       step: 62,
       status: 75,
     },
+    columnOrder: ["step", "task", "status", "action"],
     blueprint: {
       operations: [
         {
@@ -167,6 +168,7 @@ export const CONFIG = {
     isVisibleFilters: true,
     isVisibleDownload: true,
     isVisiblePagination: true,
+    isSortable: true,
     delimiter: ",",
     version: 3,
   },

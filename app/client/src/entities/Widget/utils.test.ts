@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -31,6 +31,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       type: "TABLE_WIDGET",
       parentId: "0",
       isLoading: false,
+      isSortable: true,
       horizontalAlignment: "LEFT",
       parentColumnSpace: 74,
       version: 1,
@@ -122,6 +123,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumns: "TEMPLATE",
+        isSortable: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
@@ -197,6 +200,22 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: {
           type: "BOOLEAN",
         },
+        primaryColumns: {
+          params: {
+            expected: {
+              autocompleteDataType: AutocompleteDataType.STRING,
+              example: "abc",
+              type: "Unique Column Names",
+            },
+          },
+          type: "FUNCTION",
+        },
+        isSortable: {
+          type: "BOOLEAN",
+          params: {
+            default: true,
+          },
+        },
         tableData: {
           type: "OBJECT_ARRAY",
           params: {
@@ -209,10 +228,12 @@ describe("getAllPathsFromPropertyConfig", () => {
     const result = getAllPathsFromPropertyConfig(widget, config, {
       selectedRow: true,
       selectedRows: true,
+      tableData: true,
     });
 
     // Note: Removing until we figure out how functions are represented here.
     delete result.validationPaths.defaultSelectedRow.params?.fn;
+    delete result.validationPaths.primaryColumns.params?.fn;
 
     expect(result).toStrictEqual(expected);
   });
@@ -223,7 +244,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetName: "Chart1",
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
-      allowHorizontalScroll: false,
+      allowScroll: false,
       version: 1,
       chartData: {
         "random-id": {
@@ -330,7 +351,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config, {});
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      "chartData.random-id.data": true,
+    });
 
     expect(result).toStrictEqual(expected);
   });

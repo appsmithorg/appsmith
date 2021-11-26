@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL, convertToQueryParams } from "constants/routes";
+import { getCurlImportPageURL } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -18,6 +18,7 @@ import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -123,7 +124,6 @@ const CardContentWrapper = styled.div`
 `;
 
 type ApiHomeScreenProps = {
-  applicationId: string;
   createNewApiAction: (pageId: string, from: EventLocation) => void;
   history: {
     replace: (data: string) => void;
@@ -149,14 +149,9 @@ const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const {
-    applicationId,
-    createNewApiAction,
-    history,
-    isCreating,
-    pageId,
-    plugins,
-  } = props;
+  const { createNewApiAction, history, isCreating, pageId, plugins } = props;
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
@@ -223,9 +218,10 @@ function NewApiScreen(props: Props) {
         });
 
         delete queryParams.isGeneratePageMode;
-        const curlImportURL =
-          getCurlImportPageURL(applicationId, pageId) +
-          convertToQueryParams({ from: "datasources", ...queryParams });
+        const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
+          from: "datasources",
+          ...queryParams,
+        });
 
         history.push(curlImportURL);
         break;

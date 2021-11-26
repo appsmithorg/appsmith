@@ -4,6 +4,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import reactor.core.publisher.Mono;
 
@@ -20,7 +22,6 @@ public class MockPluginExecutor implements PluginExecutor {
         if (datasourceConfiguration == null) {
             return Mono.error(new Exception("DatasourceConfiguration is null"));
         }
-        System.out.println("In the execute");
 
         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
         actionExecutionResult.setBody("");
@@ -31,25 +32,26 @@ public class MockPluginExecutor implements PluginExecutor {
 
     @Override
     public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-        System.out.println("In the datasourceCreate");
         return Mono.empty();
     }
 
     @Override
     public void datasourceDestroy(Object connection) {
-        System.out.println("In the datasourceDestroy");
-
     }
 
     @Override
     public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-        System.out.println("In the datasourceValidate");
         return new HashSet<>();
     }
 
     @Override
     public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
         return Mono.just(new DatasourceTestResult());
+    }
+
+    @Override
+    public Mono<TriggerResultDTO> trigger(TriggerRequestDTO request) {
+        return Mono.empty();
     }
 
 }

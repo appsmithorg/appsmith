@@ -225,6 +225,7 @@ public class ImportExportApplicationServiceTests {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication.getModifiedBy()).isNull();
                     assertThat(exportedApplication.getLastUpdateTime()).isNull();
+                    assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                 })
@@ -446,8 +447,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
 
-                    DecryptedSensitiveFields decryptedFields =
-                            applicationJson.getDecryptedFields().get(datasource.getName());
+                    DecryptedSensitiveFields decryptedFields = applicationJson.getDecryptedFields().get(datasource.getName());
 
                     DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
                     assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());
@@ -735,7 +735,8 @@ public class ImportExportApplicationServiceTests {
                                 datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(application).collectList(),
                                 newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false
+                                        , MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();

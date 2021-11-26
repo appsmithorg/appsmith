@@ -25,12 +25,8 @@ describe("Add widget", function() {
       .type("select * from configs");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.WaitAutoSave();
-    cy.get(queryEditor.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+
+    cy.runQuery();
     cy.get(queryEditor.suggestedTableWidget).click();
     cy.SearchEntityandOpen("Table1");
     cy.isSelectRow(1);
