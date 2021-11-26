@@ -107,15 +107,15 @@ function validateArray(
   const _messages: string[] = [];
   const whiteList = config.params?.allowedValues;
   if (whiteList) {
-    value.forEach((entry) => {
+    for (const entry of value) {
       if (!whiteList.includes(entry)) {
         return {
           isValid: false,
-          parsed: value,
+          parsed: config.params?.default || [],
           messages: [`Disallowed value: ${entry}`],
         };
       }
-    });
+    }
   }
   // Check uniqueness of object elements in an array
   if (
