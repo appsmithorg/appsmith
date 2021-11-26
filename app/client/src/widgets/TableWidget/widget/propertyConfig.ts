@@ -745,7 +745,7 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultIconName: "add",
                   isJSConvertible: true,
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
@@ -759,7 +759,7 @@ export default [
                   label: "Icon Alignment",
                   helpText: "Sets the icon alignment of the menu button",
                   controlType: "ICON_ALIGN",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -914,7 +914,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
@@ -942,7 +942,7 @@ export default [
                     "columnOrder",
                   ],
                   isJSConvertible: true,
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
@@ -974,7 +974,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
@@ -1018,7 +1018,7 @@ export default [
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
@@ -1087,7 +1087,7 @@ export default [
                   helpText:
                     "Rounds the corners of the icon button's outer border edge",
                   controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -1113,7 +1113,7 @@ export default [
                   helpText:
                     "Enables you to cast a drop shadow from the frame of the widget",
                   controlType: "BOX_SHADOW_OPTIONS",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -1145,7 +1145,7 @@ export default [
                   helpText: "Sets the shadow color of the widget",
                   label: "Shadow Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -1321,7 +1321,7 @@ export default [
                             helpText:
                               "Sets the icon to be used for a menu item",
                             controlType: "ICON_SELECT",
-                            isBindProperty: false,
+                            isBindProperty: true,
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.TEXT },
                             updateHook: updateDerivedColumnsHook,
@@ -1350,7 +1350,7 @@ export default [
                             label: "Icon alignment",
                             helpText: "Sets the icon alignment of a menu item",
                             controlType: "ICON_ALIGN",
-                            isBindProperty: false,
+                            isBindProperty: true,
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.TEXT },
                             updateHook: updateDerivedColumnsHook,
