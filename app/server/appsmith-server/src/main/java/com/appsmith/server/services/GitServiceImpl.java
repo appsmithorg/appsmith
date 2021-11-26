@@ -732,8 +732,13 @@ public class GitServiceImpl implements GitService {
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if(Boolean.TRUE.equals(isRemote)) {
-            return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
-                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, branchName));
+            String finalBranchName = branchName.replace("remote/", "");
+            return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
+                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName))
+                    .flatMap(application -> Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED,
+                            " checkout"+ branchName,
+                            " branch already exists in local")));
         }
 
         return getApplicationById(defaultApplicationId)
