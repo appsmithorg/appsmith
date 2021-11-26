@@ -26,8 +26,7 @@ describe("Form Widget with Input Functionality", function() {
       .last()
       .invoke("text")
       .then((text) => {
-        const someText = text;
-        expect(someText).to.equal('{"Text1":"Form","Input1":0}');
+        expect(text).to.equal('{"Text1":"Form","Input1":0}');
       });
 
     cy.get(widgetsPage.formButtonWidget)
