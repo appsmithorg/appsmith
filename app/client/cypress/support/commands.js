@@ -3242,6 +3242,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
+  cy.wait(500);
   if (fieldName) {
     cy.xpath(
       "//p[text()='" +
