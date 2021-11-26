@@ -128,6 +128,8 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @ChangeLog(order = "001")
 public class DatabaseChangelog {
 
+    public static ObjectMapper objectMapper = new ObjectMapper();
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Setter
@@ -3529,62 +3531,11 @@ public class DatabaseChangelog {
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
-            // Now migrate the dynamic binding pathlist
+            // Migrate the dynamic binding path list for unpublished action
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-
-            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
-                List<Property> newDynamicBindingPathList = new ArrayList<>();
-                for (Property path : dynamicBindingPathList) {
-                    String pathKey = path.getKey();
-                    if (pathKey.contains("pluginSpecifiedTemplates")) {
-
-                        // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
-                        Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
-                        Matcher matcher = pattern.matcher(pathKey);
-
-                        while (matcher.find()) {
-                            int index = Integer.parseInt(matcher.group());
-                            List<String> partialPaths = s3MigrationMap.get(index);
-                            for (String partialPath : partialPaths) {
-                                Property dynamicBindingPath = new Property("formData." + partialPath, null);
-                                newDynamicBindingPathList.add(dynamicBindingPath);
-                            }
-                        }
-                    } else {
-                        // this dynamic binding is for body. Add as is
-                        newDynamicBindingPathList.add(path);
-                    }
-
-                    // We may have an invalid dynamic binding. Trim the same
-                    List<String> dynamicBindingPathNames = newDynamicBindingPathList
-                            .stream()
-                            .map(property -> property.getKey())
-                            .collect(Collectors.toList());
-
-                    Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, s3Action, dynamicBindingPathNames);
-
-                    // We have found atleast 1 invalid dynamic binding path.
-                    if (!pathsToRemove.isEmpty()) {
-                        // First remove the invalid paths from the set of paths
-                        dynamicBindingPathNames.removeAll(pathsToRemove);
-
-                        // Transform the set of paths to Property as it is stored in the db.
-                        List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
-                                .stream()
-                                .map(dynamicBindingPath -> {
-                                    Property property = new Property();
-                                    property.setKey(dynamicBindingPath);
-                                    return property;
-                                })
-                                .collect(Collectors.toList());
-
-                        // Reset the path list to only contain valid binding paths.
-                        newDynamicBindingPathList = updatedDynamicBindingPathList;
-                    }
-                }
-
-                unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
-            }
+            List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                    objectMapper, s3Action, s3MigrationMap);
+            unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
             actionsToSave.add(s3Action);
         }
@@ -3595,6 +3546,77 @@ public class DatabaseChangelog {
         }
         // Now that the actions have completed the migrations, update the plugin to use the new UI form.
         mongockTemplate.save(s3Plugin);
+    }
+
+    /**
+     * Method to port `dynamicBindingPathList` to UQI model.
+     *
+     * @param dynamicBindingPathList : old dynamicBindingPathList
+     * @param objectMapper
+     * @param action
+     * @param migrationMap : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
+     *                     reference, please check out the `s3MigrationMap` defined above.
+     * @return : updated dynamicBindingPathList - ported to UQI model.
+     */
+    private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
+                                                            ObjectMapper objectMapper, NewAction action,
+                                                            Map<Integer, List<String>> migrationMap) {
+        // Return if empty.
+        if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
+            return dynamicBindingPathList;
+        }
+
+        List<Property> newDynamicBindingPathList = new ArrayList<>();
+        for (Property path : dynamicBindingPathList) {
+            String pathKey = path.getKey();
+            if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                Matcher matcher = pattern.matcher(pathKey);
+
+                while (matcher.find()) {
+                    int index = Integer.parseInt(matcher.group());
+                    List<String> partialPaths = migrationMap.get(index);
+                    for (String partialPath : partialPaths) {
+                        Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                        newDynamicBindingPathList.add(dynamicBindingPath);
+                    }
+                }
+            } else {
+                // this dynamic binding is for body. Add as is
+                newDynamicBindingPathList.add(path);
+            }
+
+            // We may have an invalid dynamic binding. Trim the same
+            List<String> dynamicBindingPathNames = newDynamicBindingPathList
+                    .stream()
+                    .map(property -> property.getKey())
+                    .collect(Collectors.toList());
+
+            Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
+
+            // We have found atleast 1 invalid dynamic binding path.
+            if (!pathsToRemove.isEmpty()) {
+                // First remove the invalid paths from the set of paths
+                dynamicBindingPathNames.removeAll(pathsToRemove);
+
+                // Transform the set of paths to Property as it is stored in the db.
+                List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
+                        .stream()
+                        .map(dynamicBindingPath -> {
+                            Property property = new Property();
+                            property.setKey(dynamicBindingPath);
+                            return property;
+                        })
+                        .collect(Collectors.toList());
+
+                // Reset the path list to only contain valid binding paths.
+                newDynamicBindingPathList = updatedDynamicBindingPathList;
+            }
+        }
+
+        return newDynamicBindingPathList;
     }
 
     @ChangeSet(order = "094", id = "set-slug-to-application-and-page", author = "")
@@ -3855,11 +3877,24 @@ public class DatabaseChangelog {
         }
     }
 
+    /* Map values from pluginSpecifiedTemplates to formData (UQI) */
+    public final static Map<Integer, List<String>> firestoreMigrationMap = Map.ofEntries(
+            Map.entry(0, List.of("command")),
+            Map.entry(1, List.of("orderBy")),
+            Map.entry(2, List.of("limitDocuments")),
+            Map.entry(3, List.of("where")),
+            Map.entry(4, List.of(null)), // index 4 is not used in pluginSpecifiedTemplates
+            Map.entry(5, List.of(null)), // index 5 is not used in pluginSpecifiedTemplates
+            Map.entry(6, List.of("startAfter")),
+            Map.entry(7, List.of("endBefore")),
+            Map.entry(8, List.of("timestampValuePath")),
+            Map.entry(9, List.of("deleteKeyPath"))
+    );
+
     @ChangeSet(order = "097", id = "migrate-firestore-to-uqi", author = "")
     public void migrateFirestorePluginToUqi(MongockTemplate mongockTemplate) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        // First update the UI component for the s3 plugin to UQI
+        // First update the UI component for the Firestore plugin to UQI
         Plugin firestorePlugin = mongockTemplate.findOne(
                 query(where("packageName").is("firestore-plugin")),
                 Plugin.class
@@ -3868,7 +3903,6 @@ public class DatabaseChangelog {
 
 
         // Now migrate all the existing actions to the new UQI structure.
-
         List<NewAction> firestoreActions = mongockTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId()))),
@@ -3889,7 +3923,7 @@ public class DatabaseChangelog {
             List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
 
             unpublishedAction.getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, firstoreMigrationMap)
+                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, firestoreMigrationMap)
             );
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
@@ -3898,67 +3932,16 @@ public class DatabaseChangelog {
                     publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
                 pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
                 publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, firstoreMigrationMap)
+                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, firestoreMigrationMap)
                 );
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
-            // Now migrate the dynamic binding pathlist
+            // Migrate the dynamic binding path list for unpublished action
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-
-            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
-                List<Property> newDynamicBindingPathList = new ArrayList<>();
-                for (Property path : dynamicBindingPathList) {
-                    String pathKey = path.getKey();
-                    if (pathKey.contains("pluginSpecifiedTemplates")) {
-
-                        // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
-                        Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
-                        Matcher matcher = pattern.matcher(pathKey);
-
-                        while (matcher.find()) {
-                            int index = Integer.parseInt(matcher.group());
-                            List<String> partialPaths = firstoreMigrationMap.get(index);
-                            for (String partialPath : partialPaths) {
-                                Property dynamicBindingPath = new Property("formData." + partialPath, null);
-                                newDynamicBindingPathList.add(dynamicBindingPath);
-                            }
-                        }
-                    } else {
-                        // this dynamic binding is for body. Add as is
-                        newDynamicBindingPathList.add(path);
-                    }
-
-                    // We may have an invalid dynamic binding. Trim the same
-                    List<String> dynamicBindingPathNames = newDynamicBindingPathList
-                            .stream()
-                            .map(property -> property.getKey())
-                            .collect(Collectors.toList());
-
-                    Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, firestoreAction, dynamicBindingPathNames);
-
-                    // We have found atleast 1 invalid dynamic binding path.
-                    if (!pathsToRemove.isEmpty()) {
-                        // First remove the invalid paths from the set of paths
-                        dynamicBindingPathNames.removeAll(pathsToRemove);
-
-                        // Transform the set of paths to Property as it is stored in the db.
-                        List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
-                                .stream()
-                                .map(dynamicBindingPath -> {
-                                    Property property = new Property();
-                                    property.setKey(dynamicBindingPath);
-                                    return property;
-                                })
-                                .collect(Collectors.toList());
-
-                        // Reset the path list to only contain valid binding paths.
-                        newDynamicBindingPathList = updatedDynamicBindingPathList;
-                    }
-                }
-
-                unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
-            }
+            List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                    objectMapper, firestoreAction, firestoreMigrationMap);
+            unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
             actionsToSave.add(firestoreAction);
         }
