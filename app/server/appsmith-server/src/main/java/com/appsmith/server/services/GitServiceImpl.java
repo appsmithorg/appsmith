@@ -35,7 +35,6 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
@@ -125,7 +124,7 @@ public class GitServiceImpl implements GitService {
                     Map<String, GitProfile> gitProfiles = new HashMap<>();
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (!CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
-                        gitProfiles.put(FieldName.DEFAULT, userData.getDefaultOrAppSpecificGitProfiles(null));
+                        gitProfiles.put(FieldName.DEFAULT, userData.getDefaultOrAppSpecificGitProfiles(FieldName.DEFAULT));
                         gitProfiles.put(defaultApplicationId, userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId));
                     }
                     if (gitData == null) {
@@ -156,7 +155,7 @@ public class GitServiceImpl implements GitService {
                         .getForUser(user.getId())
                         .flatMap(userData -> {
                             GitProfile userGitProfile = userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
-                            GitProfile defaultProfile = userData.getDefaultOrAppSpecificGitProfiles(null);
+                            GitProfile defaultProfile = userData.getDefaultOrAppSpecificGitProfiles(FieldName.DEFAULT);
                             /*
                              *  GitProfiles will be null if the user has not created any git profile.
                              *  If null or if the request is to save the profile as default then we need to create update
@@ -165,18 +164,31 @@ public class GitServiceImpl implements GitService {
                              * */
 
                             if (gitProfile.equals(userGitProfile) || gitProfile.equals(defaultProfile)) {
-                                return Mono.just(userData);
+                                return Mono.just(userData.getGitProfiles());
                             } else if (userGitProfile == null || Boolean.TRUE.equals(isDefault) || StringUtils.isEmptyOrNull(defaultApplicationId)) {
                                 // Assign the default config
                                 userData.setDefaultGitProfile(gitProfile);
                             } else {
                                 userData.getGitProfiles().put(defaultApplicationId, gitProfile);
                             }
-                            UserData requiredUpdates = new UserData();
-                            requiredUpdates.setGitProfiles(userData.getGitProfiles());
-                            return userDataService.updateForUser(user, userData);
+                            if (!CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                                UserData requiredUpdates = new UserData();
+                                requiredUpdates.setGitProfiles(userData.getGitProfiles());
+                                return userDataService.updateForUser(user, requiredUpdates)
+                                        .map(UserData::getGitProfiles);
+                            }
+                            return Mono.just(userData.getGitProfiles());
                         })
-                        .map(UserData::getGitProfiles)
+                        .filter(profiles -> !CollectionUtils.isNullOrEmpty(profiles))
+                        .switchIfEmpty(sessionUserService
+                                .getCurrentUser()
+                                .map(currentUser -> {
+                                    GitProfile profile = new GitProfile();
+                                    profile.setAuthorName(currentUser.getName());
+                                    profile.setAuthorEmail(currentUser.getEmail());
+                                    return Map.of(FieldName.DEFAULT, gitProfile);
+                                })
+                        )
                 );
     }
 
@@ -187,20 +199,24 @@ public class GitServiceImpl implements GitService {
 
     @Override
     public Mono<GitProfile> getGitProfileForUser() {
-        return getGitProfileForUser(null);
+        // Get default git profile
+        return getGitProfileForUser(FieldName.DEFAULT);
     }
 
     @Override
     public Mono<GitProfile> getGitProfileForUser(String defaultApplicationId) {
         return userDataService.getForCurrentUser()
-                .map(userData -> {
+                .flatMap(userData -> {
                     if (userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId) == null) {
-                        throw new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
-                                " You can set up a git profile from the user profile section."
-                        );
+                        return sessionUserService.getCurrentUser()
+                                .map(currentUser -> {
+                                    GitProfile gitProfile = new GitProfile();
+                                    gitProfile.setAuthorName(currentUser.getName());
+                                    gitProfile.setAuthorEmail(currentUser.getEmail());
+                                    return gitProfile;
+                                });
                     }
-                    return userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
+                    return Mono.just(userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId));
                 });
     }
 
@@ -231,10 +247,21 @@ public class GitServiceImpl implements GitService {
         }
 
         Mono<UserData> currentUserMono = userDataService.getForCurrentUser()
-                .filter(userData -> !CollectionUtils.isNullOrEmpty(userData.getGitProfiles()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
-                        "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
-                );
+                .flatMap(userData -> {
+                    if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                        return sessionUserService
+                                .getCurrentUser()
+                                .flatMap(user -> {
+                                    GitProfile gitProfile = new GitProfile();
+                                    gitProfile.setAuthorName(StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName());
+                                    gitProfile.setAuthorEmail(user.getEmail());
+                                    UserData update = new UserData();
+                                    update.setGitProfiles(Map.of(FieldName.DEFAULT, gitProfile));
+                                    return userDataService.update(userData.getUserId(), update);
+                                });
+                    }
+                    return Mono.just(userData);
+                });
 
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName)))
@@ -479,7 +506,7 @@ public class GitServiceImpl implements GitService {
                                     UserData userData = tuple.getT2();
                                     // Commit and push application to check if the SSH key has the write access
                                     // Commit with default setting as app specific profile is not available at this point in time
-                                    GitProfile profile = userData.getDefaultOrAppSpecificGitProfiles(null);
+                                    GitProfile profile = userData.getDefaultOrAppSpecificGitProfiles(FieldName.DEFAULT);
                                     return gitExecutor.commitApplication(tuple.getT1(), DEFAULT_COMMIT_MESSAGE, profile.getAuthorName(), profile.getAuthorEmail(), false);
                                 })
                                 .flatMap(ignore -> {
@@ -863,14 +890,16 @@ public class GitServiceImpl implements GitService {
 
                     return Mono.zip(
                             Mono.just(repoSuffix),
-                            checkIfRepoIsClean(defaultGitMetadata.getDefaultApplicationId(), branchName, repoSuffix),
+                            this.getStatus(defaultGitMetadata.getDefaultApplicationId(), branchName),
                             Mono.just(defaultGitMetadata.getGitAuth()),
                             Mono.just(branchedApplication)
 
                     );
                 })
                 .flatMap(tuple -> {
-                    if (Boolean.FALSE.equals(tuple.getT2())) {
+                    GitStatusDTO status = tuple.getT2();
+                    // Check if the repo is clean
+                    if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
                         return Mono.error(
                                 new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
                                         "pull",
@@ -953,24 +982,6 @@ public class GitServiceImpl implements GitService {
         gitPullDTO.setMergeStatus(status);
         gitPullDTO.setApplication(application);
         return gitPullDTO;
-    }
-
-    private Mono<Boolean> checkIfRepoIsClean(String defaultApplicationId, String branchName, Path repoSuffix) {
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                .flatMap(branchedApplicationId -> importExportApplicationService.exportApplicationById(branchedApplicationId, SerialiseApplicationObjective.VERSION_CONTROL))
-                .flatMap(applicationJson -> {
-                    try {
-                        return fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName)
-                                .flatMap(repoPath -> this.getStatus(defaultApplicationId, branchName)
-                                        .map(status -> CollectionUtils.isNullOrEmpty(status.getModified())));
-                    } catch (IOException e) {
-                        log.error("Error while saving git files to repo {}. Details: {}", repoSuffix, e);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-                    } catch (GitAPIException e) {
-                        log.error("Error while git checkout to repo {}. Details: {}", repoSuffix, e);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", e.getMessage()));
-                    }
-                });
     }
 
     @Override
@@ -1117,17 +1128,21 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
 
                     //1. Hydrate from db to file system for both branch Applications
-                    Mono<Path> pathToFile = checkIfRepoIsClean(defaultApplicationId, sourceBranch, repoSuffix)
-                            .flatMap(isClean -> {
-                                if (Boolean.FALSE.equals(isClean)) {
-                                    throw Exceptions.propagate(new NotSupportedException(sourceBranch));
+                    Mono<Path> pathToFile = this.getStatus(defaultApplicationId, sourceBranch)
+                            .flatMap(status -> {
+                                if (!Integer.valueOf(0).equals(status.getBehindCount())) {
+                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, status.getBehindCount(), sourceBranch));
+                                } else if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
+                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
                                 }
-                                return checkIfRepoIsClean(defaultApplicationId, destinationBranch, repoSuffix)
-                                        .map(cleanStatus -> {
-                                            if (Boolean.FALSE.equals(cleanStatus)) {
-                                                throw Exceptions.propagate(new NotSupportedException(destinationBranch));
+                                return this.getStatus(defaultApplicationId, destinationBranch)
+                                        .map(status1 -> {
+                                            if (!Integer.valueOf(0).equals(status.getBehindCount())) {
+                                                throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, status.getBehindCount(), destinationBranch));
+                                            } else if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
+                                                throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch));
                                             }
-                                            return cleanStatus;
+                                            return status1;
                                         });
                             })
                             .thenReturn(repoSuffix);
@@ -1137,11 +1152,8 @@ public class GitServiceImpl implements GitService {
                             pathToFile
                     ).onErrorResume(error -> {
                         log.error("Error in repo status check application " + defaultApplicationId, error);
-                        if (error instanceof NotSupportedException) {
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                            "merge",
-                                            "There are uncommitted changes present in your local branch " + error.getMessage() +". Please commit them first and then try again"));
+                        if (error instanceof AppsmithException) {
+                            return Mono.error(error);
                         }
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error));
                     });
@@ -1226,26 +1238,27 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
 
                     //1. Hydrate from db to file system for both branch Applications
-                    return checkIfRepoIsClean(defaultApplicationId, sourceBranch, repoSuffix)
-                            .flatMap(isClean -> {
-                                if (Boolean.FALSE.equals(isClean)) {
-                                    throw Exceptions.propagate(new NotSupportedException(sourceBranch));
+                    return this.getStatus(defaultApplicationId, sourceBranch)
+                            .flatMap(srcBranchStatus -> {
+                                if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
+                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch));
+                                } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
+                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
                                 }
-                                return checkIfRepoIsClean(defaultApplicationId, destinationBranch, repoSuffix)
-                                        .map(cleanStatus -> {
-                                            if (Boolean.FALSE.equals(cleanStatus)) {
-                                                throw Exceptions.propagate(new NotSupportedException(destinationBranch));
+                                return this.getStatus(defaultApplicationId, destinationBranch)
+                                        .map(destBranchStatus -> {
+                                            if (!Integer.valueOf(0).equals(destBranchStatus.getBehindCount())) {
+                                                throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, destBranchStatus.getBehindCount(), destinationBranch));
+                                            } else if (!CollectionUtils.isNullOrEmpty(destBranchStatus.getModified())) {
+                                                throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch));
                                             }
-                                            return cleanStatus;
+                                            return destBranchStatus;
                                         });
                             })
                             .onErrorResume(error -> {
-                                log.error("Error in repo status check application " + defaultApplicationId, error);
-                                if (error instanceof NotSupportedException) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                                    "merge --no-commit --no-ff",
-                                                    "There are uncommitted changes present in your local branch " + error.getMessage() +". Please commit them first and then try again"));
+                                log.debug("Error in merge status check application " + defaultApplicationId, error);
+                                if (error instanceof AppsmithException) {
+                                    return Mono.error(error);
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error));
                             })
@@ -1356,5 +1369,22 @@ public class GitServiceImpl implements GitService {
                             return pushResult;
                         })
                 );
+    }
+
+    private Mono<Map<String, GitProfile>> fetchGitProfile(UserData userData, String key) {
+        if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+            return sessionUserService.getCurrentUser()
+                    .map(currentUser -> {
+                        String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
+                                ? currentUser.getUsername()
+                                : currentUser.getName();
+                        GitProfile gitProfile = new GitProfile();
+
+                        gitProfile.setAuthorEmail(currentUser.getEmail());
+                        gitProfile.setAuthorName(authorName);
+                        return Map.of();
+                    });
+        }
+        return Mono.just(userData.getGitProfiles());
     }
 }

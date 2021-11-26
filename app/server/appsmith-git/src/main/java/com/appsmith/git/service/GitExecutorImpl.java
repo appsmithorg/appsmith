@@ -559,8 +559,14 @@ public class GitExecutorImpl implements GitExecutor {
                 mergeStatus.setMergeAble(false);
                 List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
-                String errorMessage = String.format("%s for repo %s on branch %s => %s", mergeResult.getMergeStatus().toString(), repoSuffix.getFileName(), sourceBranch, destinationBranch);
-                mergeStatus.setMessage(errorMessage);
+                StringBuilder errorMessage = new StringBuilder();
+                if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
+                    errorMessage.append("Conflicts");
+                } else {
+                    errorMessage.append(mergeResult.getMergeStatus().toString());
+                }
+                errorMessage.append(" while merging branch: ").append(destinationBranch).append(" <= ").append(sourceBranch);
+                mergeStatus.setMessage(errorMessage.toString());
             }
             mergeStatus.setStatus(mergeResult.getMergeStatus().name());
             return mergeStatus;

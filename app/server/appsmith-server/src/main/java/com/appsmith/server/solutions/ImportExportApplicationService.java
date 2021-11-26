@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -121,7 +122,9 @@ public class ImportExportApplicationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.EXPORT_APPLICATIONS)
+        Mono<Application> applicationMono = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
+                ? applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                : applicationService.findById(applicationId, EXPORT_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
@@ -193,10 +196,12 @@ public class ImportExportApplicationService {
                                         }
                                         if (unpublishedPageDTO.getLayouts() != null) {
 
-                                            unpublishedPageDTO.getLayouts().forEach(layout ->
-                                                    unpublishedMongoEscapedWidgetsNames
-                                                            .put(layout.getId(), layout.getMongoEscapedWidgetNames())
-                                            );
+                                            unpublishedPageDTO.getLayouts().forEach(layout -> {
+                                                layout.setId(unpublishedPageDTO.getName());
+                                                unpublishedMongoEscapedWidgetsNames
+                                                        .put(layout.getId(), layout.getMongoEscapedWidgetNames());
+
+                                            });
                                         }
                                     }
 
@@ -214,10 +219,10 @@ public class ImportExportApplicationService {
                                         }
 
                                         if (publishedPageDTO.getLayouts() != null) {
-                                            newPage.getPublishedPage().getLayouts().forEach(layout ->
-                                                    publishedMongoEscapedWidgetsNames
-                                                            .put(layout.getId(), layout.getMongoEscapedWidgetNames())
-                                            );
+                                            publishedPageDTO.getLayouts().forEach(layout -> {
+                                                layout.setId(publishedPageDTO.getName());
+                                                publishedMongoEscapedWidgetsNames.put(layout.getId(), layout.getMongoEscapedWidgetNames());
+                                            });
                                         }
                                     }
                                     newPage.setApplicationId(null);
@@ -329,7 +334,7 @@ public class ImportExportApplicationService {
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
-        return applicationService.findBranchedApplicationId(branchName, applicationId, AclPermission.EXPORT_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
 
