@@ -46,10 +46,7 @@ import {
 import { setPreviewModeAction } from "actions/editorActions";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import {
-  batchUpdateMultipleWidgetProperties,
-  batchUpdateWidgetProperty,
-} from "actions/controlActions";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
