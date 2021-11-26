@@ -9,7 +9,6 @@ describe("API Panel Test Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
