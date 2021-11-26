@@ -509,7 +509,7 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(8);
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(10);
 
                     Set<String> firstSetPageLoadActions = Set.of(
                             "aPostTertiaryAction",
@@ -519,14 +519,12 @@ public class LayoutServiceTest {
                             "anotherDBAction",
                             "hiddenAction1",
                             "hiddenAction2",
-                            "hiddenAction4"
+                            "hiddenAction4",
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall"
                     );
 
-                    // TODO : Once the client implements on page load execution of JS, uncomment the lines below.
                     Set<String> secondSetPageLoadActions = Set.of(
-//                            "Collection.anAsyncCollectionActionWithoutCall",
-//                            "Collection.aSyncCollectionActionWithoutCall",
-//                            "Collection.aSyncCollectionActionWithCall",
                             "aPostActionWithAutoExec"
                     );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
