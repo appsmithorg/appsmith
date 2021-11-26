@@ -193,7 +193,7 @@ export default function Merge() {
           disabled={mergeBtnDisabled}
           isLoading={isMerging}
           onClick={mergeHandler}
-          size={Size.medium}
+          size={Size.large}
           tag="button"
           text={createMessage(MERGE_CHANGES)}
           width="max-content"

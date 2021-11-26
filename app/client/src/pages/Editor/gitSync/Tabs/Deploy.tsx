@@ -203,7 +203,7 @@ function Deploy() {
             className="t--commit-button"
             isLoading={isPullingProgress}
             onClick={handlePull}
-            size={Size.medium}
+            size={Size.large}
             tag="button"
             text={createMessage(PULL_CHANGES)}
             width="max-content"
@@ -223,7 +223,7 @@ function Deploy() {
               disabled={commitButtonDisabled}
               isLoading={commitButtonLoading}
               onClick={() => handleCommit(true)}
-              size={Size.medium}
+              size={Size.large}
               tag="button"
               text={commitButtonText}
               width="max-content"
