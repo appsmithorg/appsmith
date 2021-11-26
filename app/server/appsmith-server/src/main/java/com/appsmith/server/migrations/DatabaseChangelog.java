@@ -3957,7 +3957,12 @@ public class DatabaseChangelog {
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
-            // Migrate the dynamic binding path list for unpublished action
+            /**
+             * Migrate the dynamic binding path list for unpublished action.
+             * Please note that there is no requirement to migrate the dynamic binding path list for published actions
+             * since the `on page load` actions do not get computed for published actions. They are only computed for
+             * un-published actions and copied over for the view mode.
+             */
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
             List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
                     objectMapper, firestoreAction, firestoreMigrationMap);

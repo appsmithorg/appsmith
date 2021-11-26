@@ -56,7 +56,6 @@ import java.util.stream.StreamSupport;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.external.constants.FieldName.COMMAND;
-import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.constants.FieldName.DELETE_KEY_PATH;
 import static com.external.constants.FieldName.END_BEFORE;
