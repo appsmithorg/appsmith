@@ -301,7 +301,7 @@ public class GitExecutorImpl implements GitExecutor {
                     .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
                     .call()
                     .getName();
-            return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
+            return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);

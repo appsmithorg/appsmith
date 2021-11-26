@@ -733,9 +733,9 @@ public class GitServiceTest {
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_NonEmptyRepo_ListBranch");
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
-        Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
+        //Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
 
-        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
+        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), false);
 
         StepVerifier
                 .create(listMono)
@@ -760,7 +760,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
+        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), false);
 
         StepVerifier
                 .create(listMono)
@@ -789,7 +789,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
+        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), false);
 
         StepVerifier
                 .create(listMono)

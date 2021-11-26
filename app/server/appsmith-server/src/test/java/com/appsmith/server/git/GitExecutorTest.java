@@ -1,5 +1,6 @@
 package com.appsmith.server.git;
 
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +26,9 @@ import reactor.test.StepVerifier;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,14 +59,14 @@ public class GitExecutorTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         git.getRepository().close();
+        FileUtils.deleteDirectory(path.toFile());
     }
 
     private void createFileInThePath(String fileName) throws IOException {
-        File file = new File(path.toString() + "/" + fileName);
-        FileUtils.writeStringToFile(file, "Add test data" + fileName, "UTF-8", false);
-
+        File file = new File(path.toString().replace(".git", "") + "/" + fileName);
+        FileUtils.writeStringToFile(file, "Add test data", "UTF-8", false);
     }
 
     private void commitToRepo() {
@@ -90,7 +94,7 @@ public class GitExecutorTest {
     }
 
     @Test
-    public void createBranch_validRepo_success() throws IOException {
+    public void createBranch_validName_success() throws IOException {
         createFileInThePath("TestFIle3");
         commitToRepo();
         Mono<String> branchStatus = gitExecutor.createAndCheckoutToBranch(path, "branch/f1");
@@ -162,6 +166,119 @@ public class GitExecutorTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    public void checkoutBranch_InvalidBranchName_ThrowError() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        String defaultBranch = git.getRepository().getBranch();
+        gitExecutor.createAndCheckoutToBranch(path, "main").block();
+        Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "main1");
+
+        StepVerifier
+                .create(branchStatus)
+                .expectErrorMatches(throwable -> throwable instanceof RefNotFoundException
+                        && throwable.getMessage().contains("Ref main1 cannot be resolved"));
+    };
+
+    @Test
+    public void checkoutBranch_ValidBranchName_Success() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        String defaultBranch = git.getRepository().getBranch();
+        gitExecutor.createAndCheckoutToBranch(path, "main").block();
+        Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "main");
+
+        StepVerifier
+                .create(branchStatus)
+                .assertNext(status -> {
+                    assertThat(status).isEqualTo(Boolean.TRUE);
+                })
+                .verifyComplete();
+    };
+
+    @Test
+    public void checkoutBranch_NothingToCommit_Success() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        String defaultBranch = git.getRepository().getBranch();
+        gitExecutor.createAndCheckoutToBranch(path, "main").block();
+        Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "master");
+
+        StepVerifier
+                .create(branchStatus)
+                .assertNext(status -> {
+                    assertThat(status).isEqualTo(Boolean.TRUE);
+                    try {
+                        assertThat("master").isEqualTo(git.getRepository().getBranch());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .verifyComplete();
+    };
+
+    @Test
+    public void checkoutBranch_ModifiedFilesNonConflictingChanges_Success() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+
+        String defaultBranch = git.getRepository().getBranch();
+        gitExecutor.createAndCheckoutToBranch(path, "main").block();
+        createFileInThePath("TestFile6");
+        Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "master");
+
+        StepVerifier
+                .create(branchStatus)
+                .assertNext(status -> {
+                    assertThat(status).isEqualTo(Boolean.TRUE);
+                    try {
+                        assertThat("master").isEqualTo(git.getRepository().getBranch());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .verifyComplete();
+    };
+
+    @Test
+    public void checkoutBranch_ModifiedFileContent_Success() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "main").block();
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
+        String defaultBranch = git.getRepository().getBranch();
+
+        Mono<Boolean> branchStatus = gitExecutor.checkoutToBranch(path, "master");
+
+        StepVerifier
+                .create(branchStatus)
+                .assertNext(status -> {
+                    assertThat(status).isEqualTo(Boolean.TRUE);
+                    try {
+                        assertThat("master").isEqualTo(git.getRepository().getBranch());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .verifyComplete();
+    };
+
+    @Test
+    public void listBranches_LocalMode_Success() throws IOException {
+        createFileInThePath("listBranch");
+        commitToRepo();
+        String branchMono = gitExecutor.createAndCheckoutToBranch(path, "test1")
+                .flatMap(s -> gitExecutor.createAndCheckoutToBranch(path, "test2")).block();
+        Mono<List<GitBranchDTO>> gitBranchDTOMono = gitExecutor.listBranches(path, "remoteUrl", "publicKey", "privateKey", false);
+        StepVerifier
+                .create(gitBranchDTOMono)
+                .assertNext(gitBranchDTOS -> {
+                   assertThat(gitBranchDTOS.stream().count()).isEqualTo(3);
+                   
+                });
     }
 
 
