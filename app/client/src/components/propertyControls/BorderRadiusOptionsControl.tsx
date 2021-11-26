@@ -54,7 +54,7 @@ class BorderRadiusOptionsControl extends BaseControl<
     const { options, propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
+      <StyledButtonGroup className="ur--has-border" fill>
         {options.map((option: ButtonBorderRadius) => {
           const active =
             option === ButtonBorderRadiusTypes.SHARP

@@ -212,7 +212,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     <DropdownTarget>
       <Button
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
-          selectedLabelModifier ? "code-highlight" : ""
+          selectedLabelModifier
+            ? "code-highlight ur--has-border"
+            : "ur--has-border"
         }`}
         rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={

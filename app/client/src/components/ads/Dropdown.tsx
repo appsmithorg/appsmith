@@ -703,7 +703,7 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
-      className={props.containerClassName}
+      className={props.containerClassName + " ur--has-border"}
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
       tabIndex={0}
