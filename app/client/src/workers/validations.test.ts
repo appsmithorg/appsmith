@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
+import { ValidationConfig } from "constants/PropertyControlConstants";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -1106,6 +1107,56 @@ describe("Validate Validators", () => {
     inputs.forEach((input) => {
       const result = validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected);
+    });
+  });
+
+  it("correctly validates TableProperty", () => {
+    const inputs = [
+      "a",
+      ["a", "b"],
+      "x",
+      ["a", "b", "x"],
+      ["a", "b", "x", "y"],
+    ];
+    const config = {
+      type: ValidationTypes.TABLE_PROPERTY,
+      params: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ["a", "b", "c"],
+          default: ["a"],
+        },
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: "a",
+      },
+      {
+        isValid: true,
+        parsed: ["a", "b"],
+        messages: [],
+      },
+      {
+        isValid: false,
+        parsed: ["a"],
+        messages: ["This value does not evaluate to type string ( a | b | c )"],
+      },
+      {
+        isValid: false,
+        parsed: ["a"],
+        messages: ["Disallowed value: x"],
+      },
+      {
+        isValid: false,
+        parsed: ["a"],
+        messages: ["Disallowed value: x"],
+      },
+    ];
+    inputs.forEach((input, i) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[i]);
     });
   });
 });
