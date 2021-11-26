@@ -16,17 +16,31 @@ import { WidgetProperties } from "selectors/propertyPaneSelectors";
 export function selectedTabValidation(
   value: unknown,
   props: TabContainerWidgetProps,
+  _?: any,
 ): ValidationResponse {
-  const tabs: Array<{
-    label: string;
-    id: string;
-  }> = props.tabsObj ? Object.values(props.tabsObj) : props.tabs || [];
-  const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
-  return {
-    isValid: value === "" ? true : tabNames.includes(value as string),
-    parsed: value,
-    messages: [`Tab name ${value} does not exist`],
-  };
+  try {
+    const tabs: Array<{
+      label: string;
+      id: string;
+    }> = props.tabsObj ? Object.values(props.tabsObj) : props.tabs || [];
+    const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
+    console.log({
+      isValid: value === "" ? true : tabNames.includes(value as string),
+      parsed: value,
+      messages: [`Tab name ${value} does not exist`],
+    });
+    return {
+      isValid: value === "" ? true : tabNames.includes(value as string),
+      parsed: value,
+      messages: [`Tab name ${value} does not exist`],
+    };
+  } catch (error) {
+    return {
+      isValid: false,
+      parsed: "",
+      messages: [""],
+    };
+  }
 }
 
 // A hook to update all column styles when global table styles are updated
@@ -35,14 +49,19 @@ export const updateDefaultTab = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const { defaultTab, tabsObj } = props;
-  // eslint-disable-next-line no-console
-  console.log({ tabsObj, defaultTab });
+  const { defaultTab } = props;
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: any;
   }> = [];
-  return propertiesToUpdate;
+  if (propertyValue === defaultTab) {
+    propertiesToUpdate.push({
+      propertyPath: "defaultTab",
+      propertyValue: defaultTab + " ",
+    });
+    return propertiesToUpdate;
+  }
+  return;
 };
 
 class TabsWidget extends BaseWidget<
@@ -262,6 +281,7 @@ class TabsWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
     const visibleTabs = this.getVisibleTabs();
+
     if (this.props.defaultTab) {
       if (this.props.defaultTab !== prevProps.defaultTab) {
         const selectedTab = _.find(visibleTabs, {
@@ -274,6 +294,12 @@ class TabsWidget extends BaseWidget<
           "selectedTabWidgetId",
           selectedTabWidgetId,
         );
+        if (this.props.defaultTab.trim() !== this.props.defaultTab) {
+          super.updateWidgetProperty(
+            "defaultTab",
+            this.props.defaultTab.trim(),
+          );
+        }
       }
     }
     // if selected tab is deleted

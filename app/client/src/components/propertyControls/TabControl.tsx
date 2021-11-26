@@ -48,7 +48,12 @@ type RenderComponentProps = {
   onEdit?: (props: any) => void;
 };
 
-function AddTabButtonComponent({ widgetId }: any) {
+function AddTabButtonComponent({
+  addItem,
+  propertyName,
+  propertyValue,
+  widgetId,
+}: any) {
   const dispatch = useDispatch();
   const addOption = () => {
     dispatch({
@@ -57,7 +62,26 @@ function AddTabButtonComponent({ widgetId }: any) {
         widgetId,
       },
     });
+
+    let tabs = propertyValue;
+    const tabsArray = Object.values(tabs);
+    const newTabId = generateReactKey({ prefix: "tab" });
+    const newTabLabel = getNextEntityName(
+      "Tab ",
+      tabsArray.map((tab: any) => tab.label),
+    );
+    tabs = {
+      ...tabs,
+      [newTabId]: {
+        id: newTabId,
+        label: newTabLabel,
+        widgetId: generateReactKey(),
+        isVisible: true,
+      },
+    };
+    addItem(newTabId, newTabLabel, propertyName);
   };
+
   return (
     <StyledPropertyPaneButtonWrapper>
       <StyledPropertyPaneButton
@@ -191,6 +215,11 @@ class TabControl extends BaseControl<ControlProps> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
+
+  addItem = (newTabId: string, newTabLabel: string, propertyName: string) => {
+    this.updateProperty(`${propertyName}.${newTabId}.label`, newTabLabel);
+  };
+
   render() {
     const tabs: Array<{
       id: string;
@@ -212,6 +241,9 @@ class TabControl extends BaseControl<ControlProps> {
           updateOption={this.updateOption}
         />
         <AddTabButtonComponent
+          addItem={this.addItem}
+          propertyName={this.props.propertyName}
+          propertyValue={this.props.propertyValue}
           widgetId={this.props.widgetProperties.widgetId}
         />
       </TabsWrapper>
