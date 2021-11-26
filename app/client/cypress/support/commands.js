@@ -3242,49 +3242,17 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
-  cy.wait(500);
   if (fieldName) {
-    cy.xpath(
-      "//p[text()='" +
-        fieldName +
-        "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .wait(200)
-      .then((textEle) => {
-        cy.wrap(textEle)
-          .last()
-          .invoke("text", "");
-      })
-      .closest("div")
-      .click()
-      .type(valueToType, { parseSpecialCharSequences: false });
+    cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div").then(
+      ($field) => {
+        cy.updateCodeInput($field, valueToType);
+      },
+    );
   } else {
-    cy.xpath("//div//div[@class='CodeMirror-code']//span/span")
-      .wait(200)
-      .then((textEle) => {
-        cy.wrap(textEle)
-          .last()
-          .invoke("text", "");
-      })
-      .closest("div")
-      .click()
-      .type(valueToType, { parseSpecialCharSequences: false });
+    cy.xpath("//div[@class='CodeEditorTarget']").then(($field) => {
+      cy.updateCodeInput($field, valueToType);
+    });
   }
-
-  // .as('range').invoke('val', 25).trigger('change')
-
-  // .wait(200)
-  //     .then((textEle) => {
-  //       cy.wrap(textEle)
-  //         .last()
-  //         .invoke("text", "");
-  //     })
-  //     .closest("div")
-  //     .click()
-  //     .type(valueToType, { parseSpecialCharSequences: false });
-
-  // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea")
-  //   .scrollIntoView().clear({force: true}).type(valueToType, { parseSpecialCharSequences: false });
 
   cy.EvaluateCurrentValue(valueToType);
 

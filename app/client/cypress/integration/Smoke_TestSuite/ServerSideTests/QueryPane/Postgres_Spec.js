@@ -30,7 +30,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("2. Create & runs existing table data and deletes the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate("select * from users limit 10");
     cy.runAndDeleteQuery();
   });
@@ -79,7 +79,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       (29, 'CRUD User29', 'IN PROGRESS', 'Male','cruduser29@ihg.com', '19624 Scofield Way', 'Editor'),
       (30, 'CRUD User30', 'APPROVED', 'Female','cruduser30@ihg.com', '19624 Scofield Way', 'Admin');`;
 
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click({ force: true });
     //cy.typeValueNValidate(tableCreateQuery);//Since type method is slow for such big text - using paste!
 
     cy.get(".CodeMirror textarea").paste(tableCreateQuery);
@@ -92,7 +92,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("4. Validate Select record from Postgress datasource", () => {
     let selectQuery = "select * from public.users_crud";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(selectQuery);
 
     // cy.xpath(queryLocators.codeTextArea).paste(selectQuery);
@@ -105,7 +105,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let insertQuery =
       "INSERT INTO public.users_crud (id, name, gender, email) VALUES (31, 'CRUD User11','Male','cruduser31@ihg.com');";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(insertQuery);
     cy.runAndDeleteQuery();
   });
@@ -114,7 +114,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let updateQuery =
       "UPDATE public.users_crud SET status = 'PENDING', role = 'Viewer' WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(updateQuery);
     cy.runAndDeleteQuery();
   });
@@ -122,7 +122,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("7. Validate Delete record from Postgress datasource", () => {
     let deleteQuery = "DELETE FROM public.users_crud WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(deleteQuery);
     cy.runAndDeleteQuery();
   });
@@ -238,7 +238,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
     let deleteTblQuery = "DROP TABLE public.users_crud;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(deleteTblQuery);
     cy.runAndDeleteQuery();
   });
