@@ -54,7 +54,7 @@ export default [
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
         dependencies: ["derivedColumns", "columnOrder"],
-        isBindProperty: true,
+        isBindProperty: false,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.FUNCTION,
@@ -824,6 +824,7 @@ export default [
                     },
                   ],
                   defaultValue: ButtonVariantTypes.PRIMARY,
+
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
