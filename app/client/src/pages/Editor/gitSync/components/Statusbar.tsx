@@ -28,5 +28,12 @@ export default function GitSyncStatusbar(props: StatusbarProps) {
       }
     }
   });
-  return <Statusbar active={false} message={message} percentage={percentage} />;
+  return (
+    <Statusbar
+      active={false}
+      message={message}
+      percentage={percentage}
+      showOnlyMessage
+    />
+  );
 }
