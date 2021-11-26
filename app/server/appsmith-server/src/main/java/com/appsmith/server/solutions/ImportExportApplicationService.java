@@ -172,6 +172,8 @@ public class ImportExportApplicationService {
                     application.setLastEditedAt(null);
                     application.setUpdatedAt(null);
                     application.setGitApplicationMetadata(null);
+                    application.setPolicies(null);
+                    application.setUserPermissions(null);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
 
