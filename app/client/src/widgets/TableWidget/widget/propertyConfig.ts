@@ -1598,6 +1598,7 @@ export default [
         options: [
           ButtonBorderRadiusTypes.SHARP,
           ButtonBorderRadiusTypes.ROUNDED,
+          ButtonBorderRadiusTypes.CIRCLE,
         ],
         isBindProperty: false,
         isTriggerProperty: false,

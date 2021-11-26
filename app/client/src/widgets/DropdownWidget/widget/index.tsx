@@ -288,6 +288,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             options: [
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
             ],
             isBindProperty: false,
             isTriggerProperty: false,

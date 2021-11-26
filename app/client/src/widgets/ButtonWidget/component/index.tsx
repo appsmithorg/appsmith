@@ -34,10 +34,12 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import {
+  getBorderRadiusValue,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  getBoxShadowValue,
 } from "widgets/WidgetUtils";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
@@ -161,27 +163,10 @@ const StyledButton = styled((props) => (
     }
   `}
 
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
 
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
-
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
 `;
 
 type ButtonStyleProps = {

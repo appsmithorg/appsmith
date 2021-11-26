@@ -171,6 +171,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             options: [
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
             ],
             isBindProperty: false,
             isTriggerProperty: false,

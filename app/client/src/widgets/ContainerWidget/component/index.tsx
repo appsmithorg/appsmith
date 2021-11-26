@@ -11,6 +11,7 @@ import WidgetStyleContainer, {
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -29,6 +30,14 @@ const StyledContainerComponent = styled.div<
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
+
+    border-width: ${(props) => props.borderWidth}px;
+    border-radius: ${(props) => getBorderRadiusValue(props.borderRadius)};
+    box-shadow:  ${(props) =>
+      getBoxShadowValue(props.boxShadowColor, props.boxShadow)} !important;
+    border-color: ${(props) => props.borderColor || "transparent"};
+    border-style: solid;
+
   ${(props) =>
     props.shouldScrollContents === true
       ? scrollContents

@@ -83,10 +83,15 @@ export const generateReactKey = ({
 };
 
 export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
+  const brightness = tinycolor(backgroundColor)
+    .greyscale()
+    .getBrightness();
+  const percentageBrightness = (brightness / 255) * 100;
+
   if (!backgroundColor)
     return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].primary
       .textColor;
-  const isDark = tinycolor(backgroundColor).isDark();
+  const isDark = percentageBrightness < 70;
   if (isDark) {
     return theme.colors.button.custom.solid.light.textColor;
   }
@@ -157,7 +162,7 @@ export const getBorderRadiusValue = (
 ) => {
   switch (borderRadius) {
     case ButtonBorderRadiusTypes.CIRCLE:
-      return "50%";
+      return "17px";
     case ButtonBorderRadiusTypes.ROUNDED:
       return "5px";
     case ButtonBorderRadiusTypes.SHARP:
@@ -179,8 +184,7 @@ export const getBoxShadowValue = (
 ) => {
   switch (boxShadow) {
     case ButtonBoxShadowTypes.VARIANT1:
-      return `0px 0px 4px 3px ${boxShadowColor ||
-        Colors.BOX_SHADOW_DEFAULT_VARIANT1}`;
+      return `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`;
     case ButtonBoxShadowTypes.VARIANT2:
       return `3px 3px 4px ${boxShadowColor ||
         Colors.BOX_SHADOW_DEFAULT_VARIANT2}`;

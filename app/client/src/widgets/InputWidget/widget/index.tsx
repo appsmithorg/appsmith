@@ -527,6 +527,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             options: [
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
             ],
             isBindProperty: false,
             isTriggerProperty: false,

@@ -58,7 +58,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
       getBorderRadiusValue(borderRadius)} !important;
     box-shadow: ${({ boxShadow, boxShadowColor }) =>
       `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
-    min-height: 36px;
+    min-height: 34px;
     padding-left: 12px;
     border: 1.2px solid
       ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
