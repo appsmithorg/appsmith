@@ -396,7 +396,7 @@ export default function BranchList(props: {
 
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
-    changeSearchTextInState(removeSpecialChars(text));
+    changeSearchTextInState(removeSpecialChars(text).replace(/\-/g, "_"));
   };
 
   const isCreateNewBranchInputValid = useMemo(
