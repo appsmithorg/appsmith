@@ -186,8 +186,7 @@ export const getBoxShadowValue = (
     case ButtonBoxShadowTypes.VARIANT1:
       return `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`;
     case ButtonBoxShadowTypes.VARIANT2:
-      return `3px 3px 4px ${boxShadowColor ||
-        Colors.BOX_SHADOW_DEFAULT_VARIANT2}`;
+      return `0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)`;
     case ButtonBoxShadowTypes.VARIANT3:
       return `0px 1px 3px ${boxShadowColor ||
         Colors.BOX_SHADOW_DEFAULT_VARIANT3}`;
