@@ -1,7 +1,7 @@
 import { Theme } from "constants/DefaultTheme";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { toast, TypeOptions } from "react-toastify";
+import { toast } from "react-toastify";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
