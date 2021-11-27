@@ -26,13 +26,17 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import {
+  getCurrentAppGitMetaData,
+  getTempRemoteUrl,
+} from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 
 import { getGitError } from "selectors/gitSyncSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
+  gitTempRemoteUrlInit,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -129,8 +133,9 @@ type Props = {
 function GitConnection({ isImport }: Props) {
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
+  const { tempRemoteUrl = "" } = useSelector(getTempRemoteUrl) || ({} as any);
 
-  const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore);
+  const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore || tempRemoteUrl);
   const isGitConnected = !!remoteUrlInStore;
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
@@ -205,7 +210,7 @@ function GitConnection({ isImport }: Props) {
   useEffect(() => {
     // when disconnected remoteURL becomes undefined
     if (!remoteUrlInStore) {
-      setRemoteUrl("");
+      setRemoteUrl(tempRemoteUrl || "");
     }
   }, [remoteUrlInStore]);
 
@@ -278,6 +283,7 @@ function GitConnection({ isImport }: Props) {
     const isInvalid = remoteUrlIsInvalid(value);
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
+    dispatch(gitTempRemoteUrlInit({ tempRemoteUrl: value }));
   };
 
   const submitButtonDisabled = useMemo(() => {

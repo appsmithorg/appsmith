@@ -226,3 +226,8 @@ export const gitPullSuccess = (mergeStatus: MergeStatus) => ({
 export const resetPullMergeStatus = () => ({
   type: ReduxActionTypes.RESET_PULL_MERGE_STATUS,
 });
+
+export const gitTempRemoteUrlInit = (payload?: { tempRemoteUrl?: string }) => ({
+  type: ReduxActionTypes.TEMP_REMOTE_URL_INIT,
+  payload,
+});
