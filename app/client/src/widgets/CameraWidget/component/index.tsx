@@ -682,9 +682,9 @@ function CameraComponent(props: CameraComponentProps) {
   const [scaleAxis, setScaleAxis] = useState<"x" | "y">("x");
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
-  const [audioConstraints, setAudioConstraints] = useState<{
-    deviceId?: string;
-  }>({});
+  const [audioConstraints, setAudioConstraints] = useState<
+    MediaTrackConstraints
+  >({});
   const [videoConstraints, setVideoConstraints] = useState<
     MediaTrackConstraints
   >({});
@@ -961,6 +961,7 @@ function CameraComponent(props: CameraComponentProps) {
             audio={!isAudioMuted}
             audioConstraints={!isAudioMuted && audioConstraints}
             mirrored={mirrored}
+            muted
             onUserMedia={handleUserMedia}
             onUserMediaError={handleUserMediaErrors}
             ref={webcamRef}
