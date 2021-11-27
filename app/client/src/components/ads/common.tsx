@@ -1,7 +1,7 @@
 import { Theme } from "constants/DefaultTheme";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { toast } from "react-toastify";
+import { toast, TypeOptions } from "react-toastify";
 
 export interface CommonComponentProps {
   isLoading?: boolean; //default false
@@ -73,6 +73,13 @@ export enum Variant {
   info = "info",
   warning = "warning",
   danger = "danger",
+}
+
+export enum ToastTypeOptions {
+  success = "success",
+  info = "info",
+  warning = "warning",
+  error = "error",
 }
 
 export const ToastVariant = (type: any) => {
