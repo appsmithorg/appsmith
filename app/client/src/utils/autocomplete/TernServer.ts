@@ -21,7 +21,6 @@ import { FieldEntityInformation } from "components/editorComponents/CodeEditor/E
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
-import { isMomentInterfaceObject } from "./TernServerHelpers";
 
 const DEFS: Def[] = [
   GLOBAL_FUNCTIONS,
@@ -194,8 +193,6 @@ class TernServer {
     const searchText = (bindings.jsSnippets[0] || "").trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
-      // Moment Interface objects should not be added as a completion
-      if (isMomentInterfaceObject(completion)) continue;
       let className = this.typeToIcon(completion.type, completion.isKeyword);
       const dataType = this.getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
