@@ -41,7 +41,9 @@ import {
 import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
 import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
-import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
 import GitChanged from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
@@ -81,11 +83,6 @@ const Container = styled.div`
   .bp3-popover-target {
     width: fit-content;
   }
-`;
-
-const StatusbarWrapper = styled.div`
-  width: 252px;
-  height: 38px;
 `;
 
 const INITIAL_COMMIT = "Initial Commit";

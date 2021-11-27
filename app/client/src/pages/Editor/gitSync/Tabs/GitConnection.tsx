@@ -49,7 +49,9 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
@@ -97,10 +99,6 @@ const RemoteUrlInfoWrapper = styled.div`
 `;
 
 const Section = styled.div``;
-const StatusbarWrapper = styled.div`
-  width: 252px;
-  height: 38px;
-`;
 
 const StickyMenuWrapper = styled.div`
   position: sticky;
@@ -378,20 +376,23 @@ function GitConnection({ isImport }: Props) {
         ) : null}
 
         {!SSHKeyPair ? (
-          <ButtonContainer topMargin={10}>
-            <Button
-              category={Category.primary}
-              className="t--submit-repo-url-button"
-              isLoading={generatingSSHKey || fetchingSSHKeyPair}
-              onClick={() => generateSSHKey()}
-              size={Size.large}
-              tag="button"
-              text={createMessage(GENERATE_KEY)}
-            />
-          </ButtonContainer>
+          remoteUrl &&
+          !isInvalidRemoteUrl && (
+            <ButtonContainer topMargin={10}>
+              <Button
+                category={Category.primary}
+                className="t--submit-repo-url-button"
+                isLoading={generatingSSHKey || fetchingSSHKeyPair}
+                onClick={() => generateSSHKey()}
+                size={Size.large}
+                tag="button"
+                text={createMessage(GENERATE_KEY)}
+              />
+            </ButtonContainer>
+          )
         ) : (
           <DeployedKeyUI
-            SSHKeyPair={SSHKeyPair}
+            SSHKeyPair={SSHKeyPair || ""}
             copyToClipboard={copyToClipboard}
             deployKeyDocUrl={deployKeyDocUrl}
             showCopied={showCopied}

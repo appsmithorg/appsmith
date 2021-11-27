@@ -625,7 +625,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
 
               {props.showLabelOnly ? (
                 <TooltipWrappedText
-                  label={option.label as string}
+                  label={option.label || ""}
                   showTooltip={props.showTooltip}
                   type={TextType.P1}
                   wrapperWidth={wrapperWidth}
@@ -637,7 +637,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 </LabelWrapper>
               ) : (
                 <TooltipWrappedText
-                  label={option.label as string}
+                  label={option.label || ""}
                   showTooltip={props.showTooltip}
                   type={TextType.P1}
                   wrapperWidth={wrapperWidth}
