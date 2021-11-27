@@ -166,7 +166,6 @@ function copyContent(content: any) {
   const stringifiedContent = _.isString(content)
     ? content
     : JSON.stringify(content);
-
   copy(stringifiedContent);
   Toaster.show({
     text: `Evaluated value copied to clipboard`,
