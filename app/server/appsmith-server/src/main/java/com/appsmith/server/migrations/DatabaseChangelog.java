@@ -3597,7 +3597,6 @@ public class DatabaseChangelog {
         mongockTemplate.save(s3Plugin);
     }
 
-<<<<<<< HEAD
     @ChangeSet(order = "094", id = "set-slug-to-application-and-page", author = "")
     public void setSlugToApplicationAndPage(MongockTemplate mongockTemplate) {
         // update applications

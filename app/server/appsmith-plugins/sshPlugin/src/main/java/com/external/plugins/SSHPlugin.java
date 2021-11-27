@@ -36,13 +36,9 @@ import static com.appsmith.external.models.SSHAuth.AuthType.IDENTITY_FILE;
 import static com.appsmith.external.models.SSHAuth.AuthType.PASSWORD;
 
 //TODOS:
-//1. Add more unit tests for validate datasource
-//2. Add some commonly used commands to the dropdown
+//1. Add some commonly used commands to the dropdown
 //4. Add fallback condition for key-based login to use Appsmith's private key (Maybe)
 
-// SMTP Plugin
-//1. Correct the plugin type in DBChangelog
-//2. Change response object sent to client via objectMapper.valueToTree(obj)
 public class SSHPlugin extends BasePlugin {
 
     public SSHPlugin(PluginWrapper wrapper) {
@@ -62,26 +58,25 @@ public class SSHPlugin extends BasePlugin {
                 ChannelExec channel = (ChannelExec) session.openChannel("exec");
                 channel.setCommand(actionConfiguration.getBody());
                 StringBuilder outputBuffer = new StringBuilder();
-                ByteArrayOutputStream responseStream = new ByteArrayOutputStream();
+                ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-                channel.setErrStream(responseStream);
+                channel.setErrStream(errorStream);
                 channel.connect();
 
                 // Read the response stream till we reach the end character
                 InputStream inputStream = channel.getInputStream();
 
                 int readByte = inputStream.read();
+
+                // Read the stream till the EOF character is encountered
                 while (readByte != 0xffffffff) {
                     outputBuffer.append((char) readByte);
                     readByte = inputStream.read();
                 }
 
-                String responseString;
-                if (responseStream.size() > 0) {
-                    responseString = responseStream.toString();
-                } else {
-                    responseString = outputBuffer.toString();
-                }
+                // If data is present in the errorStream, then set the errorStream. Else, set the response to
+                // outputBuffer.
+                String responseString = (errorStream.size() > 0) ? errorStream.toString() :  outputBuffer.toString();
 
                 Map<String, Object> responseBody = new HashMap<>();
                 responseBody.put("response", responseString);
@@ -106,6 +101,7 @@ public class SSHPlugin extends BasePlugin {
 
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 SSHAuth authentication = (SSHAuth) datasourceConfiguration.getAuthentication();
+                //TODO: Add SSH proxy for bastion host & tunneling to another server
                 SSHConnection sshConnection = datasourceConfiguration.getSshProxy();
                 String username = authentication.getUsername();
                 session = jSch.getSession(username, endpoint.getHost(), endpoint.getPort().intValue());
@@ -135,10 +131,8 @@ public class SSHPlugin extends BasePlugin {
                         );
                 }
 
-                System.out.println("Going to connect DS");
                 session.connect();
-                System.out.println("Started session");
-
+                System.out.println("Created SSH datasource connection");
                 return Mono.just(session);
             } catch (JSchException e) {
                 e.printStackTrace();
@@ -163,7 +157,7 @@ public class SSHPlugin extends BasePlugin {
             if (sshAuth == null) {
                 invalids.add(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Invalid SSH connection object received.").getMessage()
+                        "Mandatory SSH authentication missing. Please check your configuration").getMessage()
                 );
             } else {
                 List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
@@ -173,11 +167,6 @@ public class SSHPlugin extends BasePlugin {
                         invalids.add(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Mandatory parameter hostname is missing or empty").getMessage());
-                    }
-                    if (endpoint.getPort() == null || endpoint.getPort() <= 0) {
-                        invalids.add(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                "Mandatory parameter port is either missing or invalid").getMessage());
                     }
                 }
                 if (!StringUtils.hasText(sshAuth.getUsername())) {
@@ -190,7 +179,7 @@ public class SSHPlugin extends BasePlugin {
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Mandatory parameter authentication type is missing").getMessage());
                 } else {
-                    if (PASSWORD.equals(sshAuth.getAuthType()) && sshAuth.getPassword() == null) {
+                    if (PASSWORD.equals(sshAuth.getAuthType()) && !StringUtils.hasText(sshAuth.getPassword())) {
                         invalids.add(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Mandatory parameter password is missing").getMessage());

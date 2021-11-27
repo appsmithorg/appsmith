@@ -12,13 +12,15 @@
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
+              "validationRegex": "^((?![/:]).)*$",
+              "placeholderText": "localhost"
             },
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "initialValue": "22"
             }
           ]
         }
