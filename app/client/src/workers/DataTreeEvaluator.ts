@@ -93,7 +93,6 @@ export default class DataTreeEvaluator {
   }
 
   createFirstTree(unEvalTree: DataTree) {
-    debugger;
     const totalStart = performance.now();
     let localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -1542,7 +1541,7 @@ const extractReferencesFromBinding = (
   const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
     dependentPath,
   ];
-  debugger;
+
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
