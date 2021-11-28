@@ -93,6 +93,7 @@ export default class DataTreeEvaluator {
   }
 
   createFirstTree(unEvalTree: DataTree) {
+    debugger;
     const totalStart = performance.now();
     let localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -1541,6 +1542,7 @@ const extractReferencesFromBinding = (
   const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
     dependentPath,
   ];
+  debugger;
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
@@ -1555,8 +1557,13 @@ const extractReferencesFromBinding = (
     // we can remove the length requirement and it will still work
     while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
+      const defaultPropsPath = convertPathToString([
+        subpaths[0],
+        "defaultProps",
+        ...subpaths.slice(1),
+      ]);
       // We've found the dep, add it and return
-      if (all.hasOwnProperty(current)) {
+      if (all.hasOwnProperty(current) || all.hasOwnProperty(defaultPropsPath)) {
         subDeps.push(current);
         return;
       }
