@@ -106,6 +106,26 @@ function validateArray(
   let _isValid = true;
   const _messages: string[] = [];
   const whiteList = config.params?.allowedValues;
+  const requiredLength = config.params?.length;
+  if (requiredLength) {
+    const messages: string[] = [];
+    let isValid = true;
+    value.forEach((entry) => {
+      if (Array.isArray(entry) && entry.length > requiredLength && isValid) {
+        messages.push(
+          `Max Length Exceeded: ${entry.length} > ${requiredLength}`,
+        );
+        isValid = false;
+      }
+    });
+    if (!isValid) {
+      return {
+        isValid,
+        parsed: value,
+        messages,
+      };
+    }
+  }
   if (whiteList) {
     value.forEach((entry) => {
       if (!whiteList.includes(entry)) {

@@ -67,6 +67,7 @@ export type PropertyPaneControlConfig = {
 type ValidationConfigParams = {
   min?: number; // min allowed for a number
   max?: number; // max allowed for a number
+  length?: number; // max allowed length for each item(Array) in ValidationTypes.ARRAY
   natural?: boolean; // is a positive integer
   default?: unknown; // default for any type
   unique?: boolean | string[]; // unique in an array (string if a particular path is unique)

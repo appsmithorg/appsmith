@@ -997,6 +997,39 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected);
     });
   });
+  it("correctly validates length of array when length is given for customJSControl", () => {
+    const inputs = [
+      [
+        ["PRIMARY", "SECONDARY", "TERTIARY"],
+        ["PRIMARY", "SECONDARY", "TERTIARY"],
+      ],
+      [
+        ["PRIMARY", "SECONDARY"],
+        ["PRIMARY", "SECONDARY"],
+      ],
+    ];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        required: true,
+        length: 2,
+      },
+    };
+    const expected = [
+      {
+        isValid: false,
+        parsed: [],
+        messages: ["Max Length Exceeded: 3 > 2"],
+      },
+      {
+        isValid: true,
+      },
+    ];
+    inputs.forEach((input, ind) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[ind]);
+    });
+  });
 });
 
 // describe("Color Picker Text validator", () => {

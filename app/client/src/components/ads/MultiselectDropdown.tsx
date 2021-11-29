@@ -253,7 +253,9 @@ function MultiSelectDropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
         >
           <Text type={TextType.P1}>
-            {props.selected.length
+            {props.selected.length === 1
+              ? props.selected[0]
+              : props.selected.length > 1
               ? `${props.selected.length} Selected`
               : "Select file types"}
           </Text>
