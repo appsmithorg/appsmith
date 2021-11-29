@@ -1,8 +1,5 @@
 import _, { VERSION as lodashVersion } from "lodash";
-import {
-  DATA_BIND_REGEX,
-  DATA_BIND_REGEX_GLOBAL,
-} from "constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -21,11 +18,6 @@ export type FormEditorConfigs = Record<string, any[]>;
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
 
-export const removeBindingsFromActionObject = (obj: Action) => {
-  const string = JSON.stringify(obj);
-  const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");
-  return JSON.parse(withBindings);
-};
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
