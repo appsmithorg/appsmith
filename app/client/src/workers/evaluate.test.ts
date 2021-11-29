@@ -5,6 +5,7 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 
 describe("evaluate", () => {
   const widget: DataTreeWidget = {
@@ -191,16 +192,28 @@ describe("evaluate", () => {
     const response = evaluate(js, dataTree, {}, callbackData);
     expect(response.result).toBe("test1");
   });
-  it("returns undefined for EXPRESSIONS with new line only", () => {
-    const js = `
-    `;
+  it("handles EXPRESSIONS with new line only", () => {
+    const js = "\n";
     const response = evaluate(js, dataTree, {});
-    expect(response.result).toBe(undefined);
+    const nonLintErrors = response.errors.filter(
+      ({ errorType }) => errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    expect(nonLintErrors.length).toBe(0);
   });
-  it("returns undefined for TRIGGERS with new line only", () => {
-    const js = `
-    `;
+  it("handles TRIGGERS with new line only", () => {
+    const js = "\n";
+    const response = evaluate(js, dataTree, {}, undefined, true);
+    const nonLintErrors = response.errors.filter(
+      ({ errorType }) => errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    expect(nonLintErrors.length).toBe(0);
+  });
+  it("handles ANONYMOUS_FUNCTION with new line only", () => {
+    const js = "\n";
     const response = evaluate(js, dataTree, {}, [], true);
-    expect(response.result).toBe(undefined);
+    const nonLintErrors = response.errors.filter(
+      ({ errorType }) => errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    expect(nonLintErrors.length).toBe(0);
   });
 });
