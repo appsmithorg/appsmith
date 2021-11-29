@@ -428,7 +428,7 @@ function GitConnection({ isImport }: Props) {
             triedSubmit={triedSubmit}
             useGlobalConfig={useGlobalConfig}
           />
-          <ButtonContainer topMargin={11}>
+          <ButtonContainer topMargin={0}>
             {isConnectingToGit && (
               <StatusbarWrapper>
                 <Statusbar
