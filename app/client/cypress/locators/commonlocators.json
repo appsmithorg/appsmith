@@ -66,7 +66,7 @@
   "selectMenuItem": ".bp3-menu li>a>div",
   "evaluatedTypeTitle": ".t--CodeEditor-evaluatedValue > p:first-of-type",
   "evaluatedType": ".t--CodeEditor-evaluatedValue > div:first-of-type pre",
-  "evaluatedCurrentValue": ".t--CodeEditor-evaluatedValue > div:last-of-type pre",
+  "evaluatedCurrentValue": "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre",
   "entityExplorersearch": "#entity-explorer-search",
   "entitySearchResult": ".t--entity-name:contains('",
   "saveStatusContainer": ".t--save-status-container",
