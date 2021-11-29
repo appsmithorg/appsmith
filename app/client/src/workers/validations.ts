@@ -113,7 +113,7 @@ function validateArray(
     const messages: string[] = [];
     let isValid = true;
     value.forEach((entry) => {
-      if (!Array.isArray(entry)) {
+      if (!Array.isArray(entry) && isValid) {
         messages.push(
           `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         );

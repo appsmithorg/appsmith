@@ -1058,9 +1058,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: ["PRIMARY", "PRIMARY"],
-        messages: [
-          "This value does not evaluate to type Array<string ( PRIMARY | SECONDARY | TERTIARY )>",
-        ],
+        messages: ["This value does not evaluate to type Array"],
       },
       {
         isValid: true,
