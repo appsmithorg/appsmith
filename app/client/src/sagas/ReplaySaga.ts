@@ -221,23 +221,6 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   }
 }
 
-export function* replayPreProcess(
-  replayEntity: any,
-  replay: any,
-  replayEntityType: ENTITY_TYPE,
-) {
-  let res = {};
-  const { updates = [] } = replay;
-  const { kind = "", modifiedProperty } = updates[updates.length - 1] || {};
-  if (!modifiedProperty) return res;
-  if (replayEntityType === ENTITY_TYPE.ACTION) {
-    res = yield call(getEditorFieldConfig, replayEntity, modifiedProperty);
-  } else if (replayEntityType === ENTITY_TYPE.DATASOURCE) {
-    res = yield call(getDatasourceFieldConfig, replayEntity, modifiedProperty);
-  }
-  return { ...res, kind, modifiedProperty };
-}
-
 /*
   Figure out the field config of the last modified field in datasource forms
 */
