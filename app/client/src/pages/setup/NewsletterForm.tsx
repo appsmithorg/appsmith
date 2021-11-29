@@ -36,8 +36,8 @@ const NewsletterContainer = styled.div`
 export default memo(function NewsletterForm() {
   return (
     <NewsletterContainer>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>3.</FormHeaderIndex>
+      <FormHeaderWrapper className="relative flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">3.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_NEWLETTER_HEADER)}
         </FormHeaderLabel>
