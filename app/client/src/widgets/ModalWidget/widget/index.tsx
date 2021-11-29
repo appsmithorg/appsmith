@@ -48,7 +48,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the modal is closed",
