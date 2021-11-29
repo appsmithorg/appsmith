@@ -54,7 +54,7 @@ export default [
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
         dependencies: ["derivedColumns", "columnOrder"],
-        isBindProperty: true,
+        isBindProperty: false,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.FUNCTION,
@@ -824,6 +824,7 @@ export default [
                     },
                   ],
                   defaultValue: ButtonVariantTypes.PRIMARY,
+
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
@@ -1301,7 +1302,7 @@ export default [
                         ],
                       },
                       {
-                        sectionName: "Actions",
+                        sectionName: "Events",
                         children: [
                           {
                             helpText:
@@ -1450,7 +1451,7 @@ export default [
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a table row is selected",

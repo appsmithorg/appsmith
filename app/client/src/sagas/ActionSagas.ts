@@ -35,10 +35,7 @@ import {
   updateActionProperty,
   updateActionSuccess,
 } from "actions/pluginActionActions";
-import {
-  getDynamicBindingsChangesSaga,
-  removeBindingsFromActionObject,
-} from "utils/DynamicBindingUtils";
+import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
@@ -447,11 +444,10 @@ function* moveActionSaga(
   }>,
 ) {
   const actionObject: Action = yield select(getAction, action.payload.id);
-  const withoutBindings = removeBindingsFromActionObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
       action: {
-        ...withoutBindings,
+        ...actionObject,
         pageId: action.payload.originalPageId,
         name: action.payload.name,
       },
@@ -490,12 +486,9 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  let actionObject: Action = yield select(getAction, action.payload.id);
+  const actionObject: Action = yield select(getAction, action.payload.id);
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
-    if (action.payload.destinationPageId !== actionObject.pageId) {
-      actionObject = removeBindingsFromActionObject(actionObject);
-    }
 
     const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
