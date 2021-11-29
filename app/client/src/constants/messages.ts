@@ -537,11 +537,10 @@ export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, Make commits, add deploy your application";
+  "Checkout branches, make commits, add deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
-  `Create an empty git repository and paste the remote URL`;
-"Checkout branches, make commits, add deploy your application";
+  `Create an empty git repository and paste the remote URL here.`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";

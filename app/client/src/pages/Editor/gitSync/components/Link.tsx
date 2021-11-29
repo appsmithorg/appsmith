@@ -18,10 +18,12 @@ const LinkText = styled.div`
 
 export default function Link({
   color,
+  hasIcon = true,
   link,
   text,
 }: {
   color?: string;
+  hasIcon?: boolean;
   link: string;
   text: string;
 }) {
@@ -38,7 +40,14 @@ export default function Link({
       >
         {text}
       </Text>
-      <Icon name="right-arrow" size={IconSize.SMALL} />
+      {hasIcon && (
+        <Icon
+          fillColor={color || Colors.CHARCOAL}
+          hoverFillColor={color || Colors.CHARCOAL}
+          name="right-arrow"
+          size={IconSize.SMALL}
+        />
+      )}
     </LinkText>
   );
 }

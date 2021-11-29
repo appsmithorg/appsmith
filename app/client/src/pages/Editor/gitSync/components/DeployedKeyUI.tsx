@@ -89,6 +89,8 @@ const LintText = styled.a`
   }
   color: ${Colors.CRUSTA};
   cursor: pointer;
+  font-weight: 500;
+  margin-left: ${(props) => props.theme.spaces[1]}px;
 `;
 
 type DeployedKeyUIProps = {

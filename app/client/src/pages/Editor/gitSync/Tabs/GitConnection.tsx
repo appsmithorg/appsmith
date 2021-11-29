@@ -14,6 +14,7 @@ import {
   createMessage,
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
+  LEARN_MORE,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -59,6 +60,8 @@ import Statusbar, {
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
+import Link from "../components/Link";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -99,7 +102,8 @@ const Container = styled.div`
 `;
 
 const RemoteUrlInfoWrapper = styled.div`
-  margin-top: ${(props) => props.theme.spaces[3]}px;
+  margin-bottom: ${(props) => props.theme.spaces[3]}px;
+  display: flex;
 `;
 
 const Section = styled.div``;
@@ -357,6 +361,20 @@ function GitConnection({ isImport }: Props) {
             {createMessage(REMOTE_URL)}
           </Text>
         </UrlOptionContainer>
+        {!SSHKeyPair ? (
+          <RemoteUrlInfoWrapper>
+            <Text color={Colors.GREY_9} type={TextType.P3}>
+              {createMessage(REMOTE_URL_INFO)}
+            </Text>
+            <Space horizontal size={1} />
+            <Link
+              color={Colors.PRIMARY_ORANGE}
+              hasIcon={false}
+              link={DOCS_BASE_URL}
+              text={createMessage(LEARN_MORE)}
+            />
+          </RemoteUrlInfoWrapper>
+        ) : null}
         <UrlContainer>
           <UrlInputContainer>
             <TextInput
@@ -372,15 +390,6 @@ function GitConnection({ isImport }: Props) {
             />
           </UrlInputContainer>
         </UrlContainer>
-
-        {!isInvalidRemoteUrl && !SSHKeyPair ? (
-          <RemoteUrlInfoWrapper>
-            <Text color={Colors.GREY_9} type={TextType.P3}>
-              {createMessage(REMOTE_URL_INFO)}
-            </Text>
-          </RemoteUrlInfoWrapper>
-        ) : null}
-
         {!SSHKeyPair ? (
           remoteUrl &&
           !isInvalidRemoteUrl && (
