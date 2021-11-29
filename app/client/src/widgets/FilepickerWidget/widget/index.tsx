@@ -186,7 +186,7 @@ class FilePickerWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText:
