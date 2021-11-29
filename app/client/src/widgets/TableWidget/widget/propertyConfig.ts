@@ -812,6 +812,7 @@ export default [
                     type: ValidationTypes.ARRAY,
                     params: {
                       length: 1,
+                      isCustomJSControl: true,
                       default: ButtonVariantTypes.PRIMARY,
                       allowedValues: [
                         ButtonVariantTypes.PRIMARY,

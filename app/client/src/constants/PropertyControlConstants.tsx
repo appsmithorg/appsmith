@@ -67,6 +67,7 @@ export type PropertyPaneControlConfig = {
 type ValidationConfigParams = {
   min?: number; // min allowed for a number
   max?: number; // max allowed for a number
+  isCustomJSControl?: boolean; // For Validation of customJSControls
   length?: number; // max allowed length for each item(Array) in ValidationTypes.ARRAY
   natural?: boolean; // is a positive integer
   default?: unknown; // default for any type

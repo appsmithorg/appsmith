@@ -107,6 +107,27 @@ function validateArray(
   const _messages: string[] = [];
   const whiteList = config.params?.allowedValues;
   const requiredLength = config.params?.length;
+  const isCustomJSControl = config.params?.isCustomJSControl;
+
+  if (isCustomJSControl) {
+    const messages: string[] = [];
+    let isValid = true;
+    value.forEach((entry) => {
+      if (!Array.isArray(entry)) {
+        messages.push(
+          `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+        );
+        isValid = false;
+      }
+    });
+    if (!isValid) {
+      return {
+        isValid,
+        parsed: value,
+        messages,
+      };
+    }
+  }
   if (requiredLength) {
     const messages: string[] = [];
     let isValid = true;

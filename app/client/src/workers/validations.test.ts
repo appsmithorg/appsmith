@@ -1038,6 +1038,44 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected[ind]);
     });
   });
+  it("correctly validates array for customJSControl", () => {
+    const inputs = [
+      ["PRIMARY", "PRIMARY"],
+      [
+        ["PRIMARY", "SECONDARY"],
+        ["PRIMARY", "SECONDARY"],
+      ],
+    ];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        isCustomJSControl: true,
+        required: true,
+        length: 2,
+      },
+    };
+    const expected = [
+      {
+        isValid: false,
+        parsed: ["PRIMARY", "PRIMARY"],
+        messages: [
+          "This value does not evaluate to type Array<string ( PRIMARY | SECONDARY | TERTIARY )>",
+        ],
+      },
+      {
+        isValid: true,
+        parsed: [
+          ["PRIMARY", "SECONDARY"],
+          ["PRIMARY", "SECONDARY"],
+        ],
+        messages: [],
+      },
+    ];
+    inputs.forEach((input, ind) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[ind]);
+    });
+  });
 });
 
 // describe("Color Picker Text validator", () => {
