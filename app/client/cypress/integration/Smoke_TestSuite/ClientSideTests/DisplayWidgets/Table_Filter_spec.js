@@ -14,7 +14,6 @@ describe("Table Widget Filter Functionality", function() {
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Table Widget Functionality To validate download csv and download Excel", function() {
