@@ -154,7 +154,7 @@ export const getCustomJustifyContent = (placement?: ButtonPlacement) => {
     case ButtonPlacementTypes.BETWEEN:
       return "space-between";
     default:
-      return "none";
+      return "";
   }
 };
 
