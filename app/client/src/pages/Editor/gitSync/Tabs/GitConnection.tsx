@@ -240,6 +240,7 @@ function GitConnection({ isImport }: Props) {
   };
 
   const onSubmit = useCallback(() => {
+    if (isConnectingToGit) return;
     setTriedSubmit(true);
 
     if (
