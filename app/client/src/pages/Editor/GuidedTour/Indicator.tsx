@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Popover2 } from "@blueprintjs/popover2";
 import { useSelector } from "react-redux";
 import {
@@ -37,6 +37,7 @@ type Direction = "down" | "right" | "left";
 export type IndicatorLocation =
   | "RUN_QUERY"
   | "PROPERTY_PANE"
+  | "QUERY_EDITOR"
   | "WIDGET_SIDEBAR"
   | "NONE";
 
@@ -49,9 +50,11 @@ type IndicatorProps = {
   location?: IndicatorLocation;
   targetTagName?: keyof JSX.IntrinsicElements;
   async?: boolean;
+  hideOnClick?: boolean;
 };
 
 function Indicator(props: IndicatorProps): JSX.Element {
+  const [hide, setHide] = useState(false);
   const indicatorRef = useRef<HTMLDivElement>(null);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const currentStep = useSelector(getCurrentStep);
@@ -60,9 +63,7 @@ function Indicator(props: IndicatorProps): JSX.Element {
     props.show &&
     guidedTourEnabled &&
     currentStep === props.step &&
-    props.location === indicatorLocation &&
-    props.location !== "NONE";
-
+    (props.location ? props.location === indicatorLocation : true);
   let anim: AnimationItem | undefined;
 
   const loadAnimation = () => {
@@ -98,9 +99,14 @@ function Indicator(props: IndicatorProps): JSX.Element {
           <IndicatorWrapper direction={props.direction} ref={indicatorRef} />
         }
         enforceFocus={false}
-        isOpen={props.show}
+        isOpen={props.show && !hide}
         minimal
-        popoverClassName="guided-tour-indicator"
+        onInteraction={(openState) => {
+          if (!hide && props.hideOnClick) {
+            setHide(!openState);
+          }
+        }}
+        popoverClassName={`guided-tour-indicator`}
         position={props.position}
         targetTagName={props.targetTagName}
       >

@@ -276,9 +276,7 @@ const Steps: StepsType = {
     ],
     success: {
       text: "Great! The table widget is now connected with the customers data",
-      onClick: (dispatch) => {
-        dispatch(setIndicatorLocation("PROPERTY_PANE"));
-      },
+      onClick: () => null,
     },
     info: {
       icon: "lightbulb-flash-line",
@@ -375,16 +373,15 @@ const Steps: StepsType = {
     },
   },
   6: {
-    title:
-      "6. Execute updateCustomer query using the button to update the inputs (UNDER DEVELOPMENT)",
+    title: "6. Trigger updateCustomer query by binding to the button widget",
     hints: [
       {
         icon: "edit-box-line",
         text: (
           <>
-            From the onClick dropdown, select <b>Execute a query</b> {"&"} then
+            From onClick dropdown, select <b>Execute a query</b> {"&"} then
             select
-            <b>updateCustomer</b> Query
+            <b>updateCustomer</b> query
           </>
         ),
       },
@@ -507,7 +504,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   }
 
   if (step === 3) {
-    if (isContainerWidgetPreset) {
+    if (isContainerWidgetPreset && hadReachedStep > 3) {
       step = 4;
     }
   }
@@ -569,18 +566,16 @@ function useComputeCurrentStep(isExploring: boolean) {
       });
     }
   }, [isExploring, step]);
-
   useEffect(() => {
-    if (queryLimitUpdated && step === 1) {
-      dispatch({
-        type: "SET_INDICATOR_LOCATION",
-        payload: "RUN_QUERY",
-      });
-    } else {
-      dispatch({
-        type: "SET_INDICATOR_LOCATION",
-        payload: undefined,
-      });
+    if (step === 1) {
+      // if (queryLimitUpdated) {
+      //   dispatch({
+      //     type: "SET_INDICATOR_LOCATION",
+      //     payload: "RUN_QUERY",
+      //   });
+      // } else {
+      //   dispatch(setIndicatorLocation("QUERY_EDITOR"));
+      // }
     }
   }, [queryLimitUpdated, step]);
 
@@ -592,7 +587,6 @@ function useComputeCurrentStep(isExploring: boolean) {
 
   useEffect(() => {
     if (isTableWidgetBound && step === 3) {
-      dispatch(setIndicatorLocation("NONE"));
       dispatch(markStepComplete());
     }
   }, [isTableWidgetBound, step]);
@@ -606,8 +600,6 @@ function useComputeCurrentStep(isExploring: boolean) {
   useEffect(() => {
     if (step === 5) {
       if (buttonWidgetPresent) {
-        dispatch(setIndicatorLocation("NONE"));
-
         if (buttonWidgetHasText) {
           dispatch(markStepComplete());
         }

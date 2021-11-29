@@ -22,8 +22,9 @@ function FormControl(props: FormControlProps) {
 
   return (
     <Indicator
-      direction="right"
-      position="left"
+      direction="down"
+      location="QUERY_EDITOR"
+      position="top"
       show={props.config.configProperty === "actionConfiguration.body"}
       step={1}
       targetTagName="div"

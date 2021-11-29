@@ -14,6 +14,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
+import Indicator from "pages/Editor/GuidedTour/Indicator";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -177,32 +178,39 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
     return (
-      <MenuItem
-        active={isSelected}
-        className={option.className || "single-select"}
-        icon={option.icon}
-        intent={option.intent}
-        key={option.value}
-        onClick={
-          option.children
-            ? noop
-            : (e: any) => {
-                handleSelect(option);
-                setIsOpen(false);
-                props.onMenuToggle && props.onMenuToggle(false);
-                e.stopPropagation();
-              }
-        }
-        popoverProps={{
-          minimal: true,
-          interactionKind: PopoverInteractionKind.CLICK,
-          position: PopoverPosition.RIGHT_TOP,
-          targetProps: { onClick: (e: any) => e.stopPropagation() },
-        }}
-        text={option.label}
+      <Indicator
+        direction="down"
+        position="top"
+        show={option.label === "Execute a query"}
+        step={6}
       >
-        {option.children && option.children.map(renderTreeOption)}
-      </MenuItem>
+        <MenuItem
+          active={isSelected}
+          className={option.className || "single-select"}
+          icon={option.icon}
+          intent={option.intent}
+          key={option.value}
+          onClick={
+            option.children
+              ? noop
+              : (e: any) => {
+                  handleSelect(option);
+                  setIsOpen(false);
+                  props.onMenuToggle && props.onMenuToggle(false);
+                  e.stopPropagation();
+                }
+          }
+          popoverProps={{
+            minimal: true,
+            interactionKind: PopoverInteractionKind.CLICK,
+            position: PopoverPosition.RIGHT_TOP,
+            targetProps: { onClick: (e: any) => e.stopPropagation() },
+          }}
+          text={option.label}
+        >
+          {option.children && option.children.map(renderTreeOption)}
+        </MenuItem>
+      </Indicator>
     );
   }
 
