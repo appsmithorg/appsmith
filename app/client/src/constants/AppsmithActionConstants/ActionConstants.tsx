@@ -19,6 +19,9 @@ export type ExecutionResult = {
 export type TriggerSource = {
   id: string;
   name: string;
+  collectionId?: string;
+  isJSAction?: boolean;
+  actionId?: string;
 };
 
 export type ExecuteTriggerPayload = {

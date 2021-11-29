@@ -5,7 +5,14 @@ import {
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
-import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  takeEvery,
+  takeLatest,
+  select,
+} from "redux-saga/effects";
 import {
   evaluateArgumentSaga,
   evaluateDynamicTrigger,
@@ -38,6 +45,15 @@ import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getEntityNameAndPropertyPath,
+  isJSAction,
+} from "workers/evaluationUtils";
+import { JSAction, JSCollection } from "entities/JSCollection";
+import { getJSCollection } from "selectors/entitiesSelector";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { confirmRunActionSaga } from "sagas/ActionExecution/PluginActionSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -149,6 +165,21 @@ function* initiateActionTriggerExecution(
   // it will be created again while execution
   AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   try {
+    const getEntitySettings = yield call(
+      getActionSettings,
+      action.payload.dynamicString,
+    );
+    const entitySettings = yield call(getConfirmModalFlag, getEntitySettings);
+    if (!!entitySettings) {
+      const confirmed = yield call(confirmRunActionSaga);
+      if (!confirmed) {
+        yield put({
+          type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+          payload: { id: entitySettings.actionId },
+        });
+        throw new UserCancelledActionExecutionError();
+      }
+    }
     yield call(executeAppAction, action.payload);
     if (event.callback) {
       event.callback({ success: true });
@@ -163,6 +194,40 @@ function* initiateActionTriggerExecution(
     }
     log.error(e);
   }
+}
+
+function* getActionSettings(dynamicString: string) {
+  const trimmedVal = dynamicString && dynamicString.replace(/(^{{)|(}}$)/g, "");
+  const dataTree = yield select(getDataTree);
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(trimmedVal);
+  const entity = entityName && dataTree[entityName];
+  let updatedSource: any = {};
+  if (entity && isJSAction(entity) && propertyPath) {
+    const collection = yield select(getJSCollection, entity.actionId);
+    const jsAction = collection.actions.find(
+      (js: JSAction) => js.name === propertyPath.replaceAll(/[()]/g, ""),
+    );
+    updatedSource = {
+      isJSAction: true,
+      collectionId: entity.actionId || "",
+      actionId: jsAction.id,
+    };
+  }
+  return updatedSource;
+}
+
+export function* getConfirmModalFlag(source: any) {
+  if (source && source?.collectionId) {
+    const collection: JSCollection = yield select(
+      getJSCollection,
+      source?.collectionId,
+    );
+    const settings =
+      collection &&
+      collection.actions.find((js: JSAction) => js.id === source.actionId);
+    return settings && settings.confirmBeforeExecute;
+  }
+  return false;
 }
 
 export function* watchActionExecutionSagas() {

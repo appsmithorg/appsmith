@@ -65,10 +65,15 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
+import {
+  executeActionTriggers,
+  getConfirmModalFlag,
+} from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { set } from "lodash";
+import { confirmRunActionSaga } from "sagas/ActionExecution/PluginActionSaga";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -299,6 +304,20 @@ function* handleExecuteJSFunctionSaga(
   const { action, collectionId, collectionName } = data.payload;
   const actionId = action.id;
   try {
+    const entitySettings = yield call(getConfirmModalFlag, {
+      ...data.payload,
+      actionId,
+    });
+    if (!!entitySettings) {
+      const confirmed = yield call(confirmRunActionSaga);
+      if (!confirmed) {
+        yield put({
+          type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+          payload: { id: actionId },
+        });
+        throw new UserCancelledActionExecutionError();
+      }
+    }
     const { result, triggers } = yield call(
       executeFunction,
       collectionName,
@@ -309,8 +328,11 @@ function* handleExecuteJSFunctionSaga(
         triggers.map((trigger: ActionDescription) =>
           call(executeActionTriggers, trigger, EventType.ON_CLICK, {
             source: {
-              id: action.collectionId || "",
+              id: actionId || "",
+              collectionId: action.collectionId,
               name: data.payload.collectionName,
+              isJSAction: true,
+              actionId: actionId,
             },
           }),
         ),

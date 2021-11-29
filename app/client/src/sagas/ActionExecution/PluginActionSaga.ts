@@ -229,7 +229,7 @@ function* evaluateActionParams(
   return mapToPropList(actionParams);
 }
 
-function* confirmRunActionSaga() {
+export function* confirmRunActionSaga() {
   yield put(showRunActionConfirmModal(true));
 
   const { accept } = yield race({
