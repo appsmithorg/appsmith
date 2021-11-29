@@ -21,6 +21,7 @@ import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import * as log from "loglevel";
+import { setFormEvaluationSaga } from "./formEval";
 
 const ctx: Worker = self as any;
 
@@ -271,6 +272,10 @@ ctx.addEventListener(
         const { version } = requestData;
         self.evaluationVersion = version || 1;
         break;
+      case EVAL_WORKER_ACTIONS.INIT_FORM_EVAL:
+        const { currentEvalState, payload, type } = requestData;
+        const response = setFormEvaluationSaga(type, payload, currentEvalState);
+        return response;
       default: {
         log.error("Action not registered on worker", method);
       }
