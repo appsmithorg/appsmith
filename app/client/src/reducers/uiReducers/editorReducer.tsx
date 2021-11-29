@@ -28,8 +28,8 @@ const initialState: EditorReduxState = {
   },
   isSnipingMode: false,
   isPreviewMode: false,
-  isThemeMode: false,
   zoomLevel: 1,
+  isThemeMode: false,
 };
 
 const editorReducer = createReducer(initialState, {

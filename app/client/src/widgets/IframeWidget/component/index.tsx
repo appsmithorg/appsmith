@@ -7,9 +7,11 @@ import {
 } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { AppState } from "reducers";
 import { useSelector } from "store";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import { RenderMode } from "constants/WidgetConstants";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 interface IframeContainerProps {
@@ -79,7 +81,6 @@ function IframeComponent(props: IframeComponentProps) {
     borderWidth,
     onMessageReceived,
     onURLChanged,
-    renderMode,
     source,
     title,
     widgetId,
@@ -110,12 +111,8 @@ function IframeComponent(props: IframeComponentProps) {
     }
   }, [source]);
 
-  const isPropertyPaneVisible = useSelector(
-    (state: AppState) => state.ui.propertyPane.isVisible,
-  );
-  const selectedWidgetId = useSelector(
-    (state: AppState) => state.ui.propertyPane.widgetId,
-  );
+  const appMode = useSelector(getAppMode);
+  const selectedWidget = useSelector(getWidgetPropsForPropertyPane);
 
   return (
     <IframeContainer
@@ -126,10 +123,9 @@ function IframeComponent(props: IframeComponentProps) {
       boxShadow={props.boxShadow}
       boxShadowColor={props.boxShadowColor}
     >
-      {renderMode === RenderModes.CANVAS &&
-        !(isPropertyPaneVisible && widgetId === selectedWidgetId) && (
-          <OverlayDiv />
-        )}
+      {appMode === APP_MODE.EDIT && widgetId !== selectedWidget?.widgetId && (
+        <OverlayDiv />
+      )}
 
       {message ? message : <iframe src={source} title={title} />}
     </IframeContainer>

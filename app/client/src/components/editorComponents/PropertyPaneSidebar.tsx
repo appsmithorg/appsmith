@@ -7,19 +7,19 @@ import React, { memo, useEffect, useRef, useMemo } from "react";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getSelectedWidgets } from "selectors/ui";
+import { tailwindLayers } from "constants/Layers";
+import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import {
   previewModeSelector,
   themeModeSelector,
 } from "selectors/editorSelectors";
-import { getWidgets } from "sagas/selectors";
-import { getSelectedWidgets } from "selectors/ui";
-import { tailwindLayers } from "constants/Layers";
-import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
+import { getWidgets } from "sagas/selectors";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 
 type Props = {

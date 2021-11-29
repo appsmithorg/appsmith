@@ -23,7 +23,7 @@ const themes = [
       boxShadowColor: "red",
       borderRadius: "md",
       colors: {
-        primaryColor: "#F86A2B",
+        primaryColor: "#14B8A6",
         backgroundColor: "#e1e1e1",
       },
     },

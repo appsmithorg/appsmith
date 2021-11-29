@@ -296,7 +296,7 @@ export default [
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when the chart data point is clicked",

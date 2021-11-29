@@ -9,10 +9,10 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import PageTabs from "./PageTabs";
-import Toolbar from "./Toolbar";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import Toolbar from "./Toolbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
 import { flashElementsById } from "utils/helpers";

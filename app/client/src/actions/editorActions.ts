@@ -13,18 +13,6 @@ export const setPreviewModeAction = (payload: boolean) => ({
 });
 
 /**
- * action that sets theme mode
- *
- * @param payload
- * @returns
- */
-
-export const setThemeModeAction = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_THEME_MODE,
-  payload,
-});
-
-/**
  * action that update canvas layout
  *
  * @param width
@@ -43,3 +31,15 @@ export const updateCanvasLayoutAction = (
     },
   };
 };
+
+/*
+ * action that sets theme mode
+ *
+ * @param payload
+ * @returns
+ */
+
+export const setThemeModeAction = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_THEME_MODE,
+  payload,
+});

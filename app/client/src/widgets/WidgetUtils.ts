@@ -200,3 +200,13 @@ export const getBoxShadowValue = (
       return "0px 0px 0px transparent";
   }
 };
+
+export const escapeSpecialChars = (stringifiedJSONObject: string) => {
+  return stringifiedJSONObject
+    .replace(/\\n/g, "\\\\n") // new line char
+    .replace(/\\b/g, "\\\\b") //
+    .replace(/\\t/g, "\\\\t") // tab
+    .replace(/\\f/g, "\\\\f") //
+    .replace(/\\/g, "\\\\") //
+    .replace(/\\r/g, "\\\\r"); //
+};
