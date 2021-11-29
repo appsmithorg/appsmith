@@ -191,4 +191,16 @@ describe("evaluate", () => {
     const response = evaluate(js, dataTree, {}, callbackData);
     expect(response.result).toBe("test1");
   });
+  it("returns undefined for EXPRESSIONS with new line only", () => {
+    const js = `
+    `;
+    const response = evaluate(js, dataTree, {});
+    expect(response.result).toBe(undefined);
+  });
+  it("returns undefined for TRIGGERS with new line only", () => {
+    const js = `
+    `;
+    const response = evaluate(js, dataTree, {}, [], true);
+    expect(response.result).toBe(undefined);
+  });
 });
