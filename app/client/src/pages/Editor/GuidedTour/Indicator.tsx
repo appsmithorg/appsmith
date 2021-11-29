@@ -77,7 +77,7 @@ function Indicator(props: IndicatorProps): JSX.Element {
   };
 
   useEffect(() => {
-    if (showIndicator) {
+    if (false) {
       if (props.async) {
         setTimeout(() => {
           loadAnimation();
@@ -91,7 +91,7 @@ function Indicator(props: IndicatorProps): JSX.Element {
     };
   }, [indicatorRef?.current, showIndicator, props.async]);
 
-  if (showIndicator)
+  if (false)
     return (
       <Popover2
         autoFocus={false}

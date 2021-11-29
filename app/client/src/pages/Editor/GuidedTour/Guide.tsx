@@ -2,7 +2,6 @@ import {
   addOnboardingWidget,
   markStepComplete,
   setCurrentStep,
-  setIndicatorLocation,
   setUpTourApp,
   tableWidgetWasSelected,
   toggleLoader,
@@ -15,6 +14,8 @@ import { useDispatch } from "react-redux";
 import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
+  buttonWidgetHasOnClickBinding,
+  buttonWidgetHasOnSuccessBinding,
   containerWidgetAdded,
   doesButtonWidgetHaveText,
   getCurrentStep,
@@ -380,8 +381,43 @@ const Steps: StepsType = {
         text: (
           <>
             From onClick dropdown, select <b>Execute a query</b> {"&"} then
-            select
-            <b>updateCustomer</b> query
+            select <b>updateCustomer</b> query
+          </>
+        ),
+      },
+    ],
+  },
+  7: {
+    title:
+      "7. After successfully triggering the update query, fetch the updated customer data. ",
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            Click the onSuccess dropdown, select <b>Execute a query</b> {"&"}{" "}
+            then choose <b>getCustomers</b> Query
+          </>
+        ),
+      },
+    ],
+    success: {
+      text:
+        "Exceptional work! You’ve now built a way to see customer data and update it.",
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(8));
+      },
+    },
+  },
+  8: {
+    title: "Final step: Test & deploy your app",
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            Test your app and ensure there are no errors. When you are ready,
+            click <b>Deploy</b> to deploy this app to a URL.
           </>
         ),
       },
@@ -490,6 +526,12 @@ function useComputeCurrentStep(isExploring: boolean) {
   // 5
   const buttonWidgetPresent = useSelector(isButtonWidgetPresent);
   const buttonWidgetHasText = useSelector(doesButtonWidgetHaveText);
+  // 6
+  const buttonWidgetonClickBinding = useSelector(buttonWidgetHasOnClickBinding);
+  // 7
+  const buttonWidgetSuccessBinding = useSelector(
+    buttonWidgetHasOnSuccessBinding,
+  );
 
   if (step === 1) {
     if (queryExecutedSuccessfully) {
@@ -526,8 +568,20 @@ function useComputeCurrentStep(isExploring: boolean) {
   }
 
   if (step === 5) {
-    if (buttonWidgetPresent && hadReachedStep > 5) {
+    if (buttonWidgetPresent && buttonWidgetHasText) {
       step = 6;
+    }
+  }
+
+  if (step === 6) {
+    if (buttonWidgetonClickBinding) {
+      step = 7;
+    }
+  }
+
+  if (step === 7) {
+    if (buttonWidgetSuccessBinding && hadReachedStep > 7) {
+      step = 8;
     }
   }
 
@@ -568,14 +622,6 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [isExploring, step]);
   useEffect(() => {
     if (step === 1) {
-      // if (queryLimitUpdated) {
-      //   dispatch({
-      //     type: "SET_INDICATOR_LOCATION",
-      //     payload: "RUN_QUERY",
-      //   });
-      // } else {
-      //   dispatch(setIndicatorLocation("QUERY_EDITOR"));
-      // }
     }
   }, [queryLimitUpdated, step]);
 
@@ -606,6 +652,14 @@ function useComputeCurrentStep(isExploring: boolean) {
       }
     }
   }, [step, buttonWidgetPresent, buttonWidgetHasText]);
+
+  useEffect(() => {
+    if (step === 7) {
+      if (buttonWidgetSuccessBinding) {
+        dispatch(markStepComplete());
+      }
+    }
+  }, [step, buttonWidgetSuccessBinding]);
 
   return completedSubSteps;
 }
@@ -728,7 +782,7 @@ function CompletionContent(props: CompletionContentProps) {
           <GuideButton
             onClick={onSuccessButtonClick}
             tag="button"
-            text={info ? "CONTINUE" : "PROCEED TO NEXT STEP"}
+            text={"CONTINUE"}
           />
         </div>
       </SuccessMessageWrapper>

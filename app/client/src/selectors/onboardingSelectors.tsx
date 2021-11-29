@@ -288,6 +288,40 @@ export const doesButtonWidgetHaveText = createSelector(
   },
 );
 
+export const buttonWidgetHasOnClickBinding = createSelector(
+  getWidgets,
+  (widgets) => {
+    const widgetValues = Object.values(widgets);
+    const buttonWidget = widgetValues.find((widget) => {
+      return (
+        widget.type === "BUTTON_WIDGET" &&
+        widget.onClick &&
+        widget.onClick.includes("{{updateCustomerInfo.run(")
+      );
+    });
+
+    return !!buttonWidget;
+  },
+);
+
+export const buttonWidgetHasOnSuccessBinding = createSelector(
+  getWidgets,
+  (widgets) => {
+    const widgetValues = Object.values(widgets);
+    const buttonWidget = widgetValues.find((widget) => {
+      return (
+        widget.type === "BUTTON_WIDGET" &&
+        widget.onClick &&
+        widget.onClick.includes(
+          "{{updateCustomerInfo.run(() => getCustomers.run(), () => {})}}",
+        )
+      );
+    });
+
+    return !!buttonWidget;
+  },
+);
+
 export const showSuccessMessage = (state: AppState) =>
   state.ui.onBoarding.showSuccessMessage;
 
