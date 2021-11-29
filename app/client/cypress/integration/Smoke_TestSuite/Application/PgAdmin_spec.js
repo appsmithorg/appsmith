@@ -19,6 +19,7 @@ describe("PgAdmin Clone App", function() {
   });
 
   it("Add dsl and authenticate datasource", function() {
+    
     cy.NavigateToHome();
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
