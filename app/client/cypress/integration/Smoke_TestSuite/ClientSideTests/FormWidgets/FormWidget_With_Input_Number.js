@@ -21,7 +21,7 @@ describe("Form Widget with Input Functionality", function() {
       .contains("Submit")
       .click();
 
-    //Check if on submission if the notifition toast appears with text containing input1: 0
+    //Check if on submission if the notification toast appears with text containing input1: 0
     cy.get(widgetsPage.toastActionText)
       .last()
       .invoke("text")
