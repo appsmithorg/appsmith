@@ -55,9 +55,15 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
-    (actionId: string, actionName: string, onSuccess?: () => void) =>
-      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess })),
-    [dispatch],
+    (actionId: string, actionName: string, onSuccess?: () => void) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
+      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess }));
+    },
+    [dispatch, guidedTourEnabled],
   );
 
   const menuPages = useSelector(getPageListAsOptions);

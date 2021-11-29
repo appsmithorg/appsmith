@@ -126,7 +126,7 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       loading: action.payload,
-      exploring: false,
+      exploring: !action.payload ? false : state.exploring,
     };
   },
   SET_DATASOURCE_ID: (state: OnboardingState, action: ReduxAction<string>) => {
