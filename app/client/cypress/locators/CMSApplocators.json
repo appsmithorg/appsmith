@@ -11,7 +11,8 @@
     "confirmButton":"//span[text()='Confirm']",
     "closeButton":"//span[text()='Close']",
     "datasourcesbutton":"//div[text()='Datasources']",
-    "getApi":"//div[text()='send_mail']",
+    "postApi":"//div[text()='send_mail']",
+    "deleteApi":"//div[text()='delete_proposal']",
     "deleteButton":"//span[text()='Delete Proposal']",
     "deleteTaskText":"//span[text()='Delete this task']"
 }
