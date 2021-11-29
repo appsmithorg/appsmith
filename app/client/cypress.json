@@ -14,7 +14,8 @@
   },
    "ignoreTestFiles": [
     "**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
-    "**/Smoke_TestSuite/ServerSideTests/QueryPane/PostgresCRUDOps_spec*.js"
+    "**/Smoke_TestSuite/ServerSideTests/QueryPane/PostgresCRUDOps_spec*.js",
+    "**/Smoke_TestSuite/ClientSideTests/Onboarding/FirstTimeUserOnboarding_spec*.js"
   ],
   "chromeWebSecurity": false,
   "viewportHeight": 900,
