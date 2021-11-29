@@ -47,8 +47,6 @@ cloud_init_script_path="/var/lib/cloud/scripts/per-instance"
 
 boot_file_name="boot.sh"
 first_time_setup_file_name="first-time-setup.sh"
-config_ssl_file_name="configure-ssl.sh"
-init_letsencrypt_file_name="init-letsencrypt.sh"
 user_data_script="user-data.sh"
 
 mkdir -p $boot_script_path
@@ -57,14 +55,10 @@ cd $boot_script_path
 
 sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/boot.sh
 sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/first-time-setup.sh
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/configure-ssl.sh
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/init-letsencrypt.sh
 sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/user-data.sh
 
 sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boot_script_path/$boot_file_name
 sudo chown ubuntu:ubuntu $boot_script_path/$first_time_setup_file_name && sudo chmod +x $boot_script_path/$first_time_setup_file_name
-sudo chown ubuntu:ubuntu $boot_script_path/$config_ssl_file_name && sudo chmod +x $boot_script_path/$config_ssl_file_name
-sudo chown ubuntu:ubuntu $boot_script_path/$init_letsencrypt_file_name && sudo chmod +x $boot_script_path/$init_letsencrypt_file_name
 sudo chown root:root $boot_script_path/$user_data_script && sudo chmod +x $boot_script_path/$user_data_script
 
 CRON_FILE="/etc/cron.d/appsmith"
