@@ -643,7 +643,7 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
       payload: { id: values.id, draft: values },
     });
-    yield put(updateReplayEntity(values.id, values));
+    yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
   }
 }
 
@@ -682,7 +682,8 @@ function* changeDatasourceSaga(
         getQueryParams(),
       ),
     );
-  if (!isReplay) yield put(updateReplayEntity(data.id, data));
+  if (!isReplay)
+    yield put(updateReplayEntity(data.id, data, ENTITY_TYPE.DATASOURCE));
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
@@ -703,7 +704,9 @@ function* formValueChangeSaga(
   const { field, form } = actionPayload.meta;
   if (form === DATASOURCE_REST_API_FORM) {
     const { values } = yield select(getFormData, DATASOURCE_REST_API_FORM);
-    yield put(updateReplayEntity(values.datasourceId, values));
+    yield put(
+      updateReplayEntity(values.datasourceId, values, ENTITY_TYPE.DATASOURCE),
+    );
   }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;

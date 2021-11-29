@@ -3,6 +3,7 @@ import { captureException } from "@sentry/react";
 import { diff as deepDiff, applyChange, revertChange, Diff } from "deep-diff";
 
 import { getPathsFromDiff } from "./replayUtils";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 const _DIFF_ = "diff";
 type ReplayType = "UNDO" | "REDO";
@@ -11,7 +12,7 @@ export default abstract class ReplayEntity<T> {
   private diffMap: any;
   private undoManager: UndoManager;
   protected entity: T;
-  private prevRedoDiff: Array<Diff<T, T>> | undefined;
+  private replayEntityType: ENTITY_TYPE;
   logs: any[] = [];
   protected abstract processDiff(
     diff: Diff<T, T>,
@@ -19,12 +20,13 @@ export default abstract class ReplayEntity<T> {
     isUndo: boolean,
   ): any;
 
-  constructor(entity: T) {
+  constructor(entity: T, replayEntityType: ENTITY_TYPE) {
     const doc = new Doc();
     this.diffMap = doc.get("map", Map);
     this.entity = entity;
     this.diffMap.set(_DIFF_, []);
     this.undoManager = new UndoManager(this.diffMap, { captureTimeout: 100 });
+    this.replayEntityType = replayEntityType;
   }
 
   /**
@@ -94,6 +96,7 @@ export default abstract class ReplayEntity<T> {
         event: `REPLAY_${replayType}`,
         timeTaken: stop - start,
         paths: getPathsFromDiff(diffs),
+        replayEntityType: this.replayEntityType,
       };
     }
 

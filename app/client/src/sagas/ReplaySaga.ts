@@ -38,12 +38,7 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import {
-  findFieldInfo,
-  getReplayEntityType,
-  ReplayEntityType,
-  REPLAY_FOCUS_DELAY,
-} from "entities/Replay/replayUtils";
+import { findFieldInfo, REPLAY_FOCUS_DELAY } from "entities/Replay/replayUtils";
 import { setActionProperty, updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 import { changeQuery } from "actions/queryPaneActions";
@@ -51,7 +46,7 @@ import { changeApi } from "actions/apiPaneActions";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
 import { changeDatasource } from "actions/datasourceActions";
 import {
-  updateReplayEnitiySaga,
+  updateReplayEntitySaga,
   workerComputeUndoRedo,
 } from "./EvaluationsSaga";
 import { createBrowserHistory } from "history";
@@ -72,6 +67,7 @@ import _, { isEmpty } from "lodash";
 import { updateFormFields } from "./ApiPaneSagas";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
 import { Datasource } from "entities/Datasource";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -80,7 +76,7 @@ export type UndoRedoPayload = {
 export default function* undoRedoListenerSaga() {
   yield all([
     takeEvery(ReduxActionTypes.UNDO_REDO_OPERATION, undoRedoSaga),
-    takeLatest(ReduxActionTypes.UPDATE_REPLAY_ENTITY, updateReplayEnitiySaga),
+    takeLatest(ReduxActionTypes.UPDATE_REPLAY_ENTITY, updateReplayEntitySaga),
   ]);
 }
 
@@ -192,13 +188,13 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       paths,
       replay,
       replayEntity,
+      replayEntityType,
       timeTaken,
     } = workerResponse;
 
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
-    const replayEntityType = getReplayEntityType(replayEntity);
     switch (replayEntityType) {
-      case ReplayEntityType.CANVAS: {
+      case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
         if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
@@ -206,14 +202,14 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
         break;
       }
-      case ReplayEntityType.ACTION:
+      case ENTITY_TYPE.ACTION:
         yield call(replayActionSaga, replayEntity, replay);
         break;
-      case ReplayEntityType.DATASOURCE: {
+      case ENTITY_TYPE.DATASOURCE: {
         yield call(replayDatasourceSaga, replayEntity, replay);
         break;
       }
-      case ReplayEntityType.JSACTION:
+      case ENTITY_TYPE.JSACTION:
         yield put(
           updateJSCollectionBody(replayEntity.body, replayEntity.id, true),
         );
@@ -228,15 +224,15 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
 export function* replayPreProcess(
   replayEntity: any,
   replay: any,
-  replayEntityType: ReplayEntityType,
+  replayEntityType: ENTITY_TYPE,
 ) {
   let res = {};
   const { updates = [] } = replay;
   const { kind = "", modifiedProperty } = updates[updates.length - 1] || {};
   if (!modifiedProperty) return res;
-  if (replayEntityType === ReplayEntityType.ACTION) {
+  if (replayEntityType === ENTITY_TYPE.ACTION) {
     res = yield call(getEditorFieldConfig, replayEntity, modifiedProperty);
-  } else if (replayEntityType === ReplayEntityType.DATASOURCE) {
+  } else if (replayEntityType === ENTITY_TYPE.DATASOURCE) {
     res = yield call(getDatasourceFieldConfig, replayEntity, modifiedProperty);
   }
   return { ...res, kind, modifiedProperty };
@@ -264,6 +260,7 @@ function* getDatasourceFieldConfig(
 function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
   let currentTab = "";
   let fieldInfo = {};
+  if (!modifiedProperty) return { currentTab, fieldInfo };
   if (isAPIAction(replayEntity)) {
     if (modifiedProperty.includes("headers"))
       currentTab = API_EDITOR_TABS.HEADERS;
@@ -306,13 +303,13 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
 }
 
 function* replayActionSaga(replayEntity: any, replay: any) {
-  const { currentTab, modifiedProperty } = yield call(
-    replayPreProcess,
-    replayEntity,
-    replay,
-    ReplayEntityType.ACTION,
-  );
   const { updates = [] } = replay;
+  const { modifiedProperty } = updates[updates.length - 1] || {};
+  const { currentTab } = yield call(
+    getEditorFieldConfig,
+    replayEntity,
+    modifiedProperty,
+  );
   const didSwitch: boolean = yield call(switchTab, currentTab);
   //Delay change if tab needs to be switched
   if (didSwitch) yield delay(REPLAY_FOCUS_DELAY);
@@ -348,13 +345,13 @@ function* replayActionSaga(replayEntity: any, replay: any) {
 }
 
 function* replayDatasourceSaga(replayEntity: any, replay: any) {
-  const { fieldInfo } = yield call(
-    replayPreProcess,
-    replayEntity,
-    replay,
-    ReplayEntityType.DATASOURCE,
-  );
   const { updates = [] } = replay;
+  const { modifiedProperty } = updates[updates.length - 1] || {};
+  const { fieldInfo } = yield call(
+    getDatasourceFieldConfig,
+    replayEntity,
+    modifiedProperty,
+  );
   const { parentSection = "" } = fieldInfo;
   const didExpand: boolean = yield call(expandAccordion, parentSection);
   //Delay change if accordion needs to be expanded

@@ -10,6 +10,7 @@ import {
   UPDATES,
   WIDGETS,
 } from "../replayUtils";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
 
@@ -42,7 +43,7 @@ export default class ReplayCanvas extends ReplayEntity<
   CanvasWidgetsReduxState
 > {
   public constructor(entity: CanvasWidgetsReduxState) {
-    super(entity);
+    super(entity, ENTITY_TYPE.WIDGET);
   }
 
   public processDiff(diff: DSLDiff, replay: any, isUndo: boolean) {

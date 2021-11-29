@@ -57,6 +57,7 @@ import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "../../../actions/pageActions";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -827,7 +828,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initializeReplayEntity: (id: string, data: any) =>
-      dispatch(updateReplayEntity(id, data)),
+      dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),

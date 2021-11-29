@@ -277,12 +277,12 @@ ctx.addEventListener(
           ? evaluate(expression, evalTree, {}, [], true)
           : evaluate(expression, evalTree, {});
       case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
-        const { entity, entityId } = requestData;
+        const { entity, entityId, entityType } = requestData;
         const replayObject = replayMap[entityId];
         if (replayObject) {
           replayObject.update(entity);
         } else {
-          replayMap[entityId] = new ReplayEditor(entity);
+          replayMap[entityId] = new ReplayEditor(entity, entityType);
         }
         break;
       case EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION:

@@ -60,26 +60,6 @@ export function getPathsFromDiff(diffs: any) {
   return paths;
 }
 
-export enum ReplayEntityType {
-  CANVAS,
-  DATASOURCE,
-  JSACTION,
-  ACTION,
-}
-
-export function getReplayEntityType(entity: any) {
-  if (entity && entity.hasOwnProperty("actionConfiguration")) {
-    return ReplayEntityType.ACTION;
-  }
-  if (
-    entity &&
-    (entity.hasOwnProperty("datasourceConfiguration") ||
-      entity.hasOwnProperty("datasourceId"))
-  )
-    return ReplayEntityType.DATASOURCE;
-  if (entity && entity.hasOwnProperty("body")) return ReplayEntityType.JSACTION;
-  return ReplayEntityType.CANVAS;
-}
 /**
  * creates paths changed from diffs  array
  *

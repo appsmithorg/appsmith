@@ -77,6 +77,7 @@ import {
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -252,7 +253,8 @@ function* changeApiSaga(
   }
 
   PerformanceTracker.stopTracking();
-  if (!actionPayload.payload.action) yield put(updateReplayEntity(id, action));
+  if (!actionPayload.payload.action)
+    yield put(updateReplayEntity(id, action, ENTITY_TYPE.ACTION));
 }
 
 function* setHeaderFormat(apiId: string, headers?: Property[]) {
@@ -377,7 +379,7 @@ function* formValueChangeSaga(
     call(updateFormFields, actionPayload),
   ]);
 
-  yield put(updateReplayEntity(values.id, values));
+  yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {

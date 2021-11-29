@@ -374,10 +374,14 @@ function* handleUpdateJSCollectionBody(
   }
   if (!actionPayload.payload.isReplay)
     yield put(
-      updateReplayEntity(actionPayload.payload.id, {
-        id: actionPayload.payload.id,
-        body: actionPayload.payload.body,
-      }),
+      updateReplayEntity(
+        actionPayload.payload.id,
+        {
+          id: actionPayload.payload.id,
+          body: actionPayload.payload.body,
+        },
+        ENTITY_TYPE.JSACTION,
+      ),
     );
 }
 

@@ -71,6 +71,7 @@ import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -420,21 +421,23 @@ export function* evaluateArgumentSaga(action: any) {
   }
 }
 
-export function* updateReplayEnitiySaga(
+export function* updateReplayEntitySaga(
   actionPayload: ReduxAction<{
     entityId: string;
     entity: any;
+    entityType: ENTITY_TYPE;
   }>,
 ) {
   //Delay updates to replay object to not persist every keystroke
   yield delay(REPLAY_DELAY);
-  const { entity, entityId } = actionPayload.payload;
+  const { entity, entityId, entityType } = actionPayload.payload;
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
     {
       entityId,
       entity,
+      entityType,
     },
   );
   return workerResponse;

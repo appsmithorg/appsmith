@@ -46,6 +46,7 @@ import {
   startFormEvaluations,
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(
@@ -109,7 +110,13 @@ function* changeQuerySaga(
   // Once the initial values are set, we can run the evaluations based on them.
   yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
 
-  yield put(updateReplayEntity(formInitialValues.id, formInitialValues));
+  yield put(
+    updateReplayEntity(
+      formInitialValues.id,
+      formInitialValues,
+      ENTITY_TYPE.ACTION,
+    ),
+  );
 }
 
 function* formValueChangeSaga(
@@ -159,7 +166,7 @@ function* formValueChangeSaga(
       }),
     );
   }
-  yield put(updateReplayEntity(values.id, values));
+  yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {

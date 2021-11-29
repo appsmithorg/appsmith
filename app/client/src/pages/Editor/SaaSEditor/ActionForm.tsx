@@ -32,6 +32,7 @@ import { diff, Diff } from "deep-diff";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -58,7 +59,11 @@ function ActionForm(props: Props) {
 
   useEffect(() => {
     dispatch(
-      updateReplayEntity(props.initialValues.id as string, props.initialValues),
+      updateReplayEntity(
+        props.initialValues.id as string,
+        props.initialValues,
+        ENTITY_TYPE.ACTION,
+      ),
     );
   }, []);
 

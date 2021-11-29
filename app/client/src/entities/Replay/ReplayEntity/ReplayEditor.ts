@@ -4,6 +4,7 @@ import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
 import { JSAction } from "entities/JSCollection";
 import { Datasource } from "entities/Datasource";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export type ReplayEditorUpdate<T> = {
   modifiedProperty: string;
@@ -15,14 +16,14 @@ export type ReplayEditorUpdate<T> = {
 export default class ReplayEditor<
   T extends Action | JSAction | Datasource
 > extends ReplayEntity<T> {
-  constructor(entity: T) {
-    super(entity);
+  constructor(entity: T, entityType: ENTITY_TYPE) {
+    super(entity, entityType);
   }
 
   public processDiff(diff: Diff<T, T>, replay: any, isUndo: boolean): void {
     if (!diff || !diff.path || !diff.path.length) return;
     replay.updates = (replay.updates || []).concat(
-      this.getChanges(diff, isUndo),
+      this.getChanges(diff, isUndo) || [],
     );
   }
 
@@ -31,7 +32,10 @@ export default class ReplayEditor<
     The modifiedProperty would be used to highlight the field that has been replayed. We might need to use the kind in future to display toast
     messages or even highlight based on the kind.
   */
-  public getChanges(diff: Diff<T, T>, isUndo: boolean): ReplayEditorUpdate<T> {
+  private getChanges(
+    diff: Diff<T, T>,
+    isUndo: boolean,
+  ): ReplayEditorUpdate<T> | undefined {
     const { kind, path } = diff;
     if (diff.kind === "N") {
       return {
@@ -48,6 +52,7 @@ export default class ReplayEditor<
         isUndo,
       };
     } else if (diff.kind === "E") {
+      if (diff.lhs === diff.rhs) return;
       return {
         modifiedProperty: pathArrayToString(path),
         update: isUndo ? diff.lhs : diff.rhs,
