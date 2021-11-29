@@ -527,11 +527,21 @@ export function EditorJSONtoForm(props: Props) {
   const renderConfig = (editorConfig: any) => {
     try {
       // Selectively rendering form based on uiComponent prop
-      return uiComponent === UIComponentTypes.UQIDbEditorForm
-        ? editorConfig.map((config: any, idx: number) => {
+      if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+        if (
+          props.hasOwnProperty("formEvaluationState") &&
+          !!props.formEvaluationState &&
+          Object.keys(props.formEvaluationState).length > 0
+        ) {
+          return editorConfig.map((config: any, idx: number) => {
             return renderEachConfigV2(formName, config, idx);
-          })
-        : editorConfig.map(renderEachConfig(formName));
+          });
+        } else {
+          return <p>Loading...</p>;
+        }
+      } else {
+        return editorConfig.map(renderEachConfig(formName));
+      }
     } catch (e) {
       log.error(e);
       Sentry.captureException(e);
@@ -554,11 +564,7 @@ export function EditorJSONtoForm(props: Props) {
 
   // V2 call to make rendering more flexible, used for UQI forms
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
-    if (
-      !!section &&
-      props.hasOwnProperty("formEvaluationState") &&
-      !!props.formEvaluationState
-    ) {
+    if (!!section) {
       let allowToRender = true;
       if (
         section.hasOwnProperty("propertyName") &&
