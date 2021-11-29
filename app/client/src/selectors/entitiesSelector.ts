@@ -310,11 +310,7 @@ export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
     return actions.filter((action) => {
-      return (
-        action.config.pluginType === PluginType.DB ||
-        action.config.pluginType === PluginType.SAAS ||
-        action.config.pluginType === PluginType.API
-      );
+      return action.config.pluginType === PluginType.DB;
     });
   },
 );
