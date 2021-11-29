@@ -796,20 +796,20 @@ function ApplicationsSection(props: any) {
                                 }
                                 underline
                               />
-                              <MenuItem
-                                cypressSelector="t--org-setting"
-                                icon="general"
-                                onSelect={() =>
-                                  getOnSelectAction(
-                                    DropdownOnSelectActions.REDIRECT,
-                                    {
-                                      path: `/org/${organization.id}/settings/general`,
-                                    },
-                                  )
-                                }
-                                text="Organization Settings"
-                              />
                             </div>
+                            <MenuItem
+                              cypressSelector="t--org-setting"
+                              icon="general"
+                              onSelect={() =>
+                                getOnSelectAction(
+                                  DropdownOnSelectActions.REDIRECT,
+                                  {
+                                    path: `/org/${organization.id}/settings/general`,
+                                  },
+                                )
+                              }
+                              text="Organization Settings"
+                            />
                             {enableImportExport && (
                               <MenuItem
                                 cypressSelector="t--org-import-app"
