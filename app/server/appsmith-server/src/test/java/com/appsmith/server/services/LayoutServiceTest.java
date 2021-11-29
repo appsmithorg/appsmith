@@ -509,7 +509,7 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(10);
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(8);
 
                     Set<String> firstSetPageLoadActions = Set.of(
                             "aPostTertiaryAction",
@@ -519,12 +519,12 @@ public class LayoutServiceTest {
                             "anotherDBAction",
                             "hiddenAction1",
                             "hiddenAction2",
-                            "hiddenAction4",
-                            "Collection.anAsyncCollectionActionWithoutCall",
-                            "Collection.aSyncCollectionActionWithoutCall"
+                            "hiddenAction4"
                     );
 
                     Set<String> secondSetPageLoadActions = Set.of(
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall",
                             "aPostActionWithAutoExec"
                     );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
