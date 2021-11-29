@@ -65,13 +65,12 @@ describe("evaluate", () => {
           ch: 1,
           code: "W117",
           errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "    const result = wrongJS",
+          errorSegment: "    return wrongJS;",
           errorType: "LINT",
           line: 0,
           raw: `
   function closedFunction () {
-    const result = wrongJS
-    return result;
+    return wrongJS;
   }
   closedFunction()
   `,
@@ -84,8 +83,7 @@ describe("evaluate", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = wrongJS
-    return result;
+    return wrongJS;
   }
   closedFunction()
   `,
@@ -104,8 +102,7 @@ describe("evaluate", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = {}.map()
-    return result;
+    return {}.map();
   }
   closedFunction()
   `,
@@ -170,8 +167,7 @@ describe("evaluate", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = setTimeout(() => {}, 100)
-    return result;
+    return setTimeout(() => {}, 100);
   }
   closedFunction()
   `,
@@ -192,28 +188,31 @@ describe("evaluate", () => {
     const response = evaluate(js, dataTree, {}, callbackData);
     expect(response.result).toBe("test1");
   });
-  it("handles EXPRESSIONS with new line only", () => {
-    const js = "\n";
-    const response = evaluate(js, dataTree, {});
-    const nonLintErrors = response.errors.filter(
-      ({ errorType }) => errorType !== PropertyEvaluationErrorType.LINT,
-    );
-    expect(nonLintErrors.length).toBe(0);
+  it("handles EXPRESSIONS with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {});
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {});
+    expect(response.errors.length).toBe(0);
   });
-  it("handles TRIGGERS with new line only", () => {
-    const js = "\n";
-    const response = evaluate(js, dataTree, {}, undefined, true);
-    const nonLintErrors = response.errors.filter(
-      ({ errorType }) => errorType !== PropertyEvaluationErrorType.LINT,
-    );
-    expect(nonLintErrors.length).toBe(0);
+  it("handles TRIGGERS with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {}, undefined, true);
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {}, undefined, true);
+    expect(response.errors.length).toBe(0);
   });
-  it("handles ANONYMOUS_FUNCTION with new line only", () => {
-    const js = "\n";
-    const response = evaluate(js, dataTree, {}, [], true);
-    const nonLintErrors = response.errors.filter(
-      ({ errorType }) => errorType !== PropertyEvaluationErrorType.LINT,
-    );
-    expect(nonLintErrors.length).toBe(0);
+  it("handles ANONYMOUS_FUNCTION with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {}, [], true);
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {}, [], true);
+    expect(response.errors.length).toBe(0);
   });
 });
