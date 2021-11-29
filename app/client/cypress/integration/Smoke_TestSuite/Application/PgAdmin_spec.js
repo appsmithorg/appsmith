@@ -162,17 +162,15 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     cy.runQuery();
     // clicking on chevron icon to go back to the datasources page
-    cy.get(appPage.dropdownChevronLeft).click({ force: true });
+    cy.get(appPage.dropdownChevronLeft).click();
   });
 
-  /* it("Add new table", function() {
+  it("Add new table", function() {
     const uuid = () => Cypress._.random(0, 1e6);
     const id = uuid();
     const Table = `table${id}`;
     // clicking on chevron to go back to the application page
-    cy.get(appPage.dropdownChevronLeft)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(appPage.dropdownChevronLeft).click();
     // adding new table
     cy.xpath(appPage.addNewtable).click();
     cy.xpath(appPage.addTablename)
@@ -185,9 +183,7 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.columnNamefield).should("be.visible");
     cy.xpath(appPage.datatypefield).should("be.visible");
     cy.xpath(appPage.addTablename).type("id");
-    cy.get(appPage.dropdownChevronDown)
-      .last()
-      .click();
+    cy.xpath(appPage.textField).click();
     cy.xpath(appPage.selectDatatype).click();
     // switching on the Primary Key toggle
     cy.get(widgetsPage.switchWidgetInactive)
@@ -202,7 +198,7 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.addColumn).should("be.visible");
     cy.xpath(appPage.submitButton).click({ force: true });
     cy.xpath(appPage.closeButton).click();
-  });  
+  });
 
   it("View and Delete table", function() {
     cy.xpath(appPage.addNewtable).should("be.visible");
@@ -217,5 +213,5 @@ describe("PgAdmin Clone App", function() {
       .click({ force: true });
     cy.xpath(appPage.confirmButton).click();
     cy.xpath(appPage.closeButton).click();
-  }); */
+  });
 });
