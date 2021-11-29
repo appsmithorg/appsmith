@@ -1018,11 +1018,19 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: false,
-        parsed: [],
+        parsed: [
+          ["PRIMARY", "SECONDARY", "TERTIARY"],
+          ["PRIMARY", "SECONDARY", "TERTIARY"],
+        ],
         messages: ["Max Length Exceeded: 3 > 2"],
       },
       {
         isValid: true,
+        parsed: [
+          ["PRIMARY", "SECONDARY"],
+          ["PRIMARY", "SECONDARY"],
+        ],
+        messages: [],
       },
     ];
     inputs.forEach((input, ind) => {
