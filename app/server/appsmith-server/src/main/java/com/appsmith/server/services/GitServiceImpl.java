@@ -732,13 +732,9 @@ public class GitServiceImpl implements GitService {
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if(Boolean.TRUE.equals(isRemote)) {
-            String finalBranchName = branchName.replace("remote/", "");
+            String finalBranchName = branchName.replace("origin/", "");
             return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
-                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName))
-                    .flatMap(application -> Mono.error(new AppsmithException(
-                            AppsmithError.GIT_ACTION_FAILED,
-                            " checkout"+ branchName,
-                            " branch already exists in local")));
+                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName));
         }
 
         return getApplicationById(defaultApplicationId)
@@ -777,6 +773,7 @@ public class GitServiceImpl implements GitService {
                     GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
                     final String srcApplicationId = srcApplication.getId();
                     srcBranchGitData.setBranchName(branchName);
+                    srcBranchGitData.setDefaultApplicationId(srcApplicationId);
                     // Save a new application in DB and update from the parent branch application
                     srcBranchGitData.setGitAuth(null);
                     srcApplication.setId(null);
@@ -960,12 +957,18 @@ public class GitServiceImpl implements GitService {
     }
 
     private Mono<Boolean> checkIfRepoIsClean(String defaultApplicationId, String branchName, Path repoSuffix) {
+        final String finalBranchName = branchName.replace("origin/", "");
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .onErrorResume(error ->  {
+                    //if the branch does not exist in local, checkout remote branch
+                    return checkoutBranch(defaultApplicationId, branchName, true)
+                            .map(application -> application.getId());
+                })
                 .flatMap(branchedApplicationId -> importExportApplicationService.exportApplicationById(branchedApplicationId, SerialiseApplicationObjective.VERSION_CONTROL))
                 .flatMap(applicationJson -> {
                     try {
-                        return fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName)
-                                .flatMap(repoPath -> this.getStatus(defaultApplicationId, branchName)
+                        return fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName)
+                                .flatMap(repoPath -> this.getStatus(defaultApplicationId, finalBranchName)
                                         .map(status -> CollectionUtils.isNullOrEmpty(status.getModified())));
                     } catch (IOException e) {
                         log.error("Error while saving git files to repo {}. Details: {}", repoSuffix, e);
@@ -1155,7 +1158,13 @@ public class GitServiceImpl implements GitService {
                     Path repoSuffix = tuple.getT2();
 
                     //2. git checkout destinationBranch ---> git merge sourceBranch
-                    return Mono.zip(gitExecutor.mergeBranch(repoSuffix, sourceBranch, destinationBranch), Mono.just(defaultApplication))
+                    return Mono.zip(
+                            gitExecutor.mergeBranch(
+                                    repoSuffix,
+                                    sourceBranch.replace("origin/", ""),
+                                    destinationBranch.replace("origin/", "")
+                            ),
+                            Mono.just(defaultApplication))
                     // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab handleMergeConflict
                     .onErrorResume(error -> {
                         if(error.getMessage().contains("Merge conflict")) {
@@ -1174,11 +1183,11 @@ public class GitServiceImpl implements GitService {
                                 defaultApplication.getOrganizationId(),
                                 defaultApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                                 defaultApplication.getGitApplicationMetadata().getRepoName(),
-                                destinationBranch);
+                                destinationBranch.replace("origin/",""));
                         return Mono.zip(
                                 Mono.just(mergeStatus),
                                 applicationService
-                                        .findByBranchNameAndDefaultApplicationId(destinationBranch, defaultApplicationId, MANAGE_APPLICATIONS),
+                                        .findByBranchNameAndDefaultApplicationId(destinationBranch.replace("origin/",""), defaultApplicationId, MANAGE_APPLICATIONS),
                                 applicationJson
                         );
                     } catch (IOException | GitAPIException e) {
@@ -1194,12 +1203,12 @@ public class GitServiceImpl implements GitService {
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
-                            .importApplicationInOrganization(destApplication.getOrganizationId(), applicationJson, destApplication.getId(), destinationBranch)
+                            .importApplicationInOrganization(destApplication.getOrganizationId(), applicationJson, destApplication.getId(), destinationBranch.replace("origin/", ""))
                             .flatMap(application1 -> {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
-                                return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
+                                return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch.replace("origin/", ""))
                                         .map(commitStatus -> {
                                             GitPullDTO gitPullDTO = new GitPullDTO();
                                             gitPullDTO.setMergeStatus(mergeStatusDTO);
