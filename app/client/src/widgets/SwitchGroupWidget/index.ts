@@ -1,3 +1,5 @@
+import { Alignment } from "@blueprintjs/core";
+
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
@@ -22,6 +24,7 @@ export const CONFIG = {
     isRequired: false,
     isInline: true,
     isVisible: true,
+    alignment: Alignment.LEFT,
     version: 1,
   },
   properties: {

@@ -1,4 +1,5 @@
 import React from "react";
+import { Alignment } from "@blueprintjs/core";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -120,6 +121,24 @@ class SwitchGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "alignment",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            options: [
+              {
+                label: "Left",
+                value: Alignment.LEFT,
+              },
+              {
+                label: "Right",
+                value: Alignment.RIGHT,
+              },
+            ],
+          },
         ],
       },
       {
@@ -169,6 +188,7 @@ class SwitchGroupWidget extends BaseWidget<
 
   getPageView() {
     const {
+      alignment,
       isDisabled,
       isInline,
       isRequired,
@@ -180,6 +200,7 @@ class SwitchGroupWidget extends BaseWidget<
 
     return (
       <SwitchGroupComponent
+        alignment={alignment}
         disabled={isDisabled}
         inline={isInline}
         onChange={this.handleSwitchStateChange}
@@ -226,6 +247,7 @@ export interface SwitchGroupWidgetProps extends WidgetProps {
   isRequired?: boolean;
   isValid?: boolean;
   isDisabled?: boolean;
+  alignment: Alignment;
   onSelectionChange?: boolean;
 }
 

@@ -4,6 +4,7 @@ import { Alignment, Switch } from "@blueprintjs/core";
 
 import { ThemeProp } from "components/ads/common";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 export interface OptionProps {
   label?: string;
@@ -11,6 +12,7 @@ export interface OptionProps {
 }
 
 export interface SwitchGroupContainerProps {
+  alignment: Alignment;
   inline?: boolean;
   optionCount: number;
   valid?: boolean;
@@ -20,13 +22,25 @@ export const SwitchGroupContainer = styled.div<
   ThemeProp & SwitchGroupContainerProps
 >`
   display: ${({ inline }) => (inline ? "inline-flex" : "flex")};
-  ${({ inline }) => `
+  ${({ alignment, inline }) => `
     flex-direction: ${inline ? "row" : "column"};
-    align-items: ${inline ? "center" : "flex-start"};
+    align-items: ${
+      inline
+        ? "center"
+        : alignment === Alignment.LEFT
+        ? "flex-start"
+        : "flex-end"
+    };
     ${inline && "flex-wrap: wrap"};
   `}
-  justify-content: ${({ inline, optionCount }) =>
-    optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
+  justify-content: ${({ alignment, inline, optionCount }) =>
+    optionCount > 1
+      ? `space-between`
+      : inline
+      ? alignment === Alignment.LEFT
+        ? `flex-start`
+        : `flex-end`
+      : `center`};
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -54,11 +68,18 @@ const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
   &.bp3-control.bp3-switch {
     margin-top: ${({ inline, optionCount }) =>
       (inline || optionCount === 1) && `4px`};
+    ${({ alignIndicator }) =>
+      alignIndicator === Alignment.RIGHT && `margin-right: 0`};
+    input:checked ~ .bp3-control-indicator,
+    &:hover input:checked ~ .bp3-control-indicator {
+      background-color: ${Colors.GREEN};
+    }
   }
 `;
 
 function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   const {
+    alignment,
     disabled,
     inline,
     onChange,
@@ -70,6 +91,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
 
   return (
     <SwitchGroupContainer
+      alignment={alignment}
       inline={inline}
       optionCount={(options || []).length}
       valid={valid}
@@ -78,6 +100,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
         options.length > 0 &&
         options.map((option: OptionProps) => (
           <StyledSwitch
+            alignIndicator={alignment}
             checked={selected.includes(option.value)}
             disabled={disabled}
             inline={inline}
@@ -106,6 +129,7 @@ export interface Item {
 }
 
 export interface SwitchGroupComponentProps {
+  alignment: Alignment;
   disabled?: boolean;
   inline?: boolean;
   options: OptionProps[];
