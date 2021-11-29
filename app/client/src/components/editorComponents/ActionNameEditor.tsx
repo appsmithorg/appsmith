@@ -18,6 +18,8 @@ import { Spinner } from "@blueprintjs/core";
 import { Classes } from "@blueprintjs/core";
 import log from "loglevel";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -62,7 +64,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
   if (!params.apiId && !params.queryId) {
     log.error("No API id or Query id found in the url.");
   }
-
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
@@ -122,6 +124,10 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
         name !== currentActionConfig?.name &&
         !isInvalidActionName(name)
       ) {
+        if (guidedTourEnabled) {
+          dispatch(toggleShowDeviationDialog(true));
+          return;
+        }
         dispatch(saveActionName({ id: currentActionConfig.id, name }));
       }
     },

@@ -44,6 +44,7 @@ import {
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
 import { loading } from "selectors/onboardingSelectors";
+import GuidedTourDialog from "./GuidedTour/Dialog";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -208,6 +209,7 @@ class Editor extends Component<Props> {
               <CommentShowCaseCarousel />
               <GitSyncModal />
               <ConcurrentPageEditorToast />
+              <GuidedTourDialog />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

@@ -75,3 +75,17 @@ export const toggleLoader = (payload: boolean) => {
     payload,
   };
 };
+
+export const toggleShowDeviationDialog = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.TOGGLE_DEVIATION_DIALOG,
+    payload,
+  };
+};
+
+export const toggleShowEndTourDialog = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.TOGGLE_END_GUIDED_TOUR_DIALOG,
+    payload,
+  };
+};

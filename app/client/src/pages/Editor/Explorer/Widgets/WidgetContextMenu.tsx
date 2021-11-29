@@ -13,6 +13,8 @@ import {
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function WidgetContextMenu(props: {
@@ -32,6 +34,7 @@ export function WidgetContextMenu(props: {
     if (parentId) return state.ui.pageWidgets[props.pageId][parentId];
     return {};
   });
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const dispatchDelete = useCallback(() => {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
@@ -57,10 +60,13 @@ export function WidgetContextMenu(props: {
     });
   }, [dispatch, widgetId, parentId, widget, parentWidget]);
 
-  const editWidgetName = useCallback(
-    () => dispatch(initExplorerEntityNameEdit(widgetId)),
-    [dispatch, widgetId],
-  );
+  const editWidgetName = useCallback(() => {
+    if (guidedTourEnabled) {
+      dispatch(toggleShowDeviationDialog(true));
+      return;
+    }
+    dispatch(initExplorerEntityNameEdit(widgetId));
+  }, [dispatch, widgetId, guidedTourEnabled]);
 
   const optionTree: TreeDropdownOption[] = [
     {

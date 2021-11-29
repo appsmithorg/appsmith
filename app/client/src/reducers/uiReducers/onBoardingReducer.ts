@@ -21,6 +21,8 @@ const initialState: OnboardingState = {
   showSuccessMessage: false,
   tableWidgetWasSelected: false,
   hadReachedStep: 1,
+  showEndTourDialog: false,
+  showDeviatingDialog: false,
 };
 
 export interface OnboardingState {
@@ -41,6 +43,8 @@ export interface OnboardingState {
   showSuccessMessage: boolean;
   tableWidgetWasSelected: boolean;
   hadReachedStep: number;
+  showEndTourDialog: boolean;
+  showDeviatingDialog: boolean;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -184,6 +188,24 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       tableWidgetWasSelected: action.payload,
+    };
+  },
+  [ReduxActionTypes.TOGGLE_DEVIATION_DIALOG]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showDeviatingDialog: action.payload,
+    };
+  },
+  [ReduxActionTypes.TOGGLE_END_GUIDED_TOUR_DIALOG]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showEndTourDialog: action.payload,
     };
   },
 });

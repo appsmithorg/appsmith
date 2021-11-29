@@ -16,11 +16,13 @@ import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
 import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -170,6 +172,7 @@ export const Entity = forwardRef(
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
     const dispatch = useDispatch();
+    const guidedTourEnabled = useSelector(inGuidedTour);
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
@@ -217,17 +220,19 @@ export const Entity = forwardRef(
       });
     }, [dispatch]);
 
-    const enterEditMode = useCallback(
-      () =>
-        props.updateEntityName &&
+    const enterEditMode = useCallback(() => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+      props.updateEntityName &&
         dispatch({
           type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
           payload: {
             id: props.entityId,
           },
-        }),
-      [dispatch, props.entityId, props.updateEntityName],
-    );
+        });
+    }, [dispatch, props.entityId, props.updateEntityName, guidedTourEnabled]);
 
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
