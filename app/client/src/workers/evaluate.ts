@@ -70,6 +70,16 @@ export const getScriptToEval = (
 ): string => {
   // Using replace here would break scripts with replacement patterns (ex: $&, $$)
   const buffer = EvaluationScripts[type].split(ScriptTemplate);
+  // Assign "undefined" to EXPRESSIONS and TRIGGERS that are empty
+  // to avoid "unexpected return value" error (on new line).
+  // Since, we assign userScript to result before returning (Check EvaluationScripts)
+  if (
+    userScript.length === 0 &&
+    (type === EvaluationScriptType.EXPRESSION ||
+      type === EvaluationScriptType.TRIGGERS)
+  ) {
+    userScript = "undefined";
+  }
   return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
