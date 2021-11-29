@@ -340,8 +340,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
 
-    // // Check if the value has changed. If no option
-    // // selected till now, there is a change
+    // Check if the value has changed. If no option
+    // selected till now, there is a change
     if (this.props.selectedOptionValue) {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
