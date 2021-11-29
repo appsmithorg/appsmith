@@ -574,7 +574,7 @@ export const COMMITTING_AND_PUSHING_CHANGES = () =>
   "COMMITTING AND PUSHING CHANGES...";
 export const IS_MERGING = () => "MERGING CHANGES...";
 
-export const MERGE_CHANGES = () => "Merge Changes";
+export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const RETRY = () => "RETRY";
