@@ -32,6 +32,8 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariant,
   ButtonVariantTypes,
+  RecaptchaType,
+  RecaptchaTypes,
 } from "components/constants";
 import {
   getCustomBackgroundColor,
@@ -273,7 +275,7 @@ interface RecaptchaProps {
   googleRecaptchaKey?: string;
   clickWithRecaptcha: (token: string) => void;
   handleRecaptchaV2Loading?: (isLoading: boolean) => void;
-  recaptchaV2?: boolean;
+  recaptchaType?: RecaptchaType;
 }
 
 interface ButtonComponentProps extends ComponentProps {
@@ -298,7 +300,7 @@ function RecaptchaV2Component(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    recaptchaV2?: boolean;
+    recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -347,7 +349,7 @@ function RecaptchaV3Component(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-    recaptchaV2?: boolean;
+    recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -414,7 +416,7 @@ function BtnWrapper(
       });
       props.onClick && props.onClick(event);
     };
-    if (props.recaptchaV2) {
+    if (props.recaptchaType === RecaptchaTypes.V2) {
       return <RecaptchaV2Component {...props} handleError={handleError} />;
     } else {
       return <RecaptchaV3Component {...props} handleError={handleError} />;
@@ -430,7 +432,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       googleRecaptchaKey={props.googleRecaptchaKey}
       handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
       onClick={props.onClick}
-      recaptchaV2={props.recaptchaV2}
+      recaptchaType={props.recaptchaType}
     >
       <ButtonContainer disabled={props.isDisabled}>
         <BaseButton

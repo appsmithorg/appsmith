@@ -2,7 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
-import { ButtonVariantTypes } from "components/constants";
+import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,7 +19,7 @@ export const CONFIG = {
     isDisabled: false,
     isVisible: true,
     isDefaultClickDisabled: true,
-    recaptchaV2: false,
+    recaptchaType: RecaptchaTypes.V3,
     version: 1,
   },
   properties: {

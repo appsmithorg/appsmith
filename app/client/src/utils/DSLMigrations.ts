@@ -42,6 +42,7 @@ import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
+import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -983,6 +984,10 @@ export const transformDSL = (
   }
   if (currentDSL.version === 45) {
     currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
+    currentDSL.version = 46;
+  }
+  if (currentDSL.version === 46) {
+    currentDSL = migrateRecaptchaType(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
