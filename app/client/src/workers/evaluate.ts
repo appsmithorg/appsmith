@@ -37,7 +37,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    const result = userFunction.apply(self, ARGUMENTS);
+    const result = userFunction?.apply(self, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
