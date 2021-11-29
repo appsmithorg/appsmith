@@ -1,18 +1,36 @@
 import React from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { Dialog, Classes } from "@blueprintjs/core";
-import Button from "components/editorComponents/Button";
 import {
   showRunActionConfirmModal,
   cancelRunActionConfirmModal,
   acceptRunActionConfirmModal,
 } from "actions/pluginActionActions";
+import DialogComponent from "components/ads/DialogComponent";
+import styled from "styled-components";
+import Button, { Category, Size } from "components/ads/Button";
+import {
+  createMessage,
+  QUERY_CONFIRMATION_MODAL_MESSAGE,
+} from "constants/messages";
 
 type Props = {
   isModalOpen: boolean;
   dispatch: any;
 };
+
+const ModalBody = styled.div`
+  padding-bottom: 20px;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    margin-left: 12px;
+  }
+`;
 
 class ConfirmRunModal extends React.Component<Props> {
   render() {
@@ -24,34 +42,39 @@ class ConfirmRunModal extends React.Component<Props> {
     };
 
     return (
-      <Dialog isOpen={isModalOpen} onClose={handleClose} title="Confirm Action">
-        <div className={Classes.DIALOG_BODY}>
-          Are you sure you want to perform this action?
-        </div>
-        <div className={Classes.DIALOG_FOOTER}>
-          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button
-              filled
-              onClick={() => {
-                dispatch(cancelRunActionConfirmModal());
-
-                handleClose();
-              }}
-              text="Cancel"
-            />
-            <Button
-              filled
-              intent="primary"
-              onClick={() => {
-                dispatch(acceptRunActionConfirmModal());
-
-                handleClose();
-              }}
-              text="Confirm"
-            />
-          </div>
-        </div>
-      </Dialog>
+      <DialogComponent
+        isOpen={isModalOpen}
+        maxHeight={"80vh"}
+        onClose={handleClose}
+        title="Confirm Action"
+        width={"580px"}
+      >
+        <ModalBody>{createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}</ModalBody>
+        <ModalFooter>
+          <Button
+            category={Category.tertiary}
+            onClick={() => {
+              dispatch(cancelRunActionConfirmModal());
+              handleClose();
+            }}
+            size={Size.medium}
+            tag="button"
+            text="Cancel"
+            type="button"
+          />
+          <Button
+            category={Category.primary}
+            onClick={() => {
+              dispatch(acceptRunActionConfirmModal());
+              handleClose();
+            }}
+            size={Size.medium}
+            tag="button"
+            text="Confirm"
+            type="button"
+          />
+        </ModalFooter>
+      </DialogComponent>
     );
   }
 }

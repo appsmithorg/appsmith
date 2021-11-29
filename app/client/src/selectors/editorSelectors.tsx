@@ -9,7 +9,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   getActions,
   getCanvasWidgets,
@@ -96,6 +96,9 @@ export const getPageList = (state: AppState) => state.entities.pageList.pages;
 
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
+
+export const getCurrentApplication = (state: AppState) =>
+  state.ui.applications.currentApplication;
 
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId ||
@@ -369,3 +372,23 @@ export const getJSCollectionById = createSelector(
 
 export const getApplicationLastDeployedAt = (state: AppState) =>
   state.ui.applications.currentApplication?.lastDeployedAt;
+
+/**
+ * returns the `state.ui.editor.isPreviewMode`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const previewModeSelector = (state: AppState) => {
+  return state.ui.editor.isPreviewMode;
+};
+
+/**
+ * returns the `state.ui.editor.zoomLevel`
+ *
+ * @param state AppState
+ * @returns number
+ */
+export const getZoomLevel = (state: AppState) => {
+  return state.ui.editor.zoomLevel;
+};

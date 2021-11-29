@@ -1,12 +1,14 @@
 package com.external.plugins;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -16,6 +18,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,7 @@ import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.external.plugins.AmazonS3Plugin.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
@@ -46,6 +50,7 @@ import static com.external.plugins.constants.FieldName.LIST_PREFIX;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
+import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -82,7 +87,7 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         ArrayList<Property> properties = new ArrayList<>();
-        properties.add(new Property("amazon s3 region", region));
+        properties.add(null); // since index 0 is not used anymore.
         properties.add(new Property("s3 service provider", serviceProvider));
         properties.add(new Property("custom endpoint region", region));
         dsConfig.setProperties(properties);
@@ -139,30 +144,9 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void testValidateDatasourceWithMissingRegionWithAmazonS3() {
+    public void testValidateDatasourceWithMissingRegionWithOtherS3ServiceProvider() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getProperties().get(0).setValue("");
-
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
-
-        StepVerifier.create(pluginExecutorMono)
-                .assertNext(executor -> {
-                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    assertNotEquals(0, res.size());
-
-                    List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
-                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
-                            "region where your AWS S3 instance is hosted."));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testValidateDatasourceWithMissingRegionWithNonAmazonProvider() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(1).setValue("other");
         datasourceConfiguration.getProperties().get(2).setValue("");
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
@@ -177,6 +161,22 @@ public class AmazonS3PluginTest {
                     assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
                             "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
                             "region where your S3 instance is hosted."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasourceWithMissingRegionWithListedProvider() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getProperties().get(2).setValue("");
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    assertEquals(0, res.size());
                 })
                 .verifyComplete();
     }
@@ -221,12 +221,15 @@ public class AmazonS3PluginTest {
     @Test
     public void testStaleConnectionExceptionFromExecuteMethod() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(Map.of());
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
         Mono<ActionExecutionResult> resultMono = pluginExecutorMono
                                                  .flatMap(executor -> {
-                                                     return executor.execute(
+                                                     return executor.executeParameterized(
                                                              null,
+                                                             executeActionDTO,
                                                              datasourceConfiguration,
                                                              actionConfiguration);
                                                  });
@@ -238,6 +241,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesInBucketWithNoUrl() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -271,10 +275,11 @@ public class AmazonS3PluginTest {
         when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
         when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-                                                                    mockConnection,
-                                                                    datasourceConfiguration,
-                                                                    actionConfiguration);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                mockConnection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -298,16 +303,17 @@ public class AmazonS3PluginTest {
     /*
      * - This method tests the create file program flow till the point where an actual call is made by the AmazonS3
      *   connection to upload a file.
-     * - If everything goes well, then then only expected exception is the one thrown by AmazonS3 connection
+     * - If everything goes well, then only expected exception is the one thrown by AmazonS3 connection
      *   regarding false credentials.
      */
     @Test
     public void testCreateFileFromBodyWithFalseCredentialsAndNonNullDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "";
+        String dummyBody = "{\"data\": \"\"}";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
@@ -322,10 +328,11 @@ public class AmazonS3PluginTest {
         actionConfiguration.setFormData(configMap);
 
         AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-                                                                    connection,
-                                                                    datasourceConfiguration,
-                                                                    actionConfiguration);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -341,16 +348,17 @@ public class AmazonS3PluginTest {
     /*
      * - This method tests the create file program flow till the point where an actual call is made by the AmazonS3
      *   connection to upload a file.
-     * - If everything goes well, then then only expected exception is the one thrown by AmazonS3 connection
+     * - If everything goes well, then only expected exception is the one thrown by AmazonS3 connection
      *   regarding false credentials.
      */
     @Test
     public void testFileUploadFromBodyWithMissingDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "";
+        String dummyBody = "{\"data\": \"\"}";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
@@ -364,8 +372,9 @@ public class AmazonS3PluginTest {
         actionConfiguration.setFormData(configMap);
 
         AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 connection,
+                executeActionDTO,
                 datasourceConfiguration,
                 actionConfiguration);
 
@@ -380,14 +389,61 @@ public class AmazonS3PluginTest {
                 .verifyComplete();
     }
 
-
+    /*
+     * - This method tests the create file program flow till the point where an actual call is made by the AmazonS3
+     *   connection to upload a file.
+     * - If this test fails, the point of failure is expected to be the logic for smart substitution 
+     * - If everything goes well, then only expected exception is the one thrown by AmazonS3 connection
+     *   regarding false credentials.
+     */
     @Test
-    public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
+    public void testSmartSubstitutionJSONBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("dynamicallyFoundFilePickerObject", "<html>Random\"Unescaped'String</html>")));
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "dummyBody;";
+        String dummyBody = "{\"data\": {{dynamicallyFoundFilePickerObject}}}";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, true);
+        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
+                            "our records"));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFileUploadFromBody_withMalformedBody_returnsErrorMessage() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "erroneousBody";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
@@ -402,10 +458,63 @@ public class AmazonS3PluginTest {
         actionConfiguration.setFormData(configMap);
 
         AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-                                                                    connection,
-                                                                    datasourceConfiguration,
-                                                                    actionConfiguration);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("Unable to parse content"));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO("command",
+                            "UPLOAD_FILE_FROM_BODY", null, null, null)); // Action
+                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO("create.dataType", "Base64", null,
+                            null, null)); // File data type
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "{\"data\": \"dummyBody;\"}";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -434,6 +543,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testReadFileFromPathWithoutBase64Encoding() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -459,10 +569,11 @@ public class AmazonS3PluginTest {
         S3ObjectInputStream dummyS3ObjectInputStream = new S3ObjectInputStream(dummyInputStream, null);
         when(mockS3Object.getObjectContent()).thenReturn(dummyS3ObjectInputStream);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-                                                                    mockConnection,
-                                                                    datasourceConfiguration,
-                                                                    actionConfiguration);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                mockConnection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -476,6 +587,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testReadFileFromPathWithBase64Encoding() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -501,8 +613,9 @@ public class AmazonS3PluginTest {
         S3ObjectInputStream dummyS3ObjectInputStream = new S3ObjectInputStream(dummyInputStream, null);
         when(mockS3Object.getObjectContent()).thenReturn(dummyS3ObjectInputStream);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection,
+                executeActionDTO,
                 datasourceConfiguration,
                 actionConfiguration);
 
@@ -532,6 +645,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testDeleteFile() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -550,10 +664,11 @@ public class AmazonS3PluginTest {
         AmazonS3 mockConnection = mock(AmazonS3.class);
         doNothing().when(mockConnection).deleteObject(anyString(), anyString());
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-                                                                    mockConnection,
-                                                                    datasourceConfiguration,
-                                                                    actionConfiguration);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                mockConnection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -580,6 +695,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithPrefix() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -613,8 +729,9 @@ public class AmazonS3PluginTest {
         when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
         when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection,
+                executeActionDTO,
                 datasourceConfiguration,
                 actionConfiguration);
 
@@ -640,6 +757,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithUnsignedUrl() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -679,8 +797,9 @@ public class AmazonS3PluginTest {
         URL dummyUrl2 = new URL("http", "dummy_url_1", "");
         when(mockConnection.getUrl(anyString(), anyString())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection,
+                executeActionDTO,
                 datasourceConfiguration,
                 actionConfiguration);
 
@@ -717,6 +836,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithSignedUrl() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -756,8 +876,9 @@ public class AmazonS3PluginTest {
         URL dummyUrl2 = new URL("http", "dummy_url_1", "");
         when(mockConnection.generatePresignedUrl(any())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection,
+                executeActionDTO,
                 datasourceConfiguration,
                 actionConfiguration);
 
@@ -797,6 +918,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithSignedUrlAndNullDuration() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -835,8 +957,9 @@ public class AmazonS3PluginTest {
         URL dummyUrl2 = new URL("http", "dummy_url_1", "");
         when(mockConnection.generatePresignedUrl(any())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection,
+                executeActionDTO,
                 datasourceConfiguration,
                 actionConfiguration);
 
@@ -945,10 +1068,57 @@ public class AmazonS3PluginTest {
                     Map<String, Object> deleteFileConfig = (Map<String, Object>) deleteFileTemplate.getConfiguration();
                     assertEquals(expectedBucketName, deleteFileConfig.get("bucket"));
                     assertEquals("DELETE_FILE", deleteFileConfig.get("command"));
-
-
                 })
                 .verifyComplete();
     }
 
+    @Test
+    public void testExtractRegionFromEndpoint() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        // Test for Upcloud
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2.de-fra1.upcloudobjects.com");
+
+        AmazonS3ClientBuilder s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("de-fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
+
+        // Test for Wasabi
+        datasourceConfiguration.getProperties().get(1).setValue("wasabi");
+        datasourceConfiguration.getEndpoints().get(0).setHost("s3.ap-northeast-1.wasabisys.com");
+
+        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("ap-northeast-1", s3ClientBuilder.getEndpoint().getSigningRegion());
+
+        // Test for Digital Ocean Spaces
+        datasourceConfiguration.getProperties().get(1).setValue("digital-ocean-spaces");
+        datasourceConfiguration.getEndpoints().get(0).setHost("fra1.digitaloceanspaces.com");
+
+        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
+
+        // Test for Dream Objects
+        datasourceConfiguration.getProperties().get(1).setValue("dream-objects");
+        datasourceConfiguration.getEndpoints().get(0).setHost("objects-us-east-1.dream.io");
+
+        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("us-east-1", s3ClientBuilder.getEndpoint().getSigningRegion());
+    }
+
+    @Test
+    public void testExtractRegionFromEndpointWithBadEndpointFormat() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        // Testing for Upcloud here. Flow for other listed service providers is same, hence not testing separately.
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2..de-fra1.upcloudobjects.com");
+
+        StepVerifier.create(Mono.fromCallable(() -> getS3ClientBuilder(datasourceConfiguration)))
+                .expectErrorSatisfies(error -> {
+                    String expectedErrorMessage = "Your S3 endpoint URL seems to be incorrect for the selected S3 " +
+                            "service provider. Please check your endpoint URL and the selected S3 service provider.";
+                    assertEquals(expectedErrorMessage, error.getMessage());
+                })
+                .verify();
+    }
 }
