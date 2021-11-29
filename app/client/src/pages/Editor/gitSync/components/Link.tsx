@@ -5,7 +5,7 @@ import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 
-const LinkText = styled.div`
+const LinkText = styled.div<{ color?: string }>`
   cursor: pointer;
   .${Classes.ICON} {
     margin-left: ${(props) => props.theme.spaces[3]}px;
@@ -14,6 +14,10 @@ const LinkText = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  &:hover {
+    text-decoration: underline;
+    text-decoration-color: ${(props) => props.color};
+  }
 `;
 
 export default function Link({
@@ -31,7 +35,7 @@ export default function Link({
     window.open(link, "_blank");
   };
   return (
-    <LinkText onClick={onClick}>
+    <LinkText color={color || Colors.CHARCOAL} onClick={onClick}>
       <Text
         case={Case.UPPERCASE}
         color={color || Colors.CHARCOAL}

@@ -84,7 +84,6 @@ const KeyText = styled.span`
 
 const LintText = styled.a`
   :hover {
-    text-decoration: none;
     color: ${Colors.CRUSTA};
   }
   color: ${Colors.CRUSTA};
@@ -108,7 +107,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
       <Text color={Colors.GREY_9} type={TextType.P3}>
         {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
         <LintText href={deployKeyDocUrl} target="_blank">
-          &nbsp;LEARN MORE
+          LEARN MORE
         </LintText>
       </Text>
       <FlexRow>
