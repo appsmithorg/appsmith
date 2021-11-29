@@ -2,25 +2,38 @@ import { Diff } from "deep-diff";
 import { Action } from "entities/Action";
 import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
-import { JSAction } from "entities/JSCollection";
+import { JSActionConfig } from "entities/JSCollection";
 import { Datasource } from "entities/Datasource";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
-export type ReplayEditorUpdate<T> = {
+/*
+ This type represents all the form objects that can be undone/redone. 
+ (Action, datasource, jsAction etc)
+*/
+export type ReplayEditorType =
+  | Partial<JSActionConfig>
+  | Partial<Datasource>
+  | Partial<Action>;
+
+type ReplayEditorDiff = Diff<ReplayEditorType, ReplayEditorType>;
+
+export type ReplayEditorUpdate = {
   modifiedProperty: string;
   index?: number;
-  update: T | Diff<T, T>;
+  update: ReplayEditorType | ReplayEditorDiff;
   kind: "N" | "D" | "E" | "A";
   isUndo?: boolean;
 };
-export default class ReplayEditor<
-  T extends Action | JSAction | Datasource
-> extends ReplayEntity<T> {
-  constructor(entity: T, entityType: ENTITY_TYPE) {
+export default class ReplayEditor extends ReplayEntity<ReplayEditorType> {
+  constructor(entity: ReplayEditorType, entityType: ENTITY_TYPE) {
     super(entity, entityType);
   }
 
-  public processDiff(diff: Diff<T, T>, replay: any, isUndo: boolean): void {
+  public processDiff(
+    diff: Diff<ReplayEditorType, ReplayEditorType>,
+    replay: any,
+    isUndo: boolean,
+  ): void {
     if (!diff || !diff.path || !diff.path.length) return;
     replay.updates = (replay.updates || []).concat(
       this.getChanges(diff, isUndo) || [],
@@ -33,9 +46,9 @@ export default class ReplayEditor<
     messages or even highlight based on the kind.
   */
   private getChanges(
-    diff: Diff<T, T>,
+    diff: Diff<ReplayEditorType, ReplayEditorType>,
     isUndo: boolean,
-  ): ReplayEditorUpdate<T> | undefined {
+  ): ReplayEditorUpdate | undefined {
     const { kind, path } = diff;
     if (diff.kind === "N") {
       return {

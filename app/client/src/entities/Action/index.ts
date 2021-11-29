@@ -156,6 +156,6 @@ export function isQueryAction(action: Action): action is QueryAction {
   return action.pluginType === PluginType.DB;
 }
 
-export function isSaasAction(action: Action): action is SaaSAction {
+export function isSaaSAction(action: Action): action is SaaSAction {
   return action.pluginType === PluginType.SAAS;
 }

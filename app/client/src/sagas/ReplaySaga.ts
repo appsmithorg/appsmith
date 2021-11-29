@@ -59,14 +59,13 @@ import {
   Action,
   isAPIAction,
   isQueryAction,
-  isSaasAction,
+  isSaaSAction,
 } from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import { updateFormFields } from "./ApiPaneSagas";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { Datasource } from "entities/Datasource";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export type UndoRedoPayload = {
@@ -221,6 +220,66 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   }
 }
 
+function* replayActionSaga(replayEntity: any, replay: any) {
+  const { updates = [] } = replay;
+  const { modifiedProperty } = updates[updates.length - 1] || {};
+  const { currentTab } = yield call(
+    getEditorFieldConfig,
+    replayEntity,
+    modifiedProperty,
+  );
+  const didSwitch: boolean = yield call(switchTab, currentTab);
+  //Delay change if tab needs to be switched
+  if (didSwitch) yield delay(REPLAY_FOCUS_DELAY);
+  if (isQueryAction(replayEntity)) {
+    yield put(changeQuery(replayEntity.id, false, replayEntity));
+  } else {
+    yield put(
+      changeApi(
+        replayEntity.id,
+        isSaaSAction(replayEntity),
+        false,
+        replayEntity,
+      ),
+    );
+    yield call(updateFormFields, {
+      meta: { field: modifiedProperty },
+      type: ReduxFormActionTypes.VALUE_CHANGE,
+      payload: _.get(replayEntity, modifiedProperty),
+    });
+  }
+  highlightReplayElement(
+    updates.map((u: ReplayEditorUpdate) => u.modifiedProperty),
+  );
+  yield put(
+    setActionProperty({
+      actionId: replayEntity.id,
+      propertyName: modifiedProperty,
+      value: _.get(replayEntity, modifiedProperty),
+      skipSave: true,
+    }),
+  );
+  yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
+}
+
+function* replayDatasourceSaga(replayEntity: any, replay: any) {
+  const { updates = [] } = replay;
+  const { modifiedProperty } = updates[updates.length - 1] || {};
+  const { fieldInfo } = yield call(
+    getDatasourceFieldConfig,
+    replayEntity,
+    modifiedProperty,
+  );
+  const { parentSection = "" } = fieldInfo;
+  const didExpand: boolean = yield call(expandAccordion, parentSection);
+  //Delay change if accordion needs to be expanded
+  if (didExpand) yield delay(REPLAY_FOCUS_DELAY);
+  yield put(changeDatasource({ datasource: replayEntity, isReplay: true }));
+  highlightReplayElement(
+    updates.map((u: ReplayEditorUpdate) => u.modifiedProperty),
+  );
+}
+
 /*
   Figure out the field config of the last modified field in datasource forms
 */
@@ -283,64 +342,4 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
     }
   }
   return { currentTab, fieldInfo };
-}
-
-function* replayActionSaga(replayEntity: any, replay: any) {
-  const { updates = [] } = replay;
-  const { modifiedProperty } = updates[updates.length - 1] || {};
-  const { currentTab } = yield call(
-    getEditorFieldConfig,
-    replayEntity,
-    modifiedProperty,
-  );
-  const didSwitch: boolean = yield call(switchTab, currentTab);
-  //Delay change if tab needs to be switched
-  if (didSwitch) yield delay(REPLAY_FOCUS_DELAY);
-  if (isQueryAction(replayEntity)) {
-    yield put(changeQuery(replayEntity.id, false, replayEntity));
-  } else {
-    yield put(
-      changeApi(
-        replayEntity.id,
-        isSaasAction(replayEntity),
-        false,
-        replayEntity,
-      ),
-    );
-    yield call(updateFormFields, {
-      meta: { field: modifiedProperty },
-      type: ReduxFormActionTypes.VALUE_CHANGE,
-      payload: _.get(replayEntity, modifiedProperty),
-    });
-  }
-  highlightReplayElement(
-    updates.map((u: ReplayEditorUpdate<Action>) => u.modifiedProperty),
-  );
-  yield put(
-    setActionProperty({
-      actionId: replayEntity.id,
-      propertyName: modifiedProperty,
-      value: _.get(replayEntity, modifiedProperty),
-      skipSave: true,
-    }),
-  );
-  yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
-}
-
-function* replayDatasourceSaga(replayEntity: any, replay: any) {
-  const { updates = [] } = replay;
-  const { modifiedProperty } = updates[updates.length - 1] || {};
-  const { fieldInfo } = yield call(
-    getDatasourceFieldConfig,
-    replayEntity,
-    modifiedProperty,
-  );
-  const { parentSection = "" } = fieldInfo;
-  const didExpand: boolean = yield call(expandAccordion, parentSection);
-  //Delay change if accordion needs to be expanded
-  if (didExpand) yield delay(REPLAY_FOCUS_DELAY);
-  yield put(changeDatasource({ datasource: replayEntity, isReplay: true }));
-  highlightReplayElement(
-    updates.map((u: ReplayEditorUpdate<Datasource>) => u.modifiedProperty),
-  );
 }

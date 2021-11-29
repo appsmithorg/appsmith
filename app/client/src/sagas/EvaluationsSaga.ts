@@ -72,6 +72,7 @@ import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ReplayEditorType } from "entities/Replay/ReplayEntity/ReplayEditor";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -424,7 +425,7 @@ export function* evaluateArgumentSaga(action: any) {
 export function* updateReplayEntitySaga(
   actionPayload: ReduxAction<{
     entityId: string;
-    entity: any;
+    entity: ReplayEditorType;
     entityType: ENTITY_TYPE;
   }>,
 ) {
