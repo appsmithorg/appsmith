@@ -4,7 +4,6 @@ import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Property;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
@@ -23,6 +22,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -154,7 +154,7 @@ public class DataUtils {
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
                             try {
                                 populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
-                            } catch (JsonProcessingException e) {
+                            } catch (IOException e) {
                                 e.printStackTrace();
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -173,22 +173,23 @@ public class DataUtils {
     }
 
     private void populateFileTypeBodyBuilder(MultipartBodyBuilder bodyBuilder, Property property, ClientHttpRequest outputMessage)
-            throws JsonProcessingException {
-        final Object fileValue = property.getValue();
+            throws IOException {
+        final String fileValue = (String) property.getValue();
         final String key = property.getKey();
         List<MultipartFormDataDTO> multipartFormDataDTOs = new ArrayList<>();
 
 
-        if (String.valueOf(fileValue).startsWith("{")) {
+        if (fileValue.startsWith("{")) {
             // Check whether the JSON string is an object
-            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(String.valueOf(fileValue),
+            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(
+                    objectMapper.writeValueAsBytes(fileValue),
                     MultipartFormDataDTO.class);
             multipartFormDataDTOs.add(multipartFormDataDTO);
-        } else if (String.valueOf(fileValue).startsWith("[")) {
+        } else if (fileValue.startsWith("[")) {
             // Check whether the JSON string is an array
             multipartFormDataDTOs = Arrays.asList(
                     objectMapper.readValue(
-                            String.valueOf(fileValue),
+                            (String) (fileValue),
                             MultipartFormDataDTO[].class));
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -198,9 +199,8 @@ public class DataUtils {
         multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
             final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
             Flux<DataBuffer> data = DataBufferUtils.readInputStream(
-                    () -> new ByteArrayInputStream(String
-                            .valueOf(finalMultipartFormDataDTO.getData())
-                            .getBytes(StandardCharsets.UTF_8)),
+                    () -> new ByteArrayInputStream(String.valueOf(finalMultipartFormDataDTO.getData())
+                            .getBytes(StandardCharsets.ISO_8859_1)),
                     outputMessage.bufferFactory(),
                     4096);
 
