@@ -6,6 +6,7 @@ import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
+import { Colors } from "constants/Colors";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
@@ -74,9 +75,7 @@ const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
   }
 
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
-    ${({ disabled, theme }) =>
-      !disabled &&
-      `border: 1.5px solid ${theme.colors.button.disabled.bgColor}`};
+    ${({ disabled }) => !disabled && `border: 1.5px solid ${Colors.DARK_GRAY}`};
     border-radius: 0;
   }
 
