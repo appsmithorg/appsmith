@@ -4,6 +4,8 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Colors } from "constants/Colors";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -198,6 +200,15 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         isVisible: {
           type: "BOOLEAN",
+        },
+        "primaryColumns.status.buttonColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.COLOR,
+            params: {
+              default: Colors.GREEN,
+            },
+          },
         },
         isSortable: {
           type: "BOOLEAN",
