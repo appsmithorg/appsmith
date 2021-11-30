@@ -295,12 +295,15 @@ class CodeEditor extends Component<Props, State> {
           );
         }
       }
-      this.editor.eachLine((line) => {
-        const lineNumber = this.editor.getLineNumber(line);
-        if (!!lineNumber) {
-          this.editor.indentLine(lineNumber);
-        }
-      });
+      const isReadOnly = !this.props.input.onChange || this.props.disabled;
+      if (this.props.showLineNumbers && !isReadOnly) {
+        this.editor.eachLine((line) => {
+          const lineNumber = this.editor.getLineNumber(line);
+          if (!!lineNumber) {
+            this.editor.indentLine(lineNumber);
+          }
+        });
+      }
     });
   }
 
