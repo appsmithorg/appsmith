@@ -23,6 +23,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("2. Validate Raw query command, run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.renameWithInPane("RawQuery");
 
     // cy.get("@getPluginForm").should(
     //   "have.nested.property",
@@ -43,11 +44,13 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //   });
     // cy.EvaluateCurrentValue(`{"find": "listingsAndReviews","limit": 10}`);
 
-    cy.runAndDeleteQuery();
+    cy.runQuery(); //exeute actions & 200 response is verified in this method
+    cy.deleteEntitybyName("RawQuery");
   });
 
   it("3. Validate Find documents command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.renameWithInPane("FindQuery");
 
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
@@ -89,24 +92,24 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.xpath(queryLocators.countText).should("have.text", "5 Records");
-
-    cy.deleteQueryUsingContext();
+    cy.deleteEntitybyName("FindQuery");
   });
 
   it("4. Validate Count command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.renameWithInPane("CountQuery");
+
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Count");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.runQuery();
     cy.typeValueNValidate("{beds : {$lte: 2}}", "Query");
     cy.runQuery(); //exeute actions - 200 response is verified in this method
-
-    cy.deleteQueryUsingContext();
+    cy.deleteEntitybyName("CountQuery");
   });
 
   it("5. Validate Distinct command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-
+    cy.renameWithInPane("DistinctQuery");
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Distinct");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.typeValueNValidate("{beds : {$lte: 2}}", "Query");
@@ -118,12 +121,12 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
         "Response is not as expected for Distint commmand",
       );
     });
-
-    cy.deleteQueryUsingContext();
+    cy.deleteEntitybyName("DistinctQuery");
   });
 
   it("6. Validate Aggregate command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.renameWithInPane("AggregateQuery");
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Aggregate");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.typeValueNValidate(
@@ -141,8 +144,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       // it is good practice to add message to the assertion
       // expect(req, 'has duration in ms').to.have.property('duration').and.be.a('number')
     });
-
-    cy.deleteQueryUsingContext();
+    cy.deleteEntitybyName("AggregateQuery");
   });
 
   it("7. Verify generation of NewPage from collection [Select]", function() {
@@ -180,13 +182,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-
     cy.deleteEntitybyName("ListingsAndReviews");
   });
 
@@ -262,7 +262,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
 
-    cy.deleteQueryUsingContext();
+    cy.deleteEntitybyName("Query2");
     cy.deleteEntitybyName("Query1");
   });
 
@@ -271,10 +271,14 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // cy.wait("@deleteDatasource").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+
+    cy.wait("@deleteDatasource").should((response) => {
+      expect(response.status).to.be.oneOf([200, 409]);
+    });
   });
 });
