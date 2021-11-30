@@ -1,3 +1,4 @@
+import { Diff } from "deep-diff";
 import { get, isArray, isEmpty, set } from "lodash";
 export const UPDATES = "propertyUpdates";
 export const REPLAY_DELAY = 300;
@@ -50,10 +51,11 @@ export function addToArray(obj: any, key: string, value: any) {
  * @param diffs
  * @returns
  */
-export function getPathsFromDiff(diffs: any) {
+export function getPathsFromDiff(diffs: Array<Diff<any, any>>) {
   const paths = [];
 
   for (const diff of diffs) {
+    if (!diff.path || !Array.isArray(diff.path)) continue;
     paths.push(diff.path.join("."));
   }
 

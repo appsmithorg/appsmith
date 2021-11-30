@@ -219,7 +219,7 @@ function* initializeExtraFormDataSaga() {
 }
 
 function* changeApiSaga(
-  actionPayload: ReduxAction<{ id: string; isSaas: boolean; action?: any }>,
+  actionPayload: ReduxAction<{ id: string; isSaas: boolean; action?: Action }>,
 ) {
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id, isSaas } = actionPayload.payload;
