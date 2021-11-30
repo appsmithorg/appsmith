@@ -152,13 +152,10 @@ public class BulkAppendMethod implements Method {
                                     }
                                     valueMap.put(header.asText(), value);
                                 }
-                                if (Boolean.TRUE.equals(validValues)) {
-                                    rowObject.setValueMap(valueMap);
-                                } else {
-                                    throw Exceptions.propagate(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Could not map values to existing data."));
+                                if (Boolean.FALSE.equals(validValues)) {
+                                    valueMap.put("", "");
                                 }
+                                rowObject.setValueMap(valueMap);
                             }
 
                             methodConfig.setBody(finalRowObjectListFromBody);
