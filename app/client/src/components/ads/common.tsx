@@ -75,6 +75,13 @@ export enum Variant {
   danger = "danger",
 }
 
+export enum ToastTypeOptions {
+  success = "success",
+  info = "info",
+  warning = "warning",
+  error = "error",
+}
+
 export const ToastVariant = (type: any) => {
   let variant: Variant;
   switch (type) {
