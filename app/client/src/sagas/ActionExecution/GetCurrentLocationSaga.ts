@@ -73,12 +73,17 @@ export function* getCurrentLocationSaga(
   }
 }
 
-let watchId: number;
+let watchId: number | undefined;
 export function* watchCurrentLocation(
   actionPayload: WatchCurrentLocationDescription["payload"],
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
+  if (watchId) {
+    // When a watch is already active, we will not start a new watch.
+    // at a given point in time, only one watch is active
+    return;
+  }
   watchId = navigator.geolocation.watchPosition(
     (location) => {
       const currentLocation = extractGeoLocation(location);
@@ -99,4 +104,5 @@ export function* stopWatchCurrentLocation(
     throw new TriggerFailureError("No location watch active", triggerMeta);
   }
   navigator.geolocation.clearWatch(watchId);
+  watchId = undefined;
 }

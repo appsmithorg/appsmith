@@ -229,9 +229,9 @@ export const ActionType = {
   jsFunction: "jsFunction",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
-  getGeolocation: "getGeolocation",
-  watchGeolocation: "watchGeolocation",
-  stopWatchGeolocation: "stopWatchGeolocation",
+  getGeolocation: "appsmith.geolocation.getGeolocation",
+  watchGeolocation: "appsmith.geolocation.watchGeolocation",
+  stopWatchGeolocation: "appsmith.geolocation.stopWatchGeolocation",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
