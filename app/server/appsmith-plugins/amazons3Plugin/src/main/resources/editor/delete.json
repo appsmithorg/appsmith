@@ -29,12 +29,6 @@
           "configProperty": "actionConfiguration.path",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
-        },
-        {
-          "label": "Expiry Duration of Signed URL (Minutes)",
-          "configProperty": "actionConfiguration.formData.delete.expiry",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "initialValue": "5"
         }
       ]
     }

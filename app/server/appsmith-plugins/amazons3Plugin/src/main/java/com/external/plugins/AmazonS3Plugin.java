@@ -91,12 +91,13 @@ public class AmazonS3Plugin extends BasePlugin {
     public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
     public static final String SMART_SUBSTITUTION = "smartSubstitution";
     public static final int CUSTOM_ENDPOINT_INDEX = 0;
-    private static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
-    private static final String YES = "YES";
-    private static final String NO = "NO";
+    public static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
+    public static final String YES = "YES";
+    public static final String NO = "NO";
     private static final String BASE64_DELIMITER = ";base64,";
     private static final String OTHER_S3_SERVICE_PROVIDER = "other";
     private static final String AWS_S3_SERVICE_PROVIDER = "amazon-s3";
+    public static String DEFAULT_FILE_NAME = "MyFile.txt";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -847,8 +848,12 @@ public class AmazonS3Plugin extends BasePlugin {
                             /* Get name of each bucket */
                             .map(Bucket::getName)
                             /* Get command templates and use it to create Table object */
-                            .map(bucketName -> new DatasourceStructure.Table(DatasourceStructure.TableType.BUCKET, "",
-                                    bucketName, new ArrayList<>(), new ArrayList<>(), getTemplates(bucketName)))
+                            .map(bucketName -> {
+                                String fileName = getOneFileNameOrDefault(connection, bucketName, DEFAULT_FILE_NAME);
+                                return new DatasourceStructure.Table(DatasourceStructure.TableType.BUCKET, "",
+                                    bucketName, new ArrayList<>(), new ArrayList<>(), getTemplates(bucketName,
+                                        fileName));
+                            })
                             /* Collect all Table objects in a list */
                             .collect(Collectors.toList());
                 } catch (SdkClientException e) {
@@ -862,6 +867,17 @@ public class AmazonS3Plugin extends BasePlugin {
                 return new DatasourceStructure(tableList);
             })
                     .subscribeOn(scheduler);
+        }
+
+        private String getOneFileNameOrDefault(AmazonS3 connection, String bucketName, String defaultFileName) {
+            ArrayList<String> listOfFiles;
+            try {
+                listOfFiles = listAllFilesInBucket(connection, bucketName, "");
+            } catch (AppsmithPluginException e) {
+                return defaultFileName;
+            }
+
+            return CollectionUtils.isEmpty(listOfFiles) ? defaultFileName : listOfFiles.get(0);
         }
 
         @Override

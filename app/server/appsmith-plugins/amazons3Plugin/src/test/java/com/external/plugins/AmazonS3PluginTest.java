@@ -21,6 +21,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
+import com.external.plugins.constants.AmazonS3Action;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -39,8 +40,14 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.external.plugins.AmazonS3Plugin.DEFAULT_FILE_NAME;
+import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
+import static com.external.plugins.AmazonS3Plugin.NO;
 import static com.external.plugins.AmazonS3Plugin.SMART_SUBSTITUTION;
+import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
@@ -49,6 +56,8 @@ import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_PREFIX;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_WHERE;
+import static com.external.plugins.constants.FieldName.READ_EXPIRY;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static org.junit.Assert.assertArrayEquals;
@@ -1037,37 +1046,49 @@ public class AmazonS3PluginTest {
                     // Check list files template
                     Template listFilesTemplate = templates.get(0);
                     assertEquals("List files", listFilesTemplate.getTitle());
+                    
 
                     Map<String, Object> listFilesConfig = (Map<String, Object>) listFilesTemplate.getConfiguration();
-                    assertEquals(expectedBucketName, listFilesConfig.get("bucket"));
+                    assertEquals(AmazonS3Action.LIST.name(), getValueSafelyFromFormData(listFilesConfig, COMMAND));
+                    assertEquals(expectedBucketName, getValueSafelyFromFormData(listFilesConfig, BUCKET));
+                    assertEquals(NO, getValueSafelyFromFormData(listFilesConfig, LIST_SIGNED_URL));
+                    assertEquals(YES, getValueSafelyFromFormData(listFilesConfig, LIST_UNSIGNED_URL));
+                    assertEquals(new HashMap<String, Object>() {{put("condition", "AND");}},
+                            getValueSafelyFromFormData(listFilesConfig, LIST_WHERE));
 
                     // Check read file template
                     Template readFileTemplate = templates.get(1);
                     assertEquals("Read file", readFileTemplate.getTitle());
-                    assertEquals("TestFile.txt", readFileTemplate.getActionConfiguration().getPath());
+                    assertEquals(DEFAULT_FILE_NAME, readFileTemplate.getActionConfiguration().getPath());
 
                     Map<String, Object> readFileConfig = (Map<String, Object>) readFileTemplate.getConfiguration();
-                    assertEquals(expectedBucketName, readFileConfig.get("bucket"));
-                    assertEquals("READ_FILE", readFileConfig.get("command"));
+                    assertEquals(AmazonS3Action.READ_FILE.name(), getValueSafelyFromFormData(readFileConfig, COMMAND));
+                    assertEquals(expectedBucketName, getValueSafelyFromFormData(readFileConfig, BUCKET));
+                    assertEquals(YES, getValueSafelyFromFormData(readFileConfig, READ_USING_BASE64_ENCODING));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(readFileConfig, READ_EXPIRY));
 
                     // Check create file template
                     Template createFileTemplate = templates.get(2);
                     assertEquals("Create file", createFileTemplate.getTitle());
-                    assertEquals("TestFile.txt", createFileTemplate.getActionConfiguration().getPath());
-                    assertEquals("{{FilePicker1.files[0].data}}", createFileTemplate.getActionConfiguration().getBody());
+                    assertEquals(DEFAULT_FILE_NAME, createFileTemplate.getActionConfiguration().getPath());
+                    assertEquals("{{FilePicker1.files[0]}}", createFileTemplate.getActionConfiguration().getBody());
 
                     Map<String, Object> createFileConfig = (Map<String, Object>) createFileTemplate.getConfiguration();
-                    assertEquals(expectedBucketName, createFileConfig.get("bucket"));
-                    assertEquals("UPLOAD_FILE_FROM_BODY", createFileConfig.get("command"));
+                    assertEquals(AmazonS3Action.UPLOAD_FILE_FROM_BODY.name(),
+                            getValueSafelyFromFormData(createFileConfig, COMMAND));
+                    assertEquals(expectedBucketName, getValueSafelyFromFormData(createFileConfig, BUCKET));
+                    assertEquals(YES, getValueSafelyFromFormData(createFileConfig, CREATE_DATATYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createFileConfig, CREATE_EXPIRY));
 
                     // Check delete file template
                     Template deleteFileTemplate = templates.get(3);
                     assertEquals("Delete file", deleteFileTemplate.getTitle());
-                    assertEquals("TestFile.txt", deleteFileTemplate.getActionConfiguration().getPath());
+                    assertEquals(DEFAULT_FILE_NAME, deleteFileTemplate.getActionConfiguration().getPath());
 
                     Map<String, Object> deleteFileConfig = (Map<String, Object>) deleteFileTemplate.getConfiguration();
-                    assertEquals(expectedBucketName, deleteFileConfig.get("bucket"));
-                    assertEquals("DELETE_FILE", deleteFileConfig.get("command"));
+                    assertEquals(AmazonS3Action.DELETE_FILE.name(), getValueSafelyFromFormData(deleteFileConfig,
+                            COMMAND));
+                    assertEquals(expectedBucketName, getValueSafelyFromFormData(deleteFileConfig, BUCKET));
                 })
                 .verifyComplete();
     }
