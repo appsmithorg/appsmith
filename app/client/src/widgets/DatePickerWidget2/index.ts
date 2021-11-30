@@ -23,6 +23,7 @@ export const CONFIG = {
     isRequired: false,
     closeOnSelection: false,
     shortcuts: false,
+    firstDayOfWeek: 0,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

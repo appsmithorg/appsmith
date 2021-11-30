@@ -195,6 +195,20 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
           },
+          {
+            propertyName: "firstDayOfWeek",
+            label: "First Day Of Week",
+            helpText: "Defines the first day of the week for calendar",
+            controlType: "INPUT_TEXT",
+            defaultValue: 0,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { allowedValues: [0, 1, 2, 3, 4, 5, 6], default: 0 },
+            },
+          },
         ],
       },
       {
@@ -239,6 +253,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         closeOnSelection={this.props.closeOnSelection}
         dateFormat={this.props.dateFormat}
         datePickerType={"DATE_PICKER"}
+        firstDayOfWeek={this.props.firstDayOfWeek}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         label={`${this.props.label}`}
@@ -282,6 +297,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  firstDayOfWeek?: number;
 }
 
 export default DatePickerWidget;

@@ -156,6 +156,9 @@ class DatePickerComponent extends React.Component<
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
               closeOnSelection={this.props.closeOnSelection}
+              dayPickerProps={{
+                firstDayOfWeek: this.props.firstDayOfWeek || 0,
+              }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
               maxDate={maxDate}
@@ -258,6 +261,7 @@ interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  firstDayOfWeek?: number;
 }
 
 interface DatePickerComponentState {
