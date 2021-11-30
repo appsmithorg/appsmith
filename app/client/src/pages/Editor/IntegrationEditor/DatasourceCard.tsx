@@ -9,7 +9,7 @@ import { useParams } from "react-router";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
-  getQueryActionsForCurrentPage,
+  getActionsForCurrentPage,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -171,7 +171,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const queryActions = useSelector(getQueryActionsForCurrentPage);
+  const queryActions = useSelector(getActionsForCurrentPage);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
       isStoredDatasource(action.config.datasource) &&
@@ -252,7 +252,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
               <DatasourceName>{datasource.name}</DatasourceName>
             </DatasourceNameWrapper>
-            <Queries>
+            <Queries className={`t--queries-for-${plugin.type}`}>
               {queriesWithThisDatasource
                 ? `${queriesWithThisDatasource} ${QUERY} on this page`
                 : "No query is using this datasource"}

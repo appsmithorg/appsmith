@@ -163,7 +163,11 @@ function CollapseToggle(props: { isOpen: boolean }) {
 }
 
 function copyContent(content: any) {
-  copy(content);
+  const stringifiedContent = _.isString(content)
+    ? content
+    : JSON.stringify(content, null, 2);
+
+  copy(stringifiedContent);
   Toaster.show({
     text: `Evaluated value copied to clipboard`,
     variant: Variant.success,
