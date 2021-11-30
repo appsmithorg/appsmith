@@ -2,7 +2,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
+
 const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
@@ -27,6 +29,7 @@ const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
+const publishWidgetspage = require("../locators/publishWidgetspage.json");
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -78,6 +81,49 @@ Cypress.Commands.add(
   (subject, targetEl) => {
     cy.wrap(subject).trigger("dragstart");
     cy.get(targetEl).trigger("drop");
+  },
+);
+
+Cypress.Commands.add("downloadData", (filetype) => {
+  cy.get(publishWidgetspage.downloadBtn).click({ force: true });
+
+  cy.get(publishWidgetspage.downloadOption)
+    .contains(filetype)
+    .click({ force: true });
+});
+
+Cypress.Commands.add("validateDownload", (fileName) => {
+  const downloadedFilename = Cypress.config("downloadsFolder")
+    .concat("/")
+    .concat(fileName);
+  cy.readFile(downloadedFilename, "binary", {
+    timeout: 15000,
+  }).should((buffer) => expect(buffer.length).to.be.gt(100));
+});
+
+Cypress.Commands.add(
+  "AddFilterWithOperator",
+  (operator, option, condition, value) => {
+    cy.get(publishWidgetspage.addFilter).click();
+    cy.get(publishWidgetspage.operatorsDropdown).click({ force: true });
+    cy.get(publishWidgetspage.attributeValue)
+      .contains(operator)
+      .click({ force: true });
+    cy.get(publishWidgetspage.attributesDropdown)
+      .last()
+      .click({ force: true });
+    cy.get(publishWidgetspage.attributeValue)
+      .contains(option)
+      .click({ force: true });
+    cy.get(publishWidgetspage.conditionDropdown)
+      .last()
+      .click({ force: true });
+    cy.get(publishWidgetspage.attributeValue)
+      .contains(condition)
+      .click({ force: true });
+    cy.get(publishWidgetspage.inputValue)
+      .last()
+      .type(value);
   },
 );
 
