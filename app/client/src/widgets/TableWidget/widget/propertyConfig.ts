@@ -799,15 +799,6 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.COLOR,
-                      params: {
-                        default: Colors.GREEN,
-                      },
-                    },
-                  },
                   isTriggerProperty: false,
                 },
                 {

@@ -16,7 +16,6 @@ import _, {
 } from "lodash";
 
 import moment from "moment";
-import tinycolor from "tinycolor2";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
@@ -288,8 +287,6 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       return `base64 encoded image | data uri | image url`;
     case ValidationTypes.SAFE_URL:
       return "URL";
-    case ValidationTypes.COLOR:
-      return "HTML COLOR";
   }
 }
 
@@ -918,32 +915,5 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       isValid: true,
       parsed: resultValue,
     };
-  },
-
-  [ValidationTypes.COLOR]: (
-    config: ValidationConfig,
-    value: unknown,
-  ): ValidationResponse => {
-    const color = tinycolor(value as tinycolor.ColorInput);
-    const invalidResponse = {
-      isValid: false,
-      parsed: config?.params?.default || color.toString(),
-      messages: [`${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`],
-    };
-
-    if (!config.params?.required && (value === undefined || value === ""))
-      return {
-        isValid: true,
-        parsed: value,
-      };
-
-    if (color.isValid()) {
-      return {
-        isValid: true,
-        parsed: value,
-      };
-    } else {
-      return invalidResponse;
-    }
   },
 };

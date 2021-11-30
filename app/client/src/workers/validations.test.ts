@@ -1157,59 +1157,6 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected[i]);
     });
   });
-
-  it("correctly validates Color", () => {
-    const inputs = [
-      "a",
-      "",
-      undefined,
-      "red",
-      "#ff0000",
-      "#f00",
-      "rgba(255, 0, 0, 1)",
-    ];
-    const config = {
-      type: ValidationTypes.COLOR,
-      params: {
-        default: "green",
-      },
-    };
-    const expected = [
-      {
-        isValid: false,
-        parsed: "green",
-        messages: ["This value does not evaluate to type: HTML COLOR"],
-      },
-      {
-        isValid: true,
-        parsed: "",
-      },
-      {
-        isValid: true,
-        parsed: undefined,
-      },
-      {
-        isValid: true,
-        parsed: "red",
-      },
-      {
-        isValid: true,
-        parsed: "#ff0000",
-      },
-      {
-        isValid: true,
-        parsed: "#f00",
-      },
-      {
-        isValid: true,
-        parsed: "rgba(255, 0, 0, 1)",
-      },
-    ];
-    inputs.forEach((input, i) => {
-      const result = validate(config, input, DUMMY_WIDGET);
-      expect(result).toStrictEqual(expected[i]);
-    });
-  });
 });
 
 // describe("Color Picker Text validator", () => {
