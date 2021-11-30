@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
@@ -32,7 +32,11 @@ const LintText = styled.a`
   cursor: pointer;
 `;
 
-export default function GitSyncError() {
+export default function GitSyncError({
+  onDisplay,
+}: {
+  onDisplay?: () => void;
+}) {
   const error = useSelector(getGitError);
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
@@ -44,6 +48,11 @@ export default function GitSyncError() {
       errorVisible = error.message.indexOf("git  push failed") < 0;
     }
   }
+  useEffect(() => {
+    if (errorVisible && onDisplay) {
+      onDisplay();
+    }
+  }, []);
   return errorVisible ? (
     <ErrorWrapper>
       {titleMessage.length > 0 && (

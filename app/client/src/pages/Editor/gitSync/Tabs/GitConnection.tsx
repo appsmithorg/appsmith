@@ -32,8 +32,6 @@ import {
   getTempRemoteUrl,
 } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
-
-import { getGitError } from "selectors/gitSyncSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -144,8 +142,6 @@ function GitConnection({ isImport }: Props) {
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const [triedSubmit, setTriedSubmit] = useState(false);
-
-  const gitError = useSelector(getGitError);
 
   const dispatch = useDispatch();
 
@@ -340,15 +336,17 @@ function GitConnection({ isImport }: Props) {
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
 
-  useEffect(() => {
-    if (gitError?.message && scrollWrapperRef.current) {
-      const top = scrollWrapperRef.current?.scrollHeight || 0;
-      scrollWrapperRef.current?.scrollTo({
-        top: top + 200,
-        behavior: "smooth",
-      });
+  const scrolling = useCallback(() => {
+    if (scrollWrapperRef.current) {
+      setTimeout(() => {
+        const top = scrollWrapperRef.current?.scrollHeight || 0;
+        scrollWrapperRef.current?.scrollTo({
+          top: top,
+          behavior: "smooth",
+        });
+      }, 100);
     }
-  }, [gitError]);
+  }, [scrollWrapperRef]);
 
   return (
     <Container ref={scrollWrapperRef}>
@@ -457,7 +455,7 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            {!isConnectingToGit && <GitSyncError />}
+            {!isConnectingToGit && <GitSyncError onDisplay={scrolling} />}
           </ButtonContainer>
         </>
       ) : null}
