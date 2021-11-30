@@ -5,7 +5,6 @@ import {
   getBindingPathsOfAction,
   getDataTreeActionConfigPath,
 } from "entities/Action/actionProperties";
-import { Property } from "api/ActionAPI";
 
 export const generateDataTreeAction = (
   action: ActionData,
@@ -26,22 +25,9 @@ export const generateDataTreeAction = (
     }));
   }
 
-  // update datasource url for embedded datasource action
+  // set datasource url for embedded datasource action
   if ("datasourceConfiguration" in action.config.datasource) {
-    const path =
-      "path" in action.config.actionConfiguration
-        ? action.config.actionConfiguration.path
-        : "";
-
-    const query = action.config.actionConfiguration.queryParameters
-      .filter((p: Property) => p.key)
-      .map(
-        (p: Property, i: number) => `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
-      )
-      .join("");
-
-    datasourceUrl =
-      action.config.datasource.datasourceConfiguration.url + path + query;
+    datasourceUrl = action.config.datasource.datasourceConfiguration.url;
   }
 
   const dependencyMap: DependencyMap = {};

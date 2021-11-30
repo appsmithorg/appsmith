@@ -51,6 +51,9 @@ import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { KeyValuePair } from "entities/Action";
 
 type ReduxStateProps = {
   orgId: string;
@@ -58,6 +61,8 @@ type ReduxStateProps = {
   datasourceList: Datasource[];
   currentPageId?: string;
   applicationId?: string;
+  dataTree: DataTree;
+  actionName: string;
 };
 
 type ReduxDispatchProps = {
@@ -315,6 +320,31 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
+  handleEvaluatedValue = () => {
+    const { actionName, dataTree } = this.props;
+    const entity = dataTree[actionName];
+
+    if (!entity) return "";
+
+    if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+      const evaluatedPath = "path" in entity.config ? entity.config.path : "";
+      const evaluatedQueryParameters = entity.config.queryParameters
+        ?.filter((p: KeyValuePair) => p.key)
+        .map(
+          (p: KeyValuePair, i: number) =>
+            `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
+        )
+        .join("");
+      const evaluatedDatasourceUrl = entity.datasourceUrl;
+
+      const fullDatasourceUrlPath =
+        evaluatedDatasourceUrl + evaluatedPath + evaluatedQueryParameters;
+
+      return fullDatasourceUrlPath;
+    }
+    return "";
+  };
+
   render() {
     const {
       datasource,
@@ -348,6 +378,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
+          evaluatedValue={this.handleEvaluatedValue()}
+          height="35px"
         />
         {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
@@ -377,7 +409,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
 const mapStateToProps = (
   state: AppState,
-  ownProps: { pluginId: string },
+  ownProps: { pluginId: string; actionName: string },
 ): ReduxStateProps => {
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction;
@@ -403,6 +435,8 @@ const mapStateToProps = (
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: getCurrentApplicationId(state),
+    dataTree: getDataTree(state),
+    actionName: ownProps.actionName,
   };
 };
 
@@ -423,7 +457,7 @@ function EmbeddedDatasourcePathField(
     pluginId: string;
     placeholder?: string;
     theme: EditorTheme;
-    dataTreePath: string;
+    actionName: string;
   },
 ) {
   return (
