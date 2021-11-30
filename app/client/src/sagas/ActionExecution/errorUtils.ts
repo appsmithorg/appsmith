@@ -1,4 +1,3 @@
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -26,7 +25,7 @@ import {
 export class TriggerFailureError extends Error {
   error?: Error;
 
-  constructor(reason: string, triggerMeta: TriggerMeta, error?: Error) {
+  constructor(reason: string, error?: Error) {
     super(reason);
     this.error = error;
   }
@@ -35,12 +34,8 @@ export class TriggerFailureError extends Error {
 export class PluginTriggerFailureError extends TriggerFailureError {
   responseData: unknown[] = [];
 
-  constructor(
-    reason: string,
-    responseData: unknown[],
-    triggerMeta: TriggerMeta,
-  ) {
-    super(reason, triggerMeta);
+  constructor(reason: string, responseData: unknown[]) {
+    super(reason);
     this.responseData = responseData;
   }
 }
@@ -51,7 +46,6 @@ export class ActionValidationError extends TriggerFailureError {
     argumentName: string,
     expectedType: Types,
     received: Types,
-    triggerMeta: TriggerMeta,
   ) {
     const errorMessage = createMessage(
       TRIGGER_ACTION_VALIDATION_ERROR,
@@ -60,7 +54,7 @@ export class ActionValidationError extends TriggerFailureError {
       expectedType,
       received,
     );
-    super(errorMessage, triggerMeta);
+    super(errorMessage);
   }
 }
 

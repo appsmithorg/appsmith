@@ -6,12 +6,10 @@ import {
   ActionTriggerType,
   DownloadActionDescription,
 } from "entities/DataTree/actionTriggers";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 
 export default async function downloadSaga(
   action: DownloadActionDescription["payload"],
-  triggerMeta: TriggerMeta,
 ) {
   const { data, name, type } = action;
   if (!name) {
@@ -20,7 +18,6 @@ export default async function downloadSaga(
       "name",
       Types.STRING,
       getType(name),
-      triggerMeta,
     );
   }
   const dataType = getType(data);

@@ -9,7 +9,6 @@ import {
   ActionTriggerType,
   ResetWidgetDescription,
 } from "entities/DataTree/actionTriggers";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import {
   ActionValidationError,
   TriggerFailureError,
@@ -18,7 +17,6 @@ import { getType, Types } from "utils/TypeHelpers";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],
-  triggerMeta: TriggerMeta,
 ) {
   const { widgetName } = payload;
   if (getType(widgetName) !== Types.STRING) {
@@ -27,16 +25,12 @@ export default function* resetWidgetActionSaga(
       "widgetName",
       Types.STRING,
       getType(widgetName),
-      triggerMeta,
     );
   }
 
   const widget = yield select(getWidgetByName, widgetName);
   if (!widget) {
-    throw new TriggerFailureError(
-      `Widget ${payload.widgetName} not found`,
-      triggerMeta,
-    );
+    throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }
 
   yield put(resetWidgetMetaProperty(widget.widgetId));

@@ -5,7 +5,6 @@ import {
   ActionTriggerType,
   ShowAlertActionDescription,
 } from "entities/DataTree/actionTriggers";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import {
   ActionValidationError,
   TriggerFailureError,
@@ -14,7 +13,6 @@ import { getType, Types } from "utils/TypeHelpers";
 
 export default function* showAlertSaga(
   payload: ShowAlertActionDescription["payload"],
-  triggerMeta: TriggerMeta,
 ) {
   if (typeof payload.message !== "string") {
     throw new ActionValidationError(
@@ -22,7 +20,6 @@ export default function* showAlertSaga(
       "message",
       Types.STRING,
       getType(payload.message),
-      triggerMeta,
     );
   }
   let variant;
@@ -45,7 +42,6 @@ export default function* showAlertSaga(
       `Toast type needs to be a one of ${Object.values(ToastTypeOptions).join(
         ", ",
       )}`,
-      triggerMeta,
     );
   }
   Toaster.show({

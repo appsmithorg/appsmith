@@ -47,7 +47,6 @@ export type TriggerMeta = {
  * The controller saga that routes different trigger effects to its executor sagas
  * @param trigger The trigger information with trigger type
  * @param eventType Widget/Platform event which triggered this action
- * @param triggerMeta Meta information about the trigger to log errors
  */
 export function* executeActionTriggers(
   trigger: ActionDescription,
@@ -62,7 +61,6 @@ export function* executeActionTriggers(
         executePluginActionTriggerSaga,
         trigger.payload,
         eventType,
-        triggerMeta,
       );
       break;
     case ActionTriggerType.CLEAR_PLUGIN_ACTION:
@@ -72,31 +70,31 @@ export function* executeActionTriggers(
       yield call(navigateActionSaga, trigger.payload);
       break;
     case ActionTriggerType.SHOW_ALERT:
-      yield call(showAlertSaga, trigger.payload, triggerMeta);
+      yield call(showAlertSaga, trigger.payload);
       break;
     case ActionTriggerType.SHOW_MODAL_BY_NAME:
-      yield call(openModalSaga, trigger, triggerMeta);
+      yield call(openModalSaga, trigger);
       break;
     case ActionTriggerType.CLOSE_MODAL:
-      yield call(closeModalSaga, trigger, triggerMeta);
+      yield call(closeModalSaga, trigger);
       break;
     case ActionTriggerType.STORE_VALUE:
       yield call(storeValueLocally, trigger.payload);
       break;
     case ActionTriggerType.DOWNLOAD:
-      yield call(downloadSaga, trigger.payload, triggerMeta);
+      yield call(downloadSaga, trigger.payload);
       break;
     case ActionTriggerType.COPY_TO_CLIPBOARD:
-      yield call(copySaga, trigger.payload, triggerMeta);
+      yield call(copySaga, trigger.payload);
       break;
     case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
-      yield call(resetWidgetActionSaga, trigger.payload, triggerMeta);
+      yield call(resetWidgetActionSaga, trigger.payload);
       break;
     case ActionTriggerType.SET_INTERVAL:
       yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
       break;
     case ActionTriggerType.CLEAR_INTERVAL:
-      yield call(clearIntervalSaga, trigger.payload, triggerMeta);
+      yield call(clearIntervalSaga, trigger.payload);
       break;
     default:
       log.error("Trigger type unknown", trigger);

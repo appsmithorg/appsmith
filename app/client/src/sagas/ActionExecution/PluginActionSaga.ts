@@ -98,7 +98,6 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
 import { executeTrigger } from "actions/widgetActions";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -248,7 +247,6 @@ function* confirmRunActionSaga() {
 export default function* executePluginActionTriggerSaga(
   pluginAction: RunPluginActionDescription["payload"],
   eventType: EventType,
-  triggerMeta: TriggerMeta,
 ) {
   const { actionId, onError, onSuccess, params } = pluginAction;
   if (getType(params) !== Types.OBJECT) {
@@ -257,7 +255,6 @@ export default function* executePluginActionTriggerSaga(
       "params",
       Types.OBJECT,
       getType(params),
-      triggerMeta,
     );
   }
   PerformanceTracker.startAsyncTracking(
@@ -335,7 +332,6 @@ export default function* executePluginActionTriggerSaga(
     throw new PluginTriggerFailureError(
       createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
       [payload.body, params],
-      triggerMeta,
     );
   } else {
     AppsmithConsole.info({

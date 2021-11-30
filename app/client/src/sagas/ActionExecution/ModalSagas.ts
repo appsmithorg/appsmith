@@ -7,12 +7,8 @@ import { put } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
-export function* openModalSaga(
-  action: ShowModalActionDescription,
-  triggerMeta: TriggerMeta,
-) {
+export function* openModalSaga(action: ShowModalActionDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
@@ -20,7 +16,6 @@ export function* openModalSaga(
       "name",
       Types.STRING,
       getType(modalName),
-      triggerMeta,
     );
   }
   yield put(action);
@@ -29,10 +24,7 @@ export function* openModalSaga(
   });
 }
 
-export function* closeModalSaga(
-  action: CloseModalActionDescription,
-  triggerMeta: TriggerMeta,
-) {
+export function* closeModalSaga(action: CloseModalActionDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
@@ -40,7 +32,6 @@ export function* closeModalSaga(
       "name",
       Types.STRING,
       getType(modalName),
-      triggerMeta,
     );
   }
   yield put(action);
