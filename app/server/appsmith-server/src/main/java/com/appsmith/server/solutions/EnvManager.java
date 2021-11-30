@@ -16,7 +16,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +26,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -123,14 +123,14 @@ public class EnvManager {
         if (changes.containsKey(Vars.APPSMITH_MAIL_HOST.name())) {
             changes.put(
                     Vars.APPSMITH_MAIL_ENABLED.name(),
-                    Boolean.toString(StringUtils.isNotEmpty(changes.get(Vars.APPSMITH_MAIL_HOST.name())))
+                    Boolean.toString(!StringUtils.isEmpty(changes.get(Vars.APPSMITH_MAIL_HOST.name())))
             );
         }
 
         if (changes.containsKey(Vars.APPSMITH_MAIL_USERNAME.name())) {
             changes.put(
                     Vars.APPSMITH_MAIL_SMTP_AUTH.name(),
-                    Boolean.toString(StringUtils.isNotEmpty(changes.get(Vars.APPSMITH_MAIL_USERNAME.name())))
+                    Boolean.toString(!StringUtils.isEmpty(changes.get(Vars.APPSMITH_MAIL_USERNAME.name())))
             );
         }
 
@@ -341,14 +341,14 @@ public class EnvManager {
 
                     Properties props = mailSender.getJavaMailProperties();
                     props.put("mail.transport.protocol", "smtp");
+                    props.put("mail.smtp.starttls.enable", "true");
 
-                    if(requestDTO.getIsTlsEnabled()) {
+                    if(!StringUtils.isEmpty(requestDTO.getUsername())) {
                         props.put("mail.smtp.auth", "true");
-                        props.put("mail.smtp.starttls.enable", "true");
                         mailSender.setUsername(requestDTO.getUsername());
                         mailSender.setPassword(requestDTO.getPassword());
                     } else {
-                        props.put("mail.smtp.starttls.enable", "false");
+                        props.put("mail.smtp.auth", "false");
                     }
                     props.put("mail.debug", "true");
 

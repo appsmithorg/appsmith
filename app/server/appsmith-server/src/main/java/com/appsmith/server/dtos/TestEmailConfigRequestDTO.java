@@ -15,19 +15,12 @@ public class TestEmailConfigRequestDTO {
     @NotNull
     private Integer smtpPort;
 
-    @NotNull
-    @NotEmpty
     private String username;
 
-    @NotNull
-    @NotEmpty
     private String password;
 
     @NotNull
     @NotEmpty
     @Email
     private String fromEmail;
-
-    @NotNull
-    private Boolean isTlsEnabled;
 }
