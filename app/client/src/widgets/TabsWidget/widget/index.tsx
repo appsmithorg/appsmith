@@ -16,7 +16,6 @@ import { WidgetProperties } from "selectors/propertyPaneSelectors";
 export function selectedTabValidation(
   value: unknown,
   props: TabContainerWidgetProps,
-  _?: any,
 ): ValidationResponse {
   try {
     const tabs: Array<{
@@ -24,11 +23,6 @@ export function selectedTabValidation(
       id: string;
     }> = props.tabsObj ? Object.values(props.tabsObj) : props.tabs || [];
     const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
-    console.log({
-      isValid: value === "" ? true : tabNames.includes(value as string),
-      parsed: value,
-      messages: [`Tab name ${value} does not exist`],
-    });
     return {
       isValid: value === "" ? true : tabNames.includes(value as string),
       parsed: value,
