@@ -89,7 +89,6 @@ import {
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import {
   ActionValidationError,
   getErrorAsString,
@@ -99,6 +98,7 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
 import { executeTrigger } from "actions/widgetActions";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

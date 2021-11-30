@@ -193,7 +193,6 @@ export const pusher = function(
   ...payload: any[]
 ) {
   const actionPayload = action(...payload);
-  debugger;
   if (actionPayload && "type" in actionPayload) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else {

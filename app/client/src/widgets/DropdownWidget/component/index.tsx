@@ -13,6 +13,7 @@ import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 
 const FUSE_OPTIONS = {
@@ -122,9 +123,22 @@ const StyledControlGroup = styled(ControlGroup)`
   }
 `;
 
-const DropdownStyles = createGlobalStyle<{ width: number }>`
+const DropdownStyles = createGlobalStyle<{
+  parentWidth: number;
+  dropDownWidth: number;
+  id: string;
+}>`
+${({ dropDownWidth, id, parentWidth }) => `
+  .select-popover-width-${id} {
+    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+
+    & .${Classes.INPUT_GROUP} {
+       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    }
+  }
+`}
   .select-popover-wrapper {
-    width: 100%;
+    width: auto;    
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0;
     background: white;
@@ -178,12 +192,12 @@ const DropdownStyles = createGlobalStyle<{ width: number }>`
       margin-top: -3px;
       max-width: 100%;
       max-height: auto;
+      min-width: 0px !important;
     }
     &&&& .${Classes.MENU_ITEM} {
       min-height: 38px;
       padding: 9px 12px;
       color: ${Colors.GREY_8};
-      min-width: 180px;
       &:hover{
         background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
@@ -243,8 +257,8 @@ class DropDownComponent extends React.Component<
     ]);
     this.setState({ activeItemIndex });
   };
-
-  render = () => {
+  render() {
+    const id = _.uniqueId();
     const {
       compactMode,
       disabled,
@@ -271,7 +285,11 @@ class DropDownComponent extends React.Component<
       : this.props.placeholder || "-- Select --";
     return (
       <DropdownContainer compactMode={compactMode}>
-        <DropdownStyles width={this.props.width} />
+        <DropdownStyles
+          dropDownWidth={this.props.dropDownWidth}
+          id={id}
+          parentWidth={this.props.width - WidgetContainerDiff}
+        />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode}>
             <StyledLabel
@@ -323,7 +341,7 @@ class DropDownComponent extends React.Component<
                   enabled: false,
                 },
               },
-              popoverClassName: "select-popover-wrapper",
+              popoverClassName: `select-popover-wrapper select-popover-width-${id}`,
             }}
           >
             <Button
@@ -343,7 +361,7 @@ class DropDownComponent extends React.Component<
         </StyledControlGroup>
       </DropdownContainer>
     );
-  };
+  }
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     const fuse = new Fuse(items, FUSE_OPTIONS);
@@ -380,7 +398,6 @@ class DropDownComponent extends React.Component<
         className={`single-select ${isFocused && "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
-        style={{ width: this.props.width - 7 }}
         tabIndex={0}
         text={option.label}
       />
@@ -403,6 +420,7 @@ export interface DropDownComponentProps extends ComponentProps {
   isFilterable: boolean;
   isValid: boolean;
   width: number;
+  dropDownWidth: number;
   height: number;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
