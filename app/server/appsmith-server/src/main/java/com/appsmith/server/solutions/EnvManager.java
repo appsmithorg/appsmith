@@ -22,6 +22,7 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -344,14 +345,19 @@ public class EnvManager {
                     props.put("mail.transport.protocol", "smtp");
                     props.put("mail.smtp.auth", "true");
                     props.put("mail.smtp.starttls.enable", "true");
-                    props.put("mail.debug", "false");
+                    props.put("mail.debug", "true");
 
                     SimpleMailMessage message = new SimpleMailMessage();
                     message.setFrom(requestDTO.getFromEmail());
                     message.setTo(user.getEmail());
                     message.setSubject("Test email from Appsmith");
                     message.setText("This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
-                    mailSender.send(message);
+                    try {
+                        mailSender.send(message);
+                    } catch (MailException mailException) {
+                        log.error("failed to send test email", mailException);
+                        throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "check log for details");
+                    }
                     return Mono.just(Boolean.TRUE);
                 });
     }
