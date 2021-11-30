@@ -35,12 +35,7 @@ import {
   updateActionProperty,
   updateActionSuccess,
 } from "actions/pluginActionActions";
-import {
-  DynamicPath,
-  isChildPropertyPath,
-  isDynamicValue,
-  removeBindingsFromActionObject,
-} from "utils/DynamicBindingUtils";
+import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
@@ -91,7 +86,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import _, { merge, get } from "lodash";
+import { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -112,7 +107,7 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import { getSelectedWidget, getWidgetById } from "./selectors";
+import { getSelectedWidget, getWidgetByID } from "./selectors";
 import {
   onApiEditor,
   onQueryEditor,
@@ -120,6 +115,7 @@ import {
 import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import * as log from "loglevel";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -448,11 +444,10 @@ function* moveActionSaga(
   }>,
 ) {
   const actionObject: Action = yield select(getAction, action.payload.id);
-  const withoutBindings = removeBindingsFromActionObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
       action: {
-        ...withoutBindings,
+        ...actionObject,
         pageId: action.payload.originalPageId,
         name: action.payload.name,
       },
@@ -491,12 +486,9 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  let actionObject: Action = yield select(getAction, action.payload.id);
+  const actionObject: Action = yield select(getAction, action.payload.id);
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
-    if (action.payload.destinationPageId !== actionObject.pageId) {
-      actionObject = removeBindingsFromActionObject(actionObject);
-    }
 
     const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
@@ -643,42 +635,13 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       variant: Variant.danger,
     });
-    console.error(e);
+    log.error(e);
   }
 }
 
-function getDynamicBindingsChangesSaga(
-  action: Action,
-  value: unknown,
-  field: string,
+export function* setActionPropertySaga(
+  action: ReduxAction<SetActionPropertyPayload>,
 ) {
-  const bindingField = field.replace("actionConfiguration.", "");
-  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
-
-  if (typeof value === "object") {
-    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
-      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
-        const childPropertyValue = _.get(value, dynamicPath.key);
-        return isDynamicValue(childPropertyValue);
-      }
-    });
-  } else if (typeof value === "string") {
-    const fieldExists = _.some(dynamicBindings, { key: bindingField });
-
-    const isDynamic = isDynamicValue(value);
-
-    if (!isDynamic && fieldExists) {
-      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
-    }
-    if (isDynamic && !fieldExists) {
-      dynamicBindings.push({ key: bindingField });
-    }
-  }
-
-  return dynamicBindings;
-}
-
-function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   const { actionId, propertyName, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
@@ -828,8 +791,7 @@ function* buildMetaForSnippets(
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
-      getWidgetById,
-      entityId,
+      getWidgetByID(entityId),
     );
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
@@ -877,6 +839,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         entityId = currentEntity.entityId;
         entityType = currentEntity.entityType;
       }
+
       const { fieldMeta, refinements } = yield buildMetaForSnippets(
         entityId,
         entityType,
@@ -889,6 +852,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
           fieldMeta,
         }),
       );
+
       yield put(
         toggleShowGlobalSearchModal(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
@@ -900,6 +864,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
             typeof callback === "function"
               ? SnippetAction.INSERT
               : SnippetAction.COPY, //Set insertSnippet to true only if values
+          hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
         }),
       );
       AnalyticsUtil.logEvent("SNIPPET_LOOKUP");

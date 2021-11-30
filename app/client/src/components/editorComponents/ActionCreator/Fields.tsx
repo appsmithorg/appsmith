@@ -325,34 +325,34 @@ const views = {
   },
 };
 
-export const FieldType = {
-  ACTION_SELECTOR_FIELD: "ACTION_SELECTOR_FIELD",
-  JS_ACTION_SELECTOR_FIELD: "JS_ACTION_SELECTOR_FIELD",
-  ON_SUCCESS_FIELD: "ON_SUCCESS_FIELD",
-  ON_ERROR_FIELD: "ON_ERROR_FIELD",
-  SHOW_MODAL_FIELD: "SHOW_MODAL_FIELD",
-  CLOSE_MODAL_FIELD: "CLOSE_MODAL_FIELD",
-  PAGE_SELECTOR_FIELD: "PAGE_SELECTOR_FIELD",
-  KEY_VALUE_FIELD: "KEY_VALUE_FIELD",
-  URL_FIELD: "URL_FIELD",
-  ALERT_TEXT_FIELD: "ALERT_TEXT_FIELD",
-  ALERT_TYPE_SELECTOR_FIELD: "ALERT_TYPE_SELECTOR_FIELD",
-  KEY_TEXT_FIELD: "KEY_TEXT_FIELD",
-  VALUE_TEXT_FIELD: "VALUE_TEXT_FIELD",
-  QUERY_PARAMS_FIELD: "QUERY_PARAMS_FIELD",
-  DOWNLOAD_DATA_FIELD: "DOWNLOAD_DATA_FIELD",
-  DOWNLOAD_FILE_NAME_FIELD: "DOWNLOAD_FILE_NAME_FIELD",
-  DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
-  COPY_TEXT_FIELD: "COPY_TEXT_FIELD",
-  NAVIGATION_TARGET_FIELD: "NAVIGATION_TARGET_FIELD",
-  WIDGET_NAME_FIELD: "WIDGET_NAME_FIELD",
-  RESET_CHILDREN_FIELD: "RESET_CHILDREN_FIELD",
-  ARGUMENT_KEY_VALUE_FIELD: "ARGUMENT_KEY_VALUE_FIELD",
-  CALLBACK_FUNCTION_FIELD: "CALLBACK_FUNCTION_FIELD",
-  DELAY_FIELD: "DELAY_FIELD",
-  ID_FIELD: "ID_FIELD",
-};
-type FieldType = typeof FieldType[keyof typeof FieldType];
+export enum FieldType {
+  ACTION_SELECTOR_FIELD = "ACTION_SELECTOR_FIELD",
+  JS_ACTION_SELECTOR_FIELD = "JS_ACTION_SELECTOR_FIELD",
+  ON_SUCCESS_FIELD = "ON_SUCCESS_FIELD",
+  ON_ERROR_FIELD = "ON_ERROR_FIELD",
+  SHOW_MODAL_FIELD = "SHOW_MODAL_FIELD",
+  CLOSE_MODAL_FIELD = "CLOSE_MODAL_FIELD",
+  PAGE_SELECTOR_FIELD = "PAGE_SELECTOR_FIELD",
+  KEY_VALUE_FIELD = "KEY_VALUE_FIELD",
+  URL_FIELD = "URL_FIELD",
+  ALERT_TEXT_FIELD = "ALERT_TEXT_FIELD",
+  ALERT_TYPE_SELECTOR_FIELD = "ALERT_TYPE_SELECTOR_FIELD",
+  KEY_TEXT_FIELD = "KEY_TEXT_FIELD",
+  VALUE_TEXT_FIELD = "VALUE_TEXT_FIELD",
+  QUERY_PARAMS_FIELD = "QUERY_PARAMS_FIELD",
+  DOWNLOAD_DATA_FIELD = "DOWNLOAD_DATA_FIELD",
+  DOWNLOAD_FILE_NAME_FIELD = "DOWNLOAD_FILE_NAME_FIELD",
+  DOWNLOAD_FILE_TYPE_FIELD = "DOWNLOAD_FILE_TYPE_FIELD",
+  COPY_TEXT_FIELD = "COPY_TEXT_FIELD",
+  NAVIGATION_TARGET_FIELD = "NAVIGATION_TARGET_FIELD",
+  WIDGET_NAME_FIELD = "WIDGET_NAME_FIELD",
+  RESET_CHILDREN_FIELD = "RESET_CHILDREN_FIELD",
+  ARGUMENT_KEY_VALUE_FIELD = "ARGUMENT_KEY_VALUE_FIELD",
+  CALLBACK_FUNCTION_FIELD = "CALLBACK_FUNCTION_FIELD",
+  DELAY_FIELD = "DELAY_FIELD",
+  ID_FIELD = "ID_FIELD",
+  CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
+}
 
 type FieldConfig = {
   getter: Function;
@@ -360,7 +360,7 @@ type FieldConfig = {
   view: ViewTypes;
 };
 
-type FieldConfigs = Record<FieldType, FieldConfig>;
+type FieldConfigs = Partial<Record<FieldType, FieldConfig>>;
 
 const fieldConfigs: FieldConfigs = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
@@ -604,12 +604,21 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.CLEAR_INTERVAL_ID_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 0);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 function renderField(props: {
   onValueChange: Function;
   value: string;
-  field: any;
+  field: { field: FieldType; value: string; label: string; index: number };
   label?: string;
   widgetOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
@@ -622,6 +631,7 @@ function renderField(props: {
   const { field } = props;
   const fieldType = field.field;
   const fieldConfig = fieldConfigs[fieldType];
+  if (!fieldConfig) return;
   const view = views[fieldConfig.view];
   let viewElement: JSX.Element | null = null;
 
@@ -773,6 +783,7 @@ function renderField(props: {
     case FieldType.CALLBACK_FUNCTION_FIELD:
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
+    case FieldType.CLEAR_INTERVAL_ID_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -795,6 +806,8 @@ function renderField(props: {
       } else if (fieldType === FieldType.DELAY_FIELD) {
         fieldLabel = "Delay (ms)";
       } else if (fieldType === FieldType.ID_FIELD) {
+        fieldLabel = "Id";
+      } else if (fieldType === FieldType.CLEAR_INTERVAL_ID_FIELD) {
         fieldLabel = "Id";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({

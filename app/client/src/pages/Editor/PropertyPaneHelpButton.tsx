@@ -1,14 +1,14 @@
 import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { ControlIcons } from "icons/ControlIcons";
 
 import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
-import { getSelectedWidget } from "sagas/selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import WidgetFactory from "utils/WidgetFactory";
+import { ControlIcons } from "icons/ControlIcons";
+import { getSelectedWidget } from "sagas/selectors";
 
 const QuestionIcon = ControlIcons.QUESTION;
 
@@ -19,7 +19,10 @@ function PropertyPaneHelpButton() {
   const displayName =
     WidgetFactory.widgetConfigMap.get(selectedWidgetType)?.displayName || "";
 
-  const openHelpModal = useCallback(() => {
+  /**
+   * on click open the omnibar and toggle global search
+   */
+  const onClick = useCallback(() => {
     dispatch(setGlobalSearchQuery(displayName));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
@@ -27,7 +30,11 @@ function PropertyPaneHelpButton() {
     });
   }, [selectedWidgetType]);
 
-  return <QuestionIcon height={16} onClick={openHelpModal} width={16} />;
+  return (
+    <button className="p-1 hover:bg-warmGray-100 group" onClick={onClick}>
+      <QuestionIcon className="w-4 h-4 text-trueGray-500" />
+    </button>
+  );
 }
 
 export default PropertyPaneHelpButton;

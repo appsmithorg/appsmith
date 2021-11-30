@@ -9,7 +9,7 @@ import { AppState } from "reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
@@ -23,7 +23,6 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useShowPropertyPane } from "./dragResizeHooks";
 import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
@@ -52,7 +51,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   widgetId,
 }: CanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
-  const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
 
@@ -233,7 +231,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
       selectWidget(updateWidgetParams.payload.newWidgetId);
-      showPropertyPane(updateWidgetParams.payload.newWidgetId);
     }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,

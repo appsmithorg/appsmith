@@ -29,7 +29,7 @@ const OptionWrapper = styled.div<{
   display: flex;
   align-items: center;
   user-select: none;
-  width: ${(props) => props.width};
+  width: 100%;
 
   &&& svg {
     rect {
