@@ -238,11 +238,12 @@ describe("Table Widget Filter Functionality", function() {
       cy.get(publish.removeFilter)
         .first()
         .click({ force: true });
+      cy.wait(500);
       cy.get(publish.removeFilter)
         .last()
         .click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
+      cy.wait(1000);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Michael Lawson");
