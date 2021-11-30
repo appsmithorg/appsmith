@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,11 +64,6 @@ public class BulkAppendMethod implements Method {
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a list of row objects.");
         }
-
-        if (!bodyNode.isArray()) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
-        }
         return true;
     }
 
@@ -82,11 +79,7 @@ public class BulkAppendMethod implements Method {
         final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
 
         List<RowObject> rowObjectListFromBody = null;
-        try {
-            rowObjectListFromBody = this.getRowObjectListFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
-        } catch (JsonProcessingException e) {
-            // Should never enter here
-        }
+        rowObjectListFromBody = this.getRowObjectListFromBody(methodConfig);
 
         assert rowObjectListFromBody != null;
         RowObject rowObjectFromBody = rowObjectListFromBody.get(0);
@@ -143,26 +136,18 @@ public class BulkAppendMethod implements Method {
                         if (headers != null && !headers.isEmpty()) {
                             for (RowObject rowObject : finalRowObjectListFromBody) {
                                 final Map<String, String> valueMap = new LinkedHashMap<>();
-                                boolean validValues = false;
+                                //   boolean validValues = false;
                                 final Map<String, String> inputValueMap = rowObject.getValueMap();
                                 for (JsonNode header : headers) {
-                                    final String value = inputValueMap.getOrDefault(header.asText(), null);
-                                    if (value != null) {
-                                        validValues = true;
-                                    }
+                                    String value = inputValueMap.getOrDefault(header.asText(), "");
                                     valueMap.put(header.asText(), value);
                                 }
-                                if (Boolean.TRUE.equals(validValues)) {
-                                    rowObject.setValueMap(valueMap);
-                                } else {
-                                    throw Exceptions.propagate(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Could not map values to existing data."));
-                                }
-                            }
+                                rowObject.setValueMap(valueMap);
+//                          }
 
-                            methodConfig.setBody(finalRowObjectListFromBody);
-                            return methodConfig;
+                                methodConfig.setBody(finalRowObjectListFromBody);
+                                return methodConfig;
+                            }
                         }
                     }
 
@@ -219,12 +204,19 @@ public class BulkAppendMethod implements Method {
         return this.objectMapper.valueToTree(Map.of("message", "Inserted rows successfully!"));
     }
 
-    private List<RowObject> getRowObjectListFromBody(JsonNode body) {
+    private List<RowObject> getRowObjectListFromBody(MethodConfig methodConfig ) {
+        JsonNode body = null;
+        try{
+            body = this.objectMapper.readTree(methodConfig.getRowObjects());
 
-        if (!body.isArray() || body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected an array of row objects");
+            if (!body.isArray() || body.isEmpty()) {
+                methodConfig.setRowObjects("[{\"empty\":\"empty\"}]");
+                body = this.objectMapper.readTree(methodConfig.getRowObjects());
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
+
         return StreamSupport
                 .stream(body.spliterator(), false)
                 .map(rowJson -> new RowObject(
