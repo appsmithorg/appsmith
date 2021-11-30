@@ -2,7 +2,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-//require("cy-verify-downloads").addCustomCommand();
+require("cy-verify-downloads").addCustomCommand();
+require("cypress-file-upload");
 
 const dayjs = require("dayjs");
 
