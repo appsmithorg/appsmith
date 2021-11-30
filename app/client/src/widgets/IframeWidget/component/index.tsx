@@ -93,10 +93,10 @@ function IframeComponent(props: IframeComponentProps) {
       return;
     }
     onURLChanged(source);
-    if (!source) {
-      setMessage("Valid source url is required");
-    } else {
+    if (source || srcDoc) {
       setMessage("");
+    } else {
+      setMessage("Valid source URL is required");
     }
   }, [source]);
 
@@ -106,6 +106,11 @@ function IframeComponent(props: IframeComponentProps) {
       return;
     }
     onSrcDocChanged(srcDoc);
+    if (srcDoc || source) {
+      setMessage("");
+    } else {
+      setMessage("At least either of source URL or srcDoc is required");
+    }
   }, [srcDoc]);
 
   const appMode = useSelector(getAppMode);
