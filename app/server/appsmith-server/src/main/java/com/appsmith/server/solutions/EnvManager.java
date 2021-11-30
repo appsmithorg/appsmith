@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
+import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
@@ -21,6 +22,7 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
@@ -39,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -328,13 +331,29 @@ public class EnvManager {
                 });
     }
 
-    public Mono<Boolean> sendTestEmail() {
+    public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
         return verifyCurrentUserIsSuper()
-                .flatMap(user -> emailSender.sendMail(
-                        user.getEmail(),
-                        "Test email from Appsmith",
-                        "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n"
-                ));
+                .flatMap(user -> {
+                    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+                    mailSender.setHost(requestDTO.getSmtpHost());
+                    mailSender.setPort(requestDTO.getSmtpPort());
+                    mailSender.setUsername(requestDTO.getUsername());
+                    mailSender.setPassword(requestDTO.getPassword());
+
+                    Properties props = mailSender.getJavaMailProperties();
+                    props.put("mail.transport.protocol", "smtp");
+                    props.put("mail.smtp.auth", "true");
+                    props.put("mail.smtp.starttls.enable", "true");
+                    props.put("mail.debug", "false");
+
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(requestDTO.getFromEmail());
+                    message.setTo(user.getEmail());
+                    message.setSubject("Test email from Appsmith");
+                    message.setText("This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
+                    mailSender.send(message);
+                    return Mono.just(Boolean.TRUE);
+                });
     }
 
     public Mono<Void> download(ServerWebExchange exchange) {
