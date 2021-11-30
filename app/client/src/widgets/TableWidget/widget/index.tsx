@@ -16,6 +16,9 @@ import {
   sortBy,
   xorWith,
   isEmpty,
+  isObject,
+  get,
+  find,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -121,12 +124,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     optionSelected: DropdownOption,
   ) => {
     const editedColumnData = cloneDeep(this.props.editedColumnData);
-    setWith(
-      editedColumnData,
-      [columnId, rowIndex],
-      optionSelected.value,
-      Object,
-    );
+    setWith(editedColumnData, [columnId, rowIndex], optionSelected, Object);
 
     this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
@@ -135,6 +133,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       "onOptionChange",
       dynamicString,
       EventType.ON_OPTION_CHANGE,
+      { [columnId]: optionSelected },
     );
   };
 
@@ -143,9 +142,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     triggerPropertyName: string,
     dynamicString: string,
     eventType: EventType,
+    updatedOption: Record<string, DropdownOption>,
   ) => {
     try {
-      const rowData = [this.props.filteredTableData[rowIndex]];
+      const rowData = [
+        { ...this.props.filteredTableData[rowIndex], ...updatedOption },
+      ];
       const { jsSnippets } = getDynamicBindings(dynamicString);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentRow) => { ${next} }}} `;
@@ -276,6 +278,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               }
             }
             const isCellVisible = cellProperties.isCellVisible ?? true;
+            let selectedValue;
+            try {
+              selectedValue = JSON.parse(props.cell.value);
+              if (isObject(selectedValue)) {
+                selectedValue = get(selectedValue, "value");
+              }
+            } catch (error) {
+              selectedValue = props.cell.value;
+            }
             return (
               <SelectCell
                 action={columnProperties.onOptionChange}
@@ -289,7 +300,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 options={options}
                 placeholderText={cellProperties.placeholderText}
                 rowIndex={rowIndex}
-                value={props.cell.value}
+                value={selectedValue}
                 widgetId={this.props.widgetId}
               />
             );
@@ -771,13 +782,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const column = this.props.primaryColumns[columnIds[index]];
       if (column.columnType === "select") {
         // set computedValue as default value
-        if (column.computedValue) {
-          setWith(
-            editedColumnData,
-            [column.id, "defaultOptionValue"],
-            column.computedValue,
-            Object,
-          );
+        if (column.computedValue && Array.isArray(column.computedValue)) {
+          for (let index = 0; index < column.computedValue.length; index++) {
+            let value = column.computedValue[index];
+            // value can be { label, value } object or single value
+            if (!isObject(value)) {
+              // get object value from single value
+              value = find(column.options, ["value", value]);
+            }
+            setWith(editedColumnData, [column.id, index], value, Object);
+          }
         }
       } else {
         // clean column data if column type change

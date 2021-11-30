@@ -35,7 +35,7 @@ describe("Table Widget new column type - Select", function() {
       },
     );
 
-    cy.onTableAction(0, "onoptionchange", `{{currentRow.productName}}`);
+    cy.onTableAction(0, "onoptionchange", `{{currentRow.userName.label}}`);
 
     // change dropdown option from 3rd cell of 2nd row
     cy.get(
@@ -47,9 +47,7 @@ describe("Table Widget new column type - Select", function() {
       .contains(dropdownOptions[3].value)
       .click({ force: true });
     cy.wait(2000);
-    cy.get(commonlocators.toastmsg).contains(
-      testdata.TablePagination[1].productName,
-    );
+    cy.get(commonlocators.toastmsg).contains(dropdownOptions[3].value);
 
     // Reading single cell value of the table and verify it's value.
     cy.readTableSelectPublish("1", "2").then((tabData) => {

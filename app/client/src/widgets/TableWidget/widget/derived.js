@@ -114,7 +114,7 @@ export default {
   // sanitizedTableData gets updated when editedColumnData has values
   // case 1: set computed value as default value when change column type to "select"
   // case 2: if single row is updated, set columnName.index in editedColumnData
-  // i.e. editedColumnData = { [columnName] : { [rowindex]: "value1", defaultOptionValue: "default" } }
+  // i.e. editedColumnData = { [columnName] : { [rowindex]: "value1" } }
   getSanitizedTableData: (props, moment, _) => {
     const separatorRegex = /\W+/;
 
@@ -130,14 +130,6 @@ export default {
           if (_.has(props.editedColumnData, `${sanitizedKey}.${index}`)) {
             sanitizedData[sanitizedKey] =
               props.editedColumnData[sanitizedKey][index];
-          } else if (
-            _.has(props.editedColumnData, `${sanitizedKey}.defaultOptionValue`)
-          ) {
-            sanitizedData[sanitizedKey] = _.get(
-              props.editedColumnData,
-              `${sanitizedKey}.defaultOptionValue.${index}`,
-              "",
-            );
           } else {
             sanitizedData[sanitizedKey] = value;
           }
@@ -278,14 +270,6 @@ export default {
           if (_.has(props.editedColumnData, `${columnId}.${index}`)) {
             derivedTableData[index][columnId] =
               props.editedColumnData[columnId][index];
-          } else if (
-            _.has(props.editedColumnData, `${columnId}.defaultOptionValue`)
-          ) {
-            derivedTableData[index][columnId] = _.get(
-              props.editedColumnData,
-              `${columnId}.defaultOptionValue.${index}`,
-              "",
-            );
           }
         }
       });
