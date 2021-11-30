@@ -184,9 +184,15 @@ class TabsWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedTab: `{{_.find(Object.values(this.tabsObj), {
-        widgetId: this.selectedTabWidgetId,
-      }).label}}`,
+      selectedTab: `{{  this.selectedTabWidgetId
+        ? _.find(Object.values(this.tabsObj), {
+            widgetId: this.selectedTabWidgetId,
+          }).label
+        : Object.values(this.tabsObj).filter(
+            (tab) => tab.label === this.defaultTab,
+          ).length > 0
+        ? this.defaultTab
+        : Object.values(this.tabsObj)[0].label;}}`,
     };
   }
 
