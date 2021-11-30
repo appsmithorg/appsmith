@@ -145,17 +145,16 @@ export const scrollElementIntoParentCanvasView = (
 };
 
 export function hasClass(ele: HTMLElement, cls: string) {
-  return !!ele.className.match(new RegExp("(\\s|^)" + cls + "(\\s|$)"));
+  return ele.classList.contains(cls);
 }
 
 function addClass(ele: HTMLElement, cls: string) {
-  if (!hasClass(ele, cls)) ele.className += " " + cls;
+  if (!hasClass(ele, cls)) ele.classList.add(cls);
 }
 
 function removeClass(ele: HTMLElement, cls: string) {
   if (hasClass(ele, cls)) {
-    const reg = new RegExp("(\\s|^)" + cls + "(\\s|$)");
-    ele.className = ele.className.replace(reg, " ");
+    ele.classList.remove(cls);
   }
 }
 
