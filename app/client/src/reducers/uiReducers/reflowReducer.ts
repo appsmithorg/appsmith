@@ -4,7 +4,7 @@ import {
   ReduxAction,
   ReflowReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 const initialState: widgetReflowState = {
   isReflowing: false,

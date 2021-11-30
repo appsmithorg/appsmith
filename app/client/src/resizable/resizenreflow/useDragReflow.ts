@@ -1,6 +1,5 @@
 import { reflowMove, startReflow, stopReflow } from "actions/reflowActions";
 import { GridDefaults } from "constants/WidgetConstants";
-import { OccupiedSpace } from "constants/editorConstants";
 import { cloneDeep } from "lodash";
 import { RefObject, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +14,7 @@ import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { Rect } from "utils/WidgetPropsUtils";
 import { WidgetDraggingBlock } from "utils/hooks/useBlocksToBeDraggedOnCanvas";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 type WidgetCollisionGraph = OccupiedSpace & {
   children?: {

@@ -55,7 +55,8 @@ export const useCanvasDragging = (
     relativeStartPoints,
     rowRef,
     stopReflowing,
-    updateRows,
+    updateBottomRow,
+    updateRelativeRows,
     widgetOccupiedSpace,
   } = useBlocksToBeDraggedOnCanvas({
     canExtend,
@@ -329,7 +330,7 @@ export const useCanvasDragging = (
               left: each.left + delta.left,
               top: each.top + delta.top,
             }));
-            const newRows = updateRows(drawingBlocks, rowRef.current);
+            const newRows = updateRelativeRows(drawingBlocks, rowRef.current);
             const rowDelta = newRows ? newRows - rowRef.current : 0;
             rowRef.current = newRows ? newRows : rowRef.current;
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
@@ -416,6 +417,35 @@ export const useCanvasDragging = (
                     GridDefaults.DEFAULT_GRID_COLUMNS,
                     block.detachFromLayout,
                   );
+                  const reflowedWidgets = Object.entries(
+                    currentReflowParams.reflowingWidgets,
+                  );
+                  const bottomReflowedWidgets = reflowedWidgets.filter(
+                    (each) => !!each[1].Y,
+                  );
+                  const reflowedWidgetsBottomMostRow = bottomReflowedWidgets.reduce(
+                    (bottomMostRow, each) => {
+                      const [id, reflowedParams] = each;
+                      const widget = occSpaces.find(
+                        (eachSpace) => eachSpace.id === id,
+                      );
+                      if (widget) {
+                        const bottomMovement =
+                          (reflowedParams.Y || 0) / snapRowSpace;
+                        const bottomRow = widget.bottom + bottomMovement;
+                        if (bottomRow > bottomMostRow) {
+                          return bottomRow;
+                        }
+                      }
+                      return bottomMostRow;
+                    },
+                    0,
+                  );
+                  const newRows = updateBottomRow(
+                    reflowedWidgetsBottomMostRow,
+                    rowRef.current,
+                  );
+                  rowRef.current = newRows ? newRows : rowRef.current;
                   currentRectanglesToDraw[0].isNotColliding =
                     isNotInParentBoundaries &&
                     (currentReflowParams.horizontalMove ||

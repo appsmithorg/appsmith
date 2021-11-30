@@ -282,7 +282,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
       didDrop: true,
     });
   };
-  const updateRows = (drawingBlocks: WidgetDraggingBlock[], rows: number) => {
+  const updateRelativeRows = (
+    drawingBlocks: WidgetDraggingBlock[],
+    rows: number,
+  ) => {
     if (drawingBlocks.length) {
       const sortedByTopBlocks = drawingBlocks.sort(
         (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
@@ -297,9 +300,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
         } as XYCord,
         { x: 0, y: 0 },
       );
-      if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
-        return updateDropTargetRows && updateDropTargetRows(widgetId, top);
-      }
+      return updateBottomRow(top, rows);
+    }
+  };
+  const updateBottomRow = (bottom: number, rows: number) => {
+    if (bottom > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
+      return updateDropTargetRows && updateDropTargetRows(widgetId, bottom);
     }
   };
   const rowRef = useRef(snapRows);
@@ -362,7 +368,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
     relativeStartPoints,
     rowRef,
     stopReflowing,
-    updateRows,
+    updateBottomRow,
+    updateRelativeRows,
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,
     )[0],
