@@ -5,7 +5,6 @@ import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as InfoIcon } from "assets/icons/form/info-outline.svg";
 import { ReactComponent as AddNewIcon } from "assets/icons/form/add-new.svg";
 import { ReactComponent as LockIcon } from "assets/icons/form/lock.svg";
-import { ReactComponent as HelpIcon } from "assets/icons/form/Help.svg";
 
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
@@ -56,11 +55,6 @@ export const FormIcons: {
   LOCK_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <LockIcon />
-    </IconWrapper>
-  ),
-  HELP_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
-      <HelpIcon />
     </IconWrapper>
   ),
 };
