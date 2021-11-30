@@ -338,13 +338,18 @@ public class EnvManager {
                     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
                     mailSender.setHost(requestDTO.getSmtpHost());
                     mailSender.setPort(requestDTO.getSmtpPort());
-                    mailSender.setUsername(requestDTO.getUsername());
-                    mailSender.setPassword(requestDTO.getPassword());
 
                     Properties props = mailSender.getJavaMailProperties();
                     props.put("mail.transport.protocol", "smtp");
-                    props.put("mail.smtp.auth", "true");
-                    props.put("mail.smtp.starttls.enable", "true");
+
+                    if(requestDTO.getIsTlsEnabled()) {
+                        props.put("mail.smtp.auth", "true");
+                        props.put("mail.smtp.starttls.enable", "true");
+                        mailSender.setUsername(requestDTO.getUsername());
+                        mailSender.setPassword(requestDTO.getPassword());
+                    } else {
+                        props.put("mail.smtp.starttls.enable", "false");
+                    }
                     props.put("mail.debug", "true");
 
                     SimpleMailMessage message = new SimpleMailMessage();
