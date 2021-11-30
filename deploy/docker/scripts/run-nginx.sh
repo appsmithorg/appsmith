@@ -1,11 +1,6 @@
 #!/bin/bash
 
 NGINX_SSL_CMNT="#"
-ENV_PATH="/appsmith-stacks/configuration/docker.env"
-echo 'Load environment configuration'
-set -o allexport
-. "$ENV_PATH"
-set +o allexport
 
 TEMPLATE_DIR="/opt/appsmith/templates"
 APP_TEMPLATE="$TEMPLATE_DIR/nginx-app-http.conf.template.sh"

@@ -30,19 +30,13 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("2. Create & runs existing table data and deletes the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from users limit 10");
-
-    cy.EvaluateCurrentValue("select * from users limit 10");
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate("select * from users limit 10");
     cy.runAndDeleteQuery();
   });
 
   it("3. Create new CRUD Table and populate", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
 
     let tableCreateQuery = `CREATE TABLE public.users_crud (
       id integer NOT NULL,
@@ -53,7 +47,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       address text,
       role text);
 
-      insert into public.users_crud (id, name, status, gender, email, address, role) values 
+      insert into public.users_crud (id, name, status, gender, email, address, role) values
       (1, 'CRUD User1', 'PENDING', 'Male', 'cruduser1@ihg.com', '19624 Scofield Way', 'User'),
       (2, 'CRUD User2', 'IN PROGRESS', 'Male','cruduser2@ihg.com', '19624 Scofield Way', 'Editor'),
       (3, 'CRUD User3', 'APPROVED', 'Female','cruduser3@ihg.com', '19624 Scofield Way', 'Admin'),
@@ -85,20 +79,25 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       (29, 'CRUD User29', 'IN PROGRESS', 'Male','cruduser29@ihg.com', '19624 Scofield Way', 'Editor'),
       (30, 'CRUD User30', 'APPROVED', 'Female','cruduser30@ihg.com', '19624 Scofield Way', 'Admin');`;
 
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    //cy.typeValueNValidate(tableCreateQuery);//Since type method is slow for such big text - using paste!
+
     cy.get(".CodeMirror textarea").paste(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     cy.EvaluateCurrentValue(tableCreateQuery);
+
     cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
   });
 
   it("4. Validate Select record from Postgress datasource", () => {
     let selectQuery = "select * from public.users_crud";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.xpath(queryLocators.querySelect).click();
-    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
-    cy.get(queryLocators.codeTextArea).paste(selectQuery);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate(selectQuery);
 
-    cy.EvaluateCurrentValue(selectQuery);
+    // cy.xpath(queryLocators.codeTextArea).paste(selectQuery);
+    //cy.EvaluateCurrentValue(selectQuery);
+
     cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
   });
 
@@ -106,12 +105,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let insertQuery =
       "INSERT INTO public.users_crud (id, name, gender, email) VALUES (31, 'CRUD User11','Male','cruduser31@ihg.com');";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.xpath(queryLocators.queryCreate).click();
-    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
-    //.type("{selectall}{del}");
-
-    cy.get(queryLocators.codeTextArea).paste(insertQuery);
-    cy.EvaluateCurrentValue(insertQuery);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate(insertQuery);
     cy.runAndDeleteQuery();
   });
 
@@ -119,22 +114,16 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let updateQuery =
       "UPDATE public.users_crud SET status = 'PENDING', role = 'Viewer' WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.xpath(queryLocators.queryUpdate).click();
-    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
-    cy.get(queryLocators.codeTextArea).paste(updateQuery);
-
-    cy.EvaluateCurrentValue(updateQuery);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate(updateQuery);
     cy.runAndDeleteQuery();
   });
 
   it("7. Validate Delete record from Postgress datasource", () => {
     let deleteQuery = "DELETE FROM public.users_crud WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.xpath(queryLocators.queryDelete).click();
-    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
-    cy.get(queryLocators.codeTextArea).paste(deleteQuery);
-
-    cy.EvaluateCurrentValue(deleteQuery);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate(deleteQuery);
     cy.runAndDeleteQuery();
   });
 
@@ -167,8 +156,12 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.ClickGotIt();
 
     //Verifying Update from UI
-    cy.xpath(generatePage.selectRowinTable).click();
+    cy.xpath(generatePage.selectRowinTable)
+      .scrollIntoView()
+      .should("be.visible")
+      .click({ force: true });
     cy.xpath(generatePage.currentStatusField)
+      .scrollIntoView()
       .clear()
       .click()
       .type("APPROVED");
@@ -185,7 +178,10 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     //.should("have.nested.property", "response.body.data.request.requestParams.Query.value",);
 
-    cy.xpath(generatePage.selectRowinTable).click();
+    cy.xpath(generatePage.selectRowinTable)
+      .scrollIntoView()
+      .should("be.visible")
+      .click({ force: true });
     cy.xpath(generatePage.currentStatusField).should("have.value", "APPROVED"); //Verifying update is success
 
     //verifying Insert from UI
@@ -197,14 +193,19 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.emailField)
       .type("curduser31@ihg.com")
       .wait(1000); //Waiting for Submit button to get enabled
-    cy.get(generatePage.submitBtn).click();
+    cy.get(generatePage.submitBtn)
+      .first()
+      .click();
 
     cy.xpath(generatePage.sortByDropdown).click(); //Sorting by descending to verify newly added record - also sorting is verified
     cy.xpath(generatePage.descending).click();
     cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User31"); //Verifying Addition is success
 
     //Verifying Delete from UI
-    cy.xpath(generatePage.deleteofSelectedRow).click();
+    cy.xpath(generatePage.deleteofSelectedRow)
+      .scrollIntoView()
+      .should("be.visible")
+      .click({ force: true });
     cy.get(generatePage.confirmBtn)
       .click()
       .wait(2000); //Wait for update call to be success
@@ -215,7 +216,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       200,
     );
 
-    cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User30"); //Verifying Deletion of id # 31 is success
+    cy.xpath(generatePage.currentNameField)
+      .scrollIntoView()
+      .should("have.value", "CRUD User30"); //Verifying Deletion of id # 31 is success
   });
 
   it("9. Validate Deletion of the Newly Created Page", () => {
@@ -229,30 +232,22 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "response.body.responseMeta.status",
       409,
     );
-
-    cy.xpath(generatePage.postgressnewPageEntityMenu)
-      .first()
-      .click({ force: true });
-    cy.xpath(generatePage.deleteMenuItem).click();
+    cy.deleteEntitybyName("Public.users_crud");
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
     let deleteTblQuery = "DROP TABLE public.users_crud;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.xpath(queryLocators.queryDelete).click();
-    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
-
-    cy.get(queryLocators.codeTextArea).paste(deleteTblQuery);
-
-    cy.EvaluateCurrentValue(deleteTblQuery);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate(deleteTblQuery);
     cy.runAndDeleteQuery();
   });
 
   it("11. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
+    cy.contains(".t--datasource-name", datasourceName).click({ force: true });
+    cy.get(".t--delete-datasource").click({ force: true });
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
