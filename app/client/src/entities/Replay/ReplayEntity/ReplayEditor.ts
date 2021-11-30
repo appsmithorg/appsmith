@@ -5,32 +5,33 @@ import { pathArrayToString } from "../replayUtils";
 import { JSActionConfig } from "entities/JSCollection";
 import { Datasource } from "entities/Datasource";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import isEmpty from "lodash/isEmpty";
 
 /*
  This type represents all the form objects that can be undone/redone. 
  (Action, datasource, jsAction etc)
 */
-export type ReplayEditorType =
+export type Replayable =
   | Partial<JSActionConfig>
   | Partial<Datasource>
   | Partial<Action>;
 
-type ReplayEditorDiff = Diff<ReplayEditorType, ReplayEditorType>;
+type ReplayEditorDiff = Diff<Replayable, Replayable>;
 
 export type ReplayEditorUpdate = {
   modifiedProperty: string;
   index?: number;
-  update: ReplayEditorType | ReplayEditorDiff;
+  update: Replayable | ReplayEditorDiff;
   kind: "N" | "D" | "E" | "A";
   isUndo?: boolean;
 };
-export default class ReplayEditor extends ReplayEntity<ReplayEditorType> {
-  constructor(entity: ReplayEditorType, entityType: ENTITY_TYPE) {
+export default class ReplayEditor extends ReplayEntity<Replayable> {
+  constructor(entity: Replayable, entityType: ENTITY_TYPE) {
     super(entity, entityType);
   }
 
   public processDiff(
-    diff: Diff<ReplayEditorType, ReplayEditorType>,
+    diff: Diff<Replayable, Replayable>,
     replay: any,
     isUndo: boolean,
   ): void {
@@ -46,11 +47,12 @@ export default class ReplayEditor extends ReplayEntity<ReplayEditorType> {
     messages or even highlight based on the kind.
   */
   private getChanges(
-    diff: Diff<ReplayEditorType, ReplayEditorType>,
+    diff: Diff<Replayable, Replayable>,
     isUndo: boolean,
   ): ReplayEditorUpdate | undefined {
     const { kind, path } = diff;
     if (diff.kind === "N") {
+      if (isEmpty(diff.rhs)) return;
       return {
         modifiedProperty: pathArrayToString(path),
         update: diff.rhs,
@@ -65,7 +67,6 @@ export default class ReplayEditor extends ReplayEntity<ReplayEditorType> {
         isUndo,
       };
     } else if (diff.kind === "E") {
-      if (diff.lhs === diff.rhs) return;
       return {
         modifiedProperty: pathArrayToString(path),
         update: isUndo ? diff.lhs : diff.rhs,

@@ -19,7 +19,7 @@ import {
   ReplayReduxActionTypes,
 } from "../constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { ReplayEditorType } from "entities/Replay/ReplayEntity/ReplayEditor";
+import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -389,7 +389,7 @@ export const generateTemplateToUpdatePage = ({
 
 export function updateReplayEntity(
   entityId: string,
-  entity: ReplayEditorType,
+  entity: Replayable,
   entityType: ENTITY_TYPE,
 ) {
   return {

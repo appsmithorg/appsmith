@@ -67,6 +67,7 @@ import _, { isEmpty } from "lodash";
 import { updateFormFields } from "./ApiPaneSagas";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Datasource } from "entities/Datasource";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -220,7 +221,10 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   }
 }
 
-function* replayActionSaga(replayEntity: any, replay: any) {
+function* replayActionSaga(
+  replayEntity: Action,
+  replay: { updates: ReplayEditorUpdate[] },
+) {
   const { updates = [] } = replay;
   const { modifiedProperty } = updates[updates.length - 1] || {};
   const { currentTab } = yield call(
@@ -262,7 +266,10 @@ function* replayActionSaga(replayEntity: any, replay: any) {
   yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
 }
 
-function* replayDatasourceSaga(replayEntity: any, replay: any) {
+function* replayDatasourceSaga(
+  replayEntity: Datasource,
+  replay: { updates: ReplayEditorUpdate[] },
+) {
   const { updates = [] } = replay;
   const { modifiedProperty } = updates[updates.length - 1] || {};
   const { fieldInfo } = yield call(
@@ -284,7 +291,7 @@ function* replayDatasourceSaga(replayEntity: any, replay: any) {
   Figure out the field config of the last modified field in datasource forms
 */
 function* getDatasourceFieldConfig(
-  replayEntity: any,
+  replayEntity: Datasource,
   modifiedProperty: string,
 ) {
   const formConfig: [Record<any, any>] = yield select(
