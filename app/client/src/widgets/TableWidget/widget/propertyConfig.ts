@@ -799,6 +799,21 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^#([0-9a-fA-F]{3}){1,2}$/,
+                        default: Colors.GREEN,
+                        expected: {
+                          type: "HEX Color",
+                          example: "#ff0000",
+                          autocompleteDataType: AutocompleteDataType.STRING,
+                        },
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -931,7 +946,22 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^#([0-9a-fA-F]{3}){1,2}$/,
+                        default: Colors.GREY_8,
+                        expected: {
+                          type: "HEX Color",
+                          example: "#ff0000",
+                          autocompleteDataType: AutocompleteDataType.STRING,
+                        },
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
