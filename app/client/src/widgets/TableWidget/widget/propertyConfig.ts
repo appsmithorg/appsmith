@@ -1025,6 +1025,7 @@ export default [
                   controlType: "COLOR_PICKER",
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
                   defaultColor: Colors.GREEN,

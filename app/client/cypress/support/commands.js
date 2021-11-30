@@ -2152,6 +2152,10 @@ Cypress.Commands.add("testSaveDatasource", () => {
   cy.testDatasource();
 });
 
+Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
+  cy.get(datasourceEditor["scope"]).click();
+});
+
 Cypress.Commands.add(
   "fillMongoDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
