@@ -510,7 +510,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const propertiesToAdd: Record<string, unknown> = {};
         columnIdsToAdd.forEach((id: string) => {
           Object.entries(tableColumns[id]).forEach(([key, value]) => {
-            propertiesToAdd[`primaryColumns.${id}.${key}`] = value;
+            if (id) {
+              propertiesToAdd[`primaryColumns.${id}.${key}`] = value;
+            }
           });
         });
 
