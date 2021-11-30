@@ -321,7 +321,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   };
 
   handleEvaluatedValue = () => {
-    const { actionName, dataTree } = this.props;
+    const { actionName, datasource, dataTree } = this.props;
     const entity = dataTree[actionName];
 
     if (!entity) return "";
@@ -335,7 +335,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
             `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
         )
         .join("");
-      const evaluatedDatasourceUrl = entity.datasourceUrl;
+
+      // When Api is generated from a datasource,
+      // url is gotten from the datasource's configuration
+
+      const evaluatedDatasourceUrl =
+        "id" in datasource
+          ? datasource.datasourceConfiguration.url
+          : entity.datasourceUrl;
 
       const fullDatasourceUrlPath =
         evaluatedDatasourceUrl + evaluatedPath + evaluatedQueryParameters;
