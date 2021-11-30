@@ -204,9 +204,15 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.buttonColor": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: {
-            type: ValidationTypes.COLOR,
+            type: ValidationTypes.TEXT,
             params: {
+              regex: /^#([0-9a-fA-F]{3}){1,2}$/,
               default: Colors.GREEN,
+              expected: {
+                type: "HEX Color",
+                example: "#ff0000",
+                autocompleteDataType: AutocompleteDataType.STRING,
+              },
             },
           },
         },
