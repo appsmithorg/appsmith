@@ -5,7 +5,6 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 
 describe("evaluate", () => {
   const widget: DataTreeWidget = {
