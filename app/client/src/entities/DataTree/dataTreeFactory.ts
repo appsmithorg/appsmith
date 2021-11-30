@@ -86,6 +86,7 @@ export interface DataTreeWidget extends WidgetProps {
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
+  theme: any;
 }
 export type DataTreeObjectEntity =
   | DataTreeAction
@@ -111,6 +112,7 @@ type DataTreeSeed = {
   pageList: PageListPayload;
   appData: AppDataState;
   jsActions: JSCollectionDataState;
+  theme: any;
 };
 
 export class DataTreeFactory {
@@ -121,6 +123,7 @@ export class DataTreeFactory {
     jsActions,
     pageList,
     pluginDependencyConfig,
+    theme,
     widgets,
     widgetsMeta,
   }: DataTreeSeed): DataTree {
@@ -150,6 +153,7 @@ export class DataTreeFactory {
       // combine both persistent and transient state with the transient state
       // taking precedence in case the key is the same
       store: { ...appData.store.persistent, ...appData.store.transient },
+      theme,
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     return dataTree;
