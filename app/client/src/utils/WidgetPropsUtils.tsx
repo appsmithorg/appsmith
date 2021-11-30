@@ -8,7 +8,7 @@ import {
 } from "widgets/BaseWidget";
 import { GridDefaults, RenderMode } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { transformDSL } from "./DSLMigrations";

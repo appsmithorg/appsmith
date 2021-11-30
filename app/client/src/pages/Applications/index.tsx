@@ -420,15 +420,6 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <OrgMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={org.organization.slug}
-                org={org}
-                selected={urlHash === org.organization.slug}
-              />
-            ))}
           {!isFetchingApplications && fetchedUserOrgs && (
             <MenuItem
               cypressSelector="t--org-new-organization-auto-create"
@@ -447,6 +438,15 @@ function LeftPane() {
               text={CREATE_ORGANIZATION_FORM_NAME}
             />
           )}
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <OrgMenuItem
+                isFetchingApplications={isFetchingApplications}
+                key={org.organization.slug}
+                org={org}
+                selected={urlHash === org.organization.slug}
+              />
+            ))}
         </WorkpsacesNavigator>
         <LeftPaneBottomSection>
           <MenuItem
@@ -661,7 +661,7 @@ function ApplicationsSection(props: any) {
   } else {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
-        const { applications, organization, userRoles } = organizationObject;
+        const { applications, organization } = organizationObject;
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -700,7 +700,7 @@ function ApplicationsSection(props: any) {
               ) &&
                 !isFetchingApplications && (
                   <OrgShareUsers>
-                    <SharedUserList userRoles={userRoles} />
+                    <SharedUserList orgId={organization.id} />
                     <FormDialogComponent
                       Form={OrgInviteUsersForm}
                       canOutsideClickClose
@@ -774,27 +774,29 @@ function ApplicationsSection(props: any) {
                       >
                         {hasManageOrgPermissions && (
                           <>
-                            <OrgRename
-                              cypressSelector="t--org-rename-input"
-                              defaultValue={organization.name}
-                              editInteractionKind={EditInteractionKind.SINGLE}
-                              fill
-                              hideEditIcon={false}
-                              isEditingDefault={false}
-                              isInvalid={(value: string) => {
-                                return notEmptyValidator(value).message;
-                              }}
-                              onBlur={(value: string) => {
-                                OrgNameChange(value, organization.id);
-                              }}
-                              placeholder="Workspace name"
-                              savingState={
-                                isSavingOrgInfo
-                                  ? SavingState.STARTED
-                                  : SavingState.NOT_STARTED
-                              }
-                              underline
-                            />
+                            <div className="px-3 py-2">
+                              <OrgRename
+                                cypressSelector="t--org-rename-input"
+                                defaultValue={organization.name}
+                                editInteractionKind={EditInteractionKind.SINGLE}
+                                fill
+                                hideEditIcon={false}
+                                isEditingDefault={false}
+                                isInvalid={(value: string) => {
+                                  return notEmptyValidator(value).message;
+                                }}
+                                onBlur={(value: string) => {
+                                  OrgNameChange(value, organization.id);
+                                }}
+                                placeholder="Workspace name"
+                                savingState={
+                                  isSavingOrgInfo
+                                    ? SavingState.STARTED
+                                    : SavingState.NOT_STARTED
+                                }
+                                underline
+                              />
+                            </div>
                             <MenuItem
                               cypressSelector="t--org-setting"
                               icon="general"

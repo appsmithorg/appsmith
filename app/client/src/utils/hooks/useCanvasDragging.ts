@@ -1,4 +1,3 @@
-import { OccupiedSpace } from "constants/editorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -9,6 +8,8 @@ import { useEffect, useRef } from "react";
 import { reflowWidgets } from "reducers/uiReducers/reflowReducer";
 import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
 import { useDragReflow } from "resizable/resizenreflow/useDragReflow";
+import { useSelector } from "react-redux";
+import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
@@ -17,6 +18,7 @@ import {
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 export interface XYCord {
   x: number;
@@ -35,6 +37,7 @@ export const useCanvasDragging = (
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
+  const canvasZoomLevel = useSelector(getZoomLevel);
   const { devicePixelRatio: scale = 1 } = window;
   const {
     blocksToDraw,
@@ -114,11 +117,12 @@ export const useCanvasDragging = (
         height: scrollParentTopHeight,
       } = parentCanvas.getBoundingClientRect();
       const { width } = canvasRef.current.getBoundingClientRect();
-      canvasDrawRef.current.style.width = width + "px";
+      canvasDrawRef.current.style.width = width / canvasZoomLevel + "px";
       canvasDrawRef.current.style.position = canExtend ? "absolute" : "sticky";
       canvasDrawRef.current.style.left = "0px";
       canvasDrawRef.current.style.top = getCanvasTopOffset() + "px";
-      canvasDrawRef.current.style.height = scrollParentTopHeight + "px";
+      canvasDrawRef.current.style.height =
+        scrollParentTopHeight / canvasZoomLevel + "px";
     }
   };
 
@@ -500,6 +504,7 @@ export const useCanvasDragging = (
               canvasDrawRef.current.height,
             );
             isUpdatingRows = false;
+            canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
             if (canvasIsDragging) {
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);

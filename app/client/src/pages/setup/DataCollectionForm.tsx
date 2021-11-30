@@ -38,8 +38,8 @@ export default memo(function DataCollectionForm() {
   const [allowCollection, setAllowCollection] = useState(true);
   return (
     <DataCollectionFormWrapper>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>2.</FormHeaderIndex>
+      <FormHeaderWrapper className="relative flex flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">2.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_DATA_COLLECTION_HEADER)}
         </FormHeaderLabel>
@@ -56,6 +56,7 @@ export default memo(function DataCollectionForm() {
           <AllowToggleWrapper>
             <AllowToggle>
               <Toggle
+                className="t--welcome-form-datacollection"
                 name="allowCollectingAnonymousData"
                 onToggle={(value) => setAllowCollection(value)}
                 value

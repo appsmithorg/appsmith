@@ -40,6 +40,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import * as log from "loglevel";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -457,7 +458,7 @@ const PropertyControl = memo((props: Props) => {
         </ControlWrapper>
       );
     } catch (e) {
-      console.error(e);
+      log.error(e);
       return null;
     }
   }
