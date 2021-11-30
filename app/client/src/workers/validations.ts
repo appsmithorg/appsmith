@@ -10,6 +10,7 @@ import _, {
   isArray,
   isObject,
   isPlainObject,
+  isRegExp,
   isString,
   toString,
   uniq,
@@ -237,6 +238,9 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
         const allowed = config.params.allowedValues.join(" | ");
         result = result + ` ( ${allowed} )`;
       }
+      if (config.params?.regex) {
+        result = config.params?.regex.source;
+      }
       if (config.params?.expected?.type) result = config.params?.expected.type;
       return result;
     case ValidationTypes.REGEX:
@@ -352,13 +356,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     if (
       config.params?.regex &&
-      isString(config.params?.regex) &&
+      isRegExp(config.params?.regex) &&
       !config.params?.regex.test(parsed as string)
     ) {
       return {
         parsed: config.params?.default || "",
         messages: [
-          `Value does not match expected regex: ${config.params?.regex.source}`,
+          `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],
         isValid: false,
       };
@@ -452,7 +456,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed < Number(config.params.min)) {
         return {
           isValid: false,
-          parsed,
+          parsed: config.params.min || parsed || 0,
           messages: [`Minimum allowed value: ${config.params.min}`],
         };
       }
@@ -465,7 +469,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed > Number(config.params.max)) {
         return {
           isValid: false,
-          parsed,
+          parsed: config.params.max || parsed || 0,
           messages: [`Maximum allowed value: ${config.params.max}`],
         };
       }
@@ -473,7 +477,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     if (config.params?.natural && (parsed < 0 || !Number.isInteger(parsed))) {
       return {
         isValid: false,
-        parsed,
+        parsed: config.params.default || parsed || 0,
         messages: [`Value should be a positive integer`],
       };
     }
