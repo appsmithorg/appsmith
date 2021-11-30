@@ -509,11 +509,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         const propertiesToAdd: Record<string, unknown> = {};
         columnIdsToAdd.forEach((id: string) => {
-          Object.entries(tableColumns[id]).forEach(([key, value]) => {
-            if (id) {
+          if (id) {
+            Object.entries(tableColumns[id]).forEach(([key, value]) => {
               propertiesToAdd[`primaryColumns.${id}.${key}`] = value;
-            }
-          });
+            });
+          }
         });
 
         // If new columnOrders have different values from the original columnOrders
