@@ -25,7 +25,6 @@ export const generateDataTreeAction = (
     }));
   }
 
-  // set datasource url for embedded datasource action
   if ("datasourceConfiguration" in action.config.datasource) {
     datasourceUrl = action.config.datasource.datasourceConfiguration.url;
   }
