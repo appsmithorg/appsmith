@@ -20,6 +20,7 @@ import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type InputType = "text" | "password" | "number" | "email" | "tel";
 
@@ -366,7 +367,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper
         $isLoading={props.isLoading}
-        className="ur--has-border"
+        className={replayHighlightClass}
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}

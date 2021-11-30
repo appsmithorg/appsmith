@@ -64,6 +64,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const Form = styled.form`
   display: flex;
@@ -597,7 +598,7 @@ function ApiEditorForm(props: Props) {
               data-replay-id={btoa("actionConfiguration.httpMethod")}
             >
               <RequestDropdownField
-                className="t--apiFormHttpMethod ur--has-border"
+                className={`t--apiFormHttpMethod ${replayHighlightClass}`}
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}

@@ -8,6 +8,7 @@ import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -703,9 +704,9 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
-      className={props.containerClassName + " ur--has-border"}
+      className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
+      height={props.height || "36px"}
       tabIndex={0}
       width={dropdownWidth}
     >

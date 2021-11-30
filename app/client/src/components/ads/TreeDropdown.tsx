@@ -14,6 +14,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -213,8 +214,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       <Button
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
           selectedLabelModifier
-            ? "code-highlight ur--has-border"
-            : "ur--has-border"
+            ? "code-highlight " + replayHighlightClass
+            : replayHighlightClass
         }`}
         rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={

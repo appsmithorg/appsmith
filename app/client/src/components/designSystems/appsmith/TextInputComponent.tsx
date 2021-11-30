@@ -10,6 +10,7 @@ import {
 } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TextInput = styled(({ hasError, ...rest }) => (
@@ -144,7 +145,7 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}
           {...rest}
-          className="ur--has-border"
+          className={replayHighlightClass}
         />
         {hasError && <TextInputError>{meta ? meta.error : ""}</TextInputError>}
       </InputContainer>

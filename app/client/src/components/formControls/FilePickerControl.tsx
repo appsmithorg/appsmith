@@ -13,6 +13,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -109,7 +110,7 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
 
     return (
       <div
-        className="ur--has-border"
+        className={replayHighlightClass}
         style={{ flexDirection: "row", display: "flex", width: "50vh" }}
       >
         <StyledDiv>{value.name}</StyledDiv>
