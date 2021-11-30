@@ -36,6 +36,8 @@ export type RunPluginActionDescription = {
   payload: {
     actionId: string;
     params?: Record<string, unknown>;
+    onSuccess?: string;
+    onError?: string;
   };
 };
 

@@ -12,10 +12,12 @@ import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
+  triggers?: ActionDescription[];
 };
 
 export enum EvaluationScriptType {
@@ -231,6 +233,7 @@ export async function evaluateAsync(
     });
 
     try {
+      self.TRIGGER_COLLECTOR = [];
       result = await eval(script);
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${error.message}`;
@@ -242,7 +245,11 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     } finally {
-      completePromise({ result, errors });
+      completePromise({
+        result,
+        errors,
+        triggers: Array.from(self.TRIGGER_COLLECTOR),
+      });
     }
   })();
 }

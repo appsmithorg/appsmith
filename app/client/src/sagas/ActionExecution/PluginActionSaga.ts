@@ -98,6 +98,7 @@ import {
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
+import { executeTrigger } from "actions/widgetActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -249,7 +250,7 @@ export default function* executePluginActionTriggerSaga(
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
-  const { actionId, params } = pluginAction;
+  const { actionId, onError, onSuccess, params } = pluginAction;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
       ActionTriggerType.RUN_PLUGIN_ACTION,
@@ -322,6 +323,15 @@ export default function* executePluginActionTriggerSaga(
         },
       ],
     });
+    if (onError) {
+      yield put(
+        executeTrigger({
+          event: { type: eventType },
+          dynamicString: onError,
+          responseData: [payload.body, params],
+        }),
+      );
+    }
     throw new PluginTriggerFailureError(
       createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
       [payload.body, params],
@@ -342,6 +352,15 @@ export default function* executePluginActionTriggerSaga(
         request: payload.request,
       },
     });
+    if (onSuccess) {
+      yield put(
+        executeTrigger({
+          event: { type: eventType },
+          dynamicString: onSuccess,
+          responseData: [payload.body, params],
+        }),
+      );
+    }
   }
   return [payload.body, params];
 }
@@ -437,7 +456,7 @@ function* runActionSaga(
   }
 
   // Error should be readable error if present.
-  // Otherwise payload's body.
+  // Otherwise, payload's body.
   // Default to "An unexpected error occurred" if none is available
 
   const readableError = payload.readableError

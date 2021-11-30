@@ -6,7 +6,10 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { isAction, isTrueObject } from "./evaluationUtils";
-import { ActionTriggerType } from "entities/DataTree/actionTriggers";
+import {
+  ActionDescription,
+  ActionTriggerType,
+} from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
 
@@ -15,8 +18,7 @@ declare global {
     REQUEST_ID?: string;
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
-    COLLECTOR: Promise<any>[];
-    GLOBAL_FUNCTIONS: Record<string, ActionDispatcher>;
+    TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
 
@@ -101,30 +103,32 @@ const DATA_TREE_FUNCTIONS: Record<
         onError?: () => unknown,
         params = {},
       ) {
-        const isOldSignature = typeof onSuccessOrParams === "function";
-        const isNewSignature = isTrueObject(onSuccessOrParams);
-        const runActionPromise = promisifyAction({
-          type: ActionTriggerType.RUN_PLUGIN_ACTION,
-          payload: {
-            actionId: isAction(entity) ? entity.actionId : "",
-            params: isNewSignature ? onSuccessOrParams : params,
-          },
-        });
-        if (isOldSignature && typeof onSuccessOrParams === "function") {
-          // catch is attached first so that we can catch only the main run errors
-          if (onError)
-            runActionPromise.catch((res) => {
-              return oldActionBind(res, onError);
-            });
-          if (onSuccessOrParams) {
-            runActionPromise.then((res) => {
-              return oldActionBind(res, onSuccessOrParams);
-            });
-          }
-          // if (onError) runActionPromise.catch(onError);
-          // if (onSuccessOrParams) runActionPromise.then(onSuccessOrParams);
+        const isOldSignature =
+          typeof onSuccessOrParams === "function" ||
+          typeof onError === "function";
+
+        if (isOldSignature) {
+          // Backwards compatibility
+          return {
+            type: ActionTriggerType.RUN_PLUGIN_ACTION,
+            payload: {
+              actionId: isAction(entity) ? entity.actionId : "",
+              onSuccess: onSuccessOrParams
+                ? onSuccessOrParams.toString()
+                : undefined,
+              onError: onError ? onError.toString() : undefined,
+              params,
+            },
+          };
+        } else {
+          return promisifyAction({
+            type: ActionTriggerType.RUN_PLUGIN_ACTION,
+            payload: {
+              actionId: isAction(entity) ? entity.actionId : "",
+              params: isTrueObject(onSuccessOrParams) ? onSuccessOrParams : {},
+            },
+          });
         }
-        return runActionPromise;
       },
   },
   clear: {
@@ -139,22 +143,22 @@ const DATA_TREE_FUNCTIONS: Record<
     },
   },
   setInterval: function(callback: Function, interval: number, id?: string) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.SET_INTERVAL,
       payload: {
         callback: callback.toString(),
         interval,
         id,
       },
-    });
+    };
   },
   clearInterval: function(id: string) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.CLEAR_INTERVAL,
       payload: {
         id,
       },
-    });
+    };
   },
 };
 
@@ -162,7 +166,6 @@ export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
 ): DataTree => {
   const withFunction: DataTree = _.cloneDeep(dataTree);
-  self.GLOBAL_FUNCTIONS = {};
 
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
@@ -173,13 +176,11 @@ export const enhanceDataTreeWithFunctions = (
         if (funcOrFuncCreator.qualifier(entity)) {
           const func = funcOrFuncCreator.func(entity);
           const funcName = `${entityName}.${name}`;
-          _.set(withFunction, funcName, func);
-          self.GLOBAL_FUNCTIONS[funcName] = func;
+          _.set(withFunction, funcName, pusher.bind(self, func));
         }
       });
     } else {
       withFunction[name] = funcOrFuncCreator;
-      self.GLOBAL_FUNCTIONS[name] = funcOrFuncCreator;
     }
   });
 
@@ -187,29 +188,15 @@ export const enhanceDataTreeWithFunctions = (
 };
 
 export const pusher = function(
-  this: { collector: Promise<any>[] },
+  this: { TRIGGER_COLLECTOR: ActionDescription[] },
   action: ActionDispatcher,
   ...payload: any[]
 ) {
   const actionPayload = action(...payload);
-  this.collector.push(actionPayload);
-};
-
-export const oldActionBind = function(res: any, func: any) {
-  self.COLLECTOR = [];
-  pusherOverride();
-  func(res);
-  pusherOverride(true);
-  return Promise.allSettled(self.COLLECTOR);
-};
-
-export const pusherOverride = (revert = false) => {
-  const globalThis = { collector: self.COLLECTOR };
-  Object.entries(self.GLOBAL_FUNCTIONS).forEach(([actionPath, globalFunc]) => {
-    if (revert) {
-      _.set(self, actionPath, globalFunc);
-    } else {
-      _.set(self, actionPath, pusher.bind(globalThis, globalFunc));
-    }
-  });
+  debugger;
+  if (actionPayload && "type" in actionPayload) {
+    this.TRIGGER_COLLECTOR.push(actionPayload);
+  } else {
+    return actionPayload;
+  }
 };

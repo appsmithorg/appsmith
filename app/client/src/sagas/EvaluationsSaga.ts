@@ -182,8 +182,6 @@ export function* evaluateActionBindings(
   return values;
 }
 
-const pendingRequests: Record<string, true> = {};
-
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -211,14 +209,10 @@ export function* evaluateDynamicTrigger(
           requestData.result.errors[0].errorMessage,
         );
       }
-      if (Object.keys(pendingRequests).length) {
-        throw new Error("Promise ended prematurely");
-      }
       return requestData.result;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
-      pendingRequests[requestData.subRequestId] = true;
       log.debug({ trigger: requestData.trigger });
       yield spawn(
         executeTriggerRequestSaga,
@@ -268,7 +262,6 @@ function* executeTriggerRequestSaga(
     responsePayload.data.reason = e;
     responsePayload.success = false;
   }
-  delete pendingRequests[requestData.subRequestId];
   responseChannel.put({
     method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
     ...responsePayload,
