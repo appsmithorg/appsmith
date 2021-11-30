@@ -212,7 +212,6 @@ export function* evaluateDynamicTrigger(
         );
       }
       if (Object.keys(pendingRequests).length) {
-        debugger;
         throw new Error("Promise ended prematurely");
       }
       return requestData.result;

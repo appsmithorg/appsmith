@@ -114,12 +114,10 @@ const DATA_TREE_FUNCTIONS: Record<
           // catch is attached first so that we can catch only the main run errors
           if (onError)
             runActionPromise.catch((res) => {
-              debugger;
               return oldActionBind(res, onError);
             });
           if (onSuccessOrParams) {
             runActionPromise.then((res) => {
-              debugger;
               return oldActionBind(res, onSuccessOrParams);
             });
           }

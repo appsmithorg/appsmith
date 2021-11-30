@@ -45,7 +45,6 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.TRIGGERS]: `
   async function closedFunction () {
     const result = await ${ScriptTemplate};
-    result.finally(() => { debugger })
     return result;
   }
   closedFunction();
@@ -243,7 +242,6 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     } finally {
-      debugger;
       completePromise({ result, errors });
     }
   })();
