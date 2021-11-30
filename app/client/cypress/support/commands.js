@@ -2,7 +2,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-require("cypress-file-upload");
+require("cy-verify-downloads").addCustomCommand();
+
 const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
