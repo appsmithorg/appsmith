@@ -185,7 +185,7 @@ export const useCanvasDragging = (
         horizontalMove: false,
         reflowingWidgets: {},
       };
-      let last_position = {
+      let latestMousePosition = {
         x: 0,
         y: 0,
       };
@@ -282,15 +282,19 @@ export const useCanvasDragging = (
             }
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
+            latestMousePosition = {
+              x: e.clientX,
+              y: e.clientY,
+            };
             onMouseMove(e);
           }
         };
         const getMouseMoveDirection = (event: any) => {
-          if (last_position) {
-            const deltaX = last_position.x - event.clientX,
-              deltaY = last_position.y - event.clientY;
+          if (latestMousePosition) {
+            const deltaX = latestMousePosition.x - event.clientX,
+              deltaY = latestMousePosition.y - event.clientY;
             const movements = [];
-            last_position = {
+            latestMousePosition = {
               x: event.clientX,
               y: event.clientY,
             };

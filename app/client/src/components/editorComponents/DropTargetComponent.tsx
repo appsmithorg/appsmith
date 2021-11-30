@@ -120,31 +120,23 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       dropTargetRef.current.style.height = height;
     }
   };
-  const updateDropTargetRows = useCallback(
-    (widgetId: string, widgetBottomRow: number) => {
-      if (canDropTargetExtend) {
-        const newRows = calculateDropTargetRows(
-          widgetId,
-          widgetBottomRow,
-          props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-          occupiedSpacesByChildren,
-        );
-        if (rowRef.current < newRows) {
-          rowRef.current = newRows;
-          updateHeight();
-          return newRows;
-        }
-        return false;
+  const updateDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
+    if (canDropTargetExtend) {
+      const newRows = calculateDropTargetRows(
+        widgetId,
+        widgetBottomRow,
+        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+        occupiedSpacesByChildren,
+      );
+      if (rowRef.current < newRows) {
+        rowRef.current = newRows;
+        updateHeight();
+        return newRows;
       }
       return false;
-    },
-    [
-      canDropTargetExtend,
-      props.minHeight,
-      occupiedSpacesByChildren,
-      updateHeight,
-    ],
-  );
+    }
+    return false;
+  };
 
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
@@ -173,8 +165,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       updateDropTargetRows,
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
-  // eslint-disable-next-line no-console
-  console.log("DropTargetContext");
+
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
@@ -201,9 +192,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     </DropTargetContext.Provider>
   );
 }
-DropTargetComponent.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 const MemoizedDropTargetComponent = memo(DropTargetComponent);
 
