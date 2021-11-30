@@ -604,12 +604,7 @@ Cypress.Commands.add("CreateAPI", (apiname) => {
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.ApiName).click({ force: true });
-  cy.get(apiwidget.apiTxt)
-    .clear()
-    .type(apiname, { force: true })
-    .should("have.value", apiname)
-    .blur();
+  cy.renameWithInPane(apiname);
   cy.WaitAutoSave();
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
@@ -3289,6 +3284,20 @@ Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
     .click({ force: true });
 
   cy.xpath(generatePage.deleteMenuItem).click();
+
+  cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
+    "not.exist",
+  );
+});
+
+Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
+  cy.xpath(
+    "//div[contains(@class, 't--entity-name')][text()='" +
+      entityNameinLeftSidebar +
+      "']",
+  )
+    .click({ force: true })
+    .wait(2000);
 });
 
 Cypress.Commands.add(
@@ -3348,6 +3357,15 @@ cy.all = function(...commands) {
   p[chainStart] = startCommand;
   return p;
 };
+
+Cypress.Commands.add("renameWithInPane", (renameVal) => {
+  cy.get(apiwidget.ApiName).click({ force: true });
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(renameVal, { force: true })
+    .should("have.value", renameVal)
+    .blur();
+});
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
