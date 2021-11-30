@@ -36,7 +36,7 @@ packer build template.json
 - Then, select Appsmith application in the One-Click App list to edit application information
 - From the Edit form, click on `Select system image` to choose the new snapshot which we have just created by Packer (you may also need to change the `App Version` by higher version)
 
-<img src='./images/edit-app.png' width="80%">
+<img src='https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/digital_ocean/images/edit-app.png' width="80%">
 
 - In the pop-up window that shows all snapshots, choose the latest snapshot or the one that you wish to publish to `DigitalOcean Marketplace`
 - Then, scrolling down to the bottom of the form and clicking on `Preview` (*The preview process will take around 2-3 business days*)
