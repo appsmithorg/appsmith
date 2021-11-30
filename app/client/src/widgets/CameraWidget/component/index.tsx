@@ -165,6 +165,7 @@ function ControlPanel(props: ControlPanelProps) {
     appLayoutType,
     audioInputs,
     audioMuted,
+    mode,
     onCaptureImage,
     onError,
     onFullscreenEnter,
@@ -266,13 +267,15 @@ function ControlPanel(props: ControlPanelProps) {
   const renderMediaDeviceSelectors = () => {
     return (
       <>
-        <DevicePopover
-          deviceType={DeviceTypes.MICROPHONE}
-          disabled={audioMuted}
-          items={audioInputs}
-          onDeviceMute={onToggleAudio}
-          onItemClick={onMediaInputChange}
-        />
+        {mode === CameraModeTypes.VIDEO && (
+          <DevicePopover
+            deviceType={DeviceTypes.MICROPHONE}
+            disabled={audioMuted}
+            items={audioInputs}
+            onDeviceMute={onToggleAudio}
+            onItemClick={onMediaInputChange}
+          />
+        )}
         <DevicePopover
           deviceType={DeviceTypes.CAMERA}
           disabled={videoMuted}

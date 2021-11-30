@@ -16,7 +16,7 @@ export const CONFIG = {
     mode: CameraModeTypes.CAMERA,
     isDisabled: false,
     isVisible: true,
-    isMirrored: false,
+    isMirrored: true,
     version: 1,
   },
   properties: {
