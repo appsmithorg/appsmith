@@ -158,11 +158,5 @@ export function getExpectedValue(
       };
     case ValidationTypes.TABLE_PROPERTY:
       return getExpectedValue(config.params as ValidationConfig);
-    case ValidationTypes.COLOR:
-      return {
-        type: "HTML COLOR",
-        example: "#FF0000",
-        autocompleteDataType: AutocompleteDataType.STRING,
-      };
   }
 }
