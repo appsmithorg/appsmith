@@ -165,7 +165,7 @@ function CollapseToggle(props: { isOpen: boolean }) {
 function copyContent(content: any) {
   const stringifiedContent = _.isString(content)
     ? content
-    : JSON.stringify(content);
+    : JSON.stringify(content, null, 2);
 
   copy(stringifiedContent);
   Toaster.show({
