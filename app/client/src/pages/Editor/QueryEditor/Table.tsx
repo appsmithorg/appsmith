@@ -197,6 +197,7 @@ const renderCell = (props: any) => {
 function Table(props: TableProps) {
   const data = React.useMemo(() => {
     const emptyString = "";
+    /* Check for length greater than 0 of rows returned from the query for mappings keys */
     if (props.data?.length > 0) {
       const keys = Object.keys(props.data[0]);
       keys.forEach((key) => {
