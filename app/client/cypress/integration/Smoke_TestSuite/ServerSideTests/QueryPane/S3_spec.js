@@ -484,7 +484,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.selectEntityByName("SnippingQuery");
     cy.deleteEntitybyName("Table1");
     cy.deleteEntitybyName("SnippingQuery");
-    cy.wait(6000); //waiting for deletion to complete! - else next case fails
+    cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
 
   it("11. Deletes the datasource", () => {
@@ -493,12 +493,14 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
 
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // cy.wait("@deleteDatasource").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
 
-    //cy.wait('@deleteDatasource').its('response.statusCode').should('be.oneOf', [200, 409])
+    cy.wait("@deleteDatasource").should((response) => {
+      expect(response.status).to.be.oneOf([200, 409]);
+    });
   });
 });
