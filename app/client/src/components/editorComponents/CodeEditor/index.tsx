@@ -295,6 +295,12 @@ class CodeEditor extends Component<Props, State> {
           );
         }
       }
+      this.editor.eachLine((line) => {
+        const lineNumber = this.editor.getLineNumber(line);
+        if (!!lineNumber) {
+          this.editor.indentLine(lineNumber);
+        }
+      });
     });
   }
 
