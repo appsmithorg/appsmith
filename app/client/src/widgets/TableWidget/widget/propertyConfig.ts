@@ -940,7 +940,16 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.COLOR,
+                      params: {
+                        default: Colors.GREY_8,
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
