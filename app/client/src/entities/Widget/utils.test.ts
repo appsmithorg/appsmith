@@ -213,16 +213,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
           type: "TEXT",
         },
-        primaryColumns: {
-          params: {
-            expected: {
-              autocompleteDataType: AutocompleteDataType.STRING,
-              example: "abc",
-              type: "Unique Column Names",
-            },
-          },
-          type: "FUNCTION",
-        },
         isSortable: {
           type: "BOOLEAN",
           params: {
