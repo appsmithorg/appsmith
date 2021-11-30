@@ -21,19 +21,15 @@
     "queryCreate": "//div[contains(@class, 't--template-menu')]//div[text()='Create']",
     "queryUpdate": "//div[contains(@class, 't--template-menu')]//div[text()='Update']",
     "queryDelete": "//div[contains(@class, 't--template-menu')]//div[text()='Delete']",
-    "codeTextArea": "div.CodeMirror-code",
-    "findDocs" : "//div[text()='Find Document(s)']",
-    "collectionField": "//p[text()='Collection']/following-sibling::div//div[@class='CodeMirror-code']",
-    "queryField": "//p[text()='Query']/following-sibling::div//div[@class='CodeMirror-code']",
-    "sortField": "//p[text()='Sort']/following-sibling::div//div[@class='CodeMirror-code']",
-    "projectionField": "//p[text()='Projection']/following-sibling::div//div[@class='CodeMirror-code']",
-    "limitField": "//p[text()='Limit']/following-sibling::div//div[@class='CodeMirror-code']",
-    "skipField": "//p[text()='Skip']/following-sibling::div//div[@class='CodeMirror-code']",
-    "keyField": "//p[text()='Key']/following-sibling::div//div[@class='CodeMirror-code']",
-    "arrayOfPipelinesField": "//p[text()='Array of Pipelines']/following-sibling::div//div[@class='CodeMirror-code']",
-    "countText": "//span[contains(@class, 'cs-text')][text()='Result:']/span"
-
-
-
-
+    "codeTextArea": "//div[@class='CodeMirror-code']//span/span",
+    "countText": "//span[contains(@class, 'cs-text')][text()='Result:']/span",
+    "searchFilefield": "//input[@placeholder='Search File Prefix']",
+    "copyURLicon": "//button/span[@icon='link']",
+    "deleteFileicon": "//button/span[@icon='trash']",
+    "snipeableTable":"//input[@type='search']",
+    "Query1": "//div[contains(@class, 't--entity-name')][text()='Query1']",
+    "suggestedWidgetDropdown": "//div[contains(@class, 't--suggested-widget-DROP_DOWN_WIDGET')]",
+    "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
+    "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
+    "mongoFormFind": "//div[text()='listingsAndReviews']/ancestor::div/following-sibling::div[contains(@class, 'entity-context-menu')]"
 }
