@@ -27,9 +27,9 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> archive(Application application);
 
-    Mono<Application> changeViewAccess (String id, ApplicationAccessDTO applicationAccessDTO);
+    Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO);
 
-    Mono<Application> changeViewAccess (String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
+    Mono<Application> changeViewAccess(String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
 
     Flux<Application> findAllApplicationsByOrganizationId(String organizationId);
 

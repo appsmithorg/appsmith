@@ -457,10 +457,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
                             .findApplicationPagesByApplicationIdViewMode(page.getApplicationId(), false);
 
-                    Mono<Application> destApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                    Mono<Application> destinationApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
-                    return Mono.zip(pageNamesMono, destApplicationMono)
+                    return Mono.zip(pageNamesMono, destinationApplicationMono)
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
                             .flatMap(tuple -> {
@@ -581,6 +581,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             return name;
                         }));
 
+        // We don't have to sanitise the response to update the Ids with the default ones as client want child application only
         Mono<Application> clonedResultMono = Mono.zip(applicationMono, newAppNameMono)
                 .flatMap(tuple -> {
                     Application sourceApplication = tuple.getT1();
@@ -625,8 +626,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         return applicationService.save(savedApplication);
                                     })
                             );
-                })
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                });
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
         // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow

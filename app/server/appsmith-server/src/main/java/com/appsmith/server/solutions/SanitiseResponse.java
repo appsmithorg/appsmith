@@ -184,13 +184,15 @@ public class SanitiseResponse {
                 && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
             application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
         }
-        application
-                .getPages()
-                .forEach(page -> {
-                    if (!StringUtils.isEmpty(page.getDefaultPageId())) {
-                        page.setId(page.getDefaultPageId());
-                    }
-                });
+        if (!CollectionUtils.isEmpty(application.getPages())) {
+            application
+                    .getPages()
+                    .forEach(page -> {
+                        if (!StringUtils.isEmpty(page.getDefaultPageId())) {
+                            page.setId(page.getDefaultPageId());
+                        }
+                    });
+        }
         return application;
     }
 
