@@ -734,7 +734,11 @@ public class GitServiceImpl implements GitService {
         if(branchName.contains("origin/")) {
             String finalBranchName = branchName.replace("origin/", "");
             return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
-                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName));
+                    .doOnSuccess(application -> Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED,
+                            " --checkout",
+                            " branch already exists in local")))
+                    .doOnError(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName));
         }
 
         return getApplicationById(defaultApplicationId)
@@ -765,7 +769,7 @@ public class GitServiceImpl implements GitService {
                     * create a new application(each application => git branch)
                     * Populate the application from the file system
                     * Check if the existing branch track the given remote branch using the StoredConfig
-                    * Use the creat branch method with isRemoteFlag or use the setStartPoint ,method in createBranch method
+                    * Use the create branch method with isRemoteFlag or use the setStartPoint ,method in createBranch method
                     * */
                     Application srcApplication = tuple.getT2();
 
@@ -773,7 +777,7 @@ public class GitServiceImpl implements GitService {
                     GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
                     final String srcApplicationId = srcApplication.getId();
                     srcBranchGitData.setBranchName(branchName);
-                    srcBranchGitData.setDefaultApplicationId(srcApplicationId);
+                    srcBranchGitData.setDefaultApplicationId(defaultApplicationId);
                     // Save a new application in DB and update from the parent branch application
                     srcBranchGitData.setGitAuth(null);
                     srcApplication.setId(null);
@@ -784,7 +788,7 @@ public class GitServiceImpl implements GitService {
                     return applicationService.save(srcApplication)
                             .flatMap(application1 -> {
                                 try {
-                                    return fileUtils.reconstructApplicationFromGitRepo(srcApplication.getOrganizationId(), srcApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
+                                    return fileUtils.reconstructApplicationFromGitRepo(srcApplication.getOrganizationId(), application1.getId(), srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(application1));
                                 } catch (GitAPIException | IOException e) {
                                     log.error("Error while constructing the application from the git repo ", e);
