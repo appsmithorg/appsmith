@@ -9,6 +9,7 @@ import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   FETCH_MERGE_STATUS,
   FETCH_GIT_STATUS,
+  IS_MERGING,
 } from "constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
@@ -38,6 +39,9 @@ import {
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
 import ConflictInfo from "../components/ConflictInfo";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
 
 const Row = styled.div`
   display: flex;
@@ -150,6 +154,7 @@ export default function Merge() {
   }
 
   const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
+  const showMergeButton = !isConflicting && !isFetchingGitStatus && !isMerging;
 
   return (
     <>
@@ -161,6 +166,7 @@ export default function Merge() {
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
+          hasError={status === MERGE_STATUS_STATE.NOT_MERGEABLE}
           isLoading={isFetchingBranches}
           onSelect={(value?: string) => {
             if (value) setSelectedBranchOption({ label: value, value: value });
@@ -168,6 +174,7 @@ export default function Merge() {
           options={branchList}
           selected={selectedBranchOption}
           showLabelOnly
+          showTooltip
           width={"220px"}
         />
 
@@ -187,16 +194,25 @@ export default function Merge() {
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
       <ConflictInfo isConflicting={isConflicting} />
-      {!isConflicting && (
+      {showMergeButton && (
         <Button
           disabled={mergeBtnDisabled}
           isLoading={isMerging}
           onClick={mergeHandler}
-          size={Size.medium}
+          size={Size.large}
           tag="button"
           text={createMessage(MERGE_CHANGES)}
           width="max-content"
         />
+      )}
+      {isMerging && (
+        <StatusbarWrapper>
+          <Statusbar
+            completed={!isMerging}
+            message={createMessage(IS_MERGING)}
+            period={6}
+          />
+        </StatusbarWrapper>
       )}
     </>
   );

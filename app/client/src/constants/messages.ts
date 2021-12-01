@@ -537,11 +537,10 @@ export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, Make commits, add deploy your application";
+  "Checkout branches, make commits, add deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
-  `Create an empty git repository and paste the remote URL`;
-"Checkout branches, make commits, add deploy your application";
+  `Create an empty git repository and paste the remote URL here.`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
@@ -573,8 +572,9 @@ export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
   "COMMITTING AND PUSHING CHANGES...";
+export const IS_MERGING = () => "MERGING CHANGES...";
 
-export const MERGE_CHANGES = () => "Merge Changes";
+export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const RETRY = () => "RETRY";
@@ -606,6 +606,7 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
+export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";

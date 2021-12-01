@@ -5,7 +5,7 @@ import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 
-const LinkText = styled.div`
+const LinkText = styled.div<{ color?: string }>`
   cursor: pointer;
   .${Classes.ICON} {
     margin-left: ${(props) => props.theme.spaces[3]}px;
@@ -14,14 +14,20 @@ const LinkText = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  &:hover {
+    text-decoration: underline;
+    text-decoration-color: ${(props) => props.color};
+  }
 `;
 
 export default function Link({
   color,
+  hasIcon = true,
   link,
   text,
 }: {
   color?: string;
+  hasIcon?: boolean;
   link: string;
   text: string;
 }) {
@@ -29,7 +35,7 @@ export default function Link({
     window.open(link, "_blank");
   };
   return (
-    <LinkText onClick={onClick}>
+    <LinkText color={color || Colors.CHARCOAL} onClick={onClick}>
       <Text
         case={Case.UPPERCASE}
         color={color || Colors.CHARCOAL}
@@ -38,7 +44,14 @@ export default function Link({
       >
         {text}
       </Text>
-      <Icon name="right-arrow" size={IconSize.SMALL} />
+      {hasIcon && (
+        <Icon
+          fillColor={color || Colors.CHARCOAL}
+          hoverFillColor={color || Colors.CHARCOAL}
+          name="right-arrow"
+          size={IconSize.SMALL}
+        />
+      )}
     </LinkText>
   );
 }

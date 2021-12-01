@@ -38,6 +38,9 @@ import { get } from "lodash";
 import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import Spinner from "components/ads/Spinner";
+import { useTextWidth } from "@imagemarker/use-text-width";
+import Text, { TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -62,6 +65,7 @@ const BranchDropdownContainer = styled.div`
 const BranchListItemContainer = styled.div<{
   hovered?: boolean;
   active?: boolean;
+  isDefault?: boolean;
 }>`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[5]}px`};
@@ -78,7 +82,14 @@ const BranchListItemContainer = styled.div<{
   background-color: ${(props) =>
     props.hovered || props.active ? Colors.GREY_3 : ""};
 
-  display: flex;
+  display: ${(props) => (props.isDefault ? "flex" : "block")};
+  .${Classes.TEXT} {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipse;
+    text-overflow: ellipsis;
+    display: block;
+  }
 `;
 
 // used for skeletons
@@ -177,7 +188,9 @@ function BranchListItem({
   shouldScrollIntoView,
 }: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
-
+  const textRef = React.useRef<HTMLSpanElement>(null);
+  const [wrapperWidth, setWrapperWidth] = useState(0);
+  const width = useTextWidth({ ref: textRef });
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView)
       scrollIntoView(itemRef.current, {
@@ -187,15 +200,35 @@ function BranchListItem({
       });
   }, [shouldScrollIntoView]);
 
+  useEffect(() => {
+    if (itemRef.current) {
+      const wrapperWidth = isDefault
+        ? itemRef.current.offsetWidth - 75
+        : itemRef.current.offsetWidth;
+      setWrapperWidth(wrapperWidth);
+    }
+  }, []);
+
+  const tooltipEnabled = wrapperWidth < width;
   return (
     <BranchListItemContainer
       active={active}
       className={className}
       hovered={hovered}
+      isDefault={isDefault}
       onClick={onClick}
       ref={itemRef}
     >
-      {branch}
+      <Tooltip
+        boundary="window"
+        content={branch}
+        disabled={!tooltipEnabled}
+        position={Position.TOP}
+      >
+        <Text ref={textRef} type={TextType.P1}>
+          {branch}
+        </Text>
+      </Tooltip>
       {isDefault && <DefaultTag />}
     </BranchListItemContainer>
   );
@@ -353,7 +386,8 @@ export default function BranchList(props: {
   setIsPopupOpen?: (flag: boolean) => void;
 }) {
   const dispatch = useDispatch();
-  const fetchBranches = () => dispatch(fetchBranchesInit());
+  const pruneAndFetchBranches = () =>
+    dispatch(fetchBranchesInit({ pruneBranches: true }));
 
   const branches = useSelector(getGitBranches);
   const branchNames = useSelector(getGitBranchNames);
@@ -363,7 +397,7 @@ export default function BranchList(props: {
 
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
-    changeSearchTextInState(removeSpecialChars(text));
+    changeSearchTextInState(removeSpecialChars(text).replace(/\-/g, "_"));
   };
 
   const isCreateNewBranchInputValid = useMemo(
@@ -437,7 +471,7 @@ export default function BranchList(props: {
             if (typeof props.setIsPopupOpen === "function")
               props.setIsPopupOpen(false);
           }}
-          fetchBranches={fetchBranches}
+          fetchBranches={pruneAndFetchBranches}
         />
         <Space size={4} />
         <div style={{ width: 300 }}>

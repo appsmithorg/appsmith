@@ -599,6 +599,7 @@ export const ReduxActionTypes = {
   WIDGET_ADD_NEW_TAB_CHILD: "WIDGET_ADD_NEW_TAB_CHILD",
   WIDGET_DELETE_TAB_CHILD: "WIDGET_DELETE_TAB_CHILD",
   GENERATE_SSH_KEY_PAIR_INIT: "GENERATE_SSH_KEY_PAIR_INIT",
+  TEMP_REMOTE_URL_INIT: "TEMP_REMOTE_URL_INIT",
   GENERATE_SSH_KEY_PAIR_SUCCESS: "GENERATE_SSH_KEY_PAIR_SUCCESS",
   REFACTOR_JS_ACTION_NAME: "REFACTOR_JS_ACTION_NAME",
   REFACTOR_JS_ACTION_NAME_SUCCESS: "REFACTOR_JS_ACTION_NAME_SUCCESS",
@@ -916,6 +917,7 @@ export interface ApplicationPayload {
 export interface CurrentApplicationData extends ApplicationPayload {
   SSHKeyPair?: string;
   deployKeyDocUrl?: string;
+  tempRemoteUrl?: string; // for temperary git remote url
 }
 
 export type OrganizationDetails = {

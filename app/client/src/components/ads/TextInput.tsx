@@ -315,7 +315,7 @@ const TextInput = forwardRef(
         const inputValueValidation =
           props.validator && props.validator(inputValue);
         if (inputValueValidation) {
-          props.validator && setValidation(validation);
+          props.validator && setValidation(inputValueValidation);
           return (
             inputValueValidation.isValid &&
             props.onChange &&

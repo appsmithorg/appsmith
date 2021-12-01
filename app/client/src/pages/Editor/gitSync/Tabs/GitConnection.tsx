@@ -14,6 +14,7 @@ import {
   createMessage,
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
+  LEARN_MORE,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -26,13 +27,15 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import {
+  getCurrentAppGitMetaData,
+  getTempRemoteUrl,
+} from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
-
-import { getGitError } from "selectors/gitSyncSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
+  gitTempRemoteUrlInit,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -49,10 +52,14 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
+import Link from "../components/Link";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -93,14 +100,11 @@ const Container = styled.div`
 `;
 
 const RemoteUrlInfoWrapper = styled.div`
-  margin-top: ${(props) => props.theme.spaces[3]}px;
+  margin-bottom: ${(props) => props.theme.spaces[3]}px;
+  display: flex;
 `;
 
 const Section = styled.div``;
-const StatusbarWrapper = styled.div`
-  width: 252px;
-  height: 38px;
-`;
 
 const StickyMenuWrapper = styled.div`
   position: sticky;
@@ -131,14 +135,13 @@ type Props = {
 function GitConnection({ isImport }: Props) {
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
+  const { tempRemoteUrl = "" } = useSelector(getTempRemoteUrl) || ({} as any);
 
-  const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore);
+  const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore || tempRemoteUrl);
   const isGitConnected = !!remoteUrlInStore;
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const [triedSubmit, setTriedSubmit] = useState(false);
-
-  const gitError = useSelector(getGitError);
 
   const dispatch = useDispatch();
 
@@ -207,7 +210,7 @@ function GitConnection({ isImport }: Props) {
   useEffect(() => {
     // when disconnected remoteURL becomes undefined
     if (!remoteUrlInStore) {
-      setRemoteUrl("");
+      setRemoteUrl(tempRemoteUrl || "");
     }
   }, [remoteUrlInStore]);
 
@@ -233,6 +236,7 @@ function GitConnection({ isImport }: Props) {
   };
 
   const onSubmit = useCallback(() => {
+    if (isConnectingToGit) return;
     setTriedSubmit(true);
 
     if (
@@ -280,6 +284,7 @@ function GitConnection({ isImport }: Props) {
     const isInvalid = remoteUrlIsInvalid(value);
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
+    dispatch(gitTempRemoteUrlInit({ tempRemoteUrl: value }));
   };
 
   const submitButtonDisabled = useMemo(() => {
@@ -331,15 +336,17 @@ function GitConnection({ isImport }: Props) {
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
 
-  useEffect(() => {
-    if (gitError?.message && scrollWrapperRef.current) {
-      const top = scrollWrapperRef.current?.scrollHeight || 0;
-      scrollWrapperRef.current?.scrollTo({
-        top: top + 200,
-        behavior: "smooth",
-      });
+  const scrolling = useCallback(() => {
+    if (scrollWrapperRef.current) {
+      setTimeout(() => {
+        const top = scrollWrapperRef.current?.scrollHeight || 0;
+        scrollWrapperRef.current?.scrollTo({
+          top: top,
+          behavior: "smooth",
+        });
+      }, 100);
     }
-  }, [gitError]);
+  }, [scrollWrapperRef]);
 
   return (
     <Container ref={scrollWrapperRef}>
@@ -353,6 +360,20 @@ function GitConnection({ isImport }: Props) {
             {createMessage(REMOTE_URL)}
           </Text>
         </UrlOptionContainer>
+        {!SSHKeyPair ? (
+          <RemoteUrlInfoWrapper>
+            <Text color={Colors.GREY_9} type={TextType.P3}>
+              {createMessage(REMOTE_URL_INFO)}
+            </Text>
+            <Space horizontal size={1} />
+            <Link
+              color={Colors.PRIMARY_ORANGE}
+              hasIcon={false}
+              link={DOCS_BASE_URL}
+              text={createMessage(LEARN_MORE)}
+            />
+          </RemoteUrlInfoWrapper>
+        ) : null}
         <UrlContainer>
           <UrlInputContainer>
             <TextInput
@@ -368,30 +389,24 @@ function GitConnection({ isImport }: Props) {
             />
           </UrlInputContainer>
         </UrlContainer>
-
-        {!isInvalidRemoteUrl && !SSHKeyPair ? (
-          <RemoteUrlInfoWrapper>
-            <Text color={Colors.GREY_9} type={TextType.P3}>
-              {createMessage(REMOTE_URL_INFO)}
-            </Text>
-          </RemoteUrlInfoWrapper>
-        ) : null}
-
         {!SSHKeyPair ? (
-          <ButtonContainer topMargin={10}>
-            <Button
-              category={Category.primary}
-              className="t--submit-repo-url-button"
-              isLoading={generatingSSHKey || fetchingSSHKeyPair}
-              onClick={() => generateSSHKey()}
-              size={Size.large}
-              tag="button"
-              text={createMessage(GENERATE_KEY)}
-            />
-          </ButtonContainer>
+          remoteUrl &&
+          !isInvalidRemoteUrl && (
+            <ButtonContainer topMargin={10}>
+              <Button
+                category={Category.primary}
+                className="t--submit-repo-url-button"
+                isLoading={generatingSSHKey || fetchingSSHKeyPair}
+                onClick={() => generateSSHKey()}
+                size={Size.large}
+                tag="button"
+                text={createMessage(GENERATE_KEY)}
+              />
+            </ButtonContainer>
+          )
         ) : (
           <DeployedKeyUI
-            SSHKeyPair={SSHKeyPair}
+            SSHKeyPair={SSHKeyPair || ""}
             copyToClipboard={copyToClipboard}
             deployKeyDocUrl={deployKeyDocUrl}
             showCopied={showCopied}
@@ -412,7 +427,7 @@ function GitConnection({ isImport }: Props) {
             triedSubmit={triedSubmit}
             useGlobalConfig={useGlobalConfig}
           />
-          <ButtonContainer topMargin={11}>
+          <ButtonContainer topMargin={0}>
             {isConnectingToGit && (
               <StatusbarWrapper>
                 <Statusbar
@@ -440,7 +455,7 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            {!isConnectingToGit && <GitSyncError />}
+            {!isConnectingToGit && <GitSyncError onDisplay={scrolling} />}
           </ButtonContainer>
         </>
       ) : null}

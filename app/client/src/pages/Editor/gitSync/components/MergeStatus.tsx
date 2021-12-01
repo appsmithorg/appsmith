@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
-import { Space } from "./StyledComponents";
 import Text, { TextType } from "components/ads/Text";
 import ErrorWarning from "remixicon-react/ErrorWarningLineIcon";
 import CheckLine from "remixicon-react/CheckLineIcon";
@@ -35,14 +34,12 @@ function MergeStatus({
     case MERGE_STATUS_STATE.FETCHING:
       return (
         <Flex>
-          <Space horizontal size={10} />
           <StatusLoader loaderMsg={message} />
         </Flex>
       );
     case MERGE_STATUS_STATE.MERGEABLE:
       return (
         <Flex>
-          <Space horizontal size={10} />
           <Wrapper>
             <CheckLine color={Colors.GREEN} size={18} />
             <Text
@@ -59,7 +56,6 @@ function MergeStatus({
     case MERGE_STATUS_STATE.NOT_MERGEABLE:
       return (
         <Flex>
-          <Space horizontal size={10} />
           <Wrapper>
             <ErrorWarning color={Colors.CRIMSON} size={18} />
             <Text

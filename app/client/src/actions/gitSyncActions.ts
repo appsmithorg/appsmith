@@ -130,8 +130,9 @@ export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   payload,
 });
 
-export const fetchBranchesInit = () => ({
+export const fetchBranchesInit = (payload?: { pruneBranches: boolean }) => ({
   type: ReduxActionTypes.FETCH_BRANCHES_INIT,
+  payload,
 });
 
 export const fetchBranchesSuccess = (payload: any) => ({
@@ -225,4 +226,9 @@ export const gitPullSuccess = (mergeStatus: MergeStatus) => ({
 
 export const resetPullMergeStatus = () => ({
   type: ReduxActionTypes.RESET_PULL_MERGE_STATUS,
+});
+
+export const gitTempRemoteUrlInit = (payload?: { tempRemoteUrl?: string }) => ({
+  type: ReduxActionTypes.TEMP_REMOTE_URL_INIT,
+  payload,
 });

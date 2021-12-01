@@ -1,13 +1,23 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  ReactElement,
+  useRef,
+} from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
-import Text, { TextType } from "./Text";
+import Text, { TextProps, TextType } from "./Text";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
+import { noop } from "lodash";
+import { createMessage, NOT_OPTIONS } from "constants/messages";
+import { useTextWidth } from "@imagemarker/use-text-width";
+import Tooltip from "components/ads/Tooltip";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -36,12 +46,12 @@ export interface RenderDropdownOptionType {
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
   isSelectedNode?: boolean;
   extraProps?: any;
-  errorMsg?: string;
+  hasError?: boolean;
   optionWidth: string;
 }
 
 type RenderOption = ({
-  errorMsg,
+  hasError,
   index,
   option,
   optionClickHandler,
@@ -67,6 +77,7 @@ export type DropdownProps = CommonComponentProps &
     bgColor?: string;
     renderOption?: RenderOption;
     isLoading?: boolean;
+    hasError?: boolean; // should be displayed as error status without error message
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     placeholder?: string;
     helperText?: string;
@@ -80,12 +91,13 @@ export type DropdownProps = CommonComponentProps &
     hideSubText?: boolean;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
+    showTooltip?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
   showLabelOnly?: boolean;
   isOpen?: boolean;
-  errorMsg?: string;
+  hasError?: boolean;
   renderNode?: RenderOption;
   placeholder?: string;
   showDropIcon?: boolean;
@@ -271,11 +283,23 @@ const OptionWrapper = styled.div<{
     }
   }
 
+  .bp3-popover-wrapper {
+    width: 100%;
+  }
+
   .${Classes.TEXT} {
     color: ${(props) =>
       props.selected
         ? props.theme.colors.dropdown.menu.hoverText
         : props.theme.colors.dropdown.menu.text};
+  }
+
+  .${Classes.TEXT}.in-tooltip {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipse;
+    text-overflow: ellipsis;
+    display: block;
   }
 
   .${Classes.ICON} {
@@ -425,8 +449,37 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
+function TooltipWrappedText(
+  props: TextProps & {
+    showTooltip?: boolean;
+    label: string;
+    wrapperWidth: number;
+  },
+) {
+  const { label, showTooltip = false, wrapperWidth, ...textProps } = props;
+  const ref = useRef<HTMLSpanElement>(null);
+  const width = useTextWidth({ ref });
+  let tooltipDisabled = true;
+  if (showTooltip) {
+    tooltipDisabled = wrapperWidth > width;
+  }
+  const className = tooltipDisabled ? "" : "in-tooltip";
+  return (
+    <Tooltip
+      boundary="window"
+      content={label}
+      disabled={tooltipDisabled}
+      position={Position.TOP}
+    >
+      <Text className={className} ref={ref} {...textProps}>
+        {label}
+      </Text>
+    </Tooltip>
+  );
+}
+
 function DefaultDropDownValueNode({
-  errorMsg,
+  hasError,
   hideSubText,
   optionWidth,
   placeholder,
@@ -443,7 +496,7 @@ function DefaultDropDownValueNode({
     ? placeholder
     : "Please select a option.";
   function Label() {
-    return errorMsg ? (
+    return hasError ? (
       <ErrorLabel>{LabelText}</ErrorLabel>
     ) : (
       <Text type={TextType.P1}>{LabelText}</Text>
@@ -456,16 +509,16 @@ function DefaultDropDownValueNode({
         renderNode({
           isSelectedNode: true,
           option: selected,
-          errorMsg,
+          hasError,
           optionWidth,
         })
       ) : (
         <>
           {selected?.icon ? (
             <SelectedIcon
-              fillColor={errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor}
+              fillColor={hasError ? Colors.POMEGRANATE2 : selected?.iconColor}
               hoverFillColor={
-                errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor
+                hasError ? Colors.POMEGRANATE2 : selected?.iconColor
               }
               name={selected.icon}
               size={selected.iconSize || IconSize.XL}
@@ -514,9 +567,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     onSearch && onSearch(searchStr);
   };
 
-  return options.length > 0 ? (
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [wrapperWidth, setWrapperWidth] = useState(0);
+  useEffect(() => {
+    if (wrapperRef.current) {
+      setWrapperWidth(wrapperRef.current.offsetWidth);
+    }
+  }, []);
+
+  return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      ref={wrapperRef}
       width={optionWidth}
     >
       {props.enableSearch && (
@@ -562,14 +624,24 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
 
               {props.showLabelOnly ? (
-                <Text type={TextType.P1}>{option.label}</Text>
+                <TooltipWrappedText
+                  label={option.label || ""}
+                  showTooltip={props.showTooltip}
+                  type={TextType.P1}
+                  wrapperWidth={wrapperWidth}
+                />
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
                   <Text type={TextType.H5}>{option.value}</Text>
                   <Text type={TextType.P1}>{option.label}</Text>
                 </LabelWrapper>
               ) : (
-                <Text type={TextType.P1}>{option.value}</Text>
+                <TooltipWrappedText
+                  label={option.label || ""}
+                  showTooltip={props.showTooltip}
+                  type={TextType.P1}
+                  wrapperWidth={wrapperWidth}
+                />
               )}
 
               {option.subText ? (
@@ -580,9 +652,21 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             </OptionWrapper>
           );
         })}
+        {options.length < 1 && (
+          <OptionWrapper
+            className="t--dropdown-option"
+            key={-1}
+            onClick={noop}
+            selected
+          >
+            <Text color={`${Colors.ERROR_RED} !important`} type={TextType.P1}>
+              {createMessage(NOT_OPTIONS)}
+            </Text>
+          </OptionWrapper>
+        )}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
-  ) : null;
+  );
 }
 
 export default function Dropdown(props: DropdownProps) {
@@ -595,6 +679,7 @@ export default function Dropdown(props: DropdownProps) {
     errorMsg = "",
     placeholder,
     helperText,
+    hasError,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -620,8 +705,9 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
+  const errorFlag = hasError || errorMsg.length > 0;
   const disabled = props.disabled || isLoading;
-  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
+  const downIconColor = errorFlag ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
   const onClickHandler = () => {
     if (!props.disabled) {
@@ -662,14 +748,14 @@ export default function Dropdown(props: DropdownProps) {
         bgColor={props.bgColor}
         className={props.className}
         disabled={props.disabled}
-        hasError={!!errorMsg}
+        hasError={errorFlag}
         height={props.height || "38px"}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         selected={!!selected}
       >
         <SelectedValueNode
-          errorMsg={errorMsg}
+          hasError={errorFlag}
           hideSubText={props.hideSubText}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}

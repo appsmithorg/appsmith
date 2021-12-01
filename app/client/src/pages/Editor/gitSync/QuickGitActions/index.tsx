@@ -203,6 +203,7 @@ const Container = styled.div`
 `;
 
 const StyledIcon = styled(GitCommitLine)`
+  cursor: default;
   & path {
     fill: ${Colors.DARK_GRAY};
   }
