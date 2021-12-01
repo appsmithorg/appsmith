@@ -420,17 +420,22 @@ export default {
       },
     };
 
-    const searchKey =
-      props.searchText && !props.onSearchTextChanged
-        ? props.searchText.toLowerCase()
-        : "";
+    const searchKey = () => {
+      if (props.searchText && !props.onSearchTextChanged) {
+        return props.searchText.toLowerCase();
+      }
+      if (props.searchText && props.enableClientSideSearch) {
+        return props.searchText.toLowerCase();
+      }
+      return "";
+    };
 
     const finalTableData = sortedTableData.filter((item) => {
-      const searchFound = searchKey
+      const searchFound = searchKey()
         ? Object.values(item)
             .join(", ")
             .toLowerCase()
-            .includes(searchKey)
+            .includes(searchKey())
         : true;
       if (!searchFound) return false;
       if (!props.filters || props.filters.length === 0) return true;

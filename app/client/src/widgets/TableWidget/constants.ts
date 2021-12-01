@@ -25,6 +25,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   selectedRowIndices: number[];
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;
+  enableClientSideSearch?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
   columnNameMap?: { [key: string]: string };
