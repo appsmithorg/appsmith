@@ -61,7 +61,7 @@ function renderDropdown(props: {
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}
       helperText={props.props?.info}
-      isMultiSelect={props.props.isMultiSelect}
+      isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth="50vh"
       options={props.options}

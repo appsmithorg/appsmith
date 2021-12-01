@@ -120,27 +120,25 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   } = { ...props.config };
   return (
     <React.Fragment key={props.config.label}>
-      {label && (
-        <FormLabel config={props.config}>
-          <p className="label-icon-wrapper">
-            {label} {isRequired && "*"}{" "}
-            {encrypted && (
-              <>
-                <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-                <FormInfoText>Encrypted</FormInfoText>
-              </>
-            )}
-            {tooltipText && (
-              <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-                <FormIcons.HELP_ICON height={16} width={16} />
-              </Tooltip>
-            )}
-          </p>
-        </FormLabel>
-      )}
-      {subtitle && (
-        <FormInfoText config={props.config}>{subtitle}</FormInfoText>
-      )}
+      <FormLabel config={props.config}>
+        <p className="label-icon-wrapper">
+          {label} {isRequired && "*"}{" "}
+          {encrypted && (
+            <>
+              <FormIcons.LOCK_ICON height={12} keepColors width={12} />
+              <FormInfoText>Encrypted</FormInfoText>
+            </>
+          )}
+          {tooltipText && (
+            <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+              <FormIcons.HELP_ICON height={16} width={16} />
+            </Tooltip>
+          )}
+        </p>
+        {subtitle && (
+          <FormInfoText config={props.config}>{subtitle}</FormInfoText>
+        )}
+      </FormLabel>
       {urlText && (
         <FormInputAnchor href={url} target="_blank">
           {urlText}

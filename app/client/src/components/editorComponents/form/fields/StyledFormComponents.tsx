@@ -15,6 +15,7 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
   color: ${Colors.DOVE_GRAY};
   font-size: 12px;
   margin-left: 1px;
+  margin-top: 5px;
   margin-bottom: 8px;
 `;
 
