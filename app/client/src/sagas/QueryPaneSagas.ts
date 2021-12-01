@@ -30,7 +30,7 @@ import {
   getEditorConfig,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { Action, ApiAction, PluginType, QueryAction } from "entities/Action";
+import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/pluginActionActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";

@@ -23,7 +23,6 @@ import {
 import {
   ReduxAction,
   ReduxActionTypes,
-  ReduxFormActionTypes,
   ReplayReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
