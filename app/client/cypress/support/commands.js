@@ -1323,7 +1323,7 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   cy.get(commonlocators.evaluatedCurrentValue)
     .first()
     .should("be.visible")
-    .click()
+    .click({ force: true })
     .then(($text) => {
       expect($text.text()).to.eq(currentValue);
     });
