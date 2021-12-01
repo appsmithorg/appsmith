@@ -608,14 +608,14 @@ function GeneratePageForm() {
     !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
 
   return (
-    <div>
+    <div className="space-y-4">
       <Wrapper>
         <DescWrapper>
           <Title>{GENERATE_PAGE_FORM_TITLE()}</Title>
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
-        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper className="space-y-3" width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
@@ -641,7 +641,7 @@ function GeneratePageForm() {
           />
         </SelectWrapper>
         {selectedDatasource.value ? (
-          <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+          <SelectWrapper className="space-y-3" width={DROPDOWN_DIMENSION.WIDTH}>
             <Label>
               Select {pluginField.TABLE} from{" "}
               <Bold>{selectedDatasource.label}</Bold>
@@ -673,7 +673,10 @@ function GeneratePageForm() {
         {!isGoogleSheetPlugin ? (
           <>
             {showSearchableColumn && (
-              <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+              <SelectWrapper
+                className="space-y-3"
+                width={DROPDOWN_DIMENSION.WIDTH}
+              >
                 <Row>
                   Select a searchable {pluginField.COLUMN} from the
                   selected&nbsp;
@@ -712,12 +715,14 @@ function GeneratePageForm() {
                 />
               </SelectWrapper>
             )}
-            <GeneratePageSubmitBtn
-              disabled={submitButtonDisable}
-              isLoading={!!isGeneratingTemplatePage}
-              onSubmit={handleFormSubmit}
-              showSubmitButton={!!showSubmitButton}
-            />
+            <div className="mt-4">
+              <GeneratePageSubmitBtn
+                disabled={submitButtonDisable}
+                isLoading={!!isGeneratingTemplatePage}
+                onSubmit={handleFormSubmit}
+                showSubmitButton={!!showSubmitButton}
+              />
+            </div>
           </>
         ) : (
           <GoogleSheetForm

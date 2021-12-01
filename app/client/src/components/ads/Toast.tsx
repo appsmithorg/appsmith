@@ -1,5 +1,10 @@
 import React from "react";
-import { CommonComponentProps, Classes, Variant } from "./common";
+import {
+  CommonComponentProps,
+  Classes,
+  Variant,
+  ToastTypeOptions,
+} from "./common";
 import styled from "styled-components";
 import Icon, { IconSize } from "./Icon";
 import Text, { TextType } from "./Text";
@@ -24,6 +29,7 @@ export type ToastProps = ToastOptions &
     hideProgressBar?: boolean;
     hideActionElementSpace?: boolean;
     width?: string;
+    maxWidth?: string;
   };
 
 const WrappedToastContainer = styled.div`
@@ -58,8 +64,10 @@ const ToastBody = styled.div<{
   isUndo?: boolean;
   dispatchableAction?: { type: ReduxActionType; payload: any };
   width?: string;
+  maxWidth?: string;
 }>`
   width: ${(props) => props.width || "fit-content"};
+  max-width: ${(props) => props.maxWidth || "264px"};
   margin-left: auto;
   background: ${(props) => props.theme.colors.toast.bg};
   padding: ${(props) => props.theme.spaces[4]}px
@@ -144,6 +152,7 @@ export function ToastComponent(
       className="t--toast-action"
       dispatchableAction={props.dispatchableAction}
       isUndo={!!props.onUndo}
+      maxWidth={props.maxWidth}
       variant={props.variant || Variant.info}
       width={props.width}
     >
@@ -203,7 +212,8 @@ export const Toaster = {
     }
     if (config.variant && !Object.values(Variant).includes(config.variant)) {
       log.error(
-        "Toast type needs to be a one of " + Object.values(Variant).join(", "),
+        "Toast type needs to be a one of " +
+          Object.values(ToastTypeOptions).join(", "),
       );
       return;
     }

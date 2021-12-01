@@ -3,6 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
+import _ from "lodash";
 import {
   Field,
   WrappedFieldInputProps,
@@ -16,8 +17,13 @@ const DropdownSelect = styled.div`
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
+    let width = "50vh";
+    if (this.props.customStyles && this.props.customStyles.width) {
+      width = this.props.customStyles.width;
+    }
+
     return (
-      <DropdownSelect data-cy={this.props.configProperty}>
+      <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
@@ -40,28 +46,29 @@ function renderDropdown(props: {
   props: DropDownControlProps;
   options: { label: string; value: string }[];
 }): JSX.Element {
-  const selectedValue = props.input?.value || props?.props?.initialValue;
+  let selectedValue = props.input?.value;
+  if (_.isUndefined(props.input?.value)) {
+    selectedValue = props?.props?.initialValue;
+  }
   const selectedOption =
     props?.options.find(
       (option: DropdownOption) => option.value === selectedValue,
     ) || {};
   return (
     <Dropdown
+      boundary="window"
       dontUsePortal={false}
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}
-      fillOptions
       helperText={props.props?.info}
       isMultiSelect
       onSelect={props.input?.onChange}
-      {...props}
+      optionWidth="50vh"
       options={props.options}
-      {...props.input}
-      boundary={"window"}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
-      width="100%"
+      width="50vh"
     />
   );
 }
@@ -72,6 +79,8 @@ export interface DropDownControlProps extends ControlProps {
   propertyValue: string;
   subtitle?: string;
   isMultiSelect?: boolean;
+  isDisabled?: boolean;
+  isSearchable?: boolean;
 }
 
 export default DropDownControl;

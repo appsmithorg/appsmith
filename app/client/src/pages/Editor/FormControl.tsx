@@ -49,7 +49,9 @@ function FormControl(props: FormControlProps) {
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
 }
-
+// top contains label, subtitle, urltext, tooltip, dispaly type
+// bottom contains the info and error text
+// props.children will render the form element
 function FormConfig(props: FormConfigProps) {
   let top, bottom;
 
@@ -78,6 +80,7 @@ function FormConfig(props: FormConfigProps) {
       <div
         style={{
           // TODO: replace condition with props.config.dataType === "TOGGLE"
+          // label and form element is rendered side by side for CHECKBOX and SWITCH
           display:
             props.config.controlType === "SWITCH" ||
             props.config.controlType === "CHECKBOX"
@@ -110,7 +113,6 @@ function renderFormConfigTop(props: { config: ControlProps }) {
     encrypted,
     isRequired,
     label,
-    showTooltip,
     subtitle,
     tooltipText = "",
     url,
@@ -127,7 +129,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
               <FormInfoText>Encrypted</FormInfoText>
             </>
           )}
-          {showTooltip && (
+          {tooltipText && (
             <Tooltip content={tooltipText} hoverOpenDelay={1000}>
               <FormIcons.HELP_ICON height={16} width={16} />
             </Tooltip>
