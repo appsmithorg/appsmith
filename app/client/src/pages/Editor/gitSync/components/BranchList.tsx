@@ -386,7 +386,8 @@ export default function BranchList(props: {
   setIsPopupOpen?: (flag: boolean) => void;
 }) {
   const dispatch = useDispatch();
-  const fetchBranches = () => dispatch(fetchBranchesInit());
+  const pruneAndFetchBranches = () =>
+    dispatch(fetchBranchesInit({ pruneBranches: true }));
 
   const branches = useSelector(getGitBranches);
   const branchNames = useSelector(getGitBranchNames);
@@ -470,7 +471,7 @@ export default function BranchList(props: {
             if (typeof props.setIsPopupOpen === "function")
               props.setIsPopupOpen(false);
           }}
-          fetchBranches={fetchBranches}
+          fetchBranches={pruneAndFetchBranches}
         />
         <Space size={4} />
         <div style={{ width: 300 }}>
