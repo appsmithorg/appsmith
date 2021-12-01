@@ -19,7 +19,6 @@
     "@draft-js-plugins/mention": "^4.5.1",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
-    "@imagemarker/use-text-width": "^0.4.4",
     "@manaflair/redux-batch": "^1.0.0",
     "@optimizely/optimizely-sdk": "^4.0.0",
     "@sentry/react": "^6.2.4",

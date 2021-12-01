@@ -38,9 +38,9 @@ import { get } from "lodash";
 import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import Spinner from "components/ads/Spinner";
-import { useTextWidth } from "@imagemarker/use-text-width";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
+import { isEllipsisActive } from "utils/helpers";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -86,7 +86,6 @@ const BranchListItemContainer = styled.div<{
   .${Classes.TEXT} {
     width: 100%;
     overflow: hidden;
-    text-overflow: ellipse;
     text-overflow: ellipsis;
     display: block;
   }
@@ -189,8 +188,6 @@ function BranchListItem({
 }: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const textRef = React.useRef<HTMLSpanElement>(null);
-  const [wrapperWidth, setWrapperWidth] = useState(0);
-  const width = useTextWidth({ ref: textRef });
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView)
       scrollIntoView(itemRef.current, {
@@ -200,16 +197,6 @@ function BranchListItem({
       });
   }, [shouldScrollIntoView]);
 
-  useEffect(() => {
-    if (itemRef.current) {
-      const wrapperWidth = isDefault
-        ? itemRef.current.offsetWidth - 75
-        : itemRef.current.offsetWidth;
-      setWrapperWidth(wrapperWidth);
-    }
-  }, []);
-
-  const tooltipEnabled = wrapperWidth < width;
   return (
     <BranchListItemContainer
       active={active}
@@ -222,7 +209,7 @@ function BranchListItem({
       <Tooltip
         boundary="window"
         content={branch}
-        disabled={!tooltipEnabled}
+        disabled={!isEllipsisActive(textRef.current)}
         position={Position.TOP}
       >
         <Text ref={textRef} type={TextType.P1}>
@@ -256,7 +243,7 @@ function BranchesLoading() {
 
 export const removeSpecialChars = (value: string) => {
   const separatorRegex = /(?!\/)\W+/;
-  return value.split(separatorRegex).join("-");
+  return value.split(separatorRegex).join("_");
 };
 
 // filter the branches according to the search text
@@ -436,7 +423,7 @@ export default function BranchList(props: {
 
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
-    changeSearchTextInState(removeSpecialChars(text).replace(/\-/g, "_"));
+    changeSearchTextInState(removeSpecialChars(text));
   };
 
   const isCreateNewBranchInputValid = useMemo(

@@ -14,10 +14,8 @@ import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
-import { noop } from "lodash";
-import { createMessage, NOT_OPTIONS } from "constants/messages";
-import { useTextWidth } from "@imagemarker/use-text-width";
 import Tooltip from "components/ads/Tooltip";
+import { isEllipsisActive } from "utils/helpers";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -91,7 +89,6 @@ export type DropdownProps = CommonComponentProps &
     hideSubText?: boolean;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
-    showTooltip?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -294,14 +291,6 @@ const OptionWrapper = styled.div<{
         : props.theme.colors.dropdown.menu.text};
   }
 
-  .${Classes.TEXT}.in-tooltip {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipse;
-    text-overflow: ellipsis;
-    display: block;
-  }
-
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[5]}px;
     svg {
@@ -449,31 +438,29 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
+const TextWrapper = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 function TooltipWrappedText(
   props: TextProps & {
-    showTooltip?: boolean;
     label: string;
-    wrapperWidth: number;
   },
 ) {
-  const { label, showTooltip = false, wrapperWidth, ...textProps } = props;
-  const ref = useRef<HTMLSpanElement>(null);
-  const width = useTextWidth({ ref });
-  let tooltipDisabled = true;
-  if (showTooltip) {
-    tooltipDisabled = wrapperWidth > width;
-  }
-  const className = tooltipDisabled ? "" : "in-tooltip";
+  const { label, ...textProps } = props;
+  const targetRef = useRef<HTMLDivElement | null>(null);
   return (
     <Tooltip
       boundary="window"
       content={label}
-      disabled={tooltipDisabled}
+      disabled={!isEllipsisActive(targetRef.current)}
       position={Position.TOP}
     >
-      <Text className={className} ref={ref} {...textProps}>
-        {label}
-      </Text>
+      <TextWrapper ref={targetRef}>
+        <Text {...textProps}>{label}</Text>
+      </TextWrapper>
     </Tooltip>
   );
 }
@@ -567,18 +554,9 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     onSearch && onSearch(searchStr);
   };
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const [wrapperWidth, setWrapperWidth] = useState(0);
-  useEffect(() => {
-    if (wrapperRef.current) {
-      setWrapperWidth(wrapperRef.current.offsetWidth);
-    }
-  }, []);
-
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
-      ref={wrapperRef}
       width={optionWidth}
     >
       {props.enableSearch && (
@@ -626,9 +604,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               {props.showLabelOnly ? (
                 <TooltipWrappedText
                   label={option.label || ""}
-                  showTooltip={props.showTooltip}
                   type={TextType.P1}
-                  wrapperWidth={wrapperWidth}
                 />
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
@@ -638,9 +614,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : (
                 <TooltipWrappedText
                   label={option.label || ""}
-                  showTooltip={props.showTooltip}
                   type={TextType.P1}
-                  wrapperWidth={wrapperWidth}
                 />
               )}
 
@@ -652,18 +626,6 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             </OptionWrapper>
           );
         })}
-        {options.length < 1 && (
-          <OptionWrapper
-            className="t--dropdown-option"
-            key={-1}
-            onClick={noop}
-            selected
-          >
-            <Text color={`${Colors.ERROR_RED} !important`} type={TextType.P1}>
-              {createMessage(NOT_OPTIONS)}
-            </Text>
-          </OptionWrapper>
-        )}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
   );
