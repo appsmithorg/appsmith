@@ -823,7 +823,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
-    this.props.updateWidgetMetaProperty("searchText", searchKey);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
       triggerPropertyName: "onSearchTextChanged",
       dynamicString: onSearchTextChanged,
