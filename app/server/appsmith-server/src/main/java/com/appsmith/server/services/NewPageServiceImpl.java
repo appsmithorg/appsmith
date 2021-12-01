@@ -482,7 +482,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
 
         if (StringUtils.isEmpty(defaultPageId)) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (StringUtils.isEmpty(branchName)) {
             return this.findById(defaultPageId, permission)
                     .switchIfEmpty(Mono.error(
