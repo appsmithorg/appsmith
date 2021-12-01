@@ -41,10 +41,7 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { findFieldInfo, REPLAY_FOCUS_DELAY } from "entities/Replay/replayUtils";
 import { setActionProperty, updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
-import { changeQuery } from "actions/queryPaneActions";
-import { changeApi } from "actions/apiPaneActions";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
-import { changeDatasource } from "actions/datasourceActions";
 import {
   updateReplayEntitySaga,
   workerComputeUndoRedo,
@@ -64,10 +61,17 @@ import {
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
-import { updateFormFields } from "./ApiPaneSagas";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Datasource } from "entities/Datasource";
+import { initialize } from "redux-form";
+import {
+  API_EDITOR_FORM_NAME,
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+  QUERY_EDITOR_FORM_NAME,
+  SAAS_EDITOR_FORM,
+} from "constants/forms";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -226,44 +230,56 @@ function* replayActionSaga(
   replay: { updates: ReplayEditorUpdate[] },
 ) {
   const { updates = [] } = replay;
+  /**
+   * Pick one diff to determine tab switching.
+   * Diffs across multiple tabs are unlikely
+   */
   const { modifiedProperty } = updates[updates.length - 1] || {};
   const { currentTab } = yield call(
     getEditorFieldConfig,
     replayEntity,
     modifiedProperty,
   );
+
+  /**
+   * Check if tab needs to be switched and switch is necessary
+   * Delay change if tab needs to be switched
+   */
   const didSwitch: boolean = yield call(switchTab, currentTab);
-  //Delay change if tab needs to be switched
   if (didSwitch) yield delay(REPLAY_FOCUS_DELAY);
-  if (isQueryAction(replayEntity)) {
-    yield put(changeQuery(replayEntity.id, false, replayEntity));
-  } else {
-    yield put(
-      changeApi(
-        replayEntity.id,
-        isSaaSAction(replayEntity),
-        false,
-        replayEntity,
-      ),
-    );
-    yield call(updateFormFields, {
-      meta: { field: modifiedProperty },
-      type: ReduxFormActionTypes.VALUE_CHANGE,
-      payload: _.get(replayEntity, modifiedProperty),
-    });
-  }
+
+  //Reinitialize form
+  const currentFormName = isQueryAction(replayEntity)
+    ? QUERY_EDITOR_FORM_NAME
+    : isSaaSAction(replayEntity)
+    ? SAAS_EDITOR_FORM
+    : API_EDITOR_FORM_NAME;
+  yield put(initialize(currentFormName, replayEntity));
+
+  //Begin modified field highlighting
   highlightReplayElement(
     updates.map((u: ReplayEditorUpdate) => u.modifiedProperty),
   );
-  yield put(
-    setActionProperty({
-      actionId: replayEntity.id,
-      propertyName: modifiedProperty,
-      value: _.get(replayEntity, modifiedProperty),
-      skipSave: true,
-    }),
+
+  /**
+   * Update all the diffs in the action object.
+   * We need this for debugger logs, dynamicBindingPathList and to call relevant APIs */
+  yield all(
+    updates.map((u) =>
+      put(
+        setActionProperty({
+          actionId: replayEntity.id,
+          propertyName: u.modifiedProperty,
+          value:
+            u.kind === "A" ? _.get(replayEntity, u.modifiedProperty) : u.update,
+          skipSave: true,
+        }),
+      ),
+    ),
   );
-  yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
+
+  //Save the updated action object
+  yield put(updateAction({ id: replayEntity.id }));
 }
 
 function* replayDatasourceSaga(
@@ -272,16 +288,28 @@ function* replayDatasourceSaga(
 ) {
   const { updates = [] } = replay;
   const { modifiedProperty } = updates[updates.length - 1] || {};
-  const { fieldInfo } = yield call(
+  const { fieldInfo: { parentSection = "" } = {} } = yield call(
     getDatasourceFieldConfig,
     replayEntity,
     modifiedProperty,
   );
-  const { parentSection = "" } = fieldInfo;
+  /**
+   *  Check if the modified field is under a collapsed section and expand if necessary
+   *  Delay change if accordion needs to be expanded
+   */
   const didExpand: boolean = yield call(expandAccordion, parentSection);
-  //Delay change if accordion needs to be expanded
   if (didExpand) yield delay(REPLAY_FOCUS_DELAY);
-  yield put(changeDatasource({ datasource: replayEntity, isReplay: true }));
+
+  /**
+   * Reinitialize redux form
+   * Attribute "datasourceId" is used as a differentiator between rest-api datasources and the others */
+  if (replayEntity.hasOwnProperty("datasourceId")) {
+    yield put(initialize(DATASOURCE_REST_API_FORM, replayEntity));
+  } else {
+    yield put(initialize(DATASOURCE_DB_FORM, _.omit(replayEntity, ["name"])));
+  }
+
+  // Highlight modified fields
   highlightReplayElement(
     updates.map((u: ReplayEditorUpdate) => u.modifiedProperty),
   );

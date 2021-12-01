@@ -30,7 +30,7 @@ import {
   getEditorConfig,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { PluginType, QueryAction } from "entities/Action";
+import { Action, ApiAction, PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/pluginActionActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";
@@ -49,9 +49,7 @@ import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 // Called whenever the query being edited is changed via the URL or query pane
-function* changeQuerySaga(
-  actionPayload: ReduxAction<{ id: string; action?: any }>,
-) {
+function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -60,8 +58,7 @@ function* changeQuerySaga(
     history.push(APPLICATIONS_URL);
     return;
   }
-  let { action } = actionPayload.payload;
-  if (!action) action = yield select(getAction, id);
+  const action = yield select(getAction, id);
   if (!action) {
     history.push(
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
@@ -80,10 +77,7 @@ function* changeQuerySaga(
 
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane
-  if (!actionPayload.payload.action)
-    yield put(
-      initFormEvaluations(currentEditorConfig, currentSettingConfig, id),
-    );
+  yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
 
   // If config exists
   if (currentEditorConfig) {
@@ -178,8 +172,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   } = actionPayload.payload;
   if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
     const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates

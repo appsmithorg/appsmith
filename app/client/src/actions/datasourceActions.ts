@@ -93,10 +93,7 @@ export const saveDatasourceName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export const changeDatasource = (payload: {
-  datasource?: Datasource;
-  isReplay?: boolean;
-}) => {
+export const changeDatasource = (payload: { datasource?: Datasource }) => {
   return {
     type: ReduxActionTypes.CHANGE_DATASOURCE,
     payload,

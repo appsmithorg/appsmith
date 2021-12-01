@@ -252,9 +252,13 @@ function* changeApiSaga(
     }
   }
 
+  //Retrieve form data with synced query params to start tracking change history.
+  const { values: actionPostProcess } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
   PerformanceTracker.stopTracking();
-  if (!actionPayload.payload.action)
-    yield put(updateReplayEntity(id, action, ENTITY_TYPE.ACTION));
+  yield put(updateReplayEntity(id, actionPostProcess, ENTITY_TYPE.ACTION));
 }
 
 function* setHeaderFormat(apiId: string, headers?: Property[]) {
@@ -379,7 +383,19 @@ function* formValueChangeSaga(
     call(updateFormFields, actionPayload),
   ]);
 
-  yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
+  // We need to refetch form values here since syncApuParams saga and updateFormFields directly update reform form values.
+  const { values: formValuesPostProcess } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
+
+  yield put(
+    updateReplayEntity(
+      formValuesPostProcess.id,
+      formValuesPostProcess,
+      ENTITY_TYPE.ACTION,
+    ),
+  );
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {

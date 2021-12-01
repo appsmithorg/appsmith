@@ -648,20 +648,16 @@ function* updateDraftsSaga() {
 }
 
 function* changeDatasourceSaga(
-  actionPayload: ReduxAction<{ datasource: Datasource; isReplay?: boolean }>,
+  actionPayload: ReduxAction<{ datasource: Datasource }>,
 ) {
-  const { datasource, isReplay } = actionPayload.payload;
-  if (datasource.hasOwnProperty("datasourceId") && isReplay) {
-    yield put(initialize(DATASOURCE_REST_API_FORM, datasource));
-    return;
-  }
+  const { datasource } = actionPayload.payload;
   const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
   let data;
 
-  if (_.isEmpty(draft) || isReplay) {
+  if (_.isEmpty(draft)) {
     data = datasource;
   } else {
     data = draft;
@@ -682,8 +678,9 @@ function* changeDatasourceSaga(
         getQueryParams(),
       ),
     );
-  if (!isReplay)
-    yield put(updateReplayEntity(data.id, data, ENTITY_TYPE.DATASOURCE));
+  yield put(
+    updateReplayEntity(data.id, _.omit(data, ["name"]), ENTITY_TYPE.DATASOURCE),
+  );
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
@@ -1014,7 +1011,7 @@ export function* watchDatasourcesSagas() {
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
-    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
-    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    // takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    // takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
   ]);
 }
