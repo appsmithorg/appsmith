@@ -692,6 +692,7 @@ export function* setActionPropertySaga(
     });
     return;
   }
+  //skipSave property is added to skip API calls when the updateAction needs to be called from the caller
   if (!skipSave) yield put(updateAction({ id: actionId }));
 }
 

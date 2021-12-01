@@ -685,11 +685,7 @@ function* changeDatasourceSaga(
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
   const { datasourceId } = action.payload;
-  const datasource = yield select((state: AppState) =>
-    state.entities.datasources.list.find(
-      (datasource: Datasource) => datasource.id === datasourceId,
-    ),
-  );
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
   if (datasource) {
     yield put(changeDatasource({ datasource }));
   }
@@ -1009,7 +1005,9 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
       executeDatasourceQuerySaga,
     ),
-    // Intercepting the redux-form change actionType
+    // Intercepting the redux-form change actionType to update drafts and track change history
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
   ]);
 }

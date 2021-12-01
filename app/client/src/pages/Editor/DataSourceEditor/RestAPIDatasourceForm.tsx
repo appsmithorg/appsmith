@@ -166,7 +166,7 @@ const COMMON_INPUT_PROPS: any = {
 };
 
 class DatasourceRestAPIEditor extends React.Component<Props> {
-  componentDidMount = () => {
+  componentDidMount() {
     const search = new URLSearchParams(this.props.location.search);
     const status = search.get("response_status");
 
@@ -192,7 +192,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         variant,
       });
     }
-  };
+  }
 
   componentDidUpdate() {
     if (!this.props.formData) return;
