@@ -1,9 +1,5 @@
 #!/bin/bash
-#
-# DigitalOcean Marketplace Image Validation Tool
-# © 2018 DigitalOcean LLC.
-# This code is licensed under MIT license (see LICENSE.txt for details)
-#
+
 VERSION="v. 1.6"
 RUNDATE=$( date )
 
@@ -473,83 +469,6 @@ function checkCloudInit {
     fi
     return 1
 }
-function checkMongoDB {
-  # Check if MongoDB is installed
-  # If it is, verify the version is allowed (non-SSPL)
-
-   if [[ $OS == "Ubuntu" ]] || [[ "$OS" =~ Debian.* ]]; then
-
-     if [[ -f "/usr/bin/mongod" ]]; then
-       version=$(/usr/bin/mongod --version --quiet | grep "db version" | sed -e "s/^db\ version\ v//")
-
-      if version_gt $version 4.0.0; then
-        if version_gt $version 4.0.3; then
-          echo -en "\e[41m[FAIL]\e[0m An SSPL version of MongoDB is present, ${version}"
-          ((FAIL++))
-           STATUS=2
-        else
-          echo -en "\e[32m[PASS]\e[0m The version of MongoDB installed, ${version} is not under the SSPL"
-          ((PASS++))
-        fi
-      else
-         if version_gt $version 3.6.8; then
-          echo -en "\e[41m[FAIL]\e[0m An SSPL version of MongoDB is present, ${version}"
-          ((FAIL++))
-           STATUS=2
-        else
-          echo -en "\e[32m[PASS]\e[0m The version of MongoDB installed, ${version} is not under the SSPL"
-          ((PASS++))
-        fi
-      fi
-
-
-     else
-       echo -en "\e[32m[PASS]\e[0m MongoDB is not installed"
-       ((PASS++))
-     fi
-
-   elif [[ $OS == "CentOS Linux" ]]; then
-
-    if [[ -f "/usr/bin/mongod" ]]; then
-       version=$(/usr/bin/mongod --version --quiet | grep "db version" | sed -e "s/^db\ version\ v//")
-
-
-       if version_gt $version 4.0.0; then
-        if version_gt $version 4.0.3; then
-          echo -en "\e[41m[FAIL]\e[0m An SSPL version of MongoDB is present"
-          ((FAIL++))
-           STATUS=2
-        else
-          echo -en "\e[32m[PASS]\e[0m The version of MongoDB installed is not under the SSPL"
-          ((PASS++))
-        fi
-      else
-         if version_gt $version 3.6.8; then
-          echo -en "\e[41m[FAIL]\e[0m An SSPL version of MongoDB is present"
-          ((FAIL++))
-           STATUS=2
-        else
-          echo -en "\e[32m[PASS]\e[0m The version of MongoDB installed is not under the SSPL"
-          ((PASS++))
-        fi
-      fi
-
-
-
-     else
-       echo -en "\e[32m[PASS]\e[0m MongoDB is not installed"
-       ((PASS++))
-     fi
-
-  else
-    echo "ERROR: Unable to identify distribution"
-    ((FAIL++))
-    STATUS 2
-    return 1
-  fi
-
-
-}
 
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
@@ -650,8 +569,6 @@ echo -en "\n\nChecking the root account...\n"
 checkRoot
 
 checkAgent
-
-checkMongoDB
 
 
 # Summary

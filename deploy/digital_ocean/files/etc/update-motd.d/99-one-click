@@ -2,7 +2,6 @@
 #
 # Configured as part of the DigitalOcean 1-Click Image build process
 
-myip=$(hostname -I | awk '{print$1}')
 cat <<EOF
 ********************************************************************************
 Hello! Welcome to your Appsmith droplet!

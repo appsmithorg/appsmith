@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# DigitalOcean Marketplace Image Validation Tool
-# © 2021 DigitalOcean LLC.
-# This code is licensed under Apache 2.0 license (see LICENSE.md for details)
-
 set -o errexit
 
 # Ensure /tmp exists and has the proper permissions before
@@ -35,6 +31,7 @@ rm -rf /var/lib/cloud/instances/*
 rm -f /root/.ssh/authorized_keys /etc/ssh/*key*
 rm -f /var/log/kern.log
 rm -f /var/log/ufw.log
+rm -f /var/log/auth.log
 touch /etc/ssh/revoked_keys
 chmod 600 /etc/ssh/revoked_keys
 

@@ -3,11 +3,9 @@
 set -o errexit
 set -o nounset
 
-mkdir /root/appsmith
+mkdir -p /root/appsmith
 
 cd /root/appsmith
-
-trap bye EXIT
 
 # Step 1: Download the templates
 echo "Downloading the Docker Compose file..."
