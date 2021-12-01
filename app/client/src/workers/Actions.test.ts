@@ -58,8 +58,8 @@ describe("Add functions", () => {
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
         actionId: "123",
-        onError: '() => "failure"',
-        onSuccess: '() => "success"',
+        onError: 'function () { return "failure"; }',
+        onSuccess: 'function () { return "success"; }',
         params: {
           param1: "value1",
         },
@@ -319,7 +319,7 @@ describe("Add functions", () => {
     );
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
-        callback: '() => "test"',
+        callback: 'function () { return "test"; }',
         id: "myInterval",
         interval: 5000,
       },
