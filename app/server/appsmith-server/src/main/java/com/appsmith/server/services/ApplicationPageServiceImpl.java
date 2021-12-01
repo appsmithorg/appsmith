@@ -149,12 +149,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     page.setDefaultResources(defaultResources);
                     return createPage(page);
                 })
-                .map(pageDTO -> {
-                    if (StringUtils.isEmpty(defaultResources.getPageId())) {
-                        defaultResources.setPageId(page.getId());
-                    }
-                    return sanitiseResponse.updatePageDTOWithDefaultResources(page);
-                });
+                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
 
     /**
