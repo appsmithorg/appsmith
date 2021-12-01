@@ -1273,10 +1273,11 @@ Cypress.Commands.add("EvaluateDataType", (dataType) => {
 
 Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait(3000);
   cy.get(commonlocators.evaluatedCurrentValue)
     .first()
     .should("be.visible")
+    .click()
     .then(($text) => {
       expect($text.text()).to.eq(currentValue);
     });
