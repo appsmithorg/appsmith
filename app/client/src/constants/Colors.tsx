@@ -143,6 +143,7 @@ export const Colors = {
   GREY_8: "#716E6E",
   GREY_9: "#4B4848",
   GREY_10: "#090707",
+  GREY_11: "#9F9F9F",
 
   PRIMARY_ORANGE: "#F86A2B",
 
