@@ -31,6 +31,7 @@ import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -48,6 +49,7 @@ function ActionForm(props: Props) {
     match: {
       params: { apiId, pageId },
     },
+    pluginId,
   } = props;
 
   const dispatch = useDispatch();
@@ -80,6 +82,17 @@ function ActionForm(props: Props) {
     );
   };
 
+  // custom function to return user to integrations page if action is not found
+  const goToDatasourcePage = () =>
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
+
+  // if the action can not be found, generate a entity not found page
+  if (!pluginId && apiId) {
+    return <EntityNotFoundPane goBackFn={goToDatasourcePage} />;
+  }
+
   const childProps: any = {
     ...props,
     onRunClick,
@@ -92,6 +105,7 @@ function ActionForm(props: Props) {
 const mapStateToProps = (state: AppState, props: any) => {
   const { apiId } = props.match.params;
   const { runErrorMessage } = state.ui.queryPane;
+  const currentPageId = state.ui.editor.currentPageId;
   const { plugins } = state.entities;
   const { editorConfigs, settingConfigs } = plugins;
   const pluginImages = getPluginImages(state);
@@ -140,6 +154,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     editorConfig,
     settingConfig,
     actionName,
+    currentPageId,
     pluginId,
     plugin,
     responseType: responseTypes[pluginId],

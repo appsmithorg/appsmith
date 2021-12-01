@@ -46,7 +46,7 @@ const Wrapper = styled.div`
   }
 `;
 
-function EntityNotFoundPane() {
+function EntityNotFoundPane(props: any) {
   const history = useHistory();
   return (
     <Wrapper>
@@ -62,7 +62,7 @@ function EntityNotFoundPane() {
           category={Category.secondary}
           className="button-position"
           cypressSelector="t--invalid-page-go-back"
-          onClick={history.goBack}
+          onClick={props.goBackFn ? props.goBackFn : history.goBack}
           size={Size.large}
           tag="button"
           text="Go Back"
