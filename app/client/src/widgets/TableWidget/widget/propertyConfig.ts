@@ -804,10 +804,10 @@ export default [
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
-                        regex: /^#([0-9a-fA-F]{3}){1,2}$/,
+                        regex: /^(#([0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(rgb)\((\s*\d+\s*,){2}\s*\d+\s*\)|(rgba)\((\s*\d+\s*,){3}\s*[\d.]+\s*\))$/i,
                         default: Colors.GREEN,
                         expected: {
-                          type: "HEX Color",
+                          type: "HEX / RGB Color",
                           example: "#ff0000",
                           autocompleteDataType: AutocompleteDataType.STRING,
                         },
@@ -952,10 +952,10 @@ export default [
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
-                        regex: /^#([0-9a-fA-F]{3}){1,2}$/,
+                        regex: /^(#([0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(rgb)\((\s*\d+\s*,){2}\s*\d+\s*\)|(rgba)\((\s*\d+\s*,){3}\s*[\d.]+\s*\))$/i,
                         default: Colors.GREY_8,
                         expected: {
-                          type: "HEX Color",
+                          type: "HEX / RGB Color",
                           example: "#ff0000",
                           autocompleteDataType: AutocompleteDataType.STRING,
                         },
