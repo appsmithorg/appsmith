@@ -248,7 +248,7 @@ export const Entity = forwardRef(
           alwaysShowRightIcon={props.alwaysShowRightIcon}
           className={`${props.highlight ? "highlighted" : ""} ${
             props.active ? "active" : ""
-          }`}
+          } t--entity-item`}
           highlight={!!props.highlight}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}

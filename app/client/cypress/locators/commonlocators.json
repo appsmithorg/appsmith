@@ -102,6 +102,8 @@
   "deflautSelectedRow": ".t--property-control-defaultselectedrow textarea",
   "defaultSearchText": ".t--property-control-defaultsearchtext textarea",
   "entityName": ".t--entity-name",
+  "entityItem": ".t--entity-item",
+  "entityCollapseToggle": ".t--entity-collapse-toggle",
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",

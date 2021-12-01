@@ -802,6 +802,9 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
   cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .parents(commonlocators.entityItem)
+    .first()
+    .children(commonlocators.entityCollapseToggle)
     .last()
     .click({ force: true });
 });
