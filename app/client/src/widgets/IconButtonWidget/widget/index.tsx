@@ -41,6 +41,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             controlType: "ICON_SELECT",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isDisabled",
@@ -124,6 +125,12 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             ],
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
           },
           {
             propertyName: "boxShadow",
@@ -133,6 +140,19 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
           },
           {
             propertyName: "boxShadowColor",

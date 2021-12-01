@@ -144,6 +144,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       controlType: "ICON_SELECT",
                       isBindProperty: false,
                       isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
                     },
                     {
                       propertyName: "iconColor",
@@ -160,6 +161,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       controlType: "ICON_ALIGN",
                       isBindProperty: false,
                       isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
                     },
                   ],
                 },
@@ -266,6 +268,12 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
           },
           {
             propertyName: "boxShadow",
@@ -275,13 +283,26 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
           },
           {
             propertyName: "boxShadowColor",
             helpText: "Sets the shadow color of the widget",
             label: "Shadow Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: true,
+            isBindProperty: false,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -311,6 +332,9 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
               }
               return propertiesToUpdate;
             },
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
           },
           {
             propertyName: "iconAlign",
@@ -319,6 +343,12 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             controlType: "ICON_ALIGN",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["center", "left", "right"],
+              },
+            },
           },
         ],
       },

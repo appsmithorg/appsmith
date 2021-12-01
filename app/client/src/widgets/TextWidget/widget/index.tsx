@@ -66,11 +66,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             label: "Cell Background",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
-            isBindProperty: true,
+            isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-            },
           },
           {
             propertyName: "textColor",
@@ -144,20 +141,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
               },
             ],
             isJSConvertible: true,
-            isBindProperty: true,
+            isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "HEADING1",
-                  "HEADING2",
-                  "HEADING3",
-                  "PARAGRAPH",
-                  "PARAGRAPH2",
-                ],
-              },
-            },
           },
           {
             propertyName: "fontStyle",

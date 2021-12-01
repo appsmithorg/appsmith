@@ -53,7 +53,7 @@ class FormButtonWidget extends ButtonWidget {
           label: "Disabled Invalid Forms",
           controlType: "SWITCH",
           isJSConvertible: true,
-          isBindProperty: true,
+          isBindProperty: false,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
         },

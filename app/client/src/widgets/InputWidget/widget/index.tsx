@@ -487,6 +487,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "ICON_SELECT",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "iconAlign",
@@ -495,6 +496,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "ICON_ALIGN",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
             hidden: (props: InputWidgetProps) => !props.iconName,
             dependencies: ["iconName"],
           },

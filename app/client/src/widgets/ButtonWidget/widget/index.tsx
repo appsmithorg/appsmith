@@ -174,6 +174,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             ],
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
           },
           {
             propertyName: "boxShadow",
@@ -183,13 +189,26 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
           },
           {
             propertyName: "boxShadowColor",
             helpText: "Sets the shadow color of the widget",
             label: "Shadow Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: true,
+            isBindProperty: false,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -219,6 +238,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               }
               return propertiesToUpdate;
             },
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
           },
           {
             propertyName: "iconAlign",
@@ -227,6 +249,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "ICON_ALIGN",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["center", "left", "right"],
+              },
+            },
           },
         ],
       },

@@ -189,7 +189,6 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.BOOLEAN },
                 },
                 {
                   propertyName: "isDisabled",
@@ -213,7 +212,6 @@ export default [
                       ColumnTypes.BUTTON,
                     ]);
                   },
-                  validation: { type: ValidationTypes.BOOLEAN },
                 },
                 {
                   propertyName: "isCompact",
@@ -235,7 +233,6 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  validation: { type: ValidationTypes.BOOLEAN },
                 },
                 {
                   propertyName: "inputFormat",
@@ -323,9 +320,6 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                   defaultValue: "YYYY-MM-DD HH:mm",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
@@ -452,9 +446,6 @@ export default [
                     "columnType",
                   ],
                   isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -528,12 +519,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      allowedValues: ["LEFT", "CENTER", "RIGHT"],
-                    },
-                  },
                 },
                 {
                   propertyName: "textSize",
@@ -581,9 +566,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
                 {
                   propertyName: "fontStyle",
@@ -613,9 +595,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
                 {
                   propertyName: "verticalAlignment",
@@ -646,9 +625,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
                 {
                   propertyName: "textColor",
@@ -664,9 +640,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
                 {
                   propertyName: "cellBackground",
@@ -682,9 +655,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
               ],
             },
@@ -723,7 +693,7 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultIconName: "add",
                   isJSConvertible: true,
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
@@ -750,6 +720,12 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: ["center", "left", "right"],
+                    },
+                  },
                 },
                 {
                   propertyName: "buttonLabel",
@@ -811,9 +787,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
                 {
                   propertyName: "buttonVariant",
@@ -884,7 +857,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
@@ -911,7 +884,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
@@ -944,11 +917,8 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
                 {
                   propertyName: "buttonLabelColor",
@@ -970,9 +940,6 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
                 },
 
                 {
@@ -981,7 +948,7 @@ export default [
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
@@ -1063,6 +1030,12 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                    },
+                  },
                 },
                 {
                   propertyName: "boxShadow",
@@ -1083,13 +1056,26 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: [
+                        "NONE",
+                        "VARIANT1",
+                        "VARIANT2",
+                        "VARIANT3",
+                        "VARIANT4",
+                        "VARIANT5",
+                      ],
+                    },
+                  },
                 },
                 {
                   propertyName: "boxShadowColor",
                   helpText: "Sets the shadow color of the widget",
                   label: "Shadow Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -1269,6 +1255,7 @@ export default [
                             controlType: "ICON_SELECT",
                             isBindProperty: false,
                             isTriggerProperty: false,
+                            validation: { type: ValidationTypes.TEXT },
                             updateHook: updateDerivedColumnsHook,
                             dependencies: [
                               "primaryColumns",
@@ -1298,6 +1285,7 @@ export default [
                             controlType: "ICON_ALIGN",
                             isBindProperty: false,
                             isTriggerProperty: false,
+                            validation: { type: ValidationTypes.TEXT },
                             updateHook: updateDerivedColumnsHook,
 
                             dependencies: [
