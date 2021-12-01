@@ -363,9 +363,9 @@ const Steps: StepsType = {
         icon: "edit-box-line",
         text: (
           <>
-            <b>Drag {"&"} Drop</b> a Button widget into the left bottom of
-            container, below the image. Update the label of the button to{" "}
-            <i>Click to update info</i>
+            Switch to the widget page and then <b>Drag {"&"} Drop</b> a Button
+            widget into the left bottom of container, below the image. Update
+            the label of the button to <i>Update info</i>
           </>
         ),
       },
@@ -378,13 +378,15 @@ const Steps: StepsType = {
     },
   },
   6: {
-    title: "6. Trigger updateCustomer query by binding to the button widget",
+    title:
+      "6. Trigger updateCustomerInfo query by binding to the button widget",
     hints: [
       {
         icon: "edit-box-line",
         text: (
           <>
-            From onClick dropdown, select <b>Execute a query</b> {"&"} then
+            Select the button widget to see the properties in the propety pane.
+            From the onClick dropdown, select <b>Execute a query</b> {"&"} then
             select <b>updateCustomer</b> query
           </>
         ),
