@@ -64,6 +64,10 @@ import {
   updateBranchLocally,
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  fetchSelectedAppTheme,
+  fetchAppThemes,
+} from "actions/appThemingActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -99,6 +103,13 @@ function* failFastApiCalls(
   return true;
 }
 
+/**
+ * this saga is called once then application is loaded.
+ * It will hold the editor in uninitialized till all the apis/actions are completed
+ *
+ * @param initializeEditorAction
+ * @returns
+ */
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
@@ -141,6 +152,22 @@ function* initializeEditorSaga(
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
     if (!jsActionsCall) return;
+
+    const themesCall = yield failFastApiCalls(
+      [fetchAppThemes(applicationId)],
+      [ReduxActionTypes.FETCH_APP_THEMES_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR],
+    );
+    if (!themesCall) return;
+
+    const selectedThemeCall = yield failFastApiCalls(
+      [fetchSelectedAppTheme(applicationId)],
+      [ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR],
+    );
+
+    if (!selectedThemeCall) return;
+
     if (pageId) {
       initCalls.push(fetchPage(pageId, true) as any);
       successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);

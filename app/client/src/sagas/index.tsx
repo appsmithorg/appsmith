@@ -1,3 +1,6 @@
+import log from "loglevel";
+import * as sentry from "@sentry/react";
+
 import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { watchActionSagas } from "./ActionSagas";
@@ -38,11 +41,10 @@ import selectionCanvasSagas from "./SelectionCanvasSagas";
 import replaySaga from "./ReplaySaga";
 import draggingCanvasSagas from "./DraggingCanvasSagas";
 import gitSyncSagas from "./GitSyncSagas";
-
-import log from "loglevel";
-import * as sentry from "@sentry/react";
-import formEvaluationChangeListener from "./FormEvaluationSaga";
 import SuperUserSagas from "./SuperUserSagas";
+import formEvaluationChangeListener from "./FormEvaluationSaga";
+import appThemingSaga from "./AppThemingSaga";
+
 const sagas = [
   initSagas,
   pageSagas,
@@ -85,6 +87,7 @@ const sagas = [
   draggingCanvasSagas,
   gitSyncSagas,
   SuperUserSagas,
+  appThemingSaga,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

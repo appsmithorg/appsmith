@@ -46,6 +46,8 @@ export enum ButtonBoxShadowTypes {
   VARIANT3 = "VARIANT3",
   VARIANT4 = "VARIANT4",
   VARIANT5 = "VARIANT5",
+  MEDIUM = "MEDIUM",
+  LARGE = "LARGE",
 }
 
 export type ButtonBoxShadow = keyof typeof ButtonBoxShadowTypes;

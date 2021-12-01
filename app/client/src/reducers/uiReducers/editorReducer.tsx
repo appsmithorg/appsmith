@@ -29,7 +29,7 @@ const initialState: EditorReduxState = {
   isSnipingMode: false,
   isPreviewMode: false,
   zoomLevel: 1,
-  isThemeMode: false,
+  isThemeMode: true,
 };
 
 const editorReducer = createReducer(initialState, {

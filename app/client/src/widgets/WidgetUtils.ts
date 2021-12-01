@@ -93,9 +93,21 @@ export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
       .textColor;
   const isDark = percentageBrightness < 70;
   if (isDark) {
-    return theme.colors.button.custom.solid.light.textColor;
+    return "#fff";
   }
-  return theme.colors.button.custom.solid.dark.textColor;
+  return "#000";
+};
+
+export const getCustomTextColor2 = (backgroundColor?: string) => {
+  const brightness = tinycolor(backgroundColor)
+    .greyscale()
+    .getBrightness();
+  const percentageBrightness = (brightness / 255) * 100;
+  const isDark = percentageBrightness < 70;
+
+  if (isDark) return "#fff";
+
+  return "#000";
 };
 
 export const getCustomHoverColor = (
@@ -184,9 +196,11 @@ export const getBoxShadowValue = (
 ) => {
   switch (boxShadow) {
     case ButtonBoxShadowTypes.VARIANT1:
-      return `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`;
+      return `0px 0px 4px 3px ${boxShadowColor ||
+        Colors.BOX_SHADOW_DEFAULT_VARIANT1}`;
     case ButtonBoxShadowTypes.VARIANT2:
-      return `0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)`;
+      return `3px 3px 4px ${boxShadowColor ||
+        Colors.BOX_SHADOW_DEFAULT_VARIANT2}`;
     case ButtonBoxShadowTypes.VARIANT3:
       return `0px 1px 3px ${boxShadowColor ||
         Colors.BOX_SHADOW_DEFAULT_VARIANT3}`;
@@ -196,6 +210,10 @@ export const getBoxShadowValue = (
     case ButtonBoxShadowTypes.VARIANT5:
       return `2px -2px 0px  ${boxShadowColor ||
         Colors.BOX_SHADOW_DEFAULT_VARIANT5}`;
+    case ButtonBoxShadowTypes.LARGE:
+      return `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`;
+    case ButtonBoxShadowTypes.MEDIUM:
+      return `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`;
     default:
       return "0px 0px 0px transparent";
   }

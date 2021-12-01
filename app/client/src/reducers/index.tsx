@@ -55,7 +55,7 @@ import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 import SettingsReducer, { SettingsReduxState } from "./settingsReducer";
-import { ThemingState } from "./uiReducers/themingReducer";
+import { AppThemingState } from "./uiReducers/appThemingReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -107,7 +107,7 @@ export interface AppState {
     gitSync: GitSyncReducerState;
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
-    theming: ThemingState;
+    appTheming: AppThemingState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

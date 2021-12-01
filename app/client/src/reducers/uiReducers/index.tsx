@@ -37,7 +37,7 @@ import canvasSelectionReducer from "./canvasSelectionReducer";
 import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
-import ThemingReducer from "./themingReducer";
+import appThemingReducer from "./appThemingReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -78,7 +78,7 @@ const uiReducer = combineReducers({
   gitSync: gitSyncReducer,
   appCollab: appCollabReducer,
   crudInfoModal: crudInfoModalReducer,
-  theming: ThemingReducer,
+  appTheming: appThemingReducer,
 });
 
 export default uiReducer;

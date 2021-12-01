@@ -3,23 +3,26 @@ import * as Sentry from "@sentry/react";
 
 import ThemeEditor from "./ThemeEditor";
 import ThemeSelector from "./ThemeSelector";
-import { getThemingMode, ThemingMode } from "selectors/themingSelectors";
+import {
+  getAppThemingMode,
+  AppThemingMode,
+} from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 
 export function ThemePropertyPane() {
-  const themingMode = useSelector(getThemingMode);
+  const themingMode = useSelector(getAppThemingMode);
 
   /**
    * renders the theming property pane:
    *
    * 1. if THEME_EDIT -> ThemeEditor
-   * 2. if THEME_SELECTIOn -> ThemeSelector
+   * 2. if THEME_SELECTION -> ThemeSelector
    */
   const propertyPane = useMemo(() => {
     switch (true) {
-      case themingMode === ThemingMode.THEME_EDIT:
+      case themingMode === AppThemingMode.APP_THEME_EDIT:
         return <ThemeEditor />;
-      case themingMode === ThemingMode.THEME_SELECTION:
+      case themingMode === AppThemingMode.APP_THEME_SELECTION:
         return <ThemeSelector />;
       default:
         return <ThemeEditor />;

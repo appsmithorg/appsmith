@@ -3,29 +3,47 @@ import { tw } from "twind";
 import * as Sentry from "@sentry/react";
 import Button from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { getThemingMode, ThemingMode } from "selectors/themingSelectors";
-import { setThemingMode } from "actions/themingActions";
+import {
+  getAppThemingMode,
+  AppThemingMode,
+} from "selectors/appThemingSelectors";
+import { setAppThemingMode } from "actions/appThemingActions";
+import { AppTheme } from "entities/AppTheming";
+import { getCustomTextColor2 } from "widgets/WidgetUtils";
 
 interface ThemeCard {
-  borderRadius?: string;
-  primaryColor?: string;
-  backgroundColor?: string;
-  className?: string;
+  theme: AppTheme;
   isSelected?: boolean;
-  boxShadow?: string;
+  className?: string;
 }
 
 export function ThemeCard(props: ThemeCard) {
+  const { theme } = props;
   const dispatch = useDispatch();
-  const themingMode = useSelector(getThemingMode);
-  const isThemeEditMode = themingMode === ThemingMode.THEME_EDIT;
+  const themingMode = useSelector(getAppThemingMode);
+  const isThemeEditMode = themingMode === AppThemingMode.APP_THEME_EDIT;
 
   /**
    * sets the mode to THEME_EDIT
    */
   const onClickChangeThemeButton = useCallback(() => {
-    dispatch(setThemingMode(ThemingMode.THEME_SELECTION));
-  }, [setThemingMode]);
+    dispatch(setAppThemingMode(AppThemingMode.APP_THEME_SELECTION));
+  }, [setAppThemingMode]);
+
+  // colors
+  const defaultColors = theme.config.colors;
+  const userDefinedColors = theme.properties.colors;
+  const primaryColor =
+    userDefinedColors[Object.keys(userDefinedColors)[0]] ||
+    defaultColors[Object.keys(defaultColors)[0]];
+  const secondaryColor =
+    userDefinedColors[Object.keys(userDefinedColors)[1]] ||
+    defaultColors[Object.keys(defaultColors)[1]];
+
+  // border radius
+  const borderRadius = theme.config.borderRadius;
+  const primaryBorderRadius =
+    borderRadius[Object.keys(borderRadius)[0]] || "0px";
 
   return (
     <div
@@ -37,7 +55,9 @@ export function ThemeCard(props: ThemeCard) {
     >
       <main className={isThemeEditMode ? "group-hover:blur-md filter" : ""}>
         <hgroup
-          className={`${tw`bg-[${props.primaryColor}]`} text-white flex p-3`}
+          className={`${tw`bg-[${primaryColor}] text-[${getCustomTextColor2(
+            primaryColor,
+          )}]`} text-white flex p-3`}
         >
           <h3 className="flex-grow">Rounded</h3>
           <aside>@appsmith</aside>
@@ -45,24 +65,28 @@ export function ThemeCard(props: ThemeCard) {
         <section className="flex justify-between px-3 pt-3">
           <div>AaBbCc</div>
           <div className="flex items-center space-x-2">
-            <div
-              className={`${tw`bg-[${props.primaryColor}]`}  rounded-full h-6 w-6`}
-            />
-            <div
-              className={`${tw`bg-[${props.backgroundColor}]`}  rounded-full h-6 w-6`}
-            />
-            <div className={`bg-white rounded-full h-6 w-6 border`} />
+            {Object.keys(defaultColors).map((colorKey, index) => (
+              <div
+                className={`${tw`bg-[${userDefinedColors[colorKey] ||
+                  defaultColors[colorKey]}]`}  rounded-full h-6 w-6`}
+                key={index}
+              />
+            ))}
           </div>
         </section>
         <section className="p-3">
           <div className="flex space-x-2">
             <div
-              className={`${tw`rounded-${props.borderRadius} bg-[${props.primaryColor}] text-white shadow-${props.boxShadow}`} px-3 py-1`}
+              className={`${tw`rounded-[${primaryBorderRadius}] bg-[${primaryColor}] text-[${getCustomTextColor2(
+                primaryColor,
+              )}] shadow-${"md"}`} px-3 py-1`}
             >
               Button
             </div>
             <div
-              className={`${tw`rounded-${props.borderRadius} bg-white border-[${props.primaryColor}]  shadow-${props.boxShadow}`} px-3 py-1 border`}
+              className={`${tw`rounded-[${primaryBorderRadius}] bg-[${secondaryColor}] text-[${getCustomTextColor2(
+                secondaryColor,
+              )}] shadow-${"md"}`} px-3 py-1`}
             >
               Button
             </div>

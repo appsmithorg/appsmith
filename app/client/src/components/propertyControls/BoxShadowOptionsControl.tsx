@@ -48,7 +48,7 @@ const buttonConfigs = [
     },
   },
   {
-    variant: ButtonBoxShadowTypes.VARIANT1,
+    variant: ButtonBoxShadowTypes.MEDIUM,
     icon: {
       element: ControlIcons.BOX_SHADOW_VARIANT1,
       height: 32,
@@ -56,35 +56,11 @@ const buttonConfigs = [
     },
   },
   {
-    variant: ButtonBoxShadowTypes.VARIANT2,
+    variant: ButtonBoxShadowTypes.LARGE,
     icon: {
       element: ControlIcons.BOX_SHADOW_VARIANT2,
       height: 28,
       width: 36,
-    },
-  },
-  {
-    variant: ButtonBoxShadowTypes.VARIANT3,
-    icon: {
-      element: ControlIcons.BOX_SHADOW_VARIANT3,
-      height: 27,
-      width: 32,
-    },
-  },
-  {
-    variant: ButtonBoxShadowTypes.VARIANT4,
-    icon: {
-      element: ControlIcons.BOX_SHADOW_VARIANT4,
-      height: 26,
-      width: 34,
-    },
-  },
-  {
-    variant: ButtonBoxShadowTypes.VARIANT5,
-    icon: {
-      element: ControlIcons.BOX_SHADOW_VARIANT5,
-      height: 26,
-      width: 34,
     },
   },
 ];
