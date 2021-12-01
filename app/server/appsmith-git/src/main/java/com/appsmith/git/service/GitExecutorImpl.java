@@ -268,18 +268,20 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            try (Git git = Git.open(baseRepoPath.toFile())) {
-                // Create and checkout to new branch
-                git.branchDelete()
-                        .setBranchNames(branchName)
-                        .setForce(Boolean.TRUE)
-                        .call();
-                git.close();
-                return Boolean.TRUE;
+            Git git = Git.open(baseRepoPath.toFile());
+            // Create and checkout to new branch
+            List<String> deleteBranchList = git.branchDelete()
+                    .setBranchNames(branchName)
+                    .setForce(Boolean.TRUE)
+                    .call();
+            git.close();
+            if(deleteBranchList.isEmpty()) {
+                return Boolean.FALSE;
             }
+            return Boolean.TRUE;
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
-        .subscribeOn(scheduler);
+                .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
     }
 
     @Override
@@ -301,7 +303,7 @@ public class GitExecutorImpl implements GitExecutor {
                         .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
                         .call()
                         .getName();
-                return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
+            return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
             }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
@@ -373,7 +375,7 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
-            List<Ref> refList = git.branchList().call();
+            List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
             String defaultBranch = null;
 
             // Show remote/all the branches depending upon the listMode

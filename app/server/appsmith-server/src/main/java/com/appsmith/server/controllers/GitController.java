@@ -126,10 +126,9 @@ public class GitController {
 
     @GetMapping("/checkout-branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
-                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                         @RequestParam(required = false) Boolean isRemote) {
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to checkout to branch {} application {} ", branchName, defaultApplicationId);
-        return service.checkoutBranch(defaultApplicationId, branchName, isRemote)
+        return service.checkoutBranch(defaultApplicationId, branchName)
             .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -150,9 +149,9 @@ public class GitController {
 
     @GetMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
-                                                            @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache) {
+                                                            @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(ignoreCache))
+        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

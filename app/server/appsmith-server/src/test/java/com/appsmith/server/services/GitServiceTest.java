@@ -733,9 +733,9 @@ public class GitServiceTest {
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_NonEmptyRepo_ListBranch");
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
-        Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
+        //Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
 
-        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
+        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), false);
 
         StepVerifier
                 .create(listMono)
@@ -760,7 +760,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
+        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), false);
 
         StepVerifier
                 .create(listMono)
@@ -789,7 +789,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
+        Mono<List<GitBranchDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), false);
 
         StepVerifier
                 .create(listMono)
@@ -1044,7 +1044,7 @@ public class GitServiceTest {
         Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(new Application()));
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote", true)
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote")
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("testRemote", application.getId(), AclPermission.READ_APPLICATIONS));
 
         StepVerifier
@@ -1076,7 +1076,7 @@ public class GitServiceTest {
         testApplication1.setGitApplicationMetadata(gitApplicationMetadata1);
         Application application2 = applicationPageService.createApplication(testApplication1).block();
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", true);
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch");
 
         StepVerifier
                 .create(applicationMono)
