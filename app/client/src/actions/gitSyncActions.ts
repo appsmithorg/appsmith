@@ -130,8 +130,9 @@ export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   payload,
 });
 
-export const fetchBranchesInit = () => ({
+export const fetchBranchesInit = (payload?: { pruneBranches: boolean }) => ({
   type: ReduxActionTypes.FETCH_BRANCHES_INIT,
+  payload,
 });
 
 export const fetchBranchesSuccess = (payload: any) => ({

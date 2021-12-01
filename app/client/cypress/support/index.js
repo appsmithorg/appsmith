@@ -14,6 +14,7 @@
 // ***********************************************************
 /// <reference types="Cypress" />
 require("cypress-xpath");
+import "cypress-real-events/support";
 let pageid;
 let appId;
 

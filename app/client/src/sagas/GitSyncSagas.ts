@@ -247,10 +247,14 @@ function* switchBranch(action: ReduxAction<string>) {
   }
 }
 
-function* fetchBranches() {
+function* fetchBranches(action: ReduxAction<{ pruneBranches: boolean }>) {
   try {
+    const pruneBranches = action.payload?.pruneBranches;
     const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield GitSyncAPI.fetchBranches(applicationId);
+    const response: ApiResponse = yield GitSyncAPI.fetchBranches(
+      applicationId,
+      pruneBranches,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {

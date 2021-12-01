@@ -5,6 +5,8 @@ import {
 import { debounce, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
@@ -32,6 +34,7 @@ export const useCanvasDragging = (
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
+  const canvasZoomLevel = useSelector(getZoomLevel);
   const { devicePixelRatio: scale = 1 } = window;
 
   const {
@@ -88,11 +91,12 @@ export const useCanvasDragging = (
         height: scrollParentTopHeight,
       } = parentCanvas.getBoundingClientRect();
       const { width } = canvasRef.current.getBoundingClientRect();
-      canvasDrawRef.current.style.width = width + "px";
+      canvasDrawRef.current.style.width = width / canvasZoomLevel + "px";
       canvasDrawRef.current.style.position = canExtend ? "absolute" : "sticky";
       canvasDrawRef.current.style.left = "0px";
       canvasDrawRef.current.style.top = getCanvasTopOffset() + "px";
-      canvasDrawRef.current.style.height = scrollParentTopHeight + "px";
+      canvasDrawRef.current.style.height =
+        scrollParentTopHeight / canvasZoomLevel + "px";
     }
   };
 
@@ -323,6 +327,7 @@ export const useCanvasDragging = (
               canvasDrawRef.current.height,
             );
             isUpdatingRows = false;
+            canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
             if (canvasIsDragging) {
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);

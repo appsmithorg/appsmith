@@ -369,11 +369,51 @@ function Header({
   );
 }
 
+const StyledSegmentHeader = styled.div`
+  padding: ${(props) =>
+    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
+  padding-right: 0;
+  ${(props) => getTypographyByKey(props, "u2")}
+  color: ${Colors.GREY_10};
+  display: flex;
+  align-items: center;
+`;
+
+const StyledHr = styled.div`
+  flex: 1;
+  height: 1px;
+  background-color: ${Colors.GREY_10};
+  margin-left: ${(props) => props.theme.spaces[3]}px;
+`;
+
+function SegmentHeader(props: { title: string }) {
+  return (
+    <StyledSegmentHeader>
+      {props.title}
+      <StyledHr />
+    </StyledSegmentHeader>
+  );
+}
+
+const getShowRemoteSectionHeader = (
+  filteredBranches: string[],
+  index: number,
+) => {
+  const remotePrefix = "origin/";
+  const prevIndex = index - 1;
+  if (prevIndex < 0) return;
+  return (
+    !filteredBranches[prevIndex].startsWith(remotePrefix) &&
+    filteredBranches[index].startsWith(remotePrefix)
+  );
+};
+
 export default function BranchList(props: {
   setIsPopupOpen?: (flag: boolean) => void;
 }) {
   const dispatch = useDispatch();
-  const fetchBranches = () => dispatch(fetchBranchesInit());
+  const pruneAndFetchBranches = () =>
+    dispatch(fetchBranchesInit({ pruneBranches: true }));
 
   const branches = useSelector(getGitBranches);
   const branchNames = useSelector(getGitBranchNames);
@@ -457,7 +497,7 @@ export default function BranchList(props: {
             if (typeof props.setIsPopupOpen === "function")
               props.setIsPopupOpen(false);
           }}
-          fetchBranches={fetchBranches}
+          fetchBranches={pruneAndFetchBranches}
         />
         <Space size={4} />
         <div style={{ width: 300 }}>
@@ -491,25 +531,31 @@ export default function BranchList(props: {
                 shouldScrollIntoView={activeHoverIndex === 0}
               />
             )}
+            <SegmentHeader title={"Local branches"} />
             {filteredBranches.map((branch: string, index: number) => (
-              <BranchListItem
-                active={currentBranch === branch}
-                branch={branch}
-                className="t--branch-item"
-                hovered={getIsActiveItem(
-                  isCreateNewBranchInputValid,
-                  activeHoverIndex,
-                  index,
+              <>
+                {getShowRemoteSectionHeader(filteredBranches, index) && (
+                  <SegmentHeader title={"Remote branches"} />
                 )}
-                isDefault={branch === defaultBranch}
-                key={branch}
-                onClick={() => switchBranch(branch)}
-                shouldScrollIntoView={getIsActiveItem(
-                  isCreateNewBranchInputValid,
-                  activeHoverIndex,
-                  index,
-                )}
-              />
+                <BranchListItem
+                  active={currentBranch === branch}
+                  branch={branch}
+                  className="t--branch-item"
+                  hovered={getIsActiveItem(
+                    isCreateNewBranchInputValid,
+                    activeHoverIndex,
+                    index,
+                  )}
+                  isDefault={branch === defaultBranch}
+                  key={branch}
+                  onClick={() => switchBranch(branch)}
+                  shouldScrollIntoView={getIsActiveItem(
+                    isCreateNewBranchInputValid,
+                    activeHoverIndex,
+                    index,
+                  )}
+                />
+              </>
             ))}
           </ListContainer>
         )}
