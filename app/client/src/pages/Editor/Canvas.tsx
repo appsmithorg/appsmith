@@ -91,7 +91,6 @@ const Canvas = memo((props: CanvasProps) => {
             isWebsocketConnected,
             currentGitBranch,
           );
-          const data = getPointerData(e, pageId, isWebsocketConnected);
           !!data && delayedShareMousePointer(data);
         }}
         width={props.dsl.rightColumn}
