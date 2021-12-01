@@ -2,6 +2,7 @@ package com.appsmith.server.git;
 
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -500,9 +501,44 @@ public class GitExecutorTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void getStatus_noChangesInBranch_Success() throws IOException {
+        createFileInThePath("testFile");
+        commitToRepo();
+        Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master");
+
+        StepVerifier
+                .create(gitStatusDTOMono)
+                .assertNext(gitStatusDTO -> {
+                    assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.TRUE);
+                    assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
+                    assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getStatus_ChangesInBranch_Success() throws IOException {
+        createFileInThePath("testFile");
+        commitToRepo();
+        createFileInThePath("testFile2");
+        Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master");
+
+        StepVerifier
+                .create(gitStatusDTOMono)
+                .assertNext(gitStatusDTO -> {
+                    assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.FALSE);
+                    assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
+                    assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
+                    assertThat(gitStatusDTO.getModified().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+    }
+
+
+
     // TODO cover the below mentioned test cases
     /*
-     * getStatus
      * resetToLastCommit
      * Clone
      * */
