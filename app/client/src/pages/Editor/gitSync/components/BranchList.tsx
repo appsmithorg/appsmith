@@ -38,9 +38,9 @@ import { get } from "lodash";
 import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import Spinner from "components/ads/Spinner";
-import { useTextWidth } from "@imagemarker/use-text-width";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
+import { isEllipsisActive } from "utils/helpers";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -189,8 +189,6 @@ function BranchListItem({
 }: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const textRef = React.useRef<HTMLSpanElement>(null);
-  const [wrapperWidth, setWrapperWidth] = useState(0);
-  const width = useTextWidth({ ref: textRef });
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView)
       scrollIntoView(itemRef.current, {
@@ -200,16 +198,6 @@ function BranchListItem({
       });
   }, [shouldScrollIntoView]);
 
-  useEffect(() => {
-    if (itemRef.current) {
-      const wrapperWidth = isDefault
-        ? itemRef.current.offsetWidth - 75
-        : itemRef.current.offsetWidth;
-      setWrapperWidth(wrapperWidth);
-    }
-  }, []);
-
-  const tooltipEnabled = wrapperWidth < width;
   return (
     <BranchListItemContainer
       active={active}
@@ -222,7 +210,7 @@ function BranchListItem({
       <Tooltip
         boundary="window"
         content={branch}
-        disabled={!tooltipEnabled}
+        disabled={!isEllipsisActive(textRef.current)}
         position={Position.TOP}
       >
         <Text ref={textRef} type={TextType.P1}>

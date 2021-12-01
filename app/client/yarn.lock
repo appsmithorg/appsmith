@@ -2004,11 +2004,6 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@imagemarker/use-text-width@^0.4.4":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@imagemarker/use-text-width/-/use-text-width-0.4.4.tgz#dace0d8f64af5d34f55ace372a56d20d128fd95a"
-  integrity sha512-EFKc07yM/q8CL+hBbEiuLBC/ZvD4NRtFvSSBCQy1YwpYpFdijCIGEf51yF/r/OIuh1OVGPw2mofRamlUYZ3e9w==
-
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz"
