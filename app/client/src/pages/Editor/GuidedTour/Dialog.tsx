@@ -57,7 +57,7 @@ function GuidedTourDialog() {
   };
 
   const endTour = () => {
-    dispatch(toggleShowEndTourDialog(false));
+    onClose();
     dispatch(enableGuidedTour(false));
   };
 
