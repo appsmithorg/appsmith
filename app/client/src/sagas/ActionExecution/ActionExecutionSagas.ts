@@ -47,6 +47,7 @@ export type TriggerMeta = {
  * The controller saga that routes different trigger effects to its executor sagas
  * @param trigger The trigger information with trigger type
  * @param eventType Widget/Platform event which triggered this action
+ * @param triggerMeta Where the trigger originated from
  */
 export function* executeActionTriggers(
   trigger: ActionDescription,
@@ -61,6 +62,7 @@ export function* executeActionTriggers(
         executePluginActionTriggerSaga,
         trigger.payload,
         eventType,
+        triggerMeta,
       );
       break;
     case ActionTriggerType.CLEAR_PLUGIN_ACTION:

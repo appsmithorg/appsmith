@@ -97,7 +97,10 @@ import {
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
-import { executeTrigger } from "actions/widgetActions";
+import {
+  executeAppAction,
+  TriggerMeta,
+} from "sagas/ActionExecution/ActionExecutionSagas";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -247,6 +250,7 @@ function* confirmRunActionSaga() {
 export default function* executePluginActionTriggerSaga(
   pluginAction: RunPluginActionDescription["payload"],
   eventType: EventType,
+  triggerMeta: TriggerMeta,
 ) {
   const { actionId, onError, onSuccess, params } = pluginAction;
   if (getType(params) !== Types.OBJECT) {
@@ -321,13 +325,12 @@ export default function* executePluginActionTriggerSaga(
       ],
     });
     if (onError) {
-      yield put(
-        executeTrigger({
-          event: { type: eventType },
-          dynamicString: onError,
-          responseData: [payload.body, params],
-        }),
-      );
+      yield call(executeAppAction, {
+        event: { type: eventType },
+        dynamicString: onError,
+        responseData: [payload.body, params],
+        ...triggerMeta,
+      });
     }
     throw new PluginTriggerFailureError(
       createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
@@ -349,13 +352,12 @@ export default function* executePluginActionTriggerSaga(
       },
     });
     if (onSuccess) {
-      yield put(
-        executeTrigger({
-          event: { type: eventType },
-          dynamicString: onSuccess,
-          responseData: [payload.body, params],
-        }),
-      );
+      yield call(executeAppAction, {
+        event: { type: eventType },
+        dynamicString: onSuccess,
+        responseData: [payload.body, params],
+        ...triggerMeta,
+      });
     }
   }
   return [payload.body, params];
