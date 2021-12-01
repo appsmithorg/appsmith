@@ -1,44 +1,48 @@
-import React from "react";
 import { tw } from "twind";
-
-import Dropdown from "components/ads/Dropdown";
-import { ButtonBorderRadiusTypes } from "components/constants";
+import React from "react";
+import TooltipComponent from "components/ads/Tooltip";
+import { AppTheme } from "entities/AppTheming";
 
 interface ThemeBorderRadiusControlProps {
   options: {
     [key: string]: string;
   };
+  selectedOption?: string;
+  theme: AppTheme;
+  sectionName: string;
+  updateTheme: (theme: AppTheme) => void;
 }
 
 function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
+  const { options, sectionName, selectedOption, theme, updateTheme } = props;
+
   return (
-    <Dropdown
-      className="px-0"
-      options={Object.keys(props.options).map((optionName) => ({
-        label: optionName,
-        value: props.options[optionName],
-      }))}
-      renderOption={({ isSelectedNode, option }) => (
-        <div
-          className={`flex py-2 space-x-2 w-full ${
-            isSelectedNode ? "" : "px-2 hover:bg-gray-100 cursor-pointer"
-          }`}
-        >
-          <div className="flex items-center justify-center w-6 h-6 bg-trueGray-100">
+    <div className="grid grid-flow-col auto-cols-max gap-2">
+      {Object.keys(options).map((optionKey) => (
+        <TooltipComponent content={optionKey} key={optionKey}>
+          <button
+            className={`flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-primary-500 cursor-pointer hover:bg-trueGray-50 ${
+              selectedOption === options[optionKey] ? "ring-1" : ""
+            }`}
+            onClick={() => {
+              updateTheme({
+                ...theme,
+                properties: {
+                  ...theme.properties,
+                  borderRadius: {
+                    [sectionName]: options[optionKey],
+                  },
+                },
+              });
+            }}
+          >
             <div
-              className={`${tw`rounded-tl-[${option.value}]`} w-3 h-3 border-t-2 border-l-2 rounded- border-gray-600`}
+              className={`${tw`rounded-tl-[${options[optionKey]}]`} w-4 h-4 border-t-2 border-l-2 rounded- border-gray-600`}
             />
-          </div>
-          <div>{option.label}</div>
-        </div>
-      )}
-      selected={{
-        label: "Default",
-        value: ButtonBorderRadiusTypes.SHARP,
-      }}
-      showLabelOnly
-      width="100%"
-    />
+          </button>
+        </TooltipComponent>
+      ))}
+    </div>
   );
 }
 

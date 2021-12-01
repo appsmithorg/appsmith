@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { tw } from "twind";
+import { tw, css } from "twind/css";
 import * as Sentry from "@sentry/react";
 import Button from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +7,7 @@ import {
   getAppThemingMode,
   AppThemingMode,
 } from "selectors/appThemingSelectors";
-import { setAppThemingMode } from "actions/appThemingActions";
+import { setAppThemingModeAction } from "actions/appThemingActions";
 import { AppTheme } from "entities/AppTheming";
 import { getCustomTextColor2 } from "widgets/WidgetUtils";
 
@@ -27,23 +27,21 @@ export function ThemeCard(props: ThemeCard) {
    * sets the mode to THEME_EDIT
    */
   const onClickChangeThemeButton = useCallback(() => {
-    dispatch(setAppThemingMode(AppThemingMode.APP_THEME_SELECTION));
-  }, [setAppThemingMode]);
+    dispatch(setAppThemingModeAction(AppThemingMode.APP_THEME_SELECTION));
+  }, [setAppThemingModeAction]);
 
   // colors
-  const defaultColors = theme.config.colors;
   const userDefinedColors = theme.properties.colors;
-  const primaryColor =
-    userDefinedColors[Object.keys(userDefinedColors)[0]] ||
-    defaultColors[Object.keys(defaultColors)[0]];
-  const secondaryColor =
-    userDefinedColors[Object.keys(userDefinedColors)[1]] ||
-    defaultColors[Object.keys(defaultColors)[1]];
+  const primaryColor = userDefinedColors[Object.keys(userDefinedColors)[0]];
+  const secondaryColor = userDefinedColors[Object.keys(userDefinedColors)[1]];
 
   // border radius
-  const borderRadius = theme.config.borderRadius;
-  const primaryBorderRadius =
-    borderRadius[Object.keys(borderRadius)[0]] || "0px";
+  const borderRadius = theme.properties.borderRadius;
+  const primaryBorderRadius = borderRadius[Object.keys(borderRadius)[0]];
+
+  // box shadow
+  const boxShadow = theme.properties.boxShadow;
+  const primaryBoxShadow = boxShadow[Object.keys(boxShadow)[0]];
 
   return (
     <div
@@ -59,16 +57,16 @@ export function ThemeCard(props: ThemeCard) {
             primaryColor,
           )}]`} text-white flex p-3`}
         >
-          <h3 className="flex-grow">Rounded</h3>
-          <aside>@appsmith</aside>
+          <h3 className="flex-grow">{theme.name}</h3>
+          <aside>{theme.created_by}</aside>
         </hgroup>
         <section className="flex justify-between px-3 pt-3">
           <div>AaBbCc</div>
           <div className="flex items-center space-x-2">
-            {Object.keys(defaultColors).map((colorKey, index) => (
+            {Object.keys(userDefinedColors).map((colorKey, index) => (
               <div
                 className={`${tw`bg-[${userDefinedColors[colorKey] ||
-                  defaultColors[colorKey]}]`}  rounded-full h-6 w-6`}
+                  userDefinedColors[colorKey]}]`} border rounded-full h-6 w-6`}
                 key={index}
               />
             ))}
@@ -79,14 +77,22 @@ export function ThemeCard(props: ThemeCard) {
             <div
               className={`${tw`rounded-[${primaryBorderRadius}] bg-[${primaryColor}] text-[${getCustomTextColor2(
                 primaryColor,
-              )}] shadow-${"md"}`} px-3 py-1`}
+              )}] px-3 py-1 ${tw`${css({
+                "&": {
+                  boxShadow: primaryBoxShadow,
+                },
+              })}`}`}`}
             >
               Button
             </div>
             <div
               className={`${tw`rounded-[${primaryBorderRadius}] bg-[${secondaryColor}] text-[${getCustomTextColor2(
                 secondaryColor,
-              )}] shadow-${"md"}`} px-3 py-1`}
+              )}] ${tw`${css({
+                "&": {
+                  boxShadow: primaryBoxShadow,
+                },
+              })}`}`} px-3 py-1`}
             >
               Button
             </div>

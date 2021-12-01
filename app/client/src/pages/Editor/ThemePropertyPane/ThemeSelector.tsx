@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import ThemeList from "./ThemeList";
 import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 import { useDispatch, useSelector } from "react-redux";
-import { setAppThemingMode } from "actions/appThemingActions";
+import { setAppThemingModeAction } from "actions/appThemingActions";
 import { getAppThemes, AppThemingMode } from "selectors/appThemingSelectors";
 
 function ThemeSelector() {
@@ -13,8 +13,8 @@ function ThemeSelector() {
    * sets the mode to THEME_EDIT
    */
   const onClickBack = useCallback(() => {
-    dispatch(setAppThemingMode(AppThemingMode.APP_THEME_EDIT));
-  }, [setAppThemingMode]);
+    dispatch(setAppThemingModeAction(AppThemingMode.APP_THEME_EDIT));
+  }, [setAppThemingModeAction]);
 
   return (
     <div className="space-y-2">

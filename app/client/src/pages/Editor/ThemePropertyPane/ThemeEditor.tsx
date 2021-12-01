@@ -1,18 +1,26 @@
-import React from "react";
-import { startCase } from "lodash";
+import React, { useCallback } from "react";
+import { get, startCase } from "lodash";
 
 import ThemeCard from "./ThemeCard";
 import SettingSection from "./SettingSection";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
+import { updateSelectedThemeAction } from "actions/appThemingActions";
+import { AppTheme } from "entities/AppTheming";
 
 function ThemeEditor() {
+  const dispatch = useDispatch();
   const selectedTheme = useSelector(getSelectedAppTheme);
 
+  const updateSelectedTheme = useCallback(
+    (theme: AppTheme) => {
+      dispatch(updateSelectedThemeAction({ applicationId: "", theme }));
+    },
+    [updateSelectedThemeAction],
+  );
   return (
     <>
       <header className="px-3 space-y-2">
@@ -20,63 +28,64 @@ function ThemeEditor() {
         <ThemeCard theme={selectedTheme} />
       </header>
       <main>
+        {/* COLORS */}
         <SettingSection className="border-t" title="Colour">
           <section className="space-y-2">
-            <ThemeColorControl theme={selectedTheme} />
+            <ThemeColorControl
+              theme={selectedTheme}
+              updateTheme={updateSelectedTheme}
+            />
           </section>
         </SettingSection>
+
+        {/* BORDER RADIUS */}
         <SettingSection className="border-t" title="Border Radius">
           {Object.keys(selectedTheme.config.borderRadius).map(
             (borderRadiusSectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <h3 className="font-semibold">
-                    {startCase(borderRadiusSectionName)}
-                  </h3>
+                  <h3>{startCase(borderRadiusSectionName)}</h3>
                   <ThemeBorderRadiusControl
-                    options={
-                      selectedTheme.config.borderRadius[borderRadiusSectionName]
-                    }
+                    options={get(
+                      selectedTheme,
+                      `config.borderRadius.${borderRadiusSectionName}`,
+                      {},
+                    )}
+                    sectionName={borderRadiusSectionName}
+                    selectedOption={get(
+                      selectedTheme,
+                      `properties.borderRadius.${borderRadiusSectionName}`,
+                    )}
+                    theme={selectedTheme}
+                    updateTheme={updateSelectedTheme}
                   />
                 </section>
               );
             },
           )}
         </SettingSection>
+
+        {/* BOX SHADOW */}
         <SettingSection className="border-t" title="Box Shadow">
           {Object.keys(selectedTheme.config.boxShadow).map(
             (boxShadowSectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <h3 className="font-semibold">
-                    {startCase(boxShadowSectionName)}
-                  </h3>
-                  <ThemeBoxShadowControl />
-                </section>
-              );
-            },
-          )}
-        </SettingSection>
-        <SettingSection className="border-t border-b" title="Box Shadow Color">
-          {Object.keys(selectedTheme.config.boxShadowColor).map(
-            (boxShadowColorSectionName: string, index: number) => {
-              return (
-                <section className="space-y-2" key={index}>
-                  <h3 className="font-semibold">
-                    {startCase(boxShadowColorSectionName)}
-                  </h3>
-                  <div>
-                    <ColorPickerComponent
-                      changeColor={() => {
-                        //
-                      }}
-                      color={
-                        selectedTheme.config.boxShadowColor[
-                          boxShadowColorSectionName
-                        ]
-                      }
-                    />
-                  </div>
+                  <h3>{startCase(boxShadowSectionName)}</h3>
+                  <ThemeBoxShadowControl
+                    options={get(
+                      selectedTheme,
+                      `config.boxShadow.${boxShadowSectionName}`,
+                      {},
+                    )}
+                    sectionName={boxShadowSectionName}
+                    selectedOption={get(
+                      selectedTheme,
+                      `properties.boxShadow.${boxShadowSectionName}`,
+                    )}
+                    theme={selectedTheme}
+                    updateTheme={updateSelectedTheme}
+                  />
                 </section>
               );
             },

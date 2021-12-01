@@ -15,11 +15,13 @@ const initialState: AppThemingState = {
   themes: [],
   isLoading: true,
   selectedTheme: {
+    name: "",
+    created_by: "",
+    created_at: "",
     config: {
       colors: {},
       borderRadius: {},
       boxShadow: {},
-      boxShadowColor: {},
       fontFamily: {},
     },
     variants: {},
@@ -27,7 +29,6 @@ const initialState: AppThemingState = {
       colors: {},
       borderRadius: {},
       boxShadow: {},
-      boxShadowColor: {},
       fontFamily: {},
     },
     stylesheet: {},
@@ -56,6 +57,18 @@ const themeReducer = createImmerReducer(initialState, {
     action: ReduxAction<AppTheme>,
   ) => {
     state.isLoading = false;
+    state.selectedTheme = action.payload;
+  },
+  [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT]: (
+    state: AppThemingState,
+    action: ReduxAction<AppTheme>,
+  ) => {
+    //
+  },
+  [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS]: (
+    state: AppThemingState,
+    action: ReduxAction<AppTheme>,
+  ) => {
     state.selectedTheme = action.payload;
   },
 });

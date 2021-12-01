@@ -1,18 +1,19 @@
-import React, { useState } from "react";
 import { tw } from "twind";
-import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
-import TooltipComponent from "components/ads/Tooltip";
 import { startCase } from "lodash";
+import React, { useState } from "react";
+
 import { AppTheme } from "entities/AppTheming";
+import TooltipComponent from "components/ads/Tooltip";
+import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
 
 interface ThemeColorControlProps {
   theme: AppTheme;
+  updateTheme: (theme: AppTheme) => void;
 }
 
 function ThemeColorControl(props: ThemeColorControlProps) {
-  const { theme } = props;
+  const { theme, updateTheme } = props;
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const defaultColors = theme.config.colors;
   const userDefinedColors = theme.properties.colors;
 
   return (
@@ -23,10 +24,9 @@ function ThemeColorControl(props: ThemeColorControlProps) {
             return (
               <TooltipComponent content={startCase(colorName)} key={index}>
                 <div
-                  className={`${tw`bg-[${userDefinedColors[colorName] ||
-                    defaultColors[
-                      colorName
-                    ]}]`} w-6 h-6 border-2 cursor-pointer`}
+                  className={`${tw`bg-[${userDefinedColors[colorName]}] ${
+                    selectedColor === colorName ? "ring-1" : ""
+                  }`} w-6 h-6 border-2 cursor-pointer ring-primary-400`}
                   onClick={() => {
                     setSelectedColor(colorName);
                   }}
@@ -36,16 +36,25 @@ function ThemeColorControl(props: ThemeColorControlProps) {
           },
         )}
       </div>
-      {/* {selectedColor && (
+      {selectedColor && (
         <div className="pt-1">
           <ColorPickerComponent
-            changeColor={() => {
-              //
+            changeColor={(color: string) => {
+              updateTheme({
+                ...theme,
+                properties: {
+                  ...theme.properties,
+                  colors: {
+                    ...theme.properties.colors,
+                    [selectedColor]: color,
+                  },
+                },
+              });
             }}
-            color={props.colors[selectedColor]}
+            color={userDefinedColors[selectedColor]}
           />
         </div>
-      )} */}
+      )}
     </div>
   );
 }

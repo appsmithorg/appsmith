@@ -65,8 +65,8 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
-  fetchSelectedAppTheme,
-  fetchAppThemes,
+  fetchSelectedAppThemeAction,
+  fetchAppThemesAction,
 } from "actions/appThemingActions";
 
 function* failFastApiCalls(
@@ -154,14 +154,14 @@ function* initializeEditorSaga(
     if (!jsActionsCall) return;
 
     const themesCall = yield failFastApiCalls(
-      [fetchAppThemes(applicationId)],
+      [fetchAppThemesAction(applicationId)],
       [ReduxActionTypes.FETCH_APP_THEMES_SUCCESS],
       [ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR],
     );
     if (!themesCall) return;
 
     const selectedThemeCall = yield failFastApiCalls(
-      [fetchSelectedAppTheme(applicationId)],
+      [fetchSelectedAppThemeAction(applicationId)],
       [ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS],
       [ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR],
     );

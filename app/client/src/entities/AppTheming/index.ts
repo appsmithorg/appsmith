@@ -1,4 +1,7 @@
 export interface AppTheme {
+  name: string;
+  created_by: string;
+  created_at: string;
   config: {
     colors: {
       [key: string]: string;
@@ -12,9 +15,6 @@ export interface AppTheme {
       [key: string]: {
         [key: string]: string;
       };
-    };
-    boxShadowColor: {
-      [key: string]: string;
     };
     fontFamily: {
       [key: string]: {
@@ -33,9 +33,6 @@ export interface AppTheme {
       [key: string]: string;
     };
     boxShadow: {
-      [key: string]: string;
-    };
-    boxShadowColor: {
       [key: string]: string;
     };
     fontFamily: {
