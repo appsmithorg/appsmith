@@ -297,7 +297,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
-    console.log("dropDownWidth Select", dropDownWidth);
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (

@@ -302,6 +302,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 rowIndex={rowIndex}
                 value={selectedValue}
                 widgetId={this.props.widgetId}
+                width={columnProperties.width}
               />
             );
           } else if (columnProperties.columnType === "menuButton") {

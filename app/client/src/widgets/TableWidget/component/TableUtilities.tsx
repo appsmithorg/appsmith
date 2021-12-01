@@ -799,6 +799,7 @@ export function SelectCell(props: {
   ) => void;
   cellProperties: CellLayoutProperties;
   isCellVisible: boolean;
+  width: number;
   widgetId: string;
   rowIndex: number;
 }) {
@@ -828,6 +829,7 @@ export function SelectCell(props: {
         <DropDownComponent
           compactMode={false}
           disabled={Boolean(props.isDisabled)}
+          dropDownWidth={props.width}
           height={0}
           isFilterable={props.isFilterable}
           isLoading={false}
