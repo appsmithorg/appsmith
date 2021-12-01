@@ -820,7 +820,7 @@ function ApplicationsSection(props: any) {
                                 text="Import Application"
                               />
                             )}
-                            {getFeatureFlags().GIT && (
+                            {getFeatureFlags().GIT_IMPORT && (
                               <MenuItem
                                 cypressSelector="t--org-import-app-git"
                                 icon="upload"
@@ -934,7 +934,7 @@ function ApplicationsSection(props: any) {
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       <WelcomeHelper />
-      {getFeatureFlags().GIT && <ImportAppViaGitModal />}
+      {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );
 }
