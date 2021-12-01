@@ -1,7 +1,6 @@
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { FormEvaluationState } from "../reducers/evaluationReducers/formEvaluationReducer";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ActionConfig } from "entities/Action";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -43,7 +42,7 @@ const generateInitialEvalState = (formConfig: any) => {
 
 // Generator function to run the eval for the whole form when data changes
 function evaluate(
-  actionConfiguration: any,
+  actionConfiguration: ActionConfig,
   currentEvalState: FormEvaluationState,
 ) {
   Object.keys(currentEvalState).forEach((key: string) => {
@@ -59,10 +58,7 @@ function evaluate(
           }
         });
       }
-    } catch (e) {
-      log.error(e);
-      Sentry.captureException(e);
-    }
+    } catch (e) {}
   });
   return currentEvalState;
 }
@@ -70,8 +66,8 @@ function evaluate(
 // Fetches current evaluation and runs a new one based on the new data
 function getFormEvaluation(
   formId: string,
-  actionConfiguration: any,
-  currentEvalState: any,
+  actionConfiguration: ActionConfig,
+  currentEvalState: FormEvaluationState,
 ): any {
   // Only change the form evaluation state if the form ID is same or the evaluation state is present
   if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
@@ -79,11 +75,6 @@ function getFormEvaluation(
       actionConfiguration,
       currentEvalState[formId],
     );
-
-    // yield put({
-    //   type: ReduxActionTypes.SET_FORM_EVALUATION,
-    //   payload: currentEvalState,
-    // });
   }
 
   return currentEvalState;
@@ -93,7 +84,7 @@ function getFormEvaluation(
 export function setFormEvaluationSaga(
   type: string,
   payload: any,
-  currentEvalState: any,
+  currentEvalState: FormEvaluationState,
 ) {
   if (type === ReduxActionTypes.INIT_FORM_EVALUATION) {
     finalEvalObj = {};
@@ -115,12 +106,6 @@ export function setFormEvaluationSaga(
         generateInitialEvalState(config);
       });
     }
-    // yield put({
-    //   type: ReduxActionTypes.SET_FORM_EVALUATION,
-    //   payload: {
-    //     [payload.formId]: finalEvalObj,
-    //   },
-    // });
     return { [payload.formId]: finalEvalObj };
   } else {
     const { actionConfiguration, formId } = payload;

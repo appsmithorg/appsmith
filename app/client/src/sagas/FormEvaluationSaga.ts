@@ -1,5 +1,8 @@
 import { call, fork, take, select, put } from "redux-saga/effects";
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "../constants/ReduxActionConstants";
 import log from "loglevel";
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import { GracefulWorkerService } from "utils/WorkerUtil";
@@ -16,12 +19,12 @@ const FORM_EVALUATION_REDUX_ACTIONS = [
 ];
 
 let isEvaluating = false;
-const evalQueue: any[] = [];
+const evalQueue: ReduxAction<any>[] = [];
 
-export function* setFormEvaluationSagaAsync(action: any): any {
+function* setFormEvaluationSagaAsync(action: ReduxAction<any>): any {
   if (isEvaluating) {
     evalQueue.push(action);
-    return;
+    yield;
   } else {
     isEvaluating = true;
     yield call(worker.shutdown);
@@ -41,17 +44,15 @@ export function* setFormEvaluationSagaAsync(action: any): any {
     }
     isEvaluating = false;
     if (evalQueue.length > 0) {
-      const nextAction = evalQueue.shift();
+      const nextAction = evalQueue.shift() as ReduxAction<any>;
       yield fork(setFormEvaluationSagaAsync, nextAction);
     }
-    return true;
   }
 }
 
 function* formEvaluationChangeListenerSaga() {
   while (true) {
     const action = yield take(FORM_EVALUATION_REDUX_ACTIONS);
-    // yield fork(setFormEvaluationSaga, action.type, action.payload);
     yield fork(setFormEvaluationSagaAsync, action);
   }
 }
