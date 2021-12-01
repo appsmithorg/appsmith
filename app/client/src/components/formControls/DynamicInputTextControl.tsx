@@ -56,7 +56,7 @@ export function InputText(props: {
     };
   }
 
-  let customStyle = { width: "50vh", minHeight: "55px" };
+  let customStyle = { width: "50vh", minHeight: "38px" };
   if (!!props.customStyles && _.isEmpty(props.customStyles) === false) {
     customStyle = props.customStyles;
     if (props.customStyles?.width) {

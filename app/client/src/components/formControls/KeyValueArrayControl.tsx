@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, JSXElementConstructor } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   Field,
   FieldArray,
@@ -17,7 +17,7 @@ import TextInput, { TextInputProps } from "components/ads/TextInput";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
-  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
+  maxLen?: number;
   description?: string;
   actionConfig?: any;
   extraData?: ControlData[];
@@ -85,6 +85,12 @@ function KeyValueRow(
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
   );
+  const maxLen = props.maxLen;
+  //if maxLen exists apply a check on the length
+  const showAddIcon = (index: number): boolean =>
+    maxLen
+      ? index === props.fields.length - 1 && props.fields.length < maxLen
+      : index === props.fields.length - 1;
 
   return typeof props.fields.getAll() === "object" ? (
     <>
@@ -133,7 +139,7 @@ function KeyValueRow(
                       isRequired: extraData[1]?.isRequired,
                     }}
                   />
-                  {index === props.fields.length - 1 ? (
+                  {showAddIcon(index) ? (
                     <Icon
                       color={Colors["CADET_BLUE"]}
                       icon="plus"

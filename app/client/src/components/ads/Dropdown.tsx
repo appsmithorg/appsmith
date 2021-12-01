@@ -105,7 +105,6 @@ export interface RenderDropdownOptionType {
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
-  // height: ${(props) => props.height};
   min-height: ${(props) => props.height};
   position: relative;
 `;
@@ -800,7 +799,7 @@ export default function Dropdown(props: DropdownProps) {
         disabled={props.disabled}
         hasError={!!errorMsg}
         height={props.height || getMinHeight(props.isMultiSelect)}
-        isMultiSelect
+        isMultiSelect={props.isMultiSelect}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         selected={!!selected}
@@ -843,7 +842,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
-      height={props.height || "44px"}
+      height={getMinHeight(props.isMultiSelect)}
       tabIndex={0}
       width={dropdownWidth}
     >
@@ -876,5 +875,5 @@ export default function Dropdown(props: DropdownProps) {
 
 function getMinHeight(isMultiSelect?: boolean): string {
   if (isMultiSelect) return "44px";
-  return "38px";
+  return "36px";
 }
