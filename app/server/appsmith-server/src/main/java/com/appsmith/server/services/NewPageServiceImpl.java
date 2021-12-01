@@ -290,7 +290,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         if (pageFromDb.getDefaultResources() == null) {
                             return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", pageFromDb.getId()));
                         }
-                        pageNameIdDTO.setGitDefaultPageId(pageFromDb.getDefaultResources().getPageId());
+                        pageNameIdDTO.setDefaultPageId(pageFromDb.getDefaultResources().getPageId());
 
                         if (Boolean.TRUE.equals(view)) {
                             if (pageFromDb.getPublishedPage() == null) {

@@ -37,7 +37,7 @@ public interface ApplicationPageService {
 
     Mono<PageDTO> clonePage(String pageId);
 
-    Mono<PageDTO> clonePageByDefaultPageAndBranch(String defaultPageId, String branchName);
+    Mono<PageDTO> clonePageByDefaultPageIdAndBranch(String defaultPageId, String branchName);
 
     Mono<Application> cloneApplication(String applicationId, String branchName);
 

@@ -135,7 +135,7 @@ public class PageController {
     @PostMapping("/clone/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> clonePage(@PathVariable String defaultPageId,
                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationPageService.clonePageByDefaultPageAndBranch(defaultPageId, branchName)
+        return applicationPageService.clonePageByDefaultPageIdAndBranch(defaultPageId, branchName)
                 .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
     }
 

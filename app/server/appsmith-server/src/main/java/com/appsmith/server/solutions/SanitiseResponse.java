@@ -67,10 +67,10 @@ public class SanitiseResponse {
     public ApplicationPagesDTO updateApplicationPagesDTOWithDefaultResources(ApplicationPagesDTO applicationPages) {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
         pageNameIdList.forEach(page -> {
-            if (StringUtils.isEmpty(page.getGitDefaultPageId())) {
+            if (StringUtils.isEmpty(page.getDefaultPageId())) {
                 throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId());
             }
-            page.setId(page.getGitDefaultPageId());
+            page.setId(page.getDefaultPageId());
         });
         return applicationPages;
     }
