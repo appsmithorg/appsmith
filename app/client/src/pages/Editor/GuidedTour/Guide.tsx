@@ -1,5 +1,6 @@
 import {
   addOnboardingWidget,
+  enableGuidedTour,
   markStepComplete,
   setCurrentStep,
   setIndicatorLocation,
@@ -38,6 +39,7 @@ import {
   showSuccessMessage,
   tableWidgetHasBinding,
 } from "selectors/onboardingSelectors";
+import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -534,6 +536,8 @@ function useComputeCurrentStep(isExploring: boolean) {
   const buttonWidgetSuccessBinding = useSelector(
     buttonWidgetHasOnSuccessBinding,
   );
+  // 8
+  const isDeployed = useSelector(getApplicationLastDeployedAt);
 
   if (step === 1) {
     if (queryLimitUpdated && queryExecutedSuccessfully) {
@@ -682,6 +686,14 @@ function useComputeCurrentStep(isExploring: boolean) {
       }
     }
   }, [step, buttonWidgetSuccessBinding]);
+
+  useEffect(() => {
+    if (step === 8) {
+      if (isDeployed) {
+        dispatch(enableGuidedTour(false));
+      }
+    }
+  }, [step, isDeployed]);
 
   return completedSubSteps;
 }
