@@ -25,6 +25,7 @@ import {
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "constants/messages";
 import { IconNames } from "@blueprintjs/icons";
+import { COLOR_REGEX } from "widgets/constants";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -804,7 +805,7 @@ export default [
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
-                        regex: /^(#([0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(rgb)\((\s*\d+\s*,){2}\s*\d+\s*\)|(rgba)\((\s*\d+\s*,){3}\s*[\d.]+\s*\))$/i,
+                        regex: COLOR_REGEX,
                         default: Colors.GREEN,
                         expected: {
                           type: "HEX / RGB Color",
@@ -952,7 +953,7 @@ export default [
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
-                        regex: /^(#([0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(rgb)\((\s*\d+\s*,){2}\s*\d+\s*\)|(rgba)\((\s*\d+\s*,){3}\s*[\d.]+\s*\))$/i,
+                        regex: COLOR_REGEX,
                         default: Colors.GREY_8,
                         expected: {
                           type: "HEX / RGB Color",
@@ -983,6 +984,21 @@ export default [
                   ],
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: COLOR_REGEX,
+                        default: Colors.WHITE,
+                        expected: {
+                          type: "HEX / RGB Color",
+                          example: "#ff0000",
+                          autocompleteDataType: AutocompleteDataType.STRING,
+                        },
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
 
@@ -992,11 +1008,10 @@ export default [
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-                  validation: { type: ValidationTypes.TEXT },
                   defaultColor: Colors.GREEN,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -1010,6 +1025,21 @@ export default [
                   ],
                   // Remove menu Style once Custom is Chosen
                   updateHook: updateDerivedColumnsHook,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: COLOR_REGEX,
+                        default: Colors.GREEN,
+                        expected: {
+                          type: "HEX / RGB Color",
+                          example: "#ff0000",
+                          autocompleteDataType: AutocompleteDataType.STRING,
+                        },
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "menuVariant",
