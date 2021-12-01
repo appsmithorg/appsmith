@@ -9,6 +9,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import moment from "moment";
 import { DatePickerType } from "../constants";
+import derivedProperties from "./parseDerivedProperties";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -215,7 +216,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
+      isValid: `{{(()=>{${derivedProperties.isValidDate}})()}}`,
       selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
       formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
     };
