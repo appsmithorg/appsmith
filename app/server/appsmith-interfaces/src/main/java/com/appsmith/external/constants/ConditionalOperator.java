@@ -61,4 +61,16 @@ public enum ConditionalOperator {
             return "not in";
         }
     },
+    AND {
+        @Override
+        public String toString() {
+            return "and";
+        }
+    },
+    OR {
+        @Override
+        public String toString() {
+            return "or";
+        }
+    },
 }

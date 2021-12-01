@@ -213,8 +213,9 @@ const InputWrapper = styled.div<{
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
-  border: 1.2px solid ${(props) =>
-    props.noBorder ? "transparent" : props.inputStyle.borderColor};
+  border: 1.2px solid
+    ${(props) =>
+      props.noBorder ? "transparent" : props.inputStyle.borderColor};
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
   ${(props) =>

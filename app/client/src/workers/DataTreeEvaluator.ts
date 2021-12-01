@@ -92,9 +92,21 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
+  /**
+   * This method takes unEvalTree as input and does following
+   * 1. parseJSActions and updates JS
+   * 2. Creates dependencyMap, sorted dependencyMap
+   * 3. Generates inverseDependencyTree
+   * 4. Finally, evaluates the unEvalTree and returns that with JSUpdates
+   *
+   * @param {DataTree} unEvalTree
+   * @return {*}
+   * @memberof DataTreeEvaluator
+   */
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
-    let localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
+    // cloneDeep will make sure not to omit key which has value as undefined.
+    let localUnEvalTree = _.cloneDeep(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -129,7 +141,7 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = JSON.parse(JSON.stringify(localUnEvalTree));
+    this.oldUnEvalTree = _.cloneDeep(localUnEvalTree);
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -450,21 +462,7 @@ export default class DataTreeEvaluator {
     entityName: string,
   ): DependencyMap {
     const dependencies: DependencyMap = {};
-    if (isAction(entity) || isWidget(entity)) {
-      const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
-      if (dynamicBindingPathList.length) {
-        dynamicBindingPathList.forEach((dynamicPath) => {
-          const propertyPath = dynamicPath.key;
-          const unevalPropValue = _.get(entity, propertyPath);
-          const { jsSnippets } = getDynamicBindings(unevalPropValue);
-          const existingDeps =
-            dependencies[`${entityName}.${propertyPath}`] || [];
-          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
-        });
-      }
-    }
+
     if (isWidget(entity)) {
       // Make property dependant on the default property as any time the default changes
       // the property needs to change
@@ -518,6 +516,23 @@ export default class DataTreeEvaluator {
         });
       }
     }
+
+    if (isAction(entity) || isWidget(entity)) {
+      const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+      if (dynamicBindingPathList.length) {
+        dynamicBindingPathList.forEach((dynamicPath) => {
+          const propertyPath = dynamicPath.key;
+          const unevalPropValue = _.get(entity, propertyPath);
+          const { jsSnippets } = getDynamicBindings(unevalPropValue);
+          const existingDeps =
+            dependencies[`${entityName}.${propertyPath}`] || [];
+          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
+            jsSnippets.filter((jsSnippet) => !!jsSnippet),
+          );
+        });
+      }
+    }
+
     return dependencies;
   }
 
