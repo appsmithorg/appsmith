@@ -347,7 +347,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteEntitybyName("UIOperationNewFileQuery");
   });
 
-  it("9. Verify Search, Delete operations from NewPage UI created in S3 ds", function() {
+  it("9. Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686", function() {
     // cy.wrap(Cypress.automation('remote:debugger:protocol', {
     //   command: 'Browser.grantPermissions',
     //   params: {
@@ -383,6 +383,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       200,
     ); //This verifies the Select on the table, ie page is created fine
 
+    cy.verifyCyclicDependencyError();
+
     cy.ClickGotIt();
 
     //Verifying Searching File from UI
@@ -405,6 +407,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     //Verifying DeleteFile icon from UI
     cy.xpath(queryLocators.deleteFileicon).click();
+    cy.verifyCyclicDependencyError();
+
     expect(
       cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
     ).to.exist; //verify Delete File dialog appears

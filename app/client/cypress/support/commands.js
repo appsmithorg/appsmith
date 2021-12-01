@@ -3367,6 +3367,13 @@ Cypress.Commands.add("renameWithInPane", (renameVal) => {
     .blur();
 });
 
+Cypress.Commands.add("verifyCyclicDependencyError", () => {
+  // Give this element 10 seconds to appear
+  cy.xpath(commonlocators.cyclicDependencyError, { timeout: 10000 }).should(
+    "not.exist",
+  );
+});
+
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
 

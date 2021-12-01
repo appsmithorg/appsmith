@@ -139,5 +139,6 @@
   "debugger": ".t--debugger svg",
   "errorTab": "[data-cy=t--tab-ERROR]",
   "debugErrorMsg": ".t--debugger-message",
-  "debuggerLabel": "span.debugger-label"
+  "debuggerLabel": "span.debugger-label",
+  "cyclicDependencyError": "//div[@class='Toastify']//span[contains(text(),'Cyclic dependency found while evaluating')]"
 }
