@@ -535,6 +535,37 @@ public class GitExecutorTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void resetToLastCommit_WithOutStaged_CleanStateForRepo() throws IOException, GitAPIException {
+        createFileInThePath("testFile");
+        commitToRepo();
+        Mono<Boolean> resetStatus = gitExecutor.resetToLastCommit(path, "master");
+
+        StepVerifier
+                .create(resetStatus)
+                .assertNext(status -> {
+                    assertThat(status).isEqualTo(Boolean.TRUE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void resetToLastCommit_WithStaged_CleanStateForRepo() throws GitAPIException, IOException {
+        createFileInThePath("testFile");
+        commitToRepo();
+        createFileInThePath("testFile2");
+        GitStatusDTO gitStatusDTO = gitExecutor.getStatus(path, "master").block();
+        Mono<Boolean> resetStatus = gitExecutor.resetToLastCommit(path, "master");
+
+        StepVerifier
+                .create(resetStatus)
+                .assertNext(status -> {
+                    GitStatusDTO gitStatusDTOAfter = gitExecutor.getStatus(path, "master").block();
+                    assertThat(status).isEqualTo(Boolean.TRUE);
+                    assertThat(gitStatusDTO.getModified().size()).isNotEqualTo(gitStatusDTOAfter.getModified().size());
+                })
+                .verifyComplete();
+    }
 
 
     // TODO cover the below mentioned test cases
