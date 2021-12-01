@@ -1010,12 +1010,13 @@ public class GitServiceImpl implements GitService {
                                     "branch --list",
                                     "Error while accessing the file system. Details :" + error.getMessage()))
                             );
-                    return Mono.zip(gitBranchDTOMono, Mono.just(application));
+                    return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath));
 
                 }).flatMap(tuple -> {
                     List<GitBranchDTO> gitBranchListDTOS = tuple.getT1();
                     Application application = tuple.getT2();
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Path repoPath = tuple.getT3();
 
                     if (Boolean.TRUE.equals(ignoreCache)) {
                         String defaultBranchRemote = gitBranchListDTOS
@@ -1040,7 +1041,8 @@ public class GitServiceImpl implements GitService {
 
                         return Flux.fromIterable(localBranch)
                                 .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
-                                        .flatMap(applicationPageService::deleteApplicationByResource))
+                                        .flatMap(applicationPageService::deleteApplicationByResource)
+                                        .flatMap(application1 -> gitExecutor.deleteBranch(repoPath, application1.getGitApplicationMetadata().getBranchName())))
                                 .then(applicationService.save(application)
                                         .then(Mono.just(gitBranchListDTOS)));
                     } else {
