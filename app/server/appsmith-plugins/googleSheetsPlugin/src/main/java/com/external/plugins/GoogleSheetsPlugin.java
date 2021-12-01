@@ -17,6 +17,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
 import com.external.config.MethodConfig;
+import com.external.constants.GoogleSheets;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -56,11 +57,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
     @Extension
     public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void>, SmartSubstitutionInterface {
 
-        private static final int SMART_JSON_SUBSTITUTION_INDEX = 13;
-
         private static final Set<String> jsonFields = new HashSet<>(Arrays.asList(
-                "rowObject",
-                "rowObjects"
+                GoogleSheets.ROW_OBJECT,
+                GoogleSheets.ROW_OBJECTS
         ));
 
         @Override
@@ -69,48 +68,44 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            Boolean smartBsonSubstitution;
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            boolean smartJsonSubstitution;
+            final Map<String, Object> formDataMap = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             // Default smart substitution to true
-            if (CollectionUtils.isEmpty(properties)) {
-                smartBsonSubstitution = true;
-            } else if (properties.size() > SMART_JSON_SUBSTITUTION_INDEX &&
-                    properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
-                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+            if (!formDataMap.containsKey(GoogleSheets.SMART_SUBSTITUTION)) {
+                smartJsonSubstitution = true;
+            } else if (formDataMap.containsKey(GoogleSheets.SMART_SUBSTITUTION)) {
+                Object ssubValue = formDataMap.getOrDefault(GoogleSheets.SMART_SUBSTITUTION, true);
                 if (ssubValue instanceof Boolean) {
-                    smartBsonSubstitution = (Boolean) ssubValue;
+                    smartJsonSubstitution = (Boolean) ssubValue;
                 } else if (ssubValue instanceof String) {
-                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
                 } else {
-                    smartBsonSubstitution = true;
+                    smartJsonSubstitution = true;
                 }
             } else {
-                smartBsonSubstitution = true;
+                smartJsonSubstitution = true;
             }
 
             try {
                 // Smartly substitute in Json fields and replace all the bindings with values.
-                if (TRUE.equals(smartBsonSubstitution)) {
-                    properties.stream().parallel().forEach(property -> {
-                        if (property.getValue() != null) {
-                            String propertyValue = String.valueOf(property.getValue());
-                            String propertyKey = property.getKey();
+                if (TRUE.equals(smartJsonSubstitution)) {
+                    jsonFields.forEach(jsonField -> {
+                        String property = (String) formDataMap.getOrDefault(jsonField, null);
+                        if (property != null) {
 
-                            if (jsonFields.contains(propertyKey)) {
-                                // First extract all the bindings in order
-                                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(propertyValue);
-                                // Replace all the bindings with a placeholder
-                                String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(propertyValue, mustacheKeysInOrder);
+                            // First extract all the bindings in order
+                            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
+                            // Replace all the bindings with a placeholder
+                            String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(property, mustacheKeysInOrder);
 
-                                updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
-                                        mustacheKeysInOrder,
-                                        executeActionDTO.getParams(),
-                                        parameters);
+                            updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
+                                    mustacheKeysInOrder,
+                                    executeActionDTO.getParams(),
+                                    parameters);
 
-                                property.setValue(updatedValue);
-                            }
+                            formDataMap.put(jsonField, updatedValue);
                         }
                     });
                 }
@@ -138,10 +133,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            final Map<String, Object> properties = actionConfiguration.getFormData();
             final Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(0).getValue(), objectMapper);
+                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(GoogleSheets.METHOD), objectMapper);
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(

@@ -1,0 +1,51 @@
+{
+  "command": {
+    "label": "Commands",
+    "description": "Choose method you would like to use to query the sheet",
+    "configProperty": "actionConfiguration.formData.command",
+    "controlType": "DROP_DOWN",
+    "initialValue": "GET",
+    "options": [
+      {
+        "label": "Fetch sheet rows",
+        "fileName": "get.json"
+      },
+      {
+        "label": "Insert sheet row",
+        "fileName": "append.json"
+      },
+      {
+        "label": "Update sheet row",
+        "fileName": "update.json"
+      },
+      {
+        "label": "Delete row",
+        "fileName": "deleteRow.json"
+      },
+      {
+        "label": "List sheets",
+        "fileName": "list.json"
+      },
+      {
+        "label": "Fetch sheet",
+        "fileName": "info.json"
+      },
+      {
+        "label": "Create new spreadsheet",
+        "fileName": "create.json"
+      },
+      {
+        "label": "Delete sheet",
+        "fileName": "delete.json"
+      },
+      {
+        "label": "Bulk insert rows",
+        "fileName": "bulkAppend.json"
+      },
+      {
+        "label": "Bulk update rows",
+        "fileName": "bulkUpdate.json"
+      }
+    ]
+  }
+}

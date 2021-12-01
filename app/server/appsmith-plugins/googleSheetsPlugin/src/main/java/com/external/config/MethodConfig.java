@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.Property;
+import com.external.constants.GoogleSheets;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +40,46 @@ public class MethodConfig {
     Object body;
     List<Condition> whereConditions = new ArrayList<>();
     Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
+
+    public MethodConfig(Map<String, Object> properties) {
+
+        if (properties.containsKey(GoogleSheets.SHEET_URL)) {
+            this.spreadsheetUrl = (String) properties.get(GoogleSheets.SHEET_URL);
+            if (this.spreadsheetUrl != null && !this.spreadsheetUrl.isBlank()) {
+                final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
+                if (matcher.find()) {
+                    this.spreadsheetId = matcher.group(1);
+                } else {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
+                }
+            }
+        }
+        this.spreadsheetRange = (String) properties.getOrDefault(GoogleSheets.RANGE, null);
+        this.spreadsheetName = (String) properties.getOrDefault(GoogleSheets.SPREADSHEET_NAME, null);
+        this.tableHeaderIndex = (String) properties.getOrDefault(GoogleSheets.TABLE_HEADER_INDEX, null);
+        this.queryFormat = (String) properties.getOrDefault(GoogleSheets.QUERY_FORMAT, null);
+        this.rowLimit = (String) properties.getOrDefault(GoogleSheets.ROW_LIMIT, null);
+        this.rowOffset = (String) properties.getOrDefault(GoogleSheets.ROW_OFFSET, null);
+        this.rowIndex = (String) properties.getOrDefault(GoogleSheets.ROW_INDEX, null);
+        this.sheetName = (String) properties.getOrDefault(GoogleSheets.SHEET_NAME, null);
+        this.deleteFormat = (String) properties.getOrDefault(GoogleSheets.DELETE_FORMAT, null);
+        this.rowObject = (String) properties.getOrDefault(GoogleSheets.ROW_OBJECT, null);
+        this.rowObjects = (String) properties.getOrDefault(GoogleSheets.ROW_OBJECTS, null);
+
+        if (properties.containsKey(GoogleSheets.WHERE)) {
+            Object whereValue = properties.getOrDefault(GoogleSheets.WHERE, null);
+            if (whereValue instanceof List) {
+                // Check if all values in the where condition are null.
+                boolean allValuesNull = ((List) whereValue).stream()
+                        .allMatch(valueMap -> valueMap == null ||
+                                ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
+
+                if (!allValuesNull) {
+                    this.whereConditions = Condition.generateFromConfiguration((List<Object>) whereValue);
+                }
+            }
+        }
+    }
 
     public MethodConfig(List<Property> propertyList) {
         propertyList.stream().parallel().forEach(property -> {

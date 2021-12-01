@@ -1,0 +1,142 @@
+{
+  "identifier": "GET",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'GET'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select sheet to query",
+      "children": [
+        {
+          "label": "Spreadsheet URL",
+          "configProperty": "actionConfiguration.formData.sheetUrl",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+        },
+        {
+          "label": "Sheet Name",
+          "configProperty": "actionConfiguration.formData.sheetName",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "Sheet1"
+        },
+        {
+          "label": "Table Heading Row Index",
+          "configProperty": "actionConfiguration.formData.tableHeaderIndex",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "1"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description" : "Details",
+      "children": [
+        {
+          "label": "Query Format",
+          "configProperty": "actionConfiguration.formData.queryFormat",
+          "controlType": "DROP_DOWN",
+          "initialValue": "ROWS",
+          "options": [
+            {
+              "label": "Query rows",
+              "value": "ROWS"
+            },
+            {
+              "label": "Query range",
+              "value": "RANGE"
+            }
+          ]
+        },
+        {
+          "label": "Cell Range",
+          "configProperty": "actionConfiguration.formData.range",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === RANGE}}"
+          },
+          "initialValue": "",
+          "placeholderText": "A2:B"
+        },
+        {
+          "label": "Row Offset",
+          "configProperty": "actionConfiguration.formData.rowOffset",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === ROWS}}"
+          },
+          "initialValue": "0",
+          "placeholderText": "0"
+        },
+        {
+          "label": "Row Limit",
+          "configProperty": "actionConfiguration.formData.rowLimit",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === ROWS}}"
+          },
+          "initialValue": "10",
+          "placeholderText": "10"
+        },
+        {
+          "label": "Where Conditions",
+          "configProperty": "actionConfiguration.formData.where",
+          "controlType": "ARRAY_FIELD",
+          "initialValue": [],
+          "schema": [
+            {
+              "label": "Column Name",
+              "key": "path",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "name"
+            },
+            {
+              "label": "Operator",
+              "key": "operator",
+              "controlType": "DROP_DOWN",
+              "initialValue": "EQ",
+              "options": [
+                {
+                  "label": "<",
+                  "value": "LT"
+                },
+                {
+                  "label": "<=",
+                  "value": "LTE"
+                },
+                {
+                  "label": "==",
+                  "value": "EQ"
+                },
+                {
+                  "label": ">=",
+                  "value": "GTE"
+                },
+                {
+                  "label": ">",
+                  "value": "GT"
+                },
+                {
+                  "label": "in",
+                  "value": "IN"
+                },
+                {
+                  "label": "not in",
+                  "value": "NOT_IN"
+                }
+              ]
+            },
+            {
+              "label": "Value",
+              "key": "value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "Tobias"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

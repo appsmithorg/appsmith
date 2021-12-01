@@ -1,0 +1,53 @@
+{
+  "identifier": "DELETE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'DELETE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select sheet to query",
+      "children": [
+        {
+          "label": "Spreadsheet URL",
+          "configProperty": "actionConfiguration.formData.sheetUrl",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Details",
+      "children": [
+        {
+          "label": "Select Entity",
+          "configProperty": "actionConfiguration.formData.deleteFormat",
+          "controlType": "DROP_DOWN",
+          "initialValue": "SHEET",
+          "options": [
+            {
+              "label": "Single Sheet",
+              "value": "SHEET"
+            },
+            {
+              "label": "Entire Spreadsheet",
+              "value": "SPREADSHEET"
+            }
+          ]
+        },
+        {
+          "label": "Sheet Name",
+          "configProperty": "actionConfiguration.formData.sheetName",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command === 'DELETE' && actionConfiguration.formData.deleteFormat === 'SHEET'}}"
+          },
+          "initialValue": "Sheet1"
+        }
+      ]
+    }
+  ]
+}
