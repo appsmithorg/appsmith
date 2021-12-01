@@ -43,20 +43,6 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
       for (let i = props.fields.length; i < 1; i += 1) {
         props.fields.push({ [keyName[1]]: "", [valueName[1]]: "" });
       }
-    } else {
-      let noOfEmptyRows = 0;
-      for (let i = 0; i < props.fields.length; i += 1) {
-        const field = props.fields.get(i);
-        const key = keyName && keyName[1];
-        const value = valueName && valueName[1];
-        if (field && field[key] === "" && field[value] === "") {
-          noOfEmptyRows += 1;
-          if (noOfEmptyRows > 1) {
-            props.fields.remove(i);
-            noOfEmptyRows--;
-          }
-        }
-      }
     }
   }, [props.fields, keyName, valueName]);
 
