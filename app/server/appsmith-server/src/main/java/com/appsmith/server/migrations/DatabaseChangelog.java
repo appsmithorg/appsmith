@@ -3960,8 +3960,7 @@ public class DatabaseChangelog {
         );
     }
 
-
-    @ChangeSet(order = "100", id = "create-system-themes", author = "")
+    @ChangeSet(order = "101", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) {
         Theme.Colors defaultColors = new Theme.Colors("#50AF6C", "#E1E1E1");
 
