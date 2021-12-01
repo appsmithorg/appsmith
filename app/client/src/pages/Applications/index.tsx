@@ -511,21 +511,21 @@ const OrgNameHolder = styled(Text)`
 `;
 
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
-${(props) => {
-  const color = props.disabled
-    ? props.theme.colors.applications.orgColor
-    : props.theme.colors.applications.hover.orgColor[9];
-  return `${textIconStyles({
-    color: color,
-    hover: color,
-  })}`;
-}}
+  ${(props) => {
+    const color = props.disabled
+      ? props.theme.colors.applications.orgColor
+      : props.theme.colors.applications.hover.orgColor[9];
+    return `${textIconStyles({
+      color: color,
+      hover: color,
+    })}`;
+  }}
 
-.${Classes.ICON} {
-  display: ${(props) => (!props.disabled ? "inline" : "none")};;
-  margin-left: 8px;
-  color: ${(props) => props.theme.colors.applications.iconColor};
-}
+  .${Classes.ICON} {
+    display: ${(props) => (!props.disabled ? "inline" : "none")};
+    margin-left: 8px;
+    color: ${(props) => props.theme.colors.applications.iconColor};
+  }
 `;
 const OrgRename = styled(EditableText)`
   padding: 0 2px;
@@ -796,20 +796,20 @@ function ApplicationsSection(props: any) {
                                 }
                                 underline
                               />
-                              <MenuItem
-                                cypressSelector="t--org-setting"
-                                icon="general"
-                                onSelect={() =>
-                                  getOnSelectAction(
-                                    DropdownOnSelectActions.REDIRECT,
-                                    {
-                                      path: `/org/${organization.id}/settings/general`,
-                                    },
-                                  )
-                                }
-                                text="Organization Settings"
-                              />
                             </div>
+                            <MenuItem
+                              cypressSelector="t--org-setting"
+                              icon="general"
+                              onSelect={() =>
+                                getOnSelectAction(
+                                  DropdownOnSelectActions.REDIRECT,
+                                  {
+                                    path: `/org/${organization.id}/settings/general`,
+                                  },
+                                )
+                              }
+                              text="Organization Settings"
+                            />
                             {enableImportExport && (
                               <MenuItem
                                 cypressSelector="t--org-import-app"
