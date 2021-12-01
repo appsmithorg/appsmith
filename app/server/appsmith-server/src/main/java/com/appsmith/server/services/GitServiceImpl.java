@@ -462,8 +462,8 @@ public class GitServiceImpl implements GitService {
                                 .get(0)
                                 .getId();
                     }
-                    String viewModeUrl = Paths.get("/", application.getId(),
-                            Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
+                    String viewModeUrl = Paths.get("/", Entity.APPLICATIONS, "/", application.getId(),
+                            Entity.PAGES, defaultPageId).toString();
                     String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
                     //Initialize the repo with readme file
                     try {
@@ -985,7 +985,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean ignoreCache) {
+    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches) {
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1004,7 +1004,7 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRemoteUrl(),
                             gitApplicationMetadata.getGitAuth().getPrivateKey(),
                             gitApplicationMetadata.getGitAuth().getPublicKey(),
-                            ignoreCache)
+                            pruneBranches)
                             .onErrorResume(error -> Mono.error(new AppsmithException(
                                     AppsmithError.GIT_ACTION_FAILED,
                                     "branch --list",
@@ -1018,7 +1018,7 @@ public class GitServiceImpl implements GitService {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Path repoPath = tuple.getT3();
 
-                    if (Boolean.TRUE.equals(ignoreCache)) {
+                    if (Boolean.TRUE.equals(pruneBranches)) {
                         String defaultBranchRemote = gitBranchListDTOS
                                 .stream().filter(gitBranchDTO -> gitBranchDTO.isDefault()).map(gitBranchDTO -> gitBranchDTO.getBranchName()).toString();
 

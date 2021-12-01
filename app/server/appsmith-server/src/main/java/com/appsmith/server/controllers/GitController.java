@@ -149,9 +149,9 @@ public class GitController {
 
     @GetMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
-                                                            @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache) {
+                                                            @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(ignoreCache))
+        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
