@@ -227,7 +227,7 @@ export const resetPullMergeStatus = () => ({
   type: ReduxActionTypes.RESET_PULL_MERGE_STATUS,
 });
 
-export const gitTempRemoteUrlInit = (payload?: { tempRemoteUrl?: string }) => ({
-  type: ReduxActionTypes.TEMP_REMOTE_URL_INIT,
+export const remoteUrlInputValue = (payload?: { tempRemoteUrl?: string }) => ({
+  type: ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE,
   payload,
 });

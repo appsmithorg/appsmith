@@ -35,7 +35,7 @@ import Text, { TextType } from "components/ads/Text";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
-  gitTempRemoteUrlInit,
+  remoteUrlInputValue,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -284,7 +284,7 @@ function GitConnection({ isImport }: Props) {
     const isInvalid = remoteUrlIsInvalid(value);
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
-    dispatch(gitTempRemoteUrlInit({ tempRemoteUrl: value }));
+    dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
   };
 
   const submitButtonDisabled = useMemo(() => {

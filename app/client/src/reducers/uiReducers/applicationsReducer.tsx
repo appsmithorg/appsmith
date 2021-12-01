@@ -411,7 +411,7 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.TEMP_REMOTE_URL_INIT]: (
+  [ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE]: (
     state: ApplicationsReduxState,
     action: ReduxAction<string>,
   ) => {
