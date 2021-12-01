@@ -86,7 +86,6 @@ const BranchListItemContainer = styled.div<{
   .${Classes.TEXT} {
     width: 100%;
     overflow: hidden;
-    text-overflow: ellipse;
     text-overflow: ellipsis;
     display: block;
   }
@@ -244,7 +243,7 @@ function BranchesLoading() {
 
 export const removeSpecialChars = (value: string) => {
   const separatorRegex = /(?!\/)\W+/;
-  return value.split(separatorRegex).join("-");
+  return value.split(separatorRegex).join("_");
 };
 
 // filter the branches according to the search text
@@ -384,7 +383,7 @@ export default function BranchList(props: {
 
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
-    changeSearchTextInState(removeSpecialChars(text).replace(/\-/g, "_"));
+    changeSearchTextInState(removeSpecialChars(text));
   };
 
   const isCreateNewBranchInputValid = useMemo(
