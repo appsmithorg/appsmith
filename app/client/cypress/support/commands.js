@@ -1321,8 +1321,10 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(3000);
   cy.get(commonlocators.evaluatedCurrentValue)
+    .first().should("be.visible").should('not.have.text', 'undefined')
+  cy.get(commonlocators.evaluatedCurrentValue)
     .first()
-    .should("be.visible")
+    //.should("be.visible")
     .click({ force: true })
     .then(($text) => {
       expect($text.text()).to.eq(currentValue);
