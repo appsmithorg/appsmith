@@ -64,6 +64,8 @@ const CameraContainer = styled.div<CameraContainerProps>`
   }
 `;
 
+const PhotoViewer = styled.img``;
+
 const VideoPlayer = styled.video``;
 
 const ControlPanelContainer = styled.div`
@@ -697,6 +699,7 @@ function CameraComponent(props: CameraComponentProps) {
   const [mediaCaptureStatus, setMediaCaptureStatus] = useState<
     MediaCaptureStatus
   >(MediaCaptureStatusTypes.IMAGE_DEFAULT);
+  const [isPhotoViewerReady, setIsPhotoViewerReady] = useState(false);
   const [isVideoPlayerReady, setIsVideoPlayerReady] = useState(false);
   const [playerDays, setPlayerDays] = useState(0);
   const [playerHours, setPlayerHours] = useState(0);
@@ -752,20 +755,15 @@ function CameraComponent(props: CameraComponentProps) {
   useEffect(() => {
     onVideoCapture(video);
 
-    if (video) {
-      if (videoElementRef.current) {
-        videoElementRef.current.src = URL.createObjectURL(video);
-        videoElementRef.current.removeEventListener("ended", handlePlayerEnded);
-        videoElementRef.current.addEventListener("ended", handlePlayerEnded);
-        videoElementRef.current.removeEventListener(
-          "timeupdate",
-          handleTimeUpdate,
-        );
-        videoElementRef.current.addEventListener(
-          "timeupdate",
-          handleTimeUpdate,
-        );
-      }
+    if (video && videoElementRef.current) {
+      videoElementRef.current.src = URL.createObjectURL(video);
+      videoElementRef.current.removeEventListener("ended", handlePlayerEnded);
+      videoElementRef.current.addEventListener("ended", handlePlayerEnded);
+      videoElementRef.current.removeEventListener(
+        "timeupdate",
+        handleTimeUpdate,
+      );
+      videoElementRef.current.addEventListener("timeupdate", handleTimeUpdate);
     }
 
     return () => {
@@ -778,7 +776,11 @@ function CameraComponent(props: CameraComponentProps) {
   }, [video]);
 
   useEffect(() => {
-    const possibleStates: MediaCaptureStatus[] = [
+    const photoReadyStates: MediaCaptureStatus[] = [
+      MediaCaptureStatusTypes.IMAGE_CAPTURED,
+      MediaCaptureStatusTypes.IMAGE_SAVED,
+    ];
+    const videoReadyStates: MediaCaptureStatus[] = [
       MediaCaptureStatusTypes.VIDEO_CAPTURED,
       MediaCaptureStatusTypes.VIDEO_PLAYING,
       MediaCaptureStatusTypes.VIDEO_PAUSED,
@@ -786,8 +788,8 @@ function CameraComponent(props: CameraComponentProps) {
       MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE,
       MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE,
     ];
-
-    setIsVideoPlayerReady(possibleStates.includes(mediaCaptureStatus));
+    setIsPhotoViewerReady(photoReadyStates.includes(mediaCaptureStatus));
+    setIsVideoPlayerReady(videoReadyStates.includes(mediaCaptureStatus));
   }, [mediaCaptureStatus]);
 
   const appLayout = useSelector(getCurrentApplicationLayout);
@@ -959,7 +961,11 @@ function CameraComponent(props: CameraComponentProps) {
 
     return (
       <>
-        {!isVideoPlayerReady && (!isAudioMuted || !isVideoMuted) && (
+        {!(
+          isPhotoViewerReady ||
+          isVideoPlayerReady ||
+          (isAudioMuted && isVideoMuted)
+        ) && (
           <Webcam
             audio={!isAudioMuted}
             audioConstraints={!isAudioMuted && audioConstraints}
@@ -971,6 +977,8 @@ function CameraComponent(props: CameraComponentProps) {
             videoConstraints={!isVideoMuted && videoConstraints}
           />
         )}
+
+        {isPhotoViewerReady && image && <PhotoViewer src={image} />}
 
         {isVideoPlayerReady && <VideoPlayer ref={videoElementRef} />}
 
