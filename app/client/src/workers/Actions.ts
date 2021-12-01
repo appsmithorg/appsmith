@@ -180,7 +180,7 @@ export const enhanceDataTreeWithFunctions = (
         }
       });
     } else {
-      withFunction[name] = funcOrFuncCreator;
+      _.set(withFunction, name, pusher.bind(self, funcOrFuncCreator));
     }
   });
 

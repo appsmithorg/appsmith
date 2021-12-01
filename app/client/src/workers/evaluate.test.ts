@@ -163,7 +163,10 @@ describe("evaluateAsync", () => {
     await evaluateAsync(js, {}, "TEST_REQUEST", {});
     expect(self.postMessage).toBeCalledWith({
       requestId: "TEST_REQUEST",
-      responseData: { finished: true, result: { errors: [], result: 123 } },
+      responseData: {
+        finished: true,
+        result: { errors: [], result: 123, triggers: [] },
+      },
       type: "PROCESS_TRIGGER",
     });
     expect(self.ALLOW_ASYNC).toBe(true);
@@ -190,6 +193,7 @@ describe("evaluateAsync", () => {
               severity: "error",
             },
           ],
+          triggers: [],
           result: undefined,
         },
       },

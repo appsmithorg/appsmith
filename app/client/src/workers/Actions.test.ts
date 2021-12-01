@@ -37,6 +37,7 @@ describe("Add functions", () => {
     const onSuccess = () => "success";
     const onError = () => "failure";
     const actionParams = { param1: "value1" };
+    self.TRIGGER_COLLECTOR = [];
 
     workerEventMock.mockReturnValue({
       data: {
@@ -52,21 +53,18 @@ describe("Add functions", () => {
     // Old syntax works
     expect(
       dataTreeWithFunctions.action1.run(onSuccess, onError, actionParams),
-    ).resolves.toBe({ a: "b" });
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "RUN_PLUGIN_ACTION",
-          payload: {
-            actionId: "123",
-            params: { param1: "value1" },
-          },
+    ).toBe(undefined);
+    expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
+    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
+      payload: {
+        actionId: "123",
+        onError: '() => "failure"',
+        onSuccess: '() => "success"',
+        params: {
+          param1: "value1",
         },
       },
+      type: "RUN_PLUGIN_ACTION",
     });
 
     // new syntax works
@@ -314,45 +312,31 @@ describe("Add functions", () => {
     const callback = () => "test";
     const interval = 5000;
     const id = "myInterval";
+    self.TRIGGER_COLLECTOR = [];
 
-    expect(
-      dataTreeWithFunctions.setInterval(callback, interval, id),
-    ).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "SET_INTERVAL",
-          payload: {
-            callback: expect.stringContaining("test"),
-            interval,
-            id,
-          },
-        },
+    expect(dataTreeWithFunctions.setInterval(callback, interval, id)).toBe(
+      undefined,
+    );
+    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
+      payload: {
+        callback: '() => "test"',
+        id: "myInterval",
+        interval: 5000,
       },
+      type: "SET_INTERVAL",
     });
   });
 
   it("clearInterval works", () => {
     const id = "myInterval";
+    self.TRIGGER_COLLECTOR = [];
 
-    expect(dataTreeWithFunctions.clearInterval(id)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "CLEAR_INTERVAL",
-          payload: {
-            id,
-          },
-        },
+    expect(dataTreeWithFunctions.clearInterval(id)).toBe(undefined);
+    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
+      payload: {
+        id: "myInterval",
       },
+      type: "CLEAR_INTERVAL",
     });
   });
 });
