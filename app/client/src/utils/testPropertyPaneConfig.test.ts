@@ -45,8 +45,6 @@ function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
   }
 
   if (_config.validation !== undefined) {
-    if (!_config.isBindProperty)
-      return `${_config.propertyName}: isBindProperty should be true for the validation to evaluate`;
     const res = validateValidationStructure(_config.validation);
     if (res !== true) return `${_config.propertyName}: ${res}`;
   }
