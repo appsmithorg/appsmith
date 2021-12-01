@@ -31,6 +31,7 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
   logActionExecutionError,
+  TriggerFailureError,
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import {
@@ -150,7 +151,7 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
-    if (e instanceof UncaughtPromiseError) {
+    if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
       logActionExecutionError(e.message, source, triggerPropertyName);
     }
     // handle errors here

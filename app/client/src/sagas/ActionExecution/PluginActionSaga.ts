@@ -331,11 +331,12 @@ export default function* executePluginActionTriggerSaga(
         responseData: [payload.body, params],
         ...triggerMeta,
       });
+    } else {
+      throw new PluginTriggerFailureError(
+        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
+        [payload.body, params],
+      );
     }
-    throw new PluginTriggerFailureError(
-      createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
-      [payload.body, params],
-    );
   } else {
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
