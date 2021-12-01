@@ -10,7 +10,7 @@ import {
 } from "actions/onboardingActions";
 import Button from "components/ads/Button";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { get, set, isArray } from "lodash";
+import { isArray } from "lodash";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import lottie, { AnimationItem } from "lottie-web";
@@ -24,8 +24,6 @@ import {
   getGuidedTourDatasource,
   getHadReachedStep,
   getQueryAction,
-  getQueryName,
-  getTableName,
   getTableWidget,
   isButtonWidgetPresent,
   isCountryInputBound,
@@ -65,25 +63,20 @@ const ProgressBar = styled.div<{ done: boolean }>`
 `;
 
 const GuideWrapper = styled.div`
-  margin-top: 17px;
-  margin-left: 36px;
-  margin-right: 36px;
   margin-bottom: 10px;
-
-  &.query-page {
-    margin-left: 20px;
-    margin-right: 20px;
-  }
 `;
 
 const CardWrapper = styled.div`
   width: 100%;
   display: flex;
-  border: 1px solid #f0f0f0;
-  border-top-width: 0px;
-  box-shadow: 0px 0px 16px -4px rgba(16, 24, 40, 0.1),
-    0px 0px 6px -2px rgba(16, 24, 40, 0.05);
+  border-bottom: 1px solid #eeeeee;
   flex-direction: column;
+  background: #fafafa;
+`;
+
+const TitleWrapper = styled.div`
+  align-items: center;
+  display: flex;
 `;
 
 const Title = styled.span`
@@ -94,18 +87,32 @@ const Title = styled.span`
   color: #000000;
 `;
 
+const StepCount = styled.div`
+  background: #090707;
+  color: white;
+  ${(props) => getTypographyByKey(props, "h5")};
+  height: 24px;
+  width: 24px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+`;
+
 const Description = styled.span<{ addLeftSpacing?: boolean }>`
   font-size: 16px;
   line-height: 19px;
+
   letter-spacing: -0.24px;
   padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0px")};
-  margin-top: 13px;
+  margin-top: 9px;
   flex: 1;
   display: flex;
 `;
 
 const UpperContent = styled.div`
-  padding: 19px 24px 16px 15px;
+  padding: 20px 16px;
   flex-direction: column;
   display: flex;
 `;
@@ -119,7 +126,7 @@ const ContentWrapper = styled.div`
 const GuideButton = styled(Button)`
   padding: ${(props) => props.theme.spaces[0]}px
     ${(props) => props.theme.spaces[6]}px;
-  height: 30px;
+  height: 38px;
   ${(props) => getTypographyByKey(props, "btnMedium")};
 `;
 
@@ -129,20 +136,15 @@ const SubContentWrapper = styled.div`
   flex-direction: column;
 `;
 
-const IconWrapper = styled.div<{ backgroundColor?: string }>`
-  background-color: ${(props) =>
-    props.backgroundColor ? props.backgroundColor : "#ffffff"};
-  padding: 8px;
-  border-radius: 4px;
-  align-self: baseline;
-`;
-
 const Hint = styled.div`
-  background-color: #feede5;
-  padding: 17px 15px;
-  margin-top: 18px;
+  background: #ffffff;
+  padding: 19px 24px;
+  margin-top: 20px;
   display: flex;
   align-items: center;
+  border: 1px solid #716e6e;
+  box-shadow: 0px 0px 24px -4px rgba(16, 24, 40, 0.1),
+    0px 8px 8px -4px rgba(16, 24, 40, 0.04);
 
   .align-vertical {
     flex-direction: column;
@@ -154,7 +156,6 @@ const Hint = styled.div`
   }
 
   .hint-text {
-    padding-left: 15px;
     font-size: 16px;
   }
 
@@ -169,6 +170,7 @@ const Hint = styled.div`
 
   .strike {
     text-decoration: line-through;
+    opacity: 0.5;
   }
 
   .hint-steps-text {
@@ -178,6 +180,11 @@ const Hint = styled.div`
 
 const SuccessMessageWrapper = styled.div`
   display: flex;
+  padding: 26px 19px;
+  background: white;
+  border: 1px solid #716e6e;
+  box-shadow: 0px 0px 24px -4px rgba(16, 24, 40, 0.1),
+    0px 8px 8px -4px rgba(16, 24, 40, 0.04);
   align-items: center;
   .lottie-wrapper {
     height: 77px;
@@ -194,6 +201,7 @@ const SuccessMessageWrapper = styled.div`
     display: block;
     padding-right: 65px;
     margin-top: 0px;
+    line-height: 24px;
   }
 `;
 
@@ -215,12 +223,11 @@ type Step = {
   title: string;
   description?: string;
   hints: {
-    icon: IconName;
     text: ReactNode;
     button?: {
       text: string;
     };
-    steps?: string[];
+    steps?: ReactNode[];
   }[];
   success?: {
     text: string;
@@ -235,60 +242,66 @@ type Step = {
 type StepsType = Record<number, Step>;
 const Steps: StepsType = {
   1: {
-    title: `1. Edit & Run the <query> query to fetch customers data`,
+    title: `First step is querying the database. Here we are querying a Postgres database populated with customers data.`,
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
-            Edit the <b>limit</b> {"100"} with {"10"} and then Hit <b>Run</b>{" "}
-            button to see response
+            <b>Edit</b> the getCustomers query below to fetch data. Replace the{" "}
+            <b>limit</b> {`"20"`} with {`"10"`}.
+          </>
+        ),
+      },
+      {
+        text: (
+          <>
+            Now hit the <b>RUN</b> button to see the response.
           </>
         ),
       },
     ],
   },
   2: {
-    title: "2. Go to the <table> table to connect it to the customers data",
+    title:
+      "Let’s display this response in a table. Select the table widget we’ve added for you.",
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
-            <b>Click on the table</b> on the left in the explorer
+            <b>Click</b> and <b>select the CustomersTable</b> in the entity
+            explorer.
           </>
         ),
       },
     ],
   },
   3: {
-    title: "3. Connect the Table with Customers data",
+    title: "Display response of a query in a table.",
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
-            Replace the whole <b>Table Data</b> property with{" "}
+            Bind the response by typing{" "}
             <b>
               &#123;&#123;
               {"getCustomers.data"}&#125;&#125;
             </b>{" "}
-            on the right pane
+            in the Table Data input field on the right pane.
           </>
         ),
       },
     ],
     success: {
-      text: "Great! The table widget is now connected with the customers data",
+      text:
+        "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.",
       onClick: () => null,
     },
     info: {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          You can witness the pane on right called <b>Property Pane</b>, which
-          not only contains Table Data but many other properties for respective
-          widgets.
+          The pane on the right is called the <b>Property Pane</b>. Here you can
+          modify properties, data, or styling for every widget.
         </>
       ),
       onClick: (dispatch) => {
@@ -313,20 +326,17 @@ const Steps: StepsType = {
     },
   },
   4: {
-    title:
-      "4. Connect all the input fields in the customer update form with the table",
+    title: "Let’s build a form to update a customer record ",
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
-            On <b>selection of any row</b> in the table, the input fields in the
-            form should show the selected {"row's"} name, email, country and
-            image.
-            <br />
-            <b>Name</b> input below is already connected with the selected row
-            by replacing default text with{" "}
-            <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>
+            We{"'"}ll{" "}
+            <b>
+              display the data from a table{"'"}s selected row inside an input
+              field.
+            </b>
+            <br /> This will let us see the data before we update it.
           </>
         ),
         button: {
@@ -334,36 +344,58 @@ const Steps: StepsType = {
         },
       },
       {
-        icon: "edit-box-line",
         text: (
           <>
-            In the Property pane replace the value of <b>Default Text</b>{" "}
-            property for
+            In the property pane of Name input, Replace the whole{" "}
+            <b>Default Text</b> property with{" "}
+            <b>&#123;&#123;CustomersTable.selectedrow.name&#125;&#125;</b>
+          </>
+        ),
+      },
+    ],
+  },
+  5: {
+    title: "Connect all input fields in the Customer Update Form with table",
+    hints: [
+      {
+        text: (
+          <>
+            Now let{"'"}s connect rest of widgets in the container to Table{"'"}
+            s selected row
           </>
         ),
         steps: [
-          "For Email, with {{CustomersTable.selectedRow.email}}",
-          "For Country, with {{CustomersTable.selectedRow.country}}",
-          "For Image, with {{CustomersTable.selectedRow.image}}",
+          <>
+            Connect <b>{`"Email Input"`}</b>
+            {"'"}s Default Text Property to
+            &#123;&#123;CustomersTable.selectedrow.email&#125;&#125;
+          </>,
+          <>
+            Connect <b>{`"Country Input"`}</b>
+            {"'"}s Default Text Property to
+            &#123;&#123;CustomersTable.selectedrow.country&#125;&#125;
+          </>,
+          <>
+            Connect <b>{`"Display Image"`}</b>
+            {"'"}s Image Property to
+            &#123;&#123;CustomersTable.selectedrow.image&#125;&#125;
+          </>,
         ],
       },
     ],
     success: {
-      text: "There you go! All inputs are connected with the selected row",
-      onClick: (dispatch) => {
-        dispatch(setCurrentStep(5));
-        dispatch(setIndicatorLocation("WIDGET_SIDEBAR"));
-      },
+      text:
+        "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.",
+      onClick: () => null,
     },
   },
-  5: {
-    title: "5. Add an update button to trigger an update query",
+  6: {
+    title: "Add an update button to trigger an update query",
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
-            Switch to the widget page and then <b>Drag {"&"} Drop</b> a Button
+            Switch to the widget pane and then <b>Drag {"&"} Drop</b> a Button
             widget into the left bottom of container, below the image. Update
             the label of the button to <i>Update info</i>
           </>
@@ -376,13 +408,21 @@ const Steps: StepsType = {
         dispatch(setCurrentStep(6));
       },
     },
+    info: {
+      icon: "lightbulb-flash-line",
+      text: (
+        <>
+          To <b>update the customers</b> through the button, we created
+          <b>updateCustomerInfo query</b> for you which is ready to use
+        </>
+      ),
+      onClick: () => null,
+    },
   },
-  6: {
-    title:
-      "6. Trigger updateCustomerInfo query by binding to the button widget",
+  7: {
+    title: "Trigger updateCustomerInfo query by binding to the button widget",
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
             Select the button widget to see the properties in the propety pane.
@@ -393,12 +433,11 @@ const Steps: StepsType = {
       },
     ],
   },
-  7: {
+  8: {
     title:
-      "7. After successfully triggering the update query, fetch the updated customer data. ",
+      "After successfully triggering the update query, fetch the updated customer data. ",
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
             Click the onSuccess dropdown, select <b>Execute a query</b> {"&"}{" "}
@@ -415,11 +454,10 @@ const Steps: StepsType = {
       },
     },
   },
-  8: {
+  9: {
     title: "Final step: Test & deploy your app",
     hints: [
       {
-        icon: "edit-box-line",
         text: (
           <>
             Test your app and ensure there are no errors. When you are ready,
@@ -444,11 +482,13 @@ function InitialContent() {
     <div>
       <ContentWrapper>
         <SubContentWrapper>
-          <Title>Let’s Build a Customer Support App</Title>
+          <Title>
+            In this tutorial we’ll build a tool to display customer information
+          </Title>
           <Description>
-            Below is the customer support app that we will end up building
-            through this welcome tour. Check it out and play with it before we
-            start the tour.
+            This tool has a table that displays customer data and a form to
+            update a particular customer record. Try out the tool below before
+            you start building this.
           </Description>
         </SubContentWrapper>
         <GuideButton
@@ -459,54 +499,13 @@ function InitialContent() {
         />
       </ContentWrapper>
       <Hint>
-        <IconWrapper>
-          <Icon
-            fillColor="#F86A2B"
-            name="database-2-line"
-            size={IconSize.XXL}
-          />
-        </IconWrapper>
         <span className="hint-text">
-          Don’t worry about the Database, We got you. The app is connected to
-          Mock DB by default.
+          The app is connected to a Postgres database with customers data called{" "}
+          <b>Customers DB</b>.
         </span>
       </Hint>
     </div>
   );
-}
-
-function replacePlaceholders(
-  step: number,
-  fields: string[],
-  substitutionMap: Record<string, string>,
-) {
-  const stepContent = { ...Steps[step] };
-  const re = new RegExp(Object.keys(substitutionMap).join("|"), "gi");
-
-  fields.map((field: string) => {
-    let str = get(stepContent, field);
-    if (str && typeof str === "string") {
-      str = str.replace(re, function(matched) {
-        return substitutionMap[matched];
-      });
-
-      set(stepContent, field, str);
-    }
-  });
-
-  return stepContent;
-}
-
-function useUpdateName(step: number): Step {
-  const queryName = useSelector(getQueryName);
-  const tableName = useSelector(getTableName);
-
-  const substitutionMap = {
-    "<query>": queryName,
-    "<table>": tableName,
-  };
-
-  return replacePlaceholders(step, ["title"], substitutionMap);
 }
 
 function useComputeCurrentStep(isExploring: boolean) {
@@ -704,7 +703,7 @@ function GuideStepsContent(props: {
   currentStep: number;
   completedSubSteps: number[];
 }) {
-  const content = useUpdateName(props.currentStep);
+  const content = Steps[props.currentStep];
   const [hintCount, setHintCount] = useState(0);
   const currentHint = content.hints[hintCount]
     ? content.hints[hintCount]
@@ -724,20 +723,16 @@ function GuideStepsContent(props: {
     <div>
       <ContentWrapper>
         <SubContentWrapper>
-          <Title>{content.title}</Title>
+          <TitleWrapper>
+            <StepCount>{props.currentStep}</StepCount>
+            <Title>{content.title}</Title>
+          </TitleWrapper>
           {content.description && (
             <Description>{content.description}</Description>
           )}
         </SubContentWrapper>
       </ContentWrapper>
       <Hint>
-        <IconWrapper>
-          <Icon
-            fillColor="#F86A2B"
-            name={currentHint.icon}
-            size={IconSize.XXL}
-          />
-        </IconWrapper>
         <div className="hint-text">
           <span>{currentHint.text}</span>
 
@@ -748,7 +743,7 @@ function GuideStepsContent(props: {
               const className = "hint-steps" + (completed ? " strike" : "");
 
               return (
-                <div className={className} key={step}>
+                <div className={className} key={step?.toString()}>
                   <Icon
                     fillColor={completed ? "#03B365" : "#716E6E"}
                     name={completed ? "oval-check-fill" : "oval-check"}
@@ -826,9 +821,8 @@ function CompletionContent(props: CompletionContentProps) {
   } else {
     return (
       <SuccessMessageWrapper>
-        <IconWrapper backgroundColor="#FEEDE5">
-          <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXL} />
-        </IconWrapper>
+        <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXXXL} />
+
         <Description className="info">{info?.text}</Description>
         <GuideButton
           onClick={onInfoButtonClick}
@@ -875,7 +869,6 @@ function Guide(props: GuideProps) {
   return (
     <GuideWrapper className={props.className}>
       <CardWrapper>
-        {!exploring && <StatusBar currentStep={step} totalSteps={6} />}
         <UpperContent>
           <GuideBody
             completedSubSteps={completedSubSteps}
