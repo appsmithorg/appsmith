@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Ref;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -281,15 +283,227 @@ public class GitExecutorTest {
                 });
     }
 
+    @Test
+    public void mergeBranch_WithOutConflicts_Success() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "main").block();
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
+        commitToRepo();
+        String defaultBranch = git.getRepository().getBranch();
+
+        Mono<String> mergeStatusDTOMono = gitExecutor.mergeBranch(path, defaultBranch, "master");
+
+        StepVerifier
+                .create(mergeStatusDTOMono)
+                .assertNext(s -> {
+                    assertThat(s).isEqualTo("FAST_FORWARD");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void mergeBranch_WithConflicts_Failure() throws IOException {
+
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "test1").block();
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", true);
+        commitToRepo();
+
+        //Create a 2nd branch
+        gitExecutor.checkoutToBranch(path, "master").block();
+        gitExecutor.createAndCheckoutToBranch(path, "test2").block();
+        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", true);
+        commitToRepo();
+
+        String defaultBranch = git.getRepository().getBranch();
+
+        Mono<String> mergeStatusDTOMono = gitExecutor.mergeBranch(path, "test1", "test2");
+
+        StepVerifier
+                .create(mergeStatusDTOMono)
+                .assertNext(s -> assertThat(s).isEqualTo("CONFLICTING"))
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void mergeBranch_NoChanges_SuccessUpToDate() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "test1").block();
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
+        commitToRepo();
+
+        //Create a 2nd branch
+        gitExecutor.createAndCheckoutToBranch(path, "test2").block();
+        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", false);
+        commitToRepo();
+
+        String defaultBranch = git.getRepository().getBranch();
+
+        Mono<String> mergeStatusDTOMono = gitExecutor.mergeBranch(path, "test1", "test2");
+
+        StepVerifier
+                .create(mergeStatusDTOMono)
+                .assertNext(s -> assertThat(s).isEqualTo("ALREADY_UP_TO_DATE"))
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void mergeBranchStatus_WithOutConflicts_Mergeable() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "main").block();
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
+        commitToRepo();
+        String defaultBranch = git.getRepository().getBranch();
+
+        Mono<MergeStatusDTO> mergeStatusDTOMono = gitExecutor.isMergeBranch(path, defaultBranch, "master");
+
+        StepVerifier
+                .create(mergeStatusDTOMono)
+                .assertNext(mergeStatusDTO -> {
+                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void mergeBranchStatus_NoChanges_Mergeable() throws IOException {
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "test1").block();
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
+        commitToRepo();
+
+        //Create a 2nd branch
+        gitExecutor.createAndCheckoutToBranch(path, "test2").block();
+        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", false);
+        commitToRepo();
+
+        Mono<MergeStatusDTO> mergeStatusDTOMono = gitExecutor.isMergeBranch(path, "test1", "test2");
+
+        StepVerifier
+                .create(mergeStatusDTOMono)
+                .assertNext(mergeStatusDTO -> {
+                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.TRUE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void mergeBranchStatus_WithConflicts_ShowConflictFiles() throws IOException {
+
+        createFileInThePath("TestFIle4");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "test1").block();
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", true);
+        commitToRepo();
+
+        //Create a 2nd branch
+        gitExecutor.checkoutToBranch(path, "master").block();
+        gitExecutor.createAndCheckoutToBranch(path, "test2").block();
+        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", true);
+        commitToRepo();
+
+        String defaultBranch = git.getRepository().getBranch();
+
+        Mono<MergeStatusDTO> mergeStatusDTOMono = gitExecutor.isMergeBranch(path, "test1", "test2");
+
+        StepVerifier
+                .create(mergeStatusDTOMono)
+                .assertNext(mergeStatusDTO -> {
+                    assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.FALSE);
+                    assertThat(mergeStatusDTO.getConflictingFiles().size()).isEqualTo(1);
+                    assertThat(mergeStatusDTO.getConflictingFiles().get(0)).isEqualTo("TestFIle4");
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void getCommitHistory_EmptyRepo_Error() {
+        Mono<List<GitLogDTO>> status = gitExecutor.getCommitHistory(path);
+
+        StepVerifier
+                .create(status)
+                .expectErrorMatches(throwable -> throwable instanceof NoHeadException)
+                .verify();
+    }
+
+    @Test
+    public void getCommitHistory_NonEmptyRepo_Success() throws IOException {
+        createFileInThePath("testFile");
+        commitToRepo();
+        Mono<List<GitLogDTO>> status = gitExecutor.getCommitHistory(path);
+
+        StepVerifier
+                .create(status)
+                .assertNext(gitLogDTOS -> {
+                    assertThat(gitLogDTOS.size()).isEqualTo(1);
+                    assertThat(gitLogDTOS.get(0).getCommitMessage()).isEqualTo("Test commit");
+                    assertThat(gitLogDTOS.get(0).getAuthorName()).isEqualTo("test");
+                    assertThat(gitLogDTOS.get(0).getAuthorEmail()).isEqualTo("test@test.com");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void deleteBranch_validBranch_Success() throws IOException {
+        createFileInThePath("testFile");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "test").block();
+        gitExecutor.checkoutToBranch(path, "master").block();
+        Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "test");
+
+        StepVerifier
+                .create(deleteBranchMono)
+                .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+    }
+
+    @Test
+    public void deleteBranch_emptyRepo_Success() throws IOException {
+
+        Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "master");
+
+        StepVerifier
+                .create(deleteBranchMono)
+                .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+    }
+
+    @Test
+    public void deleteBranch_inValidBranch_Success() throws IOException {
+        createFileInThePath("testFile");
+        commitToRepo();
+        gitExecutor.createAndCheckoutToBranch(path, "test").block();
+        gitExecutor.checkoutToBranch(path, "master").block();
+        Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "test2");
+
+        StepVerifier
+                .create(deleteBranchMono)
+                .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+    }
 
     // TODO cover the below mentioned test cases
     /*
-     * Merge conflicts
-     * Merge invalid branch
-     * Merge with no changes
-     * Merge with valid data
-     * Clone with invalid keys
-     * Clone with invalid remote
-     * Clone with valid data
+     * getStatus
+     * resetToLastCommit
+     * Clone
      * */
 }

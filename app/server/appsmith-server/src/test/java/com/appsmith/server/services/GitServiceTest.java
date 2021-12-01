@@ -1044,7 +1044,7 @@ public class GitServiceTest {
         Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(new Application()));
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote", true)
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote")
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("testRemote", application.getId(), AclPermission.READ_APPLICATIONS));
 
         StepVerifier
@@ -1076,7 +1076,7 @@ public class GitServiceTest {
         testApplication1.setGitApplicationMetadata(gitApplicationMetadata1);
         Application application2 = applicationPageService.createApplication(testApplication1).block();
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", true);
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch");
 
         StepVerifier
                 .create(applicationMono)

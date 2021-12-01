@@ -271,11 +271,14 @@ public class GitExecutorImpl implements GitExecutor {
             Path baseRepoPath = createRepoPath(repoSuffix);
             Git git = Git.open(baseRepoPath.toFile());
             // Create and checkout to new branch
-            git.branchDelete()
+            List<String> deleteBranchList = git.branchDelete()
                     .setBranchNames(branchName)
                     .setForce(Boolean.TRUE)
                     .call();
             git.close();
+            if(deleteBranchList.isEmpty()) {
+                return Boolean.FALSE;
+            }
             return Boolean.TRUE;
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))

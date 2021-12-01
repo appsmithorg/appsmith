@@ -724,14 +724,14 @@ public class GitServiceImpl implements GitService {
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
-    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, Boolean isRemote) {
+    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
-        if(Boolean.TRUE.equals(isRemote)) {
+        if(branchName.contains("origin/")) {
             String finalBranchName = branchName.replace("origin/", "");
             return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
                     .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName));
@@ -961,7 +961,7 @@ public class GitServiceImpl implements GitService {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .onErrorResume(error ->  {
                     //if the branch does not exist in local, checkout remote branch
-                    return checkoutBranch(defaultApplicationId, branchName, true)
+                    return checkoutBranch(defaultApplicationId, branchName)
                             .map(application -> application.getId());
                 })
                 .flatMap(branchedApplicationId -> importExportApplicationService.exportApplicationById(branchedApplicationId, SerialiseApplicationObjective.VERSION_CONTROL))
