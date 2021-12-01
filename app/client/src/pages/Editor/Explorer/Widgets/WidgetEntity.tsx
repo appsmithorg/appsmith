@@ -15,8 +15,6 @@ import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import Indicator from "pages/Editor/GuidedTour/Indicator";
-import { getGuidedTourTableWidget } from "selectors/onboardingSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -87,7 +85,6 @@ export type WidgetEntityProps = {
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const currentPageId = useSelector(getCurrentPageId);
 
-  const guidedTourTableWidget = useSelector(getGuidedTourTableWidget);
   const widgetsToExpand = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
