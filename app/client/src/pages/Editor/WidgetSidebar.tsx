@@ -76,10 +76,16 @@ function WidgetSidebar(props: IPanelProps) {
         <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
           {filteredCards.map((card) => (
             <Indicator
-              async
-              direction="down"
               key={card.key}
               location="WIDGET_SIDEBAR"
+              modifiers={{
+                offset: {
+                  enabled: true,
+                  options: {
+                    offset: [0, -20],
+                  },
+                },
+              }}
               position="top"
               show={card.type === "BUTTON_WIDGET"}
               step={5}

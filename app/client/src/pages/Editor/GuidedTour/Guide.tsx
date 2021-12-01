@@ -2,6 +2,7 @@ import {
   addOnboardingWidget,
   markStepComplete,
   setCurrentStep,
+  setIndicatorLocation,
   setUpTourApp,
   tableWidgetWasSelected,
   toggleLoader,
@@ -321,8 +322,8 @@ const Steps: StepsType = {
             form should show the selected {"row's"} name, email, country and
             image.
             <br />
-            <b>NameInput</b> below is already connected with the selected row by
-            replacing default text with{" "}
+            <b>Name</b> input below is already connected with the selected row
+            by replacing default text with{" "}
             <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>
           </>
         ),
@@ -349,11 +350,12 @@ const Steps: StepsType = {
       text: "There you go! All inputs are connected with the selected row",
       onClick: (dispatch) => {
         dispatch(setCurrentStep(5));
+        dispatch(setIndicatorLocation("WIDGET_SIDEBAR"));
       },
     },
   },
   5: {
-    title: "5. Create Update button to update the customer inputs",
+    title: "5. Add an update button to trigger an update query",
     hints: [
       {
         icon: "edit-box-line",
@@ -534,7 +536,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   );
 
   if (step === 1) {
-    if (queryExecutedSuccessfully) {
+    if (queryLimitUpdated && queryExecutedSuccessfully) {
       step = 2;
     }
   }
@@ -546,7 +548,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   }
 
   if (step === 3) {
-    if (isContainerWidgetPreset && hadReachedStep > 3) {
+    if (isTableWidgetBound && isContainerWidgetPreset && hadReachedStep > 3) {
       step = 4;
     }
   }
@@ -568,7 +570,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   }
 
   if (step === 5) {
-    if (buttonWidgetPresent && buttonWidgetHasText) {
+    if (buttonWidgetPresent && buttonWidgetHasText && hadReachedStep > 5) {
       step = 6;
     }
   }
@@ -620,22 +622,32 @@ function useComputeCurrentStep(isExploring: boolean) {
       });
     }
   }, [isExploring, step]);
-  useEffect(() => {
-    if (step === 1) {
-    }
-  }, [queryLimitUpdated, step]);
 
   useEffect(() => {
-    if (tableWidgetSelected) {
+    if (step === 1 && hadReachedStep <= 1) {
+      if (!queryLimitUpdated) {
+        dispatch(setIndicatorLocation("QUERY_EDITOR"));
+      } else if (queryExecutedSuccessfully) {
+        dispatch(setIndicatorLocation("NONE"));
+      } else {
+        dispatch(setIndicatorLocation("RUN_QUERY"));
+      }
+    }
+  }, [queryExecutedSuccessfully, queryLimitUpdated, step, hadReachedStep]);
+
+  useEffect(() => {
+    if (tableWidgetSelected && step === 3 && hadReachedStep <= 3) {
       dispatch(tableWidgetWasSelected(true));
+      dispatch(setIndicatorLocation("PROPERTY_CONTROL"));
     }
-  }, [tableWidgetSelected]);
+  }, [step, tableWidgetSelected]);
 
   useEffect(() => {
-    if (isTableWidgetBound && step === 3) {
+    if (isTableWidgetBound && step === 3 && hadReachedStep <= 3) {
+      dispatch(setIndicatorLocation("NONE"));
       dispatch(markStepComplete());
     }
-  }, [isTableWidgetBound, step]);
+  }, [isTableWidgetBound, step, hadReachedStep]);
 
   useEffect(() => {
     if (step === 4 && completedSubSteps.length === 3) {
@@ -644,8 +656,9 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [step, completedSubSteps.length]);
 
   useEffect(() => {
-    if (step === 5) {
+    if (step === 5 && hadReachedStep <= 5) {
       if (buttonWidgetPresent) {
+        dispatch(setIndicatorLocation("NONE"));
         if (buttonWidgetHasText) {
           dispatch(markStepComplete());
         }
@@ -654,9 +667,18 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [step, buttonWidgetPresent, buttonWidgetHasText]);
 
   useEffect(() => {
+    if (step === 6 && hadReachedStep <= 6) {
+      if (buttonWidgetonClickBinding) {
+        dispatch(setIndicatorLocation("ACTION_CREATOR"));
+      }
+    }
+  }, [step, buttonWidgetonClickBinding, hadReachedStep]);
+
+  useEffect(() => {
     if (step === 7) {
       if (buttonWidgetSuccessBinding) {
         dispatch(markStepComplete());
+        dispatch(setIndicatorLocation("NONE"));
       }
     }
   }, [step, buttonWidgetSuccessBinding]);

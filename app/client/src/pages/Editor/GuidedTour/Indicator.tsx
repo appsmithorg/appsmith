@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Popover2 } from "@blueprintjs/popover2";
+import React, { useEffect, useRef } from "react";
+import { IPopover2Props, Popover2 } from "@blueprintjs/popover2";
 import { useSelector } from "react-redux";
 import {
   getCurrentStep,
@@ -11,50 +11,33 @@ import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-indicator.json";
 import { PopoverPosition } from "@blueprintjs/core";
 
-const IndicatorWrapper = styled.div<{ direction: Direction }>`
-  height: 55px;
-  width: 55px;
-  svg {
-    path {
-      fill: white;
-      fill-opacity: 1;
-    }
-  }
-  background-color: transparent;
-  ${(props) => {
-    if (props.direction === "left") {
-      return `transform: rotate(-90deg) scaleX(-1);`;
-    } else if (props.direction === "right") {
-      return `transform: rotate(90deg);`;
-    } else if (props.direction === "down") {
-      return `transform: rotate(-180deg);`;
-    }
-  }}
+const IndicatorWrapper = styled.div`
+  height: 60px;
+  width: 80px;
 `;
-
-type Direction = "down" | "right" | "left";
 
 export type IndicatorLocation =
   | "RUN_QUERY"
   | "PROPERTY_PANE"
   | "QUERY_EDITOR"
   | "WIDGET_SIDEBAR"
-  | "NONE";
+  | "NONE"
+  | "PROPERTY_CONTROL"
+  | "ACTION_CREATOR";
 
 type IndicatorProps = {
-  children: JSX.Element;
+  children?: JSX.Element;
   show?: boolean;
   step: number;
   position?: PopoverPosition;
-  direction: Direction;
   location?: IndicatorLocation;
   targetTagName?: keyof JSX.IntrinsicElements;
   async?: boolean;
   hideOnClick?: boolean;
+  modifiers?: IPopover2Props["modifiers"];
 };
 
-function Indicator(props: IndicatorProps): JSX.Element {
-  const [hide, setHide] = useState(false);
+function Indicator(props: IndicatorProps): JSX.Element | null {
   const indicatorRef = useRef<HTMLDivElement>(null);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const currentStep = useSelector(getCurrentStep);
@@ -65,6 +48,15 @@ function Indicator(props: IndicatorProps): JSX.Element {
     currentStep === props.step &&
     (props.location ? props.location === indicatorLocation : true);
   let anim: AnimationItem | undefined;
+  let popoverRef: Popover2<any> | null = null;
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (popoverRef !== null) {
+        popoverRef.reposition();
+      }
+    }, 1000);
+  }, [props.step]);
 
   const loadAnimation = () => {
     anim = lottie.loadAnimation({
@@ -77,7 +69,7 @@ function Indicator(props: IndicatorProps): JSX.Element {
   };
 
   useEffect(() => {
-    if (false) {
+    if (showIndicator) {
       if (props.async) {
         setTimeout(() => {
           loadAnimation();
@@ -91,30 +83,26 @@ function Indicator(props: IndicatorProps): JSX.Element {
     };
   }, [indicatorRef?.current, showIndicator, props.async]);
 
-  if (false)
+  if (showIndicator)
     return (
       <Popover2
         autoFocus={false}
-        content={
-          <IndicatorWrapper direction={props.direction} ref={indicatorRef} />
-        }
+        content={<IndicatorWrapper ref={indicatorRef} />}
         enforceFocus={false}
-        isOpen={props.show && !hide}
+        isOpen={props.show}
+        lazy={false}
         minimal
-        onInteraction={(openState) => {
-          if (!hide && props.hideOnClick) {
-            setHide(!openState);
-          }
-        }}
+        modifiers={props.modifiers}
         popoverClassName={`guided-tour-indicator`}
         position={props.position}
+        ref={(ref) => (popoverRef = ref)}
         targetTagName={props.targetTagName}
       >
         {props.children}
       </Popover2>
     );
 
-  return props.children;
+  return props?.children ?? null;
 }
 
 Indicator.defaultProps = {

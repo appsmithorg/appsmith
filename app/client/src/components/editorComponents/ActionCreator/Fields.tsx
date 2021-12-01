@@ -13,6 +13,7 @@ import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
+import Indicator from "pages/Editor/GuidedTour/Indicator";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -846,10 +847,27 @@ function Fields(props: {
     const remainingFields = fields.slice(1);
     return (
       <>
-        {renderField({
-          field: fields[0],
-          ...otherProps,
-        })}
+        <Indicator
+          location="ACTION_CREATOR"
+          modifiers={{
+            offset: {
+              enabled: true,
+              options: {
+                offset: [-15, -120],
+              },
+            },
+          }}
+          position="left"
+          show={fields[0].label === "onSuccess"}
+          step={7}
+          targetTagName="div"
+        >
+          {renderField({
+            field: fields[0],
+            ...otherProps,
+          })}
+        </Indicator>
+
         <ul className={props.depth === 1 ? "tree" : ""}>
           {remainingFields.map((field: any, index: number) => {
             if (Array.isArray(field)) {

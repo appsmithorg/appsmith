@@ -42,7 +42,15 @@ export const generatePropertyControl = (
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Indicator
-          direction="down"
+          location="PROPERTY_CONTROL"
+          modifiers={{
+            offset: {
+              enabled: true,
+              options: {
+                offset: [-5, -40],
+              },
+            },
+          }}
           position={"top"}
           show={
             (config as PropertyPaneControlConfig).propertyName === "tableData"

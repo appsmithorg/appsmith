@@ -22,8 +22,15 @@ function FormControl(props: FormControlProps) {
 
   return (
     <Indicator
-      direction="down"
       location="QUERY_EDITOR"
+      modifiers={{
+        offset: {
+          enabled: true,
+          options: {
+            offset: [0, -20],
+          },
+        },
+      }}
       position="top"
       show={props.config.configProperty === "actionConfiguration.body"}
       step={1}

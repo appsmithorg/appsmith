@@ -769,7 +769,19 @@ export function EditorJSONtoForm(props: Props) {
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
             />
-            <Indicator location="RUN_QUERY" position="bottom" step={1}>
+            <Indicator
+              location="RUN_QUERY"
+              modifiers={{
+                offset: {
+                  enabled: true,
+                  options: {
+                    offset: [0, -20],
+                  },
+                },
+              }}
+              position="top"
+              step={1}
+            >
               <Button
                 className="t--run-query"
                 isLoading={isRunning}

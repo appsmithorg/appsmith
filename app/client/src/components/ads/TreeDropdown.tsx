@@ -179,10 +179,10 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.type === option.value;
     return (
       <Indicator
-        direction="down"
-        position="top"
+        position="right"
         show={option.label === "Execute a query"}
         step={6}
+        targetTagName="div"
       >
         <MenuItem
           active={isSelected}
