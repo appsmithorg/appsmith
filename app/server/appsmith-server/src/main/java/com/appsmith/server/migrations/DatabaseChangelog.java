@@ -3874,4 +3874,43 @@ public class DatabaseChangelog {
         Update update = new Update().set("isPublic", true);
         mongockTemplate.updateMulti(query, update, Application.class);
     }
+
+    @ChangeSet(order = "098", id = "update-js-action-client-side-execution", author = "")
+    public void updateJsActionsClientSideExecution(MongockTemplate mongockTemplate) {
+        Plugin jsPlugin = mongockTemplate.findOne(
+                query(where("packageName").is("js-plugin")),
+                Plugin.class
+        );
+
+        // Find all JS actions
+        List<NewAction> jsActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(jsPlugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction jsAction : jsActions) {
+            ActionDTO unpublishedAction = jsAction.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            unpublishedAction.setClientSideExecution(true);
+
+            ActionDTO publishedAction = jsAction.getPublishedAction();
+            if (publishedAction != null) {
+                publishedAction.setClientSideExecution(true);
+            }
+            actionsToSave.add(jsAction);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction jsAction : actionsToSave) {
+            mongockTemplate.save(jsAction);
+        }
+    }
 }
