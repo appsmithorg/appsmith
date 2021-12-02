@@ -18,6 +18,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,10 +83,30 @@ public class BulkAppendMethod implements Method {
         final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
 
         List<RowObject> rowObjectListFromBody = null;
+        JsonNode body = null;
         try {
-            rowObjectListFromBody = this.getRowObjectListFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
+            body = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (JsonProcessingException e) {
             // Should never enter here
+        }
+
+        rowObjectListFromBody = this.getRowObjectListFromBody(body);
+        if (body.isArray()) {
+            boolean fieldsEmpty = true;
+            for (JsonNode jsonNode : body) {
+                String fieldName = "";
+                if(jsonNode.fields().hasNext()) {
+                //    jsonNode.fields().next();
+                    fieldName = jsonNode.fields().next().getKey();
+                    if (fieldName.length() > 0) {
+                        fieldsEmpty = false;
+                        break;
+                    }
+                }
+            }
+            if(fieldsEmpty) {
+                return Mono.just(true);
+            }
         }
 
         assert rowObjectListFromBody != null;
@@ -152,10 +173,13 @@ public class BulkAppendMethod implements Method {
                                     }
                                     valueMap.put(header.asText(), value);
                                 }
-                                if (Boolean.FALSE.equals(validValues)) {
-                                    valueMap.put("", "");
+                                if (Boolean.TRUE.equals(validValues)) {
+                                    rowObject.setValueMap(valueMap);
+                                } else {
+                                    throw Exceptions.propagate(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Could not map values to existing data."));
                                 }
-                                rowObject.setValueMap(valueMap);
                             }
 
                             methodConfig.setBody(finalRowObjectListFromBody);
@@ -192,6 +216,17 @@ public class BulkAppendMethod implements Method {
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
 
         final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
+
+        if(body1==null){
+            final ValueRange valueRange = new ValueRange();
+            valueRange.setMajorDimension("ROWS");
+            valueRange.setRange(range);
+            valueRange.setValues(null);
+            return webClient.method(HttpMethod.POST)
+                    .uri(uriBuilder.build(true).toUri())
+                    .body(BodyInserters.fromValue(valueRange));
+        }
+
         List<List<Object>> collect = body1.stream()
                 .map(row -> row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
                 .collect(Collectors.toList());
