@@ -14,6 +14,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
+import { getGitStatus } from "selectors/gitSyncSelectors";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -46,6 +47,7 @@ function BranchButton() {
   const dispatch = useDispatch();
   const fetchBranches = () => dispatch(fetchBranchesInit());
   const labelTarget = useRef<HTMLDivElement>(null);
+  const status = useSelector(getGitStatus);
 
   useEffect(() => {
     fetchBranches();
@@ -75,6 +77,7 @@ function BranchButton() {
           </div>
           <div className="label" ref={labelTarget}>
             {currentBranch}
+            {!status?.isClean && "*"}
           </div>
         </ButtonContainer>
       </Tooltip>
