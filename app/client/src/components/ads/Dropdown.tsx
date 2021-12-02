@@ -112,6 +112,9 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `38px`};
   position: relative;
+  span.bp3-popover-target {
+    display: inline-block;
+  }
 `;
 
 const DropdownTriggerWrapper = styled.div<{

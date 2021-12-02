@@ -27,10 +27,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
-import {
-  getCurrentAppGitMetaData,
-  getTempRemoteUrl,
-} from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 import {
   fetchGlobalGitConfigInit,
@@ -51,6 +48,7 @@ import {
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
+  getTempRemoteUrl,
 } from "selectors/gitSyncSelectors";
 import Statusbar, {
   StatusbarWrapper,

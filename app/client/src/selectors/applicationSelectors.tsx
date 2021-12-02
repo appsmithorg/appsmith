@@ -154,11 +154,6 @@ export const getCurrentAppSSHKeyPair = createSelector(
   (currentApplication): string | undefined => currentApplication?.SSHKeyPair,
 );
 
-export const getTempRemoteUrl = createSelector(
-  getCurrentApplication,
-  (currentApplication): string | undefined => currentApplication?.tempRemoteUrl,
-);
-
 export const getIsSavingOrgInfo = (state: AppState) =>
   state.ui.applications.isSavingOrgInfo;
 

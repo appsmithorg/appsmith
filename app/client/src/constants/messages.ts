@@ -546,6 +546,7 @@ export const REMOTE_URL_VIA = () => "Remote URL via";
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
 export const AUTHOR_NAME = () => "Author name";
+export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
 
 export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";

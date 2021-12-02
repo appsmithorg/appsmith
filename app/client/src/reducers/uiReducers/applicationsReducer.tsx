@@ -411,18 +411,6 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<string>,
-  ) => {
-    return {
-      ...state,
-      currentApplication: {
-        ...state.currentApplication,
-        tempRemoteUrl: action.payload,
-      },
-    };
-  },
   [ReduxActionTypes.CONNECT_TO_GIT_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<ConnectToGitResponse>,
