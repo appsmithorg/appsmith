@@ -22,8 +22,8 @@ import {
   getIsFetchingGitStatus,
   getIsCommittingInProgress,
   getIsPullingProgress,
-  getGitError,
   getPullFailed,
+  getGitCommitAndPushError,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -97,7 +97,7 @@ function Deploy() {
   const isPullingProgress = useSelector(getIsPullingProgress);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
-  const gitError = useSelector(getGitError);
+  const gitError = useSelector(getGitCommitAndPushError);
   const pullFailed = useSelector(getPullFailed);
 
   const currentBranch = gitMetaData?.branchName;
