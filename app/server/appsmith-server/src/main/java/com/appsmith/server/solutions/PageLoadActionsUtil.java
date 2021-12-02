@@ -491,6 +491,47 @@ public class PageLoadActionsUtil {
         return onPageLoadActions.stream().filter(setOfActions -> !setOfActions.isEmpty()).collect(Collectors.toList());
     }
 
+    // api1 -> widget1 -> api2 -> api3
+    // api4 -> api3
+    // widget3 -> api3
+    // api6 -> api5
+
+    /**
+     * 0 -> api1, api4, widget3, api6
+     * 1 -> widget1, api3, api5
+     * 2 -> api2
+     * 3 -> api3
+     *
+     * [api1, api4, api6]
+     * [~api3, api5]
+     * [api2]
+     * [api3]
+     *
+     *
+     *
+     *
+     * ----------
+     *
+     *
+     * api1.data -> widget1.defaultText
+     * widget1.defaultText -> widget1.text
+     * widget1.text -> api3.actionConfiguration.path
+     * api2.data -> api1.actionConfiguration.path
+     *
+     * api1 -> widget1
+     * widget1 -> api3
+     * api2 -> api1 : This relationship is not recognized today.
+     *
+     *
+     * If we add a relationship between api.config -> api.data, the below will start throwing cyclic dependencies.
+     * api1.actionConfiguration.pagination.next <- api1.data.next
+     * api1.actionConfiguration.pagination.prev <- api1.data.prev
+     *
+     *
+     * entities : actions, widgets, global variables
+     * bindings : common code for action bindings can exist here.
+     *
+     */
     /**
      * This function gets a set of binding names that come from other actions. It looks for actions in the page with
      * the same names as words in the binding names set. If yes, it creates a new set of dynamicBindingNames, adds these newly
@@ -612,6 +653,8 @@ public class PageLoadActionsUtil {
         Set<String> allBindings = new HashSet<>();
         actionBindingMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
+        // TODO : Throw an error on action save when bindings from dynamic binding path list do not match the json path keys
+        // and get the client to recompute the dynamic bidning pathlist and try again.
         if (!allBindings.containsAll(action.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(action.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
@@ -628,6 +671,8 @@ public class PageLoadActionsUtil {
             for (String binding : dynamicBindings) {
                 Set<String> entityPaths = getWordsFromMustache(binding);
                 for (String source : entityPaths) {
+                    // TODO : Since its words from binding instead of possible parents Api1 would be recognized as
+                    //  source instead of Api1.data (since getWordsFromMustache would split Api1 and data from Api1.data)
                     ActionDependencyEdge edge = new ActionDependencyEdge(source, bindingPath);
                     edges.add(edge);
                 }
@@ -648,7 +693,7 @@ public class PageLoadActionsUtil {
      */
     private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
                                                                          Map<String, Set<String>> widgetBindingMap) {
-
+        // This part will ensure that we are discovering widget to widget relationships.
         return Mono.just(widgetBindingMap)
                 .map(widgetDynamicBindingsMap -> {
                     widgetDynamicBindingsMap.forEach((widgetPath, widgetDynamicBindings) -> {
@@ -807,22 +852,25 @@ public class PageLoadActionsUtil {
      *
      * @param allActionNames
      * @param actionNameToActionMap
-     * @param dynamicBinding
+     * @param vertex
      * @param existingActionsInOnPageLoad
      * @return
      */
     private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
                                                                Map<String, ActionDTO> actionNameToActionMap,
-                                                               String dynamicBinding,
+                                                               String vertex,
+                                                               // Convert the set to a map actionName : level where it is present in page load actions
                                                                Set<String> existingActionsInOnPageLoad) {
 
         Set<String> onPageLoadCandidates = new HashSet<>();
 
-        Set<String> possibleParents = getPossibleParents(dynamicBinding);
+        Set<String> possibleParents = getPossibleParents(vertex);
 
         for (String entity : possibleParents) {
             // if this generated entity name from the binding matches an action name which hasn't yet been added to the
             // on page load list, check for its eligibility
+
+            // TODO : If the action has been found already, delete it from page load actions and add it to later sets.
             if (allActionNames.contains(entity) && !existingActionsInOnPageLoad.contains(entity)) {
                 // This is definitely an action which hasn't yet been discovered for on page load.
                 ActionDTO action = actionNameToActionMap.get(entity);
@@ -835,7 +883,7 @@ public class PageLoadActionsUtil {
                     // of this async call is being referred to in the binding.
 
                     String validBinding = entity + "." + "data";
-                    if (!dynamicBinding.contains(validBinding)) {
+                    if (!vertex.contains(validBinding)) {
                         isCandidateForPageLoad = FALSE;
                     }
                 }
