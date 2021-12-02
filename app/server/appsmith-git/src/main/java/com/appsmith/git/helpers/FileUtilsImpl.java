@@ -65,7 +65,7 @@ public class FileUtilsImpl implements FileInterface {
 
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
-    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*|LICENSE).(md|git|gitignore|)$");
+    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("(.*?)\\.(md|git|gitignore)$");
 
 
     /**
@@ -317,7 +317,7 @@ public class FileUtilsImpl implements FileInterface {
         return Mono.fromCallable(() -> {
             File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
             for(File file : files) {
-                if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
+                if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches() && !file.getName().equals("LICENSE")) {
                     //Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
                     while (file.exists()) {
                         FileSystemUtils.deleteRecursively(file);

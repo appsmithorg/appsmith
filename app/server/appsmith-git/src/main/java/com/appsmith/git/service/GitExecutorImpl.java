@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
@@ -270,11 +271,13 @@ public class GitExecutorImpl implements GitExecutor {
             Path baseRepoPath = createRepoPath(repoSuffix);
             try (Git git = Git.open(baseRepoPath.toFile())) {
                 // Create and checkout to new branch
-                git.branchDelete()
+                List<String> deleteBranchList =git.branchDelete()
                         .setBranchNames(branchName)
                         .setForce(Boolean.TRUE)
                         .call();
-                git.close();
+                if(deleteBranchList.isEmpty()) {
+                    return Boolean.FALSE;
+                }
                 return Boolean.TRUE;
             }
         })
@@ -301,7 +304,7 @@ public class GitExecutorImpl implements GitExecutor {
                         .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
                         .call()
                         .getName();
-                return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
+                return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
             }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
@@ -315,51 +318,50 @@ public class GitExecutorImpl implements GitExecutor {
                                                 String privateKey,
                                                 String publicKey) throws IOException {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
-        Git git = Git.open(createRepoPath(repoSuffix).toFile());
-        return Mono.fromCallable(() -> {
-            log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
-                //checkout the branch on which the merge command is run
-                git.checkout().setName(branchName).setCreateBranch(false).call();
-                MergeResult mergeResult = git
-                        .pull()
-                        .setRemoteBranchName(branchName)
-                        .setTransportConfigCallback(transportConfigCallback)
-                        .setFastForward(MergeCommand.FastForwardMode.FF)
-                        .call()
-                        .getMergeResult();
-                MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
-                if (mergeResult.getMergeStatus().isSuccessful()) {
-                    mergeStatus.setMergeAble(true);
-                    mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
-                } else {
-                    //If there are conflicts add the conflicting file names to the response structure
-                    mergeStatus.setMergeAble(false);
-                    List<String> mergeConflictFiles = new ArrayList<>();
-                    if(!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
-                        mergeConflictFiles.addAll(mergeResult.getConflicts().keySet());
+        try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+            return Mono.fromCallable(() -> {
+                log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
+                    //checkout the branch on which the merge command is run
+                    git.checkout().setName(branchName).setCreateBranch(false).call();
+                    MergeResult mergeResult = git
+                            .pull()
+                            .setRemoteBranchName(branchName)
+                            .setTransportConfigCallback(transportConfigCallback)
+                            .setFastForward(MergeCommand.FastForwardMode.FF)
+                            .call()
+                            .getMergeResult();
+                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                    Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
+                    if (mergeResult.getMergeStatus().isSuccessful()) {
+                        mergeStatus.setMergeAble(true);
+                        mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
+                    } else {
+                        //If there are conflicts add the conflicting file names to the response structure
+                        mergeStatus.setMergeAble(false);
+                        List<String> mergeConflictFiles = new ArrayList<>();
+                        if(!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
+                            mergeConflictFiles.addAll(mergeResult.getConflicts().keySet());
+                        }
+                        mergeStatus.setConflictingFiles(mergeConflictFiles);
+                        //On merge conflicts abort the merge => git merge --abort
+                        git.getRepository().writeMergeCommitMsg(null);
+                        git.getRepository().writeMergeHeads(null);
+                        throw new IOException("Conflicted files: " + mergeConflictFiles);
                     }
-                    mergeStatus.setConflictingFiles(mergeConflictFiles);
-                    //On merge conflicts abort the merge => git merge --abort
-                    git.getRepository().writeMergeCommitMsg(null);
-                    git.getRepository().writeMergeHeads(null);
-                    Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
-                    throw new IOException("Conflicted files: " + mergeConflictFiles);
+                    return mergeStatus;
+            })
+            .onErrorResume(error -> {
+                try {
+                    return resetToLastCommit(git)
+                            .flatMap(ignore -> Mono.error(error));
+                } catch (GitAPIException e) {
+                    log.error("Error for hard resetting to latest commit {0}", e);
+                    return Mono.error(e);
                 }
-                git.close();
-                return mergeStatus;
-        })
-        .onErrorResume(error -> {
-            try {
-                return resetToLastCommit(git)
-                        .flatMap(ignore -> Mono.error(error));
-            } catch (GitAPIException e) {
-                log.error("Error for hard resetting to latest commit {0}", e);
-                return Mono.error(e);
-            }
-        })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
-        .subscribeOn(scheduler);
+            })
+            .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+            .subscribeOn(scheduler);
+        }
     }
 
     @Override
@@ -373,7 +375,7 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
-            List<Ref> refList = git.branchList().call();
+            List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
             String defaultBranch = null;
 
             // Show remote/all the branches depending upon the listMode
@@ -422,50 +424,50 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName) {
         return Mono.fromCallable(() -> {
-            log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
-            Git git = Git.open(repoPath.toFile());
-            Status status = git.status().call();
-            GitStatusDTO response = new GitStatusDTO();
-            Set<String> modifiedAssets = new HashSet<>();
-            modifiedAssets.addAll(status.getModified());
-            modifiedAssets.addAll(status.getAdded());
-            modifiedAssets.addAll(status.getRemoved());
-            modifiedAssets.addAll(status.getUncommittedChanges());
-            modifiedAssets.addAll(status.getUntracked());
-            long modifiedPages = 0L;
-            long modifiedQueries = 0L;
-            for (String x : modifiedAssets) {
-                if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
-                    modifiedPages++;
-                } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
-                    modifiedQueries++;
+            try (Git git = Git.open(repoPath.toFile())) {
+                log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
+                Status status = git.status().call();
+                GitStatusDTO response = new GitStatusDTO();
+                Set<String> modifiedAssets = new HashSet<>();
+                modifiedAssets.addAll(status.getModified());
+                modifiedAssets.addAll(status.getAdded());
+                modifiedAssets.addAll(status.getRemoved());
+                modifiedAssets.addAll(status.getUncommittedChanges());
+                modifiedAssets.addAll(status.getUntracked());
+                long modifiedPages = 0L;
+                long modifiedQueries = 0L;
+                for (String x : modifiedAssets) {
+                    if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
+                        modifiedPages++;
+                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
+                        modifiedQueries++;
+                    }
                 }
-            }
-            response.setModified(modifiedAssets);
-            response.setConflicting(status.getConflicting());
-            response.setIsClean(status.isClean());
-            response.setModifiedPages(modifiedPages);
-            response.setModifiedQueries(modifiedQueries);
+                response.setModified(modifiedAssets);
+                response.setConflicting(status.getConflicting());
+                response.setIsClean(status.isClean());
+                response.setModifiedPages(modifiedPages);
+                response.setModifiedQueries(modifiedQueries);
 
-            BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
-            if (trackingStatus != null) {
-                response.setAheadCount(trackingStatus.getAheadCount());
-                response.setBehindCount(trackingStatus.getBehindCount());
-                response.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
-            } else {
-                log.debug("Remote tracking details not present for branch: {}, repo: {}", branchName, repoPath);
-                response.setAheadCount(0);
-                response.setBehindCount(0);
-                response.setRemoteBranch("untracked");
-            }
+                BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
+                if (trackingStatus != null) {
+                    response.setAheadCount(trackingStatus.getAheadCount());
+                    response.setBehindCount(trackingStatus.getBehindCount());
+                    response.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
+                } else {
+                    log.debug("Remote tracking details not present for branch: {}, repo: {}", branchName, repoPath);
+                    response.setAheadCount(0);
+                    response.setBehindCount(0);
+                    response.setRemoteBranch("untracked");
+                }
 
-            // Remove modified changes from current branch so that checkout to other branches will be possible
-            if (!status.isClean()) {
-                return resetToLastCommit(git)
-                        .thenReturn(response);
+                // Remove modified changes from current branch so that checkout to other branches will be possible
+                if (!status.isClean()) {
+                    return resetToLastCommit(git)
+                            .thenReturn(response);
+                }
+                return Mono.just(response);
             }
-            git.close();
-            return Mono.just(response);
         })
         .flatMap(response -> response)
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
@@ -530,46 +532,48 @@ public class GitExecutorImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
 
-            Git git = Git.open(createRepoPath(repoSuffix).toFile());
-            //checkout the branch on which the merge command is run
-            try{
-                git.checkout().setName(destinationBranch).setCreateBranch(false).call();
-            } catch (GitAPIException e) {
-                if(e instanceof CheckoutConflictException) {
-                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                    mergeStatus.setMergeAble(false);
-                    mergeStatus.setConflictingFiles(((CheckoutConflictException) e).getConflictingPaths());
-                    git.close();
-                    return mergeStatus;
+            try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+
+                //checkout the branch on which the merge command is run
+                try{
+                    git.checkout().setName(destinationBranch).setCreateBranch(false).call();
+                } catch (GitAPIException e) {
+                    if(e instanceof CheckoutConflictException) {
+                        MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                        mergeStatus.setMergeAble(false);
+                        mergeStatus.setConflictingFiles(((CheckoutConflictException) e).getConflictingPaths());
+                        git.close();
+                        return mergeStatus;
+                    }
                 }
-            }
 
-            MergeResult mergeResult = git.merge()
-                    .include(git.getRepository().findRef(sourceBranch))
-                    .setFastForward(MergeCommand.FastForwardMode.NO_FF)
-                    .setCommit(false)
-                    .call();
+                MergeResult mergeResult = git.merge()
+                        .include(git.getRepository().findRef(sourceBranch))
+                        .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+                        .setCommit(false)
+                        .call();
 
-            MergeStatusDTO mergeStatus = new MergeStatusDTO();
-            if(mergeResult.getMergeStatus().isSuccessful()) {
-                mergeStatus.setMergeAble(true);
-                mergeStatus.setMessage(SUCCESS_MERGE_STATUS);
-            } else {
-                //If there aer conflicts add the conflicting file names to the response structure
-                mergeStatus.setMergeAble(false);
-                List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
-                mergeStatus.setConflictingFiles(mergeConflictFiles);
-                StringBuilder errorMessage = new StringBuilder();
-                if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
-                    errorMessage.append("Conflicts");
+                MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                if(mergeResult.getMergeStatus().isSuccessful()) {
+                    mergeStatus.setMergeAble(true);
+                    mergeStatus.setMessage(SUCCESS_MERGE_STATUS);
                 } else {
-                    errorMessage.append(mergeResult.getMergeStatus().toString());
+                    //If there aer conflicts add the conflicting file names to the response structure
+                    mergeStatus.setMergeAble(false);
+                    List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
+                    mergeStatus.setConflictingFiles(mergeConflictFiles);
+                    StringBuilder errorMessage = new StringBuilder();
+                    if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
+                        errorMessage.append("Conflicts");
+                    } else {
+                        errorMessage.append(mergeResult.getMergeStatus().toString());
+                    }
+                    errorMessage.append(" while merging branch: ").append(destinationBranch).append(" <= ").append(sourceBranch);
+                    mergeStatus.setMessage(errorMessage.toString());
                 }
-                errorMessage.append(" while merging branch: ").append(destinationBranch).append(" <= ").append(sourceBranch);
-                mergeStatus.setMessage(errorMessage.toString());
+                mergeStatus.setStatus(mergeResult.getMergeStatus().name());
+                return mergeStatus;
             }
-            mergeStatus.setStatus(mergeResult.getMergeStatus().name());
-            return mergeStatus;
         })
         .flatMap(status -> {
             try {
@@ -580,7 +584,9 @@ public class GitExecutorImpl implements GitExecutor {
                 log.error("Error for hard resetting to latest commit {0}", e);
                 return Mono.error(e);
             }
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     public Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName) {
@@ -590,21 +596,21 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/" + branchName + " for the repo " + repoSuffix);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(baseRepoPath.toFile());
-            // Create and checkout to new branch
-            git.checkout()
-                    .setCreateBranch(Boolean.TRUE)
-                    .setName(branchName)
-                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                    .setStartPoint("origin/"+branchName)
-                    .call();
+            try (Git git = Git.open(baseRepoPath.toFile())) {
+                // Create and checkout to new branch
+                git.checkout()
+                        .setCreateBranch(Boolean.TRUE)
+                        .setName(branchName)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .setStartPoint("origin/" + branchName)
+                        .call();
 
-            StoredConfig config = git.getRepository().getConfig();
-            config.setString("branch", branchName, "remote", "origin");
-            config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
-            config.save();
-            git.close();
-            return git.getRepository().getBranch();
+                StoredConfig config = git.getRepository().getConfig();
+                config.setString("branch", branchName, "remote", "origin");
+                config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
+                config.save();
+                return git.getRepository().getBranch();
+            }
         }).subscribeOn(scheduler);
     }
 
@@ -612,7 +618,6 @@ public class GitExecutorImpl implements GitExecutor {
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
         return Mono.fromCallable(() -> {
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
-            git.close();
             return ref;
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
