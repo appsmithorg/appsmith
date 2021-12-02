@@ -185,8 +185,8 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "isLoading",
-            label: "Loading",
+            propertyName: "animateLoading",
+            label: "Animate Loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             isJSConvertible: true,

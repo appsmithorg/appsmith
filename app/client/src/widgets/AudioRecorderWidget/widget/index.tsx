@@ -69,8 +69,8 @@ class AudioRecorderWidget extends BaseWidget<
             },
           },
           {
-            propertyName: "isLoading",
-            label: "Loading",
+            propertyName: "animateLoading",
+            label: "Animate Loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             isJSConvertible: true,
