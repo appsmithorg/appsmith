@@ -124,6 +124,16 @@ export const createGlobalData = (
   return GLOBAL_DATA;
 };
 
+export function unEscapeScript(js: string) {
+  // We remove any line breaks from the beginning of the script because that
+  // makes the final function invalid. We also unescape any escaped characters
+  // so that eval can happen
+  const trimmedJS = js.replace(beginsWithLineBreakRegex, "");
+  const unescapedJS =
+    self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
+  return unescapedJS;
+}
+
 export default function evaluate(
   js: string,
   data: DataTree,
@@ -131,12 +141,7 @@ export default function evaluate(
   evalArguments?: Array<any>,
   isTriggerBased = false,
 ): EvalResult {
-  // We remove any line breaks from the beginning of the script because that
-  // makes the final function invalid. We also unescape any escaped characters
-  // so that eval can happen
-  const trimmedJS = js.replace(beginsWithLineBreakRegex, "");
-  const unescapedJS =
-    self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
+  const unescapedJS = unEscapeScript(js);
   const scriptType = getScriptType(evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
