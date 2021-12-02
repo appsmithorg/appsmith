@@ -674,7 +674,7 @@ public class GitServiceImpl implements GitService {
                                         boolean isDuplicateName = branchList.stream()
                                                 // We are only supporting origin as the remote name so this is safe
                                                 //  but needs to be altered if we starts supporting user defined remote names
-                                                .anyMatch(branch -> branch.getBranchName().replace("origin/", "")
+                                                .anyMatch(branch -> branch.getBranchName().replaceFirst("origin/", "")
                                                         .equals(branchDTO.getBranchName()));
 
                                         if (isDuplicateName) {
@@ -732,7 +732,7 @@ public class GitServiceImpl implements GitService {
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if(branchName.contains("origin/")) {
-            String finalBranchName = branchName.replace("origin/", "");
+            String finalBranchName = branchName.replaceFirst("origin/", "");
             return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
                     .doOnSuccess(application -> Mono.error(new AppsmithException(
                             AppsmithError.GIT_ACTION_FAILED,
@@ -868,7 +868,7 @@ public class GitServiceImpl implements GitService {
 
                     return Mono.zip(
                             Mono.just(repoSuffix),
-                            checkIfRepoIsClean(defaultGitMetadata.getDefaultApplicationId(), branchName, repoSuffix),
+                            getStatus(defaultGitMetadata.getDefaultApplicationId(), branchName),
                             Mono.just(defaultGitMetadata.getGitAuth()),
                             Mono.just(branchedApplication)
 
@@ -961,7 +961,7 @@ public class GitServiceImpl implements GitService {
     }
 
     private Mono<Boolean> checkIfRepoIsClean(String defaultApplicationId, String branchName, Path repoSuffix) {
-        final String finalBranchName = branchName.replace("origin/", "");
+        final String finalBranchName = branchName.replaceFirst("origin/", "");
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .onErrorResume(error ->  {
                     //if the branch does not exist in local, checkout remote branch
@@ -1029,7 +1029,7 @@ public class GitServiceImpl implements GitService {
                         // delete local branches which are not present in remote repo
                         List<String> remoteBranches = gitBranchListDTOS.stream()
                                 .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("origin"))
-                                .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
+                                .map(gitBranchDTO -> gitBranchDTO.getBranchName().replaceFirst("origin/", ""))
                                 .collect(Collectors.toList());
 
                         List<String> localBranch = gitBranchListDTOS.stream()
@@ -1066,6 +1066,7 @@ public class GitServiceImpl implements GitService {
      */
     public Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName) {
 
+        final String finalBranchName = branchName.replaceFirst("origin/", "");
         /*
             1. Copy resources from DB to local repo
             2. Fetch the current status from local repo
@@ -1077,7 +1078,11 @@ public class GitServiceImpl implements GitService {
 
         return Mono.zip(
                 getGitApplicationMetadata(defaultApplicationId),
-                applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                        .onErrorResume(error ->  {
+                            //if the branch does not exist in local, checkout remote branch
+                            return checkoutBranch(defaultApplicationId, finalBranchName);
+                        })
                         .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
@@ -1090,7 +1095,7 @@ public class GitServiceImpl implements GitService {
 
                     try {
                         return Mono.zip(
-                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName),
+                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName),
                                 Mono.just(gitData.getGitAuth())
                         );
                     } catch (IOException | GitAPIException e) {
@@ -1098,7 +1103,7 @@ public class GitServiceImpl implements GitService {
                     }
                 })
                 .flatMap(tuple -> gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
-                        .then(gitExecutor.getStatus(tuple.getT1(), branchName))
+                        .then(gitExecutor.getStatus(tuple.getT1(), finalBranchName))
                         .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()))));
     }
 
@@ -1130,12 +1135,12 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
 
                     //1. Hydrate from db to file system for both branch Applications
-                    Mono<Path> pathToFile = checkIfRepoIsClean(defaultApplicationId, sourceBranch, repoSuffix)
+                    Mono<Path> pathToFile = getStatus(defaultApplicationId, sourceBranch)
                             .flatMap(isClean -> {
                                 if (Boolean.FALSE.equals(isClean)) {
                                     return Mono.error(new NotSupportedException(sourceBranch));
                                 }
-                                return checkIfRepoIsClean(defaultApplicationId, destinationBranch, repoSuffix)
+                                return getStatus(defaultApplicationId, destinationBranch)
                                         .map(cleanStatus -> {
                                             if (Boolean.FALSE.equals(cleanStatus)) {
                                                 return new NotSupportedException(destinationBranch);
@@ -1167,8 +1172,8 @@ public class GitServiceImpl implements GitService {
                     return Mono.zip(
                             gitExecutor.mergeBranch(
                                     repoSuffix,
-                                    sourceBranch.replace("origin/", ""),
-                                    destinationBranch.replace("origin/", "")
+                                    sourceBranch.replaceFirst("origin/", ""),
+                                    destinationBranch.replaceFirst("origin/", "")
                             ),
                             Mono.just(defaultApplication))
                     // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab handleMergeConflict
@@ -1189,11 +1194,11 @@ public class GitServiceImpl implements GitService {
                                 defaultApplication.getOrganizationId(),
                                 defaultApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                                 defaultApplication.getGitApplicationMetadata().getRepoName(),
-                                destinationBranch.replace("origin/",""));
+                                destinationBranch.replaceFirst("origin/",""));
                         return Mono.zip(
                                 Mono.just(mergeStatus),
                                 applicationService
-                                        .findByBranchNameAndDefaultApplicationId(destinationBranch.replace("origin/",""), defaultApplicationId, MANAGE_APPLICATIONS),
+                                        .findByBranchNameAndDefaultApplicationId(destinationBranch.replaceFirst("origin/",""), defaultApplicationId, MANAGE_APPLICATIONS),
                                 applicationJson
                         );
                     } catch (IOException | GitAPIException e) {
@@ -1209,12 +1214,12 @@ public class GitServiceImpl implements GitService {
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
-                            .importApplicationInOrganization(destApplication.getOrganizationId(), applicationJson, destApplication.getId(), destinationBranch.replace("origin/", ""))
+                            .importApplicationInOrganization(destApplication.getOrganizationId(), applicationJson, destApplication.getId(), destinationBranch.replaceFirst("origin/", ""))
                             .flatMap(application1 -> {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
-                                return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch.replace("origin/", ""))
+                                return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch.replaceFirst("origin/", ""))
                                         .map(commitStatus -> {
                                             GitPullDTO gitPullDTO = new GitPullDTO();
                                             gitPullDTO.setMergeStatus(mergeStatusDTO);
@@ -1225,10 +1230,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
-
-        final String sourceBranch = gitMergeDTO.getSourceBranch();
-        final String destinationBranch = gitMergeDTO.getDestinationBranch();
+    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
 
         if (StringUtils.isEmptyOrNull(sourceBranch) || StringUtils.isEmptyOrNull(destinationBranch)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
@@ -1245,12 +1247,12 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
 
                     //1. Hydrate from db to file system for both branch Applications
-                    return checkIfRepoIsClean(defaultApplicationId, sourceBranch, repoSuffix)
+                    return getStatus(defaultApplicationId, sourceBranch)
                             .flatMap(isClean -> {
                                 if (Boolean.FALSE.equals(isClean)) {
                                     return Mono.error(new NotSupportedException(sourceBranch));
                                 }
-                                return checkIfRepoIsClean(defaultApplicationId, destinationBranch, repoSuffix)
+                                return getStatus(defaultApplicationId, destinationBranch)
                                         .map(cleanStatus -> {
                                             if (Boolean.FALSE.equals(cleanStatus)) {
                                                 return new NotSupportedException(destinationBranch);
