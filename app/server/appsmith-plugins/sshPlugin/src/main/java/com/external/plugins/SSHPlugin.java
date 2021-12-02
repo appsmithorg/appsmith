@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -13,7 +14,9 @@ import com.appsmith.external.models.SSHPrivateKey;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.jcraft.jsch.ChannelExec;
+import com.external.plugins.commands.Execute;
+import com.external.plugins.commands.SSHCommand;
+import com.external.plugins.commands.Upload;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -23,10 +26,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +40,8 @@ import static com.appsmith.external.models.SSHAuth.AuthType.PASSWORD;
 //4. Add fallback condition for key-based login to use Appsmith's private key (Maybe)
 
 public class SSHPlugin extends BasePlugin {
+
+    public static final String COMMAND = "command";
 
     public SSHPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -55,34 +57,25 @@ public class SSHPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
             ActionExecutionResult result = new ActionExecutionResult();
             try {
-                ChannelExec channel = (ChannelExec) session.openChannel("exec");
-                channel.setCommand(actionConfiguration.getBody());
-                StringBuilder outputBuffer = new StringBuilder();
-                ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+                String commandStr = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), COMMAND);
+                System.out.println("Got the commandStr: " + commandStr);
 
-                channel.setErrStream(errorStream);
-                channel.connect();
-
-                // Read the response stream till we reach the end character
-                InputStream inputStream = channel.getInputStream();
-
-                int readByte = inputStream.read();
-
-                // Read the stream till the EOF character is encountered
-                while (readByte != 0xffffffff) {
-                    outputBuffer.append((char) readByte);
-                    readByte = inputStream.read();
+                SSHCommand command;
+                switch (commandStr) {
+                    case "RUN":
+                        command = new Execute(session);
+                        break;
+                    case "UPLOAD":
+                        command = new Upload(session);
+                        break;
+                    default:
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid SSH command found. Please select a command from the \"Command\" dropdown and try again");
                 }
 
-                // If data is present in the errorStream, then set the errorStream. Else, set the response to
-                // outputBuffer.
-                String responseString = (errorStream.size() > 0) ? errorStream.toString() :  outputBuffer.toString();
+                Map<String, Object> responseBody = command.execute(actionConfiguration);
 
-                Map<String, Object> responseBody = new HashMap<>();
-                responseBody.put("response", responseString);
-                responseBody.put("exitCode", channel.getExitStatus());
                 result.setBody(objectMapper.valueToTree(responseBody));
-                result.setIsExecutionSuccess(channel.getExitStatus() == 0);
+                result.setIsExecutionSuccess((int) responseBody.get("exitCode") == 0);
                 System.out.println("Executed the SSH command successfully");
             } catch (JSchException | IOException e) {
                 e.printStackTrace();
@@ -186,8 +179,8 @@ public class SSHPlugin extends BasePlugin {
                     }
                     if (IDENTITY_FILE.equals(sshAuth.getAuthType()) &&
                             (sshAuth.getPrivateKey() == null ||
-                              sshAuth.getPrivateKey().getKeyFile() == null ||
-                              !StringUtils.hasText(sshAuth.getPrivateKey().getKeyFile().getBase64Content()))) {
+                                    sshAuth.getPrivateKey().getKeyFile() == null ||
+                                    !StringUtils.hasText(sshAuth.getPrivateKey().getKeyFile().getBase64Content()))) {
                         invalids.add(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Mandatory parameter private key file is missing").getMessage());

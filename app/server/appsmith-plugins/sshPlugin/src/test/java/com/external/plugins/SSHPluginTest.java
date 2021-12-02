@@ -21,6 +21,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -108,6 +109,10 @@ public class SSHPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setTimeoutInMillisecond("50000");
         actionConfiguration.setBody("echo 'hello world'");
+        Map<String, Object> formData = new HashMap<>();
+        formData.put("command", "RUN");
+        actionConfiguration.setFormData(formData);
+
         Mono<Session> dsMono = pluginExecutor.datasourceCreate(datasourceConfiguration).cache();
         Mono<ActionExecutionResult> resultMono =
                 dsMono.flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
@@ -128,6 +133,10 @@ public class SSHPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setTimeoutInMillisecond("50000");
         actionConfiguration.setBody("kjsdhf");
+        Map<String, Object> formData = new HashMap<>();
+        formData.put("command", "RUN");
+        actionConfiguration.setFormData(formData);
+
         Mono<Session> dsMono = pluginExecutor.datasourceCreate(datasourceConfiguration).cache();
         Mono<ActionExecutionResult> resultMono =
                 dsMono.flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
@@ -149,6 +158,10 @@ public class SSHPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setTimeoutInMillisecond("50000");
         actionConfiguration.setBody("ls -al");
+        Map<String, Object> formData = new HashMap<>();
+        formData.put("command", "RUN");
+        actionConfiguration.setFormData(formData);
+
         Mono<Session> dsMono = pluginExecutor.datasourceCreate(datasourceConfiguration).cache();
         Mono<ActionExecutionResult> resultMono =
                 dsMono.flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
