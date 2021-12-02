@@ -83,17 +83,19 @@ export const appInitializer = () => {
     AnalyticsUtil.initializeSmartLook(id);
   }
 
-  if (appsmithConfigs.segment.enabled) {
-    if (appsmithConfigs.segment.apiKey) {
-      // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
-    } else if (appsmithConfigs.segment.ceKey) {
-      // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
-    }
-  }
-
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
+};
+
+export const analyticsInitializer = () => {
+  const { segment } = getAppsmithConfigs();
+
+  if (segment.apiKey) {
+    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+    AnalyticsUtil.initializeSegment(segment.apiKey);
+  } else if (segment.ceKey) {
+    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+    AnalyticsUtil.initializeSegment(segment.ceKey);
+  }
 };
 
 export const mapToPropList = (map: Record<string, string>): Property[] => {
