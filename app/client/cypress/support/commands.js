@@ -800,6 +800,24 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     .last()
     .click({ force: true });
 });
+
+Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
+  cy.get(commonlocators.entityExplorersearch)
+    .clear({ force: true })
+    .type(apiname1, { force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(500);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .parents(commonlocators.entityItem)
+    .first()
+    .children(commonlocators.entityCollapseToggle)
+    .last()
+    .click({ force: true });
+});
+
 Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   cy.get(commonlocators.entityExplorersearch)
     .clear({ force: true })
