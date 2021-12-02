@@ -35,8 +35,20 @@ export default function ConflictInfo(props: CIPropType) {
   const theme = useTheme() as Theme;
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const originUrl = gitMetaData?.remoteUrl;
-  let remoteUrl = originUrl;
 
+  /**
+   * Converting ssh url to https url for opening the repo on browser
+   * Github :
+   *    SSH: git@github.com:user/repo.git
+   *    HTTPS: https://github.com/user/repo.git
+   * Gitlab:
+   *    SSH: git@gitlab.com:abhijeet25/first_project.git
+   *    HTTPS: https://gitlab.com/abhijeet25/first_project.git
+   * Bitbucket
+   *    SSH: git@bitbucket.org:abhvsn/onec2_firstapp.git
+   *    HTTPS: https://abhvsn@bitbucket.org/abhvsn/onec2_firstapp.git
+   */
+  let remoteUrl = originUrl;
   if (originUrl && new RegExp("git@*").test(originUrl)) {
     remoteUrl = remoteUrl?.replace(":", "/");
     remoteUrl = remoteUrl?.replace(/git@/, "https://");
