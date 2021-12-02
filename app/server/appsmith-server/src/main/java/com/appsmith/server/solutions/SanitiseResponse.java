@@ -90,11 +90,14 @@ public class SanitiseResponse {
     }
 
     public LayoutDTO updateLayoutDTOWithDefaultResources(LayoutDTO layout) {
-        layout.getActionUpdates()
-                .forEach(updateLayoutAction -> updateLayoutAction.setId(updateLayoutAction.getDefaultActionId()));
-
-        layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
-                layoutOnLoadAction.forEach(onLoadAction -> onLoadAction.setId(onLoadAction.getDefaultActionId())));
+        if (!CollectionUtils.isEmpty(layout.getActionUpdates())) {
+            layout.getActionUpdates()
+                    .forEach(updateLayoutAction -> updateLayoutAction.setId(updateLayoutAction.getDefaultActionId()));
+        }
+        if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
+            layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
+                    layoutOnLoadAction.forEach(onLoadAction -> onLoadAction.setId(onLoadAction.getDefaultActionId())));
+        }
         return layout;
     }
 

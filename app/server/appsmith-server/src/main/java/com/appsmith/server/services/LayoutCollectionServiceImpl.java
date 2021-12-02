@@ -303,10 +303,9 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                             });
                     branchedActionCollection.setName(newName);
                     return actionUpdatesFlux
-                            .collectList()
-                            .flatMap(actionDTOs -> actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection))
-                            .flatMap(actionCollectionDTO -> branchedPageIdMono
-                                    .flatMap(branchedPageId -> layoutActionService.refactorName(branchedPageId, layoutId, oldName, newName)));
+                            .then(actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection))
+                            .then(branchedPageIdMono)
+                            .flatMap(branchedPageId -> layoutActionService.refactorName(branchedPageId, layoutId, oldName, newName));
                 })
                 .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
     }
@@ -578,7 +577,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
-                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+                .map(actionCollectionDTO1 -> sanitiseResponse.updateCollectionDTOWithDefaultResources(actionCollectionDTO1));
     }
 
     @Override
