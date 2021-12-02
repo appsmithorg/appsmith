@@ -1,4 +1,10 @@
-import React, { useState, useRef, RefObject, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  RefObject,
+  useCallback,
+  useEffect,
+} from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -40,6 +46,9 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
+import CollapseToggle from "pages/Editor/Explorer/Entity/CollapseToggle";
+import Collapse from "pages/Editor/Explorer/Entity/Collapse";
+import { Colors } from "constants/Colors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -155,6 +164,29 @@ const StyledCallout = styled(Callout)`
   }
 `;
 
+const Wrapper = styled.div`
+  font-size: 14px;
+`;
+
+const Title = styled.div`
+  display: grid;
+  grid-template-columns: 20px auto 20px;
+  cursor: pointer;
+  height: 30px;
+  align-items: center;
+  padding-right: 6px;
+  padding-left: 10px;
+  &:hover {
+    background: ${Colors.ALABASTER_ALT};
+  }
+  & .t--help-icon {
+    svg {
+      position: relative;
+      top: 4px;
+    }
+  }
+`;
+
 interface ReduxStateProps {
   responses: Record<string, any>;
   isExecuting: Record<string, boolean>;
@@ -171,17 +203,22 @@ function JSResponseView(props: Props) {
   const { errors, isExecuting, jsObject, responses } = props;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
-  const [selectActionId, setSelectActionId] = useState("");
   const actionList = jsObject?.actions;
   const sortedActionList = actionList && sortBy(actionList, "name");
+  const [selectedVarOrAction, setSelectedVarOrAction] = useState("");
+
   const response =
-    selectActionId && !!responses[selectActionId]
-      ? responses[selectActionId]
+    selectedVarOrAction && !!responses[selectedVarOrAction]
+      ? responses[selectedVarOrAction]
       : "";
-  const isRunning = selectActionId && !!isExecuting[selectActionId];
+  const isRunning = selectedVarOrAction && !!isExecuting[selectedVarOrAction];
   const errorsList = errors.filter((er) => {
     return er.severity === Severity.ERROR;
   });
+  const variablesList = jsObject.variables;
+
+  const [openFunctionsList, setOpenFunctionsList] = useState(true);
+  const [openVariablesList, setOpenVariablesList] = useState(true);
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -189,6 +226,26 @@ function JSResponseView(props: Props) {
     });
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
+
+  const toggleFunctionList = () => {
+    setOpenFunctionsList(!openFunctionsList);
+  };
+
+  const toggleVariablesList = () => {
+    setOpenVariablesList(!openVariablesList);
+  };
+
+  const runAction = (action: JSAction) => {
+    setSelectedVarOrAction(action.id);
+    const collectionId = getJSCollectionIdFromURL();
+    dispatch(
+      executeJSFunction({
+        collectionName: jsObject?.name || "",
+        action: action,
+        collectionId: collectionId || "",
+      }),
+    );
+  };
 
   const tabs = [
     {
@@ -220,32 +277,81 @@ function JSResponseView(props: Props) {
             ) : (
               <>
                 <ResponseTabActionsList>
-                  {sortedActionList &&
-                    sortedActionList?.length > 0 &&
-                    sortedActionList.map((action) => {
-                      return (
-                        <ResponseTabAction
-                          className={
-                            action.id === selectActionId ? "active" : ""
-                          }
-                          key={action.id}
-                          onClick={() => {
-                            runAction(action);
-                          }}
-                        >
-                          <JSFunction />{" "}
-                          <div className="function-name">{action.name}</div>
-                          <RunFunction className="run-button" />
-                        </ResponseTabAction>
-                      );
-                    })}
+                  <Wrapper>
+                    <Title onClick={toggleFunctionList}>
+                      <CollapseToggle
+                        className={""}
+                        disabled={false}
+                        isOpen={openFunctionsList}
+                        isVisible={!!sortedActionList}
+                        onClick={toggleFunctionList}
+                      />
+                      <span className="text-gray-900">Functions</span>
+                    </Title>
+                    <Collapse isOpen={openFunctionsList} step={0}>
+                      {sortedActionList &&
+                        sortedActionList?.length > 0 &&
+                        sortedActionList.map((action) => {
+                          return (
+                            <ResponseTabAction
+                              className={
+                                action.id === selectedVarOrAction
+                                  ? "active"
+                                  : ""
+                              }
+                              key={action.id}
+                              onClick={() => {
+                                runAction(action);
+                              }}
+                            >
+                              <JSFunction />{" "}
+                              <div className="function-name">{action.name}</div>
+                              <RunFunction className="run-button" />
+                            </ResponseTabAction>
+                          );
+                        })}
+                    </Collapse>
+                  </Wrapper>
+                  <Wrapper>
+                    <Title onClick={toggleVariablesList}>
+                      <CollapseToggle
+                        className={""}
+                        disabled={false}
+                        isOpen={openVariablesList}
+                        isVisible={!!variablesList}
+                        onClick={toggleVariablesList}
+                      />
+                      <span className="text-gray-900">Variables</span>
+                    </Title>
+                    <Collapse isOpen={openVariablesList} step={1}>
+                      {variablesList &&
+                        variablesList?.length > 0 &&
+                        variablesList.map((objVar) => {
+                          return (
+                            <ResponseTabAction
+                              className={
+                                objVar.name === selectedVarOrAction
+                                  ? "active"
+                                  : ""
+                              }
+                              key={objVar.name}
+                              onClick={() => {
+                                setSelectedVarOrAction(objVar.name);
+                              }}
+                            >
+                              <div className="function-name">{objVar.name}</div>
+                            </ResponseTabAction>
+                          );
+                        })}
+                    </Collapse>
+                  </Wrapper>
                 </ResponseTabActionsList>
                 <ResponseViewer>
                   {isRunning ? (
                     <LoadingOverlayScreen theme={props.theme}>
                       {createMessage(EXECUTING_FUNCTION)}
                     </LoadingOverlayScreen>
-                  ) : !responses.hasOwnProperty(selectActionId) ? (
+                  ) : !responses.hasOwnProperty(selectedVarOrAction) ? (
                     <NoResponseContainer className="empty">
                       <Icon name="no-response" />
                       <Text className="flex items-center" type={TextType.P1}>
@@ -281,18 +387,6 @@ function JSResponseView(props: Props) {
       panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
-
-  const runAction = (action: JSAction) => {
-    setSelectActionId(action.id);
-    const collectionId = getJSCollectionIdFromURL();
-    dispatch(
-      executeJSFunction({
-        collectionName: jsObject?.name || "",
-        action: action,
-        collectionId: collectionId || "",
-      }),
-    );
-  };
 
   return (
     <ResponseContainer ref={panelRef}>

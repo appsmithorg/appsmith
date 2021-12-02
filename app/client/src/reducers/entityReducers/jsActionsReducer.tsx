@@ -29,13 +29,17 @@ const jsActionsReducer = createReducer(initialState, {
     action: ReduxAction<JSCollection[]>,
   ): JSCollectionDataState => {
     return action.payload.map((action) => {
-      const foundAction = state.find((currentAction) => {
-        return currentAction.config.id === action.id;
-      });
+      const resultVariablesData: Record<string, any> = {};
+      const variablesData = action.variables;
+      if (variablesData) {
+        variablesData.forEach((objVar) => {
+          resultVariablesData[objVar.name] = objVar.value;
+        });
+      }
       return {
         isLoading: false,
         config: action,
-        data: foundAction?.data,
+        data: resultVariablesData,
       };
     });
   },
@@ -77,8 +81,23 @@ const jsActionsReducer = createReducer(initialState, {
     action: ReduxAction<{ data: JSCollection }>,
   ): JSCollectionDataState =>
     state.map((a) => {
-      if (a.config.id === action.payload.data.id)
-        return { isLoading: false, config: action.payload.data };
+      if (a.config.id === action.payload.data.id) {
+        const variablesData = action.payload.data.variables;
+        const dataToBeSaved: Record<string, any> = {};
+        if (variablesData) {
+          variablesData.forEach((objVar) => {
+            dataToBeSaved[objVar.name] = objVar.value;
+          });
+        }
+        return {
+          isLoading: false,
+          config: action.payload.data,
+          data: {
+            ...a.data,
+            ...dataToBeSaved,
+          },
+        };
+      }
       return a;
     }),
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: (
