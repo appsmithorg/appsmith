@@ -420,18 +420,18 @@ export default {
       },
     };
 
-    const searchKey = () => {
-      if (props.searchText && !props.onSearchTextChanged) {
-        return props.searchText.toLowerCase();
-      }
-      if (props.searchText && props.enableClientSideSearch) {
+    const getSearchKey = () => {
+      if (
+        props.searchText &&
+        (!props.onSearchTextChanged || props.enableClientSideSearch)
+      ) {
         return props.searchText.toLowerCase();
       }
       return "";
     };
 
     const finalTableData = sortedTableData.filter((item) => {
-      const searchFound = searchKey()
+      const searchFound = getSearchKey()
         ? Object.values(item)
             .join(", ")
             .toLowerCase()
