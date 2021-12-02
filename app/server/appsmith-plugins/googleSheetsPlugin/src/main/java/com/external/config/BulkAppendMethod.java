@@ -82,10 +82,23 @@ public class BulkAppendMethod implements Method {
         final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
 
         List<RowObject> rowObjectListFromBody = null;
+        JsonNode body = null;
         try {
-            rowObjectListFromBody = this.getRowObjectListFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
+            body = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (JsonProcessingException e) {
             // Should never enter here
+        }
+
+        rowObjectListFromBody = this.getRowObjectListFromBody(body);
+
+        boolean fieldsEmpty = true;
+        for (RowObject rowObject : rowObjectListFromBody) {
+            if (rowObject.getValueMap().size() == 0) continue;
+            fieldsEmpty = false;
+        }
+        if(fieldsEmpty) {
+            methodConfig.setBody(rowObjectListFromBody);
+            return Mono.just(methodConfig);
         }
 
         assert rowObjectListFromBody != null;
@@ -142,6 +155,7 @@ public class BulkAppendMethod implements Method {
                         ArrayNode headers = (ArrayNode) values.get(0);
                         if (headers != null && !headers.isEmpty()) {
                             for (RowObject rowObject : finalRowObjectListFromBody) {
+                                if(rowObject.getValueMap().size()==0) continue;
                                 final Map<String, String> valueMap = new LinkedHashMap<>();
                                 boolean validValues = false;
                                 final Map<String, String> inputValueMap = rowObject.getValueMap();
