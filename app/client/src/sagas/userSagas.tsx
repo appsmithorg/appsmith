@@ -65,7 +65,7 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { analyticsInitializer } from "utils/AppsmithUtils";
+import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -116,7 +116,7 @@ export function* getCurrentUserSaga() {
     if (isValidResponse) {
       const { enableTelemetry } = response.data;
       if (enableTelemetry) {
-        analyticsInitializer();
+        initializeAnalyticsAndTrackers();
       }
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());

@@ -31,6 +31,7 @@ export type AppsmithUIConfigs = {
     id: string;
   };
   segment: {
+    enabled: boolean;
     apiKey: string;
     ceKey: string;
   };
@@ -67,8 +68,6 @@ export type AppsmithUIConfigs = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-
-  disableTelemetry: boolean;
   commentsTestModeEnabled: boolean;
 
   cloudServicesBaseUrl: string;
