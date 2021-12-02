@@ -267,7 +267,7 @@ class AnalyticsUtil {
     if (userData) {
       const { segment } = getAppsmithConfigs();
       let user: any = {};
-      if (segment.enabled && segment.apiKey) {
+      if (userData.enableTelemetry && segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -291,7 +291,7 @@ class AnalyticsUtil {
       };
     }
 
-    if (windowDoc.analytics) {
+    if (userData?.enableTelemetry && windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
     } else {
