@@ -45,6 +45,10 @@ describe("Checkbox Group Widget Functionality", function() {
       "not.have.value",
       "test4",
     );
+    cy.get(formWidgetsPage.deleteradiovalue)
+      .eq(2)
+      .click({ force: true });
+    cy.wait(200);
     /**
      * @param{Show Alert} Css for InputChange
      */
