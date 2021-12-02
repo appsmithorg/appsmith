@@ -17,7 +17,7 @@ import {
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
-  buttonColor?: string;
+  backgroundColor?: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -82,9 +82,9 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "buttonColor",
+            propertyName: "backgroundColor",
             helpText: "Sets the style of the icon button",
-            label: "Button Color",
+            label: "Background Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -168,10 +168,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
 
   getPageView() {
     const {
+      backgroundColor,
       borderRadius,
       boxShadow,
       boxShadowColor,
-      buttonColor,
       buttonVariant,
       iconName,
       isDisabled,
@@ -181,10 +181,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
 
     return (
       <IconButtonComponent
+        backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={

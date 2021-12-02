@@ -139,20 +139,6 @@ class AudioRecorderWidget extends BaseWidget<
             },
           },
           {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
-          {
             propertyName: "iconColor",
             helpText: "Sets the icon color of the widget",
             label: "Icon color",

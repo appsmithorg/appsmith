@@ -31,6 +31,7 @@ function ThemeShadowControl(props: ThemeBoxShadowControlProps) {
                 properties: {
                   ...theme.properties,
                   boxShadow: {
+                    ...theme.properties.boxShadow,
                     [sectionName]: options[optionKey],
                   },
                 },

@@ -92,7 +92,7 @@ const StyledButton = styled((props) => (
       "borderRadius",
       "boxShadow",
       "boxShadowColor",
-      "buttonColor",
+      "backgroundColor",
       "buttonVariant",
     ])}
   />
@@ -103,11 +103,11 @@ const StyledButton = styled((props) => (
   outline: none;
   padding: 0px 10px;
 
-  ${({ buttonColor, buttonVariant, theme }) => `
+  ${({ backgroundColor, buttonVariant, theme }) => `
     &:enabled {
       background: ${
-        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, buttonColor)
+        getCustomBackgroundColor(buttonVariant, backgroundColor) !== "none"
+          ? getCustomBackgroundColor(buttonVariant, backgroundColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
           ? theme.colors.button.primary.primary.bgColor
           : "none"
@@ -116,8 +116,8 @@ const StyledButton = styled((props) => (
 
     &:hover:enabled, &:active:enabled {
       background: ${
-        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+        getCustomHoverColor(theme, buttonVariant, backgroundColor) !== "none"
+          ? getCustomHoverColor(theme, buttonVariant, backgroundColor)
           : buttonVariant === ButtonVariantTypes.SECONDARY
           ? theme.colors.button.primary.secondary.hoverColor
           : buttonVariant === ButtonVariantTypes.TERTIARY
@@ -137,8 +137,8 @@ const StyledButton = styled((props) => (
     }
 
     border: ${
-      getCustomBorderColor(buttonVariant, buttonColor) !== "none"
-        ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
+      getCustomBorderColor(buttonVariant, backgroundColor) !== "none"
+        ? `1px solid ${getCustomBorderColor(buttonVariant, backgroundColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
@@ -155,8 +155,11 @@ const StyledButton = styled((props) => (
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+          ? getCustomTextColor(theme, backgroundColor)
+          : getCustomBackgroundColor(
+              ButtonVariantTypes.PRIMARY,
+              backgroundColor,
+            )
       } !important;
     }
   `}
@@ -168,7 +171,7 @@ const StyledButton = styled((props) => (
 `;
 
 type ButtonStyleProps = {
-  buttonColor?: string;
+  backgroundColor?: string;
   buttonVariant?: ButtonVariant;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
@@ -180,10 +183,10 @@ type ButtonStyleProps = {
 // To be used in any other part of the app
 export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   const {
+    backgroundColor,
     borderRadius,
     boxShadow,
     boxShadowColor,
-    buttonColor,
     buttonVariant,
     className,
     disabled,
@@ -200,10 +203,10 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     return (
       <StyledButton
         alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
+        backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         className={className}
         data-test-variant={buttonVariant}
@@ -221,10 +224,10 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   return (
     <StyledButton
       alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
+      backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
-      buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       className={className}
       data-test-variant={buttonVariant}
@@ -240,7 +243,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
 }
 
 BaseButton.defaultProps = {
-  buttonColor: Colors.GREEN,
+  backgroundColor: Colors.GREEN,
   buttonVariant: ButtonVariantTypes.PRIMARY,
   disabled: false,
   text: "Button Text",
@@ -269,7 +272,7 @@ interface ButtonComponentProps extends ComponentProps {
   isLoading: boolean;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
-  buttonColor?: string;
+  backgroundColor?: string;
   buttonVariant?: ButtonVariant;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
@@ -418,10 +421,10 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     >
       <ButtonContainer disabled={props.isDisabled}>
         <BaseButton
+          backgroundColor={props.backgroundColor}
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
           boxShadowColor={props.boxShadowColor}
-          buttonColor={props.buttonColor}
           buttonVariant={props.buttonVariant}
           disabled={props.isDisabled}
           icon={props.icon}
@@ -458,7 +461,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
 }
 
 ButtonComponent.defaultProps = {
-  buttonColor: FALLBACK_COLORS.backgroundColor,
+  backgroundColor: FALLBACK_COLORS.backgroundColor,
 };
 
 export default ButtonComponent;

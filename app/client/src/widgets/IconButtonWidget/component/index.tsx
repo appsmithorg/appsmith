@@ -40,7 +40,7 @@ export interface ButtonStyleProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  buttonColor: string;
+  backgroundColor: string;
   buttonVariant?: ButtonVariant;
   dimension?: number;
   hasOnClickAction?: boolean;
@@ -65,11 +65,11 @@ export const StyledButton = styled((props) => (
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   min-height: auto !important;
   min-width: auto !important;
-  ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
+  ${({ backgroundColor, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
-        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, buttonColor)
+        getCustomBackgroundColor(buttonVariant, backgroundColor) !== "none"
+          ? getCustomBackgroundColor(buttonVariant, backgroundColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
           ? theme.colors.button.primary.primary.bgColor
           : "none"
@@ -80,8 +80,8 @@ export const StyledButton = styled((props) => (
       hasOnClickAction
         ? `&:hover:enabled, &:active:enabled {
         background: ${
-          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+          getCustomHoverColor(theme, buttonVariant, backgroundColor) !== "none"
+            ? getCustomHoverColor(theme, buttonVariant, backgroundColor)
             : buttonVariant === ButtonVariantTypes.SECONDARY
             ? theme.colors.button.primary.secondary.hoverColor
             : buttonVariant === ButtonVariantTypes.TERTIARY
@@ -105,8 +105,8 @@ export const StyledButton = styled((props) => (
     }
 
     border: ${
-      getCustomBorderColor(buttonVariant, buttonColor) !== "none"
-        ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
+      getCustomBorderColor(buttonVariant, backgroundColor) !== "none"
+        ? `1px solid ${getCustomBorderColor(buttonVariant, backgroundColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
@@ -121,12 +121,15 @@ export const StyledButton = styled((props) => (
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getCustomTextColor(theme, backgroundColor)
           : getCustomBackgroundColor(
               ButtonVariantTypes.PRIMARY,
-              buttonColor,
+              backgroundColor,
             ) !== "none"
-          ? getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+          ? getCustomBackgroundColor(
+              ButtonVariantTypes.PRIMARY,
+              backgroundColor,
+            )
           : `${theme.colors.button.primary.secondary.textColor}`
       } !important;
     }
@@ -146,7 +149,7 @@ export const StyledButton = styled((props) => (
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
-  buttonColor: string;
+  backgroundColor: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -161,10 +164,10 @@ export interface IconButtonComponentProps extends ComponentProps {
 
 function IconButtonComponent(props: IconButtonComponentProps) {
   const {
+    backgroundColor,
     borderRadius,
     boxShadow,
     boxShadowColor,
-    buttonColor,
     buttonVariant,
     hasOnClickAction,
     height,
@@ -189,10 +192,10 @@ function IconButtonComponent(props: IconButtonComponentProps) {
   return (
     <IconButtonContainer disabled={isDisabled}>
       <StyledButton
+        backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         dimension={dimension}
         disabled={isDisabled}
@@ -206,7 +209,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
 }
 
 IconButtonComponent.defaultProps = {
-  buttonColor: FALLBACK_COLORS.backgroundColor,
+  backgroundColor: FALLBACK_COLORS.backgroundColor,
 };
 
 export default IconButtonComponent;

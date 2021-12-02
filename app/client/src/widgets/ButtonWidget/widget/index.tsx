@@ -121,7 +121,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "buttonColor",
+            propertyName: "backgroundColor",
             helpText: "Changes the color of the button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
@@ -316,10 +316,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   getPageView() {
     return (
       <ButtonComponent
+        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
-        buttonColor={this.props.buttonColor}
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
@@ -354,7 +354,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
   buttonVariant?: ButtonVariant;
-  buttonColor?: string;
+  backgroundColor?: string;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
