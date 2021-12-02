@@ -43,6 +43,8 @@ import { Classes } from "components/ads/common";
 import { isEllipsisActive } from "utils/helpers";
 import { getShowRemoteSectionHeader } from "pages/Editor/gitSync/utils";
 
+import SegmentHeader from "components/ads/ListSegmentHeader";
+
 const ListContainer = styled.div`
   flex: 1;
   overflow: auto;
@@ -367,32 +369,6 @@ function Header({
         size={IconSize.XXXXL}
       />
     </div>
-  );
-}
-
-const StyledSegmentHeader = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
-  padding-right: 0;
-  ${(props) => getTypographyByKey(props, "u2")}
-  color: ${Colors.GREY_10};
-  display: flex;
-  align-items: center;
-`;
-
-const StyledHr = styled.div`
-  flex: 1;
-  height: 1px;
-  background-color: ${Colors.GREY_10};
-  margin-left: ${(props) => props.theme.spaces[3]}px;
-`;
-
-function SegmentHeader(props: { title: string }) {
-  return (
-    <StyledSegmentHeader>
-      {props.title}
-      <StyledHr />
-    </StyledSegmentHeader>
   );
 }
 

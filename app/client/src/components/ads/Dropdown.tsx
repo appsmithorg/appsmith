@@ -9,13 +9,15 @@ import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextProps, TextType } from "./Text";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
 import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
+import SegmentHeader from "components/ads/ListSegmentHeader";
+import { useTheme } from "styled-components";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -557,6 +559,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
   };
+  const theme = useTheme() as Theme;
 
   return (
     <DropdownWrapper
@@ -629,7 +632,10 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
             </OptionWrapper>
           ) : (
-            <span>{option.label}</span>
+            <SegmentHeader
+              style={{ paddingRight: theme.spaces[5] }}
+              title={option.label || ""}
+            />
           );
         })}
       </DropdownOptionsWrapper>
