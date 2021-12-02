@@ -7,7 +7,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import CameraComponent from "../component";
-import { CameraMode } from "../constants";
+import { CameraMode, CameraModeTypes } from "../constants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -75,10 +75,37 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
         sectionName: "Actions",
         children: [
           {
-            helpText: "Triggers an action when the media is captured",
-            propertyName: "onMediaCapture",
-            label: "onMediaCapture",
+            helpText: "Triggers an action when the image is captured",
+            propertyName: "onImageCapture",
+            label: "OnImageCapture",
             controlType: "ACTION_SELECTOR",
+            hidden: (props: CameraWidgetProps) =>
+              props.mode === CameraModeTypes.VIDEO,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video recording get started",
+            propertyName: "onRecordingStart",
+            label: "OnRecordingStart",
+            controlType: "ACTION_SELECTOR",
+            hidden: (props: CameraWidgetProps) =>
+              props.mode === CameraModeTypes.CAMERA,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video recording stops",
+            propertyName: "onRecordingStop",
+            label: "onRecordingStop",
+            controlType: "ACTION_SELECTOR",
+            hidden: (props: CameraWidgetProps) =>
+              props.mode === CameraModeTypes.CAMERA,
+            dependencies: ["mode"],
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
@@ -133,7 +160,8 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
         mirrored={isMirrored}
         mode={mode}
         onImageCapture={this.handleImageCapture}
-        onVideoCapture={this.handleVideoCapture}
+        onRecordingStart={this.handleRecordingStart}
+        onRecordingStop={this.handleRecordingStop}
         width={width}
       />
     );
@@ -145,24 +173,36 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       return;
     }
     this.props.updateWidgetMetaProperty("image", image, {
-      triggerPropertyName: "onMediaCapture",
-      dynamicString: this.props.onMediaCapture,
+      triggerPropertyName: "onImageCapture",
+      dynamicString: this.props.onImageCapture,
       event: {
-        type: EventType.ON_CAMERA_MEDIA_CAPTURE,
+        type: EventType.ON_CAMERA_IMAGE_CAPTURE,
       },
     });
   };
 
-  handleVideoCapture = (video?: Blob | null) => {
+  handleRecordingStart = () => {
+    if (this.props.onRecordingStart) {
+      super.executeAction({
+        triggerPropertyName: "onRecordingStart",
+        dynamicString: this.props.onRecordingStart,
+        event: {
+          type: EventType.ON_CAMERA_VIDEO_RECORDING_START,
+        },
+      });
+    }
+  };
+
+  handleRecordingStop = (video?: Blob | null) => {
     if (!video) {
       this.props.updateWidgetMetaProperty("video", video);
       return;
     }
     this.props.updateWidgetMetaProperty("video", video, {
-      triggerPropertyName: "onMediaCapture",
-      dynamicString: this.props.onMediaCapture,
+      triggerPropertyName: "onRecordingStop",
+      dynamicString: this.props.onRecordingStop,
       event: {
-        type: EventType.ON_CAMERA_MEDIA_CAPTURE,
+        type: EventType.ON_CAMERA_VIDEO_RECORDING_STOP,
       },
     });
   };
@@ -173,7 +213,9 @@ export interface CameraWidgetProps extends WidgetProps {
   isDisabled: boolean;
   isVisible: boolean;
   isMirrored: boolean;
-  onMediaCapture?: string;
+  onImageCapture?: string;
+  onRecordingStart?: string;
+  onRecordingStop?: string;
 }
 
 export default CameraWidget;

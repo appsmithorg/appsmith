@@ -676,7 +676,8 @@ function CameraComponent(props: CameraComponentProps) {
     mirrored,
     mode,
     onImageCapture,
-    onVideoCapture,
+    onRecordingStart,
+    onRecordingStop,
     width,
   } = props;
 
@@ -753,7 +754,9 @@ function CameraComponent(props: CameraComponentProps) {
   }, [image]);
 
   useEffect(() => {
-    onVideoCapture(video);
+    if (video) {
+      onRecordingStop(video);
+    }
 
     if (video && videoElementRef.current) {
       videoElementRef.current.src = URL.createObjectURL(video);
@@ -856,6 +859,7 @@ function CameraComponent(props: CameraComponentProps) {
       );
       mediaRecorderRef.current.start();
       start();
+      onRecordingStart();
     }
   }, [webcamRef, mediaRecorderRef]);
 
@@ -1022,7 +1026,8 @@ export interface CameraComponentProps {
   mirrored: boolean;
   mode: CameraMode;
   onImageCapture: (image?: string | null) => void;
-  onVideoCapture: (video?: Blob | null) => void;
+  onRecordingStart: () => void;
+  onRecordingStop: (video?: Blob | null) => void;
   width: number;
 }
 
