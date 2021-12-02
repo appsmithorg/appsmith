@@ -524,6 +524,7 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
+export const CONNECTED_TO_GIT = () => "Connected to git";
 
 export const GIT_DISCONNECT_POPUP_TITLE = () =>
   `This will disconnect the git repository from this application`;
