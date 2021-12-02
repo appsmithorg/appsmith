@@ -52,7 +52,7 @@ public interface GitService {
 
     Mono<GitPullDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
-    Mono<MergeStatusDTO> isBranchMergeable(String applicationId, String sourceBranch, String destinationBranch);
+    Mono<MergeStatusDTO> isBranchMergeable(String applicationId, GitMergeDTO gitMergeDTO);
 
     Mono<String> createConflictedBranch(String defaultApplicationId, String branchName);
 }
