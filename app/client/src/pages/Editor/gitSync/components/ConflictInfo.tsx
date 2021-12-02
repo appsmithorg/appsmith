@@ -87,7 +87,7 @@ export default function ConflictInfo(props: CIPropType) {
           category={Category.tertiary}
           className="t--commit-button"
           href={remoteUrl}
-          size={Size.medium}
+          size={Size.large}
           tag="a"
           target="_blank"
           text={createMessage(OPEN_REPO)}
@@ -97,7 +97,7 @@ export default function ConflictInfo(props: CIPropType) {
           className="t--commit-button"
           isLoading={isPullingProgress}
           onClick={handlePull}
-          size={Size.medium}
+          size={Size.large}
           tag="button"
           text={createMessage(PULL_CHANGES)}
           width="max-content"

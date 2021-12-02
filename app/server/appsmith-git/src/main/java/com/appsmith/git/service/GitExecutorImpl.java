@@ -585,7 +585,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return Mono.error(e);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 

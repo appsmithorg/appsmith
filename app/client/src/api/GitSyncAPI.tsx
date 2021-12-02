@@ -107,8 +107,13 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
-  static fetchBranches(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
+  static fetchBranches(applicationId: string, pruneBranches?: boolean) {
+    const queryParams = {} as { pruneBranches?: boolean };
+    if (pruneBranches) queryParams.pruneBranches = true;
+    return Api.get(
+      `${GitSyncAPI.baseURL}/branch/${applicationId}`,
+      queryParams,
+    );
   }
 
   static checkoutBranch(applicationId: string) {

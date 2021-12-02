@@ -26,9 +26,17 @@ const LabelContainer = styled.div`
   margin-bottom: 8px;
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled.div<{ isValid: boolean }>`
   display: flex;
   align-items: center;
+  margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 7 : 12]}px;
+  & > div {
+    ${(props) =>
+      !props.isValid ? `border: 1px solid ${Colors.ERROR_RED};` : ""}
+    input {
+      ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
+    }
+  }
 `;
 
 const TitleWrapper = styled.div`
@@ -161,6 +169,9 @@ function UserGitProfileSettings({
     isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
 
   const showDefaultConfig = !isFetchingConfig && isGlobalConfigDefined;
+  const nameInvalid =
+    !authorInfo.authorName && !nameInputFocused && triedSubmit;
+  const emailInvalid = !isValidEmail && !emailInputFocused && triedSubmit;
   return (
     <MainContainer>
       <TitleWrapper>
@@ -192,16 +203,12 @@ function UserGitProfileSettings({
           <span className="label">{createMessage(AUTHOR_NAME)}</span>
         </LabelContainer>
 
-        <InputContainer>
+        <InputContainer isValid={!nameInvalid}>
           <TextInput
             dataType="text"
             defaultValue={authorInfo.authorName}
             disabled={disableInput}
-            errorMsg={
-              !authorInfo.authorName && !nameInputFocused && triedSubmit
-                ? "Author name cannot be empty"
-                : ""
-            }
+            errorMsg={nameInvalid ? "Author name cannot be empty" : ""}
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
@@ -210,21 +217,14 @@ function UserGitProfileSettings({
             trimValue={false}
           />
         </InputContainer>
-
-        <Space size={7} />
-
         <LabelContainer>
           <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
         </LabelContainer>
-        <InputContainer>
+        <InputContainer isValid={!emailInvalid}>
           <TextInput
             dataType="email"
             disabled={disableInput}
-            errorMsg={
-              !isValidEmail && !emailInputFocused && triedSubmit
-                ? "Please enter a valid email"
-                : ""
-            }
+            errorMsg={emailInvalid ? "Please enter a valid email" : ""}
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}

@@ -41,8 +41,9 @@ import {
 import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
 import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
-import Statusbar from "pages/Editor/gitSync/components/Statusbar";
-import GitSyncError from "../components/GitSyncError";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
 import GitChanged from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
@@ -82,11 +83,6 @@ const Container = styled.div`
   .bp3-popover-target {
     width: fit-content;
   }
-`;
-
-const StatusbarWrapper = styled.div`
-  width: 252px;
-  height: 38px;
 `;
 
 const INITIAL_COMMIT = "Initial Commit";
@@ -204,7 +200,7 @@ function Deploy() {
             className="t--commit-button"
             isLoading={isPullingProgress}
             onClick={handlePull}
-            size={Size.medium}
+            size={Size.large}
             tag="button"
             text={createMessage(PULL_CHANGES)}
             width="max-content"
@@ -224,7 +220,7 @@ function Deploy() {
               disabled={commitButtonDisabled}
               isLoading={commitButtonLoading}
               onClick={() => handleCommit(true)}
-              size={Size.medium}
+              size={Size.large}
               tag="button"
               text={commitButtonText}
               width="max-content"
@@ -240,7 +236,6 @@ function Deploy() {
             />
           </StatusbarWrapper>
         )}
-        <GitSyncError />
       </Section>
       {!pullRequired && !isConflicting && (
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />

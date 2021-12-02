@@ -62,7 +62,7 @@ function BranchButton() {
     >
       <Tooltip
         boundary="window"
-        content={currentBranch as string}
+        content={currentBranch || ""}
         disabled={!!(currentBranch && currentBranch.length < 12)}
         hoverOpenDelay={1000}
         position={Position.TOP_LEFT}
