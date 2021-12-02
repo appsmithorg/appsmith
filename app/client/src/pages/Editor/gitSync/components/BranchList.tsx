@@ -41,6 +41,7 @@ import Spinner from "components/ads/Spinner";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { isEllipsisActive } from "utils/helpers";
+import { getShowRemoteSectionHeader } from "pages/Editor/gitSync/utils";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -394,19 +395,6 @@ function SegmentHeader(props: { title: string }) {
     </StyledSegmentHeader>
   );
 }
-
-const getShowRemoteSectionHeader = (
-  filteredBranches: string[],
-  index: number,
-) => {
-  const remotePrefix = "origin/";
-  const prevIndex = index - 1;
-  if (prevIndex < 0) return;
-  return (
-    !filteredBranches[prevIndex].startsWith(remotePrefix) &&
-    filteredBranches[index].startsWith(remotePrefix)
-  );
-};
 
 export default function BranchList(props: {
   setIsPopupOpen?: (flag: boolean) => void;

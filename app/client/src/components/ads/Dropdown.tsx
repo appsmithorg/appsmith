@@ -31,6 +31,7 @@ export type DropdownOption = {
   iconColor?: string;
   onSelect?: DropdownOnSelect;
   data?: any;
+  isSectionHeader?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -585,7 +586,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               optionWidth,
             });
           }
-          return (
+          return !option.isSectionHeader ? (
             <OptionWrapper
               className="t--dropdown-option"
               key={index}
@@ -627,6 +628,8 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 </StyledSubText>
               ) : null}
             </OptionWrapper>
+          ) : (
+            <span>{option.label}</span>
           );
         })}
       </DropdownOptionsWrapper>

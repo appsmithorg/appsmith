@@ -42,6 +42,7 @@ import ConflictInfo from "../components/ConflictInfo";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
+import { getShowRemoteSectionHeader } from "pages/Editor/gitSync/utils";
 
 const Row = styled.div`
   display: flex;
@@ -74,21 +75,40 @@ export default function Merge() {
   });
 
   const branchList = useMemo(() => {
+    const branches: Array<string> = []; // string array to determine segment header position
     const listOfBranches: DropdownOptions = [];
-    gitBranches.map((branchObj) => {
+    gitBranches.map((branchObj, index) => {
       if (currentBranch !== branchObj.branchName) {
         if (!branchObj.default) {
           listOfBranches.push({
             label: branchObj.branchName,
             value: branchObj.branchName,
           });
+          branches.push(branchObj.branchName);
         } else {
           listOfBranches.unshift({
             label: branchObj.branchName,
             value: branchObj.branchName,
           });
+          branches.unshift(branchObj.branchName);
+        }
+        branches.push(branchObj.branchName);
+        const insertRemoteBranchSectionHeader = getShowRemoteSectionHeader(
+          branches,
+          index,
+        );
+
+        if (insertRemoteBranchSectionHeader) {
+          listOfBranches.splice(listOfBranches.length - 1, 0, {
+            label: "Remote branches",
+            isSectionHeader: true,
+          });
         }
       }
+    });
+    listOfBranches.unshift({
+      label: "Local branches",
+      isSectionHeader: true,
     });
     return listOfBranches;
   }, [gitBranches]);
