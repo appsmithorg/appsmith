@@ -12,7 +12,7 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
-import { getSelectedAppTheme } from "./appThemeSelectors";
+import { getSelectedAppThemeProperty } from "./appThemeSelectors";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -23,7 +23,7 @@ export const getUnevaluatedDataTree = createSelector(
   getAppData,
   getPluginEditorConfigs,
   getPluginDependencyConfig,
-  getSelectedAppTheme,
+  getSelectedAppThemeProperty,
   (
     actions,
     jsActions,
