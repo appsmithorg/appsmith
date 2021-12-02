@@ -34,6 +34,7 @@ import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";
 import log from "loglevel";
+import { createMessage, DELETE_ORG_SUCCESSFUL } from "constants/messages";
 
 export function* fetchRolesSaga() {
   try {
@@ -216,6 +217,10 @@ export function* deleteOrgSaga(action: ReduxAction<string>) {
       yield put({
         type: ReduxActionTypes.DELETE_ORG_SUCCESS,
         payload: orgId,
+      });
+      Toaster.show({
+        text: createMessage(DELETE_ORG_SUCCESSFUL),
+        variant: Variant.success,
       });
     }
   } catch (error) {

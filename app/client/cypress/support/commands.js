@@ -1321,7 +1321,9 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(3000);
   cy.get(commonlocators.evaluatedCurrentValue)
-    .first().should("be.visible").should('not.have.text', 'undefined')
+    .first()
+    .should("be.visible")
+    .should("not.have.text", "undefined");
   cy.get(commonlocators.evaluatedCurrentValue)
     .first()
     //.should("be.visible")
@@ -1806,8 +1808,8 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-    Pagename +
-    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
@@ -2435,7 +2437,8 @@ Cypress.Commands.add("runQuery", () => {
 Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
-    .click({ force: true }).wait(500);
+    .click({ force: true })
+    .wait(500);
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -2882,6 +2885,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
   cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
+  cy.route("DELETE", "api/v1/organizations/*").as("deleteOrgApiCall");
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
@@ -3331,8 +3335,8 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
 Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
   cy.xpath(
     "//div[text()='" +
-    entityNameinLeftSidebar +
-    "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
+      entityNameinLeftSidebar +
+      "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
   )
     .first()
     .click({ force: true });
@@ -3347,8 +3351,8 @@ Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
 Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
   cy.xpath(
     "//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']",
+      entityNameinLeftSidebar +
+      "']",
   )
     .click({ force: true })
     .wait(2000);
@@ -3363,8 +3367,8 @@ Cypress.Commands.add(
     if (fieldName) {
       cy.xpath(
         "//p[text()='" +
-        fieldName +
-        "']/following-sibling::div//div[@class='CodeMirror-code']",
+          fieldName +
+          "']/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
       cy.xpath("//div[@class='CodeMirror-code']").click();
@@ -3383,7 +3387,7 @@ Cypress.Commands.add(
   },
 );
 
-cy.all = function (...commands) {
+cy.all = function(...commands) {
   const _ = Cypress._;
   const chain = cy.wrap(null, { log: false });
   const stopCommand = _.find(cy.queue.commands, {
@@ -3398,8 +3402,8 @@ cy.all = function (...commands) {
         return cmd[chainStart]
           ? cmd[chainStart].attributes
           : _.find(cy.queue.commands, {
-            attributes: { chainerId: cmd.chainerId },
-          }).attributes;
+              attributes: { chainerId: cmd.chainerId },
+            }).attributes;
       })
       .concat(stopCommand.attributes)
       .slice(1)
