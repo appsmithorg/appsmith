@@ -37,10 +37,10 @@ const main = (forceOption) => {
     const shellCmdResult = shell.exec(`mongo ${process.env.APPSMITH_MONGODB_URI} --quiet --eval "db.getCollectionNames().length"`)
     const collectionsLen = parseInt(shellCmdResult.stdout.toString().trimEnd())
     if (collectionsLen > 0) {
-			if (forceOption) {
-				import_database()
-				return
-			}
+      if (forceOption) {
+        import_database()
+        return
+      }
       shell.echo()
       shell.echo('**************************** WARNING ****************************')
       shell.echo(`Your target database is not empty, it has data in ${collectionsLen} collections.`)
@@ -56,7 +56,7 @@ const main = (forceOption) => {
       return
     } else {
       import_database()
-			return
+      return
     }
   } catch (err) {
     shell.echo(err)

@@ -20,12 +20,12 @@ if (yargs.argv._[0] == 'export_db' || yargs.argv._[0] == 'ex') {
 
 if (yargs.argv._[0] == 'import_db' || yargs.argv._[0] == 'im') {
   console.log('Importing database');
-	// Get Force option flag to run import DB immediately
-	const forceOption = yargs.option('force', {
-		alias: 'f',
-		type: 'boolean',
-		description: 'Force run import command'
-	}).argv.force;
+  // Get Force option flag to run import DB immediately
+  const forceOption = yargs.option('force', {
+    alias: 'f',
+    type: 'boolean',
+    description: 'Force run import command'
+  }).argv.force;
   import_db.runImportDatabase(forceOption);
   console.log('Importing database done');
   return;
