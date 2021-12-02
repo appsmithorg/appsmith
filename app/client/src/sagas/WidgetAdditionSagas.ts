@@ -418,7 +418,7 @@ function* addNewTabChildSaga(
     getUpdateDslAfterCreatingChild,
     newTabProps,
   );
-  updatedWidgets[widgetId]["tabsObj"] = tabs;
+  // updatedWidgets[widgetId]["tabsObj"] = tabs;
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
