@@ -197,11 +197,6 @@ function GitConnection({ isImport }: Props) {
       copy(SSHKeyPair);
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
-
-      Toaster.show({
-        text: createMessage(COPIED_SSH_KEY),
-        variant: Variant.success,
-      });
     }
   };
 
@@ -258,10 +253,6 @@ function GitConnection({ isImport }: Props) {
           });
         }
       }
-    } else {
-      Toaster.show({
-        text: createMessage(INVALID_USER_DETAILS_MSG),
-      });
     }
   }, [
     updateLocalGitConfigInit,
