@@ -130,6 +130,46 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected[index]);
     });
   });
+
+  it("correctly validates text with passthroughvalue", () => {
+    const validation = {
+      type: ValidationTypes.TEXT,
+      params: {
+        passthroughvalue: true,
+        default: "https://www.appsmith.com",
+        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/,
+        required: true,
+        expected: {
+          type: "URL",
+          example: "https://www.appsmith.com",
+          AutocompleteDataType: AutocompleteDataType.STRING,
+        },
+      },
+    };
+    const inputs = ["abc", "", undefined];
+    const expected = [
+      {
+        isValid: false,
+        parsed: "abc",
+        messages: ["This value does not evaluate to type URL"],
+      },
+      {
+        isValid: false,
+        parsed: "",
+        messages: ["This value does not evaluate to type URL"],
+      },
+      {
+        isValid: false,
+        parsed: undefined,
+        messages: ["This value does not evaluate to type URL"],
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(validation, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
   it("correctly uses the expected message", () => {
     const validation = {
       type: ValidationTypes.TEXT,

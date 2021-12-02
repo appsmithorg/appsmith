@@ -304,7 +304,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (config.params && config.params.required) {
         return {
           isValid: false,
-          parsed: config.params?.default || "",
+          parsed: config.params?.passthroughvalue
+            ? value
+            : config.params?.default || "",
           messages: [
             `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
           ],
@@ -358,7 +360,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       !config.params?.regex.test(parsed as string)
     ) {
       return {
-        parsed: config.params?.default || "",
+        parsed: config.params?.passthroughvalue
+          ? value
+          : config.params?.default || "",
         messages: [
           `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],

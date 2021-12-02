@@ -807,6 +807,7 @@ export default [
                       params: {
                         regex: COLOR_REGEX,
                         default: Colors.GREEN,
+                        passthroughvalue: true,
                         expected: {
                           type: "HEX / RGB Color",
                           example: "#ff0000",
@@ -955,6 +956,7 @@ export default [
                       params: {
                         regex: COLOR_REGEX,
                         default: Colors.GREY_8,
+                        passthroughvalue: true,
                         expected: {
                           type: "HEX / RGB Color",
                           example: "#ff0000",
@@ -991,6 +993,7 @@ export default [
                       params: {
                         regex: COLOR_REGEX,
                         default: Colors.WHITE,
+                        passthroughvalue: true,
                         expected: {
                           type: "HEX / RGB Color",
                           example: "#ff0000",
@@ -1032,6 +1035,7 @@ export default [
                       params: {
                         regex: COLOR_REGEX,
                         default: Colors.GREEN,
+                        passthroughvalue: true,
                         expected: {
                           type: "HEX / RGB Color",
                           example: "#ff0000",
