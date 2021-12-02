@@ -41,6 +41,8 @@ public class UserProfileDTO {
 
     String useCase;
 
+    boolean disableTelemetry = true;
+
     public boolean isAccountNonExpired() {
         return this.isEnabled;
     }
