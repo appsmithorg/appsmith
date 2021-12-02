@@ -21,6 +21,11 @@ export type UpdateSelectedAppThemeAction = {
   theme: AppTheme;
 };
 
+export type ChangeSelectedAppThemeAction = {
+  applicationId: string;
+  theme: AppTheme;
+};
+
 /**
  * ----------------------------------------------------------------------------
  * ACTIONS
@@ -74,5 +79,18 @@ export const updateSelectedThemeAction = (
   payload: UpdateSelectedAppThemeAction,
 ) => ({
   type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT,
+  payload,
+});
+
+/**
+ * change selected theme
+ *
+ * @param mode
+ * @returns
+ */
+export const changeSelectedThemeAction = (
+  payload: ChangeSelectedAppThemeAction,
+) => ({
+  type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
   payload,
 });

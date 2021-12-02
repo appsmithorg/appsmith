@@ -1,14 +1,19 @@
-import React, { useCallback } from "react";
 import { tw, css } from "twind/css";
 import * as Sentry from "@sentry/react";
-import Button from "components/ads/Button";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   getAppThemingMode,
   AppThemingMode,
 } from "selectors/appThemingSelectors";
-import { setAppThemingModeAction } from "actions/appThemingActions";
+import {
+  changeSelectedThemeAction,
+  setAppThemingModeAction,
+} from "actions/appThemingActions";
+import Button from "components/ads/Button";
 import { AppTheme } from "entities/AppTheming";
+import CheckmarkIcon from "remixicon-react/CheckLineIcon";
 import { getCustomTextColor2 } from "widgets/WidgetUtils";
 
 interface ThemeCard {
@@ -22,6 +27,8 @@ export function ThemeCard(props: ThemeCard) {
   const dispatch = useDispatch();
   const themingMode = useSelector(getAppThemingMode);
   const isThemeEditMode = themingMode === AppThemingMode.APP_THEME_EDIT;
+  const isThemeSelectionMode =
+    themingMode === AppThemingMode.APP_THEME_SELECTION;
 
   /**
    * sets the mode to THEME_EDIT
@@ -32,8 +39,9 @@ export function ThemeCard(props: ThemeCard) {
 
   // colors
   const userDefinedColors = theme.properties.colors;
-  const primaryColor = userDefinedColors[Object.keys(userDefinedColors)[0]];
-  const secondaryColor = userDefinedColors[Object.keys(userDefinedColors)[1]];
+  const primaryColor = userDefinedColors.primaryColor;
+  const backgroundColor = userDefinedColors.backgroundColor;
+  const secondaryColor = userDefinedColors.secondaryColor;
 
   // border radius
   const borderRadius = theme.properties.borderRadius;
@@ -43,15 +51,32 @@ export function ThemeCard(props: ThemeCard) {
   const boxShadow = theme.properties.boxShadow;
   const primaryBoxShadow = boxShadow[Object.keys(boxShadow)[0]];
 
+  /**
+   * fires action for changing theme
+   *
+   * NOTE: since we are same card in theme edit and theme selection,
+   * we don't need to fire the action in theme edit mode on click on the card
+   */
+  const changeSelectedTheme = useCallback(() => {
+    if (isThemeSelectionMode) {
+      dispatch(changeSelectedThemeAction({ applicationId: "", theme }));
+    }
+  }, [changeSelectedThemeAction]);
+
   return (
     <div
-      className={`ring-1 ${
-        props.isSelected && false ? "ring-primary-500 ring-1" : "ring-gray-200"
-      } ${
-        props.className
-      } relative group overflow-hidden hover:shadow-xl transition-all cursor-pointer`}
+      className={`ring-1 p-0.5 ${
+        props.isSelected ? "ring-primary-500 ring-2" : "ring-gray-200"
+      } ${props.className} ${
+        isThemeEditMode ? "overflow-hidden" : ""
+      }  relative group hover:shadow-xl transition-all cursor-pointer`}
+      onClick={changeSelectedTheme}
     >
-      <main className={isThemeEditMode ? "group-hover:blur-md filter" : ""}>
+      <main
+        className={`${tw`bg-[${backgroundColor}]`} ${
+          isThemeEditMode ? "group-hover:blur-md filter" : ""
+        }`}
+      >
         <hgroup
           className={`${tw`bg-[${primaryColor}] text-[${getCustomTextColor2(
             primaryColor,
@@ -61,7 +86,11 @@ export function ThemeCard(props: ThemeCard) {
           <aside>{theme.created_by}</aside>
         </hgroup>
         <section className="flex justify-between px-3 pt-3">
-          <div>AaBbCc</div>
+          <div
+            className={`${tw`text-[${getCustomTextColor2(backgroundColor)}]`}`}
+          >
+            AaBbCc
+          </div>
           <div className="flex items-center space-x-2">
             {Object.keys(userDefinedColors).map((colorKey, index) => (
               <div
@@ -74,28 +103,28 @@ export function ThemeCard(props: ThemeCard) {
         </section>
         <section className="p-3">
           <div className="flex space-x-2">
-            <div
+            <button
               className={`${tw`rounded-[${primaryBorderRadius}] bg-[${primaryColor}] text-[${getCustomTextColor2(
                 primaryColor,
-              )}] px-3 py-1 ${tw`${css({
+              )}] px-4 py-1 ${tw`${css({
                 "&": {
                   boxShadow: primaryBoxShadow,
                 },
               })}`}`}`}
             >
               Button
-            </div>
-            <div
-              className={`${tw`rounded-[${primaryBorderRadius}] bg-[${secondaryColor}] text-[${getCustomTextColor2(
-                secondaryColor,
-              )}] ${tw`${css({
-                "&": {
-                  boxShadow: primaryBoxShadow,
+            </button>
+            <button
+              className={`${tw`rounded-[${primaryBorderRadius}] border border-[${primaryColor}] bg-[${secondaryColor}] text-[${primaryColor}] ${tw`${css(
+                {
+                  "&": {
+                    boxShadow: primaryBoxShadow,
+                  },
                 },
-              })}`}`} px-3 py-1`}
+              )}`}`} px-4 py-1`}
             >
               Button
-            </div>
+            </button>
           </div>
         </section>
       </main>
@@ -108,6 +137,9 @@ export function ThemeCard(props: ThemeCard) {
           <Button onClick={onClickChangeThemeButton} text="Change Theme" />
         </div>
       </aside>
+      {props.isSelected && (
+        <CheckmarkIcon className="absolute -right-2 -top-2 bg-primary-500 text-white rounded-full border-2 border-white h-6 w-6" />
+      )}
     </div>
   );
 }

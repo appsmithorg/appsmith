@@ -4,6 +4,9 @@ export interface AppTheme {
   created_at: string;
   config: {
     colors: {
+      primaryColor: string;
+      backgroundColor: string;
+      secondaryColor: string;
       [key: string]: string;
     };
     borderRadius: {
@@ -27,6 +30,9 @@ export interface AppTheme {
   };
   properties: {
     colors: {
+      primaryColor: string;
+      backgroundColor: string;
+      secondaryColor: string;
       [key: string]: string;
     };
     borderRadius: {

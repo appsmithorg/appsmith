@@ -19,14 +19,22 @@ const initialState: AppThemingState = {
     created_by: "",
     created_at: "",
     config: {
-      colors: {},
+      colors: {
+        backgroundColor: "#f6f6f6",
+        primaryColor: "",
+        secondaryColor: "",
+      },
       borderRadius: {},
       boxShadow: {},
       fontFamily: {},
     },
     variants: {},
     properties: {
-      colors: {},
+      colors: {
+        backgroundColor: "#f6f6f6",
+        primaryColor: "",
+        secondaryColor: "",
+      },
       borderRadius: {},
       boxShadow: {},
       fontFamily: {},
@@ -66,6 +74,12 @@ const themeReducer = createImmerReducer(initialState, {
     //
   },
   [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS]: (
+    state: AppThemingState,
+    action: ReduxAction<AppTheme>,
+  ) => {
+    state.selectedTheme = action.payload;
+  },
+  [ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {

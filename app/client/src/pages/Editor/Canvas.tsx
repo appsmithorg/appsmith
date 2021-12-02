@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect } from "react";
 import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
-import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { DSLWidget } from "widgets/constants";
@@ -16,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { initPageLevelSocketConnection } from "actions/websocketActions";
 import { collabShareUserPointerEvent } from "actions/appCollabActions";
 import { getIsPageLevelSocketConnected } from "../../selectors/websocketSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 interface CanvasProps {
   dsl: DSLWidget;
@@ -61,6 +61,7 @@ const useShareMousePointerEvent = () => {
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = props;
+  const selectedTheme = useSelector(getSelectedAppTheme);
   const shareMousePointer = useShareMousePointerEvent();
   const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   const isMultiplayerEnabledForUser = useSelector(
@@ -75,8 +76,8 @@ const Canvas = memo((props: CanvasProps) => {
 
   try {
     return (
-      <ArtBoard
-        className="t--canvas-artboard"
+      <div
+        className="t--canvas-artboard relative mx-auto pb-52"
         data-testid="t--canvas-artboard"
         id="art-board"
         onMouseMove={(e) => {
@@ -84,14 +85,17 @@ const Canvas = memo((props: CanvasProps) => {
           const data = getPointerData(e, pageId, isWebsocketConnected);
           !!data && delayedShareMousePointer(data);
         }}
-        width={props.dsl.rightColumn}
+        style={{
+          width: props.dsl.rightColumn,
+          background: selectedTheme.properties.colors.backgroundColor,
+        }}
       >
         {props.dsl.widgetId &&
           WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
         {isMultiplayerEnabledForUser && (
           <CanvasMultiPointerArena pageId={pageId} />
         )}
-      </ArtBoard>
+      </div>
     );
   } catch (error) {
     log.error("Error rendering DSL", error);
