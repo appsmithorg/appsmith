@@ -1234,7 +1234,6 @@ Cypress.Commands.add("selectOnClickOption", (option) => {
   cy.get("ul.bp3-menu div.bp3-fill", { timeout: 10000 })
     .should("be.visible")
     .contains(option)
-    .should("be.visible")
     .click({ force: true });
 });
 
