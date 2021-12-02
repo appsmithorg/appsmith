@@ -113,3 +113,5 @@ export const getPullInProgress = (state: AppState) =>
 
 export const getIsMergeInProgress = (state: AppState) =>
   state.ui.gitSync.isMerging;
+export const getTempRemoteUrl = (state: AppState) =>
+  state.ui.gitSync.tempRemoteUrl;

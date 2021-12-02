@@ -293,6 +293,15 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isMerging: false,
   }),
+  [ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      tempRemoteUrl: action.payload,
+    };
+  },
 });
 
 export type GitStatusData = {
@@ -349,6 +358,7 @@ export type GitSyncReducerState = {
   pullInProgress?: boolean;
 
   isMerging?: boolean;
+  tempRemoteUrl?: string;
 };
 
 export default gitSyncReducer;
