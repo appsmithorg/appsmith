@@ -29,19 +29,19 @@ export const ScriptTemplate = "<<string>>";
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
-    return ${ScriptTemplate};
+    return ${ScriptTemplate}
   }
   closedFunction()
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
-    return script?.apply(self, ARGUMENTS);
+    return script?.apply(self, ARGUMENTS)
   }
   callback(${ScriptTemplate})
   `,
   [EvaluationScriptType.TRIGGERS]: `
   function closedFunction () {
-    return ${ScriptTemplate};
+    return ${ScriptTemplate}
   }
   closedFunction();
   `,
