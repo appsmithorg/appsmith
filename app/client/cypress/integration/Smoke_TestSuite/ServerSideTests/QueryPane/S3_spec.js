@@ -347,7 +347,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteEntitybyName("UIOperationNewFileQuery");
   });
 
-  it("9. Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686", function() {
+  it("9. Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function() {
     // cy.wrap(Cypress.automation('remote:debugger:protocol', {
     //   command: 'Browser.grantPermissions',
     //   params: {
@@ -383,7 +383,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       200,
     ); //This verifies the Select on the table, ie page is created fine
 
-    cy.verifyCyclicDependencyError();
+    cy.verifyCyclicDependencyError();//Verifies 8686
 
     cy.ClickGotIt();
 
@@ -406,13 +406,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
     //Verifying DeleteFile icon from UI
-    cy.xpath(queryLocators.deleteFileicon).click();
-    cy.verifyCyclicDependencyError();
+    cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
+    cy.verifyCyclicDependencyError();//Verifies 8686
 
     expect(
       cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
     ).to.exist; //verify Delete File dialog appears
-    cy.clickButton("Confirm").wait(1000); //wait for Dlete operation to be successfull
+    cy.clickButton("Confirm").wait(1000); //wait for Dlete operation to be successfull, //Verifies 8684
 
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
