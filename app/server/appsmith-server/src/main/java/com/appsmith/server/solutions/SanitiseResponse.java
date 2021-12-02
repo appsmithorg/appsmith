@@ -86,6 +86,7 @@ public class SanitiseResponse {
         action.setApplicationId(defaults.getApplicationId());
         action.setPageId(defaults.getPageId());
         action.setId(defaults.getActionId());
+        action.setCollectionId(defaults.getCollectionId());
         return action;
     }
 
