@@ -200,6 +200,29 @@ export const containerWidgetAdded = createSelector(getWidgets, (widgets) => {
 export const getHadReachedStep = (state: AppState) =>
   state.ui.onBoarding.hadReachedStep;
 
+export const isNameInputBoundSelector = createSelector(
+  getTableWidget,
+  getWidgets,
+  (tableWidget, widgets) => {
+    if (tableWidget) {
+      const widgetValues = Object.values(widgets);
+      const countryInput = widgetValues.find((widget) => {
+        if (widget.type === "INPUT_WIDGET") {
+          return (
+            widget.defaultText ===
+            `{{${tableWidget.widgetName}.selectedRow.name}}`
+          );
+        }
+        return false;
+      });
+
+      if (countryInput) return true;
+    }
+
+    return false;
+  },
+);
+
 export const isCountryInputBound = createSelector(
   getTableWidget,
   getWidgets,

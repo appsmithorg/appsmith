@@ -30,6 +30,7 @@ import {
   isEmailInputBound,
   isExploringSelector,
   isImageWidgetBound,
+  isNameInputBoundSelector,
   isQueryExecutionSuccessful,
   isQueryLimitUpdated,
   isTableWidgetSelected,
@@ -43,24 +44,7 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Dispatch } from "redux";
 import { onboardingContainerBlueprint } from "./constants";
-
-const Wrapper = styled.div`
-  display: inline-flex;
-  gap: 2px;
-  height: 5px;
-  width: 100%;
-`;
-
-const ProgressBar = styled.div<{ done: boolean }>`
-  flex: 1;
-  height: 100%;
-  background-color: #e8e8e8;
-  background: linear-gradient(to left, #e8e8e8 50%, #f86a2b 50%) right;
-  background-size: 200% 100%;
-  transition: 0.3s ease-out;
-
-  ${(props) => props.done && `background-position: left`}
-`;
+import TableData from "./table-data.png";
 
 const GuideWrapper = styled.div`
   margin-bottom: 10px;
@@ -111,6 +95,15 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
   display: flex;
 `;
 
+const RunButton = styled.div`
+  background-color: #f86a2b;
+  padding: 5px 15px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+`;
+
 const UpperContent = styled.div`
   padding: 20px 16px;
   flex-direction: column;
@@ -134,6 +127,22 @@ const SubContentWrapper = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+  }
+  .count {
+    font-size: 14px;
+    font-weight: 600;
+    width: 105px;
+
+    .complete {
+      font-weight: 400;
+    }
+  }
 `;
 
 const Hint = styled.div`
@@ -151,8 +160,7 @@ const Hint = styled.div`
   }
 
   .inner-wrapper {
-    display: flex;
-    flex-direction: row;
+    flex: 1;
   }
 
   .hint-text {
@@ -178,17 +186,33 @@ const Hint = styled.div`
   }
 `;
 
+const HintTextWrapper = styled.div`
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const SuccessMessageWrapper = styled.div`
   display: flex;
-  padding: 26px 19px;
   background: white;
+  flex-direction: column;
   border: 1px solid #716e6e;
   box-shadow: 0px 0px 24px -4px rgba(16, 24, 40, 0.1),
     0px 8px 8px -4px rgba(16, 24, 40, 0.04);
-  align-items: center;
+
+  .wrapper {
+    padding: 6px 24px;
+    display: flex;
+  }
+  .info-wrapper {
+    padding: 26px 36px;
+    align-items: center;
+  }
+
   .lottie-wrapper {
-    height: 77px;
-    weight: 77px;
+    height: 59px;
+    weight: 59px;
   }
   .title-wrapper {
     display: flex;
@@ -205,25 +229,34 @@ const SuccessMessageWrapper = styled.div`
   }
 `;
 
-function StatusBar(props: any) {
-  return (
-    <Wrapper>
-      <ProgressBar done={props.currentStep > 1} />
-      <ProgressBar done={props.currentStep > 2} />
-      <ProgressBar done={props.currentStep > 3} />
-      <ProgressBar done={props.currentStep > 4} />
-      <ProgressBar done={props.currentStep > 5} />
-      <ProgressBar done={props.currentStep > 6} />
-      <ProgressBar done={props.currentStep > 7} />
-    </Wrapper>
-  );
-}
+const ProgressBar = styled.div`
+  height: 7px;
+  position: relative;
+  background: #e5edfd;
+  width: 100%;
+  .progress {
+    height: 100%;
+    width: 100%;
+    background-color: #5a92f9;
+    animation: progressBar 5s linear;
+  }
+
+  @keyframes progressBar {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+`;
 
 type Step = {
   title: string;
   description?: string;
   hints: {
     text: ReactNode;
+    image?: string;
     button?: {
       text: string;
     };
@@ -231,7 +264,8 @@ type Step = {
   }[];
   success?: {
     text: string;
-    onClick: (dispatch: Dispatch<any>) => void;
+    onClick?: (dispatch: Dispatch<any>) => void;
+    timed?: boolean;
   };
   info?: {
     icon: IconName;
@@ -255,11 +289,18 @@ const Steps: StepsType = {
       {
         text: (
           <>
-            Now hit the <b>RUN</b> button to see the response.
+            Now hit the <RunButton>RUN</RunButton> button to see the response.
           </>
         ),
       },
     ],
+    success: {
+      text:
+        "Excellent! You successfully queried the database and you can see the response of the query below. ",
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(2));
+      },
+    },
   },
   2: {
     title:
@@ -268,15 +309,15 @@ const Steps: StepsType = {
       {
         text: (
           <>
-            <b>Click</b> and <b>select the CustomersTable</b> in the entity
-            explorer.
+            <b>Click on the CustomersTable widget</b> in the explorer on the
+            left.
           </>
         ),
       },
     ],
   },
   3: {
-    title: "Display response of a query in a table.",
+    title: "Display the response of the query in a table.",
     hints: [
       {
         text: (
@@ -289,12 +330,14 @@ const Steps: StepsType = {
             in the Table Data input field on the right pane.
           </>
         ),
+        image: TableData,
       },
     ],
     success: {
       text:
         "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.",
       onClick: () => null,
+      timed: true,
     },
     info: {
       icon: "lightbulb-flash-line",
@@ -340,19 +383,28 @@ const Steps: StepsType = {
           </>
         ),
         button: {
-          text: "START CONNECTING OTHER INPUT",
+          text: "PROCEED TO NEXT STEP",
         },
+        image: TableData,
       },
       {
         text: (
           <>
-            In the property pane of Name input, Replace the whole{" "}
-            <b>Default Text</b> property with{" "}
-            <b>&#123;&#123;CustomersTable.selectedrow.name&#125;&#125;</b>
+            In the property pane of Name input, add the{" "}
+            <b>&#123;&#123;CustomersTable.selectedrow.name&#125;&#125;</b>{" "}
+            binding to the <b>Default Text</b> property
           </>
         ),
       },
     ],
+    success: {
+      text:
+        "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.",
+      timed: true,
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(5));
+      },
+    },
   },
   5: {
     title: "Connect all input fields in the Customer Update Form with table",
@@ -385,8 +437,10 @@ const Steps: StepsType = {
     ],
     success: {
       text:
-        "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.",
-      onClick: () => null,
+        "Great work! All inputs are now connected to the  table’s selected row",
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(6));
+      },
     },
   },
   6: {
@@ -395,28 +449,28 @@ const Steps: StepsType = {
       {
         text: (
           <>
-            Switch to the widget pane and then <b>Drag {"&"} Drop</b> a Button
-            widget into the left bottom of container, below the image. Update
-            the label of the button to <i>Update info</i>
+            Switch to the widget pane and then <b>Drag {"&"} Drop</b> a{" "}
+            <b>Button</b> widget into the left bottom of container, below the
+            image. Update the label of the button to <i>Update info</i>
           </>
         ),
       },
     ],
     success: {
-      text: "Perfect! Your update button is created and ready to go",
-      onClick: (dispatch) => {
-        dispatch(setCurrentStep(6));
-      },
+      text: "Perfect! Your update button is ready to trigger an update query.",
+      timed: true,
     },
     info: {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          To <b>update the customers</b> through the button, we created
+          To <b>update the customers</b> through the button, we created an{" "}
           <b>updateCustomerInfo query</b> for you which is ready to use
         </>
       ),
-      onClick: () => null,
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(7));
+      },
     },
   },
   7: {
@@ -450,7 +504,7 @@ const Steps: StepsType = {
       text:
         "Exceptional work! You’ve now built a way to see customer data and update it.",
       onClick: (dispatch) => {
-        dispatch(setCurrentStep(8));
+        dispatch(setCurrentStep(9));
       },
     },
   },
@@ -510,7 +564,10 @@ function InitialContent() {
 
 function useComputeCurrentStep(isExploring: boolean) {
   let step = 1;
-  const completedSubSteps = [];
+  const meta = {
+    completedSubSteps: [] as number[],
+    hintCount: 0,
+  };
   const dispatch = useDispatch();
   const datasource = useSelector(getGuidedTourDatasource);
   const query = useSelector(getQueryAction);
@@ -525,24 +582,30 @@ function useComputeCurrentStep(isExploring: boolean) {
   const isTableWidgetBound = useSelector(tableWidgetHasBinding);
   // 4
   const isContainerWidgetPreset = useSelector(containerWidgetAdded);
+  const isNameInputBound = useSelector(isNameInputBoundSelector);
+  // 5
   const countryInputBound = useSelector(isCountryInputBound);
   const emailInputBound = useSelector(isEmailInputBound);
   const imageWidgetBound = useSelector(isImageWidgetBound);
-  // 5
+  // 6
   const buttonWidgetPresent = useSelector(isButtonWidgetPresent);
   const buttonWidgetHasText = useSelector(doesButtonWidgetHaveText);
-  // 6
-  const buttonWidgetonClickBinding = useSelector(buttonWidgetHasOnClickBinding);
   // 7
+  const buttonWidgetonClickBinding = useSelector(buttonWidgetHasOnClickBinding);
+  // 8
   const buttonWidgetSuccessBinding = useSelector(
     buttonWidgetHasOnSuccessBinding,
   );
-  // 8
+  // 9
   const isDeployed = useSelector(getApplicationLastDeployedAt);
 
   if (step === 1) {
-    if (queryLimitUpdated && queryExecutedSuccessfully) {
-      step = 2;
+    if (queryLimitUpdated) {
+      meta.hintCount += 1;
+
+      if (queryExecutedSuccessfully && hadReachedStep > 1) {
+        step = 2;
+      }
     }
   }
 
@@ -559,36 +622,42 @@ function useComputeCurrentStep(isExploring: boolean) {
   }
 
   if (step === 4) {
-    if (emailInputBound) {
-      completedSubSteps.push(0);
-    }
-    if (countryInputBound) {
-      completedSubSteps.push(1);
-    }
-    if (imageWidgetBound) {
-      completedSubSteps.push(2);
-    }
-
-    if (completedSubSteps.length === 3 && hadReachedStep > 4) {
+    if (isNameInputBound && hadReachedStep > 4) {
       step = 5;
     }
   }
 
   if (step === 5) {
-    if (buttonWidgetPresent && buttonWidgetHasText && hadReachedStep > 5) {
+    if (emailInputBound) {
+      meta.completedSubSteps.push(0);
+    }
+    if (countryInputBound) {
+      meta.completedSubSteps.push(1);
+    }
+    if (imageWidgetBound) {
+      meta.completedSubSteps.push(2);
+    }
+
+    if (meta.completedSubSteps.length === 3 && hadReachedStep > 5) {
       step = 6;
     }
   }
 
   if (step === 6) {
-    if (buttonWidgetonClickBinding) {
+    if (buttonWidgetPresent && buttonWidgetHasText && hadReachedStep > 6) {
       step = 7;
     }
   }
 
   if (step === 7) {
-    if (buttonWidgetSuccessBinding && hadReachedStep > 7) {
+    if (buttonWidgetonClickBinding) {
       step = 8;
+    }
+  }
+
+  if (step === 8) {
+    if (buttonWidgetSuccessBinding && hadReachedStep > 8) {
+      step = 9;
     }
   }
 
@@ -634,6 +703,7 @@ function useComputeCurrentStep(isExploring: boolean) {
         dispatch(setIndicatorLocation("QUERY_EDITOR"));
       } else if (queryExecutedSuccessfully) {
         dispatch(setIndicatorLocation("NONE"));
+        dispatch(markStepComplete());
       } else {
         dispatch(setIndicatorLocation("RUN_QUERY"));
       }
@@ -655,13 +725,23 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [isTableWidgetBound, step, hadReachedStep]);
 
   useEffect(() => {
-    if (step === 4 && completedSubSteps.length === 3) {
+    if (isNameInputBound && step === 4 && hadReachedStep <= 4) {
       dispatch(markStepComplete());
     }
-  }, [step, completedSubSteps.length]);
+  }, [isNameInputBound, step, hadReachedStep]);
 
   useEffect(() => {
-    if (step === 5 && hadReachedStep <= 5) {
+    if (
+      step === 5 &&
+      meta.completedSubSteps.length === 3 &&
+      hadReachedStep <= 5
+    ) {
+      dispatch(markStepComplete());
+    }
+  }, [step, meta.completedSubSteps.length, hadReachedStep]);
+
+  useEffect(() => {
+    if (step === 6 && hadReachedStep <= 6) {
       if (buttonWidgetPresent) {
         dispatch(setIndicatorLocation("NONE"));
         if (buttonWidgetHasText) {
@@ -672,7 +752,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [step, buttonWidgetPresent, buttonWidgetHasText]);
 
   useEffect(() => {
-    if (step === 6 && hadReachedStep <= 6) {
+    if (step === 7 && hadReachedStep <= 7) {
       if (buttonWidgetonClickBinding) {
         dispatch(setIndicatorLocation("ACTION_CREATOR"));
       }
@@ -680,7 +760,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [step, buttonWidgetonClickBinding, hadReachedStep]);
 
   useEffect(() => {
-    if (step === 7) {
+    if (step === 8) {
       if (buttonWidgetSuccessBinding) {
         dispatch(markStepComplete());
         dispatch(setIndicatorLocation("NONE"));
@@ -689,19 +769,19 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [step, buttonWidgetSuccessBinding]);
 
   useEffect(() => {
-    if (step === 8) {
+    if (step === 9) {
       if (isDeployed) {
         dispatch(enableGuidedTour(false));
       }
     }
   }, [step, isDeployed]);
 
-  return completedSubSteps;
+  return meta;
 }
 
 function GuideStepsContent(props: {
   currentStep: number;
-  completedSubSteps: number[];
+  meta: GuideBody["meta"];
 }) {
   const content = Steps[props.currentStep];
   const [hintCount, setHintCount] = useState(0);
@@ -713,6 +793,10 @@ function GuideStepsContent(props: {
     setHintCount(0);
   }, [props.currentStep]);
 
+  useEffect(() => {
+    setHintCount(props.meta.hintCount);
+  }, [props.meta.hintCount]);
+
   const hintSteps = currentHint.steps;
 
   const hintButtonOnClick = () => {
@@ -723,23 +807,31 @@ function GuideStepsContent(props: {
     <div>
       <ContentWrapper>
         <SubContentWrapper>
-          <TitleWrapper>
-            <StepCount>{props.currentStep}</StepCount>
-            <Title>{content.title}</Title>
-          </TitleWrapper>
+          <div className="header">
+            <TitleWrapper>
+              <StepCount>{props.currentStep}</StepCount>
+              <Title>{content.title}</Title>
+            </TitleWrapper>
+            <div className="count">
+              {props.currentStep - 1}/9{" "}
+              <span className="complete">COMPLETE</span>
+            </div>
+          </div>
           {content.description && (
             <Description>{content.description}</Description>
           )}
         </SubContentWrapper>
       </ContentWrapper>
       <Hint>
-        <div className="hint-text">
-          <span>{currentHint.text}</span>
-
+        <div className="inner-wrapper hint-text">
+          <HintTextWrapper>
+            <div>{currentHint.text}</div>
+            {currentHint.image && <img src={currentHint.image} />}
+          </HintTextWrapper>
           {isArray(hintSteps) &&
             hintSteps.length &&
             hintSteps.map((step, index) => {
-              const completed = props.completedSubSteps.includes(index);
+              const completed = props.meta.completedSubSteps.includes(index);
               const className = "hint-steps" + (completed ? " strike" : "");
 
               return (
@@ -797,8 +889,16 @@ function CompletionContent(props: CompletionContentProps) {
 
   const onSuccessButtonClick = () => {
     setShowSuccess(false);
-    success?.onClick(dispatch);
+    success?.onClick && success?.onClick(dispatch);
   };
+
+  useEffect(() => {
+    if (success?.timed) {
+      setTimeout(() => {
+        onSuccessButtonClick();
+      }, 5000);
+    }
+  }, [success?.timed]);
 
   const onInfoButtonClick = () => {
     info?.onClick(dispatch);
@@ -807,28 +907,39 @@ function CompletionContent(props: CompletionContentProps) {
   if (showSuccess) {
     return (
       <SuccessMessageWrapper>
-        <div className="lottie-wrapper" ref={tickMarkRef} />
-        <div className="title-wrapper">
-          <Title>{Steps[props.step].success?.text}</Title>
-          <GuideButton
-            onClick={onSuccessButtonClick}
-            tag="button"
-            text={"CONTINUE"}
-          />
+        {success?.timed && (
+          <ProgressBar>
+            <div className="progress" />
+          </ProgressBar>
+        )}
+        <div className="wrapper">
+          <div className="lottie-wrapper" ref={tickMarkRef} />
+          <div className="title-wrapper">
+            <Title>{Steps[props.step].success?.text}</Title>
+            {!success?.timed && (
+              <GuideButton
+                onClick={onSuccessButtonClick}
+                tag="button"
+                text={"CONTINUE"}
+              />
+            )}
+          </div>
         </div>
       </SuccessMessageWrapper>
     );
   } else {
     return (
       <SuccessMessageWrapper>
-        <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXXXL} />
+        <div className="wrapper info-wrapper">
+          <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXXXL} />
 
-        <Description className="info">{info?.text}</Description>
-        <GuideButton
-          onClick={onInfoButtonClick}
-          tag="button"
-          text="PROCEED TO NEXT STEP"
-        />
+          <Description className="info">{info?.text}</Description>
+          <GuideButton
+            onClick={onInfoButtonClick}
+            tag="button"
+            text="PROCEED TO NEXT STEP"
+          />
+        </div>
       </SuccessMessageWrapper>
     );
   }
@@ -837,7 +948,10 @@ function CompletionContent(props: CompletionContentProps) {
 type GuideBody = {
   exploring: boolean;
   step: number;
-  completedSubSteps: number[];
+  meta: {
+    completedSubSteps: number[];
+    hintCount: number;
+  };
 };
 
 function GuideBody(props: GuideBody) {
@@ -848,12 +962,7 @@ function GuideBody(props: GuideBody) {
   } else if (successMessage) {
     return <CompletionContent step={props.step} />;
   } else {
-    return (
-      <GuideStepsContent
-        completedSubSteps={props.completedSubSteps}
-        currentStep={props.step}
-      />
-    );
+    return <GuideStepsContent currentStep={props.step} meta={props.meta} />;
   }
 }
 
@@ -863,18 +972,14 @@ type GuideProps = {
 // Guided tour steps
 function Guide(props: GuideProps) {
   const exploring = useSelector(isExploringSelector);
-  const completedSubSteps = useComputeCurrentStep(exploring);
+  const meta = useComputeCurrentStep(exploring);
   const step = useSelector(getCurrentStep);
 
   return (
     <GuideWrapper className={props.className}>
       <CardWrapper>
         <UpperContent>
-          <GuideBody
-            completedSubSteps={completedSubSteps}
-            exploring={exploring}
-            step={step}
-          />
+          <GuideBody exploring={exploring} meta={meta} step={step} />
         </UpperContent>
       </CardWrapper>
     </GuideWrapper>
