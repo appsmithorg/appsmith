@@ -1,11 +1,25 @@
 import User from "../../../../fixtures/user.json";
 
-function mockSegmentKey() {
+function mockAnalyticsAndTrackersKey() {
   cy.window().then((window) => {
     if (!window.APPSMITH_FEATURE_CONFIGS.segment) {
       window.APPSMITH_FEATURE_CONFIGS.segment = {
         apiKey: "test",
         ceKey: "test",
+      };
+    }
+
+    if (!window.APPSMITH_FEATURE_CONFIGS.smartLook) {
+      window.APPSMITH_FEATURE_CONFIGS.smartLook = {
+        id: "test",
+      };
+    }
+
+    if (!window.APPSMITH_FEATURE_CONFIGS.sentry) {
+      window.APPSMITH_FEATURE_CONFIGS.sentry = {
+        dsn: "test",
+        release: "test",
+        environment: "test",
       };
     }
   });
@@ -20,7 +34,7 @@ describe("Checks for analytics initialization", function() {
     }).as("getUsersWithoutTelemetry");
     cy.visit("/applications");
     cy.reload();
-    mockSegmentKey();
+    mockAnalyticsAndTrackersKey();
     cy.wait("@getUsersWithoutTelemetry");
     cy.window().then((window) => {
       expect(window.analytics).to.be.equal(undefined);
@@ -49,11 +63,11 @@ describe("Checks for analytics initialization", function() {
           enableTelemetry: true,
         },
       },
-    }).as("getUsersWithoutTelemetry");
+    }).as("getUsersWithTelemetry");
     cy.visit("/applications");
     cy.reload();
-    mockSegmentKey();
-    cy.wait("@getUsersWithoutTelemetry");
+    mockAnalyticsAndTrackersKey();
+    cy.wait("@getUsersWithTelemetry");
     cy.wait(5000);
     cy.window().then((window) => {
       expect(window.analytics).not.to.be.undefined;
@@ -72,6 +86,70 @@ describe("Checks for analytics initialization", function() {
     cy.wait("@segment");
     cy.window().then(() => {
       cy.wrap(interceptFlag).should("eq", true);
+    });
+  });
+
+  it("Should check smartlook is not initialised when enableTelemtry is false", function() {
+    cy.intercept("GET", "/api/v1/users/me", {
+      body: { responseMeta: { status: 200, success: true }, data: User },
+    }).as("getUsersWithoutTelemetry");
+    cy.visit("/applications");
+    cy.reload();
+    mockAnalyticsAndTrackersKey();
+    cy.wait("@getUsersWithoutTelemetry");
+    cy.window().then((window) => {
+      expect(window.smartlook).to.be.equal(undefined);
+    });
+  });
+  it("Should check smartlook is initialised when enableTelemtry is true", function() {
+    cy.intercept("GET", "/api/v1/users/me", {
+      body: {
+        responseMeta: { status: 200, success: true },
+        data: {
+          ...User,
+          enableTelemetry: true,
+        },
+      },
+    }).as("getUsersWithTelemetry");
+    cy.visit("/applications");
+    cy.reload();
+    mockAnalyticsAndTrackersKey();
+    cy.wait("@getUsersWithTelemetry");
+    cy.wait(5000);
+    cy.window().then((window) => {
+      expect(window.smartlook).not.to.be.undefined;
+    });
+  });
+
+  it("Should check Sentry is not initialised when enableTelemtry is false", function() {
+    cy.intercept("GET", "/api/v1/users/me", {
+      body: { responseMeta: { status: 200, success: true }, data: User },
+    }).as("getUsersWithoutTelemetry");
+    cy.visit("/applications");
+    cy.reload();
+    mockAnalyticsAndTrackersKey();
+    cy.wait("@getUsersWithoutTelemetry");
+    cy.window().then((window) => {
+      expect(window.Sentry).to.be.equal(undefined);
+    });
+  });
+  it("Should check Sentry is initialised when enableTelemtry is true", function() {
+    cy.intercept("GET", "/api/v1/users/me", {
+      body: {
+        responseMeta: { status: 200, success: true },
+        data: {
+          ...User,
+          enableTelemetry: true,
+        },
+      },
+    }).as("getUsersWithTelemetry");
+    cy.visit("/applications");
+    cy.reload();
+    mockAnalyticsAndTrackersKey();
+    cy.wait("@getUsersWithTelemetry");
+    cy.wait(5000);
+    cy.window().then((window) => {
+      expect(window.Sentry).not.to.be.undefined;
     });
   });
 });

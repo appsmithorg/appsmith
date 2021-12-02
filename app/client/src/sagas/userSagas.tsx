@@ -124,7 +124,7 @@ export function* getCurrentUserSaga() {
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME
       ) {
-        AnalyticsUtil.identifyUser(response.data);
+        enableTelemetry && AnalyticsUtil.identifyUser(response.data);
         // make fetch feature call only if logged in
         yield put(fetchFeatureFlagsInit());
       } else {
