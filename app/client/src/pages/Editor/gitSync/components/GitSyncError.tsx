@@ -7,7 +7,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { createMessage, READ_DOCUMENTATION } from "constants/messages";
 import { useSelector } from "store";
-import { getGitError } from "selectors/gitSyncSelectors";
+import { getGitConnectError } from "selectors/gitSyncSelectors";
 
 const ErrorWrapper = styled.div`
   padding: 24px 0px;
@@ -37,7 +37,7 @@ export default function GitSyncError({
 }: {
   onDisplay?: () => void;
 }) {
-  const error = useSelector(getGitError);
+  const error = useSelector(getGitConnectError);
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
     : "";

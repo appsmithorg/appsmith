@@ -524,6 +524,7 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
+export const CONNECTED_TO_GIT = () => "Connected to git";
 
 export const GIT_DISCONNECT_POPUP_TITLE = () =>
   `This will disconnect the git repository from this application`;
@@ -546,6 +547,7 @@ export const REMOTE_URL_VIA = () => "Remote URL via";
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
 export const AUTHOR_NAME = () => "Author name";
+export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
 
 export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
@@ -857,3 +859,6 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
+
+export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
+  "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";

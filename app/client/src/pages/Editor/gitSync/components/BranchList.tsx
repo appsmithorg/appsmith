@@ -38,9 +38,10 @@ import { get } from "lodash";
 import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import Spinner from "components/ads/Spinner";
-import { useTextWidth } from "@imagemarker/use-text-width";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
+import { isEllipsisActive } from "utils/helpers";
+import { getShowRemoteSectionHeader } from "pages/Editor/gitSync/utils";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -86,7 +87,6 @@ const BranchListItemContainer = styled.div<{
   .${Classes.TEXT} {
     width: 100%;
     overflow: hidden;
-    text-overflow: ellipse;
     text-overflow: ellipsis;
     display: block;
   }
@@ -189,8 +189,6 @@ function BranchListItem({
 }: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const textRef = React.useRef<HTMLSpanElement>(null);
-  const [wrapperWidth, setWrapperWidth] = useState(0);
-  const width = useTextWidth({ ref: textRef });
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView)
       scrollIntoView(itemRef.current, {
@@ -200,16 +198,6 @@ function BranchListItem({
       });
   }, [shouldScrollIntoView]);
 
-  useEffect(() => {
-    if (itemRef.current) {
-      const wrapperWidth = isDefault
-        ? itemRef.current.offsetWidth - 75
-        : itemRef.current.offsetWidth;
-      setWrapperWidth(wrapperWidth);
-    }
-  }, []);
-
-  const tooltipEnabled = wrapperWidth < width;
   return (
     <BranchListItemContainer
       active={active}
@@ -222,7 +210,7 @@ function BranchListItem({
       <Tooltip
         boundary="window"
         content={branch}
-        disabled={!tooltipEnabled}
+        disabled={!isEllipsisActive(textRef.current)}
         position={Position.TOP}
       >
         <Text ref={textRef} type={TextType.P1}>
@@ -256,7 +244,7 @@ function BranchesLoading() {
 
 export const removeSpecialChars = (value: string) => {
   const separatorRegex = /(?!\/)\W+/;
-  return value.split(separatorRegex).join("-");
+  return value.split(separatorRegex).join("_");
 };
 
 // filter the branches according to the search text
@@ -382,6 +370,32 @@ function Header({
   );
 }
 
+const StyledSegmentHeader = styled.div`
+  padding: ${(props) =>
+    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
+  padding-right: 0;
+  ${(props) => getTypographyByKey(props, "u2")}
+  color: ${Colors.GREY_10};
+  display: flex;
+  align-items: center;
+`;
+
+const StyledHr = styled.div`
+  flex: 1;
+  height: 1px;
+  background-color: ${Colors.GREY_10};
+  margin-left: ${(props) => props.theme.spaces[3]}px;
+`;
+
+function SegmentHeader(props: { title: string }) {
+  return (
+    <StyledSegmentHeader>
+      {props.title}
+      <StyledHr />
+    </StyledSegmentHeader>
+  );
+}
+
 export default function BranchList(props: {
   setIsPopupOpen?: (flag: boolean) => void;
 }) {
@@ -397,7 +411,7 @@ export default function BranchList(props: {
 
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
-    changeSearchTextInState(removeSpecialChars(text).replace(/\-/g, "_"));
+    changeSearchTextInState(removeSpecialChars(text));
   };
 
   const isCreateNewBranchInputValid = useMemo(
@@ -505,25 +519,31 @@ export default function BranchList(props: {
                 shouldScrollIntoView={activeHoverIndex === 0}
               />
             )}
+            <SegmentHeader title={"Local branches"} />
             {filteredBranches.map((branch: string, index: number) => (
-              <BranchListItem
-                active={currentBranch === branch}
-                branch={branch}
-                className="t--branch-item"
-                hovered={getIsActiveItem(
-                  isCreateNewBranchInputValid,
-                  activeHoverIndex,
-                  index,
+              <>
+                {getShowRemoteSectionHeader(filteredBranches, index) && (
+                  <SegmentHeader title={"Remote branches"} />
                 )}
-                isDefault={branch === defaultBranch}
-                key={branch}
-                onClick={() => switchBranch(branch)}
-                shouldScrollIntoView={getIsActiveItem(
-                  isCreateNewBranchInputValid,
-                  activeHoverIndex,
-                  index,
-                )}
-              />
+                <BranchListItem
+                  active={currentBranch === branch}
+                  branch={branch}
+                  className="t--branch-item"
+                  hovered={getIsActiveItem(
+                    isCreateNewBranchInputValid,
+                    activeHoverIndex,
+                    index,
+                  )}
+                  isDefault={branch === defaultBranch}
+                  key={branch}
+                  onClick={() => switchBranch(branch)}
+                  shouldScrollIntoView={getIsActiveItem(
+                    isCreateNewBranchInputValid,
+                    activeHoverIndex,
+                    index,
+                  )}
+                />
+              </>
             ))}
           </ListContainer>
         )}

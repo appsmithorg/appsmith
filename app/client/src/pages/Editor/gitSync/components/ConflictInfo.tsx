@@ -8,16 +8,12 @@ import {
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
   OPEN_REPO,
-  PULL_CHANGES,
 } from "constants/messages";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { Theme } from "constants/DefaultTheme";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector } from "store";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { getIsPullingProgress } from "selectors/gitSyncSelectors";
-import { gitPullInit } from "actions/gitSyncActions";
-import { useDispatch } from "react-redux";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 
@@ -38,17 +34,21 @@ export default function ConflictInfo(props: CIPropType) {
   const { isConflicting } = props;
   const theme = useTheme() as Theme;
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const currentBranch = gitMetaData?.branchName;
-  const isPullingProgress = useSelector(getIsPullingProgress);
-  const dispatch = useDispatch();
-  const handlePull = () => {
-    if (currentBranch) {
-      dispatch(gitPullInit());
-    }
-  };
   const originUrl = gitMetaData?.remoteUrl;
-  let remoteUrl = originUrl;
 
+  /**
+   * Converting ssh url to https url for opening the repo on browser
+   * Github :
+   *    SSH: git@github.com:user/repo.git
+   *    HTTPS: https://github.com/user/repo.git
+   * Gitlab:
+   *    SSH: git@gitlab.com:abhijeet25/first_project.git
+   *    HTTPS: https://gitlab.com/abhijeet25/first_project.git
+   * Bitbucket
+   *    SSH: git@bitbucket.org:abhvsn/onec2_firstapp.git
+   *    HTTPS: https://abhvsn@bitbucket.org/abhvsn/onec2_firstapp.git
+   */
+  let remoteUrl = originUrl;
   if (originUrl && new RegExp("git@*").test(originUrl)) {
     remoteUrl = remoteUrl?.replace(":", "/");
     remoteUrl = remoteUrl?.replace(/git@/, "https://");
@@ -91,15 +91,6 @@ export default function ConflictInfo(props: CIPropType) {
           tag="a"
           target="_blank"
           text={createMessage(OPEN_REPO)}
-          width="max-content"
-        />
-        <Button
-          className="t--commit-button"
-          isLoading={isPullingProgress}
-          onClick={handlePull}
-          size={Size.large}
-          tag="button"
-          text={createMessage(PULL_CHANGES)}
           width="max-content"
         />
       </Row>

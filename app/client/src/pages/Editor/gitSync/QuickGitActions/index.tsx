@@ -3,14 +3,12 @@ import styled from "styled-components";
 
 import BranchButton from "./BranchButton";
 
-import { ReactComponent as UpArrow } from "assets/icons/ads/up-arrow.svg";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down-arrow.svg";
 import { ReactComponent as Plus } from "assets/icons/ads/plus.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 
 import {
   COMMIT,
-  PUSH,
   PULL,
   MERGE,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
@@ -145,11 +143,9 @@ const getQuickActionButtons = ({
   pull,
   pullDisabled,
   pullTooltipMessage,
-  push,
   showPullLoadingState,
 }: {
   commit: () => void;
-  push: () => void;
   pull: () => void;
   merge: () => void;
   gitStatus: any;
@@ -157,27 +153,11 @@ const getQuickActionButtons = ({
   pullTooltipMessage: string;
   showPullLoadingState: boolean;
 }) => {
-  let pushTooltip = createMessage(PUSH);
-  if (!isNaN(gitStatus?.aheadCount)) {
-    pushTooltip =
-      gitStatus.aheadCount > 0
-        ? "Unable to auto push while committing since the remote is ahead"
-        : "All commits have been pushed to remote";
-  }
-  if (gitStatus && !gitStatus.isClean) {
-    pushTooltip = "There are some changes";
-  }
   return [
     {
       icon: <Plus />,
       onClick: commit,
       tooltipText: createMessage(COMMIT),
-    },
-    {
-      icon: <UpArrow />,
-      onClick: () => gitStatus && !gitStatus.isClean && push(),
-      tooltipText: pushTooltip,
-      loading: showPullLoadingState,
     },
     {
       count: gitStatus?.behindCount,
@@ -284,14 +264,6 @@ export default function QuickGitActions() {
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
-      dispatch(
-        setIsGitSyncModalOpen({
-          isOpen: true,
-          tab: GitSyncModalTab.DEPLOY,
-        }),
-      );
-    },
-    push: () => {
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,

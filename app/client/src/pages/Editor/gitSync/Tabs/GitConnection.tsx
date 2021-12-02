@@ -27,15 +27,12 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
-import {
-  getCurrentAppGitMetaData,
-  getTempRemoteUrl,
-} from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
-  gitTempRemoteUrlInit,
+  remoteUrlInputValue,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -51,6 +48,7 @@ import {
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
+  getTempRemoteUrl,
 } from "selectors/gitSyncSelectors";
 import Statusbar, {
   StatusbarWrapper,
@@ -284,7 +282,7 @@ function GitConnection({ isImport }: Props) {
     const isInvalid = remoteUrlIsInvalid(value);
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
-    dispatch(gitTempRemoteUrlInit({ tempRemoteUrl: value }));
+    dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
   };
 
   const submitButtonDisabled = useMemo(() => {

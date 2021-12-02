@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Title } from "../components/StyledComponents";
 import {
   DEPLOY_YOUR_APPLICATION,
@@ -22,8 +22,8 @@ import {
   getIsFetchingGitStatus,
   getIsCommittingInProgress,
   getIsPullingProgress,
-  getGitError,
   getPullFailed,
+  getGitCommitAndPushError,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -52,6 +52,8 @@ import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
 import Icon, { IconSize } from "components/ads/Icon";
+
+import { isMac } from "utils/helpers";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -88,6 +90,20 @@ const Container = styled.div`
 const INITIAL_COMMIT = "Initial Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
+function SubmitWrapper(props: {
+  children: React.ReactNode;
+  onSubmit: () => void;
+}) {
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const triggerSubmit = isMac()
+      ? e.metaKey && e.key === "Enter"
+      : e.ctrlKey && e.key === "Enter";
+    if (triggerSubmit) props.onSubmit();
+  };
+
+  return <div onKeyDown={onKeyDown}>{props.children}</div>;
+}
+
 function Deploy() {
   const [commitMessage, setCommitMessage] = useState(INITIAL_COMMIT);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
@@ -97,8 +113,9 @@ function Deploy() {
   const isPullingProgress = useSelector(getIsPullingProgress);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
-  const gitError = useSelector(getGitError);
+  const gitError = useSelector(getGitCommitAndPushError);
   const pullFailed = useSelector(getPullFailed);
+  const commitInputRef = useRef<HTMLInputElement>(null);
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
@@ -130,6 +147,7 @@ function Deploy() {
   }, []);
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
   const commitButtonLoading = isCommittingInProgress;
+  const commitInputDisabled = !hasChangesToCommit || isCommittingInProgress;
 
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
   const isConflicting = !isFetchingGitStatus && pullFailed;
@@ -153,6 +171,12 @@ function Deploy() {
 
   const theme = useTheme() as Theme;
 
+  useEffect(() => {
+    if (!commitInputDisabled && commitInputRef.current) {
+      commitInputRef.current.focus();
+    }
+  }, [commitInputDisabled]);
+
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
@@ -165,14 +189,21 @@ function Deploy() {
           </SectionTitle>
         </Row>
         <Space size={3} />
-        <TextInput
-          autoFocus
-          disabled={!hasChangesToCommit || isFetchingGitStatus}
-          fill
-          onChange={setCommitMessage}
-          trimValue={false}
-          value={commitMessageDisplay}
-        />
+        <SubmitWrapper
+          onSubmit={() => {
+            if (!commitButtonDisabled) handleCommit(true);
+          }}
+        >
+          <TextInput
+            autoFocus
+            disabled={commitInputDisabled}
+            fill
+            onChange={setCommitMessage}
+            ref={commitInputRef}
+            trimValue={false}
+            value={commitMessageDisplay}
+          />
+        </SubmitWrapper>
         {isFetchingGitStatus && (
           <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
         )}
