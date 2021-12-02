@@ -65,6 +65,7 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
+import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -113,13 +114,17 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const { enableTelemetry } = response.data;
+      if (enableTelemetry) {
+        initializeAnalyticsAndTrackers();
+      }
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME
       ) {
-        AnalyticsUtil.identifyUser(response.data);
+        enableTelemetry && AnalyticsUtil.identifyUser(response.data);
         // make fetch feature call only if logged in
         yield put(fetchFeatureFlagsInit());
       } else {
