@@ -650,12 +650,7 @@ Cypress.Commands.add("CreateAPI", (apiname) => {
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.ApiName).click({ force: true });
-  cy.get(apiwidget.apiTxt)
-    .clear()
-    .type(apiname, { force: true })
-    .should("have.value", apiname)
-    .blur();
+  cy.renameWithInPane(apiname);
   cy.WaitAutoSave();
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
@@ -1324,10 +1319,13 @@ Cypress.Commands.add("EvaluateDataType", (dataType) => {
 
 Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait(3000);
+  cy.get(commonlocators.evaluatedCurrentValue)
+    .first().should("be.visible").should('not.have.text', 'undefined')
   cy.get(commonlocators.evaluatedCurrentValue)
     .first()
-    .should("be.visible")
+    //.should("be.visible")
+    .click({ force: true })
     .then(($text) => {
       expect($text.text()).to.eq(currentValue);
     });
@@ -1500,6 +1498,8 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
       input.focus();
       cy.wait(100);
       input.setValue(value);
+      cy.wait(200); //time for value to set
+      input.focus();
     });
 });
 
@@ -1806,8 +1806,8 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+    Pagename +
+    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
@@ -2435,7 +2435,7 @@ Cypress.Commands.add("runQuery", () => {
 Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
-    .click({ force: true });
+    .click({ force: true }).wait(500);
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -2843,7 +2843,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
   cy.route("POST", "/track/*").as("postTrack");
-  cy.route("POST", "/api/v1/actions/execute").as("postExecute");
   cy.route("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
@@ -2895,7 +2894,15 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
   cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
   cy.route("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
+
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
+  cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
+});
+
+Cypress.Commands.add("startErrorRoutes", () => {
+  cy.intercept("POST", "/api/v1/actions/execute", { statusCode: 500 }).as(
+    "postExecuteError",
+  );
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
@@ -3324,13 +3331,27 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
 Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
   cy.xpath(
     "//div[text()='" +
-      entityNameinLeftSidebar +
-      "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
+    entityNameinLeftSidebar +
+    "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
   )
     .first()
     .click({ force: true });
 
   cy.xpath(generatePage.deleteMenuItem).click();
+
+  cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
+    "not.exist",
+  );
+});
+
+Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
+  cy.xpath(
+    "//div[contains(@class, 't--entity-name')][text()='" +
+    entityNameinLeftSidebar +
+    "']",
+  )
+    .click({ force: true })
+    .wait(2000);
 });
 
 Cypress.Commands.add(
@@ -3342,8 +3363,8 @@ Cypress.Commands.add(
     if (fieldName) {
       cy.xpath(
         "//p[text()='" +
-          fieldName +
-          "']/following-sibling::div//div[@class='CodeMirror-code']",
+        fieldName +
+        "']/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
       cy.xpath("//div[@class='CodeMirror-code']").click();
@@ -3362,7 +3383,7 @@ Cypress.Commands.add(
   },
 );
 
-cy.all = function(...commands) {
+cy.all = function (...commands) {
   const _ = Cypress._;
   const chain = cy.wrap(null, { log: false });
   const stopCommand = _.find(cy.queue.commands, {
@@ -3377,8 +3398,8 @@ cy.all = function(...commands) {
         return cmd[chainStart]
           ? cmd[chainStart].attributes
           : _.find(cy.queue.commands, {
-              attributes: { chainerId: cmd.chainerId },
-            }).attributes;
+            attributes: { chainerId: cmd.chainerId },
+          }).attributes;
       })
       .concat(stopCommand.attributes)
       .slice(1)
@@ -3390,6 +3411,22 @@ cy.all = function(...commands) {
   p[chainStart] = startCommand;
   return p;
 };
+
+Cypress.Commands.add("renameWithInPane", (renameVal) => {
+  cy.get(apiwidget.ApiName).click({ force: true });
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(renameVal, { force: true })
+    .should("have.value", renameVal)
+    .blur();
+});
+
+Cypress.Commands.add("verifyCyclicDependencyError", () => {
+  // Give this element 10 seconds to appear
+  cy.xpath(commonlocators.cyclicDependencyError, { timeout: 10000 }).should(
+    "not.exist",
+  );
+});
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
