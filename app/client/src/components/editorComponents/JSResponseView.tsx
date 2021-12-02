@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  RefObject,
-  useCallback,
-  useEffect,
-} from "react";
+import React, { useState, useRef, RefObject, useCallback } from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
