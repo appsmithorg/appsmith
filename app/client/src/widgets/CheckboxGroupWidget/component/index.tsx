@@ -59,10 +59,16 @@ const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
     color: ${({ theme }) => theme.colors.comments.resolved};
     margin-top: ${({ inline, optionCount }) =>
       (inline || optionCount === 1) && `4px`};
+
+    .bp3-control-indicator {
+      ${({ disabled }) =>
+        !disabled && `border: 1.5px solid ${Colors.DARK_GRAY}`};
+      border-radius: 0;
+      box-shadow: none;
+    }
   }
 
   &.bp3-control input:checked ~ .bp3-control-indicator {
-    box-shadow: none;
     border: none;
     background-image: none;
     background-color: ${({ theme }) =>
@@ -71,12 +77,6 @@ const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
 
   &.bp3-control input:not(:disabled):active ~ .bp3-control-indicator {
     background: none;
-    box-shadow: none;
-  }
-
-  &.bp3-control.bp3-checkbox .bp3-control-indicator {
-    ${({ disabled }) => !disabled && `border: 1.5px solid ${Colors.DARK_GRAY}`};
-    border-radius: 0;
   }
 
   &.bp3-control.bp3-checkbox
