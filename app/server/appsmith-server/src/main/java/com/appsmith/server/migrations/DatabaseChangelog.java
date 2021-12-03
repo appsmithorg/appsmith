@@ -60,6 +60,10 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mysema.commons.lang.Pair;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ArrayUtils;
@@ -111,6 +115,7 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -122,6 +127,15 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @Slf4j
 @ChangeLog(order = "001")
 public class DatabaseChangelog {
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    class DslUpdateDto {
+        private JSONObject dsl;
+        private Boolean updated;
+    }
 
     /**
      * A private, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
@@ -505,9 +519,9 @@ public class DatabaseChangelog {
     @ChangeSet(order = "014", id = "set-initial-sequence-for-datasource", author = "")
     public void setInitialSequenceForDatasource(MongoTemplate mongoTemplate) {
         final Long maxUntitledDatasourceNumber = mongoTemplate.find(
-                query(where(FieldName.NAME).regex("^" + Datasource.DEFAULT_NAME_PREFIX + " \\d+$")),
-                Datasource.class
-        )
+                        query(where(FieldName.NAME).regex("^" + Datasource.DEFAULT_NAME_PREFIX + " \\d+$")),
+                        Datasource.class
+                )
                 .stream()
                 .map(datasource -> Long.parseLong(datasource.getName().split(" ")[2]))
                 .max(Long::compareTo)
@@ -2285,10 +2299,10 @@ public class DatabaseChangelog {
         // Fetch all the actions built on top of a mongo database, not having any value set for input type
         assert mongoPlugin != null;
         List<NewAction> rawMongoActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                NewAction.class
-        )
+                        query(new Criteria().andOperator(
+                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                        NewAction.class
+                )
                 .stream()
                 .filter(mongoAction -> {
                     if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
@@ -2515,10 +2529,10 @@ public class DatabaseChangelog {
         // Fetch all the actions built on top of a mongo database with command type update_one or update_many
         assert mongoPlugin != null;
         List<NewAction> updateMongoActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                NewAction.class
-        )
+                        query(new Criteria().andOperator(
+                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                        NewAction.class
+                )
                 .stream()
                 .filter(mongoAction -> {
                     if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
@@ -2652,10 +2666,10 @@ public class DatabaseChangelog {
         // Fetch all the actions built on top of a mongo database with input type set to raw.
         assert mongoPlugin != null;
         List<NewAction> rawMongoQueryActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                NewAction.class
-        )
+                        query(new Criteria().andOperator(
+                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                        NewAction.class
+                )
                 .stream()
                 .filter(mongoAction -> {
                     boolean result = false;
@@ -2977,8 +2991,8 @@ public class DatabaseChangelog {
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
 
         ensureIndexes(mongoTemplate, Application.class,
-            makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
-                .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
+                makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
+                        .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
         );
     }
 
@@ -3207,7 +3221,7 @@ public class DatabaseChangelog {
         List<NewAction> mongoActions = mongoTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId())
-                        )),
+                )),
                 NewAction.class
         );
 
@@ -3306,7 +3320,7 @@ public class DatabaseChangelog {
                 "#F5D1D1", "#FFEFDB", "#F3F1C7", "#FFEBFB", "#D9E7FF", "#FFDEDE", "#F5D1D1"
         };
 
-        for(int i = 0; i < oldColors.length; i++) {
+        for (int i = 0; i < oldColors.length; i++) {
             String oldColor = oldColors[i], newColor = newColors[i];
 
             // Migrate old color to new color
@@ -3376,7 +3390,7 @@ public class DatabaseChangelog {
      * However, a value cannot be set against this toggle if the value for previous keys in the list are missing.
      * Hence, this method populates the values for all the keys that appear before the permanent url toggle key. To
      * check out the indexes for each key / property please look into the `editor.json` file for s3 plugin.
-     *
+     * <p>
      * The keys are saved as `null` for properties where editor.json does not define any value for the property keys.
      *
      * @param oldPluginSpecifiedTemplates : current config saved in db.
@@ -3384,7 +3398,7 @@ public class DatabaseChangelog {
      */
     private List<Property> setS3ListActionDefaults(List<Property> oldPluginSpecifiedTemplates) {
         List<Property> newPluginSpecifiedTemplates = new ArrayList<>(oldPluginSpecifiedTemplates);
-        switch(newPluginSpecifiedTemplates.size()) {
+        switch (newPluginSpecifiedTemplates.size()) {
             case 0:
                 /**
                  * This case is never expected to be hit. However, I am still adding the handling here for the sake
@@ -3591,7 +3605,8 @@ public class DatabaseChangelog {
                 .include(fieldName(QApplication.application.name));
 
         List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
-        for(Application application : applications) {
+
+        for (Application application : applications) {
             mongockTemplate.updateFirst(
                     query(where(fieldName(QApplication.application.id)).is(application.getId())),
                     new Update().set(fieldName(QApplication.application.slug), TextUtils.makeSlug(application.getName())),
@@ -3610,15 +3625,16 @@ public class DatabaseChangelog {
                 ));
 
         List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
-        for(NewPage page : pages) {
+
+        for (NewPage page : pages) {
             Update update = new Update();
-            if(page.getUnpublishedPage() != null) {
+            if (page.getUnpublishedPage() != null) {
                 String fieldName = String.format("%s.%s",
                         fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug)
                 );
                 update = update.set(fieldName, TextUtils.makeSlug(page.getUnpublishedPage().getName()));
             }
-            if(page.getPublishedPage() != null) {
+            if (page.getPublishedPage() != null) {
                 String fieldName = String.format("%s.%s",
                         fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug)
                 );
@@ -3630,5 +3646,286 @@ public class DatabaseChangelog {
                     NewPage.class
             );
         }
+    }
+
+    private DslUpdateDto updateListWidgetTriggerPaths(DslUpdateDto dslUpdateDto) {
+        JSONObject dsl = dslUpdateDto.getDsl();
+        Boolean updated = dslUpdateDto.getUpdated();
+
+        if (dsl == null) {
+            // This isn't a valid widget configuration. No need to traverse this.
+            return dslUpdateDto;
+        }
+
+        String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
+        if ("LIST_WIDGET".equals(widgetType)) {
+            // Only List Widget would go through the following processing
+
+            // Start by picking all fields where we expect to find dynamic triggers for this particular widget
+            List<Object> dynamicTriggerPaths = (ArrayList<Object>) dsl.get(DYNAMIC_TRIGGER_PATH_LIST);
+
+            Set<String> newTriggerPaths = new HashSet<>();
+
+            if (dynamicTriggerPaths != null) {
+                // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+                for (Object x : dynamicTriggerPaths) {
+                    Boolean validPath = true;
+                    final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
+                    String[] fields = fieldPath.split("[].\\[]");
+                    // For nested fields, the parent dsl to search in would shift by one level every iteration
+                    Object parent = dsl;
+                    Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                    boolean isLeafNode = false;
+                    // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+                    // Valid forms of the fieldPath for this search could be:
+                    // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
+                    while (fieldsIterator.hasNext()) {
+                        String nextKey = fieldsIterator.next();
+                        if (parent instanceof JSONObject) {
+                            parent = ((JSONObject) parent).get(nextKey);
+                        } else if (parent instanceof Map) {
+                            parent = ((Map<String, ?>) parent).get(nextKey);
+                        } else if (parent instanceof List) {
+                            if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                                try {
+                                    parent = ((List) parent).get(Integer.parseInt(nextKey));
+                                } catch (IndexOutOfBoundsException e) {
+                                    // The index being referred does not exist. Hence the path would not exist.
+                                    validPath = false;
+                                }
+                            } else {
+                                validPath = false;
+                            }
+                        }
+                        // After updating the parent, check for the types
+                        if (parent == null) {
+                            validPath = false;
+                        } else if (parent instanceof String) {
+                            // If we get String value, then this is a leaf node
+                            isLeafNode = true;
+                        }
+
+                        // Only extract mustache keys from leaf nodes
+                        if (isLeafNode && validPath) {
+
+                            // We found the path.
+                            if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
+                                // No bindings found.
+                                break;
+                            }
+
+                            newTriggerPaths.add(fieldPath);
+                        }
+                    }
+                }
+
+                // Check if the newly computed trigger paths are different from the existing ones and if true, set it in the dsl
+                if (dynamicTriggerPaths.size() != newTriggerPaths.size() || !newTriggerPaths.containsAll(dynamicTriggerPaths)) {
+                    updated = Boolean.TRUE;
+                    List<Object> finalTriggerPaths = new ArrayList<>();
+                    for (String triggerPath : newTriggerPaths) {
+                        Map<String, String> entry = new HashMap<>();
+                        entry.put("key", triggerPath);
+                        finalTriggerPaths.add(entry);
+                    }
+                    dsl.put(DYNAMIC_TRIGGER_PATH_LIST, finalTriggerPaths);
+                }
+            }
+        }
+
+        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
+        ArrayList<Object> newChildren = new ArrayList<>();
+        if (children != null) {
+            for (int i = 0; i < children.size(); i++) {
+                Map data = (Map) children.get(i);
+                JSONObject object = new JSONObject();
+                // If the children tag exists and there are entries within it
+                if (!CollectionUtils.isEmpty(data)) {
+                    object.putAll(data);
+                    DslUpdateDto childUpdated = updateListWidgetTriggerPaths(new DslUpdateDto(object, updated));
+                    updated = childUpdated.getUpdated();
+                    newChildren.add(childUpdated.getDsl());
+                }
+            }
+            dsl.put(FieldName.CHILDREN, newChildren);
+        }
+
+        return new DslUpdateDto(dsl, updated);
+    }
+
+    @ChangeSet(order = "095", id = "update-list-widget-trigger-paths", author = "")
+    public void removeUnusedTriggerPathsListWidget(MongockTemplate mongockTemplate) {
+
+
+        // Find all the pages which haven't been deleted
+
+        final Criteria possibleCandidatePagesCriteria = new Criteria().andOperator(
+                where("deletedAt").is(null),
+                where("unpublishedPage.layouts.0.dsl").exists(true)
+        );
+
+        Query pageQuery = query(possibleCandidatePagesCriteria);
+        pageQuery.fields()
+                .include(fieldName(QNewPage.newPage.id));
+
+        final List<NewPage> pages = mongockTemplate.find(
+                pageQuery,
+                NewPage.class
+        );
+
+        for (NewPage onlyIdPage : pages) {
+
+            // Fetch one page at a time to avoid OOM.
+            NewPage page = mongockTemplate.findOne(
+                    query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
+                    NewPage.class
+            );
+
+            List<Layout> layouts = page.getUnpublishedPage().getLayouts();
+
+            Layout layout = layouts.get(0);
+            // update the dsl
+            DslUpdateDto dslUpdateDto = updateListWidgetTriggerPaths(new DslUpdateDto(layout.getDsl(), FALSE));
+            layout.setDsl(dslUpdateDto.getDsl());
+
+            if (page.getPublishedPage() != null) {
+                layouts = page.getPublishedPage().getLayouts();
+                if (!CollectionUtils.isEmpty(layouts)) {
+                    layout = layouts.get(0);
+                    // update the dsl
+                    dslUpdateDto = updateListWidgetTriggerPaths(new DslUpdateDto(layout.getDsl(), dslUpdateDto.getUpdated()));
+                    layout.setDsl(dslUpdateDto.getDsl());
+                }
+            }
+
+            if (dslUpdateDto.getUpdated().equals(TRUE)) {
+                mongockTemplate.save(page);
+            }
+        }
+    }
+
+    /**
+     * Updates all existing S3 actions to modify the body parameter.
+     * Earlier, the body used to be a base64 encoded or a blob of file data.
+     * With this migration, the structure is expected to follow the
+     * {@link com.appsmith.external.dtos.MultipartFormDataDTO} format
+     *
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "096", id = "update-s3-action-configuration-for-type", author = "")
+    public void updateS3ActionConfigurationBodyForContentTypeSupport(MongockTemplate mongockTemplate) {
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        // Find all S3 actions
+        List<NewAction> s3Actions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction s3Action : s3Actions) {
+            ActionDTO unpublishedAction = s3Action.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            final String oldUnpublishedBody = unpublishedAction.getActionConfiguration().getBody();
+            final String newUnpublishedBody = "{\n\t\"data\": \"" + oldUnpublishedBody + "\"\n}";
+            unpublishedAction.getActionConfiguration().setBody(newUnpublishedBody);
+
+            ActionDTO publishedAction = s3Action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                final String oldPublishedBody = publishedAction.getActionConfiguration().getBody();
+                final String newPublishedBody = "{\n\t\"data\": \"" + oldPublishedBody + "\"\n}";
+                publishedAction.getActionConfiguration().setBody(newPublishedBody);
+            }
+            actionsToSave.add(s3Action);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction s3Action : actionsToSave) {
+            mongockTemplate.save(s3Action);
+        }
+    }
+
+    /**
+     * This migration fixes the data due to issue #8999 Due to this bug, public applications have isPublic=false
+     * when they are edited but in policies anonymousUser still have read application permission.
+     * This migration will set isPublic=true to those applications which have isPublic=false but anonymousUser has
+     * read:applications permission in policies
+     *
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "097", id = "fix-ispublic-is-false-for-public-apps", author = "")
+    public void fixIsPublicIsSetFalseWhenAppIsPublic(MongockTemplate mongockTemplate) {
+        Query query = query(
+                where("isPublic").is(false)
+                        .and("deleted").is(false)
+                        .and("policies").elemMatch(
+                                where("permission").is("read:applications").and("users").is("anonymousUser")
+                        )
+        );
+        Update update = new Update().set("isPublic", true);
+        mongockTemplate.updateMulti(query, update, Application.class);
+    }
+
+    @ChangeSet(order = "098", id = "update-js-action-client-side-execution", author = "")
+    public void updateJsActionsClientSideExecution(MongockTemplate mongockTemplate) {
+        Plugin jsPlugin = mongockTemplate.findOne(
+                query(where("packageName").is("js-plugin")),
+                Plugin.class
+        );
+
+        // Find all JS actions
+        List<NewAction> jsActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(jsPlugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction jsAction : jsActions) {
+            ActionDTO unpublishedAction = jsAction.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            unpublishedAction.setClientSideExecution(true);
+
+            ActionDTO publishedAction = jsAction.getPublishedAction();
+            if (publishedAction != null) {
+                publishedAction.setClientSideExecution(true);
+            }
+            actionsToSave.add(jsAction);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction jsAction : actionsToSave) {
+            mongockTemplate.save(jsAction);
+        }
+    }
+  
+    @ChangeSet(order = "098", id = "add-google-sheets-plugin-name", author = "")
+    public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
+        Plugin googleSheetsPlugin = mongockTemplate.findOne(
+                query(where("packageName").is("google-sheets-plugin")),
+                Plugin.class
+        );
+
+        assert googleSheetsPlugin != null;
+        googleSheetsPlugin.setPluginName("google-sheets-plugin");
+
+        mongockTemplate.save(googleSheetsPlugin);
     }
 }

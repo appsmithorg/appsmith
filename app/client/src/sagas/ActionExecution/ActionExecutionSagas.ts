@@ -10,6 +10,7 @@ import {
   evaluateArgumentSaga,
   evaluateDynamicTrigger,
   evaluateSnippetSaga,
+  setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
 import storeValueLocally from "sagas/ActionExecution/StoreActionSaga";
@@ -65,7 +66,6 @@ export function* executeActionTriggers(
         executePluginActionTriggerSaga,
         trigger.payload,
         eventType,
-        triggerMeta,
       );
       break;
     case ActionTriggerType.CLEAR_PLUGIN_ACTION:
@@ -169,6 +169,10 @@ export function* watchActionExecutionSagas() {
     takeEvery(
       ReduxActionTypes.EXECUTE_TRIGGER_REQUEST,
       initiateActionTriggerExecution,
+    ),
+    takeLatest(
+      ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+      setAppVersionOnWorkerSaga,
     ),
     takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
     takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),

@@ -14,10 +14,21 @@ import styled from "styled-components";
 import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { getGitBranches } from "selectors/gitSyncSelectors";
+import { getGitBranches, getMergeStatus } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
-import { mergeBranchInit, fetchBranchesInit } from "actions/gitSyncActions";
-import { getFetchingBranches } from "../../../../selectors/gitSyncSelectors";
+import {
+  mergeBranchInit,
+  fetchBranchesInit,
+  resetMergeStatus,
+  fetchGitStatusInit,
+} from "actions/gitSyncActions";
+import {
+  getIsFetchingMergeStatus,
+  getFetchingBranches,
+  // getPullFailed,
+} from "selectors/gitSyncSelectors";
+import { fetchMergeStatusInit } from "actions/gitSyncActions";
+import MergeStatus from "../components/MergeStatus";
 
 const Row = styled.div`
   display: flex;
@@ -27,9 +38,14 @@ const Row = styled.div`
 const DEFAULT_OPTION = "--Select--";
 
 export default function Merge() {
+  const dispatch = useDispatch();
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitBranches = useSelector(getGitBranches);
-  const dispatch = useDispatch();
+  const isFetchingBranches = useSelector(getFetchingBranches);
+  const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
+  const mergeStatus = useSelector(getMergeStatus);
+  const isMergeAble = mergeStatus?.isMergeAble;
+  // const pullFailed: any = useSelector(getPullFailed);
   const currentBranch = gitMetaData?.branchName;
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
@@ -74,23 +90,46 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption.value, dispatch]);
 
   useEffect(() => {
+    dispatch(fetchGitStatusInit());
     dispatch(fetchBranchesInit());
+    return () => {
+      dispatch(resetMergeStatus());
+    };
   }, []);
 
-  const isFetchingBranches = useSelector(getFetchingBranches);
+  useEffect(() => {
+    // when user selects a branch to merge
+    if (
+      selectedBranchOption.value !== DEFAULT_OPTION &&
+      currentBranch &&
+      selectedBranchOption.value
+    ) {
+      dispatch(
+        fetchMergeStatusInit({
+          sourceBranch: currentBranch,
+          destinationBranch: selectedBranchOption.value,
+        }),
+      );
+    }
+  }, [currentBranch, selectedBranchOption.value, dispatch]);
 
-  const mergeBtnDisabled = DEFAULT_OPTION === selectedBranchOption.value;
+  const mergeBtnDisabled =
+    DEFAULT_OPTION === selectedBranchOption.value ||
+    isFetchingMergeStatus ||
+    !isMergeAble;
 
   return (
     <>
       <Title>{createMessage(MERGE_CHANGES)}</Title>
-      <Space size={7} />
       <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
       <Space size={4} />
       <Row>
         <MergeIcon />
+
         <Space horizontal size={3} />
+
         <Dropdown
+          enableSearch
           fillOptions
           isLoading={isFetchingBranches}
           onSelect={(value?: string) => {
@@ -101,6 +140,7 @@ export default function Merge() {
           showLabelOnly
           width={"220px"}
         />
+
         <Space horizontal size={3} />
         <LeftArrow />
         <Space horizontal size={3} />
@@ -113,7 +153,9 @@ export default function Merge() {
           width={"220px"}
         />
       </Row>
+      <MergeStatus />
       <Space size={10} />
+
       <Button
         disabled={mergeBtnDisabled}
         onClick={mergeHandler}

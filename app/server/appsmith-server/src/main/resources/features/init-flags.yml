@@ -12,10 +12,10 @@ ff4j:
       enable: true
       description: Enable JS editor by email domain of the user
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     - uid: LINTING
       enable: true

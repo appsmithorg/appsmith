@@ -556,8 +556,7 @@ export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
-export const LATEST_DP_SUBTITLE = () =>
-  "See your application in action after successful push";
+export const LATEST_DP_SUBTITLE = () => "last deployed";
 export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
@@ -566,18 +565,14 @@ export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
-export const PUSH_TO = () => "Push to";
-export const PUSH_CHANGES = () => "PUSH CHANGES";
-export const PUSHED_SUCCESSFULLY = () => "PUSHED SUCCESSFULLY";
 export const PULL = () => "PULL";
-export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
-export const COMMIT_AND_PUSH = () => "Commit and push";
-export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
-  "Committed and pushed Successfully";
-export const COMMITTED_SUCCESSFULLY = () => "Committed successfully";
+export const COMMIT_AND_PUSH = () => "Commit & push";
+export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
+export const COMMITTING_AND_PUSHING_CHANGES = () =>
+  "COMMITTING AND PUSHING CHANGES...";
 
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
@@ -592,10 +587,45 @@ export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
-  "Please paste SSH URL of your repository";
+  "Please enter valid SSH URL of your repository";
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
+export const FETCH_GIT_STATUS = () => "fetching status...";
+export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
+export const NO_MERGE_CONFLICT = () =>
+  "This branch has no conflict with the base branch.";
+export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
+export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
+export const GIT_UPSTREAM_CHANGES = () =>
+  "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
+export const GIT_CONFLICTING_INFO = () =>
+  "Please resolve the conflicts manually on your repository.";
+
+export const OPEN_REPO = () => "OPEN REPO";
+export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
+export const ERROR_CONNECTING = () => "Error while connecting";
+export const ERROR_COMMITTING = () => "Error while committing";
+export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
+export const READ_DOCUMENTATION = () => "Read documentation";
+export const LEARN_MORE = () => "Learn More";
+export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
+
+export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
+export const SYNC_BRANCHES = () => "Sync branches";
+
+export const CONFLICTS_FOUND = () =>
+  "Conflicts found, please resolve them and pull again";
+export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
+export const NO_COMMITS_TO_PULL = () =>
+  "No commits to pull. In sync with the remote repository";
+export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
+  "Conflicts found while pulling changes";
+export const NOT_LIVE_FOR_YOU_YET = () => "It's not live for you yet";
+export const COMING_SOON = () => "Coming Soon!";
+export const CONNECTING_TO_REPO_DISABLED = () =>
+  "Connecting to a git repo is disabled";
+export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -759,7 +789,7 @@ export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
   "Don't share any data";
 export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
 export const WELCOME_FORM_NEWLETTER_LABEL = () =>
-  "Get updates about what we are cooking. We do not spam you.";
+  "Get updates about what we are cooking. We will not spam you.";
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
 
 //help tooltips
@@ -806,6 +836,10 @@ export const RESTART_ERROR_BODY = () =>
 export const RESTART_ERROR_HEADER = () => "Restart failed";
 export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
   "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";
+export const TEST_EMAIL_SUCCESS = (email: string) => () =>
+  `Test email sent, please check the inbox of ${email}`;
+export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
+export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
@@ -814,3 +848,10 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   "Are you sure you want to perform this action?";
+export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
+export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
+  `Select a widget to see it's properties`;
+export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
+
+export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
+  "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
