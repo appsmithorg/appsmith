@@ -39,7 +39,7 @@ strategyType: RollingUpdate
 ##
 image:
   registry: index.docker.io
-  repository: appsmith/appsmith-editor
+  repository: appsmith/appsmith-ce
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"

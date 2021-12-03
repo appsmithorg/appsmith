@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
@@ -8,11 +9,13 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -49,7 +52,10 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final UserChangedHandler userChangedHandler;
 
+    private final ApplicationRepository applicationRepository;
+
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
+
 
     @Autowired
     public UserDataServiceImpl(Scheduler scheduler,
@@ -63,7 +69,8 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                AssetService assetService,
                                ReleaseNotesService releaseNotesService,
                                FeatureFlagService featureFlagService,
-                               UserChangedHandler userChangedHandler) {
+                               UserChangedHandler userChangedHandler,
+                               ApplicationRepository applicationRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
@@ -71,6 +78,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
         this.userChangedHandler = userChangedHandler;
+        this.applicationRepository = applicationRepository;
     }
 
     @Override
@@ -232,23 +240,41 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     }
 
     /**
-     * The {@code currentOrgId} is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
-     * If {@link UserData#getRecentlyUsedOrgIds} is null or empty, a new list will be created first.
-     * @param currentOrgId currently accessed organization
-     * @return Updated {@link UserData}
+     * The application.organizationId is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
+     * The application.id is prepended to the list {@link UserData#getRecentlyUsedAppIds()}.
+     *
+     * @param application@return Updated {@link UserData}
      */
     @Override
-    public Mono<UserData> updateLastUsedOrgList(String currentOrgId) {
+    public Mono<UserData> updateLastUsedAppAndOrgList(Application application) {
         return this.getForCurrentUser().flatMap(userData -> {
-            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
-            if(recentlyUsedOrgIds == null) {
-                recentlyUsedOrgIds = new ArrayList<>();
-            }
-            CollectionUtils.removeDuplicates(recentlyUsedOrgIds);
-            CollectionUtils.putAtFirst(recentlyUsedOrgIds, currentOrgId);
-            userData.setRecentlyUsedOrgIds(recentlyUsedOrgIds);
+            // set recently used organization ids
+            userData.setRecentlyUsedOrgIds(
+                    addIdToRecentList(userData.getRecentlyUsedOrgIds(), application.getOrganizationId(), 10)
+            );
+            // set recently used application ids
+            userData.setRecentlyUsedAppIds(
+                    addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
+            );
             return repository.save(userData);
         });
+    }
+
+    private List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
+        if(srcIdList == null) {
+            srcIdList = new ArrayList<>();
+        }
+        CollectionUtils.putAtFirst(srcIdList, newId);
+
+        // check if there is any duplicates, remove if exists
+        if(srcIdList.size() > 1) {
+            CollectionUtils.removeDuplicates(srcIdList);
+        }
+        // keeping the last 10 org ids, there may be a lot of deleted organization ids which are not used anymore
+        if(srcIdList.size() > maxSize) {
+            srcIdList = srcIdList.subList(0, maxSize);
+        }
+        return srcIdList;
     }
 
     @Override
@@ -265,5 +291,17 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
             userData.setCommentOnboardingState(commentOnboardingState);
             return repository.save(userData);
         });
+    }
+
+    /**
+     * Removes provided organization id and all other application id under that organization from the user data
+     * @param organizationId organization id
+     * @return update result obtained from DB
+     */
+    @Override
+    public Mono<UpdateResult> removeRecentOrgAndApps(String userId, String organizationId) {
+        return applicationRepository.getAllApplicationId(organizationId).flatMap(appIdsList ->
+            repository.removeIdFromRecentlyUsedList(userId, organizationId, appIdsList)
+        );
     }
 }
