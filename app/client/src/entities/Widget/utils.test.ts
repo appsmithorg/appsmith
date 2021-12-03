@@ -234,6 +234,70 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
+        "primaryColumns.createdAt.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: COLOR_REGEX,
+              default: "",
+              passthroughvalue: true,
+              expected: {
+                type: "HEX / RGB Color",
+                example: "#ff0000",
+                autocompleteDataType: AutocompleteDataType.STRING,
+              },
+            },
+          },
+        },
+        "primaryColumns.name.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: COLOR_REGEX,
+              default: "",
+              passthroughvalue: true,
+              expected: {
+                type: "HEX / RGB Color",
+                example: "#ff0000",
+                autocompleteDataType: AutocompleteDataType.STRING,
+              },
+            },
+          },
+        },
+        "primaryColumns.createdAt.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: COLOR_REGEX,
+              default: Colors.BLACK,
+              passthroughvalue: true,
+              expected: {
+                type: "HEX / RGB Color",
+                example: "#ff0000",
+                autocompleteDataType: AutocompleteDataType.STRING,
+              },
+            },
+          },
+        },
+        "primaryColumns.name.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: COLOR_REGEX,
+              default: Colors.BLACK,
+              passthroughvalue: true,
+              expected: {
+                type: "HEX / RGB Color",
+                example: "#ff0000",
+                autocompleteDataType: AutocompleteDataType.STRING,
+              },
+            },
+          },
+        },
         isSortable: {
           type: "BOOLEAN",
           params: {

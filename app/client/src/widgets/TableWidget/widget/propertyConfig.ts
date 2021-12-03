@@ -649,6 +649,22 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: COLOR_REGEX,
+                        default: Colors.BLACK,
+                        passthroughvalue: true,
+                        expected: {
+                          type: "HEX / RGB Color",
+                          example: "#ff0000",
+                          autocompleteDataType: AutocompleteDataType.STRING,
+                        },
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -664,6 +680,22 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: COLOR_REGEX,
+                        default: "",
+                        passthroughvalue: true,
+                        expected: {
+                          type: "HEX / RGB Color",
+                          example: "#ff0000",
+                          autocompleteDataType: AutocompleteDataType.STRING,
+                        },
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
               ],
