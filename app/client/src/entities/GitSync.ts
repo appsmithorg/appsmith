@@ -13,3 +13,8 @@ export type Branch = {
   branchName: string;
   default: boolean;
 };
+
+export type MergeStatus = {
+  isMergeAble: boolean;
+  conflictingFiles: Array<string>;
+};
