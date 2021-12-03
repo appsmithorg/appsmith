@@ -228,6 +228,7 @@ const BASE_WIDGET: DataTreeWidget = {
 };
 
 const BASE_ACTION: DataTreeAction = {
+  clear: {},
   logBlackList: {},
   actionId: "randomId",
   name: "randomActionName",
