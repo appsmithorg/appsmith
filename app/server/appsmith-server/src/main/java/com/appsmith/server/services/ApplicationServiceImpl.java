@@ -216,6 +216,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 );
     }
 
+    public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .flatMap(branchedApplication -> {
+                    application.setPages(null);
+                    application.setGitApplicationMetadata(null);
+                    return this.update(branchedApplication.getId(), application);
+                });
+    }
+
     @Override
     public Mono<Application> archive(Application application) {
         return repository.archive(application);

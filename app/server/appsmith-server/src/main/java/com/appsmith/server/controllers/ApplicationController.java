@@ -198,4 +198,14 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
         return service.getSshKey(applicationId)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
+
+    @Override
+    @PutMapping("/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> update(@PathVariable String defaultApplicationId,
+                                                @RequestBody Application resource,
+                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update resource from base controller with id: {}", defaultApplicationId);
+        return service.update(defaultApplicationId, resource, branchName)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
 }
