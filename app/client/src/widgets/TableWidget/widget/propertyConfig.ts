@@ -5,7 +5,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ButtonBorderRadiusTypes } from "components/constants";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
 import {
   updateDerivedColumnsHook,
   ColumnTypes,
@@ -15,7 +18,12 @@ import {
   updateIconAlignment,
   getBasePropertyPath,
   hideByColumnType,
+  uniqueColumnNameValidation,
 } from "./propertyUtils";
+import {
+  createMessage,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+} from "constants/messages";
 
 export default [
   {
@@ -48,6 +56,17 @@ export default [
         dependencies: ["derivedColumns", "columnOrder"],
         isBindProperty: false,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: uniqueColumnNameValidation,
+            expected: {
+              type: "Unique Column Names",
+              example: "abc",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
@@ -134,6 +153,8 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  helpText:
+                    "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
                   propertyName: "computedValue",
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
@@ -674,6 +695,7 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultIconName: "add",
                   isJSConvertible: true,
                   isBindProperty: false,
                   isTriggerProperty: false,
@@ -789,20 +811,33 @@ export default [
                   ],
                   options: [
                     {
-                      label: "Solid",
-                      value: "SOLID",
+                      label: "Primary",
+                      value: ButtonVariantTypes.PRIMARY,
                     },
                     {
-                      label: "Outline",
-                      value: "OUTLINE",
+                      label: "Secondary",
+                      value: ButtonVariantTypes.SECONDARY,
                     },
                     {
-                      label: "Ghost",
-                      value: "GHOST",
+                      label: "Tertiary",
+                      value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  isBindProperty: false,
+                  defaultValue: ButtonVariantTypes.PRIMARY,
+
+                  isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: ButtonVariantTypes.PRIMARY,
+                      allowedValues: [
+                        ButtonVariantTypes.PRIMARY,
+                        ButtonVariantTypes.SECONDARY,
+                        ButtonVariantTypes.TERTIARY,
+                      ],
+                    },
+                  },
                 },
                 {
                   propertyName: "borderRadius",
@@ -920,6 +955,7 @@ export default [
                   controlType: "COLOR_PICKER",
                   isBindProperty: false,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
                   defaultColor: Colors.GREEN,
@@ -943,16 +979,16 @@ export default [
                   helpText: "Sets the variant of the menu button",
                   options: [
                     {
-                      label: "Solid",
-                      value: "SOLID",
+                      label: "Primary",
+                      value: ButtonVariantTypes.PRIMARY,
                     },
                     {
-                      label: "Outline",
-                      value: "OUTLINE",
+                      label: "Secondary",
+                      value: ButtonVariantTypes.SECONDARY,
                     },
                     {
-                      label: "Ghost",
-                      value: "GHOST",
+                      label: "Tertiary",
+                      value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
                   isJSConvertible: true,
@@ -967,13 +1003,17 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
                     params: {
-                      default: "SOLID",
-                      allowedValues: ["SOLID", "OUTLINE", "GHOST"],
+                      default: ButtonVariantTypes.PRIMARY,
+                      allowedValues: [
+                        ButtonVariantTypes.PRIMARY,
+                        ButtonVariantTypes.SECONDARY,
+                        ButtonVariantTypes.TERTIARY,
+                      ],
                     },
                   },
                 },
@@ -1076,7 +1116,6 @@ export default [
                     ),
                   }),
                   isJSConvertible: true,
-                  updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -1264,7 +1303,7 @@ export default [
                         ],
                       },
                       {
-                        sectionName: "Actions",
+                        sectionName: "Events",
                         children: [
                           {
                             helpText:
@@ -1275,7 +1314,6 @@ export default [
                             isJSConvertible: true,
                             isBindProperty: true,
                             isTriggerProperty: true,
-                            updateHook: updateDerivedColumnsHook,
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1355,8 +1393,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText:
-          "Bind the Table.pageSize and Table.pageNo property in your API and call it onPageChange. Without this the Table widget cannot calculate the number of pages and disable page buttons.",
+        helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
         propertyName: "totalRecordsCount",
         label: "Total Record Count",
         controlType: "INPUT_TEXT",
@@ -1386,7 +1423,24 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        helpText: "Controls sorting in View Mode",
+        propertyName: "isSortable",
+        isJSConvertible: true,
+        label: "Sortable",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+          params: {
+            default: true,
+          },
+        },
       },
       {
         propertyName: "multiRowSelection",
@@ -1398,7 +1452,7 @@ export default [
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a table row is selected",

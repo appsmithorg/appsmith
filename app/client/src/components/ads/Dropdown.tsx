@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
-import { Popover, Position } from "@blueprintjs/core";
+import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
@@ -77,6 +77,9 @@ export type DropdownProps = CommonComponentProps &
      */
     fillOptions?: boolean;
     dontUsePortal?: boolean;
+    hideSubText?: boolean;
+    boundary?: PopperBoundary;
+    defaultIcon?: IconName;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -87,6 +90,7 @@ export interface DefaultDropDownValueNodeProps {
   placeholder?: string;
   showDropIcon?: boolean;
   optionWidth: string;
+  hideSubText?: boolean;
 }
 
 export interface RenderDropdownOptionType {
@@ -113,7 +117,8 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid #80bdff;
+      border: 1px solid ${Colors.GREEN_1};
+      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
     `
       : null};
   .${Classes.TEXT} {
@@ -199,14 +204,42 @@ export const DropdownWrapper = styled.div<{
   width: ${(props) => props.width};
   height: fit-content;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.dropdown.menuBg};
-  box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
-  margin-top: ${(props) => -props.theme.spaces[3]}px;
+  background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
+  border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
   .dropdown-search {
     margin: 4px 12px 8px;
     width: calc(100% - 24px);
+
+    input {
+      height: 36px;
+      font-size: 14px !important;
+      color: ${Colors.GREY_10} !important;
+      padding-left: 36px !important;
+
+      &:focus {
+        border: 1.2px solid ${Colors.GREEN_1};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+      }
+    }
+
+    .bp3-icon-search {
+      width: 36px;
+      height: 36px;
+      margin: 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 14px;
+      }
+    }
   }
+`;
+
+const SearchComponentWrapper = styled.div`
+  margin: 0px 5px;
 `;
 
 const DropdownOptionsWrapper = styled.div<{
@@ -229,9 +262,8 @@ const OptionWrapper = styled.div<{
   cursor: pointer;
   display: flex;
   align-items: center;
-
-  background-color: ${(props) =>
-    props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
+  min-height: 36px;
+  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
 
   &&& svg {
     rect {
@@ -259,7 +291,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.dropdown.menu.hover};
+    background-color: ${Colors.GREEN_3};
 
     &&& svg {
       rect {
@@ -304,13 +336,15 @@ const StyledSubText = styled(Text)<{
   }
   &.sub-text {
     color: ${(props) => props.theme.colors.dropdown.selected.subtext};
-    position: absolute;
-    right: ${(props) => (props.showDropIcon ? "39px" : "12px")};
+    text-align: end;
+    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
   }
 `;
 
 const LeftIconWrapper = styled.span`
-  margin-right: 15px;
+  font-size: 20px;
+  line-height: 19px;
+  margin-right: 10px;
   height: 100%;
   position: relative;
   top: 1px;
@@ -393,6 +427,7 @@ const ErrorLabel = styled.span`
 
 function DefaultDropDownValueNode({
   errorMsg,
+  hideSubText,
   optionWidth,
   placeholder,
   renderNode,
@@ -437,7 +472,7 @@ function DefaultDropDownValueNode({
             />
           ) : null}
           <Label />
-          {selected?.subText ? (
+          {selected?.subText && !hideSubText ? (
             <StyledSubText
               className="sub-text"
               showDropIcon={showDropIcon}
@@ -485,12 +520,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
       width={optionWidth}
     >
       {props.enableSearch && (
-        <SearchComponent
-          className="dropdown-search"
-          onSearch={onOptionSearch}
-          placeholder={props.searchPlaceholder || ""}
-          value={searchValue}
-        />
+        <SearchComponentWrapper>
+          <SearchComponent
+            onSearch={onOptionSearch}
+            placeholder={props.searchPlaceholder || ""}
+            value={searchValue}
+          />
+        </SearchComponentWrapper>
       )}
       {props.headerLabel && <HeaderWrapper>{props.headerLabel}</HeaderWrapper>}
       <DropdownOptionsWrapper
@@ -634,6 +670,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         <SelectedValueNode
           errorMsg={errorMsg}
+          hideSubText={props.hideSubText}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
           renderNode={renderOption}
@@ -649,7 +686,7 @@ export default function Dropdown(props: DropdownProps) {
             <DropdownIcon
               fillColor={downIconColor}
               hoverFillColor={downIconColor}
-              name="expand-more"
+              name={props.defaultIcon || "expand-more"}
               size={IconSize.XXL}
             />
           )
@@ -673,12 +710,12 @@ export default function Dropdown(props: DropdownProps) {
       width={dropdownWidth}
     >
       <Popover
-        boundary="scrollParent"
+        boundary={props.boundary || "scrollParent"}
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
-        popoverClassName={props.className}
+        popoverClassName={`${props.className} none-shadow-popover`}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
       >

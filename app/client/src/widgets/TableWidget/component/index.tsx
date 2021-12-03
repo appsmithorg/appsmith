@@ -75,6 +75,7 @@ interface ReactTableComponentProps {
   isVisibleDownload?: boolean;
   isVisiblePagination?: boolean;
   delimiter: string;
+  isSortable?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -91,6 +92,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleResizeColumn,
     height,
     isLoading,
+    isSortable,
     isVisibleDownload,
     isVisibleFilters,
     isVisiblePagination,
@@ -128,7 +130,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         order.push(item.accessor);
       }
     });
-    return { columnOrder: order, hiddenColumns: hidden };
+    return {
+      columnOrder: order,
+      hiddenColumns: hidden,
+    };
   }, [columns]);
 
   useEffect(() => {
@@ -259,6 +264,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
+      isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
@@ -293,6 +299,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.delimiter === next.delimiter &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
+    prev.isSortable === next.isSortable &&
     prev.filters === next.filters &&
     prev.handleReorderColumn === next.handleReorderColumn &&
     prev.handleResizeColumn === next.handleResizeColumn &&

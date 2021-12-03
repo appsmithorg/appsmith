@@ -14,7 +14,7 @@ import {
   ItemListRenderer,
   IItemListRendererProps,
 } from "@blueprintjs/select";
-import { DropdownOption } from "components/constants";
+import { ButtonVariantTypes, DropdownOption } from "components/constants";
 import { WrappedFieldInputProps } from "redux-form";
 
 interface ButtonWrapperProps {
@@ -208,7 +208,8 @@ class DropdownComponent extends Component<
         {this.props.toggle || (
           <StyledButtonWrapper height={height} width={width}>
             <BaseButton
-              buttonVariant="OUTLINE"
+              buttonStyle="PRIMARY"
+              buttonVariant={ButtonVariantTypes.SECONDARY}
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
             />
