@@ -39,8 +39,8 @@ const SideBar = styled.div`
   overflow: auto;
   height: 100%;
   width: 100%;
-  -webkit-animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-  animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 
   & > div {
     margin-top: ${(props) => props.theme.spaces[11]}px;
@@ -85,7 +85,6 @@ const SideBar = styled.div`
       transform: translateX(0);
     }
   }
-
 `;
 
 const Label = styled.span`

@@ -13,7 +13,7 @@ import MultiSelectComponent from "../component";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -314,6 +314,9 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
+
     return (
       <MultiSelectComponent
         compactMode={
@@ -324,6 +327,7 @@ class MultiSelectWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
+        dropDownWidth={dropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
@@ -339,6 +343,7 @@ class MultiSelectWidget extends BaseWidget<
         placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
+        width={componentWidth}
       />
     );
   }
