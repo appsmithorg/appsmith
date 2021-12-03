@@ -113,13 +113,13 @@ public class PageLoadActionsUtil {
 
         Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                .flatMap(action -> {
-                    // filter actions which have been turned off by the user to run on page load and reduce the action world
-                    if (hasUserSetActionToNotRunOnPageLoad(action)) {
-                        return Mono.empty();
-                    }
-                    return Mono.just(action);
-                })
+//                .flatMap(action -> {
+//                    // filter actions which have been turned off by the user to run on page load and reduce the action world
+//                    if (hasUserSetActionToNotRunOnPageLoad(action)) {
+//                        return Mono.empty();
+//                    }
+//                    return Mono.just(action);
+//                })
                 .cache();
 
         Mono<Map<String, ActionDTO>> actionNameToActionMapMono = allActionsByPageIdMono
@@ -134,9 +134,10 @@ public class PageLoadActionsUtil {
                 .collect(Collectors.toSet())
                 .cache();
 
+        Set<String> actionBindingsInDsl = new HashSet<>();
         Mono<Set<ActionDependencyEdge>> directlyReferencedActionsAddedToGraphMono = addDirectlyReferencedActionsToGraph(pageId,
                 edges, actionsUsedInDSL, bindingsFromActions, actionsFoundDuringWalk, bindingsInWidgets,
-                actionNameToActionMapMono);
+                actionNameToActionMapMono, actionBindingsInDsl);
 
         // This publisher traverses the actions and widgets to add all possible edges between entity paths
 
@@ -147,7 +148,12 @@ public class PageLoadActionsUtil {
                 // For all the actions found so far, recursively walk the dynamic bindings of the actions to find more relationships with other actions (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(pageId, updatedEdges, actionsFoundDuringWalk, bindingsFromActions))
                 // At last, add all the widget relationships to the graph as well.
-                .flatMap(updatedEdges -> addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap));
+                .zipWith(actionsInPageMono)
+                .flatMap(tuple -> {
+                    Set<ActionDependencyEdge> updatedEdges = tuple.getT1();
+                    Set<String> actionNames = tuple.getT2();
+                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, actionNames);
+                });
 
 
         // Create a graph given edges
@@ -155,7 +161,7 @@ public class PageLoadActionsUtil {
                 .map(tuple -> {
                     Set<String> allActions = tuple.getT1();
                     Set<ActionDependencyEdge> updatedEdges = tuple.getT2();
-                    return constructDAG(allActions, widgetNames, updatedEdges);
+                    return constructDAG(allActions, widgetNames, updatedEdges, actionsFoundDuringWalk, actionBindingsInDsl);
                 })
                 .cache();
 
@@ -286,7 +292,8 @@ public class PageLoadActionsUtil {
                                                                                 Set<String> bindingsFromActions,
                                                                                 Set<String> actionsFoundDuringWalk,
                                                                                 Set<String> bindingsInWidgets,
-                                                                                Mono<Map<String, ActionDTO>> actionNameToActionMapMono) {
+                                                                                Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                                Set<String> actionBindingsInDsl) {
         return actionNameToActionMapMono
                 .map(actionMap -> {
                     Map<String, Set<String>> bindingToPossibleParentMap = bindingsInWidgets
@@ -308,6 +315,7 @@ public class PageLoadActionsUtil {
                                 // if the binding is referring to the action, ensure that for ASYNC JS functions, it
                                 // shouldn't be a function call since that is not supported in dynamic bindings.
                                 if (isAction.isPresent()) {
+                                    actionBindingsInDsl.add(binding);
                                     ActionDTO action = actionMap.get(isAction.get());
                                     if (isAsyncJsFunctionCall(action, binding)) {
                                         invalidBindings.add(binding);
@@ -360,14 +368,23 @@ public class PageLoadActionsUtil {
      * @param actionNames
      * @param widgetNames
      * @param edges
+     * @param actionsFoundDuringWalk
+     * @param actionBindingsInDsl
      * @return
      */
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
                                                                    Set<String> widgetNames,
-                                                                   Set<ActionDependencyEdge> edges) {
+                                                                   Set<ActionDependencyEdge> edges,
+                                                                   Set<String> actionsFoundDuringWalk,
+                                                                   Set<String> actionBindingsInDsl) {
 
         DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
                 new DirectedAcyclicGraph<>(DefaultEdge.class);
+
+        // Add the vertices for all the actions found in the DSL
+        for (String actionBindingInDsl : actionBindingsInDsl) {
+            actionSchedulingGraph.addVertex(actionBindingInDsl);
+        }
 
         Set<ActionDependencyEdge> implicitParentChildEdges = new HashSet<>();
 
@@ -463,6 +480,7 @@ public class PageLoadActionsUtil {
                                                                       Set<String> onPageLoadActionSet,
                                                                       Set<String> actionNames,
                                                                       Map<String, ActionDTO> actionNameToActionMap) {
+        Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
 
         // Find all root nodes to start the BFS traversal from
@@ -482,8 +500,11 @@ public class PageLoadActionsUtil {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, actionNameToActionMap, vertex, onPageLoadActionSet);
+            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, actionNameToActionMap, vertex, pageLoadActionAndLevelMap, onPageLoadActions);
             onPageLoadActions.get(level).addAll(actionsFromBinding);
+            for (String action : actionsFromBinding) {
+                pageLoadActionAndLevelMap.put(action, level);
+            }
             onPageLoadActionSet.addAll(actionsFromBinding);
         }
 
@@ -517,6 +538,17 @@ public class PageLoadActionsUtil {
      * widget1.defaultText -> widget1.text
      * widget1.text -> api3.actionConfiguration.path
      * api2.data -> api1.actionConfiguration.path
+     *  {
+     *      binding : api2.data,
+     *      parent : api2
+     *  },
+     *  {
+     *      binding : api1.actionConfiguration.path,
+     *      parent : api1
+     *  }
+     *
+     * 0 -> api2
+     * 1 -> api1
      *
      * api1 -> widget1
      * widget1 -> api3
@@ -531,6 +563,29 @@ public class PageLoadActionsUtil {
      * entities : actions, widgets, global variables
      * bindings : common code for action bindings can exist here.
      *
+     *
+     * ---
+     *
+     * if we only look at entities and not specific paths :
+     * widget1.field1 -> widget2.field1
+     * widget2.field2 -> widget1.field2
+     * wiget1.field1 -> api1.config.path
+     * widget2.field2 -> api2.config.path
+     * api1.data -> widget2.text
+     * api2.data -> widget1.text
+     *
+     *
+     * 0 -? w1.field1, w2.field2, api1.data, api2.data
+     * 1 -> w2.field1, w1.field2, api1.config.path, api2.config.path
+     *
+     * // cyclical below
+     * w1.text1 -> w2.text1
+     * w2.text1 -> w3.text1
+     * w3.text1 -> w1.text1
+     *
+     *
+     *
+     * a1.data -> w1.field1 -> widget2.field1 -> a2.config.path -> a2.data -> w2.field2 -> w1.field2
      */
     /**
      * This function gets a set of binding names that come from other actions. It looks for actions in the page with
@@ -689,10 +744,12 @@ public class PageLoadActionsUtil {
      *
      * @param edges
      * @param widgetBindingMap
+     * @param allActionNames
      * @return
      */
     private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
-                                                                         Map<String, Set<String>> widgetBindingMap) {
+                                                                         Map<String, Set<String>> widgetBindingMap,
+                                                                         Set<String> allActionNames) {
         // This part will ensure that we are discovering widget to widget relationships.
         return Mono.just(widgetBindingMap)
                 .map(widgetDynamicBindingsMap -> {
@@ -702,8 +759,24 @@ public class PageLoadActionsUtil {
                         widgetDynamicBindings.stream().forEach(binding -> {
                             Set<String> entityPaths = getWordsFromMustache(binding);
                             for (String source : entityPaths) {
-                                ActionDependencyEdge edge = new ActionDependencyEdge(source, widgetPath);
-                                edges.add(edge);
+
+                                // Only add widget to widget relationships. Skip adding the action to widget relationship
+                                // since this has already been recognized in step 1 of addDirectlyReferencedActionsToGraph
+                                Set<String> possibleParents = getPossibleParents(source);
+
+                                Boolean interestingRelationship = TRUE;
+                                for (String entity : possibleParents) {
+
+                                    // if this generated entity name from the binding matches an action name, skip this
+                                    // entityPath entirely since this relationship has already been captured.
+                                    if (allActionNames.contains(entity)) {
+                                        interestingRelationship = FALSE;
+                                    }
+                                }
+                                if (interestingRelationship) {
+                                    ActionDependencyEdge edge = new ActionDependencyEdge(source, widgetPath);
+                                    edges.add(edge);
+                                }
                             }
                         });
 
@@ -853,25 +926,24 @@ public class PageLoadActionsUtil {
      * @param allActionNames
      * @param actionNameToActionMap
      * @param vertex
-     * @param existingActionsInOnPageLoad
+     * @param pageLoadActionsLevelMap
+     * @param existingPageLoadActions
      * @return
      */
     private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
                                                                Map<String, ActionDTO> actionNameToActionMap,
                                                                String vertex,
-                                                               // Convert the set to a map actionName : level where it is present in page load actions
-                                                               Set<String> existingActionsInOnPageLoad) {
+                                                               Map<String, Integer> pageLoadActionsLevelMap,
+                                                               List<Set<String>> existingPageLoadActions) {
 
         Set<String> onPageLoadCandidates = new HashSet<>();
 
         Set<String> possibleParents = getPossibleParents(vertex);
 
         for (String entity : possibleParents) {
-            // if this generated entity name from the binding matches an action name which hasn't yet been added to the
-            // on page load list, check for its eligibility
 
-            // TODO : If the action has been found already, delete it from page load actions and add it to later sets.
-            if (allActionNames.contains(entity) && !existingActionsInOnPageLoad.contains(entity)) {
+            // if this generated entity name from the binding matches an action name check for its eligibility
+            if (allActionNames.contains(entity)) {
                 // This is definitely an action which hasn't yet been discovered for on page load.
                 ActionDTO action = actionNameToActionMap.get(entity);
 
@@ -879,7 +951,7 @@ public class PageLoadActionsUtil {
 
                 if (PluginType.JS.equals(action.getPluginType())) {
 
-                    // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
+                    // This is a JS action. Only add it for page load if it is not a function call. Aka the data
                     // of this async call is being referred to in the binding.
 
                     String validBinding = entity + "." + "data";
@@ -889,6 +961,13 @@ public class PageLoadActionsUtil {
                 }
 
                 if (isCandidateForPageLoad) {
+
+                    if (pageLoadActionsLevelMap.containsKey(entity)) {
+                        // Remove this action from the existing level so that it can be added again at a deeper level.
+                        Integer level = pageLoadActionsLevelMap.get(entity);
+                        existingPageLoadActions.get(level).remove(entity);
+                    }
+
                     onPageLoadCandidates.add(entity);
                 }
             }
