@@ -10,7 +10,7 @@ apt-get -y update
 apt-get -y upgrade
 
 # install Digital Ocean agent
-curl -sSL https://repos.insights.digitalocean.com/install.sh | sudo bash
+curl -sSL https://repos.insights.digitalocean.com/install.sh | bash
 
 # open ports
 echo "y" | ufw enable
