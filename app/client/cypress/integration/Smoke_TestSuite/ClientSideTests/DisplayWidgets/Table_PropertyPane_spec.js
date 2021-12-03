@@ -169,6 +169,15 @@ describe("Table Widget property pane feature validation", function() {
       expect(hrefVal).to.be.contains(imageVal);
     });
 
+    // change column data type to "icon button"
+    cy.changeColumnType("Icon Button");
+    cy.wait(400);
+    cy.get(commonlocators.selectedIcon).should("have.text", "add");
+
+    cy.getTableDataSelector("0", "0").then((selector) => {
+      cy.get(selector + " button.bp3-button [data-icon=add]").should("exist");
+    });
+
     // Changing Column data type from "Date" to "URl"
     cy.readTabledataPublish("1", "1").then(() => {
       cy.changeColumnType("URL");
@@ -290,7 +299,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
-      "rgba(106, 134, 206, 0.1)",
+      "rgb(236, 249, 243)",
     );
     cy.get(publish.backToEditor).click();
   });
