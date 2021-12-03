@@ -75,7 +75,8 @@ const DatasourceImage = styled.img`
 `;
 
 const GenerateTemplateButton = styled(Button)`
-  padding: 10px 20px;
+  padding: 10px 10px;
+  font-size: 12px;
   &&&& {
     height: 36px;
     max-width: 200px;
