@@ -239,6 +239,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                     },
                   }}
                   name={currentUser.name}
+                  photoId={currentUser?.photoId}
                   userName={currentUser?.username || ""}
                 />
               </HeaderRightItemContainer>
