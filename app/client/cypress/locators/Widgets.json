@@ -60,6 +60,7 @@
     "autoPlay": ".t--property-control-autoplay > .bp3-control > .bp3-control-indicator",
     "defaultOption": ".t--property-control-defaultoption .CodeMirror-code",
     "dropdownSingleSelect": ".bp3-popover-target > div > .bp3-button",
+    "menuButton": ".bp3-popover2-target",
     "defaultSingleSelectValue": ".bp3-popover-target > div > .bp3-button > .bp3-button-text",
     "widgetBtn": ".t--widget-buttonwidget button",
     "widgetBtnText": ".t--widget-buttonwidget button .bp3-button-text",

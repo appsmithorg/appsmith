@@ -1,6 +1,7 @@
 {
   "checkboxWidget": ".t--draggable-checkboxwidget",
   "dropdownWidget": ".t--draggable-dropdownwidget",
+  "menuButtonWidget": ".t--draggable-menubuttonwidget",
   "multiselectWidget": ".t--draggable-multiselectwidget",
   "multiselecttreeWidget": ".t--draggable-multiselecttreewidget",
   "singleselecttreeWidget": ".t--draggable-singleselecttreewidget",
