@@ -87,6 +87,16 @@ To make Appsmith available on a custom domain, please update your domain's DNS r
 * [NameCheap](https://www.namecheap.com/support/knowledgebase/article.aspx/9776/2237/how-to-create-a-subdomain-for-my-domain)
 * [Domain.com](https://www.domain.com/help/article/domain-management-how-to-update-subdomains)
 
+## Custom SSL Certificate
+
+In our container, we support to generate a free SSL certificate If you have your owned certificate, please follow these steps to use it inside the container.
+- Firstly, please rename your certificate file as `fullchain.pem` and key file as `privkey.pem` 
+- Then, copy these files into the sub-directory `<mounting-directory>/ssl/` (*Note: Please change `<mounting-directory>` by the mounting volume directory in the `docker-compose.yml`. Default is `./stacks`*)
+- Restart the container using `docker restart appsmith`
+
+The container will check the certificate files in the folder `<mounting-directory>/ssl` and use them if they are existed.
+
+*Note: In case of the certificate files have different name from `fullchain.pem` and `privkey.pem`, it will be considered as missing custom certificate and auto-provisioning the certificate by Let's Encrypt*
 ## Instance Management Utilities
 
 The image includes an `appsmithctl` command to help with the management and maintenance of your instance. The following subsections describe what's available.

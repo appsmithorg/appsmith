@@ -225,6 +225,7 @@ public class ImportExportApplicationServiceTests {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication.getModifiedBy()).isNull();
                     assertThat(exportedApplication.getLastUpdateTime()).isNull();
+                    assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                 })
@@ -446,8 +447,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
 
-                    DecryptedSensitiveFields decryptedFields =
-                            applicationJson.getDecryptedFields().get(datasource.getName());
+                    DecryptedSensitiveFields decryptedFields = applicationJson.getDecryptedFields().get(datasource.getName());
 
                     DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
                     assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());

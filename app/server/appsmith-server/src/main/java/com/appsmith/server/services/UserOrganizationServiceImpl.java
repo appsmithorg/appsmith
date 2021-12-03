@@ -47,6 +47,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     private final UserDataRepository userDataRepository;
     private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
+    private final UserDataService userDataService;
 
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
@@ -56,13 +57,15 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                                        UserRepository userRepository,
                                        UserDataRepository userDataRepository,
                                        PolicyUtils policyUtils,
-                                       EmailSender emailSender) {
+                                       EmailSender emailSender,
+                                       UserDataService userDataService) {
         this.sessionUserService = sessionUserService;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
         this.policyUtils = policyUtils;
         this.emailSender = emailSender;
+        this.userDataService = userDataService;
     }
 
     /**
@@ -336,8 +339,8 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                     // Since at this point we have already removed the user from the organization,
                     // remove the organization from recent org list of UserData
                     // we also need to remove the org id from User.orgIdList
-                    finalUpdatedOrganizationMono = userDataRepository
-                            .removeOrgFromRecentlyUsedList(user.getId(), organization.getId())
+                    finalUpdatedOrganizationMono = userDataService
+                            .removeRecentOrgAndApps(user.getId(), organization.getId())
                             .then(userRemovedOrganizationMono)
                             .flatMap(organization1 -> {
                                     if(user.getOrganizationIds() != null) {

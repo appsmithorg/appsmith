@@ -687,6 +687,276 @@ describe("Validates Derived Properties", () => {
     expect(result).toStrictEqual(expected);
   });
 
+  it("validates generated filtered table data with null values to be sorted correctly", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", age: 28 },
+        { id: 123, name: "John Doe" },
+        { id: 234, name: "Jane Doe", age: 22 },
+        { id: 2345, name: "Jane Doeson", age: 30 },
+      ],
+      sortOrder: { column: "age", order: "desc" },
+      columnOrder: ["name", "id", "age"],
+      primaryColumns: {
+        id: {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [1234, 123, 234, 2345],
+        },
+        name: {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["Jim Doe", "John Doe", "Jane Doe", "Jane Doeson"],
+        },
+        age: {
+          index: 2,
+          width: 150,
+          id: "age",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          label: "age",
+          isAscOrder: undefined,
+          computedValue: [28, null, 22, 30],
+          isDerived: true,
+        },
+      },
+      tableColumns: [
+        {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["Jim Doe", "John Doe", "Jane Doe", "Jane Doeson"],
+        },
+        {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [1234, 123, 234],
+        },
+        {
+          index: 2,
+          width: 150,
+          id: "age",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          label: "age",
+          isAscOrder: undefined,
+          computedValue: [28, null, 22, 30],
+          isDerived: true,
+        },
+      ],
+    };
+    const expected = [
+      { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
+      { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
+      { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
+      { id: 123, name: "John Doe", age: null, __originalIndex__: 1 },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("validates generated filtered table data with empty string values to be sorted correctly", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", age: 28 },
+        { id: 123, name: "" },
+        { id: 234, name: "Jane Doe", age: 22 },
+        { id: 2345, name: "Jane Doeson", age: 30 },
+      ],
+      sortOrder: { column: "name", order: "desc" },
+      columnOrder: ["name", "id", "age"],
+      primaryColumns: {
+        id: {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [1234, 123, 234, 2345],
+        },
+        name: {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["Jim Doe", "", "Jane Doe", "Jane Doeson"],
+        },
+        age: {
+          index: 2,
+          width: 150,
+          id: "age",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          label: "age",
+          isAscOrder: undefined,
+          computedValue: [28, null, 22, 30],
+          isDerived: true,
+        },
+      },
+      tableColumns: [
+        {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["Jim Doe", "", "Jane Doe", "Jane Doeson"],
+        },
+        {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [1234, 123, 234],
+        },
+        {
+          index: 2,
+          width: 150,
+          id: "age",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          label: "age",
+          isAscOrder: undefined,
+          computedValue: [28, null, 22, 30],
+          isDerived: true,
+        },
+      ],
+    };
+    const expected = [
+      { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
+      { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
+      { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
+      { id: 123, name: "", age: null, __originalIndex__: 1 },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
   it("validates generated filtered table data to be filtered correctly in empty comparison", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
@@ -822,5 +1092,229 @@ describe("Validates Derived Properties", () => {
 
     let result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
+  });
+});
+
+describe("Validate getSelectedRow function", () => {
+  it("Multple row selection, with selected rows", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: [0, 1],
+      selectedRowIndex: 1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: 234,
+      name: "Jane Doe",
+      extra: "Extra2",
+      __originalIndex__: 2,
+    });
+  });
+
+  it("Multple row selection, with no selected rows", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: [],
+      selectedRowIndex: 1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+
+  it("Single row selection, with selected row", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: false,
+      selectedRowIndices: [],
+      selectedRowIndex: 1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: 234,
+      name: "Jane Doe",
+      extra: "Extra2",
+      __originalIndex__: 2,
+    });
+  });
+
+  it("Single row selection, without selected row", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: [],
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+
+  it("Single row selection, with invalid indices", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: ["test"],
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+  it("Single row selection, with indices undefined", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: undefined,
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+  it("Single row selection, with invalid indices", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: [undefined],
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+  it("Single row selection, with invalid indices", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: [null],
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+  it("Single row selection, with invalid indices", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: ["1", "2"],
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+  it("Single row selection, with invalid indices", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: "1",
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
+  });
+  it("Single row selection, with invalid indices", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: "test",
+      selectedRowIndex: -1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+      __originalIndex__: "",
+    });
   });
 });

@@ -97,9 +97,21 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 z-index: 1;
 
                 & .t--application-view-link {
-                  border: none;
-                  background-color: #000;
-                  color: #fff;
+                  border: 2px solid ${Colors.BLACK};
+                  background-color: ${Colors.BLACK};
+                  color: ${Colors.WHITE};
+                }
+
+                & .t--application-view-link:hover {
+                  background-color: transparent;
+                  border: 2px solid ${Colors.BLACK};
+                  color: ${Colors.BLACK};
+
+                  svg {
+                    path {
+                      fill: ${Colors.BLACK};
+                    }
+                  }
                 }
 
                 & .t--application-edit-link, & .t--application-view-link {
@@ -110,7 +122,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                       width: 16px;
                       height: 16px;
                       path {
-                        fill: #fff;
+                        fill: ${Colors.WHITE};
                       }
                     }
                   }
@@ -257,6 +269,10 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   word-break: break-word;
   color: ${(props) => props.theme.colors.text.heading};
   flex: 1;
+
+  .bp3-popover-target {
+    display: inline;
+  }
 `;
 
 type ApplicationCardProps = {
@@ -564,7 +580,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       >
         {hasEditPermission && (
           <EditableText
-            className="t--application-name"
+            className="px-3 pt-3 pb-2 t--application-name"
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
             fill

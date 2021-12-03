@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
@@ -63,6 +64,7 @@ public class UserSignup {
     private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
     private final EnvManager envManager;
+    private final CommonConfig commonConfig;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -202,21 +204,28 @@ public class UserSignup {
                     return Mono.when(
                             userDataService.updateForUser(user, userData)
                                     .then(configService.getInstanceId())
-                                    .doOnSuccess(instanceId -> analyticsService.sendEvent(
-                                            AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
-                                            instanceId,
-                                            Map.of(
-                                                    "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
-                                                    "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
-                                                    "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
-                                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
-                                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
-                                            ),
-                                            false
-                                    )),
+                                    .doOnSuccess(instanceId -> {
+                                        analyticsService.sendEvent(
+                                                AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
+                                                instanceId,
+                                                Map.of(
+                                                        "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
+                                                        "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
+                                                        "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
+                                                        "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                                        "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
+                                                ),
+                                                false
+                                        );
+                                        analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
+                                    }),
                             envManager.applyChanges(Map.of(
-                                    "APPSMITH_DISABLE_TELEMETRY",
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
+                                    EnvManager.Vars.APPSMITH_DISABLE_TELEMETRY.name(),
+                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                    EnvManager.Vars.APPSMITH_INSTANCE_NAME.name(),
+                                    commonConfig.getInstanceName(),
+                                    EnvManager.Vars.APPSMITH_ADMIN_EMAILS.name(),
+                                    user.getEmail()
                             )),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
