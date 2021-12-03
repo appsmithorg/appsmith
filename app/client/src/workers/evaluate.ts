@@ -11,7 +11,10 @@ import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
-import { completePromise } from "workers/PromisifyAction";
+import {
+  AsyncFunctionExecutedError,
+  completePromise,
+} from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
@@ -290,7 +293,9 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
         }
       }
     } catch (e) {
-      self.IS_ASYNC = false;
+      if (!(e instanceof AsyncFunctionExecutedError)) {
+        self.IS_ASYNC = false;
+      }
     }
     return self.IS_ASYNC;
   })();
