@@ -9,7 +9,7 @@ import TreeSelect, { TreeSelectProps as SelectProps } from "rc-tree-select";
 import {
   TreeSelectContainer,
   DropdownStyles,
-  inputIcon,
+  StyledIcon,
   StyledLabel,
   TextLabelWrapper,
 } from "./index.styled";
@@ -23,6 +23,11 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import _ from "lodash";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import Icon from "components/ads/Icon";
+import { Colors } from "constants/Colors";
+
 export interface TreeSelectProps
   extends Required<
     Pick<
@@ -44,32 +49,27 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  dropDownWidth: number;
+  width: number;
+  isValid: boolean;
 }
 
-const getSvg = (style = {}) => (
+const getSvg = (expanded: boolean) => (
   <i
     style={{
       cursor: "pointer",
       backgroundColor: "transparent",
       display: "inline-flex",
-      width: "10px",
+      width: "14px",
+      height: "100%",
     }}
   >
-    <svg
-      fill="none"
-      height="10"
-      style={{ verticalAlign: "-.125em", ...style }}
-      viewBox="0 0 10 10"
-      width="10"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        clipRule="evenodd"
-        d="M2.5 9L7.5 5L2.5 1L2.5 9Z"
-        fill="#090707"
-        ill-rule="evenodd"
-      />
-    </svg>
+    <StyledIcon
+      className="switcher-icon"
+      expanded={expanded}
+      fillColor={Colors.GREY_10}
+      name="dropdown"
+    />
   </i>
 );
 
@@ -81,12 +81,12 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
           cursor: "pointer",
           backgroundColor: "white",
           display: "inline-flex",
-          width: "10px",
+          width: "14px",
         }}
       />
     );
   }
-  return getSvg({ transform: `rotate(${treeNode.expanded ? 90 : 0}deg)` });
+  return getSvg(treeNode.expanded);
 };
 
 function MultiTreeSelectComponent({
@@ -94,7 +94,9 @@ function MultiTreeSelectComponent({
   compactMode,
   disabled,
   dropdownStyle,
+  dropDownWidth,
   expandAll,
+  isValid,
   labelStyle,
   labelText,
   labelTextColor,
@@ -105,6 +107,7 @@ function MultiTreeSelectComponent({
   options,
   placeholder,
   value,
+  width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const _menu = useRef<HTMLElement | null>(null);
@@ -126,18 +129,24 @@ function MultiTreeSelectComponent({
   }, []);
 
   const onClear = useCallback(() => onChange([], []), []);
-
+  const id = _.uniqueId();
   return (
     <TreeSelectContainer
       allowClear={allowClear}
       compactMode={compactMode}
+      isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
             $compactMode={compactMode}
+            $disabled={disabled}
             $labelStyle={labelStyle}
             $labelText={labelText}
             $labelTextColor={labelTextColor}
@@ -145,6 +154,7 @@ function MultiTreeSelectComponent({
             className={`tree-select-label ${
               loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
             }`}
+            disabled={disabled}
           >
             {labelText}
           </StyledLabel>
@@ -155,20 +165,40 @@ function MultiTreeSelectComponent({
         animation="slide-up"
         choiceTransitionName="rc-tree-select-selection__choice-zoom"
         className="rc-tree-select"
+        clearIcon={
+          <Icon
+            className="clear-icon"
+            fillColor={Colors.GREY_10}
+            name="close-x"
+          />
+        }
         disabled={disabled}
-        dropdownClassName="tree-select-dropdown"
+        dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${id}`}
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
-        inputIcon={inputIcon}
+        inputIcon={
+          <Icon
+            className="dropdown-icon"
+            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+            name="dropdown"
+          />
+        }
         key={key}
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
         multiple
-        notFoundContent="No item Found"
+        notFoundContent="No Results Found"
         onChange={onChange}
         onClear={onClear}
         placeholder={placeholder}
+        removeIcon={
+          <Icon
+            className="remove-icon"
+            fillColor={Colors.GREY_10}
+            name="close-x"
+          />
+        }
         showArrow
         showCheckedStrategy={mode}
         showSearch

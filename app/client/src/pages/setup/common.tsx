@@ -13,16 +13,12 @@ export const FormHeaderWrapper = styled.div`
 export const FormHeaderLabel = styled.h5`
   width: 100%;
   font-size: 20px;
-  margin: 8px 0 16px;
   font-weight: 500;
 `;
 
 export const FormHeaderIndex = styled.h5`
   font-size: 20px;
   font-weight: 500;
-  position: absolute;
-  left: -33px;
-  top: -33px;
 `;
 
 export const FormBodyWrapper = styled.div`

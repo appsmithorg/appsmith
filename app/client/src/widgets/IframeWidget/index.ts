@@ -8,7 +8,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    source: "https://www.wikipedia.org/",
+    source: "https://www.example.com",
     borderOpacity: 100,
     borderWidth: 1,
     rows: 8 * GRID_DENSITY_MIGRATION_V1,

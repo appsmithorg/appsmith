@@ -36,6 +36,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { escapeSpecialChars } from "../../WidgetUtils";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -446,15 +447,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
           const listItem = this.props.listData?.[itemIndex] || {};
-
+          const stringifiedListItem = JSON.stringify(listItem);
+          const escapedStringifiedListItem = escapeSpecialChars(
+            stringifiedListItem,
+          );
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
               if (next.indexOf("currentItem") > -1) {
                 return (
                   prev +
-                  `{{((currentItem) => { ${next}})(JSON.parse('${JSON.stringify(
-                    listItem,
-                  )}'))}}`
+                  `{{((currentItem) => { ${next}})(JSON.parse('${escapedStringifiedListItem}'))}}`
                 );
               }
               return prev + `{{${next}}}`;
