@@ -19,6 +19,8 @@ import {
 import Text, { TextType, Case } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
+import { howMuchTimeBeforeText } from "utils/helpers";
+import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 
 const Container = styled.div`
   display: flex;
@@ -62,11 +64,18 @@ const CloudIconWrapper = styled.div`
 export default function DeployPreview(props: { showSuccess: boolean }) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
   const showDeployPreview = () => {
     const path = getApplicationViewerPageURL({ applicationId, pageId });
     window.open(path, "_blank");
   };
+
+  const lastDeployedAtMsg = lastDeployedAt
+    ? `${createMessage(LATEST_DP_SUBTITLE)} ${howMuchTimeBeforeText(
+        lastDeployedAt,
+      )} ago`
+    : "";
 
   return (
     <Container>
@@ -92,7 +101,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
           </IconWrapper>
         </ButtonWrapper>
         <Text color={Colors.GREY_6} type={TextType.P3}>
-          {createMessage(LATEST_DP_SUBTITLE)}
+          {lastDeployedAtMsg}
         </Text>
       </ContentWrapper>
     </Container>

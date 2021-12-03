@@ -96,7 +96,7 @@ export function PageHeader(props: PageHeaderProps) {
             ) : (
               <ProfileDropdown
                 name={user.name}
-                photoId={user.photoId}
+                photoId={user?.photoId}
                 userName={user.username}
               />
             )}

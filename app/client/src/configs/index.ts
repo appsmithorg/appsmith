@@ -42,7 +42,6 @@ export type INJECTED_CONFIGS = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  disableTelemetry: boolean;
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
@@ -120,7 +119,6 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    disableTelemetry: true,
     cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
@@ -212,21 +210,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   // We enable segment tracking if either the Cloud API key is set or the self-hosted CE key is set
   segment.enabled = segment.enabled || segmentCEKey.enabled;
 
-  let sentryTelemetry = true;
-  // Turn off all analytics if telemetry is disabled
-  if (APPSMITH_FEATURE_CONFIGS.disableTelemetry) {
-    smartLook.enabled = false;
-    segment.enabled = false;
-    sentryTelemetry = false;
-  }
-
   return {
     sentry: {
-      enabled:
-        sentryDSN.enabled &&
-        sentryRelease.enabled &&
-        sentryENV.enabled &&
-        sentryTelemetry,
+      enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,
@@ -288,7 +274,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
-    disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
     commentsTestModeEnabled: false,
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
