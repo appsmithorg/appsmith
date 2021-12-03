@@ -39,6 +39,8 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   justify-content: stretch;
   align-items: stretch;
   overflow: hidden;
+  cursor: not-allowed;
+
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
 
@@ -193,7 +195,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     ${isDisabled &&
       `
       & {
-        cursor: not-allowed;
         pointer-events: none;
         border: 1px solid ${Colors.ALTO2} !important;
         background: ${theme.colors.button.disabled.bgColor} !important;

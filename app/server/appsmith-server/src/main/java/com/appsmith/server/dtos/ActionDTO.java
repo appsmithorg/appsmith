@@ -56,6 +56,8 @@ public class ActionDTO {
 
     Boolean executeOnLoad;
 
+    Boolean clientSideExecution;
+
     /*
      * This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
      * TODO: The server can use this field to simplify our Mustache substitutions in the future
