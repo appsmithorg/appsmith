@@ -1,10 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.UserChangedHandler;
@@ -32,7 +34,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -59,6 +63,9 @@ public class UserDataServiceTest {
 
     @Autowired
     private AssetService assetService;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     private Mono<User> userMono;
 
@@ -184,9 +191,18 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateLastUsedOrgList_WhenListIsEmpty_orgIdPrepended() {
-        String sampleOrgId = "abcd";
-        final Mono<UserData> saveMono = userDataService.updateLastUsedOrgList(sampleOrgId);
+    public void updateLastUsedAppAndOrgList_WhenListIsEmpty_orgIdPrepended() {
+        String sampleOrgId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setOrganizationId(sampleOrgId);
+
+        final Mono<UserData> saveMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // set recently used org ids to null
+            userData.setRecentlyUsedOrgIds(null);
+            return userDataRepository.save(userData);
+        }).then(userDataService.updateLastUsedAppAndOrgList(application));
+
+        userDataService.updateLastUsedAppAndOrgList(application);
         StepVerifier.create(saveMono).assertNext(userData -> {
             Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
@@ -195,7 +211,7 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
+    public void updateLastUsedAppAndOrgList_WhenListIsNotEmpty_orgIdPrepended() {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of org ids to the current user.
             userData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
@@ -203,12 +219,53 @@ public class UserDataServiceTest {
         }).flatMap(userData -> {
             // Now check whether a new org id is put at first.
             String sampleOrgId = "sample-org-id";
-            return userDataService.updateLastUsedOrgList(sampleOrgId);
+            Application application = new Application();
+            application.setOrganizationId(sampleOrgId);
+            return userDataService.updateLastUsedAppAndOrgList(application);
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
             Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals("sample-org-id", userData.getRecentlyUsedOrgIds().get(0));
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateLastUsedAppAndOrgList_TooManyRecentIds_ListsAreTruncated() {
+        String sampleOrgId = "sample-org-id", sampleAppId = "sample-app-id";
+
+        final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // Set an initial list of 12 org ids to the current user
+            userData.setRecentlyUsedOrgIds(new ArrayList<>());
+            for(int i = 1; i <= 12; i++) {
+                userData.getRecentlyUsedOrgIds().add("org-" + i);
+            }
+
+            // Set an initial list of 22 app ids to the current user.
+            userData.setRecentlyUsedAppIds(new ArrayList<>());
+            for(int i = 1; i <= 22; i++) {
+                userData.getRecentlyUsedAppIds().add("app-" + i);
+            }
+            return userDataRepository.save(userData);
+        }).flatMap(userData -> {
+            // Now check whether a new org id is put at first.
+            Application application = new Application();
+            application.setId(sampleAppId);
+            application.setOrganizationId(sampleOrgId);
+            return userDataService.updateLastUsedAppAndOrgList(application);
+        });
+
+        StepVerifier.create(resultMono).assertNext(userData -> {
+            // org id list should be truncated to 10
+            assertThat(userData.getRecentlyUsedOrgIds().size()).isEqualTo(10);
+            assertThat(userData.getRecentlyUsedOrgIds().get(0)).isEqualTo(sampleOrgId);
+            assertThat(userData.getRecentlyUsedOrgIds().get(9)).isEqualTo("org-9");
+
+            // app id list should be truncated to 20
+            assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(20);
+            assertThat(userData.getRecentlyUsedAppIds().get(0)).isEqualTo(sampleAppId);
+            assertThat(userData.getRecentlyUsedAppIds().get(19)).isEqualTo("app-19");
         }).verifyComplete();
     }
 

@@ -152,7 +152,14 @@ class UserApi extends Api {
     return Api.post(UserApi.logoutURL);
   }
 
-  static uploadPhoto(request: { file: File }): AxiosPromise<ApiResponse> {
+  static uploadPhoto(request: {
+    file: File;
+  }): AxiosPromise<{
+    id: string;
+    new: boolean;
+    profilePhotoAssetId: string;
+    recentlyUsedOrgIds: string[];
+  }> {
     const formData = new FormData();
     if (request.file) {
       formData.append("file", request.file);
