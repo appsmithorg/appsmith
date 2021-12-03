@@ -1,6 +1,6 @@
 # Appsmith Widgets
 
-[![React Component to Appsmith Widget](http://img.youtube.com/vi/Dw3ftAn6aiw/0.jpg)](http://www.youtube.com/watch?v=Dw3ftAn6aiw "React Component to Appsmith Widget")
+[![React Component to Appsmith Widget](./assets/React_Component_to_Appsmith_Widget_Thumbnail.jpg)](http://www.youtube.com/watch?v=Dw3ftAn6aiw "React Component to Appsmith Widget")
 
 React components can be connected to the Appsmith platform using the Widget Development APIs and registered to be available for use by Appsmith developers. 
 
