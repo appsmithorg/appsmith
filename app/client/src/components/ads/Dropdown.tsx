@@ -625,11 +625,11 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 </LabelWrapper>
               ) : props.truncateOption ? (
                 <TooltipWrappedText
-                  label={option.label || ""}
+                  label={option.value || ""}
                   type={TextType.P1}
                 />
               ) : (
-                <Text type={TextType.P1}>{option.label}</Text>
+                <Text type={TextType.P1}>{option.value}</Text>
               )}
 
               {option.subText ? (
