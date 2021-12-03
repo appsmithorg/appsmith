@@ -442,8 +442,10 @@ public class RestApiPluginTest {
         String requestBody = "{\"key1\":\"onlyValue\"}";
         final Property key1 = new Property("key1", "onlyValue");
         final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
+        final Property key3 = new Property("key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
         key2.setType("FILE");
-        List<Property> formData = List.of(key1, key2);
+        key3.setType("FILE");
+        List<Property> formData = List.of(key1, key2, key3);
         actionConfig.setBodyFormData(formData);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -452,13 +454,14 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(Map.of(
-                            "key1", "onlyValue",
-                            "key2", "<file>"),
+                                    "key1", "onlyValue",
+                                    "key2", "<file>",
+                                    "key3", "<file>"),
                             result.getRequest().getBody());
                     JsonNode formDataResponse = ((ObjectNode) result.getBody()).get("form");
                     assertEquals(requestBody, formDataResponse.toString());
                     JsonNode fileDataResponse = ((ObjectNode) result.getBody()).get("files");
-                    assertEquals("{\"key2\":\"{key=value}\"}", fileDataResponse.toString());
+                    assertEquals("{\"key2\":\"{key=value}\",\"key3\":\"{key2=value2}\"}", fileDataResponse.toString());
                 })
                 .verifyComplete();
     }

@@ -56,7 +56,8 @@
           "label": "Content",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "initialValue": ""
+          "initialValue": "",
+          "placeHolderText": "{{ FilePicker1.files[0] }}"
         }
       ]
     }
