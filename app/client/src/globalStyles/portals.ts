@@ -1,6 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { Layers } from "constants/Layers";
 import { Classes } from "@blueprintjs/core";
+import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
 
 export const PortalStyles = createGlobalStyle`
   #header-root {
@@ -25,5 +26,9 @@ export const PortalStyles = createGlobalStyle`
 
   .bp3-portal.inline-comment-thread {
     z-index: ${Layers.appComments};
+  }
+
+  .${GitSyncClasses.MERGE_DROPDOWN} .ads-dropdown-options-wrapper {
+    border: none;
   }
 `;

@@ -43,6 +43,7 @@ import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
+import { Classes } from "../constants";
 
 const Row = styled.div`
   display: flex;
@@ -187,6 +188,7 @@ export default function Merge() {
       <Space size={4} />
       <Row>
         <Dropdown
+          className={Classes.MERGE_DROPDOWN}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
