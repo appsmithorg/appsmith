@@ -604,9 +604,8 @@ export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -704,9 +703,8 @@ export const TreeSelectContainer = styled.div<{
     box-sizing: border-box;
     background: ${({ backgroundColor }) =>
       `${backgroundColor || Colors.WHITE}`};
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     width: 100%;
     transition: border-color 0.15s ease-in-out 0s,
       box-shadow 0.15s ease-in-out 0s;
@@ -756,10 +754,8 @@ export const TreeSelectContainer = styled.div<{
       border: 1px solid rgb(231, 231, 231);
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) =>
-        getBorderRadiusValue(borderRadius)};
-      box-shadow: ${({ boxShadow, boxShadowColor }) =>
-        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
@@ -767,8 +763,7 @@ export const TreeSelectContainer = styled.div<{
       .rc-tree-select-selection-item {
         background: none;
         border: 1px solid rgb(208, 215, 221);
-        border-radius: ${({ borderRadius }) =>
-          getBorderRadiusValue(borderRadius)};
+        border-radius: ${({ borderRadius }) => borderRadius};
         margin: 3px 2px;
         max-width: 273.926px;
         height: 24px;

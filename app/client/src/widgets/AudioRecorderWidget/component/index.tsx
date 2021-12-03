@@ -13,12 +13,6 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 export enum RecorderStatusTypes {
@@ -48,7 +42,6 @@ const RecorderContainer = styled.div`
   justify-content: space-evenly;
   width: 100%;
   height: 100%;
-  overflow: auto;
 `;
 
 const RightContainer = styled.div`
@@ -75,8 +68,7 @@ const TimerContainer = styled.div<ThemeProp>`
 
 interface RecorderLeftButtonStyleProps {
   backgroundColor: string;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   borderRadius: string;
   dimension: number;
   disabled: boolean;
@@ -92,8 +84,7 @@ const StyledRecorderLeftButton = styled(Button)<
   border-radius: ${({ borderRadius }) => borderRadius};
   height: ${({ dimension }) => dimension * 0.8}px;
   width: ${({ dimension }) => dimension * 0.8}px;
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   margin-left: ${({ dimension }) => dimension * 0.1}px;
 
   & > svg {
@@ -175,8 +166,7 @@ const renderRecorderIcon = (
 interface RecorderLeftProps {
   backgroundColor: string;
   borderRadius: string;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   dimension: number;
   disabled: boolean;
   iconColor: string;
@@ -190,7 +180,6 @@ function RecorderLeft(props: RecorderLeftProps) {
     backgroundColor,
     borderRadius,
     boxShadow,
-    boxShadowColor,
     denied,
     dimension,
     disabled,
@@ -208,7 +197,6 @@ function RecorderLeft(props: RecorderLeftProps) {
       backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
       dimension={dimension}
       disabled={disabled || denied}
       icon={renderRecorderIcon(denied, status)}
@@ -531,8 +519,7 @@ function RecorderRight(props: RecorderRightProps) {
 export interface RecorderComponentProps {
   backgroundColor: string;
   borderRadius: string;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   height: number;
   iconColor: string;
   isDisabled: boolean;
@@ -548,7 +535,6 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     blobUrl,
     borderRadius,
     boxShadow,
-    boxShadowColor,
     height,
     iconColor,
     isDisabled,
@@ -727,7 +713,6 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
         backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         denied={isPermissionDenied}
         dimension={dimension}
         disabled={isDisabled}

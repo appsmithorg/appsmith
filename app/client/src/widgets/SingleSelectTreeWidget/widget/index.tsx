@@ -433,7 +433,6 @@ class SingleSelectTreeWidget extends BaseWidget<
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -529,9 +528,8 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default SingleSelectTreeWidget;

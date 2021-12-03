@@ -4,12 +4,6 @@ import styled from "styled-components";
 import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlIcons } from "icons/ControlIcons";
-import { ThemeProp } from "components/ads/common";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-} from "components/constants";
 import TooltipComponent from "components/ads/Tooltip";
 
 const options: { [key: string]: string } = {
@@ -22,8 +16,6 @@ const options: { [key: string]: string } = {
 
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
-  onChange: (borderRaidus: string) => void;
-  options: any[];
 }
 
 class BorderRadiusOptionsControl extends BaseControl<
@@ -41,7 +33,7 @@ class BorderRadiusOptionsControl extends BaseControl<
     const { propertyValue } = this.props;
 
     return (
-      <div className="grid grid-flow-col auto-cols-max gap-2 mt-1">
+      <div className="grid grid-flow-col gap-2 mt-1 auto-cols-max">
         {Object.keys(options).map((optionKey) => (
           <TooltipComponent content={optionKey} key={optionKey}>
             <button

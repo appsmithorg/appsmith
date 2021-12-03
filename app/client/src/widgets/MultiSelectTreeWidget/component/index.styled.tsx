@@ -587,9 +587,8 @@ export const TreeSelectContainer = styled.div<{
   allowClear: boolean;
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -678,9 +677,8 @@ export const TreeSelectContainer = styled.div<{
     padding-right: 42px;
     background: ${({ backgroundColor }) =>
       `${backgroundColor || Colors.WHITE}`};
-    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-    box-shadow: ${({ boxShadow, boxShadowColor }) =>
-      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     border: 1px solid rgb(231, 231, 231);
     border: 1.2px solid ${Colors.GREY_3};
     box-sizing: border-box;
@@ -728,9 +726,8 @@ export const TreeSelectContainer = styled.div<{
       flex-wrap: wrap;
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-    box-shadow: ${({ boxShadow, boxShadowColor }) =>
-      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
@@ -854,9 +851,8 @@ export const TreeSelectContainer = styled.div<{
       padding-left: 12px;
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-    box-shadow: ${({ boxShadow, boxShadowColor }) =>
-      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,

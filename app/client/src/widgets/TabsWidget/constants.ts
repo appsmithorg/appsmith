@@ -32,8 +32,8 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   snapRows?: number;
   defaultTab: string;
   selectedTabWidgetId: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   selectedTabColor: string;
 }

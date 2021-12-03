@@ -3,7 +3,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 import { isLabelOrientationApplicableFor } from "../component";
-import { ButtonBorderRadiusTypes } from "components/constants";
 
 export default [
   {
@@ -325,18 +324,8 @@ export default [
         label: "Border Radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
-        options: [
-          ButtonBorderRadiusTypes.SHARP,
-          ButtonBorderRadiusTypes.ROUNDED,
-        ],
         isBindProperty: false,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ["SHARP", "ROUNDED"],
-          },
-        },
       },
       {
         propertyName: "boxShadow",
@@ -346,33 +335,6 @@ export default [
         controlType: "BOX_SHADOW_OPTIONS",
         isBindProperty: false,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              "NONE",
-              "VARIANT1",
-              "VARIANT2",
-              "VARIANT3",
-              "VARIANT4",
-              "VARIANT5",
-            ],
-          },
-        },
-      },
-      {
-        propertyName: "boxShadowColor",
-        helpText: "Sets the shadow color of the widget",
-        label: "Shadow Color",
-        controlType: "COLOR_PICKER",
-        isBindProperty: false,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
       },
     ],
   },

@@ -11,9 +11,9 @@ interface ListComponentProps {
   children?: ReactNode;
   shouldScrollContents?: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   listData: Array<Record<string, unknown>>;
   hasPagination?: boolean;
   widgetId: string;
@@ -25,7 +25,7 @@ const GridContainer = styled.div<ListComponentProps>`
   position: relative;
   overflow: hidden;
   background: ${(props) => props.backgroundColor};
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
 const ScrollableCanvasWrapper = styled.div<

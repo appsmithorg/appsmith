@@ -14,8 +14,6 @@ import {
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
 import log from "loglevel";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
@@ -60,18 +58,15 @@ export interface ChartComponentProps {
   xAxisName: string;
   yAxisName: string;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const CanvasContainer = styled.div<
   Omit<ChartComponentProps, "onDataPointClick">
 >`
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 
   height: 100%;
   width: 100%;

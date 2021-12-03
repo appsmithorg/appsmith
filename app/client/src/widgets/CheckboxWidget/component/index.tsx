@@ -4,7 +4,6 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
 import { AlignWidget } from "widgets/constants";
 import { Colors } from "constants/Colors";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { getBorderRadiusValue } from "widgets/WidgetUtils";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
@@ -13,9 +12,8 @@ type StyledCheckboxProps = {
   disabled?: boolean;
   checked?: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 };
 
 type StyledCheckboxContainerProps = {
@@ -51,7 +49,7 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
     box-shadow: none;
     outline: none !important;
     background: transparent;
-    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+    border-radius: ${({ borderRadius }) => borderRadius};
 
     ${({ backgroundColor, checked }) =>
       checked
@@ -135,7 +133,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }
 
 export default CheckboxComponent;

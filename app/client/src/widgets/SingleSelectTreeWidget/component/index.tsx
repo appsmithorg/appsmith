@@ -48,9 +48,8 @@ export interface TreeSelectProps
   compactMode: boolean;
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -93,7 +92,6 @@ function SingleSelectTreeComponent({
   backgroundColor,
   borderRadius,
   boxShadow,
-  boxShadowColor,
   compactMode,
   disabled,
   dropdownStyle,
@@ -134,7 +132,6 @@ function SingleSelectTreeComponent({
       backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
       compactMode={compactMode}
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}

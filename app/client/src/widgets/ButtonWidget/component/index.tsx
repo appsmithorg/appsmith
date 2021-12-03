@@ -32,12 +32,10 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import {
-  getBorderRadiusValue,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-  getBoxShadowValue,
 } from "widgets/WidgetUtils";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
@@ -91,7 +89,6 @@ const StyledButton = styled((props) => (
     {..._.omit(props, [
       "borderRadius",
       "boxShadow",
-      "boxShadowColor",
       "backgroundColor",
       "buttonVariant",
     ])}
@@ -165,16 +162,13 @@ const StyledButton = styled((props) => (
   `}
 
   border-radius: ${({ borderRadius }) => borderRadius};
-
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 `;
 
 type ButtonStyleProps = {
   backgroundColor?: string;
   buttonVariant?: ButtonVariant;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   borderRadius?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
@@ -186,7 +180,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     backgroundColor,
     borderRadius,
     boxShadow,
-    boxShadowColor,
     buttonVariant,
     className,
     disabled,
@@ -206,7 +199,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         buttonVariant={buttonVariant}
         className={className}
         data-test-variant={buttonVariant}
@@ -227,7 +219,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
       buttonVariant={buttonVariant}
       className={className}
       data-test-variant={buttonVariant}
@@ -274,9 +265,8 @@ interface ButtonComponentProps extends ComponentProps {
   type: ButtonType;
   backgroundColor?: string;
   buttonVariant?: ButtonVariant;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
 }
@@ -424,7 +414,6 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           backgroundColor={props.backgroundColor}
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
-          boxShadowColor={props.boxShadowColor}
           buttonVariant={props.buttonVariant}
           disabled={props.isDisabled}
           icon={props.icon}

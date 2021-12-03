@@ -248,8 +248,7 @@ export interface VideoWidgetProps extends WidgetProps {
   onEnd?: string;
   backgroundColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
 }
 
 export default VideoWidget;

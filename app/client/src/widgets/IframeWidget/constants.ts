@@ -9,7 +9,6 @@ export interface IframeWidgetProps extends WidgetProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }

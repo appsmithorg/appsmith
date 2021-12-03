@@ -80,9 +80,8 @@ interface TableProps {
   isVisibleSearch?: boolean;
   delimiter: string;
   accentColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const defaultColumn = {
@@ -222,7 +221,6 @@ export function Table(props: TableProps) {
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}

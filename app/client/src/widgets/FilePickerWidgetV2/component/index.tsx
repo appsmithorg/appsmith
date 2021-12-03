@@ -4,7 +4,6 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
@@ -31,7 +30,6 @@ function FilePickerComponent(props: FilePickerComponentProps) {
       backgroundColor={props.backgroundColor}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
       disabled={props.isDisabled}
       loading={props.isLoading}
       onClick={openModal}
@@ -50,9 +48,8 @@ export interface FilePickerComponentProps extends ComponentProps {
   isLoading: boolean;
   files?: any[];
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 FilePickerComponent.defaultProps = {

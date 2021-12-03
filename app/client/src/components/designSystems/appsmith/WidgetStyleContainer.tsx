@@ -22,7 +22,6 @@ export interface WidgetStyleContainerProps {
   borderWidth?: number;
   borderRadius?: number;
   boxShadow?: BoxShadow;
-  boxShadowColor?: string;
 }
 
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`

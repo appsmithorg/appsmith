@@ -33,8 +33,7 @@ const StyledContainerComponent = styled.div<
 
     border-width: ${(props) => props.borderWidth}px;
     border-radius: ${({ borderRadius }) => borderRadius};
-    box-shadow:  ${(props) =>
-      getBoxShadowValue(props.boxShadowColor, props.boxShadow)} !important;
+    box-shadow:  ${(props) => props.boxShadow} !important;
     border-color: ${(props) => props.borderColor || "transparent"};
     border-style: solid;
 
@@ -105,7 +104,6 @@ function ContainerComponent(props: ContainerComponentProps) {
         "borderWidth",
         "borderRadius",
         "boxShadow",
-        "boxShadowColor",
       ])}
     >
       <ContainerComponentWrapper {...props} />

@@ -171,8 +171,20 @@ function ColorPickerComponent(props: ColorPickerProps) {
               </div>
             ))}
             <div className="flex space-x-1">
-              <div className="w-6 h-6 transform border rounded-full white" />
-              <div className="w-6 h-6 transform border rounded-full white diag" />
+              <div
+                className="w-6 h-6 transform border rounded-full white"
+                onClick={() => {
+                  setColor("#fff");
+                  props.changeColor("#fff");
+                }}
+              />
+              <div
+                className="w-6 h-6 transform border rounded-full white diag"
+                onClick={() => {
+                  setColor("transparent");
+                  props.changeColor("transparent");
+                }}
+              />
             </div>
           </section>
         </div>

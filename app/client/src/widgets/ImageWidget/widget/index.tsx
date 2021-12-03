@@ -237,7 +237,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       <ImageComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         defaultImageUrl={this.props.defaultImage}
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
@@ -284,9 +283,8 @@ export interface ImageWidgetProps extends WidgetProps {
   enableRotation?: boolean;
   objectFit: string;
   onClick?: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default ImageWidget;

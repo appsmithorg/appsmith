@@ -14,9 +14,9 @@ interface TabsComponentProps extends ComponentProps {
   shouldScrollContents?: boolean;
   selectedTabWidgetId: string;
   shouldShowTabs: boolean;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   selectedTabColor: string;
   onTabChange: (tabId: string) => void;
   tabs: Array<{
@@ -40,9 +40,8 @@ const scrollContents = css`
 
 const TabsContainerWrapper = styled.div<{
   ref: RefObject<HTMLDivElement>;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   display: flex;
   flex-direction: column;
@@ -50,9 +49,8 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: center;
   align-items: center;
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   overflow: hidden;
 `;
 
@@ -154,7 +152,6 @@ function TabsComponent(props: TabsComponentProps) {
     <TabsContainerWrapper
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
       ref={tabContainerRef}
     >
       {props.shouldShowTabs ? (

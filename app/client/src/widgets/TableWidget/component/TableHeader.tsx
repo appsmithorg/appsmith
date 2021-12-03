@@ -21,14 +21,14 @@ import { ButtonBorderRadius } from "components/constants";
 import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
 const PageNumberInputWrapper = styled(NumericInput)<{
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }>`
   &&& input {
     box-shadow: none;
     border: 1px solid ${Colors.ALTO2};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
-    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+    border-radius: ${({ borderRadius }) => borderRadius};
     box-sizing: border-box;
     width: 24px;
     height: 24px;
@@ -56,7 +56,7 @@ function PageNumberInput(props: {
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   disabled: boolean;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
@@ -133,7 +133,7 @@ interface TableHeaderProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }
 
 function TableHeader(props: TableHeaderProps) {

@@ -29,7 +29,7 @@ function ThemeEditor() {
       </header>
       <main>
         {/* COLORS */}
-        <SettingSection className="border-t" title="Colour">
+        <SettingSection className="border-t" isOpen title="Colour">
           <section className="space-y-2">
             <ThemeColorControl
               theme={selectedTheme}

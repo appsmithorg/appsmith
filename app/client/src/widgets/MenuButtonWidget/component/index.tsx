@@ -47,8 +47,8 @@ const PopoverStyles = createGlobalStyle`
 export interface BaseStyleProps {
   backgroundColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
@@ -130,23 +130,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
 
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
+  box-shadow: ${({ boxShadow }) => boxShadow}  !important;
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
@@ -271,8 +255,8 @@ function PopoverContent(props: PopoverContentProps) {
 
 export interface PopoverTargetButtonProps {
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
@@ -285,7 +269,6 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   const {
     borderRadius,
     boxShadow,
-    boxShadowColor,
     buttonColor,
     buttonVariant,
     iconAlign,
@@ -300,7 +283,6 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
         alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         disabled={isDisabled}
@@ -316,7 +298,6 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
@@ -352,8 +333,8 @@ export interface MenuButtonComponentProps {
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
@@ -364,7 +345,6 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
   const {
     borderRadius,
     boxShadow,
-    boxShadowColor,
     iconAlign,
     iconName,
     isCompact,
@@ -396,7 +376,6 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         <PopoverTargetButton
           borderRadius={borderRadius}
           boxShadow={boxShadow}
-          boxShadowColor={boxShadowColor}
           buttonColor={menuColor}
           buttonVariant={menuVariant}
           iconAlign={iconAlign}

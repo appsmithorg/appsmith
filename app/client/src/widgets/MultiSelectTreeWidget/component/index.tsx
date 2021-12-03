@@ -50,9 +50,8 @@ export interface TreeSelectProps
   compactMode: boolean;
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -136,7 +135,6 @@ function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
       backgroundColor={props.backgroundColor}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
       compactMode={compactMode}
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}

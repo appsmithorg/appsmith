@@ -31,9 +31,8 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   isSelected: boolean;
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   div {
     flex: 1 1 auto;
@@ -54,10 +53,8 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     justify-content: space-between;
     background: ${({ backgroundColor }) =>
       `${backgroundColor || Colors.WHITE}`} !important;
-    border-radius: ${({ borderRadius }) =>
-      getBorderRadiusValue(borderRadius)} !important;
-    box-shadow: ${({ boxShadow, boxShadowColor }) =>
-      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     min-height: 34px;
     padding-left: 12px;
     border: 1.2px solid
@@ -134,13 +131,12 @@ const StyledControlGroup = styled(ControlGroup)`
 
 const DropdownStyles = createGlobalStyle<{
   width: number;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }>`
   .select-popover-wrapper {
     width: 100%;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    border-radius: ${({ borderRadius }) =>
-      getBorderRadiusValue(borderRadius)} !important;
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
     background: white;
 
     & .${Classes.INPUT_GROUP} {
@@ -312,7 +308,6 @@ class DropDownComponent extends React.Component<
             backgroundColor={this.props.backgroundColor}
             borderRadius={this.props.borderRadius}
             boxShadow={this.props.boxShadow}
-            boxShadowColor={this.props.boxShadowColor}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -428,9 +423,8 @@ export interface DropDownComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default DropDownComponent;

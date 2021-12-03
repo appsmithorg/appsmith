@@ -19,8 +19,8 @@ export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
   backgroundColor?: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
+  borderRadius: string;
+  boxShadow: string;
   boxShadowColor: string;
   isDisabled: boolean;
   isVisible: boolean;
@@ -171,7 +171,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       backgroundColor,
       borderRadius,
       boxShadow,
-      boxShadowColor,
       buttonVariant,
       iconName,
       isDisabled,
@@ -184,7 +183,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={

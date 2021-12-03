@@ -36,23 +36,20 @@ interface MapComponentProps {
   selectMarker: (lat: number, long: number, title: string) => void;
   enableDrag: (e: any) => void;
   unselectMarker: () => void;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const MapWrapper = styled.div<{
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   position: relative;
   width: 100%;
   height: 100%;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 `;
 
 const MapContainerWrapper = styled.div`
@@ -201,7 +198,6 @@ function MapComponent(props: MapComponentProps) {
     <MapWrapper
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
       onMouseLeave={props.enableDrag}
     >
       {status === ScriptStatus.READY && (

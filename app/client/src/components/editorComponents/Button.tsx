@@ -31,9 +31,8 @@ const buttonStyles = css<Partial<ButtonProps>>`
     border-radius: 0;
     background: ${(props) =>
       props.filled || props.outline ? "inherit" : "transparent"};
-    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-    box-shadow: ${({ boxShadow, boxShadowColor }) =>
-      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     width: ${(props) => (props.fluid ? "100%" : "auto")};
   }
   &&&&&& {
@@ -90,8 +89,8 @@ export type ButtonProps = {
   fluid?: boolean;
   skin?: Skin;
   target?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
+  borderRadius?: string;
+  boxShadow?: string;
   boxShadowColor?: string;
 };
 

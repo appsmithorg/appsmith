@@ -324,7 +324,7 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   isValid?: boolean;
   onCheckChanged?: string;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }
 
 export default CheckboxGroupWidget;

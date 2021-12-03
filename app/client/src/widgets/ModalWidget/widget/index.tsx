@@ -269,7 +269,7 @@ export interface ModalWidgetProps extends WidgetProps {
   onClose: string;
   mainContainer: WidgetProps;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({

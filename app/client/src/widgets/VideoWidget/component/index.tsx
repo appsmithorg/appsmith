@@ -19,8 +19,7 @@ export interface VideoComponentProps {
   player?: Ref<ReactPlayer>;
   backgroundColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
 }
 
 const ErrorContainer = styled.div`

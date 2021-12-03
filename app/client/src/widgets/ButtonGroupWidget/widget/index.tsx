@@ -6,7 +6,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  ButtonBoxShadow,
   ButtonVariant,
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
@@ -395,19 +394,8 @@ class ButtonGroupWidget extends BaseWidget<
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED", "CIRCLE"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",
@@ -417,19 +405,6 @@ class ButtonGroupWidget extends BaseWidget<
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
           },
           {
             propertyName: "boxShadowColor",
@@ -465,9 +440,9 @@ class ButtonGroupWidget extends BaseWidget<
   getPageView() {
     return (
       <ButtonGroupComponent
+        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         buttonClickHandler={this.handleClick}
         buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
@@ -485,9 +460,8 @@ class ButtonGroupWidget extends BaseWidget<
 export interface ButtonGroupWidgetProps extends WidgetProps {
   orientation: string;
   isDisabled: boolean;
-  borderRadius?: ButtonBorderRadiusTypes;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   buttonVariant: ButtonVariant;
   groupButtons: Record<
     string,

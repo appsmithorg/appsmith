@@ -24,13 +24,11 @@ import {
   getCustomTextColor,
   getBoxShadowValue,
 } from "widgets/WidgetUtils";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 interface WrapperStyleProps {
   isHorizontal: boolean;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
 }
 
 const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
@@ -38,14 +36,14 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   width: 100%;
   position: relative;
   display: flex;
+  gap: 2px;
   justify-content: stretch;
   align-items: stretch;
   overflow: hidden;
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 `;
 
 const MenuButtonWrapper = styled.div`
@@ -64,7 +62,7 @@ const PopoverStyles = createGlobalStyle`
 
 interface ButtonStyleProps {
   isHorizontal: boolean;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   borderRadOnStart: boolean;
   borderRadOnEnd: boolean;
   buttonVariant?: ButtonVariant; // solid | outline | ghost
@@ -119,24 +117,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } ${buttonVariant === ButtonVariantTypes.PRIMARY ? "" : "!important"};
-
-    ${
-      isHorizontal
-        ? buttonVariant === ButtonVariantTypes.PRIMARY
-          ? borderRadOnEnd
-            ? ""
-            : `
-            border-right: 1px solid ${getCustomTextColor(theme, buttonColor)};
-          `
-          : ""
-        : buttonVariant === ButtonVariantTypes.PRIMARY
-        ? borderRadOnEnd
-          ? ""
-          : `
-          border-bottom: 1px solid ${getCustomTextColor(theme, buttonColor)};
-        `
-        : ""
-    }
 
     border-radius: ${
       borderRadius === ButtonBorderRadiusTypes.ROUNDED
@@ -198,9 +178,8 @@ const StyledButtonContent = styled.div<{ iconAlign: string }>`
 
 export interface BaseStyleProps {
   backgroundColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   buttonColor?: string;
   buttonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
@@ -338,7 +317,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
       <ButtonGroupWrapper
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         className="t--buttongroup-widget"
         isHorizontal={isHorizontal}
       >
@@ -370,7 +348,9 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                     borderRadOnEnd={borderRadOnEnd}
                     borderRadOnStart={borderRadOnStart}
                     borderRadius={this.props.borderRadius}
-                    buttonColor={button.buttonColor}
+                    buttonColor={
+                      button.buttonColor || this.props.backgroundColor
+                    }
                     buttonVariant={buttonVariant}
                     iconAlign={button.iconAlign}
                     isDisabled={isButtonDisabled}
@@ -391,7 +371,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
               borderRadOnEnd={borderRadOnEnd}
               borderRadOnStart={borderRadOnStart}
               borderRadius={this.props.borderRadius}
-              buttonColor={button.buttonColor}
+              buttonColor={button.buttonColor || this.props.backgroundColor}
               buttonVariant={buttonVariant}
               isDisabled={isButtonDisabled}
               isHorizontal={isHorizontal}
@@ -409,10 +389,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
     );
   };
 }
-
-StyledButton.defaultProps = {
-  buttonColor: FALLBACK_COLORS.backgroundColor,
-};
 
 interface GroupButtonProps {
   widgetId: string;
@@ -448,12 +424,12 @@ interface GroupButtonProps {
 export interface ButtonGroupComponentProps {
   orientation: string;
   isDisabled: boolean;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   buttonVariant: ButtonVariant;
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
+  backgroundColor?: string;
 }
 
 export default ButtonGroupComponent;

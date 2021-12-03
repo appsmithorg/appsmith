@@ -23,11 +23,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
+import { ButtonBorderRadiusTypes } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -524,11 +520,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
@@ -801,7 +792,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         // show label and Input side by side if true
         compactMode={
           !(
@@ -891,9 +881,8 @@ export interface InputWidgetProps extends WidgetProps {
   iconAlign?: Omit<Alignment, "center">;
   onSubmit?: string;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default InputWidget;

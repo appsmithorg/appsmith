@@ -29,9 +29,9 @@ export const StyledText = styled(Text)<{
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   borderColor?: Color;
   borderWidth?: number;
 }>`
@@ -44,9 +44,8 @@ export const StyledText = styled(Text)<{
   justify-content: flex-start;
   align-items: ${(props) => (props.scroll ? "flex-start" : "center")};
   background: ${(props) => props?.backgroundColor};
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   border-width: ${(props) => props.borderWidth}px;
   border-color: ${(props) => props.borderColor || "transparent"};
   border-style: solid;
@@ -77,9 +76,9 @@ export interface TextComponentProps extends ComponentProps {
   textColor?: string;
   fontStyle?: string;
   disableLink: boolean;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   borderColor?: Color;
   borderWidth?: number;
 }
@@ -104,7 +103,6 @@ class TextComponent extends React.Component<TextComponentProps> {
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
-          boxShadowColor={this.props.boxShadowColor}
           className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
           ellipsize={ellipsize}
           fontSize={fontSize}

@@ -41,8 +41,7 @@ const Container = styled.div<{
   minSize?: number;
   isEditMode?: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadowColor?: string;
+  borderRadius: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -79,8 +78,7 @@ const Container = styled.div<{
         right: ${(props) => props.right}px;
         background: ${({ backgroundColor }) =>
           `${backgroundColor || Colors.WHITE}`};
-        border-radius: ${({ borderRadius }) =>
-          getBorderRadiusValue(borderRadius)};
+        border-radius: ${({ borderRadius }) => borderRadius};
       }
     }
   }
@@ -131,7 +129,7 @@ export type ModalComponentProps = {
   minSize?: number;
   widgetName: string;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 };
 
 /* eslint-disable react/display-name */

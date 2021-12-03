@@ -17,7 +17,7 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
   const { options, sectionName, selectedOption, theme, updateTheme } = props;
 
   return (
-    <div className="grid grid-flow-col auto-cols-max gap-2">
+    <div className="grid grid-cols-6 gap-2 auto-cols-max">
       {Object.keys(options).map((optionKey) => (
         <TooltipComponent content={optionKey} key={optionKey}>
           <button

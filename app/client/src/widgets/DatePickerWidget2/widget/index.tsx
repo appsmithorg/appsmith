@@ -314,7 +314,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         closeOnSelection={this.props.closeOnSelection}
         dateFormat={this.props.dateFormat}
         datePickerType={"DATE_PICKER"}
@@ -362,9 +361,8 @@ export interface DatePickerWidget2Props extends WidgetProps {
   closeOnSelection: boolean;
   shortcuts: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default DatePickerWidget;

@@ -42,9 +42,8 @@ export interface MultiSelectProps
   compactMode: boolean;
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -149,7 +148,6 @@ function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
       backgroundColor={props.backgroundColor}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
       className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
       isValid={isValid}

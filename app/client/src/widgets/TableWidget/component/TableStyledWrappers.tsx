@@ -15,17 +15,15 @@ export const TableWrapper = styled.div<{
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   width: 100%;
   height: 100%;
   background: white;
   border: 1px solid ${Colors.GEYSER_LIGHT};
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -237,7 +235,7 @@ export const PaginationWrapper = styled.div`
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }>`
   background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
   border: 1px solid ${Colors.ALTO2};
@@ -250,7 +248,7 @@ export const PaginationItemWrapper = styled.div<{
   margin: 0 4px;
   pointer-events: ${(props) => props.disabled && "none"};
   cursor: pointer;
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  border-radius: ${({ borderRadius }) => borderRadius};
   &:hover {
     border-color: ${Colors.GREEN};
   }

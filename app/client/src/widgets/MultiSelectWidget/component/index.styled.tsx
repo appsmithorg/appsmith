@@ -219,9 +219,8 @@ export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -302,10 +301,8 @@ export const MultiSelectContainer = styled.div<{
       padding: 1px;
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) =>
-        getBorderRadiusValue(borderRadius)};
-      box-shadow: ${({ boxShadow, boxShadowColor }) =>
-        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
@@ -418,10 +415,8 @@ export const MultiSelectContainer = styled.div<{
       padding-left: 12px;
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) =>
-        getBorderRadiusValue(borderRadius)};
-      box-shadow: ${({ boxShadow, boxShadowColor }) =>
-        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,

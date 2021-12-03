@@ -22,18 +22,16 @@ import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 const { google } = getAppsmithConfigs();
 
 const DisabledContainer = styled.div<{
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   background-color: white;
   height: 100%;
   text-align: center;
   display: flex;
   flex-direction: column;
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   h1 {
     margin-top: 15%;
@@ -380,7 +378,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           <DisabledContainer
             borderRadius={this.props.borderRadius}
             boxShadow={this.props.boxShadow}
-            boxShadowColor={this.props.boxShadowColor}
           >
             <h1>{"Map Widget disabled"}</h1>
             <p>{"Map widget requires a Google Maps API Key"}</p>
@@ -403,7 +400,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             apiKey={google.apiKey}
             borderRadius={this.props.borderRadius}
             boxShadow={this.props.boxShadow}
-            boxShadowColor={this.props.boxShadowColor}
             center={this.getCenter()}
             clickedMarkerCentered={this.props.isClickedMarkerCentered}
             enableCreateMarker={this.props.enableCreateMarker}
@@ -457,9 +453,8 @@ export interface MapWidgetProps extends WidgetProps {
   };
   onMarkerClick?: string;
   onCreateMarker?: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default MapWidget;

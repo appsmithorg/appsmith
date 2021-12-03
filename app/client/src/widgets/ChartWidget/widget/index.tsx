@@ -14,7 +14,6 @@ import {
 
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -57,7 +56,6 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          boxShadowColor={this.props.boxShadowColor}
           chartData={this.props.chartData}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
@@ -90,9 +88,8 @@ export interface ChartWidgetProps extends WidgetProps {
   isVisible?: boolean;
   allowScroll: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;

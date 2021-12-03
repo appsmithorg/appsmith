@@ -119,19 +119,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED", "CIRCLE"],
-              },
-            },
           },
         ],
       },
@@ -200,7 +189,7 @@ export interface CheckboxWidgetProps extends WidgetProps {
   isRequired?: boolean;
   alignWidget: AlignWidget;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }
 
 export default CheckboxWidget;

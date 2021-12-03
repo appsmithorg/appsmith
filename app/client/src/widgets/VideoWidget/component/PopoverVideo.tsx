@@ -58,7 +58,6 @@ function PopoverVideo(props: VideoComponentProps) {
             backgroundColor={props.backgroundColor}
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
-            boxShadowColor={props.boxShadowColor}
             url={props.url}
           />
         </PlayerWrapper>

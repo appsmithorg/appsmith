@@ -27,19 +27,16 @@ import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   &&& {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) =>
-        getBorderRadiusValue(borderRadius)};
-      box-shadow: ${({ boxShadow, boxShadowColor }) =>
-        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
@@ -148,7 +145,6 @@ class DatePickerComponent extends React.Component<
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         fill
         isValid={isValid}
         onClick={(e: any) => {
@@ -277,9 +273,8 @@ interface DatePickerComponentProps extends ComponentProps {
   closeOnSelection: boolean;
   shortcuts: boolean;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 interface DatePickerComponentState {

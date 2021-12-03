@@ -174,7 +174,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isCellVisible: cellProperties.isCellVisible ?? true,
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
-              boxShadowColor: cellProperties.boxShadowColor,
               columnActions: [
                 {
                   id: columnProperties.id,
@@ -225,9 +224,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
               menuColor:
                 cellProperties.menuColor || FALLBACK_COLORS.backgroundColor,
-              borderRadius: cellProperties.borderRadius || "SHARP",
+              borderRadius: cellProperties.borderRadius || "0px",
               boxShadow: cellProperties.boxShadow,
-              boxShadowColor: cellProperties.boxShadowColor,
+
               iconName: cellProperties.iconName,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -250,7 +249,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius: cellProperties.borderRadius || "SHARP",
               boxShadow: cellProperties.boxShadow || "NONE",
-              boxShadowColor: cellProperties.boxShadowColor || "",
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };
@@ -744,7 +742,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           applyFilter={this.applyFilters}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          boxShadowColor={this.props.boxShadowColor}
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}

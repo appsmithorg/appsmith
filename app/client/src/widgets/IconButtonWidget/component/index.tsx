@@ -38,8 +38,8 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
 
 export interface ButtonStyleProps {
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   backgroundColor: string;
   buttonVariant?: ButtonVariant;
   dimension?: number;
@@ -53,7 +53,6 @@ export const StyledButton = styled((props) => (
       "buttonStyle",
       "borderRadius",
       "boxShadow",
-      "boxShadowColor",
       "dimension",
       "hasOnClickAction",
     ])}
@@ -142,18 +141,16 @@ export const StyledButton = styled((props) => (
     }
   `}
 
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 `;
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
   backgroundColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   isDisabled: boolean;
   isVisible: boolean;
   hasOnClickAction: boolean;
@@ -167,7 +164,6 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     backgroundColor,
     borderRadius,
     boxShadow,
-    boxShadowColor,
     buttonVariant,
     hasOnClickAction,
     height,
@@ -195,7 +191,6 @@ function IconButtonComponent(props: IconButtonComponentProps) {
         backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         buttonVariant={buttonVariant}
         dimension={dimension}
         disabled={isDisabled}

@@ -183,9 +183,8 @@ interface RenderIconButtonProps {
   iconName?: IconName;
   buttonVariant: ButtonVariant;
   buttonColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
   disabled: boolean;
@@ -210,7 +209,6 @@ export const renderIconButton = (
             action={action}
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
-            boxShadowColor={props.boxShadowColor}
             buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
             disabled={props.disabled}
@@ -231,9 +229,8 @@ function IconButton(props: {
   action: ColumnAction;
   buttonColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   disabled: boolean;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
@@ -258,7 +255,6 @@ function IconButton(props: {
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
-        boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
@@ -274,9 +270,9 @@ interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   buttonLabelColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
@@ -293,9 +289,8 @@ export interface RenderMenuButtonProps {
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
 }
@@ -327,7 +322,6 @@ export const renderActions = (
             backgroundColor={props.backgroundColor}
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
-            boxShadowColor={props.boxShadowColor}
             buttonLabelColor={props.buttonLabelColor}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
@@ -363,7 +357,6 @@ interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
 function MenuButton({
   borderRadius,
   boxShadow,
-  boxShadowColor,
   iconAlign,
   iconName,
   isCompact,
@@ -393,7 +386,6 @@ function MenuButton({
       <MenuButtonTableComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         iconAlign={iconAlign}
         iconName={iconName}
         isCompact={isCompact}
@@ -412,12 +404,12 @@ function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   buttonLabelColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -439,7 +431,6 @@ function TableAction(props: {
         <Button
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
-          boxShadowColor={props.boxShadowColor}
           disabled={props.isDisabled}
           filled
           intent="PRIMARY_BUTTON"

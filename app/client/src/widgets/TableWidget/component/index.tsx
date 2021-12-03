@@ -79,9 +79,8 @@ interface ReactTableComponentProps {
   delimiter: string;
   isSortable?: boolean;
   accentColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -257,7 +256,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       applyFilter={applyFilter}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
       columnSizeMap={columnSizeMap}
       columns={columns}
       compactMode={compactMode}
@@ -344,7 +342,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     isEqual(prev.tableData, next.tableData) &&
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
-    prev.boxShadowColor === next.boxShadowColor &&
     prev.accentColor === next.accentColor &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.

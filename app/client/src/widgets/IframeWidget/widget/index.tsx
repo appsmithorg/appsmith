@@ -206,7 +206,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         borderWidth={borderWidth}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         onMessageReceived={this.messageReceivedHandler}
         onURLChanged={this.urlChangedHandler}
         renderMode={renderMode}

@@ -181,8 +181,8 @@ export interface FormButtonWidgetProps extends WidgetProps {
   buttonVariant?: ButtonVariant;
   buttonColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   iconName?: IconName;
   iconAlign?: Alignment;
 }

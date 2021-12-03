@@ -376,7 +376,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -461,9 +460,8 @@ export interface DropdownWidgetProps extends WidgetProps {
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default DropdownWidget;

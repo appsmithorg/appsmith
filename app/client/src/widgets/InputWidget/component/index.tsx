@@ -77,9 +77,8 @@ const InputComponentWrapper = styled((props) => (
   disabled?: boolean;
   inputType: InputType;
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   &&&& {
@@ -119,10 +118,8 @@ const InputComponentWrapper = styled((props) => (
       border: 1px solid;
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) =>
-        getBorderRadiusValue(borderRadius)};
-      box-shadow: ${({ boxShadow, boxShadowColor }) =>
-        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border-color: ${({ hasError }) =>
         hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
@@ -562,7 +559,6 @@ class InputComponent extends React.Component<
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         compactMode={this.props.compactMode}
         disabled={this.props.disabled}
         fill
@@ -634,9 +630,9 @@ export interface InputComponentState {
 
 export interface InputComponentProps extends ComponentProps {
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   value: string;
   inputType: InputType;
   disabled?: boolean;

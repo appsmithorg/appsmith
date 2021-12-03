@@ -62,7 +62,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   rowSpace: number;
   selectedValues: string[];
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {

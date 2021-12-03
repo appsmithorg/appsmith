@@ -44,9 +44,8 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   };
   totalRecordsCount?: number;
   accentColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export const getCurrentRowBinding = (

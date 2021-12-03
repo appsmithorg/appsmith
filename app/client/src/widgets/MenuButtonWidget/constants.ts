@@ -35,8 +35,8 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   iconName?: IconName;
   iconAlign?: Alignment;
 }

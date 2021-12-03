@@ -250,9 +250,8 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   isVisible?: boolean;
   isRequired?: boolean;
   isToolbarHidden?: boolean;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default RichTextEditorWidget;

@@ -8,13 +8,11 @@ import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
-import { ButtonBoxShadow } from "components/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   iconColor: string;
   isDisabled: boolean;
   isValid: boolean;
@@ -115,19 +113,6 @@ class AudioRecorderWidget extends BaseWidget<
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
           },
           {
             propertyName: "iconColor",
@@ -221,7 +206,6 @@ class AudioRecorderWidget extends BaseWidget<
         blobUrl={blobURL}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         height={(bottomRow - topRow) * parentRowSpace}
         iconColor={iconColor}
         isDisabled={isDisabled}

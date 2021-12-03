@@ -258,7 +258,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         disableLink={this.props.disableLink || false}
         fontSize={this.props.fontSize}
         fontStyle={this.props.fontStyle}
@@ -297,14 +296,14 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
   isLoading: boolean;
   shouldScroll: boolean;
   disableLink: boolean;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   widgetId: string;
   containerStyle?: ContainerStyle;
   children?: ReactNode;
   borderColor?: Color;
   borderWidth?: number;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
 }
 
 export default TextWidget;

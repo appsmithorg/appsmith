@@ -228,3 +228,54 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
     .replace(/\\/g, "\\\\") //
     .replace(/\\r/g, "\\\\r"); //
 };
+
+/**
+ * ---------------------------------------------------------------------------------------------------
+ * STYLING UTILS
+ *----------------------------------------------------------------------------------------------------
+ *
+ * this section contains all the helpers required related to styling of widget
+ * by styling, we meant things like background color, text color, border-radius etc
+ *
+ */
+
+/**
+ * return "#fff" or "#000" based on the color passed
+ * if the color is dark, it will return "#fff"
+ * else it will return "#000"
+ *
+ * @param borderRadius
+ * @returns
+ */
+export const getComplementaryGrayscaleColor = (color = "#fff", alpha = 1) => {
+  const brightness = tinycolor(color)
+    .greyscale()
+    .getBrightness();
+  const percentageBrightness = (brightness / 255) * 100;
+  const isDark = percentageBrightness < 70;
+
+  if (isDark)
+    return tinycolor("#fff")
+      .setAlpha(alpha)
+      .toHexString();
+
+  return tinycolor("#000")
+    .setAlpha(alpha)
+    .toHexString();
+};
+
+/**
+ * checks if color is dark or not
+ *
+ * @param color
+ * @returns
+ */
+export const isDark = (color: string) => {
+  const brightness = tinycolor(color)
+    .greyscale()
+    .getBrightness();
+  const percentageBrightness = (brightness / 255) * 100;
+  const isDark = percentageBrightness < 70;
+
+  return isDark;
+};

@@ -280,7 +280,6 @@ class TabsWidget extends BaseWidget<
         {...tabsComponentProps}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         onTabChange={this.onTabChange}
         selectedTabColor={this.props.selectedTabColor}
       >

@@ -112,9 +112,8 @@ export interface CellLayoutProperties {
   isDisabled?: boolean;
   displayText?: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   isCellVisible: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;
@@ -200,8 +199,8 @@ export interface ColumnProperties {
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
+
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;

@@ -18,9 +18,8 @@ interface IframeContainerProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export const IframeContainer = styled.div<IframeContainerProps>`
@@ -31,15 +30,14 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   height: 100%;
   background-color: #ffffff;
   font-weight: bold;
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
-  box-shadow: ${({ boxShadow, boxShadowColor }) =>
-    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 
   iframe {
     width: 100%;
     height: 100%;
     border-style: solid;
-    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+    border-radius: ${({ borderRadius }) => borderRadius};
     border-color: ${(props) =>
       hexToRgba(
         props.borderColor || props.theme.colors.border,
@@ -69,9 +67,8 @@ export interface IframeComponentProps extends ComponentProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 function IframeComponent(props: IframeComponentProps) {
@@ -121,7 +118,6 @@ function IframeComponent(props: IframeComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
-      boxShadowColor={props.boxShadowColor}
     >
       {appMode === APP_MODE.EDIT && widgetId !== selectedWidget?.widgetId && (
         <OverlayDiv />

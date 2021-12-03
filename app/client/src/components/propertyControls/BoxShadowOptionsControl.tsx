@@ -1,69 +1,23 @@
 import * as React from "react";
+import { tw, css } from "twind/css";
 import styled from "styled-components";
 import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlIcons } from "icons/ControlIcons";
-import { ThemeProp } from "components/ads/common";
-import { ButtonBoxShadow, ButtonBoxShadowTypes } from "components/constants";
+import TooltipComponent from "components/ads/Tooltip";
 
-const StyledButtonGroup = styled(ButtonGroup)`
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  height: 100%;
-`;
-
-const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
-  margin-right: 0 !important;
-  border: ${(props) =>
-    props.active ? `1px solid #6A86CE` : `1px solid #E0DEDE`};
-  border-radius: 0;
-  box-shadow: none !important;
-  background-image: none;
-  background-color: #ffffff !important;
-  & > div {
-    display: flex;
-  }
-  &.bp3-active {
-    box-shadow: none !important;
-    background-color: #ffffff !important;
-  }
-  &:hover {
-    background-color: #ffffff !important;
-  }
-`;
+// list of box shadow options
+const options: { [key: string]: string } = {
+  none: "none",
+  sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+  DEFAULT: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+  md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+  lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+};
 
 export interface BoxShadowOptionsControlProps extends ControlProps {
-  propertyValue: ButtonBoxShadow | undefined;
+  propertyValue: string | undefined;
 }
-
-const buttonConfigs = [
-  {
-    variant: ButtonBoxShadowTypes.NONE,
-    icon: {
-      element: ControlIcons.BOX_SHADOW_NONE,
-      color: "#CACACA",
-      width: 16,
-    },
-  },
-  {
-    variant: ButtonBoxShadowTypes.MEDIUM,
-    icon: {
-      element: ControlIcons.BOX_SHADOW_VARIANT1,
-      height: 32,
-      width: 40,
-    },
-  },
-  {
-    variant: ButtonBoxShadowTypes.LARGE,
-    icon: {
-      element: ControlIcons.BOX_SHADOW_VARIANT2,
-      height: 28,
-      width: 36,
-    },
-  },
-];
 
 class BoxShadowOptionsControl extends BaseControl<
   BoxShadowOptionsControlProps
@@ -80,37 +34,35 @@ class BoxShadowOptionsControl extends BaseControl<
     const { propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
-        {buttonConfigs.map(({ icon, variant }) => {
-          const active =
-            variant === ButtonBoxShadowTypes.NONE
-              ? propertyValue === variant || propertyValue === undefined
-              : propertyValue === variant;
-
-          return (
-            <StyledButton
-              active={active}
-              icon={
-                <icon.element
-                  color={icon.color}
-                  height={icon.height}
-                  keepColors
-                  width={icon.width}
-                />
-              }
-              key={variant}
-              large
-              onClick={() => this.toggleOption(variant)}
-            />
-          );
-        })}
-      </StyledButtonGroup>
+      <div className="grid grid-flow-col gap-2 auto-cols-max">
+        {Object.keys(options).map((optionKey) => (
+          <TooltipComponent content={optionKey} key={optionKey}>
+            <button
+              className={`flex items-center justify-center w-8 h-8 bg-white border ring-primary-400 ${
+                propertyValue === options[optionKey] ? "ring-1" : ""
+              }`}
+              onClick={() => {
+                this.updateProperty(
+                  this.props.propertyName,
+                  options[optionKey],
+                );
+              }}
+            >
+              <div
+                className={`flex items-center  justify-center w-5 h-5 bg-white ${tw`${css(
+                  {
+                    "&": {
+                      boxShadow: options[optionKey],
+                    },
+                  },
+                )}`}`}
+              />
+            </button>
+          </TooltipComponent>
+        ))}
+      </div>
     );
   }
-
-  private toggleOption = (option: ButtonBoxShadow) => {
-    this.updateProperty(this.props.propertyName, option);
-  };
 }
 
 export default BoxShadowOptionsControl;
