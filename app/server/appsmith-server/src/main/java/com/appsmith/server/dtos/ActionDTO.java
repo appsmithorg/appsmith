@@ -56,6 +56,8 @@ public class ActionDTO {
 
     Boolean executeOnLoad;
 
+    Boolean clientSideExecution;
+
     /*
      * This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
      * TODO: The server can use this field to simplify our Mustache substitutions in the future
@@ -67,6 +69,10 @@ public class ActionDTO {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> invalids;
+
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Set<String> messages = new HashSet<>();
 
 
     // This is a list of keys that the client whose values the client needs to send during action execution.

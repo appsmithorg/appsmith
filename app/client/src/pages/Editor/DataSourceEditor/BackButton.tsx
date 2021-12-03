@@ -31,11 +31,11 @@ function BackButton() {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
       ? getGenerateTemplateFormURL(applicationId, pageId)
-      : BUILDER_PAGE_URL(applicationId, pageId);
+      : BUILDER_PAGE_URL({ applicationId, pageId });
     history.push(redirectURL);
   };
   return (
-    <Back onClick={goBack}>
+    <Back className="t--back-button" onClick={goBack}>
       <Icon icon="chevron-left" iconSize={16} />
       <Text
         style={{ color: Colors.DIESEL, lineHeight: "14px" }}

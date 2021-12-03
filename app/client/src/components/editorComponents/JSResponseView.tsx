@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect, useSelector, useDispatch } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -11,14 +11,14 @@ import {
   EXECUTING_FUNCTION,
   EMPTY_JS_OBJECT,
   PARSING_ERROR,
+  EMPTY_RESPONSE_FIRST_HALF,
+  EMPTY_RESPONSE_LAST_HALF,
 } from "constants/messages";
-import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { executeJSFunction } from "actions/jsPaneActions";
@@ -36,6 +36,10 @@ import { Severity } from "entities/AppsmithConsole";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 import { DebugButton } from "./Debugger/DebugCTA";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { setCurrentTab } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import EntityBottomTabs from "./EntityBottomTabs";
+import Icon from "components/ads/Icon";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -59,6 +63,9 @@ const ResponseTabWrapper = styled.div`
     opacity: 0.8;
     pointer-events: none;
   }
+  .response-run {
+    margin: 0 10px;
+  }
 `;
 
 const ResponseTabActionsList = styled.ul`
@@ -70,6 +77,7 @@ const ResponseTabActionsList = styled.ul`
   scrollbar-width: thin;
   overflow: auto;
   padding-bottom: 40px;
+  margin-top: 0;
 `;
 
 const ResponseTabAction = styled.li`
@@ -164,8 +172,6 @@ function JSResponseView(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const [selectActionId, setSelectActionId] = useState("");
-  const initialIndex = useSelector(getActionTabsInitialIndex);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const actionList = jsObject?.actions;
   const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
@@ -181,7 +187,7 @@ function JSResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "JS_OBJECT",
     });
-    setSelectedIndex(1);
+    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
   const tabs = [
@@ -208,7 +214,7 @@ function JSResponseView(props: Props) {
           </HelpSection>
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
             {sortedActionList && !sortedActionList?.length ? (
-              <NoResponseContainer>
+              <NoResponseContainer className="flex items-center">
                 {createMessage(EMPTY_JS_OBJECT)}
               </NoResponseContainer>
             ) : (
@@ -241,8 +247,11 @@ function JSResponseView(props: Props) {
                     </LoadingOverlayScreen>
                   ) : !responses.hasOwnProperty(selectActionId) ? (
                     <NoResponseContainer className="empty">
-                      <Text type={TextType.P1}>
-                        Click <RunFunction /> to get response
+                      <Icon name="no-response" />
+                      <Text className="flex items-center" type={TextType.P1}>
+                        {EMPTY_RESPONSE_FIRST_HALF()}
+                        <RunFunction className="response-run" />
+                        {EMPTY_RESPONSE_LAST_HALF()}
                       </Text>
                     </NoResponseContainer>
                   ) : (
@@ -262,29 +271,16 @@ function JSResponseView(props: Props) {
       ),
     },
     {
-      key: "ERROR",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
-
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(tabs[index].key) &&
-      debuggerTabKeys.includes(tabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: tabs[index].key,
-      });
-    }
-    setSelectedIndex(index);
-  };
 
   const runAction = (action: JSAction) => {
     setSelectActionId(action.id);
@@ -302,11 +298,7 @@ function JSResponseView(props: Props) {
     <ResponseContainer ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabbedViewWrapper>
-        <TabComponent
-          onSelect={onTabSelect}
-          selectedIndex={selectedIndex}
-          tabs={tabs}
-        />
+        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
       </TabbedViewWrapper>
     </ResponseContainer>
   );

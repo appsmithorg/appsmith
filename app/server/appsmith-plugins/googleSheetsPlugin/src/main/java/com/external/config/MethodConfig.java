@@ -44,7 +44,7 @@ public class MethodConfig {
         propertyList.stream().parallel().forEach(property -> {
             Object value = property.getValue();
             if (value != null) {
-                String propertyValue = String.valueOf(value);
+                String propertyValue = String.valueOf(value).trim();
                 switch (property.getKey()) {
                     case "sheetUrl":
                         this.spreadsheetUrl = propertyValue;
@@ -91,7 +91,7 @@ public class MethodConfig {
                         this.rowObjects = propertyValue;
                         break;
                     case "where":
-                        if (value != null && value instanceof List) {
+                        if (value instanceof List) {
                             // Check if all values in the where condition are null.
                             boolean allValuesNull = ((List) value).stream()
                                     .allMatch(valueMap -> valueMap == null ||

@@ -16,10 +16,13 @@ import { Classes } from "components/ads/common";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
+  DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
+  DEFAULT_MULTI_PART_DROPDOWN_HEIGHT,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants";
 import { Colors } from "constants/Colors";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -106,12 +109,18 @@ const FlexContainer = styled.div`
 const DynamicTextFieldWithDropdownWrapper = styled.div`
   display: flex;
   position: relative;
-  top: -2px;
+
+  &
+    .${BlueprintClasses.POPOVER_TARGET},
+    &
+    .${BlueprintClasses.POPOVER_TARGET}
+    > div {
+    height: 100%;
+  }
 `;
 
 const DynamicDropdownFieldWrapper = styled.div`
   position: relative;
-  top: 1px;
   margin-left: 5px;
 `;
 
@@ -175,7 +184,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
                         expected={expected}
-                        height="36px"
                         hoverInteraction
                         name={`${field}.key`}
                         placeholder={`Key ${index + 1}`}
@@ -184,9 +192,10 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 
                       <DynamicDropdownFieldWrapper>
                         <DynamicDropdownField
-                          height="36px"
+                          height={DEFAULT_MULTI_PART_DROPDOWN_HEIGHT}
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
+                          placeholder={DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER}
                           width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
                         />
                       </DynamicDropdownFieldWrapper>
@@ -197,7 +206,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
                       expected={expected}
-                      height="36px"
                       hoverInteraction
                       name={`${field}.key`}
                       placeholder={`Key ${index + 1}`}
@@ -213,7 +221,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={expected}
-                      height="36px"
                       hoverInteraction
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
@@ -234,7 +241,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         )
                       }
                       expected={expected}
-                      height="36px"
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder

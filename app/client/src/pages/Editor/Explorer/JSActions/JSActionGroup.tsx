@@ -6,6 +6,7 @@ import ExplorerJSCollectionEntity from "./JSActionEntity";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { ADD_JS_ACTION, createMessage } from "constants/messages";
 
 type ExplorerJSCollectionGroupProps = {
   pageId: string;
@@ -41,10 +42,12 @@ export const ExplorerJSCollectionGroup = memo(
     const dispatch = useDispatch();
     return (
       <Entity
+        addButtonHelptext={createMessage(ADD_JS_ACTION)}
         className={"js_actions"}
         disabled={!props.jsActions && !!props.searchKeyword}
         entityId={props.pageId + "_jsAction"}
         icon={jsIcon}
+        isBeta
         isDefaultExpanded
         key={props.pageId + "_jsAction"}
         name="JS Objects"

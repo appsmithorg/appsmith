@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import TooltipComponent from "components/ads/Tooltip";
@@ -16,8 +16,9 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
-  showUnreadIndicator as showUnreadIndicatorSelector,
-} from "../../selectors/commentsSelectors";
+  getAppCommentThreads,
+  getCommentsState,
+} from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
@@ -36,23 +37,17 @@ import {
   matchViewerPath,
 } from "constants/routes";
 
-import localStorage from "utils/localStorage";
-
-import { getAppMode } from "selectors/applicationSelectors";
-
-import { noop } from "lodash";
 import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentApplicationId } from "../../selectors/editorSelectors";
+import { getAppMode } from "../../selectors/applicationSelectors";
+import { setPreviewModeAction } from "actions/editorActions";
+import { previewModeSelector } from "selectors/editorSelectors";
 
-const getShowCommentsButtonToolTip = () => {
-  const flag = localStorage.getItem("ShowCommentsButtonToolTip");
-  return flag === null || !!flag;
-};
-const setShowCommentsButtonToolTip = (value = "") =>
-  localStorage.setItem("ShowCommentsButtonToolTip", value);
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -106,7 +101,6 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   z-index: ${Indices.Layer1};
-  margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
 /**
@@ -123,6 +117,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
       dispatch(setCommentModeAction(updatedIsCommentMode)),
     [],
   );
+  const currentBranch = useSelector(getCurrentGitBranch);
 
   const handleLocationUpdate = async () => {
     if (!currentUser) return;
@@ -161,10 +156,8 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
   // fetch applications comments when comment mode is turned on
   useEffect(() => {
-    if (isCommentMode) {
-      dispatch(fetchApplicationCommentsRequest());
-    }
-  }, [isCommentMode]);
+    dispatch(fetchApplicationCommentsRequest());
+  }, [isCommentMode, currentBranch]);
 };
 
 export const setCommentModeInUrl = (isCommentMode: boolean) => {
@@ -293,34 +286,8 @@ function CommentModeBtn({
   );
 }
 
-const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
-  const currentUser = useSelector(getCurrentUser);
-  const appMode = useSelector(getAppMode);
-
-  const initShowCommentButtonDiscoveryTooltip =
-    getShowCommentsButtonToolTip() &&
-    appMode === APP_MODE.PUBLISHED &&
-    currentUser?.username !== ANONYMOUS_USERNAME;
-
-  const [
-    showCommentButtonDiscoveryTooltip,
-    setShowCommentButtonDiscoveryTooltipInState,
-  ] = useState(initShowCommentButtonDiscoveryTooltip);
-
-  useEffect(() => {
-    setShowCommentButtonDiscoveryTooltipInState(
-      initShowCommentButtonDiscoveryTooltip,
-    );
-  }, [appMode, currentUser]);
-
-  return [
-    showCommentButtonDiscoveryTooltip,
-    setShowCommentButtonDiscoveryTooltipInState,
-  ];
-};
-
 export const useHideComments = () => {
-  const [shouldHide, setShouldHide] = useState(false);
+  const [shouldHide, setShouldHide] = useState(true);
   const location = useLocation();
   const currentUser = useSelector(getCurrentUser);
   useEffect(() => {
@@ -341,20 +308,34 @@ type ToggleCommentModeButtonProps = {
   showSelectedMode?: boolean;
 };
 
+export const useHasUnreadCommentThread = (applicationId: string) => {
+  const commentsState = useSelector(getCommentsState);
+  return useMemo(() => {
+    return !!getAppCommentThreads(
+      commentsState.applicationCommentThreadsByRef[applicationId],
+    ).find((tId: string) => !commentsState.commentThreadsMap[tId]?.isViewed);
+  }, [commentsState]);
+};
+
 function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
+  const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
   const currentUser = useSelector(getCurrentUser);
+  const appId = useSelector(getCurrentApplicationId) || "";
+  const appMode = useSelector(getAppMode);
+  const hasUnreadCommentThread = useHasUnreadCommentThread(appId);
 
-  const [
-    showCommentButtonDiscoveryTooltip,
-    setShowCommentButtonDiscoveryTooltipInState,
-  ] = useShowCommentDiscoveryTooltip();
-
+  // show comments indicator only if -
+  // 1. user hasn't completed their comments onboarding and they are in published mode or
+  // 2. There is at least one unread comment thread
   const showUnreadIndicator =
-    useSelector(showUnreadIndicatorSelector) ||
-    showCommentButtonDiscoveryTooltip;
+    hasUnreadCommentThread ||
+    (!currentUser?.commentOnboardingState &&
+      appMode === APP_MODE.PUBLISHED &&
+      currentUser?.username !== ANONYMOUS_USERNAME);
 
   useUpdateCommentMode(currentUser);
 
@@ -377,22 +358,26 @@ function ToggleCommentModeButton({
       source: "CLICK",
     });
     setCommentModeInUrl(true);
+    dispatch(setPreviewModeAction(false));
     proceedToNextTourStep();
-    setShowCommentButtonDiscoveryTooltipInState(false);
-    setShowCommentsButtonToolTip();
-  }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
+  }, [proceedToNextTourStep]);
 
   // Show comment mode button only on the canvas editor and viewer
   const isHideComments = useHideComments();
 
+  const onClickPreviewModeButton = useCallback(() => {
+    dispatch(setPreviewModeAction(true));
+    setCommentModeInUrl(false);
+  }, [dispatch, setPreviewModeAction]);
+
   if (isHideComments) return null;
 
   return (
-    <Container>
+    <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
-            active={!isCommentMode}
+            active={!isCommentMode && !isPreviewMode}
             className="t--switch-comment-mode-off"
             onClick={() => {
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
@@ -400,6 +385,7 @@ function ToggleCommentModeButton({
                 source: "CLICK",
               });
               setCommentModeInUrl(false);
+              dispatch(setPreviewModeAction(false));
             }}
             showSelectedMode={showSelectedMode}
             type="fill"
@@ -412,6 +398,28 @@ function ToggleCommentModeButton({
             showSelectedMode={showSelectedMode}
             showUnreadIndicator={showUnreadIndicator}
           />
+          {appMode === APP_MODE.EDIT && (
+            <TooltipComponent
+              content={
+                <>
+                  Preview Mode
+                  <span style={{ color: "#fff", marginLeft: 20 }}>P</span>
+                </>
+              }
+              hoverOpenDelay={1000}
+              position={Position.BOTTOM}
+            >
+              <ModeButton
+                active={isPreviewMode}
+                className="t--switch-preview-mode-toggle"
+                onClick={onClickPreviewModeButton}
+                showSelectedMode={showSelectedMode}
+                type="fill"
+              >
+                <Eye size={20} />
+              </ModeButton>
+            </TooltipComponent>
+          )}
         </div>
       </TourTooltipWrapper>
     </Container>
