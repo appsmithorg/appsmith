@@ -60,6 +60,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RESET_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+  //theme
+  ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
 ];
 export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
   if (

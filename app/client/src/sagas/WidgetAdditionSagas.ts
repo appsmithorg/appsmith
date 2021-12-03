@@ -36,6 +36,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import { omit } from "lodash";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
+import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type GeneratedWidgetPayload = {
@@ -51,6 +53,14 @@ type WidgetAddTabChild = {
 function* getEntityNames() {
   const evalTree = yield select(getDataTree);
   return Object.keys(evalTree);
+}
+
+function* getThemeDefaultConfig(type: string) {
+  const stylesheet = yield select(getSelectedAppThemeStylesheet);
+
+  const config = stylesheet[type];
+
+  return config || {};
 }
 
 function* getChildWidgetProps(
@@ -71,6 +81,7 @@ function* getChildWidgetProps(
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
+  const themeDefaultConfig = yield call(getThemeDefaultConfig, type);
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     const entityNames: string[] = yield call(getEntityNames);
@@ -106,6 +117,7 @@ function* getChildWidgetProps(
     minHeight,
     widgetId: newWidgetId,
     renderMode: RenderModes.CANVAS,
+    ...themeDefaultConfig,
   };
   const widget = generateWidgetProps(
     parent,
@@ -120,6 +132,12 @@ function* getChildWidgetProps(
   );
 
   widget.widgetId = newWidgetId;
+  const { dynamicBindingPathList } = yield call(
+    getPropertiesToUpdate,
+    widget,
+    themeDefaultConfig,
+  );
+  widget.dynamicBindingPathList = dynamicBindingPathList;
   return widget;
 }
 function* generateChildWidgets(

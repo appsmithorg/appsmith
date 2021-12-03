@@ -34,3 +34,23 @@ export const getAppThemes = (state: AppState) => {
 export const getSelectedAppTheme = (state: AppState) => {
   return state.ui.appTheming.selectedTheme;
 };
+
+/**
+ * get the selected theme
+ *
+ * @param state
+ * @returns
+ */
+export const getSelectedAppThemeStylesheet = (state: AppState) => {
+  return state.ui.appTheming.selectedTheme.stylesheet;
+};
+
+/**
+ * get the selected theme
+ *
+ * @param state
+ * @returns
+ */
+export const getSelectedAppThemeProperties = (state: AppState) => {
+  return state.ui.appTheming.selectedTheme.properties;
+};
