@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _, { get } from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -8,24 +8,28 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  setWidgetDynamicProperty,
-  updateWidgetPropertyRequest,
-  deleteWidgetProperty,
+  batchUpdateMultipleWidgetProperties,
   batchUpdateWidgetProperty,
+  deleteWidgetProperty,
+  setWidgetDynamicProperty,
+  UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
+  getEvalValuePath,
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import {
+  getWidgetPropsForPropertyName,
+  WidgetProperties,
+} from "selectors/propertyPaneSelectors";
+import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
@@ -33,11 +37,10 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-
-import {
-  useChildWidgetEnhancementFns,
-  useParentWithEnhancementFn,
-} from "sagas/WidgetEnhancementHelpers";
+import { getExpectedValue } from "utils/validation/common";
+import { ControlData } from "components/propertyControls/BaseControl";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import * as log from "loglevel";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -46,40 +49,54 @@ type Props = PropertyPaneControlConfig & {
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-  const parentWithEnhancement = useParentWithEnhancementFn(
+
+  const propsSelector = getWidgetPropsForPropertyName(
+    props.propertyName,
+    props.dependencies,
+  );
+
+  const widgetProperties: WidgetProperties = useSelector(
+    propsSelector,
+    isEqual,
+  );
+
+  const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
   );
 
-  /** get all child enhancments functions */
+  const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
+    enhancementSelector,
+    isEqual,
+  );
+
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
-    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
-  } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
+    propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
+    updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
+  } = enhancementFns;
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
       AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
-        widgetType: widgetProperties.type,
-        widgetName: widgetProperties.widgetName,
+        widgetType: widgetProperties?.type,
+        widgetName: widgetProperties?.widgetName,
         propertyName: propertyName,
         propertyState: !isDynamic ? "JS" : "NORMAL",
       });
       dispatch(
         setWidgetDynamicProperty(
-          widgetProperties.widgetId,
+          widgetProperties?.widgetId,
           propertyName,
           !isDynamic,
         ),
       );
     },
     [
-      dispatch,
-      widgetProperties.widgetId,
-      widgetProperties.type,
-      widgetProperties.widgetName,
+      widgetProperties?.widgetId,
+      widgetProperties?.type,
+      widgetProperties?.widgetName,
     ],
   );
 
@@ -87,7 +104,7 @@ const PropertyControl = memo((props: Props) => {
     (propertyPaths: string[]) => {
       dispatch(deleteWidgetProperty(widgetProperties.widgetId, propertyPaths));
     },
-    [dispatch, widgetProperties.widgetId],
+    [widgetProperties.widgetId],
   );
   const onBatchUpdateProperties = useCallback(
     (allUpdates: Record<string, unknown>) =>
@@ -96,24 +113,142 @@ const PropertyControl = memo((props: Props) => {
           modify: allUpdates,
         }),
       ),
-    [widgetProperties.widgetId, dispatch],
+    [widgetProperties.widgetId],
   );
-  // this function updates the properties of widget passed
-  const onBatchUpdatePropertiesOfWidget = useCallback(
-    (
-      allUpdates: Record<string, unknown>,
-      widgetId: string,
-      triggerPaths: string[],
-    ) => {
-      dispatch(
-        batchUpdateWidgetProperty(widgetId, {
-          modify: allUpdates,
-          triggerPaths,
-        }),
-      );
+  const onBatchUpdatePropertiesOfMultipleWidgets = useCallback(
+    (updatesArray: UpdateWidgetPropertyPayload[]) => {
+      dispatch(batchUpdateMultipleWidgetProperties(updatesArray));
     },
-    [dispatch],
+    [],
   );
+
+  const getWidgetsOwnUpdatesOnPropertyChange = (
+    propertyName: string,
+    propertyValue: any,
+  ) => {
+    let propertiesToUpdate:
+      | Array<{
+          propertyPath: string;
+          propertyValue: any;
+        }>
+      | undefined;
+    // To support updating multiple properties of same widget.
+    if (props.updateHook) {
+      propertiesToUpdate = props.updateHook(
+        widgetProperties,
+        propertyName,
+        propertyValue,
+      );
+    }
+    if (propertiesToUpdate) {
+      const allUpdates: Record<string, unknown> = {};
+      propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+        allUpdates[propertyPath] = propertyValue;
+      });
+      allUpdates[propertyName] = propertyValue;
+      AppsmithConsole.info({
+        logType: LOG_TYPE.WIDGET_UPDATE,
+        text: "Widget properties were updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          name: widgetProperties.widgetName,
+          id: widgetProperties.widgetId,
+          // TODO: Check whether these properties have
+          // dependent properties
+          propertyPath: propertiesToUpdate[0].propertyPath,
+        },
+        state: allUpdates,
+      });
+      return {
+        widgetId: widgetProperties.widgetId,
+        updates: {
+          modify: allUpdates,
+        },
+      };
+    }
+    if (!propertiesToUpdate) {
+      const modify: Record<string, unknown> = {
+        [propertyName]: propertyValue,
+      };
+      AppsmithConsole.info({
+        logType: LOG_TYPE.WIDGET_UPDATE,
+        text: "Widget properties were updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          name: widgetProperties.widgetName,
+          id: widgetProperties.widgetId,
+          propertyPath: propertyName,
+        },
+        state: {
+          [propertyName]: propertyValue,
+        },
+      });
+      return {
+        widgetId: widgetProperties.widgetId,
+        updates: {
+          modify,
+        },
+      };
+    }
+  };
+
+  const getOtherWidgetPropertyChanges = (
+    propertyName: string,
+    propertyValue: any,
+  ) => {
+    let otherWidgetPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+
+    // enhancements are one way to update property of another widget but will have leaks into the dsl
+    // would recommend NOT TO FOLLOW this path for upcoming widgets.
+
+    // if there are enhancements related to the widget, calling them here
+    // enhancements are basically group of functions that are called before widget propety
+    // is changed on propertypane. For e.g - set/update parent property
+    if (childWidgetPropertyUpdateEnhancementFn) {
+      const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
+        widgetProperties.widgetName,
+        propertyName,
+        propertyValue,
+        props.isTriggerProperty,
+      );
+
+      if (
+        Array.isArray(hookPropertiesUpdates) &&
+        hookPropertiesUpdates.length > 0
+      ) {
+        const allUpdates: Record<string, unknown> = {};
+        const triggerPaths: string[] = [];
+        hookPropertiesUpdates.forEach(
+          ({ isDynamicTrigger, propertyPath, propertyValue }) => {
+            allUpdates[propertyPath] = propertyValue;
+            if (isDynamicTrigger) triggerPaths.push(propertyPath);
+          },
+        );
+
+        const parentEnhancementUpdates: UpdateWidgetPropertyPayload = {
+          widgetId: parentIdWithEnhancementFn,
+          updates: {
+            modify: allUpdates,
+            triggerPaths,
+          },
+        };
+        otherWidgetPropertiesToUpdates.push(parentEnhancementUpdates);
+      }
+    }
+    if (props.updateRelatedWidgetProperties) {
+      const relatedWidgetUpdates = props.updateRelatedWidgetProperties(
+        propertyName,
+        propertyValue,
+        widgetProperties,
+      );
+      if (Array.isArray(relatedWidgetUpdates) && relatedWidgetUpdates.length) {
+        otherWidgetPropertiesToUpdates = otherWidgetPropertiesToUpdates.concat(
+          relatedWidgetUpdates,
+        );
+      }
+    }
+    return otherWidgetPropertiesToUpdates;
+  };
 
   /**
    * this function is called whenever we change any property in the property pane
@@ -128,94 +263,34 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
-      let propertiesToUpdate:
-        | Array<{
-            propertyPath: string;
-            propertyValue: any;
-          }>
-        | undefined;
-      if (props.updateHook) {
-        propertiesToUpdate = props.updateHook(
-          widgetProperties,
-          propertyName,
-          propertyValue,
-        );
-      }
 
-      // if there are enhancements related to the widget, calling them here
-      // enhancements are basically group of functions that are called before widget propety
-      // is changed on propertypane. For e.g - set/update parent property
-      if (childWidgetPropertyUpdateEnhancementFn) {
-        const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
-          widgetProperties.widgetName,
-          propertyName,
-          propertyValue,
-          props.isTriggerProperty,
-        );
-
-        if (
-          Array.isArray(hookPropertiesUpdates) &&
-          hookPropertiesUpdates.length > 0
-        ) {
-          const allUpdates: Record<string, unknown> = {};
-          const triggerPaths: string[] = [];
-          hookPropertiesUpdates.forEach(
-            ({ isDynamicTrigger, propertyPath, propertyValue }) => {
-              allUpdates[propertyPath] = propertyValue;
-              if (isDynamicTrigger) triggerPaths.push(propertyPath);
-            },
-          );
-
-          onBatchUpdatePropertiesOfWidget(
-            allUpdates,
-            get(parentWithEnhancement, "widgetId", ""),
-            triggerPaths,
+      const selfUpdates:
+        | UpdateWidgetPropertyPayload
+        | undefined = getWidgetsOwnUpdatesOnPropertyChange(
+        propertyName,
+        propertyValue,
+      );
+      const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] = getOtherWidgetPropertyChanges(
+        propertyName,
+        propertyValue,
+      );
+      let allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+      if (selfUpdates) {
+        allPropertiesToUpdates.push(selfUpdates);
+        // ideally we should not allow updating another widget without any updates on its own.
+        if (enhancementsToOtherWidgets && enhancementsToOtherWidgets.length) {
+          allPropertiesToUpdates = allPropertiesToUpdates.concat(
+            enhancementsToOtherWidgets,
           );
         }
       }
-
-      if (propertiesToUpdate) {
-        const allUpdates: Record<string, unknown> = {};
-        propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
-          allUpdates[propertyPath] = propertyValue;
-        });
-        allUpdates[propertyName] = propertyValue;
-        onBatchUpdateProperties(allUpdates);
-        AppsmithConsole.info({
-          logType: LOG_TYPE.WIDGET_UPDATE,
-          text: "Widget properties were updated",
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            name: widgetProperties.widgetName,
-            id: widgetProperties.widgetId,
-          },
-          state: allUpdates,
-        });
-      }
-      if (!propertiesToUpdate) {
-        dispatch(
-          updateWidgetPropertyRequest(
-            widgetProperties.widgetId,
-            propertyName,
-            propertyValue,
-            RenderModes.CANVAS, // This seems to be not needed anymore.
-          ),
-        );
-        AppsmithConsole.info({
-          logType: LOG_TYPE.WIDGET_UPDATE,
-          text: "Widget properties were updated",
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            name: widgetProperties.widgetName,
-            id: widgetProperties.widgetId,
-          },
-          state: {
-            [propertyName]: propertyValue,
-          },
-        });
+      if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
+        // updating properties of a widget(s) should be done only once when property value changes.
+        // to make sure dsl updates are atomic which is a necessity for undo/redo.
+        onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
       }
     },
-    [dispatch, widgetProperties],
+    [widgetProperties],
   );
 
   const openPanel = useCallback(
@@ -242,57 +317,43 @@ const PropertyControl = memo((props: Props) => {
     return null;
   }
 
-  const getPropertyValidation = (
-    propertyName: string,
-  ): { isValid: boolean; validationMessage?: string } => {
-    let isValid = true;
-    let validationMessage = "";
-    if (widgetProperties) {
-      isValid = widgetProperties.invalidProps
-        ? !_.has(widgetProperties.invalidProps, propertyName)
-        : true;
-      const validationMsgPresent =
-        widgetProperties.validationMessages &&
-        _.has(widgetProperties.validationMessages, propertyName);
-      validationMessage = validationMsgPresent
-        ? _.get(widgetProperties.validationMessages, propertyName)
-        : "";
-    }
-    return { isValid, validationMessage };
-  };
-
   const { label, propertyName } = props;
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
-    const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    // get the dataTreePath and apply enhancement if exists
+    let dataTreePath: string =
+      props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
+    if (childWidgetDataTreePathEnhancementFn) {
+      dataTreePath = childWidgetDataTreePathEnhancementFn(
+        dataTreePath,
+      ) as string;
+    }
+
     const evaluatedValue = _.get(
       widgetProperties,
-      `evaluatedValues.${propertyName}`,
+      getEvalValuePath(dataTreePath, false),
     );
 
-    const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const { additionalAutoComplete, ...rest } = props;
-    const config = {
+    const config: ControlData = {
       ...rest,
-      isValid,
       propertyValue,
-      validationMessage,
       dataTreePath,
       evaluatedValue,
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
-        propertyName
-      ] as any,
       additionalDynamicData: {},
     };
+    config.expected = getExpectedValue(props.validation);
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
-      config.isValid = true;
       config.validationMessage = "";
-      delete config.dataTreePath;
+      config.expected = {
+        example: 'showAlert("There was an error!", "error")',
+        type: "Function",
+        autocompleteDataType: AutocompleteDataType.FUNCTION,
+      };
       delete config.evaluatedValue;
-      delete config.expected;
     }
 
     const isDynamic: boolean = isPathADynamicProperty(
@@ -305,19 +366,23 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
-    let additionAutocomplete = undefined;
+    let additionAutocomplete:
+      | Record<string, Record<string, unknown>>
+      | undefined = undefined;
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
-      additionAutocomplete = childWidgetAutoCompleteEnhancementFn();
+      additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
+        | Record<string, Record<string, unknown>>
+        | undefined;
     }
 
     /**
      * if the current widget requires a customJSControl, use that.
      */
-    const getCustomJSControl = () => {
+    const getCustomJSControl = (): string | undefined => {
       if (childWidgetCustomJSControlEnhancementFn) {
-        return childWidgetCustomJSControlEnhancementFn();
+        return childWidgetCustomJSControlEnhancementFn() as string | undefined;
       }
 
       return props.customJSControl;
@@ -327,18 +392,21 @@ const PropertyControl = memo((props: Props) => {
      * should the property control hide evaluated popover
      * @returns
      */
-    const hideEvaluatedValue = () => {
+    const hideEvaluatedValue = (): boolean => {
       if (childWidgetHideEvaluatedValueEnhancementFn) {
-        return childWidgetHideEvaluatedValueEnhancementFn();
+        return childWidgetHideEvaluatedValueEnhancementFn() as boolean;
       }
 
       return false;
     };
 
+    const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
+
     try {
       return (
         <ControlWrapper
           className={`t--property-control-${className}`}
+          id={uniqId}
           key={config.id}
           orientation={
             config.controlType === "SWITCH" && !isDynamic
@@ -390,7 +458,7 @@ const PropertyControl = memo((props: Props) => {
         </ControlWrapper>
       );
     } catch (e) {
-      console.error(e);
+      log.error(e);
       return null;
     }
   }

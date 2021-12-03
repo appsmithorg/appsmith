@@ -13,8 +13,8 @@ describe("Binding the multiple widgets and validating default data", function() 
 
   it("Input widget test with default value from table widget", function() {
     cy.openPropertyPane("inputwidget");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -26,7 +26,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("Dropdown widget test with default value from table widget", function() {
     cy.openPropertyPane("dropdownwidget");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

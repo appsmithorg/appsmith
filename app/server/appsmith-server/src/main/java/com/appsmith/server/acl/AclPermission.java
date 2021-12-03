@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
@@ -31,6 +31,9 @@ public enum AclPermission {
     //Does the user have read organization permissions
     USER_READ_ORGANIZATIONS("read:userOrganization", User.class),
 
+    // Does this user have permission to access Instance Config UI?
+    MANAGE_INSTANCE_ENV("manage:instanceEnv", User.class),
+
     // TODO: Add these permissions to PolicyGenerator to assign them to the user when they sign up
     // The following should be applied to Organization and not User
     READ_USERS("read:users", User.class),
@@ -44,6 +47,7 @@ public enum AclPermission {
     ORGANIZATION_MANAGE_APPLICATIONS("manage:orgApplications", Organization.class),
     ORGANIZATION_READ_APPLICATIONS("read:orgApplications", Organization.class),
     ORGANIZATION_PUBLISH_APPLICATIONS("publish:orgApplications", Organization.class),
+    ORGANIZATION_EXPORT_APPLICATIONS("export:orgApplications", Organization.class),
 
     // Invitation related permissions
     ORGANIZATION_INVITE_USERS("inviteUsers:organization", Organization.class),
@@ -51,6 +55,7 @@ public enum AclPermission {
     MANAGE_APPLICATIONS("manage:applications", Application.class),
     READ_APPLICATIONS("read:applications", Application.class),
     PUBLISH_APPLICATIONS("publish:applications", Application.class),
+    EXPORT_APPLICATIONS("export:applications", Application.class),
 
     // Making an application public permission at Organization level
     MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),

@@ -7,11 +7,10 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -31,9 +30,11 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +56,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
-    private final EncryptionService encryptionService;
+
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -70,8 +71,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 NewActionRepository newActionRepository,
-                                 EncryptionService encryptionService) {
+                                 NewActionRepository newActionRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -80,7 +80,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
-        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -91,6 +90,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        if (datasource.getGitSyncId() == null) {
+            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
         }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
@@ -144,33 +146,31 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.just(new Datasource());
         }
 
-        Set<String> messages = new HashSet<>();
-
-        if (datasource.getDatasourceConfiguration() != null) {
-            boolean usingLocalhostUrl = false;
-
-            if(!StringUtils.isEmpty(datasource.getDatasourceConfiguration().getUrl())) {
-                usingLocalhostUrl = datasource.getDatasourceConfiguration().getUrl().contains("localhost");
-            }
-            else if(!CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
-                usingLocalhostUrl = datasource
-                        .getDatasourceConfiguration()
-                        .getEndpoints()
-                        .stream()
-                        .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
-            }
-
-            if(usingLocalhostUrl) {
-                messages.add("You may not be able to access your localhost if Appsmith is running inside a docker " +
-                        "container or on the cloud. To enable access to your localhost you may use ngrok to expose " +
-                        "your local endpoint to the internet. Please check out Appsmith's documentation to understand more" +
-                        ".");
-            }
+        if(datasource.getPluginId() == null) {
+            /*
+             * - Not throwing an exception here because we try not to fail as much as possible during datasource create
+             * and update events.
+             */
+            return Mono.just(datasource);
         }
 
-        datasource.setMessages(messages);
+        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN,
+                        datasource.getPluginId())));
 
-        return Mono.just(datasource);
+        /**
+         * Delegate the task of generating hint messages to the concerned plugin, since only the
+         * concerned plugin can correctly interpret their configuration.
+         */
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> pluginExecutor.getHintMessages(null,
+                        datasource.getDatasourceConfiguration()))
+                .flatMap(tuple -> {
+                    Set datasourceHintMessages = ((Tuple2<Set, Set>) tuple).getT1();
+                    datasource.getMessages().addAll(datasourceHintMessages);
+                    return Mono.just(datasource);
+                });
     }
 
     @Override
@@ -247,6 +247,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> save(Datasource datasource) {
+        if (datasource.getGitSyncId() == null) {
+            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
+        }
         return repository.save(datasource);
     }
 
@@ -327,8 +330,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Mono<Datasource> findByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission);
+    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission) {
+        return repository.findByNameAndOrganizationId(name, organizationId, permission);
     }
 
     @Override
@@ -343,7 +346,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Set<String> extractKeysFromDatasource(Datasource datasource) {
-        if (datasource.getDatasourceConfiguration() == null) {
+        if (datasource == null || datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }
 
@@ -370,6 +373,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
+        datasourceList
+            .stream()
+            .filter(datasource -> datasource.getGitSyncId() == null)
+            .forEach(datasource -> datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString()));
         return repository.saveAll(datasourceList);
     }
 

@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.AuthenticationDTO;
@@ -10,7 +11,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -44,14 +45,15 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
+import static com.appsmith.external.constants.Authentication.AUDIENCE;
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
 import static com.appsmith.external.constants.Authentication.CLIENT_ID;
 import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
 import static com.appsmith.external.constants.Authentication.CODE;
-import static com.appsmith.external.constants.Authentication.EXPIRES_IN;
 import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
 import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
 import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
+import static com.appsmith.external.constants.Authentication.RESOURCE;
 import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
@@ -118,7 +120,7 @@ public class AuthenticationService {
     }
 
     private Mono<Datasource> validateRequiredFieldsForGenericOAuth2(Datasource datasource) {
-        // Since validation takes take of checking for fields that are present
+        // Since validation takes care of checking for fields that are present
         // We just need to make sure that the datasource has the right authentication type
         if (datasource.getDatasourceConfiguration() == null || !(datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
@@ -170,7 +172,7 @@ public class AuthenticationService {
                     map.add(GRANT_TYPE, AUTHORIZATION_CODE);
                     map.add(CODE, code);
                     map.add(REDIRECT_URI, state.split(",")[2] + Url.DATASOURCE_URL + "/authorize");
-                    // We us the returned scope instead because users may have authorized fewer scopes than requested
+                    // We use the returned scope instead because users may have authorized fewer scopes than requested
                     if (scope != null && !scope.isBlank()) {
                         map.add(SCOPE, scope);
                     }
@@ -179,6 +181,14 @@ public class AuthenticationService {
                     if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
                         map.add(CLIENT_ID, oAuth2.getClientId());
                         map.add(CLIENT_SECRET, oAuth2.getClientSecret());
+                        // Adding optional audience parameter
+                        if (!StringUtils.isEmpty(oAuth2.getAudience())) {
+                            map.add(AUDIENCE, oAuth2.getAudience());
+                        }
+                        // Adding optional resource parameter
+                        if (!StringUtils.isEmpty(oAuth2.getResource())) {
+                            map.add(RESOURCE, oAuth2.getResource());
+                        }
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
                         final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
@@ -207,7 +217,23 @@ public class AuthenticationService {
                                 authenticationResponse.setTokenResponse(response);
                                 authenticationResponse.setToken((String) response.get(ACCESS_TOKEN));
                                 authenticationResponse.setRefreshToken((String) response.get(REFRESH_TOKEN));
-                                authenticationResponse.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get(EXPIRES_IN))));
+                                // Parse useful fields for quick access
+                                Object issuedAtResponse = response.get(Authentication.ISSUED_AT);
+                                // Default issuedAt to current time
+                                Instant issuedAt = Instant.now();
+                                if (issuedAtResponse != null) {
+                                    issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
+                                }
+                                // We expect at least one of the following to be present
+                                Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
+                                Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
+                                Instant expiresAt = null;
+                                if (expiresAtResponse != null) {
+                                    expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
+                                } else if (expiresInResponse != null) {
+                                    expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
+                                }
+                                authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead
                                 if (scope != null && !scope.isBlank()) {
                                     oAuth2.setScopeString(String.join(",", scope.split(" ")));
@@ -215,8 +241,6 @@ public class AuthenticationService {
                                     oAuth2.setScopeString("");
                                 }
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                // Resetting encryption
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
@@ -252,11 +276,13 @@ public class AuthenticationService {
                         "edit" + Entity.SLASH +
                         Entity.DATASOURCES + Entity.SLASH +
                         datasourceId +
-                        "?response_status=" + responseStatus)
+                        "?response_status=" + responseStatus +
+                        "&view_mode=true")
                 .onErrorResume(e -> Mono.just(
                         redirectOrigin + Entity.SLASH +
                                 Entity.APPLICATIONS +
-                                "?response_status=" + responseStatus));
+                                "?response_status=" + responseStatus +
+                                "&view_mode=true"));
     }
 
     public Mono<String> getAppsmithToken(String datasourceId, String pageId, ServerHttpRequest request) {
@@ -278,13 +304,16 @@ public class AuthenticationService {
                         newPageService.getById(pageId)
                                 .map(page -> List.of(pageId, page.getApplicationId())),
                         configService.getInstanceId(),
-                        pluginService.getPluginName(Mono.just(datasource)))
+                        pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
                             IntegrationDTO integrationDTO = new IntegrationDTO();
                             integrationDTO.setPageId(tuple.getT1().get(0));
                             integrationDTO.setApplicationId(tuple.getT1().get(1));
                             integrationDTO.setInstallationKey(tuple.getT2());
-                            integrationDTO.setPluginName(tuple.getT3());
+                            final Plugin plugin = tuple.getT3();
+                            integrationDTO.setPluginName(plugin.getPluginName());
+                            integrationDTO.setPluginVersion(plugin.getVersion());
+                            // TODO add authenticationDTO
                             integrationDTO.setDatasourceId(datasourceId);
                             integrationDTO.setScope(((OAuth2) datasource.getDatasourceConfiguration().getAuthentication()).getScope());
                             integrationDTO.setRedirectionDomain(redirectUri);
@@ -369,7 +398,6 @@ public class AuthenticationService {
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return Mono.just(datasource);
                             });
@@ -389,7 +417,7 @@ public class AuthenticationService {
                 datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
         OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
         return pluginService.findById(datasource.getPluginId())
-                .filter(plugin -> PluginType.SAAS.equals(plugin.getType()))
+                .filter(plugin -> PluginType.SAAS.equals(plugin.getType()) || PluginType.REMOTE.equals(plugin.getType()))
                 .zipWith(configService.getInstanceId())
                 .flatMap(tuple -> {
                     Plugin plugin = tuple.getT1();
@@ -420,7 +448,6 @@ public class AuthenticationService {
                             })
                             .flatMap(authenticationResponse -> {
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 // We return the same object instead of the update value because the updates value
                                 // will be in the encrypted form

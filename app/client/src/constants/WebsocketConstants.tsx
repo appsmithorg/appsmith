@@ -15,3 +15,8 @@ export const websocketDisconnectedEvent = () => ({
 export const websocketConnectedEvent = () => ({
   type: WEBSOCKET_EVENTS.CONNECTED,
 });
+
+export const RTS_BASE_PATH = "/rts";
+export const WEBSOCKET_NAMESPACE = {
+  PAGE_EDIT: "/page/edit",
+};

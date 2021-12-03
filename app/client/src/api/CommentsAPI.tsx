@@ -10,6 +10,8 @@ class CommentsApi extends Api {
   static baseURL = "v1/comments";
   static getThreadsAPI = `${CommentsApi.baseURL}/threads`;
   static getCommentsAPI = CommentsApi.baseURL;
+  static getReactionsAPI = (commentId: string) =>
+    `${CommentsApi.getCommentsAPI}/${commentId}/reactions`;
 
   static createNewThread(
     request: CreateCommentThreadRequest,
@@ -33,22 +35,51 @@ class CommentsApi extends Api {
   }
 
   static updateCommentThread(
-    updateCommentRequest: Partial<CreateCommentThreadRequest>,
+    updateCommentThreadRequest: Partial<CreateCommentThreadRequest>,
     threadId: string,
   ): AxiosPromise<ApiResponse> {
     return Api.put(
       `${CommentsApi.getThreadsAPI}/${threadId}`,
+      updateCommentThreadRequest,
+    );
+  }
+
+  static updateComment(
+    updateCommentRequest: Partial<CreateCommentRequest>,
+    commentId: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(
+      `${CommentsApi.getCommentsAPI}/${commentId}`,
       updateCommentRequest,
     );
   }
 
-  static pinCommentThread(threadId: string) {
-    console.log(threadId);
-    return Promise.resolve();
-  }
-
   static deleteComment(commentId: string): AxiosPromise<ApiResponse> {
     return Api.delete(`${CommentsApi.getCommentsAPI}/${commentId}`);
+  }
+
+  static deleteCommentThread(threadId: string): AxiosPromise<ApiResponse> {
+    return Api.delete(`${CommentsApi.getThreadsAPI}/${threadId}`);
+  }
+
+  static unsubscribeCommentThread(threadId: string): AxiosPromise<ApiResponse> {
+    return Api.post(`${CommentsApi.getThreadsAPI}/${threadId}/unsubscribe`);
+  }
+
+  static addCommentReaction(
+    commentId: string,
+    request: { emoji: string },
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(CommentsApi.getReactionsAPI(commentId), request);
+  }
+
+  static removeCommentReaction(
+    commentId: string,
+    request: { emoji: string },
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(CommentsApi.getReactionsAPI(commentId), null, {
+      data: request,
+    });
   }
 }
 

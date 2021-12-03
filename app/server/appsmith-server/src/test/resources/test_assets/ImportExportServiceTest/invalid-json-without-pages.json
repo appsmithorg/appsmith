@@ -1,0 +1,12 @@
+{
+    "exportedApplication": {},
+    "datasourceList": [],
+    "pageList": [],
+    "actionList": [
+      {
+        "id": "randomId"
+      }
+    ],
+    "decryptedFields": {},
+    "mongoEscapedWidgets": {}
+}

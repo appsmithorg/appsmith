@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
@@ -14,7 +15,6 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
@@ -469,7 +469,6 @@ public class DatasourceServiceTest {
 
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
-            datasource1.getDatasourceConfiguration().getAuthentication().setIsEncrypted(false);
             return datasourceService.testDatasource(datasource1);
         });
 
@@ -570,13 +569,87 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return layoutActionService.createAction(action).thenReturn(datasource);
+                    return layoutActionService.createSingleAction(action).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.delete(datasource.getId()));
 
         StepVerifier
                 .create(datasourceMono)
                 .verifyErrorMessage(AppsmithError.DATASOURCE_HAS_ACTIONS.getMessage("1"));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteDatasourceWithDeletedActions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Datasource> datasourceMono = Mono
+                .zip(
+                        organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        pluginService.findByName("Installed Plugin Name")
+                )
+                .flatMap(objects -> {
+                    final Organization organization = objects.getT1();
+                    final Plugin plugin = objects.getT2();
+
+                    Datasource datasource = new Datasource();
+                    datasource.setName("test datasource name for deletion with deleted actions");
+                    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+                    datasourceConfiguration.setUrl("http://test.com");
+                    datasource.setDatasourceConfiguration(datasourceConfiguration);
+                    datasource.setOrganizationId(organization.getId());
+                    datasource.setPluginId(plugin.getId());
+
+                    final Application application = new Application();
+                    application.setName("application 2");
+
+                    return Mono.zip(
+                            Mono.just(organization),
+                            Mono.just(plugin),
+                            datasourceService.create(datasource),
+                            applicationPageService.createApplication(application, organization.getId())
+                                    .zipWhen(application1 -> {
+                                        final PageDTO page = new PageDTO();
+                                        page.setName("test page 1");
+                                        page.setApplicationId(application1.getId());
+                                        page.setPolicies(Set.of(Policy.builder()
+                                                .permission(READ_PAGES.getValue())
+                                                .users(Set.of("api_user"))
+                                                .build()
+                                        ));
+                                        return applicationPageService.createPage(page);
+                                    })
+                    );
+                })
+                .flatMap(objects -> {
+                    final Datasource datasource = objects.getT3();
+                    final Application application = objects.getT4().getT1();
+                    final PageDTO page = objects.getT4().getT2();
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("validAction");
+                    action.setOrganizationId(objects.getT1().getId());
+                    action.setPluginId(objects.getT2().getId());
+                    action.setPageId(page.getId());
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
+
+                    return layoutActionService.createSingleAction(action)
+                            .then(applicationPageService.deleteApplication(application.getId()))
+                            .thenReturn(datasource);
+                })
+                .flatMap(datasource -> datasourceService.delete(datasource.getId()));
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getName()).isEqualTo("test datasource name for deletion with deleted actions");
+                    assertThat(createdDatasource.getDeletedAt()).isNotNull();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -618,8 +691,6 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTONullPassword() {
-        // For this test, all fields that are meant to be encrypted are going to be empty
-        // In such a scenario, we want the isEncrypted field to be in an inactive state, that is, null
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
@@ -984,7 +1055,7 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testHintMessageOnLocalhostUrlOnUpdateEventOnNonApiDatasource() {
+    public void testHintMessageOnLocalhostIPAddressOnUpdateEventOnNonApiDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
@@ -1012,7 +1083,7 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
                     Connection connection1 = new Connection();
                     datasourceConfiguration1.setConnection(connection1);
-                    Endpoint endpoint = new Endpoint("http://localhost", 0L);
+                    Endpoint endpoint = new Endpoint("http://127.0.0.1/xyz", 0L);
                     datasourceConfiguration1.setEndpoints(new ArrayList<>());
                     datasourceConfiguration1.getEndpoints().add(endpoint);
                     updates.setDatasourceConfiguration(datasourceConfiguration1);
@@ -1031,6 +1102,38 @@ public class DatasourceServiceTest {
                             updatedDatasource.getMessages().stream()
                                     .anyMatch(message -> expectedMessage.equals(message))
                     ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageNPE() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("NPE check");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setEndpoints(new ArrayList<>());
+        Endpoint nullEndpoint = null;
+        datasourceConfiguration.getEndpoints().add(nullEndpoint);
+        Endpoint nullHost = new Endpoint(null, 0L);
+        datasourceConfiguration.getEndpoints().add(nullHost);
+
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getMessages()).isEmpty();
                 })
                 .verifyComplete();
     }

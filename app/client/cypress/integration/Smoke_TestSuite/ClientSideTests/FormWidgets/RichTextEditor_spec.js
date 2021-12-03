@@ -29,17 +29,6 @@ describe("RichTextEditor Widget Functionality", function() {
       "h1",
       "This is a Heading",
     );
-
-    // validate after reload
-    cy.reload(true);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.validateHTMLText(
-      formWidgetsPage.richTextEditorWidget,
-      "h1",
-      "This is a Heading",
-    );
-
     cy.PublishtheApp();
     cy.validateHTMLText(
       publishPage.richTextEditorWidget,
@@ -92,7 +81,35 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(publishPage.richTextEditorWidget).should("be.visible");
   });
 
+  it("RichTextEditor-check Hide toolbar field validaton", function() {
+    // Check the Hide toolbar checkbox
+    cy.CheckWidgetProperties(commonlocators.hideToolbarCheckbox);
+    cy.validateToolbarHidden(
+      formWidgetsPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+    cy.PublishtheApp();
+    cy.validateToolbarHidden(
+      publishPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+  });
+
+  it("RichTextEditor-uncheck Hide toolbar field validaton", function() {
+    // Uncheck the Hide toolbar checkbox
+    cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
+    cy.validateToolbarVisible(
+      formWidgetsPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+    cy.PublishtheApp();
+    cy.validateToolbarVisible(
+      publishPage.richTextEditorWidget,
+      commonlocators.rteToolbar,
+    );
+  });
+
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.goToEditFromPublish();
   });
 });

@@ -1,7 +1,10 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -10,6 +13,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
 import com.external.config.MethodConfig;
@@ -26,8 +30,14 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static java.lang.Boolean.TRUE;
 
 public class GoogleSheetsPlugin extends BasePlugin {
 
@@ -44,12 +54,83 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void> {
+    public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void>, SmartSubstitutionInterface {
+
+        private static final int SMART_JSON_SUBSTITUTION_INDEX = 13;
+
+        private static final Set<String> jsonFields = new HashSet<>(Arrays.asList(
+                "rowObject",
+                "rowObjects"
+        ));
 
         @Override
-        public Mono<ActionExecutionResult> execute(Void connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeParameterized(Void connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+            Boolean smartBsonSubstitution;
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+
+            // Default smart substitution to true
+            if (CollectionUtils.isEmpty(properties)) {
+                smartBsonSubstitution = true;
+            } else if (properties.size() > SMART_JSON_SUBSTITUTION_INDEX &&
+                    properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
+                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof Boolean) {
+                    smartBsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartBsonSubstitution = true;
+                }
+            } else {
+                smartBsonSubstitution = true;
+            }
+
+            try {
+                // Smartly substitute in Json fields and replace all the bindings with values.
+                if (TRUE.equals(smartBsonSubstitution)) {
+                    properties.stream().parallel().forEach(property -> {
+                        if (property.getValue() != null) {
+                            String propertyValue = String.valueOf(property.getValue());
+                            String propertyKey = property.getKey();
+
+                            if (jsonFields.contains(propertyKey)) {
+                                // First extract all the bindings in order
+                                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(propertyValue);
+                                // Replace all the bindings with a placeholder
+                                String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(propertyValue, mustacheKeysInOrder);
+
+                                updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
+                                        mustacheKeysInOrder,
+                                        executeActionDTO.getParams(),
+                                        parameters);
+
+                                property.setValue(updatedValue);
+                            }
+                        }
+                    });
+                }
+            } catch (AppsmithPluginException e) {
+                // Initializing object for error condition
+                ActionExecutionResult errorResult = new ActionExecutionResult();
+                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                errorResult.setIsExecutionSuccess(false);
+                errorResult.setErrorInfo(e);
+                return Mono.just(errorResult);
+            }
+
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration);
+        }
+
+        public Mono<ActionExecutionResult> executeCommon(Void connection,
+                                                         DatasourceConfiguration datasourceConfiguration,
+                                                         ActionConfiguration actionConfiguration) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -83,7 +164,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
-            assert (!oauth2.getIsEncrypted() && oauth2.getAuthenticationResponse() != null);
+            assert (oauth2.getAuthenticationResponse() != null);
 
             // Triggering the actual REST API call
             return method.executePrerequisites(methodConfig, oauth2)
@@ -164,6 +245,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
         }
 
         @Override
+        public Mono<ActionExecutionResult> execute(Void connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+        }
+
+        @Override
         public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty();
         }
@@ -182,6 +269,25 @@ public class GoogleSheetsPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             // This plugin would not have the option to test
             return Mono.just(new DatasourceTestResult());
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
+                                                                 DatasourceConfiguration datasourceConfiguration) {
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return executeCommon(null, datasourceConfiguration, actionConfiguration);
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
         }
     }
 }

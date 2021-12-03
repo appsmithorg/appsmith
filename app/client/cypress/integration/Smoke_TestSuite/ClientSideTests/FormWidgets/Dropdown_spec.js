@@ -1,84 +1,182 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const widgetLocators = require("../../../../locators/Widgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/newFormDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const data = require("../../../../fixtures/example.json");
+// const commonlocators = require("../../../../locators/commonlocators.json");
+// const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+// const widgetLocators = require("../../../../locators/Widgets.json");
+// const publish = require("../../../../locators/publishWidgetspage.json");
+// const dsl = require("../../../../fixtures/newFormDsl.json");
+// const data = require("../../../../fixtures/example.json");
+// const apiPage = require("../../../../locators/ApiEditor.json");
+// const datasource = require("../../../../locators/DatasourcesEditor.json");
+// const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 
-describe("Dropdown Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
-  });
-  it("Selects value with invalid default value", () => {
-    cy.openPropertyPane("dropdownwidget");
+// describe("Dropdown Widget Functionality", function() {
+//   before(() => {
+//     cy.addDsl(dsl);
+//   });
 
-    cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultoption", "{{ undefined }}");
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 3")
-      .click({ force: true });
+//   it("Verify Search box for selecting drop-down options", function() {
+//     cy.openPropertyPane("dropdownwidget");
+//     cy.togglebar(formWidgetsPage.filterCheckbox);
+//     cy.PublishtheApp();
+//     cy.get(formWidgetsPage.selectWidget)
+//       .find(widgetLocators.dropdownSingleSelect)
+//       .click({ force: true });
+//     cy.get(formWidgetsPage.searchBoxDropdown).should("be.visible");
+//   });
 
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.defaultSingleSelectValue)
-      .should("have.text", "Option 3");
-  });
-  it("Selects value with enter in default value", () => {
-    // cy.openPropertyPane("dropdownwidget");
-    cy.testJsontext("defaultoption", "3\n");
-    cy.get(formWidgetsPage.dropdownWidget)
-      .find(widgetLocators.defaultSingleSelectValue)
-      .should("have.text", "Option 3");
-  });
-  it("Dropdown Widget Functionality", function() {
-    cy.widgetText(
-      "lock",
-      formWidgetsPage.dropdownWidget,
-      commonlocators.containerInnerText,
-    );
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .click({ force: true });
-    cy.get(commonlocators.dropdownmenu)
-      .children()
-      .contains("Multi Select")
-      .click();
-    cy.get(formWidgetsPage.dropdownSelectionType)
-      .last()
-      .should("have.text", "Multi Select");
-    /**
-     * @param{Show Alert} Css for InputChange
-     */
-    cy.getAlert(commonlocators.optionchangetextDropdown);
-    cy.get(formWidgetsPage.dropdownInput).click({ force: true });
-    cy.get(formWidgetsPage.dropdownInput).type("Option");
-    cy.dropdownDynamic("Option 1");
-    cy.PublishtheApp();
-  });
-  it("Dropdown Functionality To Validate Options", function() {
-    cy.get(formWidgetsPage.dropdownInput).click({ force: true });
-    cy.get(formWidgetsPage.dropdownInput).type("Option");
-    cy.dropdownDynamic("Option 2");
-    cy.get(publish.backToEditor).click();
-  });
-  it("Dropdown Functionality To Unchecked Visible Widget", function() {
-    cy.openPropertyPane("dropdownwidget");
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click();
-  });
-  it("Dropdown Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("dropdownwidget");
-    cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("be.visible");
-    cy.get(publish.backToEditor).click();
-  });
-});
-afterEach(() => {
-  // put your clean up code if any
-});
+//   it("Verify Dropdown default value", function() {
+//     cy.PublishtheApp();
+//     cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Select");
+//   });
+
+//   it("Selects value with invalid default value", () => {
+//     cy.openPropertyPane("dropdownwidget");
+//     // Add options in dropdown
+//     cy.testJsontext("options", JSON.stringify(data.input));
+//     // Assign the invalid default value
+//     cy.testJsontext("defaultoption", "{{ undefined }}");
+//     // Select value with invalid default value
+//     cy.get(formWidgetsPage.dropdownWidget)
+//       .find(widgetLocators.dropdownSingleSelect)
+//       .click({ force: true });
+//     cy.get(commonlocators.singleSelectMenuItem)
+//       .contains("Option 3")
+//       .click({ force: true });
+//     // Varify the selected value
+//     cy.get(formWidgetsPage.dropdownWidget)
+//       .find(widgetLocators.defaultSingleSelectValue)
+//       .should("have.text", "Option 3");
+//   });
+
+//   it("Verify Dropdown Icon is available", function() {
+//     cy.PublishtheApp();
+//     cy.get(formWidgetsPage.dropdowonChevranDown).should("exist");
+//   });
+
+//   // it("Explore Widget related documents Validation", function() {
+//   //   // Open property pane
+//   //   cy.openPropertyPane("dropdownwidget");
+//   //   cy.widgetText(
+//   //     "Select",
+//   //     formWidgetsPage.dropdownWidget,
+//   //     commonlocators.dropdownInner,
+//   //   );
+//   //   // Click on "Explore widget related docs" button
+//   //   cy.get(formWidgetsPage.exploreWidget).click();
+//   //   cy.wait(2000);
+//   //   // Verify the widget related document
+//   //   cy.get(formWidgetsPage.widgetRelatedDocument).should("contain", "Select");
+//   //   cy.wait(2000);
+//   //   cy.get("#header-root").click();
+//   //   cy.widgetText(
+//   //     "Dropdown1",
+//   //     formWidgetsPage.dropdownWidget,
+//   //     commonlocators.dropdownInner,
+//   //   );
+//   //   cy.wait(1000);
+//   // });
+
+//   it("Dropdown Close Verification", function() {
+//     // Open property pane
+//     cy.SearchEntityandOpen("Dropdown1");
+//     // Close propert pane
+//     cy.closePropertyPane();
+//   });
+
+//   it("Selects value with enter in default value", () => {
+//     // cy.openPropertyPane("dropdownwidget");
+//     cy.SearchEntityandOpen("Dropdown1");
+//     // Enter value in default option
+//     cy.testJsontext("defaultoption", "3\n");
+//     // Verify the default value is selected
+//     cy.get(formWidgetsPage.dropdownWidget)
+//       .find(widgetLocators.defaultSingleSelectValue)
+//       .should("have.text", "Option 3");
+//   });
+
+//   it("Copy paste dropdown widget", function() {
+//     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+//     // Open property pane
+//     cy.SearchEntityandOpen("Dropdown1");
+//     cy.widgetText(
+//       "Dropdown1",
+//       formWidgetsPage.dropdownWidget,
+//       commonlocators.dropdownInner,
+//     );
+//     cy.get("body").type(`{${modifierKey}}c`);
+//     // eslint-disable-next-line cypress/no-unnecessary-waiting
+//     cy.wait(500);
+//     cy.get(commonlocators.toastBody)
+//       .first()
+//       .contains("Copied");
+//     cy.get("body").click();
+//     cy.get("body").type(`{${modifierKey}}v`, { force: true });
+//     cy.wait("@updateLayout").should(
+//       "have.nested.property",
+//       "response.body.responseMeta.status",
+//       200,
+//     );
+//     cy.get(commonlocators.toastAction).should("be.visible");
+
+//     //Check after copying new table widget should not have any warnings
+//     cy.get('.t--draggable-dropdownwidget [name="warning"]').should("not.exist");
+//     cy.GlobalSearchEntity("Dropdown1Copy");
+//   });
+
+//   it("Dropdown-Delete Verification", function() {
+//     // Open property pane
+//     cy.SearchEntityandOpen("Dropdown1Copy");
+//     // Delete the Dropdown widget
+//     cy.deleteWidget(formWidgetsPage.dropdownwidget);
+//     cy.PublishtheApp();
+//     // Verify the Dropdown widget is deleted
+//     cy.get(formWidgetsPage.dropdownwidget).should("not.exist");
+//   });
+
+//   it("Dropdown Widget Functionality", function() {
+//     cy.SearchEntityandOpen("Dropdown1");
+//     // Change dropdown name
+//     cy.widgetText(
+//       "lock",
+//       formWidgetsPage.dropdownWidget,
+//       commonlocators.containerInnerText,
+//     );
+//     cy.closePropertyPane();
+//   });
+//   it("Dropdown Functionality To Check disabled Widget", function() {
+//     cy.openPropertyPane("dropdownwidget");
+//     // Disable the visible JS
+//     cy.togglebarDisable(commonlocators.visibleCheckbox);
+//     cy.PublishtheApp();
+//     // Verify the disabled visible JS
+//     cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
+//   });
+//   it("Dropdown Functionality To UnCheck disabled Widget", function() {
+//     cy.SearchEntityandOpen("lock");
+//     // Check the visible JS
+//     cy.togglebar(commonlocators.visibleCheckbox);
+//     cy.PublishtheApp();
+//     // Verify the checked visible JS
+//     cy.get(publish.dropdownWidget).should("exist");
+//   });
+//   it("Toggle JS - Dropdown-Unckeck Visible field Validation", function() {
+//     // Open Property pane
+//     cy.openPropertyPane("dropdownwidget");
+//     //Uncheck the disabled checkbox using JS and validate
+//     cy.get(formWidgetsPage.toggleVisible).click({ force: true });
+//     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "false");
+//     cy.PublishtheApp();
+//     cy.get(formWidgetsPage.selectWidget).should("not.exist");
+//   });
+
+//   it("Toggle JS - Dropdown-Check Visible field Validation", function() {
+//     // Open Property pane
+//     cy.openPropertyPane("dropdownwidget");
+//     //Check the disabled checkbox using JS and Validate
+//     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "true");
+//     cy.PublishtheApp();
+//     cy.get(formWidgetsPage.selectWidget).should("exist");
+//   });
+// });
+// afterEach(() => {
+//   cy.goToEditFromPublish();
+// });

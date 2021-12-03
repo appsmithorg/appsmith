@@ -4,6 +4,7 @@ import NoSearchDataImage from "assets/images/no_search_data.png";
 import { NO_SEARCH_DATA_TEXT } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   display: flex;
@@ -26,7 +27,7 @@ const Container = styled.div`
 
   .discord-link {
     cursor: pointer;
-    color: white;
+    color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-weight: 700;
   }
 `;
@@ -49,6 +50,7 @@ function ResultsNotFound() {
           className="discord-link"
           onClick={() => {
             window.open("https://discord.gg/rBTTVJp", "_blank");
+            AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
           }}
         >
           <StyledDiscordIcon color="red" height={22} width={24} />

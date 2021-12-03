@@ -7,6 +7,7 @@ import {
   matchDatasourcePath,
   matchQueryPath,
   matchBuilderPath,
+  matchJSObjectPath,
 } from "constants/routes";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
@@ -43,6 +44,15 @@ const getRecentEntity = (pathName: string) => {
       params: datasourceMatch?.params,
     };
 
+  const jsObjectMatch = matchJSObjectPath(pathName);
+  if (jsObjectMatch) {
+    return {
+      type: "jsAction",
+      id: jsObjectMatch?.params?.collectionId,
+      params: jsObjectMatch?.params,
+    };
+  }
+
   return {};
 };
 
@@ -73,7 +83,7 @@ function* handlePathUpdated(
 
 export default function* recentEntitiesSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, handleSelectWidget),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, handleSelectWidget),
     takeLatest(ReduxActionTypes.HANDLE_PATH_UPDATED, handlePathUpdated),
   ]);
 }

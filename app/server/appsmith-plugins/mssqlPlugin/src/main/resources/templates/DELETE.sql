@@ -1,1 +1,1 @@
-DELETE FROM users WHERE id = '{{ usersTable.selectedRow.id }}';
+DELETE FROM users WHERE id = {{ usersTable.selectedRow.id }};

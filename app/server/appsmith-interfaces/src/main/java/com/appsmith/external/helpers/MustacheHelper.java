@@ -1,28 +1,31 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DynamicBinding;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
 
 @Slf4j
 public class MustacheHelper {
@@ -36,12 +39,21 @@ public class MustacheHelper {
     private final static Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
     /**
      * Appsmith smart replacement : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
-     * to fit the requirements of prepared statements/Appsmith's JSON smart replacement.
+     * to fit the requirements of prepared statements.
      */
     private static String regexQuotesTrimming = "([\"']\\?[\"'])";
     private static Pattern quoteQuestionPattern = Pattern.compile(regexQuotesTrimming);
     // The final replacement string of ? for replacing '?' or "?"
     private static String postQuoteTrimmingQuestionMark = "\\?";
+
+    /**
+     * Appsmith smart replacement with placeholder : The regex pattern below looks for `APPSMITH_SUBSTITUTION_PLACEHOLDER`
+     * surrounded by quotes. This pattern is later replaced with just APPSMITH_SUBSTITUTION_PLACEHOLDER to fit the requirements
+     * of JSON smart replacement aka trim the quotes present.
+     */
+    private static String regexPlaceholderTrimming = "([\"']" + APPSMITH_SUBSTITUTION_PLACEHOLDER + "[\"'])";
+    private static Pattern placeholderTrimmingPattern = Pattern.compile(regexPlaceholderTrimming);
+
     private static String laxMustacheBindingRegex = "\\{\\{([\\s\\S]*?)\\}\\}";
     private static Pattern laxMustacheBindingPattern = Pattern.compile(laxMustacheBindingRegex);
 
@@ -255,56 +267,57 @@ public class MustacheHelper {
         }
     }
 
+    /**
+     * - If object is null, then return object.
+     * - If object is an Appsmith domain object then iterate over all fields of the object and render field values
+     * for each of them.
+     * - If object is list type then iterate over each item in the list and render field value for them.
+     * - If object is map type, then iterate over each value in the map and render field value for them.
+     * - If the object is string type (base case), then do the binding substitution if applicable.
+     * - If the object falls under none of the above conditions then return the object without doing anything.
+     */
     public static <T> T renderFieldValues(T object, Map<String, String> context) {
-        final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+        if (object == null) {
+            return object;
+        }
 
-        try {
-
-            for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
-                // For properties like `class` that don't have a set method, just ignore them.
-                if (propertyDescriptor.getWriteMethod() == null) {
-                    continue;
-                }
-
-                String name = propertyDescriptor.getName();
-                Object value = sourceBeanWrapper.getPropertyValue(name);
-
-                // If value is null, don't copy it over to target and just move on to the next property.
-                if (value == null) {
-                    continue;
-                }
-
-                if (isDomainModel(propertyDescriptor.getPropertyType())) {
-                    // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
-                    // values are not null.
-                    renderFieldValues(value, context);
-
-                } else if (value instanceof List) {
-                    for (Object childValue : (List) value) {
-                        if (childValue != null && isDomainModel(childValue.getClass())) {
-                            renderFieldValues(childValue, context);
-                        }
+        if (isDomainModel(object.getClass())) {
+            try {
+                final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+                for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
+                    // For properties like `class` that don't have a set method, just ignore them.
+                    if (propertyDescriptor.getWriteMethod() == null) {
+                        continue;
                     }
 
-                } else if (value instanceof Map) {
-                    for (Object childValue : ((Map) value).values()) {
-                        if (childValue != null && isDomainModel(childValue.getClass())) {
-                            renderFieldValues(childValue, context);
-                        }
-                    }
-
-                } else if (value instanceof String) {
-                    sourceBeanWrapper.setPropertyValue(
-                            name,
-                            render((String) value, context)
-                    );
-
+                    String name = propertyDescriptor.getName();
+                    Object value = sourceBeanWrapper.getPropertyValue(name);
+                    sourceBeanWrapper.setPropertyValue(name, renderFieldValues(value, context));
                 }
+            } catch (BeansException e) {
+                log.error("Exception caught while substituting values in mustache template.", e);
+            }
+        } else if (object instanceof List) {
+            List renderedList = new ArrayList();
+            for (Object childValue : (List) object) {
+                renderedList.add(renderFieldValues(childValue, context));
             }
 
-        } catch (Exception e) {
-            log.error("Exception caught while substituting values in mustache template.", e);
+            return (T) renderedList;
 
+        } else if (object instanceof Map) {
+            Map renderedMap = new HashMap();
+            for (Object entry : ((Map) object).entrySet()) {
+                renderedMap.put(
+                        ((Map.Entry) entry).getKey(), // key
+                        renderFieldValues(((Map.Entry) entry).getValue(), context) // value
+                );
+            }
+
+            return (T) renderedMap;
+
+        } else if (object instanceof String) {
+            return (T) render((String) object, context);
         }
 
         return object;
@@ -329,7 +342,19 @@ public class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
-    public static void extractWordsAndAddToSet(Set<String> bindingNames, String mustacheKey) {
+    public static void extractActionNamesAndAddValidActionBindingsToSet(Map<String, DynamicBinding> bindingNames, String mustacheKey) {
+        String key = mustacheKey.trim();
+
+        /* Extract all action names in the dynamic bindings */
+        Matcher matcher = pattern.matcher(key);
+        while (matcher.find()) {
+            // For each match, check what combination of action bindings could be calculated
+            bindingNames.putAll(DynamicBinding.create(matcher.group()));
+        }
+    }
+
+    public static Set<String> getPossibleParents(String mustacheKey) {
+        Set<String> bindingNames = new HashSet<>();
         String key = mustacheKey.trim();
 
         // Extract all the words in the dynamic bindings
@@ -339,15 +364,36 @@ public class MustacheHelper {
             String word = matcher.group();
 
             String[] subStrings = word.split(Pattern.quote("."));
-            if (subStrings.length > 0) {
-                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                bindingNames.add(subStrings[0]);
+
+            if (subStrings.length < 1) {
+                continue;
             }
+            // First add the first word since that's the entity name for widgets and non js actions
+            bindingNames.add(subStrings[0]);
+
+            if (subStrings.length >= 2) {
+                // For JS actions, the first two words are the action name since action name consists of the collection name
+                // and the individual action name
+                bindingNames.add(subStrings[0] + "." + subStrings[1]);
+            }
+
         }
+        return bindingNames;
+    }
+
+    public static String replaceMustacheWithPlaceholder(String query, List<String> mustacheBindings) {
+        return replaceMustacheUsingPatterns(query, APPSMITH_SUBSTITUTION_PLACEHOLDER, mustacheBindings,
+                placeholderTrimmingPattern, APPSMITH_SUBSTITUTION_PLACEHOLDER);
     }
 
     public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
 
+        return replaceMustacheUsingPatterns(query, "?", mustacheBindings,
+                quoteQuestionPattern, postQuoteTrimmingQuestionMark);
+    }
+
+    private static String replaceMustacheUsingPatterns(String query, String placeholder, List<String> mustacheBindings,
+                                                       Pattern sanitizePattern, String replacement) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
 
@@ -356,34 +402,34 @@ public class MustacheHelper {
 
         Map<String, String> replaceParamsMap = mustacheSet
                 .stream()
-                .collect(Collectors.toMap(Function.identity(), v -> "?"));
+                .collect(Collectors.toMap(Function.identity(), v -> placeholder));
 
+        // Replace the mustaches with the values mapped to each mustache in replaceParamsMap
         ActionConfiguration updatedActionConfiguration = renderFieldValues(actionConfiguration, replaceParamsMap);
 
         String body = updatedActionConfiguration.getBody();
 
-        // Trim the quotes around ? if present
-        body = quoteQuestionPattern.matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
+        body = sanitizePattern.matcher(body).replaceAll(replacement);
 
         return body;
     }
 
-    public static String replaceQuestionMarkWithDollarIndex(String query) {
-        final AtomicInteger counter = new AtomicInteger();
-        String updatedQuery = query.chars()
-                .mapToObj(c -> {
-                    if (c == '?') {
-                        return "$" + counter.incrementAndGet();
-                    }
-
-                    return Character.toString(c);
-                })
-                .collect(Collectors.joining());
-
-        return updatedQuery;
-    }
-
     public static Boolean laxIsBindingPresentInString(String input) {
         return laxMustacheBindingPattern.matcher(input).find();
+    }
+
+    public static Set<String> getWordsFromMustache(String mustache) {
+        Set<String> words = new HashSet<>();
+        String key = mustache.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            words.add(matcher.group());
+        }
+
+        return words;
+
     }
 }

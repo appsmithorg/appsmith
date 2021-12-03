@@ -1,35 +1,31 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { Message, Severity } from "entities/AppsmithConsole";
+import { Log } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { get, merge, isEmpty, omit, isUndefined } from "lodash";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { omit, isUndefined } from "lodash";
 
 const initialState: DebuggerReduxState = {
   logs: [],
-  errorCount: 0,
   isOpen: false,
   errors: {},
   expandId: "",
+  hideErrors: true,
+  currentTab: "",
 };
 
 const debuggerReducer = createReducer(initialState, {
   [ReduxActionTypes.DEBUGGER_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
-    const isError = action.payload.severity === Severity.ERROR;
-
     return {
       ...state,
       logs: [...state.logs, action.payload],
-      errorCount: isError ? state.errorCount + 1 : state.errorCount,
     };
   },
   [ReduxActionTypes.CLEAR_DEBUGGER_LOGS]: (state: DebuggerReduxState) => {
     return {
       ...state,
       logs: [],
-      errorCount: 0,
     };
   },
   [ReduxActionTypes.SHOW_DEBUGGER]: (
@@ -41,71 +37,51 @@ const debuggerReducer = createReducer(initialState, {
       isOpen: isUndefined(action.payload) ? !state.isOpen : action.payload,
     };
   },
-  [ReduxActionTypes.DEBUGGER_ERROR_LOG]: (
+  [ReduxActionTypes.DEBUGGER_ADD_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
-    if (!action.payload.source) return state;
+    if (!action.payload.id) return state;
 
-    const entityId = action.payload.source.id;
-    const id =
-      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR
-        ? `${entityId}-${action.payload.source.propertyPath}`
-        : entityId;
-    const previousState = get(state.errors, id, {});
-
+    // Moving recent update to the top of the error list
+    const errors = omit(state.errors, action.payload.id);
     return {
       ...state,
       errors: {
-        ...state.errors,
-        [id]: {
-          ...merge(previousState, action.payload),
-        },
+        [action.payload.id]: action.payload,
+        ...errors,
       },
-      expandId: id,
     };
   },
-  [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG]: (
+  [ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
-  ) => {
-    if (!action.payload.source) return state;
-
-    const entityId = action.payload.source.id;
-    const isWidgetErrorLog =
-      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR;
-    const id = isWidgetErrorLog
-      ? `${entityId}-${action.payload.source.propertyPath}`
-      : entityId;
-
-    if (isEmpty(action.payload.state)) {
-      return {
-        ...state,
-        errors: omit(state.errors, id),
-      };
-    }
-
-    return {
-      ...state,
-      errors: {
-        ...state.errors,
-        [id]: {
-          ...action.payload,
-        },
-      },
-      expandId: id,
-    };
-  },
-  [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS]: (
-    state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<string>,
   ) => {
     return {
       ...state,
-      errors: { ...action.payload },
+      errors: omit(state.errors, action.payload),
     };
   },
-  [ReduxActionTypes.RESET_DEBUGGER_STATE]: () => {
+  [ReduxActionTypes.HIDE_DEBUGGER_ERRORS]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      hideErrors: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentTab: action.payload,
+    };
+  },
+  // Resetting debugger state after page switch
+  [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: () => {
     return {
       ...initialState,
     };
@@ -113,11 +89,12 @@ const debuggerReducer = createReducer(initialState, {
 });
 
 export interface DebuggerReduxState {
-  logs: Message[];
-  errorCount: number;
+  logs: Log[];
   isOpen: boolean;
-  errors: Record<string, Message>;
+  errors: Record<string, Log>;
   expandId: string;
+  hideErrors: boolean;
+  currentTab: string;
 }
 
 export default debuggerReducer;

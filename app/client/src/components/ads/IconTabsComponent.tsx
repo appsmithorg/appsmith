@@ -1,16 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
+import { Colors } from "constants/Colors";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
-  width: 32px;
+  width: auto;
+  padding: 0 5px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: ${(props) =>
     props.selected
-      ? props.theme.colors.propertyPane.activeButtonText
+      ? Colors.GREY_10
       : props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
   cursor: pointer;
   &&& svg {
@@ -24,12 +26,14 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
 `;
 
 const FlexWrapper = styled.div`
-  display: flex;
+  display: inline-flex;
+  border: 1px solid ${Colors.GREY_5};
 `;
 
 export interface IconTabOption {
   icon: string;
   value: string;
+  width?: number;
 }
 
 interface IconTabsComponentProps {
@@ -41,21 +45,23 @@ interface IconTabsComponentProps {
 function IconTabsComponent(props: IconTabsComponentProps) {
   return (
     <FlexWrapper>
-      {props.options.map((option: IconTabOption, index: number) => {
-        const controlIconName: ControlIconName = option.icon;
-        const ControlIcon = ControlIcons[controlIconName];
-        const isSelected = props.value === option.value;
-        return (
-          <ItemWrapper
-            className={`t--icon-tab-${option.value}`}
-            key={index}
-            onClick={() => props.selectOption(option.value)}
-            selected={isSelected}
-          >
-            <ControlIcon height={24} width={24} />
-          </ItemWrapper>
-        );
-      })}
+      {props.options.map(
+        ({ icon, value, width = 24 }: IconTabOption, index: number) => {
+          const controlIconName: ControlIconName = icon;
+          const ControlIcon = ControlIcons[controlIconName];
+          const isSelected = props.value === value;
+          return (
+            <ItemWrapper
+              className={`t--icon-tab-${value}`}
+              key={index}
+              onClick={() => props.selectOption(value)}
+              selected={isSelected}
+            >
+              <ControlIcon height={24} width={width} />
+            </ItemWrapper>
+          );
+        },
+      )}
     </FlexWrapper>
   );
 }

@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.solutions.AuthenticationService;
 import lombok.extern.slf4j.Slf4j;

@@ -1,0 +1,22 @@
+diff --git a/node_modules/@blueprintjs/core/lib/esm/components/editable-text/editableText.js b/node_modules/@blueprintjs/core/lib/esm/components/editable-text/editableText.js
+index 84f03fa..5e5488a 100644
+--- a/node_modules/@blueprintjs/core/lib/esm/components/editable-text/editableText.js
++++ b/node_modules/@blueprintjs/core/lib/esm/components/editable-text/editableText.js
+@@ -188,7 +188,16 @@ var EditableText = /** @class */ (function (_super) {
+         if (this.state.isEditing && !prevState.isEditing) {
+             (_b = (_a = this.props).onEdit) === null || _b === void 0 ? void 0 : _b.call(_a, this.state.value);
+         }
+-        this.updateInputDimensions();
++        // updateInputDimensions is an expensive method. Call it only when the props
++        // it depends on change
++        if (this.state.value !== prevState.value ||
++            this.props.alwaysRenderInput !== prevProps.alwaysRenderInput ||
++            this.props.maxLines !== prevProps.maxLines ||
++            this.props.minLines !== prevProps.minLines ||
++            this.props.minWidth !== prevProps.minWidth ||
++            this.props.multiline !== prevProps.multiline) {
++            this.updateInputDimensions();
++        }
+     };
+     EditableText.prototype.renderInput = function (value) {
+         var _a = this.props, disabled = _a.disabled, maxLength = _a.maxLength, multiline = _a.multiline, type = _a.type, placeholder = _a.placeholder;

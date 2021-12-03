@@ -3,11 +3,11 @@ import {
   WidgetType,
 } from "constants/WidgetConstants";
 import { get, set } from "lodash";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
+import WidgetFactory from "utils/WidgetFactory";
 import { getWidgets } from "./selectors";
 
 /*
@@ -31,6 +31,7 @@ export enum WidgetEnhancementType {
   CUSTOM_CONTROL = "child.customJSControl",
   AUTOCOMPLETE = "child.autocomplete",
   HIDE_EVALUATED_VALUE = "child.hideEvaluatedValue",
+  UPDATE_DATA_TREE_PATH = "child.updateDataTreePath",
 }
 
 export function getParentWithEnhancementFn(
@@ -73,10 +74,10 @@ export function getWidgetEnhancementFn(
   // Get enhancements for the widget type from the config response
   // Spread the config response so that we don't pollute the original
   // configs
-  const { enhancements = {} } = {
-    ...(WidgetConfigResponse as any).config[type],
-  };
-  return get(enhancements, enhancementType, undefined);
+
+  const config = { ...WidgetFactory.widgetConfigMap.get(type) };
+  if (config?.enhancements)
+    return get(config.enhancements, enhancementType, undefined);
 }
 
 // TODO(abhinav): Getting data from the tree may not be needed
@@ -115,7 +116,7 @@ export function* getChildWidgetEnhancementFn(
     if (parentDataFromDataTree) {
       // Update the enhancement function by passing the widget data as the first parameter
       return (...args: unknown[]) =>
-        enhancementFn(parentDataFromDataTree, ...args);
+        (enhancementFn as EnhancementFn)(parentDataFromDataTree, ...args);
     }
   }
 }
@@ -156,21 +157,27 @@ export function useChildWidgetEnhancementFn(
     if (parentDataFromDataTree && enhancementFn) {
       // Update the enhancement function by passing the widget data as the first parameter
       return (...args: unknown[]) =>
-        enhancementFn(parentDataFromDataTree, ...args);
+        (enhancementFn as EnhancementFn)(parentDataFromDataTree, ...args);
     }
   }
 }
 
-type EnhancmentFns = {
-  propertyPaneEnhancmentFn: any;
-  autoCompleteEnhancementFn: any;
-  customJSControlEnhancementFn: any;
-  hideEvaluatedValueEnhancementFn: any;
+// Todo (abhinav): Specify styles here
+type EnhancementFn = (parentProps: any, ...rest: any) => unknown;
+type BoundEnhancementFn = (...rest: any) => unknown;
+
+type EnhancementFns = {
+  updateDataTreePathFn?: BoundEnhancementFn;
+  propertyPaneEnhancementFn?: BoundEnhancementFn;
+  autoCompleteEnhancementFn?: BoundEnhancementFn;
+  customJSControlEnhancementFn?: BoundEnhancementFn;
+  hideEvaluatedValueEnhancementFn?: BoundEnhancementFn;
 };
 
-export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
-  const enhancmentFns = {
-    propertyPaneEnhancmentFn: undefined,
+export function useChildWidgetEnhancementFns(widgetId: string): EnhancementFns {
+  const enhancementFns = {
+    updateDataTreePathFn: undefined,
+    propertyPaneEnhancementFn: undefined,
     autoCompleteEnhancementFn: undefined,
     customJSControlEnhancementFn: undefined,
     hideEvaluatedValueEnhancementFn: undefined,
@@ -189,8 +196,12 @@ export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
   if (parentWithEnhancementFn) {
     // Get the enhancement function based on the enhancementType
     // from the configs
-    const widgetEnhancmentFns = {
-      propertyPaneEnhancmentFn: getWidgetEnhancementFn(
+    const widgetEnhancementFns = {
+      updateDataTreePathFn: getWidgetEnhancementFn(
+        parentWithEnhancementFn.type,
+        WidgetEnhancementType.UPDATE_DATA_TREE_PATH,
+      ),
+      propertyPaneEnhancementFn: getWidgetEnhancementFn(
         parentWithEnhancementFn.type,
         WidgetEnhancementType.PROPERTY_UPDATE,
       ),
@@ -208,16 +219,16 @@ export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
       ),
     };
 
-    Object.keys(widgetEnhancmentFns).map((key: string) => {
-      const enhancementFn = get(widgetEnhancmentFns, `${key}`);
+    Object.keys(widgetEnhancementFns).map((key: string) => {
+      const enhancementFn = get(widgetEnhancementFns, `${key}`);
 
       if (parentDataFromDataTree && enhancementFn) {
-        set(enhancmentFns, `${key}`, (...args: unknown[]) =>
+        set(enhancementFns, `${key}`, (...args: unknown[]) =>
           enhancementFn(parentDataFromDataTree, ...args),
         );
       }
     });
   }
 
-  return enhancmentFns;
+  return enhancementFns;
 }

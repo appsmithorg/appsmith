@@ -10,7 +10,6 @@ import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
   getIsEditorLoading,
   getIsPublishingApplication,
@@ -23,21 +22,33 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
-import { getSelectedWidget } from "selectors/ui";
 import Welcome from "./Welcome";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
-import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
+import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 import history from "utils/history";
+import { fetchPage, updateCurrentPage } from "actions/pageActions";
+
+import { getCurrentPageId } from "selectors/editorSelectors";
+
+import { getSearchQuery } from "utils/helpers";
+import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
+import {
+  collabStartSharingPointerEvent,
+  collabStopSharingPointerEvent,
+} from "actions/appCollabActions";
 
 type EditorProps = {
   currentApplicationId?: string;
-  currentPageId?: string;
-  initEditor: (applicationId: string, pageId: string) => void;
+  currentApplicationName?: string;
+  initEditor: (applicationId: string, pageId: string, branch?: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
@@ -45,10 +56,16 @@ type EditorProps = {
   errorPublishing: boolean;
   creatingOnboardingDatabase: boolean;
   user?: User;
-  selectedWidget?: string;
   lightTheme: Theme;
   resetEditorRequest: () => void;
   handlePathUpdated: (location: typeof window.location) => void;
+  fetchPage: (pageId: string) => void;
+  updateCurrentPage: (pageId: string) => void;
+  handleBranchChange: (branch: string) => void;
+  currentPageId?: string;
+  isPageLevelSocketConnected: boolean;
+  collabStartSharingPointerEvent: (pageId: string) => void;
+  collabStopSharingPointerEvent: (pageId?: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -64,17 +81,45 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
+
     const { applicationId, pageId } = this.props.match.params;
-    if (applicationId && pageId) {
-      this.props.initEditor(applicationId, pageId);
+    if (applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
+
+    if (this.props.isPageLevelSocketConnected && pageId) {
+      this.props.collabStartSharingPointerEvent(pageId);
+    }
+  }
+
+  getIsBranchUpdated(props1: Props, props2: Props) {
+    const {
+      location: { search: search1 },
+    } = props1;
+    const {
+      location: { search: search2 },
+    } = props2;
+
+    const branch1 = getSearchQuery(search1, "branch");
+    const branch2 = getSearchQuery(search2, "branch");
+
+    return branch1 !== branch2;
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, nextProps);
+
     return (
-      nextProps.currentPageId !== this.props.currentPageId ||
+      isBranchUpdated ||
+      nextProps.currentApplicationName !== this.props.currentApplicationName ||
+      nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -84,13 +129,47 @@ class Editor extends Component<Props> {
         this.props.isEditorInitializeError ||
       nextProps.creatingOnboardingDatabase !==
         this.props.creatingOnboardingDatabase ||
-      nextState.registered !== this.state.registered
+      nextState.registered !== this.state.registered ||
+      (nextProps.isPageLevelSocketConnected &&
+        !this.props.isPageLevelSocketConnected)
     );
   }
 
+  componentDidUpdate(prevProps: Props) {
+    const { applicationId, pageId } = this.props.match.params || {};
+    const { pageId: prevPageId } = prevProps.match.params || {};
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
+
+    const branch = getSearchQuery(this.props.location.search, "branch");
+    const prevBranch = getSearchQuery(prevProps.location.search, "branch");
+
+    const isPageIdUpdated = pageId !== prevPageId;
+
+    // to prevent re-init during connect
+    if (prevBranch && isBranchUpdated && applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
+    } else {
+      /**
+       * First time load is handled by init sagas
+       * If we don't check for `prevPageId`: fetch page is retriggered
+       * when redirected to the default page
+       */
+      if (prevPageId && pageId && isPageIdUpdated) {
+        this.props.updateCurrentPage(pageId);
+        this.props.fetchPage(pageId);
+      }
+    }
+
+    if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
+      this.props.collabStartSharingPointerEvent(pageId);
+    }
+  }
+
   componentWillUnmount() {
+    const { pageId } = this.props.match.params || {};
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
+    this.props.collabStopSharingPointerEvent(pageId);
   }
 
   handleHistoryChange = (location: any) => {
@@ -110,7 +189,7 @@ class Editor extends Component<Props> {
       );
     }
     return (
-      <ThemeProvider theme={this.props.lightTheme}>
+      <ThemeProvider theme={theme}>
         <DndProvider
           backend={TouchBackend}
           options={{
@@ -120,11 +199,16 @@ class Editor extends Component<Props> {
           <div>
             <Helmet>
               <meta charSet="utf-8" />
-              <title>Editor | Appsmith</title>
+              <title>
+                {`${this.props.currentApplicationName} |`} Editor | Appsmith
+              </title>
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
-              <AppComments />
+              <AddCommentTourComponent />
+              <CommentShowCaseCarousel />
+              <GitSyncModal />
+              <ConcurrentPageEditorToast />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />
@@ -134,26 +218,34 @@ class Editor extends Component<Props> {
   }
 }
 
+const theme = getTheme(ThemeMode.LIGHT);
+
 const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
-  currentPageId: getCurrentPageId(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
-  selectedWidget: getSelectedWidget(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
-  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  currentApplicationName: state.ui.applications.currentApplication?.name,
+  currentPageId: getCurrentPageId(state),
+  isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string) =>
-      dispatch(initEditor(applicationId, pageId)),
+    initEditor: (applicationId: string, pageId: string, branch?: string) =>
+      dispatch(initEditor(applicationId, pageId, branch)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
+    updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
+    collabStartSharingPointerEvent: (pageId: string) =>
+      dispatch(collabStartSharingPointerEvent(pageId)),
+    collabStopSharingPointerEvent: (pageId?: string) =>
+      dispatch(collabStopSharingPointerEvent(pageId)),
   };
 };
 

@@ -1,11 +1,17 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
-import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
+import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "components/utils/Skeleton";
+
+const SnippetDescription = lazy(() =>
+  retryPromise(() => import("./SnippetsDescription")),
+);
 
 type Props = {
   activeItem: SearchItem;
@@ -15,9 +21,11 @@ type Props = {
 };
 
 const Container = styled.div`
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
+  margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+  background: white;
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
@@ -33,15 +41,30 @@ const Container = styled.div`
   }
 
   h1 {
-    ${(props) => getTypographyByKey(props, "largeH1")};
+    ${(props) => getTypographyByKey(props, "docHeader")}
     word-break: break-word;
+  }
+
+  h2,
+  h3 {
+    ${(props) => getTypographyByKey(props, "h5")}
+    font-weight: 600;
   }
 
   h1,
   h2,
   h3,
   strong {
-    color: #fff;
+    color: #484848;
+  }
+
+  table {
+    th:nth-child(1) {
+      width: 150px;
+    }
+    th:nth-child(2) {
+      width: 300px;
+    }
   }
 
   .documentation-cta {
@@ -54,6 +77,7 @@ const Container = styled.div`
     margin: 0 ${(props) => props.theme.spaces[2]}px;
     position: relative;
     bottom: 3px;
+    float: right;
   }
 
   & a {
@@ -62,46 +86,84 @@ const Container = styled.div`
 
   code {
     word-break: break-word;
-    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
-    padding: ${(props) => props.theme.spaces[2]}px;
+    font-size: 12px;
   }
 
   pre {
-    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
+    background: ${(props) =>
+      props.theme.colors.globalSearch.documentationCodeBackground} !important;
     white-space: pre-wrap;
     overflow: hidden;
-    padding: ${(props) => props.theme.spaces[6]}px;
+    border-left: 3px solid #f86a2b;
+    padding: 12px;
+  }
+  .CodeMirror {
+    pre {
+      background: transparent !important;
+    }
   }
 `;
 
-const DocumentationDescription = ({ item }: { item: SearchItem }) => {
-  try {
-    const {
-      _highlightResult: {
-        document: { value: rawDocument },
-        title: { value: rawTitle },
-      },
-    } = item;
-    const content = parseDocumentationContent({
-      rawDocument: rawDocument,
-      rawTitle: rawTitle,
-      path: item.path,
-    });
+function DocumentationDescription({
+  item,
+  query,
+}: {
+  item: SearchItem;
+  query: string;
+}) {
+  const {
+    _highlightResult: {
+      document: { value: rawDocument },
+      title: { value: rawTitle },
+    },
+  } = item;
+  const content = parseDocumentationContent({
+    rawDocument: rawDocument,
+    rawTitle: rawTitle,
+    path: item.path,
+    query,
+  });
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scrollToMatchedValue();
+  }, [content]);
 
-    return content ? (
-      <div dangerouslySetInnerHTML={{ __html: content }} />
-    ) : null;
-  } catch (e) {
-    return null;
-  }
-};
+  const scrollToMatchedValue = () => {
+    const root = containerRef.current;
+    if (!root) return;
+    const list = root.getElementsByTagName(algoliaHighlightTag);
+    if (list.length) {
+      const bestMatch = Array.from(list).reduce((accumulator, currentValue) => {
+        if (
+          currentValue.textContent &&
+          accumulator.textContent &&
+          currentValue.textContent.length > accumulator.textContent.length
+        )
+          return currentValue;
+        return accumulator;
+      }, list[0]);
+
+      bestMatch.scrollIntoView();
+    } else {
+      setTimeout(() => {
+        root.firstElementChild?.scrollIntoView();
+      }, 0);
+    }
+  };
+
+  return content ? (
+    <div dangerouslySetInnerHTML={{ __html: content }} ref={containerRef} />
+  ) : null;
+}
 
 const StyledHitEnterMessageContainer = styled.div`
   background: ${(props) =>
     props.theme.colors.globalSearch.navigateUsingEnterSection};
   padding: ${(props) =>
     `${props.theme.spaces[6]}px ${props.theme.spaces[3]}px`};
-  ${(props) => getTypographyByKey(props, "p3")}
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.snippets.codeContainerBorder};
+  ${(props) => getTypographyByKey(props, "p3")};
 `;
 
 const StyledKey = styled.span`
@@ -130,40 +192,35 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
   );
 }
 
+function LazySnippetDescription(props: any) {
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <SnippetDescription {...props} />
+    </Suspense>
+  );
+}
+
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
+  [SEARCH_ITEM_TYPES.jsAction]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.widget]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.datasource]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.page]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
+  [SEARCH_ITEM_TYPES.category]: () => null,
+  [SEARCH_ITEM_TYPES.snippet]: LazySnippetDescription,
 };
 
 function Description(props: Props) {
   const { activeItem, activeItemType } = props;
-  const containerRef = React.useRef<HTMLDivElement>(null);
-
-  const onScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (
-      props.scrollPositionRef?.current ||
-      props.scrollPositionRef?.current === 0
-    ) {
-      props.scrollPositionRef.current = (e.target as HTMLDivElement).scrollTop;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = props.scrollPositionRef?.current;
-    }
-  }, [containerRef.current, activeItem]);
 
   if (!activeItemType || !activeItem) return null;
   const Component = descriptionByType[activeItemType];
 
   return (
-    <Container onScroll={onScroll} ref={containerRef}>
+    <Container>
       <Component item={activeItem} query={props.query} />
     </Container>
   );

@@ -1,4 +1,4 @@
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 
@@ -8,7 +8,7 @@ export const RESIZABLE_CONTAINER_BORDER_THEME_INDEX = 1;
 
 export const computeRowCols = (
   delta: UIElementSize,
-  position: XYCoord,
+  position: XYCord,
   props: WidgetProps,
 ) => {
   return {
@@ -51,7 +51,7 @@ export const hasRowColsChanged = (
 
 export const computeFinalRowCols = (
   delta: UIElementSize,
-  position: XYCoord,
+  position: XYCord,
   props: WidgetProps,
 ): WidgetRowCols | false => {
   const newRowCols = computeBoundedRowCols(

@@ -2,19 +2,22 @@ const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const pages = require("../../../../locators/Pages.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 
 describe("Page Load tests", () => {
   before(() => {
     cy.addDsl(dsl);
-    cy.get("div")
-      .contains("Pages")
-      .next()
-      .next()
+    cy.get(explorerLocators.AddPage)
+      .first()
       .click();
+
+    cy.skipGenerateCRUDPage();
+
     cy.get("h2").contains("Drag and drop a widget here");
-    cy.addDsl(dsl);
   });
   it("Published page loads correctly", () => {
+    //add page within page
+    cy.addDsl(dsl);
     // Update the text to be asserted later
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");

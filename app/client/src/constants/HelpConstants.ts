@@ -1,4 +1,8 @@
-export const HelpMap = {
+export const HelpMap: Record<string, { path: string; searchKey: string }> = {
+  AUDIO_WIDGET: {
+    path: "/widget-reference/audio",
+    searchKey: "Audio",
+  },
   CONTAINER_WIDGET: {
     path: "/widget-reference/container",
     searchKey: "Container",
@@ -63,6 +67,10 @@ export const HelpMap = {
     path: "/widget-reference/filepicker",
     searchKey: "File picker",
   },
+  FILE_PICKER_WIDGET_V2: {
+    path: "/widget-reference/filepicker",
+    searchKey: "File picker",
+  },
   FORM_BUTTON_WIDGET: {
     path: "",
     searchKey: "",
@@ -114,6 +122,50 @@ export const HelpMap = {
   SWITCH_WIDGET: {
     path: "/widget-reference/switch",
     searchKey: "Switch",
+  },
+  MULTI_SELECT_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
+  RATE_WIDGET: {
+    path: "/widget-reference/rate",
+    searchKey: "Rate",
+  },
+  IFRAME_WIDGET: {
+    path: "/widget-reference/iframe",
+    searchKey: "Iframe",
+  },
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
+  },
+  MENU_BUTTON_WIDGET: {
+    path: "/widget-reference/menu-button",
+    searchKey: "Menu Button",
+  },
+  TREE_MULTI_SELECT_WIDGET: {
+    path: "/widget-reference/tree-multi-select",
+    searchKey: "Tree Multi Select",
+  },
+  TREE_SINGLE_SELECT_WIDGET: {
+    path: "/widget-reference/tree-single-select",
+    searchKey: "Tree Single Select",
+  },
+  ICON_BUTTON_WIDGET: {
+    path: "/widget-reference/icon-button",
+    searchKey: "Icon Button",
+  },
+  STATBOX_WIDGET: {
+    path: "/widget-reference/statbox",
+    searchKey: "Stat Box",
+  },
+  CHECKBOX_GROUP_WIDGET: {
+    path: "/widget-reference/checkbox-group",
+    searchKey: "Checkbox Group",
+  },
+  AUDIO_RECORDER_WIDGET: {
+    path: "/widget-reference/audio-recorder",
+    searchKey: "Audio Recorder",
   },
 };
 

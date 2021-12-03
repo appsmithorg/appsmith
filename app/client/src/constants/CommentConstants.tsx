@@ -5,4 +5,5 @@ export const COMMENT_EVENTS = {
   INSERT_COMMENT_THREAD: "insert:commentThread",
   INSERT_COMMENT: "insert:comment",
   UPDATE_COMMENT_THREAD: "update:commentThread",
+  UPDATE_COMMENT: "update:comment",
 };

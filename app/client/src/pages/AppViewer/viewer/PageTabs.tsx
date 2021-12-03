@@ -2,21 +2,20 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
-import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 
-const TabsContainer = styled.div`
-  width: 100%;
-  display: flex;
-  overflow: auto;
-  ${hideScrollbar}
-`;
+import { getAppMode } from "selectors/applicationSelectors";
+import { useSelector } from "react-redux";
+
+import { trimQueryString } from "utils/helpers";
+import { getPageURL } from "utils/AppsmithUtils";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -55,10 +54,13 @@ const StyleTabText = styled.div`
   color: ${(props) => props.theme.colors.header.tabText};
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
   & span {
+    height: 100%;
     max-width: 138px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
   }
   ${PageTab}.is-active & {
     color: ${(props) => props.theme.colors.header.activeTabText};
@@ -68,22 +70,14 @@ const StyleTabText = styled.div`
   }
 `;
 
-const CenterTabNameContainer = styled.div`
-  position: relative;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 function PageTabName({ name }: { name: string }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
-      <CenterTabNameContainer>
+      <div className="relative flex items-center justify-center flex-grow">
         <span ref={tabNameRef}>{name}</span>
-      </CenterTabNameContainer>
+      </div>
       <StyledBottomBorder />
     </StyleTabText>
   );
@@ -132,7 +126,7 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: ApplicationPayload;
+  currentApplicationDetails?: CurrentApplicationData;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
@@ -142,16 +136,28 @@ type Props = {
 export function PageTabs(props: Props) {
   const { appPages, currentApplicationDetails } = props;
   const { pathname } = useLocation();
+  const location = useLocation();
+  const appMode = useSelector(getAppMode);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setQuery(window.location.search);
+  }, [location]);
 
   return (
-    <TabsContainer ref={props.measuredTabsRef}>
+    <div
+      className="flex w-full overflow-auto scrollbar-none"
+      ref={props.measuredTabsRef}
+    >
       {appPages.map((page) => (
         <PageTabContainer
           isTabActive={
             pathname ===
-            getApplicationViewerPageURL(
-              currentApplicationDetails?.id,
-              page.pageId,
+            trimQueryString(
+              getApplicationViewerPageURL({
+                applicationId: currentApplicationDetails?.id,
+                pageId: page.pageId,
+              }),
             )
           }
           key={page.pageId}
@@ -161,16 +167,16 @@ export function PageTabs(props: Props) {
           <PageTab
             activeClassName="is-active"
             className="t--page-switch-tab"
-            to={getApplicationViewerPageURL(
-              currentApplicationDetails?.id,
-              page.pageId,
-            )}
+            to={{
+              pathname: getPageURL(page, appMode, currentApplicationDetails),
+              search: query,
+            }}
           >
             <PageTabName name={page.pageName} />
           </PageTab>
         </PageTabContainer>
       ))}
-    </TabsContainer>
+    </div>
   );
 }
 

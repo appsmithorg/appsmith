@@ -10,3 +10,5 @@ export const getUsers = (state: AppState): User[] => state.ui.users.users;
 export const getProppanePreference = (
   state: AppState,
 ): PropertyPanePositionConfig | undefined => state.ui.users.propPanePreferences;
+export const getFeatureFlagsFetched = (state: AppState) =>
+  state.ui.users.featureFlagFetched;

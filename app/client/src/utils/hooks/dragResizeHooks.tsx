@@ -1,16 +1,20 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  focusWidget,
-  selectAllWidgets,
-  selectWidget,
-} from "actions/widgetActions";
 import { useCallback, useEffect, useState } from "react";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
+
+  // TODO(abhinav/Satish): Performance bottleneck
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
+      // Don't show property pane in comment mode
+      if (isCommentMode || isSnipingMode) return;
+
       dispatch(
         // If widgetId is not provided, we don't show the property pane.
         // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
@@ -26,7 +30,35 @@ export const useShowPropertyPane = () => {
         },
       );
     },
-    [dispatch],
+    [dispatch, isCommentMode, isSnipingMode],
+  );
+};
+
+export const useShowTableFilterPane = () => {
+  const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
+
+  return useCallback(
+    (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
+      // Don't show property pane in comment mode
+      if (isCommentMode) return;
+
+      dispatch(
+        // If widgetId is not provided, we don't show the table filter pane.
+        // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
+        // callForDragOrResize payload is handled in SHOW_TABLE_FILTER_PANE action.
+        // Ergo, when either widgetId or callForDragOrResize are provided, SHOW_TABLE_FILTER_PANE
+        // Else, HIDE_TABLE_FILTER_PANE
+        {
+          type:
+            widgetId || callForDragOrResize
+              ? ReduxActionTypes.SHOW_TABLE_FILTER_PANE
+              : ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
+          payload: { widgetId, callForDragOrResize, force },
+        },
+      );
+    },
+    [dispatch, isCommentMode],
   );
 };
 
@@ -63,27 +95,36 @@ export const useCanvasSnapRowsUpdateHook = () => {
   return updateCanvasSnapRows;
 };
 
-export const useWidgetSelection = () => {
+export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
+  // TODO(abhinav/Satish): Performance bottleneck
   return {
-    selectWidget: useCallback(
-      (widgetId?: string, isMultiSelect?: boolean) => {
-        dispatch(selectWidget(widgetId, isMultiSelect));
+    setDraggingNewWidget: useCallback(
+      (isDragging: boolean, newWidgetProps: any) => {
+        if (isDragging) {
+          document.body.classList.add("dragging");
+        } else {
+          document.body.classList.remove("dragging");
+        }
+        dispatch({
+          type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING,
+          payload: { isDragging, newWidgetProps },
+        });
       },
       [dispatch],
     ),
-    focusWidget: useCallback(
-      (widgetId?: string) => dispatch(focusWidget(widgetId)),
-      [dispatch],
-    ),
-    deselectAll: useCallback(() => dispatch(selectAllWidgets([])), [dispatch]),
-  };
-};
-export const useWidgetDragResize = () => {
-  const dispatch = useDispatch();
-  return {
-    setIsDragging: useCallback(
-      (isDragging: boolean) => {
+    setDraggingState: useCallback(
+      ({
+        isDragging,
+        dragGroupActualParent = "",
+        draggingGroupCenter = {},
+        startPoints,
+      }: {
+        isDragging: boolean;
+        dragGroupActualParent?: string;
+        draggingGroupCenter?: Record<string, any>;
+        startPoints?: any;
+      }) => {
         if (isDragging) {
           document.body.classList.add("dragging");
         } else {
@@ -91,7 +132,23 @@ export const useWidgetDragResize = () => {
         }
         dispatch({
           type: ReduxActionTypes.SET_WIDGET_DRAGGING,
-          payload: { isDragging },
+          payload: {
+            isDragging,
+            dragGroupActualParent,
+            draggingGroupCenter,
+            startPoints,
+          },
+        });
+      },
+      [dispatch],
+    ),
+    setDraggingCanvas: useCallback(
+      (draggedOn?: string) => {
+        dispatch({
+          type: ReduxActionTypes.SET_DRAGGING_CANVAS,
+          payload: {
+            draggedOn,
+          },
         });
       },
       [dispatch],

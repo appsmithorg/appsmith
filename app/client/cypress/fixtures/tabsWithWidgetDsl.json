@@ -1,0 +1,208 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 16,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1280,
+        "containerStyle": "none",
+        "snapRows": 33,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 18,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "dynamicTriggerPathList": [],
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "shouldScrollContents": false,
+                "widgetName": "Tabs1",
+                "tabsObj": {
+                    "tab1": {
+                        "label": "Tab 1",
+                        "id": "tab1",
+                        "widgetId": "78u8fmjgom",
+                        "isVisible": true,
+                        "index": 0
+                    },
+                    "tab2": {
+                        "label": "Tab 2",
+                        "id": "tab2",
+                        "widgetId": "tch1asw4ti",
+                        "isVisible": true,
+                        "index": 1
+                    }
+                },
+                "shouldShowTabs": true,
+                "defaultTab": "Tab 1",
+                "version": 2,
+                "type": "TABS_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 57.875,
+                "parentRowSpace": 40,
+                "leftColumn": 3,
+                "rightColumn": 15,
+                "topRow": 1,
+                "bottomRow": 10,
+                "parentId": "0",
+                "widgetId": "wqb436vlj8",
+                "children": [
+                    {
+                        "type": "CANVAS_WIDGET",
+                        "tabId": "tab1",
+                        "tabName": "Tab 1",
+                        "widgetId": "78u8fmjgom",
+                        "parentId": "wqb436vlj8",
+                        "detachFromLayout": true,
+                        "children": [
+                            {
+                                "isVisible": true,
+                                "isDisabled": false,
+                                "datePickerType": "DATE_PICKER",
+                                "label": "",
+                                "dateFormat": "YYYY-MM-DD HH:mm",
+                                "widgetName": "DatePicker1",
+                                "defaultDate": "2021-05-09T10:22:42.862Z",
+                                "version": 2,
+                                "isRequired": false,
+                                "type": "DATE_PICKER_WIDGET2",
+                                "isLoading": false,
+                                "parentColumnSpace": 40.90625,
+                                "parentRowSpace": 40,
+                                "leftColumn": 2,
+                                "rightColumn": 7,
+                                "topRow": 0,
+                                "bottomRow": 1,
+                                "parentId": "78u8fmjgom",
+                                "widgetId": "opw72wgf4p"
+                            },
+                            {
+                                "isVisible": true,
+                                "text": "Label",
+                                "fontSize": "PARAGRAPH",
+                                "fontStyle": "BOLD",
+                                "textAlign": "LEFT",
+                                "textColor": "#231F20",
+                                "widgetName": "Text1",
+                                "version": 1,
+                                "type": "TEXT_WIDGET",
+                                "isLoading": false,
+                                "parentColumnSpace": 40.90625,
+                                "parentRowSpace": 40,
+                                "leftColumn": 2,
+                                "rightColumn": 6,
+                                "topRow": 2,
+                                "bottomRow": 3,
+                                "parentId": "78u8fmjgom",
+                                "widgetId": "vnm91359up"
+                            },
+                            {
+                                "isVisible": true,
+                                "text": "Submit",
+                                "buttonStyle": "PRIMARY_BUTTON",
+                                "widgetName": "Button1",
+                                "isDisabled": false,
+                                "isDefaultClickDisabled": true,
+                                "version": 1,
+                                "type": "BUTTON_WIDGET",
+                                "isLoading": false,
+                                "parentColumnSpace": 40.90625,
+                                "parentRowSpace": 40,
+                                "leftColumn": 3,
+                                "rightColumn": 5,
+                                "topRow": 4,
+                                "bottomRow": 5,
+                                "parentId": "78u8fmjgom",
+                                "widgetId": "lu7vjd5tq3"
+                            }
+                        ],
+                        "parentRowSpace": 1,
+                        "parentColumnSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 463,
+                        "topRow": 0,
+                        "bottomRow": 280,
+                        "isLoading": false,
+                        "widgetName": "Canvas1",
+                        "renderMode": "CANVAS"
+                    },
+                    {
+                        "type": "CANVAS_WIDGET",
+                        "tabId": "tab2",
+                        "tabName": "Tab 2",
+                        "widgetId": "tch1asw4ti",
+                        "parentId": "wqb436vlj8",
+                        "detachFromLayout": true,
+                        "children": [
+                            {
+                                "isVisible": true,
+                                "label": "Label",
+                                "defaultCheckedState": true,
+                                "widgetName": "Checkbox1",
+                                "version": 1,
+                                "alignWidget": "LEFT",
+                                "isDisabled": false,
+                                "isRequired": false,
+                                "type": "CHECKBOX_WIDGET",
+                                "isLoading": false,
+                                "parentColumnSpace": 40.90625,
+                                "parentRowSpace": 40,
+                                "leftColumn": 3,
+                                "rightColumn": 6,
+                                "topRow": 0,
+                                "bottomRow": 1,
+                                "parentId": "tch1asw4ti",
+                                "widgetId": "l7ahbr0vww"
+                            },
+                            {
+                                "isVisible": true,
+                                "label": "",
+                                "options": [
+                                    {
+                                        "label": "Yes",
+                                        "value": "Y"
+                                    },
+                                    {
+                                        "label": "No",
+                                        "value": "N"
+                                    }
+                                ],
+                                "defaultOptionValue": "Y",
+                                "widgetName": "RadioGroup1",
+                                "version": 1,
+                                "isRequired": false,
+                                "isDisabled": false,
+                                "type": "RADIO_GROUP_WIDGET",
+                                "isLoading": false,
+                                "parentColumnSpace": 40.90625,
+                                "parentRowSpace": 40,
+                                "leftColumn": 8,
+                                "rightColumn": 11,
+                                "topRow": 0,
+                                "bottomRow": 2,
+                                "parentId": "tch1asw4ti",
+                                "widgetId": "k4vwuehj29"
+                            }
+                        ],
+                        "parentRowSpace": 1,
+                        "parentColumnSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 463,
+                        "topRow": 0,
+                        "bottomRow": 160,
+                        "isLoading": false,
+                        "widgetName": "Canvas2",
+                        "renderMode": "CANVAS"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -7,17 +7,17 @@ import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import Button, { Size } from "components/ads/Button";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { Indices } from "constants/Layers";
 
 const SubHeaderWrapper = styled.div`
-  width: 100%;
+  width: 250px;
   display: flex;
   justify-content: space-between;
   position: fixed;
-  padding-top: 30px;
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: ${(props) => props.theme.homePage.header}px;
-  left: 369px;
-  z-index: 10;
+  top: 2px;
+  left: ${(props) => props.theme.homePage.sidebar + 24}px;
+  z-index: ${Indices.Layer9};
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
@@ -46,6 +46,7 @@ type SubHeaderProps = {
     placeholder: string;
     debounce?: boolean;
     queryFn?: (keyword: string) => void;
+    defaultValue?: string;
   };
 };
 
@@ -66,10 +67,11 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
           <ControlGroup>
             <SearchInput
               cypressSelector={"t--application-search-input"}
+              defaultValue={props.search.defaultValue}
               disabled={isFetchingApplications}
               onChange={query || noop}
               placeholder={props.search.placeholder}
-              variant={SearchVariant.SEAMLESS}
+              variant={SearchVariant.BACKGROUND}
             />
           </ControlGroup>
         )}

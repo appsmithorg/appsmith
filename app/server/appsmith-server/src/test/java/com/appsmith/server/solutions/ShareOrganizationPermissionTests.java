@@ -5,7 +5,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
@@ -247,7 +247,7 @@ public class ShareOrganizationPermissionTests {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction1 = layoutActionService.createAction(action1).block();
+        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1).block();
 
         ActionDTO action2 = new ActionDTO();
         action2.setName("Invite Cancellation Test action2");
@@ -255,7 +255,7 @@ public class ShareOrganizationPermissionTests {
         action2.setDatasource(savedDatasource);
         action2.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction2 = layoutActionService.createAction(action2).block();
+        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2).block();
 
         ActionDTO action3 = new ActionDTO();
         action3.setName("Invite Cancellation Test action3");
@@ -263,7 +263,7 @@ public class ShareOrganizationPermissionTests {
         action3.setDatasource(savedDatasource);
         action3.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction3 = layoutActionService.createAction(action3).block();
+        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setOrgId(savedOrganization.getId());

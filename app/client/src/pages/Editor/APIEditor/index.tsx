@@ -3,8 +3,7 @@ import { connect } from "react-redux";
 import { submit } from "redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
-import ApiHomeScreen from "./ApiHomeScreen";
-import { deleteAction, runActionInit } from "actions/actionActions";
+import { deleteAction, runAction } from "actions/pluginActionActions";
 import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
@@ -18,6 +17,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getActionById,
+  getCurrentApplicationId,
   getCurrentPageName,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
@@ -25,7 +25,7 @@ import { Plugin } from "api/PluginApi";
 import { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
 import PerformanceTracker, {
@@ -33,7 +33,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { CurrentApplicationData } from "constants/ReduxActionConstants";
 import { getPluginSettingConfigs } from "selectors/entitiesSelector";
 import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
@@ -48,7 +48,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];
@@ -57,6 +57,7 @@ interface ReduxStateProps {
   apiAction: Action | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
   isEditorInitialized: boolean;
+  applicationId: string;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -70,9 +71,14 @@ function getPageName(pages: any, pageId: string) {
   return page ? page.pageName : "";
 }
 
+function getPackageNameFromPluginId(pluginId: string, plugins: Plugin[]) {
+  const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
+  return plugin?.packageName;
+}
+
 type Props = ReduxActionProps &
   ReduxStateProps &
-  RouteComponentProps<{ apiId: string; applicationId: string; pageId: string }>;
+  RouteComponentProps<{ apiId: string; pageId: string }>;
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount() {
@@ -182,77 +188,65 @@ class ApiEditor extends React.Component<Props> {
       }
     }
 
-    const apiHomeScreen = (
-      <ApiHomeScreen
-        applicationId={this.props.match.params.applicationId}
-        history={this.props.history}
-        location={this.props.location}
-        match={this.props.match}
-        pageId={this.props.match.params.pageId}
-      />
-    );
     return (
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-        }}
-      >
-        {apiId ? (
-          <>
-            {formUiComponent === "ApiEditorForm" && (
-              <ApiEditorForm
-                apiName={this.props.apiName}
-                appName={
-                  this.props.currentApplication
-                    ? this.props.currentApplication.name
-                    : ""
-                }
-                isDeleting={isDeleting}
-                isRunning={isRunning}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
-                paginationType={paginationType}
-                pluginId={pluginId}
-                settingsConfig={this.props.settingsConfig}
-              />
-            )}
-
-            {formUiComponent === "RapidApiEditorForm" && (
-              <RapidApiEditorForm
-                apiId={this.props.match.params.apiId}
-                apiName={this.props.apiName}
-                appName={
-                  this.props.currentApplication
-                    ? this.props.currentApplication.name
-                    : ""
-                }
-                isDeleting={isDeleting}
-                isRunning={isRunning}
-                location={this.props.location}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
-                paginationType={paginationType}
-              />
-            )}
-
-            {formUiComponent === "SaaSEditorForm" &&
-              history.push(
-                SAAS_EDITOR_API_ID_URL(
-                  this.props.match.params.applicationId,
-                  this.props.match.params.pageId,
-                  this.props.plugins[this.props.pluginId]?.packageName ?? "",
-                  this.props.match.params.apiId,
-                ),
-              )}
-          </>
-        ) : (
-          apiHomeScreen
+      <div style={formStyles}>
+        {formUiComponent === "ApiEditorForm" && (
+          <ApiEditorForm
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+            pluginId={pluginId}
+            settingsConfig={this.props.settingsConfig}
+          />
         )}
+        {formUiComponent === "RapidApiEditorForm" && (
+          <RapidApiEditorForm
+            apiId={this.props.match.params.apiId}
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            location={this.props.location}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+          />
+        )}
+        {formUiComponent === "SaaSEditorForm" &&
+          history.push(
+            SAAS_EDITOR_API_ID_URL(
+              this.props.applicationId,
+              this.props.match.params.pageId,
+              getPackageNameFromPluginId(
+                this.props.pluginId,
+                this.props.plugins,
+              ) ?? "",
+              this.props.match.params.apiId,
+            ),
+          )}
       </div>
     );
   }
 }
+
+const formStyles: CSSProperties = {
+  position: "relative",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+};
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
@@ -275,13 +269,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: isDeleting[props.match.params.apiId],
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   runAction: (id: string, paginationField?: PaginationField) =>
-    dispatch(runActionInit(id, paginationField)),
+    dispatch(runAction(id, paginationField)),
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   changeAPIPage: (actionId: string, isSaas: boolean) =>

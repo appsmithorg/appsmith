@@ -3,7 +3,7 @@ import { DocSearchItem } from "./utils";
 export const defaultDocsConfig = [
   {
     link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/tutorial-1/README.md",
+      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/tutorials/building-a-store-catalog-manager/README.md",
     title: "Tutorial",
     path: "master/tutorial-1",
     kind: "document",

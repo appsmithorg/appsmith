@@ -1,13 +1,12 @@
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _ from "lodash";
 import { DynamicPath, isDynamicValue } from "utils/DynamicBindingUtils";
+import { DSLWidget } from "widgets/constants";
 
 export const migrateIncorrectDynamicBindingPathLists = (
-  currentDSL: Readonly<ContainerWidgetProps<WidgetProps>>,
-): ContainerWidgetProps<WidgetProps> => {
+  currentDSL: Readonly<DSLWidget>,
+): DSLWidget => {
   const migratedDsl = {
     ...currentDSL,
   };

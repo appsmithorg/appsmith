@@ -1,4 +1,5 @@
 import React, { ChangeEvent } from "react";
+import ReactDOM from "react-dom";
 import {
   BaseFieldProps,
   change,
@@ -9,6 +10,7 @@ import {
 import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";
+import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
@@ -25,6 +27,7 @@ import {
   EditorTheme,
   TabBehaviour,
   EditorSize,
+  HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
@@ -37,6 +40,13 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { TextType } from "components/ads/Text";
 import history from "utils/history";
+import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
+import * as FontFamilies from "constants/Fonts";
+import { getQueryParams } from "../../../../utils/AppsmithUtils";
+import { AuthType } from "entities/Datasource/RestAPIForm";
+import { setDatsourceEditorMode } from "actions/datasourceActions";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ReduxStateProps = {
   orgId: string;
@@ -48,6 +58,7 @@ type ReduxStateProps = {
 
 type ReduxDispatchProps = {
   updateDatasource: (datasource: Datasource | EmbeddedRestDatasource) => void;
+  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
 };
 
 type Props = EditorProps &
@@ -60,8 +71,66 @@ type Props = EditorProps &
 const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
-  width: calc(100% - 155px);
+  align-items: center;
+  .t--datasource-editor {
+    background-color: transparent;
+    .cm-s-duotone-light.CodeMirror {
+      background: transparent;
+    }
+  }
 `;
+
+const hintContainerStyles: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  fontFamily: `${FontFamilies.TextFonts}`,
+};
+
+const mainContainerStyles: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  marginBottom: "6px",
+};
+
+const datasourceNameStyles: React.CSSProperties = {
+  fontSize: "14px",
+  fontWeight: 500,
+  color: "#090707",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+const datasourceInfoStyles: React.CSSProperties = {
+  color: "#716262",
+  fontWeight: 400,
+  fontSize: "14px",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+const italicInfoStyles = {
+  ...datasourceInfoStyles,
+  color: "#000000",
+  flexShrink: 0,
+  fontStyle: "italic",
+};
+
+//Avoiding styled components since ReactDOM.render cannot directly work with it
+function CustomHint(props: { datasource: Datasource }) {
+  return (
+    <div style={hintContainerStyles}>
+      <div style={mainContainerStyles}>
+        <span style={datasourceNameStyles}>{props.datasource.name}</span>
+        <span style={italicInfoStyles}>
+          {getDatasourceInfo(props.datasource)}
+        </span>
+      </div>
+      <span style={datasourceInfoStyles}>
+        {get(props.datasource, "datasourceConfiguration.url")}
+      </span>
+    </div>
+  );
+}
 
 const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
@@ -105,7 +174,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
-      const datasourceUrl = datasource.datasourceConfiguration.url;
+      const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -144,6 +213,22 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
   handleDatasourceHighlight = () => {
     const { datasource } = this.props;
+    const authType = get(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationType",
+      "",
+    );
+
+    const hasError = !get(datasource, "isValid", true);
+
+    let className = "datasource-highlight";
+
+    if (authType === AuthType.OAuth2) {
+      className = `${className} ${
+        hasError ? "datasource-highlight-error" : "datasource-highlight-success"
+      }`;
+    }
+
     return (editorInstance: CodeMirror.Doc) => {
       if (
         editorInstance.lineCount() === 1 &&
@@ -151,12 +236,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         "id" in datasource &&
         datasource.id
       ) {
-        const end = datasource.datasourceConfiguration.url.length;
+        const end = get(datasource, "datasourceConfiguration.url", "").length;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
           {
-            className: "datasource-highlight",
+            className,
             atomic: true,
             inclusiveRight: false,
           },
@@ -165,11 +250,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
-  handleDatasourceHint = () => {
+  handleDatasourceHint = (): HintHelper => {
     const { datasourceList } = this.props;
     return () => {
       return {
-        trigger: (editor: CodeMirror.Editor) => {
+        showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
           if (
@@ -181,17 +266,23 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               completeSingle: false,
               hint: () => {
                 const list = datasourceList
-                  .filter((datasource) =>
+                  .filter((datasource: Datasource) =>
                     (datasource.datasourceConfiguration?.url || "").includes(
                       parsed.datasourceUrl,
                     ),
                   )
-                  .map((datasource) => ({
+                  .map((datasource: Datasource) => ({
                     text: datasource.datasourceConfiguration.url,
                     data: datasource,
                     className: !datasource.isValid
-                      ? "datasource-hint invalid"
-                      : "datasource-hint",
+                      ? "datasource-hint custom invalid"
+                      : "datasource-hint custom",
+                    render: (element: HTMLElement, self: any, data: any) => {
+                      ReactDOM.render(
+                        <CustomHint datasource={data.data} />,
+                        element,
+                      );
+                    },
                   }));
                 const hints = {
                   list,
@@ -208,11 +299,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                 return hints;
               },
             });
+            return true;
           }
+          return false;
         },
-        showHint: () => {
-          return;
-        },
+        fireOnFocus: true,
       };
     };
   };
@@ -245,23 +336,30 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <DatasourceContainer>
-        <CodeEditor {...props} />
-        {datasource && !("id" in datasource) ? (
+        <CodeEditor
+          {...props}
+          border={CodeEditorBorder.ALL_SIDE}
+          className="t--datasource-editor"
+          height="35px"
+        />
+        {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon
             enable
-            onClick={() =>
+            onClick={() => {
+              this.props.setDatasourceEditorMode(datasource.id, false);
               history.push(
                 DATA_SOURCES_EDITOR_ID_URL(
                   this.props.applicationId,
                   this.props.currentPageId,
                   datasource.id,
+                  getQueryParams(),
                 ),
-              )
-            }
+              );
+            }}
           >
-            <Icon name="edit" size={IconSize.LARGE} />
+            <Icon name="edit-line" size={IconSize.XXL} />
             <Text type={TextType.P1}>Edit Datasource</Text>
           </DatasourceIcon>
         ) : null}
@@ -297,13 +395,15 @@ const mapStateToProps = (
       (d) => d.pluginId === ownProps.pluginId,
     ),
     currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) =>
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
+  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
+    dispatch(setDatsourceEditorMode({ id, viewMode })),
 });
 
 const EmbeddedDatasourcePathConnectedComponent = connect(

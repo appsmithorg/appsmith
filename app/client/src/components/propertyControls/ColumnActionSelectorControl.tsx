@@ -10,7 +10,7 @@ import { InputText } from "components/propertyControls/InputTextControl";
 import { ActionCreator } from "components/editorComponents/ActionCreator";
 import { Size, Category } from "components/ads/Button";
 export interface ColumnAction {
-  label: string;
+  label?: string;
   id: string;
   dynamicTrigger: string;
 }
@@ -52,24 +52,21 @@ class ColumnActionSelectorControl extends BaseControl<
                 <InputTextWrapper>
                   <InputText
                     evaluatedValue={columnAction.label}
-                    isValid
-                    label={columnAction.label}
+                    label={columnAction.label || ""}
                     onChange={this.updateColumnActionLabel.bind(
                       this,
                       columnAction,
                     )}
                     theme={this.props.theme}
-                    value={columnAction.label}
+                    value={columnAction.label as string}
                   />
                 </InputTextWrapper>
                 <Wrapper>
                   <ActionCreator
-                    isValid={(columnAction as any).isValid}
                     onValueChange={this.updateColumnActionFunction.bind(
                       this,
                       columnAction,
                     )}
-                    validationMessage={(columnAction as any).message}
                     value={columnAction.dynamicTrigger}
                   />
                 </Wrapper>

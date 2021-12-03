@@ -1,23 +1,25 @@
-import React from "react";
+import React, { useContext } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import { InputType } from "widgets/InputWidget";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import { InputType } from "components/constants";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 
 export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
-  isValid: boolean;
-  errorMessage?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
@@ -26,32 +28,32 @@ export function InputText(props: {
 }) {
   const {
     dataTreePath,
-    errorMessage,
     evaluatedValue,
     expected,
     hideEvaluatedValue,
-    isValid,
     onChange,
     placeholder,
     value,
   } = props;
 
+  //subscribing to context to help re-render component on Property section open or close
+  const isOpen = useContext(CollapseContext);
+
   return (
     <StyledDynamicInput>
       <CodeEditor
         additionalDynamicData={props.additionalAutocomplete}
+        border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
+        hoverInteraction
         input={{
           value: value,
           onChange: onChange,
         }}
-        meta={{
-          error: isValid ? "" : errorMessage,
-          touched: true,
-        }}
+        isEditorHidden={!isOpen}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
         size={EditorSize.EXTENDED}
@@ -70,21 +72,17 @@ class InputTextControl extends BaseControl<InputControlProps> {
       defaultValue,
       expected,
       hideEvaluatedValue,
-      isValid,
       label,
       placeholderText,
       propertyValue,
-      validationMessage,
     } = this.props;
 
     return (
       <InputText
         additionalAutocomplete={additionalAutoComplete}
         dataTreePath={dataTreePath}
-        errorMessage={validationMessage}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
-        isValid={isValid}
         label={label}
         onChange={this.onTextChange}
         placeholder={placeholderText}

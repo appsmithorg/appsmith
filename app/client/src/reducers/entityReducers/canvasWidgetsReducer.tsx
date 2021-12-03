@@ -5,15 +5,17 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { UpdateCanvasLayout } from "actions/controlActions";
+import { UpdateCanvasLayoutPayload } from "actions/controlActions";
 import { set } from "lodash";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: CanvasWidgetsReduxState = {};
 
-export type FlattenedWidgetProps = WidgetProps & {
-  children?: string[];
-};
+export type FlattenedWidgetProps<orType = never> =
+  | (WidgetProps & {
+      children?: string[];
+    })
+  | orType;
 
 const canvasWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
@@ -30,7 +32,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_CANVAS_LAYOUT]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateCanvasLayout>,
+    action: ReduxAction<UpdateCanvasLayoutPayload>,
   ) => {
     set(state[MAIN_CONTAINER_WIDGET_ID], "rightColumn", action.payload.width);
     set(state[MAIN_CONTAINER_WIDGET_ID], "minHeight", action.payload.height);

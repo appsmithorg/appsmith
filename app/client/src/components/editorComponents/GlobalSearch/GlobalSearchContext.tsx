@@ -1,8 +1,12 @@
 import React from "react";
-import { SearchItem } from "./utils";
+import { SearchItem, SelectEvent } from "./utils";
 
 type SearchContextType = {
-  handleItemLinkClick: (item?: SearchItem, source?: string) => void;
+  handleItemLinkClick: (
+    event: SelectEvent,
+    item?: SearchItem,
+    source?: string,
+  ) => void;
   setActiveItemIndex: (index: number) => void;
   activeItemIndex: number;
 };

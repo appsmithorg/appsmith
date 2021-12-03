@@ -39,4 +39,6 @@ public class AppsmithException extends BaseException {
         return this.error.getTitle();
     }
 
+    public String getErrorType() { return this.error.getErrorType(); }
+
 }

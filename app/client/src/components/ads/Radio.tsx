@@ -1,6 +1,7 @@
 import { CommonComponentProps } from "./common";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import * as log from "loglevel";
 
 type OptionProps = {
   label: string;
@@ -15,6 +16,7 @@ export type RadioProps = CommonComponentProps & {
   defaultValue: string;
   onSelect?: (value: string) => void;
   options: OptionProps[];
+  backgroundColor?: string;
 };
 
 const RadioGroup = styled.div<{
@@ -35,10 +37,11 @@ const RadioGroup = styled.div<{
       : null};
 `;
 
-const Radio = styled.label<{
+export const Radio = styled.label<{
   disabled?: boolean;
   columns?: number;
   rows?: number;
+  backgroundColor?: string;
 }>`
   display: block;
   position: relative;
@@ -100,7 +103,8 @@ const Radio = styled.label<{
     ${(props) =>
       props.disabled
         ? `background-color: ${props.theme.colors.radio.disabled}`
-        : `background-color: ${props.theme.colors.info.main};`};
+        : `background-color: ${props.backgroundColor ||
+            props.theme.colors.info.main};`};
     top: ${(props) => props.theme.spaces[1] - 2}px;
     left: ${(props) => props.theme.spaces[1] - 2}px;
     border-radius: 50%;
@@ -112,9 +116,7 @@ export default function RadioComponent(props: RadioProps) {
 
   useEffect(() => {
     if (props.rows && props.columns && props.rows > 0 && props.columns > 0) {
-      console.error(
-        "Please pass either rows prop or column prop but not both.",
-      );
+      log.error("Please pass either rows prop or column prop but not both.");
     }
   }, [props]);
 
@@ -137,6 +139,7 @@ export default function RadioComponent(props: RadioProps) {
     >
       {props.options.map((option: OptionProps, index: number) => (
         <Radio
+          backgroundColor={props.backgroundColor}
           columns={props.columns}
           disabled={props.disabled || option.disabled}
           key={index}

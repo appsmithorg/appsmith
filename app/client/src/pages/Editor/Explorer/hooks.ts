@@ -7,7 +7,7 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { compact, groupBy } from "lodash";
+import { compact, get, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
 import { debounce } from "lodash";
@@ -85,6 +85,46 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
 
     return datasources;
   }, [searchKeyword, datasources]);
+};
+
+export const useJSCollections = (searchKeyword?: string) => {
+  const reducerActions = useSelector(
+    (state: AppState) => state.entities.jsActions,
+  );
+  const pageIds = usePageIds(searchKeyword);
+
+  const actions = useMemo(() => {
+    return groupBy(reducerActions, "config.pageId");
+  }, [reducerActions]);
+
+  return useMemo(() => {
+    if (searchKeyword) {
+      const start = performance.now();
+      const filteredActions = produce(actions, (draft) => {
+        for (const [key, value] of Object.entries(draft)) {
+          if (pageIds.includes(key)) {
+            draft[key] = value;
+          } else {
+            value.forEach((action, index) => {
+              const searchMatches =
+                action.config.name
+                  .toLowerCase()
+                  .indexOf(searchKeyword.toLowerCase()) > -1;
+              if (searchMatches) {
+                draft[key][index] = action;
+              } else {
+                delete draft[key][index];
+              }
+            });
+          }
+          draft[key] = draft[key].filter(Boolean);
+        }
+      });
+      log.debug("Filtered actions in:", performance.now() - start, "ms");
+      return filteredActions;
+    }
+    return actions;
+  }, [searchKeyword, actions]);
 };
 
 export const useActions = (searchKeyword?: string) => {
@@ -227,12 +267,14 @@ export const useFilteredEntities = (
 
 export const useEntityUpdateState = (entityId: string) => {
   return useSelector(
-    (state: AppState) => state.ui.explorer.updatingEntity === entityId,
+    (state: AppState) =>
+      get(state, "ui.explorer.entity.updatingEntity") === entityId,
   );
 };
 
 export const useEntityEditState = (entityId: string) => {
   return useSelector(
-    (state: AppState) => state.ui.explorer.editingEntityName === entityId,
+    (state: AppState) =>
+      get(state, "ui.explorer.entity.editingEntityName") === entityId,
   );
 };
