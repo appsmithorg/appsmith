@@ -444,7 +444,7 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
-const TextWrapper = styled.div`
+const StyledText = styled(Text)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -464,9 +464,9 @@ function TooltipWrappedText(
       disabled={!isEllipsisActive(targetRef.current)}
       position={Position.TOP}
     >
-      <TextWrapper ref={targetRef}>
-        <Text {...textProps}>{label}</Text>
-      </TextWrapper>
+      <StyledText ref={targetRef} {...textProps}>
+        {label}
+      </StyledText>
     </Tooltip>
   );
 }
