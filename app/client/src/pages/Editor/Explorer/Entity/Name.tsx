@@ -3,6 +3,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
+import { get } from "lodash";
 
 import React, {
   forwardRef,
@@ -130,7 +131,9 @@ export const EntityName = forwardRef(
     });
 
     const nameUpdateError = useSelector((state: AppState) => {
-      return state.ui.explorer.updateEntityError === props.entityId;
+      return (
+        get(state, "ui.explorer.entity.updateEntityError") === props.entityId
+      );
     });
     const targetRef = useRef<HTMLDivElement | null>(null);
 
