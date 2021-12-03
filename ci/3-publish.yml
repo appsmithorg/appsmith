@@ -1,0 +1,28 @@
+# This buildspec will build and publish Docker images.
+# It does NOT run any tests.
+
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+
+  build:
+    on-failure: ABORT
+    commands:
+      - set -o pipefail
+      - source ci/common/extra-env.sh
+      - mkdir -pv ci/logs
+      - source ci/3-scripts/3-build.sh
+    finally:
+      - source ci/common/upload-logs.sh
+
+  post_build:
+    commands:
+      - set -o pipefail
+      - source ci/common/extra-env.sh
+      - mkdir -pv ci/logs
+      - source ci/cleanup.sh
+    finally:
+      - source ci/common/upload-logs.sh

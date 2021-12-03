@@ -1,8 +1,9 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes, WidgetTypes } from "../../constants/WidgetConstants";
-import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
-import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
+import { RenderModes } from "constants/WidgetConstants";
+import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
+import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -24,11 +25,13 @@ describe("getAllPathsFromPropertyConfig", () => {
       parentRowSpace: 40,
       tableData: "{{getUsers.data}}",
       isVisible: true,
+      isVisibleDownload: true,
       label: "Data",
       searchKey: "",
-      type: WidgetTypes.TABLE_WIDGET,
+      type: "TABLE_WIDGET",
       parentId: "0",
       isLoading: false,
+      isSortable: true,
       horizontalAlignment: "LEFT",
       parentColumnSpace: 74,
       version: 1,
@@ -98,6 +101,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "status",
           computedValue:
@@ -115,10 +119,13 @@ describe("getAllPathsFromPropertyConfig", () => {
       bindingPaths: {
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
-        tableData: EvaluationSubstitutionType.TEMPLATE,
+        tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        isSortable: EvaluationSubstitutionType.TEMPLATE,
+        compactMode: EvaluationSubstitutionType.TEMPLATE,
+        delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -128,6 +135,10 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+        // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
@@ -135,6 +146,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.createdAt.outputFormat":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
@@ -150,30 +163,65 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabel":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonStyle":
+        "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onRowSelected: true,
         onPageChange: true,
         onSearchTextChanged: true,
+        onSort: true,
         onPageSizeChange: true,
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
-        defaultSearchText: "TEXT",
-        defaultSelectedRow: "DEFAULT_SELECTED_ROW",
-        isVisible: "BOOLEAN",
-        tableData: "TABLE_DATA",
+        defaultSearchText: {
+          type: "TEXT",
+        },
+        delimiter: {
+          type: "TEXT",
+        },
+        defaultSelectedRow: {
+          params: {
+            expected: {
+              autocompleteDataType: AutocompleteDataType.STRING,
+              example: "0 | [0, 1]",
+              type: "Index of row(s)",
+            },
+          },
+          type: "FUNCTION",
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        isSortable: {
+          type: "BOOLEAN",
+          params: {
+            default: true,
+          },
+        },
+        tableData: {
+          type: "OBJECT_ARRAY",
+          params: {
+            default: [],
+          },
+        },
       },
     };
 
     const result = getAllPathsFromPropertyConfig(widget, config, {
       selectedRow: true,
       selectedRows: true,
+      tableData: true,
     });
+
+    // Note: Removing until we figure out how functions are represented here.
+    delete result.validationPaths.defaultSelectedRow.params?.fn;
 
     expect(result).toStrictEqual(expected);
   });
@@ -184,7 +232,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetName: "Chart1",
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
-      allowHorizontalScroll: false,
+      allowScroll: false,
       version: 1,
       chartData: {
         "random-id": {
@@ -194,7 +242,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
-      type: WidgetTypes.CHART_WIDGET,
+      type: "CHART_WIDGET",
       isLoading: false,
       parentColumnSpace: 74,
       parentRowSpace: 40,
@@ -209,6 +257,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           key: "chartData.random-id.data",
         },
       ],
+      setAdaptiveYMin: "0",
     };
     const config = chartPorpertyConfig;
 
@@ -217,25 +266,82 @@ describe("getAllPathsFromPropertyConfig", () => {
         chartType: EvaluationSubstitutionType.TEMPLATE,
         chartName: EvaluationSubstitutionType.TEMPLATE,
         "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
-        "chartData.random-id.data": EvaluationSubstitutionType.TEMPLATE,
+        "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onDataPointClick: true,
       },
       validationPaths: {
-        "chartData.random-id.data": "CHART_SERIES_DATA",
-        "chartData.random-id.seriesName": "TEXT",
-        chartName: "TEXT",
-        isVisible: "BOOLEAN",
-        xAxisName: "TEXT",
-        yAxisName: "TEXT",
+        "chartData.random-id.data": {
+          params: {
+            children: {
+              params: {
+                required: true,
+                allowedKeys: [
+                  {
+                    name: "x",
+                    type: "TEXT",
+                    params: {
+                      default: "",
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "y",
+                    type: "NUMBER",
+                    params: {
+                      default: 10,
+                      required: true,
+                    },
+                  },
+                ],
+              },
+              type: "OBJECT",
+            },
+          },
+          type: "ARRAY",
+        },
+        "chartData.random-id.seriesName": {
+          type: "TEXT",
+        },
+        chartName: {
+          type: "TEXT",
+        },
+        chartType: {
+          params: {
+            allowedValues: [
+              "LINE_CHART",
+              "BAR_CHART",
+              "PIE_CHART",
+              "COLUMN_CHART",
+              "AREA_CHART",
+              "CUSTOM_FUSION_CHART",
+            ],
+          },
+          type: "TEXT",
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        setAdaptiveYMin: {
+          type: "BOOLEAN",
+        },
+        xAxisName: {
+          type: "TEXT",
+        },
+        yAxisName: {
+          type: "TEXT",
+        },
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config, {});
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      "chartData.random-id.data": true,
+    });
 
     expect(result).toStrictEqual(expected);
   });

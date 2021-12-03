@@ -13,4 +13,6 @@ public interface OrganizationRepository extends BaseRepository<Organization, Str
 
     Mono<Organization> findByName(String name);
 
+    Mono<Void> updateUserRoleNames(String userId, String userName);
+
 }

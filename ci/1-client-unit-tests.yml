@@ -1,0 +1,22 @@
+# This buildspec will run unit tests on the client code.
+
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      nodejs: 14
+
+  build:
+    on-failure: ABORT
+    commands:
+      - source ci/common/extra-env.sh
+      - mkdir -pv ci/logs
+      - source ci/1-client-scripts/3-build.sh
+    finally:
+      - source ci/common/upload-logs.sh

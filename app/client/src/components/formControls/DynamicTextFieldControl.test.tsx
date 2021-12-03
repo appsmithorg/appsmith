@@ -7,6 +7,7 @@ import { PluginType } from "entities/Action";
 import { waitFor } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { DatasourceComponentTypes, UIComponentTypes } from "api/PluginApi";
 
 function TestForm(props: any) {
   return <div>{props.children}</div>;
@@ -55,8 +56,8 @@ describe("DynamicTextFieldControl", () => {
                   templates: {
                     CREATE: "test plugin template",
                   },
-                  uiComponent: "DbEditorForm",
-                  datasourceComponent: "AutoForm",
+                  uiComponent: UIComponentTypes.DbEditorForm,
+                  datasourceComponent: DatasourceComponentTypes.AutoForm,
                 },
               ],
             },
@@ -66,7 +67,10 @@ describe("DynamicTextFieldControl", () => {
     );
     const createTemplateButton = screen.getByText("Create");
     userEvent.click(createTemplateButton);
-    expect(screen.getByText("test plugin template")).toBeDefined();
+    // Test each word separately because they are in different spans
+    expect(screen.getByText("test")).toBeDefined();
+    expect(screen.getByText("plugin")).toBeDefined();
+    expect(screen.getByText("template")).toBeDefined();
     waitFor(async () => {
       await expect(screen.findByText("Create")).toBeNull();
     });

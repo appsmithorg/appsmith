@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import Loading from "./Loading";
 import DBQueryGroup from "./DBQueryGroup";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import { IPanelProps } from "@blueprintjs/core";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -12,6 +12,9 @@ import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 const Wrapper = styled.div`
   height: 100%;
   overflow-y: auto;
@@ -19,13 +22,16 @@ const Wrapper = styled.div`
 
 function OnboardingExplorer(props: IPanelProps) {
   const wrapperRef = React.createRef<HTMLDivElement>();
+  const dispatch = useDispatch();
 
   let node = <Loading />;
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
     openPanel({ component: WidgetSidebar });
+    dispatch(forceOpenWidgetPanel(true));
   }, [openPanel, applicationId, pageId]);
 
   const createdDBQuery = useSelector(

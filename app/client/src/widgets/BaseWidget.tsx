@@ -4,39 +4,40 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
-  WidgetType,
+  CONTAINER_GRID_PADDING,
+  CSSUnit,
+  CSSUnits,
+  PositionType,
+  PositionTypes,
   RenderMode,
   RenderModes,
-  CSSUnits,
+  WidgetType,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import {
-  PositionType,
-  CSSUnit,
-  CONTAINER_GRID_PADDING,
-} from "constants/WidgetConstants";
-import { memoize } from "lodash";
+import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
+import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
-import { PositionTypes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
+  DataTreeEvaluationProps,
+  EVAL_ERROR_PATH,
+  EvaluationError,
+  PropertyEvaluationErrorType,
   WidgetDynamicPathListProps,
-  WidgetEvaluatedProps,
-} from "../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { flattenObject } from "utils/helpers";
 
 /***
  * BaseWidget
@@ -65,7 +66,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
+  static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
   // TODO Find a way to enforce this, (dont let it be set)
@@ -81,15 +82,21 @@ abstract class BaseWidget<
    *   }
    *  ```
    */
-  abstract getWidgetType(): WidgetType;
 
   /**
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(actionPayload: WidgetExecuteActionPayload): void {
+  executeAction(actionPayload: ExecuteTriggerPayload): void {
     const { executeAction } = this.context;
-    executeAction && executeAction(actionPayload);
+    executeAction &&
+      executeAction({
+        ...actionPayload,
+        source: {
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+        },
+      });
 
     actionPayload.triggerPropertyName &&
       AppsmithConsole.info({
@@ -124,11 +131,14 @@ abstract class BaseWidget<
     }
   }
 
-  batchUpdateWidgetProperty(updates: BatchPropertyUpdatePayload): void {
+  batchUpdateWidgetProperty(
+    updates: BatchPropertyUpdatePayload,
+    shouldReplay = true,
+  ): void {
     const { batchUpdateWidgetProperty } = this.context;
     const { widgetId } = this.props;
     if (batchUpdateWidgetProperty && widgetId) {
-      batchUpdateWidgetProperty(widgetId, updates);
+      batchUpdateWidgetProperty(widgetId, updates, shouldReplay);
     }
   }
 
@@ -178,8 +188,14 @@ abstract class BaseWidget<
     };
   }
 
-  getErrorCount = memoize((invalidProps) => {
-    return Object.values(flattenObject(invalidProps)).filter((e) => !!e).length;
+  getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
+    return Object.values(evalErrors).reduce(
+      (prev, curr) =>
+        curr.filter(
+          (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+        ).length + prev,
+      0,
+    );
   }, JSON.stringify);
 
   render() {
@@ -215,7 +231,9 @@ abstract class BaseWidget<
       <>
         {!this.props.disablePropertyPane && (
           <WidgetNameComponent
-            errorCount={this.getErrorCount(this.props.invalidProps)}
+            errorCount={this.getErrorCount(
+              get(this.props, EVAL_ERROR_PATH, {}),
+            )}
             parentId={this.props.parentId}
             showControls={showControls}
             topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
@@ -238,11 +256,23 @@ abstract class BaseWidget<
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
+  /**
+   * wraps the widget in a draggable component.
+   * Note: widget drag can be disabled by setting `dragDisabled` prop to true
+   *
+   * @param content
+   */
+  makeSnipeable(content: ReactNode) {
+    return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
+  }
 
   makePositioned(content: ReactNode) {
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        focused={this.props.focused}
+        resizeDisabled={this.props.resizeDisabled}
+        selected={this.props.selected}
         style={style}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
@@ -265,7 +295,10 @@ abstract class BaseWidget<
    */
   addOverlayComments(content: ReactNode) {
     return (
-      <OverlayCommentsWrapper refId={this.props.widgetId}>
+      <OverlayCommentsWrapper
+        refId={this.props.widgetId}
+        widgetType={this.props.type}
+      >
         {content}
       </OverlayCommentsWrapper>
     );
@@ -291,6 +324,8 @@ abstract class BaseWidget<
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
+          content = this.makeSnipeable(content);
+          // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
         }
         return content;
@@ -432,6 +467,13 @@ export const WIDGET_STATIC_PROPS = {
   noContainerOffset: false,
 };
 
+export const WIDGET_DISPLAY_PROPS = {
+  isVisible: true,
+  isLoading: true,
+  isDisabled: true,
+  backgroundColor: true,
+};
+
 export interface WidgetDisplayProps {
   //TODO(abhinav): Some of these props are mandatory
   isVisible?: boolean;
@@ -448,7 +490,7 @@ export interface WidgetDataProps
 export interface WidgetProps
   extends WidgetDataProps,
     WidgetDynamicPathListProps,
-    WidgetEvaluatedProps {
+    DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;
@@ -457,7 +499,8 @@ export interface WidgetProps
 export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
-  widgetCardName: string;
+  displayName: string;
+  icon: string;
   isBeta?: boolean;
 }
 

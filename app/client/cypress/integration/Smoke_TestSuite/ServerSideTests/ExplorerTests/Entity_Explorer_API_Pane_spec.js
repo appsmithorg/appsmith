@@ -21,17 +21,23 @@ describe("Entity explorer API pane related testcases", function() {
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.SaveAndRunAPI();
-    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
+    cy.validateRequest(
+      "FirstAPI",
+      testdata.baseUrl,
+      testdata.methods,
+      testdata.Get,
+    );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.get(`.t--entity.action:contains(FirstAPI)`)
       .find(explorer.collapse)
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(4);
+      expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{FirstAPI.isLoading}}");
       expect($lis.eq(1)).to.contain("{{FirstAPI.data}}");
       expect($lis.eq(2)).to.contain("{{FirstAPI.responseMeta}}");
       expect($lis.eq(3)).to.contain("{{FirstAPI.run()}}");
+      expect($lis.eq(4)).to.contain("{{FirstAPI.clear()}}");
     });
     cy.get(apiwidget.actionlist)
       .contains(testdata.Get)

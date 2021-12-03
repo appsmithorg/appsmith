@@ -26,7 +26,7 @@ import ProvidersApi, {
 } from "api/ProvidersApi";
 import { Providers } from "constants/providerConstants";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
-import { fetchActions } from "actions/actionActions";
+import { fetchActions } from "actions/pluginActionActions";
 import {
   getCurrentApplicationId,
   getPageList,
@@ -104,7 +104,7 @@ export function* addApiToPageSaga(
       });
 
       const applicationId = yield select(getCurrentApplicationId);
-      yield put(fetchActions(applicationId, []));
+      yield put(fetchActions({ applicationId }, []));
     }
   } catch (error) {
     yield put({

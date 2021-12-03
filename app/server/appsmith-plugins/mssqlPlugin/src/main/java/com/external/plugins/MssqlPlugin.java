@@ -14,8 +14,8 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
@@ -34,6 +34,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -45,6 +46,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -59,10 +61,10 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -122,12 +124,8 @@ public class MssqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                /**
-                 * TODO :
-                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
-                 * is no longer in beta.
-                 */
-                isPreparedStatement = false;
+                // In case the prepared statement configuration is missing, default to true
+                isPreparedStatement = true;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
                 if (psValue instanceof  Boolean) {
@@ -135,10 +133,10 @@ public class MssqlPlugin extends BasePlugin {
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
                 } else {
-                    isPreparedStatement = false;
+                    isPreparedStatement = true;
                 }
             } else {
-                isPreparedStatement = false;
+                isPreparedStatement = true;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -337,6 +335,7 @@ public class MssqlPlugin extends BasePlugin {
                         result.setRequest(request);
                         return result;
                     })
+                    .timeout(Duration.ofMillis(actionConfiguration.getTimeoutInMillisecond()))
                     .subscribeOn(scheduler);
         }
 
@@ -531,12 +530,9 @@ public class MssqlPlugin extends BasePlugin {
                         preparedStatement.setLong(index, Long.parseLong(value));
                         break;
                     }
-                    case FLOAT: {
-                        preparedStatement.setFloat(index, Float.parseFloat(value));
-                        break;
-                    }
+                    case FLOAT:
                     case DOUBLE: {
-                        preparedStatement.setDouble(index, Double.parseDouble(value));
+                        preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
                         break;
                     }
                     case BOOLEAN: {

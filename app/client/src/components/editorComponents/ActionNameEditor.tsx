@@ -9,20 +9,17 @@ import EditableText, {
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
+import { JSCollection } from "entities/JSCollection";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
-import { saveActionName } from "actions/actionActions";
+import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
-import {
-  EditableText as NewEditableText,
-  EditInteractionKind as NewEditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import log from "loglevel";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -77,6 +74,10 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
     state.entities.actions.map((action) => action.config),
   );
 
+  const jsActions: JSCollection[] = useSelector((state: AppState) =>
+    state.entities.jsActions.map((action: JSCollectionData) => action.config),
+  );
+
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -103,7 +104,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
 
   const hasActionNameConflict = useCallback(
     (name: string) => !isNameValid(name, { ...existingPageNames, ...evalTree }),
-    [existingPageNames, actions, existingWidgetNames],
+    [existingPageNames, actions, existingWidgetNames, jsActions],
   );
 
   const isInvalidActionName = useCallback(
@@ -114,7 +115,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
         name !== currentActionConfig?.name &&
         hasActionNameConflict(name)
       ) {
-        return `${name} is already being used.`;
+        return `${name} is already being used or is a restricted keyword.`;
       }
       return false;
     },
@@ -157,46 +158,29 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
 
   return (
     <ApiNameWrapper page={props.page}>
-      {props.page === "API_PANE" ? (
-        <NewEditableText
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <EditableText
           className="t--action-name-edit-field"
           defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-          editInteractionKind={NewEditInteractionKind.SINGLE}
-          fill
+          editInteractionKind={EditInteractionKind.SINGLE}
+          errorTooltipClass="t--action-name-edit-error"
           forceDefault={forceUpdate}
-          hideEditIcon
-          isEditingDefault={isNew && !hideEditIcon}
-          isInvalid={isInvalidActionName}
-          onBlur={handleAPINameChange}
-          placeholder="Name of the API in camelCase"
-          savingState={
-            saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
+          isEditingDefault={
+            props.page === "API_PANE" ? isNew && !hideEditIcon : isNew
           }
-          underline
+          isInvalid={isInvalidActionName}
+          onTextChanged={handleAPINameChange}
+          placeholder="Name of the API in camelCase"
+          type="text"
+          updating={saveStatus.isSaving}
           valueTransform={removeSpecialChars}
         />
-      ) : (
-        <div
-          style={{
-            display: "flex",
-          }}
-        >
-          <EditableText
-            className="t--action-name-edit-field"
-            defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            forceDefault={forceUpdate}
-            isEditingDefault={isNew}
-            isInvalid={isInvalidActionName}
-            onTextChanged={handleAPINameChange}
-            placeholder="Name of the API in camelCase"
-            type="text"
-            updating={saveStatus.isSaving}
-            valueTransform={removeSpecialChars}
-          />
-          {saveStatus.isSaving && <Spinner size={16} />}
-        </div>
-      )}
+        {saveStatus.isSaving && <Spinner size={16} />}
+      </div>
     </ApiNameWrapper>
   );
 }

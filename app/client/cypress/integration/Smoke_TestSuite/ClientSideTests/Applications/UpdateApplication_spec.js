@@ -13,6 +13,7 @@ describe("Update Application", function() {
   it("Open the application menu and update name and then check whether update is reflected in the application card", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     appname = localStorage.getItem("AppName");
+    cy.get(homePage.searchInput).clear();
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -53,6 +54,7 @@ describe("Update Application", function() {
 
   it("Check for errors in updating application name", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
+    cy.get(homePage.searchInput).clear();
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -65,11 +67,15 @@ describe("Update Application", function() {
     cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
+
+    cy.AppSetupForRename();
     cy.get(homePage.applicationName).type("  ");
     cy.get(homePage.toastMessage).should(
       "contain",
       "Application name can't be empty",
     );
+
+    cy.AppSetupForRename();
     cy.get(homePage.applicationName).type("  " + "{enter}");
     cy.wait("@updateApplication").should(
       "have.nested.property",
@@ -100,12 +106,13 @@ describe("Update Application", function() {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
+    cy.get(homePage.searchInput).type(veryLongAppName);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
     cy.get(homePage.applicationCard)
       .first()
       .find(homePage.applicationCardName)
       .trigger("mouseover");
-
     cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
   });
 });

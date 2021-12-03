@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
@@ -10,9 +10,10 @@ import {
 } from "./StyledControls";
 
 import { DropDownOptionWithKey } from "./OptionControl";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
 import { Category, Size } from "components/ads/Button";
+import { debounce } from "lodash";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -54,10 +55,12 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
   }
-`;
 
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 5px;
+  &&:hover {
+    svg path {
+      fill: ${(props) => props.theme.colors.propertyPane.title};
+    }
+  }
 `;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
@@ -80,6 +83,7 @@ type KeyValueComponentProps = {
 };
 export function KeyValueComponent(props: KeyValueComponentProps) {
   const [renderPairs, setRenderPairs] = useState<DropDownOptionWithKey[]>([]);
+  const [typing, setTyping] = useState<boolean>(false);
   const { pairs } = props;
   useEffect(() => {
     let { pairs } = props;
@@ -92,9 +96,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       };
     });
 
-    pairs.length !== 0 &&
-      renderPairs.length === 0 &&
-      setRenderPairs(newRenderPairs);
+    pairs.length !== 0 && !typing && setRenderPairs(newRenderPairs);
   }, [props, pairs.length, renderPairs.length]);
 
   function deletePair(index: number) {
@@ -108,6 +110,13 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     props.updatePairs(newPairs);
   }
 
+  const debouncedUpdatePairs = useCallback(
+    debounce((updatedPairs: DropdownOption[]) => {
+      props.updatePairs(updatedPairs);
+    }, 200),
+    [props.updatePairs],
+  );
+
   function updateKey(index: number, updatedKey: string) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs : [];
@@ -119,7 +128,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     );
 
     setRenderPairs(updatedRenderPairs);
-    props.updatePairs(updatedPairs);
+    debouncedUpdatePairs(updatedPairs);
   }
 
   function updateValue(index: number, updatedValue: string) {
@@ -133,7 +142,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     );
 
     setRenderPairs(updatedRenderPairs);
-    props.updatePairs(updatedPairs);
+    debouncedUpdatePairs(updatedPairs);
   }
 
   function addPair() {
@@ -147,34 +156,46 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     props.updatePairs(pairs);
   }
 
+  function onInputFocus() {
+    setTyping(true);
+  }
+
+  function onInputBlur() {
+    setTyping(false);
+  }
+
   return (
     <>
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
           <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledOptionControlInputGroup
+            <StyledInputGroup
               dataType={"text"}
-              defaultValue={pair.label}
+              onBlur={onInputBlur}
               onChange={(value: string) => {
                 updateKey(index, value);
               }}
+              onFocus={onInputFocus}
               placeholder={"Name"}
+              value={pair.label}
             />
             <StyledBox />
             <StyledInputGroup
               dataType={"text"}
-              defaultValue={pair.value}
+              onBlur={onInputBlur}
               onChange={(value: string) => {
                 updateValue(index, value);
               }}
+              onFocus={onInputFocus}
               placeholder={"Value"}
+              value={pair.value}
             />
             <StyledDeleteIcon
-              height={20}
+              height={24}
               onClick={() => {
                 deletePair(index);
               }}
-              width={20}
+              width={24}
             />
           </StyledOptionControlWrapper>
         );

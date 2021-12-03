@@ -1,0 +1,53 @@
+{
+    "responseMeta": {
+      "status": 200,
+      "success": true
+    },
+    "data": {
+      "body": [
+        {
+            "id": 3,
+            "configName": "New Config",
+            "configJson": "{'key': 'val1'}",
+            "configVersion": 1,
+            "updatedAt": "2020-08-26 11:14:28.458209+00",
+            "updatedBy": ""
+        },
+        {
+            "id": 5,
+            "configName": "New Config",
+            "configJson": "{'key': 'val2'}",
+            "configVersion": 1,
+            "updatedAt": "2020-08-26 11:14:28.458209+00",
+            "updatedBy": ""
+        }
+      ],
+      "isExecutionSuccess": true,
+      "messages": [],
+      "request": {
+        "requestParams": {
+          "Query": {
+            "value": "SELECT * FROM public.\"users\" LIMIT 10;",
+            "substitutedParams": {}
+          }
+        }
+      },
+      "dataTypes": [
+        {
+          "dataType": "TABLE"
+        },
+        {
+          "dataType": "JSON"
+        },
+        {
+          "dataType": "RAW"
+        }
+      ],
+      "suggestedWidgets": [
+        {
+          "type": "TABLE_WIDGET",
+          "bindingQuery": "data"
+        }
+      ]
+    }
+  }

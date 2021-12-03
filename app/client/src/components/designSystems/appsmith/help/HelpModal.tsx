@@ -7,7 +7,6 @@ import {
 } from "actions/helpActions";
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
-import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { HelpIcons } from "icons/HelpIcons";
 import { getAppsmithConfigs } from "configs";
 import { LayersContext } from "constants/Layers";
@@ -15,6 +14,14 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
+import ModalComponent from "../ModalComponent";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
+import { bootIntercom } from "utils/helpers";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -58,11 +65,21 @@ type Props = {
   isHelpModalOpen: boolean;
   dispatch: any;
   page: string;
+  user?: User;
 };
 
 class HelpModal extends React.Component<Props> {
   static contextType = LayersContext;
-
+  componentDidMount() {
+    const { user } = this.props;
+    bootIntercom(user);
+  }
+  componentDidUpdate(prevProps: Props) {
+    const { user } = this.props;
+    if (user?.email && prevProps.user?.email !== user?.email) {
+      bootIntercom(user);
+    }
+  }
   /**
    * closes help modal
    *
@@ -123,11 +140,19 @@ class HelpModal extends React.Component<Props> {
             layer={layers.max}
             onClick={this.onOpen}
           >
-            {isHelpModalOpen ? (
-              <CloseIcon height={50} width={50} />
-            ) : (
-              <HelpIcon height={50} width={50} />
-            )}
+            <TooltipComponent
+              boundary="viewport"
+              content={createMessage(HELP_RESOURCE_TOOLTIP)}
+              disabled={isHelpModalOpen}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.LEFT}
+            >
+              {isHelpModalOpen ? (
+                <CloseIcon height={50} width={50} />
+              ) : (
+                <HelpIcon height={50} width={50} />
+              )}
+            </TooltipComponent>
           </HelpButton>
         )}
       </>
@@ -137,6 +162,7 @@ class HelpModal extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   isHelpModalOpen: getHelpModalOpen(state),
+  user: getCurrentUser(state),
 });
 
 export default connect(mapStateToProps)(HelpModal);

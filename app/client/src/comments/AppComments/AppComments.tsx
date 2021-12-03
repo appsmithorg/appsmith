@@ -1,9 +1,9 @@
+import { tailwindLayers } from "constants/Layers";
 import React from "react";
 import { useSelector } from "react-redux";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import AppCommentsHeader from "./AppCommentsHeader";
 import AppCommentThreads from "./AppCommentThreads";
-import Container from "./Container";
 
 function AppComments() {
   const isCommentMode = useSelector(commentModeSelector);
@@ -11,10 +11,12 @@ function AppComments() {
   if (!isCommentMode) return null;
 
   return (
-    <Container>
+    <div
+      className={`absolute top-0 left-0 flex flex-col w-full h-full bg-white ${tailwindLayers.appComments}`}
+    >
       <AppCommentsHeader />
       <AppCommentThreads />
-    </Container>
+    </div>
   );
 }
 

@@ -1,37 +1,74 @@
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-  useEffect,
-  forwardRef,
-} from "react";
-import { useSelector, useDispatch } from "react-redux";
-import styled from "styled-components";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "reducers";
-import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
+import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { get } from "lodash";
 
-const searchHighlightSpanClassName = "token";
-const searchTokenizationDelimiter = "!!";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Classes, Position } from "@blueprintjs/core";
+import { AppState } from "reducers";
+import {
+  getExistingActionNames,
+  getExistingPageNames,
+  getExistingWidgetNames,
+} from "selectors/entitiesSelector";
+import styled from "styled-components";
+import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
+
+import WidgetFactory from "utils/WidgetFactory";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
+
+export const searchHighlightSpanClassName = "token";
+export const searchTokenizationDelimiter = "!!";
+
+const Container = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
+  overflow: hidden;
+`;
 
 const Wrapper = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0 4px;
   padding: 9px 0;
   line-height: 13px;
+  position: relative;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }
+  .beta-icon {
+    position: absolute;
+    top: 5px;
+    right: 0;
+  }
 `;
 
-const replace = (
+const EditableWrapper = styled.div`
+  overflow: hidden;
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[3] + 1}px 0;
+  line-height: 13px;
+`;
+
+export const replace = (
   str: string,
   delimiter: string,
   className = "token",
@@ -66,9 +103,11 @@ export interface EntityNameProps {
   entityId: string;
   searchKeyword?: string;
   className?: string;
+  enterEditMode: () => void;
+  exitEditMode: () => void;
   nameTransformFn?: (input: string, limit?: number) => string;
+  isBeta?: boolean;
 }
-
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
@@ -82,6 +121,7 @@ export const EntityName = forwardRef(
           state.entities.canvasWidgets.hasOwnProperty(widget.parentId)
         ) {
           const parent = state.entities.canvasWidgets[widget.parentId];
+          // Todo(abhinav): abstraction leak
           if (parent.type === WidgetTypes.TABS_WIDGET) {
             return Object.values(parent.tabsObj);
           }
@@ -91,8 +131,11 @@ export const EntityName = forwardRef(
     });
 
     const nameUpdateError = useSelector((state: AppState) => {
-      return state.ui.explorer.updateEntityError === props.entityId;
+      return (
+        get(state, "ui.explorer.entity.updateEntityError") === props.entityId
+      );
     });
+    const targetRef = useRef<HTMLDivElement | null>(null);
 
     const [updatedName, setUpdatedName] = useState(name);
 
@@ -100,19 +143,15 @@ export const EntityName = forwardRef(
       setUpdatedName(name);
     }, [name, nameUpdateError]);
 
-    const existingPageNames: string[] = useSelector((state: AppState) =>
-      state.entities.pageList.pages.map((page: Page) => page.pageName),
-    );
+    const existingPageNames: string[] = useSelector(getExistingPageNames);
+    const existingWidgetNames: string[] = useSelector(getExistingWidgetNames);
 
-    const existingWidgetNames: string[] = useSelector((state: AppState) =>
-      Object.values(state.entities.canvasWidgets).map(
-        (widget) => widget.widgetName,
-      ),
-    );
     const dispatch = useDispatch();
 
-    const existingActionNames: string[] = useSelector((state: AppState) =>
-      state.entities.actions.map(
+    const existingActionNames: string[] = useSelector(getExistingActionNames);
+
+    const existingJSCollectionNames: string[] = useSelector((state: AppState) =>
+      state.entities.jsActions.map(
         (action: { config: { name: string } }) => action.config.name,
       ),
     );
@@ -126,13 +165,19 @@ export const EntityName = forwardRef(
           return !(
             existingPageNames.indexOf(newName) === -1 &&
             existingActionNames.indexOf(newName) === -1 &&
-            existingWidgetNames.indexOf(newName) === -1
+            existingWidgetNames.indexOf(newName) === -1 &&
+            existingJSCollectionNames.indexOf(newName)
           );
         } else {
           return tabs.findIndex((tab) => tab.label === newName) > -1;
         }
       },
-      [existingPageNames, existingActionNames, existingWidgetNames],
+      [
+        existingPageNames,
+        existingActionNames,
+        existingWidgetNames,
+        existingJSCollectionNames,
+      ],
     );
 
     const isInvalidName = useCallback(
@@ -176,36 +221,30 @@ export const EntityName = forwardRef(
       return updatedName;
     }, [searchKeyword, updatedName]);
 
-    const exitEditMode = useCallback(() => {
-      dispatch({
-        type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
-      });
-    }, [dispatch]);
-
-    const enterEditMode = useCallback(
-      () =>
-        props.updateEntityName &&
-        dispatch({
-          type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
-          payload: {
-            id: props.entityId,
-          },
-        }),
-      [dispatch, props.entityId, props.updateEntityName],
-    );
-
     if (!props.isEditing)
       return (
-        <Wrapper
-          className={props.className}
-          onDoubleClick={enterEditMode}
-          ref={ref}
-        >
-          {searchHighlightedName}
-        </Wrapper>
+        <Container ref={ref}>
+          <TooltipComponent
+            boundary={"viewport"}
+            content={updatedName}
+            disabled={!isEllipsisActive(targetRef.current)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            modifiers={{ arrow: { enabled: false } }}
+            position={Position.TOP_LEFT}
+          >
+            <Wrapper
+              className={props.className}
+              onDoubleClick={props.enterEditMode}
+              ref={targetRef}
+            >
+              {searchHighlightedName}
+              {props.isBeta ? <BetaIcon className="beta-icon" /> : ""}
+            </Wrapper>
+          </TooltipComponent>
+        </Container>
       );
     return (
-      <Wrapper>
+      <EditableWrapper>
         <EditableText
           className={`${props.className} editing`}
           defaultValue={updatedName}
@@ -213,13 +252,13 @@ export const EntityName = forwardRef(
           isEditingDefault
           isInvalid={isInvalidName}
           minimal
-          onBlur={exitEditMode}
+          onBlur={props.exitEditMode}
           onTextChanged={handleAPINameChange}
           placeholder="Name"
           type="text"
           valueTransform={props.nameTransformFn || removeSpecialChars}
         />
-      </Wrapper>
+      </EditableWrapper>
     );
   },
 );

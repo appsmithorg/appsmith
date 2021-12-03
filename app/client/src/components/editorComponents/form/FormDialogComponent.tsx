@@ -1,6 +1,9 @@
-import React, { ReactNode, useState, useCallback } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import { isPermitted } from "pages/Applications/permissionHelpers";
 import Dialog from "components/ads/DialogComponent";
+import { useDispatch } from "react-redux";
+import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import { IconName } from "components/ads/Icon";
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
@@ -13,19 +16,26 @@ type FormDialogComponentProps = {
   permissions?: string[];
   setMaxWidth?: boolean;
   applicationId?: string;
+  headerIcon?: {
+    name: IconName;
+    fillColor?: string;
+    hoverColor?: string;
+    bgColor?: string;
+  };
 };
 
 export function FormDialogComponent(props: FormDialogComponentProps) {
-  const [isOpen, setIsOpen] = useState(!!props.isOpen);
+  const [isOpen, setIsOpenState] = useState(!!props.isOpen);
+  const dispatch = useDispatch();
 
-  const onClose = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+  const setIsOpen = (isOpen: boolean) => {
+    setIsOpenState(isOpen);
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  };
 
-  // track if the dialog is open to close it when clicking cancel within the form
-  const onOpening = useCallback(() => {
-    setIsOpen(true);
-  }, []);
+  useEffect(() => {
+    setIsOpen(!!props.isOpen);
+  }, [props.isOpen]);
 
   const Form = props.Form;
 
@@ -39,15 +49,17 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
   return (
     <Dialog
       canOutsideClickClose={!!props.canOutsideClickClose}
+      headerIcon={props.headerIcon}
       isOpen={isOpen}
-      onOpening={onOpening}
+      onOpening={() => setIsOpen(true)}
       setMaxWidth={props.setMaxWidth}
+      setModalClose={() => setIsOpen(false)}
       title={props.title}
       trigger={props.trigger}
     >
       <Form
         applicationId={props.applicationId}
-        onCancel={onClose}
+        onCancel={() => setIsOpen(false)}
         orgId={props.orgId}
       />
     </Dialog>

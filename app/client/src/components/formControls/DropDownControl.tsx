@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -30,12 +30,13 @@ const customSelectStyles = {
   ) => {
     return {
       ...styles,
+      color: Colors.CODE_GRAY,
       backgroundColor: isDisabled
         ? undefined
         : isSelected
-        ? theme.colors.primaryOld
+        ? Colors.GREY_3
         : isFocused
-        ? theme.colors.hover
+        ? Colors.GREY_2
         : undefined,
       ":active": {
         ...styles[":active"],
@@ -49,8 +50,21 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, isRequired, label, options, subtitle } = this.props;
+    const {
+      configProperty,
+      customStyles,
+      isDisabled,
+      isRequired,
+      isSearchable,
+      label,
+      options,
+      subtitle,
+    } = this.props;
 
+    let width = "50vh";
+    if (customStyles && customStyles.width) {
+      width = customStyles.width;
+    }
     return (
       <div>
         <FormLabel>
@@ -62,13 +76,15 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             </>
           )}
         </FormLabel>
-        <DropdownSelect data-cy={configProperty}>
+        <DropdownSelect data-cy={configProperty} style={{ width }}>
           <DropdownField
             customSelectStyles={customSelectStyles}
+            isDisabled={isDisabled}
+            isSearchable={isSearchable}
             name={configProperty}
             options={options}
             placeholder=""
-            width={"50vh"}
+            width={width}
           />
         </DropdownSelect>
       </div>
@@ -105,6 +121,8 @@ export interface DropDownControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
+  isDisabled?: boolean;
+  isSearchable?: boolean;
 }
 
 export default DropDownControl;

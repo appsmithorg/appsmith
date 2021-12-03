@@ -8,34 +8,20 @@
     REACT_APP_ALGOLIA_SEARCH_INDEX_NAME = "test_appsmith"
     REACT_APP_CLIENT_LOG_LEVEL = "debug"
     REACT_APP_GOOGLE_MAPS_API_KEY = "AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg"
+    REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY = ""
     REACT_APP_TNC_PP = "true"
     REACT_APP_CLOUD_HOSTING = "true"
     REACT_APP_INTERCOM_APP_ID = "y10e7138"
     REACT_APP_MAIL_ENABLED = "true"
     REACT_APP_SENTRY_DSN = "https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547"
     REACT_APP_SENTRY_ENVIRONMENT = "Production"
+    REACT_APP_SHOW_ONBOARDING_FORM = "true"
     SENTRY_AUTH_TOKEN = "dfdf7fa46c5b483a944b4571554d6466da3c64a6ed8b46e3b8a4285183a6bcc3"
     SENTRY_DSN = "https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547"
     SENTRY_ORG = "appsmith"
     SENTRY_PROJECT = "appsmith"
     SENTRY_LOG_LEVEL = "info"
-
-[context.production]
-  [context.production.environment]
-    REACT_APP_ENVIRONMENT = "PRODUCTION"
-    REACT_APP_SENTRY_ENVIRONMENT = "Production"
-    REACT_APP_SMART_LOOK_ID = "c370af0df0edf38360adbefbdc47d2b42ea137c9"
-    REACT_APP_SEGMENT_KEY = "9OnZ6LnDztuZZo4zXfoutEEBB2wftHUH"
-    REACT_APP_BASE_URL = "https://api.appsmith.com"
-    APP_HOST = "app.appsmith.com"
-    REACT_APP_CLIENT_LOG_LEVEL = "error"
-
-[context.release]
-  [context.release.environment]
-    REACT_APP_ENVIRONMENT = "STAGING"
-    REACT_APP_SENTRY_ENVIRONMENT = "Staging"
-    REACT_APP_BASE_URL = "https://release.app.appsmith.com"
-    APP_HOST = "release.app.appsmith.com"
+    REACT_APP_CLOUD_SERVICES_BASE_URL = "https://release-cs.appsmith.com"
 
 [context.deploy-preview]
   [context.deploy-preview.environment]

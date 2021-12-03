@@ -1,5 +1,6 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
+const queryEditor = require("../../../../locators/QueryEditor.json");
 
 describe("Switch datasource", function() {
   let postgresDatasourceName;
@@ -67,12 +68,7 @@ describe("Switch datasource", function() {
       .focus()
       .type("select * from users limit 10");
 
-    cy.get(queryLocators.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.runQuery();
 
     cy.get(".t--switch-datasource").click();
     cy.contains(".t--datasource-option", mongoDatasourceName).click();
@@ -83,16 +79,12 @@ describe("Switch datasource", function() {
         editor[0].CodeMirror.setValue('{"find": "planets"}');
       });
 
-    cy.get(queryLocators.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.runQuery();
   });
 
   it("Delete the query and datasources", function() {
-    cy.get(queryLocators.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",

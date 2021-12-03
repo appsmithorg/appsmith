@@ -7,9 +7,11 @@ import {
 import {
   ApplicationPayload,
   OrganizationDetails,
+  CurrentApplicationData,
 } from "constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import { Organization } from "constants/orgConstants";
+import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "organization.name"],
@@ -24,7 +26,7 @@ const getApplications = (state: AppState) =>
   state.ui.applications.applicationList;
 export const getCurrentApplication = (
   state: AppState,
-): ApplicationPayload | undefined => {
+): CurrentApplicationData | undefined => {
   return state.ui.applications.currentApplication;
 };
 export const getApplicationSearchKeyword = (state: AppState) =>
@@ -36,6 +38,8 @@ export const getIsDuplicatingApplication = (state: AppState) =>
   state.ui.applications.duplicatingApplication;
 export const getIsSavingAppName = (state: AppState) =>
   state.ui.applications.isSavingAppName;
+export const getIsErroredSavingAppName = (state: AppState) =>
+  state.ui.applications.isErrorSavingAppName;
 export const getUserApplicationsOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };
@@ -139,5 +143,19 @@ export const getIsDeletingApplications = createSelector(
     applications.deletingApplication,
 );
 
+export const getCurrentAppGitMetaData = createSelector(
+  getCurrentApplication,
+  (currentApplication): GitApplicationMetadata | undefined =>
+    currentApplication?.gitApplicationMetadata,
+);
+
+export const getCurrentAppSSHKeyPair = createSelector(
+  getCurrentApplication,
+  (currentApplication): string | undefined => currentApplication?.SSHKeyPair,
+);
+
 export const getIsSavingOrgInfo = (state: AppState) =>
   state.ui.applications.isSavingOrgInfo;
+
+export const showAppInviteUsersDialogSelector = (state: AppState) =>
+  state.ui.applications.showAppInviteUsersDialog;

@@ -22,8 +22,9 @@ import { FilepickerFactory } from "./FilepickerFactory";
 import { VideoFactory } from "./VideoFactory";
 import { SkeletonFactory } from "./SkeletonFactory";
 import { ListFactory } from "./ListFactory";
+import { DividerFactory } from "./DividerFactory";
 
-export const WidgetTypeFactories = {
+export const WidgetTypeFactories: Record<string, any> = {
   SWITCH_WIDGET: SwitchFactory,
   BUTTON_WIDGET: ButtonFactory,
   TEXT_WIDGET: TextFactory,
@@ -50,4 +51,5 @@ export const WidgetTypeFactories = {
   VIDEO_WIDGET: VideoFactory,
   SKELETON_WIDGET: SkeletonFactory,
   LIST_WIDGET: ListFactory,
+  DIVIDER_WIDGET: DividerFactory,
 };

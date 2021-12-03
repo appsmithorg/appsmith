@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
@@ -46,7 +47,8 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
 @Service
-public class OrganizationServiceImpl extends BaseService<OrganizationRepository, Organization, String> implements OrganizationService {
+public class OrganizationServiceImpl extends BaseService<OrganizationRepository, Organization, String>
+        implements OrganizationService {
 
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
@@ -170,7 +172,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                  */
                 .flatMap(org -> pluginRepository.findByDefaultInstall(true)
                         .map(obj -> new OrganizationPlugin(obj.getId(), OrganizationPluginStatus.FREE))
-                        .collectList()
+                        .collect(Collectors.toSet())
                         .map(pluginList -> {
                             org.setPlugins(pluginList);
                             return org;
@@ -297,7 +299,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
 
         // We don't execute the upload Mono if we don't find the organization.
-        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB);
+        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB, false);
 
         return findOrganizationMono
                 .flatMap(organization -> Mono.zip(Mono.just(organization), uploadAssetMono))
@@ -335,6 +337,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                             .flatMap(analyticsService::sendDeleteEvent)
                             .then(repository.save(organization));
                 });
+    }
+
+    @Override
+    public Flux<Organization> getAll() {
+        return repository.findAllOrganizations();
     }
 
 }

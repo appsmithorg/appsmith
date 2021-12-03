@@ -5,7 +5,7 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { Action } from "entities/Action";
-import { UpdateActionPropertyActionPayload } from "actions/actionActions";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 
 const initialState: ApiPaneReduxState = {
   isCreating: false,

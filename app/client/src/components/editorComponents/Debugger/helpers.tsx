@@ -1,15 +1,16 @@
-import { Message, Severity } from "entities/AppsmithConsole";
-import React, { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { Log, Severity } from "entities/AppsmithConsole";
+import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
-  createMessage,
-  NO_LOGS,
-  OPEN_THE_DEBUGGER,
-  PRESS,
-} from "constants/messages";
+  matchBuilderPath,
+  matchApiPath,
+  matchQueryPath,
+} from "constants/routes";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { isMac } from "utils/helpers";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -26,20 +27,31 @@ const BlankStateWrapper = styled.div`
   }
 `;
 
-export function BlankState(props: { hasShortCut?: boolean }) {
+export function BlankState(props: {
+  placeholderText?: string;
+  hasShortCut?: boolean;
+}) {
+  const shortcut = isMac() ? "Cmd + D" : "Ctrl + D";
+
   return (
     <BlankStateWrapper>
       {props.hasShortCut ? (
         <span>
           {createMessage(PRESS)}
-          <span className="debugger-shortcut">Cmd + D</span>
+          <span className="debugger-shortcut">{shortcut}</span>
           {createMessage(OPEN_THE_DEBUGGER)}
         </span>
       ) : (
-        <span>{createMessage(NO_LOGS)}</span>
+        <span>{props.placeholderText}</span>
       )}
     </BlankStateWrapper>
   );
+}
+
+export enum DEBUGGER_TAB_KEYS {
+  ERROR_TAB = "ERROR",
+  LOGS_TAB = "LOGS_TAB",
+  INSPECT_TAB = "INSPECT_TAB",
 }
 
 export const SeverityIcon: Record<Severity, string> = {
@@ -48,52 +60,79 @@ export const SeverityIcon: Record<Severity, string> = {
   [Severity.WARNING]: "warning",
 };
 
-export const SeverityIconColor: Record<Severity, string> = {
-  [Severity.INFO]: "#03B365",
-  [Severity.ERROR]: "#F22B2B",
-  [Severity.WARNING]: "rgb(224, 179, 14)",
+export function getDependenciesFromInverseDependencies(
+  deps: DependencyMap,
+  entityName: string | null,
+) {
+  // eslint-disable-next-line no-console
+  console.log("DEPENDENCY", deps);
+  if (!entityName) return null;
+
+  const directDependencies = new Set<string>();
+  const inverseDependencies = new Set<string>();
+
+  Object.entries(deps).forEach(([dependant, dependencies]) => {
+    const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
+    (dependencies as any).map((dependency: any) => {
+      const { entityName: entityDependency } = getEntityNameAndPropertyPath(
+        dependency,
+      );
+      if (entity !== entityName && entityDependency === entityName) {
+        directDependencies.add(entity);
+      } else if (entity === entityName && entityDependency !== entityName) {
+        inverseDependencies.add(entityDependency);
+      }
+    });
+  });
+
+  return {
+    inverseDependencies: Array.from(inverseDependencies),
+    directDependencies: Array.from(directDependencies),
+  };
+}
+
+// Recursively find out dependency chain from
+// the inverse dependency map
+export function getDependencyChain(
+  propertyPath: string,
+  inverseMap: DependencyMap,
+) {
+  let currentChain: string[] = [];
+  const dependents = inverseMap[propertyPath];
+
+  if (!dependents) return currentChain;
+
+  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+
+  dependents.map((e) => {
+    if (!e.includes(dependentInfo.entityName)) {
+      currentChain.push(e);
+    }
+
+    if (e !== dependentInfo.entityName) {
+      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    }
+  });
+  return currentChain;
+}
+
+export const doesEntityHaveErrors = (
+  entityId: string,
+  debuggerErrors: Record<string, Log>,
+) => {
+  const ids = Object.keys(debuggerErrors);
+
+  return ids.some((e: string) => e.includes(entityId));
 };
 
-export const useFilteredLogs = (query: string, filter?: any) => {
-  let logs = useSelector((state: AppState) => state.ui.debugger.logs);
-
-  if (filter) {
-    logs = logs.filter((log: Message) => log.severity === filter);
-  }
-
-  if (query) {
-    logs = logs.filter((log: Message) => {
-      if (log.source?.name)
-        return (
-          log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
-        );
-    });
-  }
-
-  return logs;
+export const onApiEditor = () => {
+  return matchApiPath(window.location.pathname);
 };
 
-export const usePagination = (data: Message[], itemsPerPage = 50) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedData, setPaginatedData] = useState<Message[]>([]);
-  const maxPage = Math.ceil(data.length / itemsPerPage);
+export const onQueryEditor = () => {
+  return matchQueryPath(window.location.pathname);
+};
 
-  useEffect(() => {
-    const data = currentData();
-    setPaginatedData(data);
-  }, [currentPage, data.length]);
-
-  const currentData = useCallback(() => {
-    const end = currentPage * itemsPerPage;
-    return data.slice(0, end);
-  }, [data]);
-
-  const next = useCallback(() => {
-    setCurrentPage((currentPage) => {
-      const newCurrentPage = Math.min(currentPage + 1, maxPage);
-      return newCurrentPage <= 0 ? 1 : newCurrentPage;
-    });
-  }, []);
-
-  return { next, paginatedData };
+export const onCanvas = () => {
+  return matchBuilderPath(window.location.pathname);
 };

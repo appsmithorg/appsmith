@@ -3,23 +3,20 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-
-import history from "utils/history";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-
+import Button, { Category } from "components/ads/Button";
+import { Colors } from "constants/Colors";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 
-import Button from "components/editorComponents/Button";
+import EditButton from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
-import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -35,6 +32,7 @@ import {
   PluginImage,
   SaveButtonContainer,
 } from "./JSONtoForm";
+import { ButtonVariantTypes } from "components/constants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -60,7 +58,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(EditButton)`
   &&&& {
     width: 87px;
     height: 32px;
@@ -78,6 +76,16 @@ const CollapsibleWrapper = styled.div`
   width: max-content;
 `;
 
+const EditDatasourceButton = styled(Button)`
+  padding: 10px 20px;
+  &&&& {
+    height: 32px;
+    max-width: 160px;
+    border: 1px solid ${Colors.HIT_GRAY};
+    width: auto;
+  }
+`;
+
 class DatasourceDBEditor extends JSONtoForm<Props> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
@@ -88,11 +96,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
   save = () => {
     const normalizedValues = this.normalizeValues();
+    const trimmedValues = this.getTrimmedData(normalizedValues);
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
-    this.props.onSave(normalizedValues);
+    this.props.onSave(trimmedValues);
   };
 
   openOmnibarReadMore = () => {
@@ -103,11 +112,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
   test = () => {
     const normalizedValues = this.normalizeValues();
+    const trimmedValues = this.getTrimmedData(normalizedValues);
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
-    this.props.onTest(normalizedValues);
+
+    this.props.onTest(trimmedValues);
   };
 
   render() {
@@ -118,14 +129,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      applicationId,
       datasourceId,
       handleDelete,
       isDeleting,
       isSaving,
       isTesting,
       messages,
-      pageId,
       pluginType,
     } = this.props;
     const { viewMode } = this.props;
@@ -135,12 +144,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        <BackButton
-          onClick={() =>
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
-          }
-        />
-        <br />
         <Header>
           <FormTitleContainer>
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
@@ -148,8 +151,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </FormTitleContainer>
           {viewMode && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <ActionButton
-                accent="secondary"
+              <EditDatasourceButton
+                category={Category.tertiary}
                 className="t--edit-datasource"
                 onClick={() => {
                   this.props.setDatasourceEditorMode(
@@ -186,7 +189,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               : undefined}
             <SaveButtonContainer>
               <ActionButton
-                accent="error"
+                buttonStyle="DANGER"
+                buttonVariant={ButtonVariantTypes.PRIMARY}
+                // accent="error"
                 className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() => handleDelete(datasourceId)}
@@ -194,7 +199,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               />
 
               <ActionButton
-                accent="secondary"
+                // accent="secondary"
+                buttonStyle="PRIMARY"
+                buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--test-datasource"
                 loading={isTesting}
                 onClick={this.test}

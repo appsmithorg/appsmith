@@ -3,7 +3,7 @@ import React, { useState, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 
 export const ResizerCSS = css`
-  width: calc(100vw - ${(props) => props.theme.sidebarWidth});
+  width: 100%;
   z-index: ${Layers.debugger};
   position: relative;
 `;
@@ -20,6 +20,7 @@ const Top = styled.div`
 
 type ResizerProps = {
   panelRef: RefObject<HTMLDivElement>;
+  setContainerDimensions?: (height: number) => void;
 };
 
 function Resizer(props: ResizerProps) {
@@ -41,8 +42,14 @@ function Resizer(props: ResizerProps) {
       updatedHeight > minHeight
     ) {
       panel.style.height = `${height - movementY}px`;
+      props.setContainerDimensions &&
+        props.setContainerDimensions(height - movementY);
     }
   };
+
+  useEffect(() => {
+    handleResize(0);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {

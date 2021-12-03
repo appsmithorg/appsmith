@@ -2,7 +2,6 @@ import React from "react";
 import { reduxForm, InjectedFormProps, Form, Field } from "redux-form";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -13,6 +12,12 @@ import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import Button from "components/editorComponents/Button";
 import CurlLogo from "assets/images/Curl-logo.svg";
+import CloseEditor from "../../../components/editorComponents/CloseEditor";
+
+const StyledForm = styled(Form)`
+  flex: 1;
+  overflow: auto;
+`;
 
 const CurlImportFormContainer = styled.div`
   display: flex;
@@ -59,7 +64,7 @@ const CurlImport = styled.div`
 `;
 
 const CurlContainer = styled.div`
-  margin-top: 8vh;
+  margin-top: 20px;
   padding-left: 70px;
   padding-right: 70px;
 
@@ -115,9 +120,10 @@ type Props = StateAndRouteProps &
 
 class CurlImportForm extends React.Component<Props> {
   render() {
-    const { handleSubmit, history, isImportingCurl } = this.props;
+    const { handleSubmit, isImportingCurl } = this.props;
     return (
       <>
+        <CloseEditor />
         <Header>
           <p className="header">
             <img alt="CURL" className="curlImage" src={CurlLogo} />
@@ -125,17 +131,8 @@ class CurlImportForm extends React.Component<Props> {
           </p>
           <hr className="divider" />
         </Header>
-        <Form onSubmit={handleSubmit(curlImportSubmitHandler)}>
+        <StyledForm onSubmit={handleSubmit(curlImportSubmitHandler)}>
           <CurlImport>
-            <Icon
-              className="backBtn"
-              icon="chevron-left"
-              iconSize={16}
-              onClick={() => history.goBack()}
-            />
-            <span className="backBtnText" onClick={() => history.goBack()}>
-              {" Back"}
-            </span>
             <CurlContainer>
               <label className="inputLabel">{"Paste CURL Code Here"}</label>
               <CurlLabel>
@@ -166,16 +163,14 @@ class CurlImportForm extends React.Component<Props> {
               text="Import"
             />
           </CurlImportFormContainer>
-        </Form>
+        </StyledForm>
       </>
     );
   }
 }
 
 const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
-  const destinationPageId = new URLSearchParams(props.location.search).get(
-    "importTo",
-  );
+  const { pageId: destinationPageId } = props.match.params;
 
   if (destinationPageId) {
     return {

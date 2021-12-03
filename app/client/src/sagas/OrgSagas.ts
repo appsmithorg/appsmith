@@ -28,8 +28,10 @@ import { ApiResponse } from "api/ApiResponses";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { Org } from "constants/orgConstants";
 import history from "utils/history";
+import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";
 import log from "loglevel";
 
@@ -58,11 +60,12 @@ export function* fetchOrgSaga(action: ReduxAction<FetchOrgRequest>) {
   try {
     const request: FetchOrgRequest = action.payload;
     const response: FetchOrgResponse = yield call(OrgApi.fetchOrg, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse = yield request.skipValidation ||
+      validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ORG_SUCCESS,
-        payload: response.data,
+        payload: response.data || {},
       });
     }
   } catch (error) {
@@ -133,12 +136,17 @@ export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
     const response: ApiResponse = yield call(OrgApi.deleteOrgUser, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.DELETE_ORG_USER_SUCCESS,
-        payload: {
-          username: action.payload.username,
-        },
-      });
+      const currentUser = yield select(getCurrentUser);
+      if (currentUser?.username == action.payload.username) {
+        history.replace(APPLICATIONS_URL);
+      } else {
+        yield put({
+          type: ReduxActionTypes.DELETE_ORG_USER_SUCCESS,
+          payload: {
+            username: action.payload.username,
+          },
+        });
+      }
       Toaster.show({
         text: `${response.data.username} has been removed successfully`,
         variant: Variant.success,

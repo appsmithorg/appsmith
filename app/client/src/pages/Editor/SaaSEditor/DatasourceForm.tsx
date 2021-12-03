@@ -2,14 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
-import { SAAS_EDITOR_URL } from "./constants";
-import history from "utils/history";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import Button from "components/editorComponents/Button";
+import AdsButton, { Category } from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import BackButton from "pages/Editor/DataSourceEditor/BackButton";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -21,9 +19,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { historyPush } from "actions/utilActions";
-import { createNewApiName } from "utils/AppsmithUtils";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   ActionButton,
@@ -41,10 +37,17 @@ import {
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { PluginType } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import Connected from "../DataSourceEditor/Connected";
+import { Colors } from "constants/Colors";
+import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
+import { ButtonVariantTypes } from "components/constants";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface StateProps extends JSONtoFormProps {
+  applicationId: string;
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
@@ -52,25 +55,33 @@ interface StateProps extends JSONtoFormProps {
   pluginImage: string;
   pluginId: string;
   actions: ActionDataState;
+  datasource?: Datasource;
 }
 
 interface DispatchFunctions {
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
+  createAction: (data: Partial<Action>) => void;
+  redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
   DispatchFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    applicationId: string;
     pageId: string;
     pluginPackageName: string;
   }>;
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
+
+enum AuthenticationStatus {
+  NONE = "NONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  SUCCESS = "SUCCESS",
+}
 
 const StyledButton = styled(Button)`
   &&&& {
@@ -79,12 +90,22 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const CreateApiButton = styled(BaseButton)`
-  &&& {
-    max-width: 120px;
-    margin-right: 9px;
-    align-self: center;
-    min-height: 32px;
+const EditDatasourceButton = styled(AdsButton)`
+  padding: 10px 20px;
+  &&&& {
+    height: 32px;
+    max-width: 160px;
+    border: 1px solid ${Colors.HIT_GRAY};
+    width: auto;
+  }
+`;
+
+const StyledAuthMessage = styled.div`
+  color: ${(props) => props.theme.colors.error};
+  margin-top: 15px;
+  &:after {
+    content: " *";
+    color: inherit;
   }
 `;
 
@@ -108,7 +129,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
       AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
-        applicationId: _.get(this.props, "match.params.applicationId"),
+        applicationId: _.get(this.props, "applicationId"),
         datasourceId: _.get(this.props, "match.params.datasourceId"),
         pageId: _.get(this.props, "match.params.pageId"),
       });
@@ -120,28 +141,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
-  createApiAction = () => {
-    const {
-      actions,
-      formData,
-      match: {
-        params: { pageId },
-      },
-    } = this.props;
-    const newApiName = createNewApiName(actions, pageId || "");
-
-    this.save(
-      createActionRequest({
-        name: newApiName,
-        pageId: pageId,
-        pluginId: formData.pluginId,
-        datasource: {
-          id: formData.id,
-        },
-      }),
-    );
-  };
-
   render() {
     const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
@@ -150,13 +149,21 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      applicationId,
+      datasource,
       deleteDatasource,
       isDeleting,
       isSaving,
       match: {
-        params: { applicationId, datasourceId, pageId, pluginPackageName },
+        params: { datasourceId, pageId, pluginPackageName },
       },
     } = this.props;
+
+    const params: string = location.search;
+    const viewMode = new URLSearchParams(params).get("viewMode");
+    const isAuthorized =
+      datasource?.datasourceConfiguration.authentication
+        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
     return (
       <form
@@ -164,73 +171,93 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        <BackButton
-          onClick={() =>
-            history.push(
-              SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName),
-            )
-          }
-        />
-        <br />
         <Header>
           <FormTitleContainer>
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
-          <CreateApiButton
-            accent="primary"
-            className="t--create-query"
-            disabled={this.validate()}
-            filled
-            icon={"plus"}
-            loading={isSaving}
-            onClick={() => this.createApiAction()}
-            text="New API"
-          />
-        </Header>
 
-        {!_.isNil(sections)
-          ? _.map(sections, this.renderMainSection)
-          : undefined}
-        <SaveButtonContainer>
-          <ActionButton
-            accent="error"
-            className="t--delete-datasource"
-            loading={isDeleting}
-            onClick={() =>
-              deleteDatasource(
-                datasourceId,
-                historyPush(
-                  SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName),
-                ),
-              )
-            }
-            text="Delete"
-          />
-          <StyledButton
-            className="t--save-datasource"
-            disabled={this.validate()}
-            filled
-            intent="primary"
-            loading={isSaving}
-            onClick={() => {
-              AnalyticsUtil.logEvent("GSHEET_AUTH_INIT", {
-                applicationId,
-                datasourceId,
-                pageId,
-              });
-              this.save(
-                redirectAuthorizationCode(
-                  pageId,
-                  datasourceId,
-                  PluginType.SAAS,
-                ),
-              );
-            }}
-            size="small"
-            text="Continue"
-          />
-        </SaveButtonContainer>
+          {viewMode && (
+            <EditDatasourceButton
+              category={Category.tertiary}
+              className="t--edit-datasource"
+              onClick={() => {
+                this.props.history.replace(
+                  SAAS_EDITOR_DATASOURCE_ID_URL(
+                    applicationId,
+                    pageId,
+                    pluginPackageName,
+                    datasourceId,
+                    {
+                      viewMode: false,
+                    },
+                  ),
+                );
+              }}
+              text="EDIT"
+            />
+          )}
+        </Header>
+        {!viewMode ? (
+          <>
+            {!_.isNil(sections)
+              ? _.map(sections, this.renderMainSection)
+              : null}
+            {!isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
+            <SaveButtonContainer>
+              <ActionButton
+                // accent="error"
+                buttonStyle="DANGER"
+                buttonVariant={ButtonVariantTypes.PRIMARY}
+                className="t--delete-datasource"
+                loading={isDeleting}
+                onClick={() =>
+                  deleteDatasource(
+                    datasourceId,
+                    this.props.redirectToNewIntegrations(
+                      applicationId,
+                      pageId,
+                    ) as any,
+                  )
+                }
+                text="Delete"
+              />
+
+              <StyledButton
+                className="t--save-datasource"
+                disabled={this.validate()}
+                filled
+                intent="primary"
+                loading={isSaving}
+                onClick={() => {
+                  AnalyticsUtil.logEvent("GSHEET_AUTH_INIT", {
+                    applicationId,
+                    datasourceId,
+                    pageId,
+                  });
+                  this.save(
+                    redirectAuthorizationCode(
+                      pageId,
+                      datasourceId,
+                      PluginType.SAAS,
+                    ),
+                  );
+                }}
+                size="small"
+                text={isAuthorized ? "Re-authorize" : "Authorize"}
+              />
+            </SaveButtonContainer>
+          </>
+        ) : (
+          <>
+            <Connected />
+            {!isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
+          </>
+        )}
       </form>
     );
   };
@@ -250,6 +277,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   }
   merge(initialValues, datasource);
   return {
+    datasource,
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     formData: formData,
@@ -261,6 +289,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
@@ -272,6 +301,12 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
       dispatch(updateDatasource(formData, onSuccess)),
     getOAuthAccessToken: (datasourceId: string) =>
       dispatch(getOAuthAccessToken(datasourceId)),
+    createAction: (data: Partial<Action>) => {
+      dispatch(createActionRequest(data));
+    },
+    redirectToNewIntegrations: (applicationId: string, pageId: string) => {
+      dispatch(redirectToNewIntegrations(applicationId, pageId));
+    },
   };
 };
 

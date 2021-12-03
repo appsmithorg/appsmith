@@ -4,6 +4,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/datepicker_switchDsl.json");
 const pages = require("../../../../locators/Pages.json");
+const dayjs = require("dayjs");
 
 describe("Switch Widget within Form widget Functionality", function() {
   before(() => {
@@ -28,14 +29,12 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.get(formWidgetsPage.defaultDate).click();
     cy.SetDateToToday();
     cy.setDate(1, "ddd MMM DD YYYY");
-    const nextDay = Cypress.moment()
-      .add(1, "days")
-      .format("DD/MM/YYYY");
+    const nextDay = dayjs().format("DD/MM/YYYY");
     cy.log(nextDay);
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Reset Widget")
+      .contains("Reset widget")
       .click();
     cy.get(widgetsPage.selectWidget).click({ force: true });
     cy.get(commonlocators.chooseAction)

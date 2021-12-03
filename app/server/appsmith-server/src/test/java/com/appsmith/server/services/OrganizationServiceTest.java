@@ -9,7 +9,7 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
@@ -607,8 +607,10 @@ public class OrganizationServiceTest {
         Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Admin Test Organization")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
-        Mono<Datasource> readDatasourceByNameMono = datasourceRepository.findByName("test datasource", READ_DATASOURCES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")));
+        Mono<Datasource> readDatasourceByNameMono = organizationMono.flatMap(organization1 ->
+                datasourceRepository.findByNameAndOrganizationId("test datasource", organization1.getId(),READ_DATASOURCES)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
+        );
 
         Mono<Tuple3<Application, Organization, Datasource>> testMono = organizationMono
                 // create application and datasource
@@ -1068,10 +1070,6 @@ public class OrganizationServiceTest {
 
                     final Asset asset = tuple.getT2();
                     assertThat(asset).isNotNull();
-                    DataBuffer buffer = DataBufferUtils.join(dataBufferFlux).block(Duration.ofSeconds(3));
-                    byte[] res = new byte[buffer.readableByteCount()];
-                    buffer.read(res);
-                    assertThat(asset.getData()).isEqualTo(res);
                 })
                 .verifyComplete();
 

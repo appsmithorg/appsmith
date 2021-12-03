@@ -63,12 +63,12 @@ public class RowObject {
 
     public RowObject initialize() {
         if (this.rowIndex == null) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field row index.");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field row index.");
         }
         try {
             this.currentRowIndex = Integer.parseInt(this.rowIndex);
         } catch (NumberFormatException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to parse row index: " + this.rowIndex);
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unable to parse row index: " + this.rowIndex);
         }
         return this;
     }

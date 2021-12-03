@@ -88,7 +88,7 @@ public class DeleteSheetMethod implements Method {
                     String sheetId = null;
                     for (JsonNode sheet : sheets) {
                         final JsonNode properties = sheet.get("properties");
-                        if (methodConfig.getSheetName().equals(properties.get("title").asText())) {
+                        if (methodConfig.getSheetName().equalsIgnoreCase(properties.get("title").asText())) {
                             sheetId = properties.get("sheetId").asText();
                         }
                     }
@@ -138,7 +138,12 @@ public class DeleteSheetMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Deleted sheet successfully!"));
+        String errorMessage = "Deleted spreadsheet successfully!";
+        if (GoogleSheets.SHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
+            errorMessage = "Deleted sheet " + methodConfig.getSheetName() + " successfully!";
+        }
+
+        return this.objectMapper.valueToTree(Map.of("message", errorMessage));
     }
 
 }

@@ -1,4 +1,4 @@
-# This workflow is responsible for building, testing & packaging the Java server codebase
+# This workflow is responsible for building, testing & packaging the RTS Node server.
 name: Build RTS Workflow
 
 on:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [release, master]
+    branches: [release, release-frozen, master]
     # Only trigger if files have changed in this specific path
     paths:
       - "app/rts/**"
@@ -63,6 +63,14 @@ jobs:
       # Build release Docker image and push to Docker Hub
       - name: Push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+
+      # Build release-frozen Docker image and push to Docker Hub
+      - name: Push release-frozen image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release-frozen'
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin

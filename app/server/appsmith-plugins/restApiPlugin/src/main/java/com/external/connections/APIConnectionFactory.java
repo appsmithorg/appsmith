@@ -5,6 +5,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.ApiKeyAuth;
+import com.appsmith.external.models.BearerTokenAuth;
 import reactor.core.publisher.Mono;
 
 
@@ -25,6 +27,10 @@ public class APIConnectionFactory {
             }
         } else if (authenticationType instanceof BasicAuth) {
             return Mono.from(BasicAuthentication.create((BasicAuth) authenticationType));
+        } else if (authenticationType instanceof ApiKeyAuth) {
+            return Mono.from(ApiKeyAuthentication.create((ApiKeyAuth) authenticationType));
+        } else if (authenticationType instanceof BearerTokenAuth) {
+            return Mono.from(BearerTokenAuthentication.create((BearerTokenAuth) authenticationType));
         } else {
             return Mono.empty();
         }

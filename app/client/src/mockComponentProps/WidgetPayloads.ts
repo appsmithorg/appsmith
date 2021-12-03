@@ -1,4 +1,4 @@
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 
 export default {
   dummyWidgetProps: {
@@ -10,7 +10,7 @@ export default {
     renderMode: RenderModes.CANVAS,
     rightColumn: 0,
     topRow: 0,
-    type: WidgetTypes.SKELETON_WIDGET,
+    type: "SKELETON_WIDGET",
     version: 0,
     widgetId: "",
     widgetName: "",
