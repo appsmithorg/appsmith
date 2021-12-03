@@ -9,14 +9,10 @@ import {
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
-import { isEmpty, isObject } from "lodash";
+import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
-import {
-  AsyncFunctionExecutedError,
-  completePromise,
-} from "workers/PromisifyAction";
+import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { isTrueObject } from "workers/evaluationUtils";
 
 export type EvalResult = {
   result: any;
