@@ -4,6 +4,7 @@ import {
   getEvaluationInverseDependencyMap,
   getDataTree,
 } from "../selectors/dataTreeSelectors";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "../selectors/entitiesSelector";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import {
@@ -94,12 +95,15 @@ function* setWidgetsLoadingSaga() {
   );
 
   // get all widgets evaluted data
-  const dataTree = yield select(getDataTree);
+  const dataTree: DataTree = yield select(getDataTree);
   // check animateLoading is active on current widgets and set
-  Object.keys(entityDependencyMap).forEach((entity) => {
-    if (get(dataTree, [entity, "animateLoading"])) {
-      loadingEntities.add(entity);
-    }
+  Object.entries(dataTree).forEach(([entityName, entity]) => {
+    if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
+      if (get(dataTree, [entityName, "animateLoading"])) {
+        loadingEntities.add(entityName);
+      } else {
+        loadingEntities.delete(entityName);
+      }
   });
 
   yield put({
