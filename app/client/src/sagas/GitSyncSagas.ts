@@ -103,12 +103,6 @@ function* commitToGitRepoSaga(
           payload: curApplication,
         });
       }
-      Toaster.show({
-        text: action.payload.doPush
-          ? "Committed and pushed Successfully"
-          : "Committed Successfully",
-        variant: Variant.success,
-      });
       yield put(fetchGitStatusInit());
     }
   } catch (error) {
@@ -338,10 +332,6 @@ function* pushToGitRepoSaga() {
 
     if (isValidResponse) {
       yield put(pushToRepoSuccess());
-      Toaster.show({
-        text: "Pushed Successfully",
-        variant: Variant.success,
-      });
       yield put(fetchGitStatusInit());
     }
   } catch (error) {
