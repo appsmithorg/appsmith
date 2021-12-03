@@ -74,8 +74,11 @@ describe("Validate Validators", () => {
         parsed: "123",
       },
       {
-        isValid: true,
-        parsed: "",
+        isValid: false,
+        parsed: "abc",
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        ],
       },
     ];
     inputs.forEach((input, index) => {
@@ -101,10 +104,7 @@ describe("Validate Validators", () => {
     ];
     const expected = [
       {
-        isValid: false,
-        messages: [
-          "This value does not evaluate to type (http(s)?:\\/\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&\\/=]*)",
-        ],
+        isValid: true,
         parsed: "https://www.appsmith.com",
       },
       {
@@ -152,8 +152,7 @@ describe("Validate Validators", () => {
     ];
     const expected = [
       {
-        isValid: false,
-        messages: ["This value does not evaluate to type URL"],
+        isValid: true,
         parsed: "https://www.appsmith.com",
       },
       {
@@ -192,7 +191,7 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: true,
-        parsed: "",
+        parsed: "abc",
       },
     ];
     inputs.forEach((input, index) => {

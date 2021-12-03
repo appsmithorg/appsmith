@@ -2,14 +2,19 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
-let datasourceName;
+let datasourceName, queryName;
 
-describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
+describe("Create a query with a mongo datasource, run, save and then delete the query", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Creates a new Mongo datasource", function() {
+  afterEach(() => {
+    if (queryName)
+      cy.deleteEntitybyName(queryName);
+  });
+
+  it("1. Creates a new Mongo datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -21,8 +26,10 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
   });
 
-  it("2. Validate Raw query command, run and then delete the query", function() {
+  it("2. Validate Raw query command, run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    queryName = 'RawQuery'
+    cy.renameWithInPane(queryName);
 
     // cy.get("@getPluginForm").should(
     //   "have.nested.property",
@@ -43,11 +50,13 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //   });
     // cy.EvaluateCurrentValue(`{"find": "listingsAndReviews","limit": 10}`);
 
-    cy.runAndDeleteQuery();
+    cy.runQuery(); //exeute actions & 200 response is verified in this method
   });
 
-  it("3. Validate Find documents command & Run and then delete the query", function() {
+  it("3. Validate Find documents command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    queryName = 'FindQuery'
+    cy.renameWithInPane(queryName);
 
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
@@ -89,41 +98,40 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.xpath(queryLocators.countText).should("have.text", "5 Records");
-
-    cy.deleteQueryUsingContext();
   });
 
-  it("4. Validate Count command & Run and then delete the query", function() {
+  it("4. Validate Count command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    queryName = 'CountQuery'
+    cy.renameWithInPane(queryName);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Count");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.runQuery();
     cy.typeValueNValidate("{beds : {$lte: 2}}", "Query");
     cy.runQuery(); //exeute actions - 200 response is verified in this method
-
-    cy.deleteQueryUsingContext();
   });
 
-  it("5. Validate Distinct command & Run and then delete the query", function() {
+  it("5. Validate Distinct command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-
+    queryName = 'DistinctQuery'
+    cy.renameWithInPane(queryName);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Distinct");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.typeValueNValidate("{beds : {$lte: 2}}", "Query");
     cy.typeValueNValidate("property_type", "Key");
     cy.onlyQueryRun();
-    cy.wait("@postExecute").then(({ request, response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.values[0]).to.eq(
         "Aparthotel",
         "Response is not as expected for Distint commmand",
       );
     });
-
-    cy.deleteQueryUsingContext();
   });
 
-  it("6. Validate Aggregate command & Run and then delete the query", function() {
+  it("6. Validate Aggregate command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    queryName = 'AggregateQuery'
+    cy.renameWithInPane(queryName);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Aggregate");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.typeValueNValidate(
@@ -141,11 +149,10 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       // it is good practice to add message to the assertion
       // expect(req, 'has duration in ms').to.have.property('duration').and.be.a('number')
     });
-
-    cy.deleteQueryUsingContext();
   });
 
-  it("7. Verify generation of NewPage from collection [Select]", function() {
+  it("7. Verify generation of NewPage from collection [Select]", function () {
+    queryName = ''
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -176,21 +183,20 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
   });
 
   it("8. Validate Deletion of the Newly Created Page", () => {
+    queryName = 'ListingsAndReviews';
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-
-    cy.deleteEntitybyName("ListingsAndReviews");
   });
 
-  it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
+  it("9. Bug 7399: Validate Form based & Raw command based templates", function () {
+    queryName = 'Query1';
     let id;
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.validateNSelectDropdown("Commands", "Find Document(s)");
@@ -262,19 +268,23 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
 
-    cy.deleteQueryUsingContext();
-    cy.deleteEntitybyName("Query1");
+    cy.deleteEntitybyName("Query2");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {
+    queryName = '';
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // cy.wait("@deleteDatasource").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+
+    cy.wait("@deleteDatasource").should((response) => {
+      expect(response.status).to.be.oneOf([200, 409]);
+    });
   });
 });
