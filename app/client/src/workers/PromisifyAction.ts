@@ -12,12 +12,6 @@ import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 
-export class AsyncFunctionExecutedError extends Error {
-  constructor() {
-    super("Async function called in a sync field");
-  }
-}
-
 export const promisifyAction = (actionDescription: ActionDescription) => {
   if (!self.ALLOW_ASYNC) {
     /**
@@ -26,7 +20,7 @@ export const promisifyAction = (actionDescription: ActionDescription) => {
      * @link isFunctionAsync
      * */
     self.IS_ASYNC = true;
-    throw new AsyncFunctionExecutedError();
+    throw new Error("Async function called in a sync field");
   }
   return new Promise((resolve, reject) => {
     // We create a new sub request id for each request going on so that we can resolve the correct one later on

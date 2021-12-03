@@ -9,13 +9,14 @@ import {
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
-import { isEmpty } from "lodash";
+import { isEmpty, isObject } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import {
   AsyncFunctionExecutedError,
   completePromise,
 } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { isTrueObject } from "workers/evaluationUtils";
 
 export type EvalResult = {
   result: any;
@@ -284,18 +285,12 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();
-        if (
-          returnValue &&
-          "then" in returnValue &&
-          typeof returnValue.then === "function"
-        ) {
+        if (!!returnValue && typeof returnValue.then === "function") {
           self.IS_ASYNC = true;
         }
       }
     } catch (e) {
-      if (!(e instanceof AsyncFunctionExecutedError)) {
-        self.IS_ASYNC = false;
-      }
+      //
     }
     return self.IS_ASYNC;
   })();
