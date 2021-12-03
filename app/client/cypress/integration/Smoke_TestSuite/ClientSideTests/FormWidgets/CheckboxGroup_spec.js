@@ -81,6 +81,32 @@ describe("Checkbox Group Widget Functionality", function() {
       .should("have.text", "test2");
     cy.get(publish.backToEditor).click();
   });
+  it("Checkbox Group Functionality To alignment options", function() {
+    cy.openPropertyPane("checkboxgroupwidget");
+    // check default value
+    cy.get(".t--property-control-alignment").should("exist");
+    cy.get(".t--property-control-alignment span[type='p1']").should(
+      "have.text",
+      "Between",
+    );
+
+    cy.get(
+      ".t--draggable-checkboxgroupwidget div[class^='component__CheckboxGroupContainer']",
+    ).should("have.css", "justify-content", "space-between");
+
+    // change alignment
+    cy.get(".t--property-control-alignment span[type='p1']").click({
+      force: true,
+    });
+    cy.wait(200);
+    cy.get(".t--dropdown-option")
+      .contains("Start")
+      .click({ force: true });
+    cy.wait(400);
+    cy.get(
+      ".t--draggable-checkboxgroupwidget div[class^='component__CheckboxGroupContainer']",
+    ).should("have.css", "justify-content", "flex-start");
+  });
 });
 afterEach(() => {
   // put your clean up code if any

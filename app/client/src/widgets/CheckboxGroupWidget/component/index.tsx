@@ -12,6 +12,7 @@ import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
   valid?: boolean;
+  optionAlignment?: string;
 }
 
 const CheckboxGroupContainer = styled.div<
@@ -23,7 +24,7 @@ const CheckboxGroupContainer = styled.div<
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
   `}
-  justify-content: space-between;
+  justify-content: ${({ optionAlignment }) => optionAlignment};
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -59,6 +60,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   options: OptionProps[];
   rowSpace: number;
   selectedValues: string[];
+  optionAlignment?: string;
 }
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
@@ -66,13 +68,18 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     isInline,
     isValid,
     onChange,
+    optionAlignment,
     options,
     rowSpace,
     selectedValues,
   } = props;
 
   return (
-    <CheckboxGroupContainer inline={isInline} valid={isValid}>
+    <CheckboxGroupContainer
+      inline={isInline}
+      optionAlignment={optionAlignment}
+      valid={isValid}
+    >
       {options &&
         options.length > 0 &&
         [...options].map((option: OptionProps) => (
