@@ -916,7 +916,6 @@ export interface ApplicationPayload {
 export interface CurrentApplicationData extends ApplicationPayload {
   SSHKeyPair?: string;
   deployKeyDocUrl?: string;
-  tempRemoteUrl?: string; // for temperary git remote url
 }
 
 export type OrganizationDetails = {
