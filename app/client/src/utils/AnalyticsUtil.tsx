@@ -267,7 +267,7 @@ class AnalyticsUtil {
     if (userData) {
       const { segment } = getAppsmithConfigs();
       let user: any = {};
-      if (userData.enableTelemetry && segment.apiKey) {
+      if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -300,10 +300,11 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userData: User) {
-    const { segment, smartLook } = getAppsmithConfigs();
+    const { segment, sentry, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
+      AnalyticsUtil.user = userData;
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
         const userProperties = {
@@ -312,7 +313,6 @@ class AnalyticsUtil {
           userId: userId,
           source: "cloud",
         };
-        AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);
         windowDoc.analytics.identify(userId, userProperties);
       } else if (segment.ceKey) {
@@ -335,13 +335,16 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function(scope) {
-      scope.setUser({
-        id: userId,
-        username: userData.username,
-        email: userData.email,
+
+    if (sentry.enabled) {
+      Sentry.configureScope(function(scope) {
+        scope.setUser({
+          id: userId,
+          username: userData.username,
+          email: userData.email,
+        });
       });
-    });
+    }
 
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
