@@ -912,6 +912,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
+                    profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
 
                     profile.setSuperUser(policyUtils.isPermissionPresentForUser(
                             userFromDb.getPolicies(),
