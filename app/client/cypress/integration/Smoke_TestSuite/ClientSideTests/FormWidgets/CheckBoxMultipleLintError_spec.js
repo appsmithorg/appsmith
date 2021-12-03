@@ -38,6 +38,9 @@ describe("Linting warning validation with Checkbox widget", function() {
     //lint warning message
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
+      .contains("Missing semicolon.");
+    cy.get(commonlocators.lintErrorMsg)
+      .should("be.visible")
       .contains("Expected an identifier and instead saw ')");
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")

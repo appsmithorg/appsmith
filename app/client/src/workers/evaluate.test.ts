@@ -64,12 +64,13 @@ describe("evaluate", () => {
           ch: 1,
           code: "W117",
           errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "    return wrongJS;",
+          errorSegment: "    const result = wrongJS",
           errorType: "LINT",
           line: 0,
           raw: `
   function closedFunction () {
-    return wrongJS;
+    const result = wrongJS
+    return result;
   }
   closedFunction()
   `,
@@ -82,7 +83,8 @@ describe("evaluate", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    return wrongJS;
+    const result = wrongJS
+    return result;
   }
   closedFunction()
   `,
@@ -101,7 +103,8 @@ describe("evaluate", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    return {}.map();
+    const result = {}.map()
+    return result;
   }
   closedFunction()
   `,
@@ -166,7 +169,8 @@ describe("evaluate", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    return setTimeout(() => {}, 100);
+    const result = setTimeout(() => {}, 100)
+    return result;
   }
   closedFunction()
   `,

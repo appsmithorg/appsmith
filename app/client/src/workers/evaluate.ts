@@ -29,7 +29,8 @@ export const ScriptTemplate = "<<string>>";
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
-    return ${ScriptTemplate}
+    const result = ${ScriptTemplate}
+    return result;
   }
   closedFunction()
   `,
@@ -41,7 +42,8 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
   [EvaluationScriptType.TRIGGERS]: `
   function closedFunction () {
-    return ${ScriptTemplate}
+    const result = ${ScriptTemplate}
+    return result
   }
   closedFunction();
   `,
@@ -124,7 +126,7 @@ export const createGlobalData = (
   return GLOBAL_DATA;
 };
 
-export function unEscapeScript(js: string) {
+export function unEscapeScript(js: string): string {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
@@ -141,12 +143,17 @@ export default function evaluate(
   evalArguments?: Array<any>,
   isTriggerBased = false,
 ): EvalResult {
+  let script = "",
+    scriptToLint = "";
   const unescapedJS = unEscapeScript(js);
   const scriptType = getScriptType(evalArguments, isTriggerBased);
-  const script = getScriptToEval(unescapedJS, scriptType);
-  // We are linting original js binding,
-  // This will make sure that the character count is not messed up when we do unescapejs
-  const scriptToLint = getScriptToEval(js, scriptType);
+
+  if (unescapedJS.length > 0) {
+    script = getScriptToEval(unescapedJS, scriptType);
+    // We are linting original js binding,
+    // This will make sure that the character count is not messed up when we do unescapejs
+    scriptToLint = getScriptToEval(js, scriptType);
+  }
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
