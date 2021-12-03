@@ -132,6 +132,11 @@ export const EntityItem = styled.div<{
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
+
+  div {
+    cursor: pointer;
+  }
+
   svg {
     width: 16px;
     height: 16px;
@@ -243,9 +248,8 @@ export const Entity = forwardRef(
           alwaysShowRightIcon={props.alwaysShowRightIcon}
           className={`${props.highlight ? "highlighted" : ""} ${
             props.active ? "active" : ""
-          }`}
+          } t--entity-item`}
           highlight={!!props.highlight}
-          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}

@@ -306,15 +306,6 @@ export const getJSCollectionsForCurrentPage = createSelector(
   },
 );
 
-export const getQueryActionsForCurrentPage = createSelector(
-  getActionsForCurrentPage,
-  (actions) => {
-    return actions.filter((action) => {
-      return action.config.pluginType === PluginType.DB;
-    });
-  },
-);
-
 export const getPlugin = (state: AppState, pluginId: string) => {
   return state.entities.plugins.list.find((plugin) => plugin.id === pluginId);
 };

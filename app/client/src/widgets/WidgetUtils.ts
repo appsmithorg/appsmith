@@ -62,7 +62,8 @@ export const hexToRgb = (
         b: -1,
       };
 };
-
+// Padding between PostionContainer and Widget
+export const WidgetContainerDiff = 8;
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
@@ -139,4 +140,14 @@ export const getCustomBorderColor = (
   return buttonVariant === ButtonVariantTypes.SECONDARY
     ? backgroundColor
     : "none";
+};
+
+export const escapeSpecialChars = (stringifiedJSONObject: string) => {
+  return stringifiedJSONObject
+    .replace(/\\n/g, "\\\\n") // new line char
+    .replace(/\\b/g, "\\\\b") //
+    .replace(/\\t/g, "\\\\t") // tab
+    .replace(/\\f/g, "\\\\f") //
+    .replace(/\\/g, "\\\\") //
+    .replace(/\\r/g, "\\\\r"); //
 };
