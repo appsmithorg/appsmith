@@ -291,7 +291,7 @@ class AnalyticsUtil {
       };
     }
 
-    if (userData?.enableTelemetry && windowDoc.analytics) {
+    if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
     } else {
@@ -304,7 +304,6 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
-      AnalyticsUtil.user = userData;
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
         const userProperties = {
@@ -313,6 +312,7 @@ class AnalyticsUtil {
           userId: userId,
           source: "cloud",
         };
+        AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);
         windowDoc.analytics.identify(userId, userProperties);
       } else if (segment.ceKey) {
