@@ -4,5 +4,11 @@
 .env
 .vscode/*
 
+# to ignore the node_modeules folder
+node_modules
+# to ignore the package-lock.json file
+package-lock.json
+
 # test coverage
 coverage-summary.json
+app/client/cypress/locators/Widgets.json

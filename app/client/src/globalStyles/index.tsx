@@ -4,7 +4,8 @@ import { PopoverStyles } from "./popover";
 import { CommentThreadPopoverStyles } from "./commentThreadPopovers";
 import { UppyStyles } from "./uppy";
 import { PortalStyles } from "./portals";
-import { CodemirrorHintStyles } from "./CodmirrorHintStyles";
+import { DialogStyles } from "./dialogs";
+import { CodemirrorHintStyles } from "./CodemirrorHintStyles";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export default function GlobalStyles() {
@@ -16,6 +17,7 @@ export default function GlobalStyles() {
       <PortalStyles />
       <UppyStyles />
       <CodemirrorHintStyles editorTheme={EditorTheme.LIGHT} />
+      <DialogStyles />
     </>
   );
 }

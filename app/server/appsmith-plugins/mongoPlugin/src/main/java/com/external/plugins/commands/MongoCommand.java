@@ -4,7 +4,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.COLLECTION;
 
 /**
  * This is the base class which every Mongo Command extends. Common functions across all mongo commands
@@ -36,16 +35,16 @@ public abstract class MongoCommand {
 
         this.fieldNamesWithNoConfiguration = new ArrayList<>();
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, COLLECTION)) {
-            this.collection = (String) pluginSpecifiedTemplates.get(COLLECTION).getValue();
+        if (validConfigurationPresentInFormData(formData, COLLECTION)) {
+            this.collection = (String) formData.get(COLLECTION);
         }
     }
 
     public Boolean isValid() {
         if (StringUtils.isNullOrEmpty(this.collection)) {
-            fieldNamesWithNoConfiguration.add("Collection");
+            fieldNamesWithNoConfiguration.add(COLLECTION);
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

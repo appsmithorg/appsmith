@@ -1,9 +1,11 @@
 import { HTTP_METHODS } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
+import isEmpty from "lodash/isEmpty";
+import isString from "lodash/isString";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
-  let action = _.cloneDeep(data);
+  let action = cloneDeep(data);
   // // GET actions should not save body
   // if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
   //   delete action.actionConfiguration.body;
@@ -31,7 +33,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
       body = action.actionConfiguration.body || undefined;
     }
 
-    if (!_.isString(body)) body = JSON.stringify(body);
+    if (!isString(body)) body = JSON.stringify(body);
     action = {
       ...action,
       actionConfiguration: {
@@ -41,5 +43,25 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     };
   }
 
+  action.actionConfiguration.bodyFormData = removeEmptyPairs(
+    action.actionConfiguration.bodyFormData,
+  );
+  action.actionConfiguration.headers = removeEmptyPairs(
+    action.actionConfiguration.headers,
+  );
+  action.actionConfiguration.queryParameters = removeEmptyPairs(
+    action.actionConfiguration.queryParameters,
+  );
+
   return action;
 };
+
+// Filters empty key-value pairs or key-value-type(Multipart) from form data, headers and query params
+function removeEmptyPairs(keyValueArray: any) {
+  if (!keyValueArray || !keyValueArray.length) return keyValueArray;
+  return keyValueArray.filter(
+    (data: any) =>
+      data &&
+      (!isEmpty(data.key) || !isEmpty(data.value) || !isEmpty(data.type)),
+  );
+}

@@ -2,11 +2,12 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import _ from "lodash";
-import { DataTree } from "../entities/DataTree/dataTreeFactory";
-import { DependencyMap } from "../utils/DynamicBindingUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
+import { QueryActionConfig } from "../entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -30,8 +31,21 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.MOVE_ACTION_SUCCESS,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+  ReduxActionTypes.CLEAR_ACTION_RESPONSE,
+  // JS Actions
+  ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+  ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+  ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
+  ReduxActionTypes.COPY_JS_ACTION_SUCCESS,
+  ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+  ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+  ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+  ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -78,5 +92,28 @@ export const setDependencyMap = (
   return {
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap },
+  };
+};
+
+// Called when a form is being setup, for setting up the base condition evaluations for the form
+export const initFormEvaluations = (
+  editorConfig: any,
+  settingConfig: any,
+  formId: string,
+) => {
+  return {
+    type: ReduxActionTypes.INIT_FORM_EVALUATION,
+    payload: { editorConfig, settingConfig, formId },
+  };
+};
+
+// Called when there is change in the data of the form, re evaluates the whole form
+export const startFormEvaluations = (
+  formId: string,
+  formData: QueryActionConfig,
+) => {
+  return {
+    type: ReduxActionTypes.RUN_FORM_EVALUATION,
+    payload: { formId, actionConfiguration: formData },
   };
 };

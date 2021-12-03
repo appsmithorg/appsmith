@@ -1,9 +1,10 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -111,4 +113,49 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         return setAllAsNonDefaultMono.then(setDefaultMono);
     }
 
+    @Override
+    public Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission) {
+        Update updateObj = new Update();
+        gitAuth.setGeneratedAt(Instant.now());
+        String path = String.format("%s.%s", fieldName(QApplication.application.gitApplicationMetadata),
+                        fieldName(QApplication.application.gitApplicationMetadata.gitAuth)
+        );
+
+        updateObj.set(path, gitAuth);
+        return this.updateById(applicationId, updateObj, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
+
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
+        return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
+    }
+
+    /**
+     * Returns a list of application ids which are under the organization with provided organizationId
+     * @param organizationId organization id
+     * @return list of String
+     */
+    @Override
+    public Mono<List<String>> getAllApplicationId(String organizationId) {
+        Query query = new Query();
+        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.fields().include(fieldName(QApplication.application.id));
+        return mongoOperations.find(query, Application.class)
+                .map(BaseDomain::getId)
+                .collectList();
+    }
 }

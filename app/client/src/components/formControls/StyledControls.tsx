@@ -8,7 +8,7 @@ import {
   Popover,
   MenuItem,
 } from "@blueprintjs/core";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { TimezonePicker } from "@blueprintjs/timezone";
@@ -221,8 +221,20 @@ export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
 
 export const StyledSwitch = styled(Switch)`
   margin-left: 10px;
-  &&&&& input:checked ~ span {
-    background: ${(props) => props.theme.colors.primaryOld};
+  &&&&& input {
+    ~ span {
+      background: ${Colors.GREY_5};
+      width: 40px;
+    }
+    ~ span:hover {
+      background: ${Colors.DARK_GRAY};
+    }
+    &:checked ~ span {
+      background: ${Colors.PRIMARY_ORANGE};
+    }
+    &:checked ~ span:hover {
+      background: #bf4109;
+    }
   }
 `;
 

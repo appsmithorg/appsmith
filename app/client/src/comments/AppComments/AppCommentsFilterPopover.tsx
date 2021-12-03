@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -17,6 +17,7 @@ import {
 } from "actions/commentActions";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+import { Colors } from "constants/Colors";
 
 export const options = [
   { label: "Show all comments", value: "show-all" },
@@ -49,7 +50,6 @@ const useSetResolvedFilterFromQuery = () => {
   useEffect(() => {
     const url = new URL(window.location.href);
     const searchParams = url.searchParams;
-    console.log(window.location.href, "window.location.href");
     if (searchParams.get("isResolved")) {
       dispatch(setShouldShowResolvedComments(true));
     }
@@ -86,27 +86,58 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
   );
 });
 
+const FilterIconContainer = styled.div<{ open?: boolean }>`
+  padding: ${(props) => props.theme.spaces[7]}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${Colors.GALLERY_1};
+    svg path {
+      fill: ${Colors.CHARCOAL};
+    }
+  }
+
+  ${(props) =>
+    props.open &&
+    `
+    & svg path {
+      fill: ${Colors.CHARCOAL};
+    }
+    background-color: ${Colors.GALLERY_1};
+  `}
+`;
+
 function AppCommentsFilterPopover() {
   useSetResolvedFilterFromQuery();
+  const [open, setIsOpen] = useState(false);
 
   return (
     <Popover2
       content={<AppCommentsFilter />}
+      isOpen={open}
       modifiers={{
         offset: {
           enabled: true,
           options: {
-            offset: [7, 10],
+            offset: [-7, 18],
           },
         },
         preventOverflow: {
           enabled: true,
         },
       }}
+      onInteraction={(nextState: boolean) => {
+        setIsOpen(nextState);
+      }}
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
     >
-      <Icon name="filter" size={IconSize.LARGE} />
+      <FilterIconContainer open={open}>
+        <Icon name="filter" size={IconSize.XXL} />
+      </FilterIconContainer>
     </Popover2>
   );
 }

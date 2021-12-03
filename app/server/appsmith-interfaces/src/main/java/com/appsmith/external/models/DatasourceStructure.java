@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -105,11 +106,33 @@ public class DatasourceStructure {
     }
 
     @Data
-    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Template {
         String title;
         String body;
-        List<Property> pluginSpecifiedTemplates;
+        Object configuration;
+
+        // To create templates for plugins which store the configurations
+        // in List<Property> format
+        public Template(String title, String body, List<Property> configuration) {
+            this.title = title;
+            this.body = body;
+            this.configuration = configuration;
+        }
+
+        // To create templates for plugins with UQI framework whic store the configurations
+        // as a map
+        public Template(String title, String body, Map<String, ?> configuration) {
+            this.title = title;
+            this.body = body;
+            this.configuration = configuration;
+        }
+
+        // Creating templates without configuration
+        public Template(String title, String body) {
+            this.title = title;
+            this.body = body;
+        }
     }
 
     ErrorDTO error;

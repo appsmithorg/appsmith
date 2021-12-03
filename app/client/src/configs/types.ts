@@ -44,6 +44,7 @@ export type AppsmithUIConfigs = {
     apiId: string;
     apiKey: string;
     indexName: string;
+    snippetIndex: string;
   };
 
   google: {
@@ -67,8 +68,6 @@ export type AppsmithUIConfigs = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-
-  disableTelemetry: boolean;
   commentsTestModeEnabled: boolean;
 
   cloudServicesBaseUrl: string;
@@ -77,6 +76,5 @@ export type AppsmithUIConfigs = {
     enabled: boolean;
     apiKey: string;
   };
-  onboardingFormEnabled: boolean;
   appsmithSupportEmail: string;
 };

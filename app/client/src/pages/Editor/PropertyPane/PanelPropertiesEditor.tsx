@@ -1,9 +1,7 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
 
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   PanelConfig,
   PropertyPaneConfig,
@@ -13,11 +11,14 @@ import {
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
-import { Icon, IPanelProps } from "@blueprintjs/core";
+import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
-import { PropertyControlsWrapper, PropertyPaneBodyWrapper } from ".";
+
+import { ControlIcons } from "icons/ControlIcons";
+
+const QuestionIcon = ControlIcons.QUESTION;
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -36,22 +37,7 @@ function PanelHeader(props: PanelHeaderProps) {
                 <span> to a widget property</span>
               </div>
             ),
-            icon: <Icon icon="help" iconSize={16} />,
-          },
-          {
-            tooltipContent: "Close",
-            icon: (
-              <Icon
-                className={"t--property-pane-close-btn"}
-                icon="cross"
-                iconSize={16}
-                onClick={(e: any) => {
-                  props.hidePropertyPane();
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              />
-            ),
+            icon: <QuestionIcon height={16} width={16} />,
           },
         ]}
         isPanelTitle
@@ -87,15 +73,7 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
-  const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-  const hidePropertyPane = useCallback(() => {
-    AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-      widgetType: widgetProperties.type || "",
-      widgetId: widgetProperties.widgetId,
-    });
-    dispatch({ type: ReduxActionTypes.HIDE_PROPERTY_PANE });
-  }, [dispatch, widgetProperties.type, widgetProperties.widgetId]);
 
   const {
     closePanel,
@@ -181,27 +159,24 @@ export function PanelPropertiesEditor(
     }
   };
   return (
-    <>
+    <div className="relative flex flex-col w-full pt-3 overflow-y-auto">
       <PanelHeader
         closePanel={closePanel}
-        hidePropertyPane={hidePropertyPane}
         isEditable={panelConfig.editableTitle}
         propertyName={panelConfig.titlePropertyName}
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      <PropertyPaneBodyWrapper>
-        <PropertyControlsWrapper>
-          {panelConfigs &&
-            generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-              id: widgetProperties.widgetId,
-              type: widgetProperties.type,
-              panel,
-              theme,
-            })}
-        </PropertyControlsWrapper>
-      </PropertyPaneBodyWrapper>
-    </>
+      <div className="p-3 pb-24 overflow-y-scroll">
+        {panelConfigs &&
+          generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
+            id: widgetProperties.widgetId,
+            type: widgetProperties.type,
+            panel,
+            theme,
+          })}
+      </div>
+    </div>
   );
 }
 
@@ -219,7 +194,6 @@ interface PanelPropertiesEditorPanelProps {
 interface PanelHeaderProps {
   isEditable: boolean;
   widgetProperties?: WidgetProps;
-  hidePropertyPane: () => void;
   title: string;
   closePanel: () => void;
   propertyName: string;

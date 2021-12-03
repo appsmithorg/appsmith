@@ -1,0 +1,765 @@
+[
+    {
+        "entities": [
+            "LIST_WIDGET",
+            "TABLE_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "ARRAY",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Filter data based on a particular value when binding data from an array",
+            "snippet": "let data = [{\"hero\": \"Iron Man\",\"team\": \"Avengers\",\"skills\": \"Superhuman strength\"}, {\"hero\": \"Bat Man\", \"team\": \"Justice League\", \"skills\": \"Gadgets\" }, {\"hero\": \"Aqua Man\", \"team\": \"Justice League\", \"skills\": \"endurance\" }, {\"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" }]; filtered_data = data.filter((item) => { return item[\"team\"] == \"Avengers\"; });",
+            "template": "{{data}}.filter((item) => {return item[{{key}}] === {{value}};});",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "data",
+                    "type": "OBJECT_ARRAY"
+                },
+                {
+                    "name": "key",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "value",
+                    "type": "VAR"
+                }
+            ],
+            "summary": "Merge data from two entities into a single response"
+        }
+    },
+    {
+        "entities": [
+            "LIST_WIDGET",
+            "TABLE_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Access attributes from a nested data",
+            "template": "{{your_object}}.{{key}}",
+            "args": [
+                {
+                    "name": "your_object",
+                    "type": "OBJECT"
+                },
+                {
+                    "name": "key",
+                    "type": "VAR"
+                }
+            ],
+            "isTrigger": false,
+            "summary": "When you have objects or arrays nested inside each other, you can use the dot operator to access items inside them and return them onto the table or list widget.",
+            "snippet": "let nested_data = {\"data\": {\"heros_data\": [{\"hero\": \"Iron Man\", \"team\": \"Avengers\", \"skills\": \"Superhuman strength\" }, {\"hero\": \"Bat Man\", \"team\": \"Justice League\", \"skills\": \"Gadgets\" }, {\"hero\": \"Aqua Man\",\"team\": \"Justice League\", \"skills\": \"endurance\" }, {\"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" }] }}heros_data = nested_data.data.heros_data;"
+        }
+    },
+    {
+        "entities": [
+            "LIST_WIDGET",
+            "TABLE_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Add colours to data inside table columns based on certain conditions",
+            "template": "(function columnColor() { let colors = { {{columnValue1}}: {{color1}}, {{columnValue2}}: {{color2}}, }; return colors[{{tableName}}.selectedRow[{{columnName}}]]; })()",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "columnValue1",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "color1",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "columnValue2",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "color2",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "tableName",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "columnName",
+                    "type": "TEXT"
+                }
+            ],
+            "summary": "You can have custom styles such as colours and backgrounds in your table widget on a particular column. Choose the column you want, open the column settings and use the following snippet in Cell Background or Text Color property.",
+            "snippet": "//Javascript for Cell Background or Text Color property\n(function columnColor() {let colors = {\"True\": \"green\",\"False\": \"Red\"};return colors[currentRow[\"status\"]];})()"
+        }
+    },
+    {
+        "entities": [
+            "LIST_WIDGET",
+            "TABLE_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "ARRAY",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Merge multiple objects from queries into a single array",
+            "template": "{{your_array}}.concat({{Obj1}}, {{Obj2}});",
+            "args": [
+                {
+                    "type": "ARRAY",
+                    "name": "your_array"
+                },
+                {
+                    "type": "VAR",
+                    "name": "Obj1"
+                },
+                {
+                    "type": "VAR",
+                    "name": "Obj2"
+                }
+            ],
+            "isTrigger": false,
+            "summary": "If you have multiple objects from Queries with the same key\"s and want to bind them in a list or table widget, you can use the concat() method.",
+            "snippet": "/* Query #1 Data: Avengers\n [ { hero: \"Bat Man\", team: \"Justice League\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice League\", skills: \"endurance\", }, ] \nQuery #2 Data: justice_league\n [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ] */let heros = avengers.concat(justice_league);"
+        }
+    },
+    {
+        "entities": [
+            "LIST_WIDGET",
+            "TABLE_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Parsing through nested JSON data inside an array of objects",
+            "template": "currentRow.columnName.{{key}}.{{key}}",
+            "isTrigger": false,
+            "summary": "If the values in the data are dense JSON, you could parse them into your columns inside the Table widget or bind them onto the List widget. For this, you\"ll have to open the property pane on the Table widget and go to the column settings and update the ComputedValue. Similarly, on the list widget, you could use the currentItem property and parse through JSON.",
+            "snippet": "// When using Notion API, to bind title from a Notion table,\n// the following has to be used inside the Title computed Value.\ncurrentRow.Title.title[0].plain_text"
+        }
+    },
+    {
+        "entities": [
+            "LIST_WIDGET",
+            "TABLE_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "ARRAY",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Removing duplicate values from an array",
+            "template": "(function(){let JSONObject = {{your_array}}.map(JSON.stringify);let uniqueSet = new Set(JSONObject);let uniqueArray = Array.from(uniqueSet).map(JSON.parse);return uniqueArray;})()",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "your_array",
+                    "type": "ARRAY"
+                }
+            ],
+            "summary": "When binding array data into a table widget or list widget, you may encounter duplicate values. You can use the following snippet to only bind unique values.",
+            "snippet": "(function(){let heroes = [{     hero: \"Iron Man\",     team: \"Avengers\",     skills: \"Superhuman strength\", }, {     hero: \"Bat Man\",     team: \"Justice League\",     skills: \"Gadgets\", }, {     hero: \"Iron Man\",    team: \"Avengers\",    skills: \"Superhuman strength\", }, {     hero: \"Bat Man\",    team: \"Justice League\",    skills: \"Gadgets\", }, {     hero: \"Aqua Man\",     team: \"Justice League\",     skills: \"endurance\" }, {      hero: \"Captain America\",      team: \"Avengers\",      skills: \"endurance\", }]; let JSONObject = heroes.map(JSON.stringify); let uniqueSet = new Set(JSONObject); let uniqueArray = Array.from(uniqueSet).map(JSON.parse); return uniqueArray; })()"
+        }
+    },
+    {
+        "entities": [
+            "DROP_DOWN_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "ARRAY",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Creating a select widget options list from a query",
+            "template": "{{queryData}}.map((item) => { return { label: item.{{attribute1}}, value: item.{{attribute2}} }; });",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "queryData",
+                    "type": "OBJECT_ARRAY"
+                },
+                {
+                    "name": "attribute1",
+                    "type": "VAR"
+                },
+                {
+                    "name": "attribute2",
+                    "type": "VAR"
+                }
+            ],
+            "summary": "When you want to create an option list from an API or DB Query, which contains an array of object\"s you can use the `map()` function and return the options in an array in the following format:`Array<{ label: string, value: string }>`",
+            "snippet": "(function () {let skills = [\"strength\",\"speed\",\"durability\",\"agility\",\"reflexes\"];let options_list = skills.map((item) => {return { label: item, value: item, };});return options_list;})()"
+        }
+    },
+    {
+        "entities": [
+            "DROP_DOWN_WIDGET",
+            "workflow"
+        ],
+        "language": "javascript",
+        "dataType": "FUNCTION",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Updating queries when options are changed from the select widget",
+            "template": "{{selectBox}}.selectedOptionValue === {{value}} ? {{QueryOne}}.run() : {{QueryTwo}}.run()",
+            "args": [
+                {
+                    "type": "string",
+                    "name": "selectBox"
+                },
+                {
+                    "type": "string",
+                    "name": "value"
+                },
+                {
+                    "type": "string",
+                    "name": "QueryOne"
+                },
+                {
+                    "type": "string",
+                    "name": "QueryTwo"
+                }
+            ],
+            "isTrigger": false,
+            "summary": "Based on the updated option on the select widget, you can call or execute an API. For this, you\"ll need to define a workflow in the onOptionChange property with JavaScript.",
+            "snippet": "/* If the selected option in the Select widget is User then fetch_users query is executed, else fetch_products query is executed. */\nSelect1.selectedOptionValue === \"User\" ? fetch_users.run() : fetch_products.run()"
+        }
+    },
+    {
+        "entities": [
+            "CHECKBOX_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Setting default value of checkbox based on a query",
+            "template": "{{query}}.{{key}}",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "query",
+                    "type": "OBJECT"
+                },
+                {
+                    "name": "key",
+                    "type": "VAR"
+                }
+            ],
+            "summary": "To configure the default value of the checkbox widget with a particular query, you can use javascript and return the state of the checkbox.",
+            "snippet": "function() {let iron_man = { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", status: true, };return iron_man.status; }()"
+        }
+    },
+    {
+        "entities": [
+            "DATEPICKER_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Select current date in the date picker widget",
+            "snippet": "moment.now()",
+            "isTrigger": false,
+            "summary": "By default, if you want to assign the date picker value to the current date, you can use moment.now() method. "
+        }
+    },
+    {
+        "entities": [
+            "DATEPICKER_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Formatting date inside the data picker widget",
+            "template": "moment({{date}}).format({{dateFormat}})",
+            "args": [
+                {
+                    "name": "date",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "dateFormat",
+                    "type": "TEXT"
+                }
+            ],
+            "isTrigger": false,
+            "summary": "If you want to change the format of the date object from a query, you can use moment.javascript and covert it into the desired format.",
+            "snippet": "moment(\"2021-06-28 12:28:33 PM\").format(\"LL\")"
+        }
+    },
+    {
+        "entities": [
+            "TEXT_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Binding current time in the text widget",
+            "snippet": "moment.now()",
+            "isTrigger": false,
+            "summary": "Sometimes, you need to display time when building UI, especially when building dashboards. On Appsmith, you can utilise the moment.javascript library to either display the current time or format any date-time type from a query."
+        }
+    },
+    {
+        "entities": [
+            "TEXT_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Binding an object onto the text widget",
+            "template": "(function() { let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "my_object",
+                    "type": "OBJECT"
+                }
+            ],
+            "summary": "Text Widget allows you to bind data from the APIs. When they are strings, we could directly bind them using the dot operator, but when you need the entire object with key-value pairs listed on the text widget you\"ll need to use the Object.entries method.",
+            "snippet": "(function(){let my_object = {\"AC\": \"True\", \"Parking\": \"True\", \"WiFi\": \"False\"};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()"
+        }
+    },
+    {
+        "entities": [
+            "TEXT_WIDGET"
+        ],
+        "language": "javascript",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Bind a variable dynamically on the text widget",
+            "isTrigger": false,
+            "summary": "When you want any variable onto the text widget, you can use the snippets literals in JavaScript.",
+            "snippet": "(function(){let invoice_total = 120;let text = `The total amount on the invoice is ${invoice_total}`;return text;})()"
+        }
+    },
+    {
+        "entities": [
+            "BUTTON_WIDGET",
+            "workflow"
+        ],
+        "language": "javascript",
+        "dataType": "FUNCTION",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Configuring multiple actions on button click",
+            "template": "{{query1}}.run(() => {showAlert({{successMessage}}, \"info\");storeValue({{key}}, {{queryData}});navigateTo({{pageName}});});",
+            "isTrigger": true,
+            "args": [
+                {
+                    "name": "query1",
+                    "type": "OBJECT"
+                },
+                {
+                    "name": "successMessage",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "key",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "queryData",
+                    "type": "VAR"
+                },
+                {
+                    "name": "pageName",
+                    "type": "TEXT"
+                }
+            ],
+            "summary": "You can configure multiple actions for buttons in Appsmith. For this, you\"ll need to use javascript in the onClick property and use the necessary methods. The following snippet does the following when clicked.",
+            "snippet": "getUsers.run(() => {showAlert(\"Query Executed\", \"info\");storeValue(\"name\", getUsers.data[0].name);navigateTo(\"#Page2\"));});"
+        }
+    },
+    {
+        "entities": [
+            "modal",
+            "workflow"
+        ],
+        "language": "javascript",
+        "dataType": "FUNCTION",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Open a modal and run a query on button click",
+            "template": "showModal({{modalName}});{{query}}.run();",
+            "isTrigger": true,
+            "args": [
+                {
+                    "name": "modalName",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "query",
+                    "type": "VAR"
+                }
+            ],
+            "summary": "To open a new Modal on button click and run a query, you can use javascript in the onClick property. This can be handy when you want to render any data on the Modal.",
+            "snippet": "showModal('Modal1');getUsers.run()"
+        }
+    },
+    {
+        "entities": [
+            "modal",
+            "workflow"
+        ],
+        "language": "javascript",
+        "dataType": "FUNCTION",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Run an API, close modal and show alert",
+            "template": "{{query}}.run(() => {closeModal({{modalName}});showAlert({{alertMessage}});})",
+            "isTrigger": true,
+            "args": [
+                {
+                    "name": "query",
+                    "type": "VAR"
+                },
+                {
+                    "name": "modalName",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "alertMessage",
+                    "type": "TEXT"
+                }
+            ],
+            "summary": "",
+            "snippet": "getUsers.run(() => {closeModal(\"Modal1\");showAlert(\"Success\");})"
+        }
+    },
+    {
+        "entities": [
+            "action",
+            "BUTTON_WIDGET",
+            "workflow"
+        ],
+        "language": "javascript",
+        "dataType": "FUNCTION",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Running multiple queries in series",
+            "template": "{{query1}}.run(() => {{query2}}.run(() => {{query3}}.run()));",
+            "isTrigger": true,
+            "args": [
+                {
+                    "name": "query1",
+                    "type": "VAR"
+                },
+                {
+                    "name": "query2",
+                    "type": "VAR"
+                },
+                {
+                    "name": "query3",
+                    "type": "VAR"
+                }
+            ],
+            "summary": "If you want to run two APIs in series on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
+            "snippet": "getAvengers.run(() => getLeague.run(() => getRangers.run()));"
+        }
+    },
+    {
+        "entities": [
+            "action",
+            "BUTTON_WIDGET",
+            "workflow"
+        ],
+        "language": "javascript",
+        "dataType": "FUNCTION",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Running multiple queries in parallel",
+            "template": "{{query1}}.run();{{query2}}.run();",
+            "isTrigger": true,
+            "args": [
+                {
+                    "name": "query1",
+                    "type": "VAR"
+                },
+                {
+                    "name": "query2",
+                    "type": "VAR"
+                }
+            ],
+            "summary": "If you want to run two APIs in parallel on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
+            "snippet": "getAvengers.run(); getLeague.run();"
+        }
+    },
+    {
+        "entities": [
+            "action",
+            "workflow"
+        ],
+        "language": "javascript",
+        "dataType": "FUNCTION",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Displaying alerts for workflows",
+            "template": "{{query1}}.run(() => {{{query2}}.run(() => {showAlert({{successMessage}}); },() => showAlert({{errorMessage}}) );},() => showAlert({{errorMessage}}, \"error\"));",
+            "isTrigger": true,
+            "args": [
+                {
+                    "name": "query1",
+                    "type": "VAR"
+                },
+                {
+                    "name": "query2",
+                    "type": "VAR"
+                },
+                {
+                    "name": "successMessage",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "errorMessage",
+                    "type": "TEXT"
+                }
+            ],
+            "summary": "You might often want to notify users with alerts, after executing queries or when performing certain actions on Appsmith. To do this, you can use showAlert method with javascript.",
+            "snippet": "updateUsers.run(() => {fetchUsers.run(() => {showAlert(\"User Updated\"); },() => showAlert(\"Fetch Users Failed\") );},() => showAlert(\"Update User Failed\", \"error\"));"
+        }
+    },
+    {
+        "entities": [
+            "datasource",
+            "postgres"
+        ],
+        "language": "sql",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Query data from Postgres table",
+            "snippet": "SELECT * FROM table_name",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "table_name",
+                    "type": "string"
+                }
+            ],
+            "summary": "To query the entire table data in postgres database, you can use the asterisk (*) in the SELECT clause, which is a shorthand for all column."
+        }
+    },
+    {
+        "entities": [
+            "datasource",
+            "postgres"
+        ],
+        "language": "sql",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "PostgreSQL SELECT statement to query data from multiple columns",
+            "snippet": "SELECT column1, column2, column3 FROM table_name",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "column1",
+                    "type": "string"
+                },
+                {
+                    "name": "column2",
+                    "type": "string"
+                },
+                {
+                    "name": "column3",
+                    "type": "string"
+                },
+                {
+                    "name": "table_name",
+                    "type": "string"
+                }
+            ],
+            "summary": "When using Potgres as datasource, and you just want to know the first name, last name and email of customers, you can specify these column names in the SELECT clause."
+        }
+    },
+    {
+        "entities": [
+            "datasource",
+            "postgres"
+        ],
+        "language": "sql",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "PostgreSQL SELECT statement to query data from one column",
+            "snippet": "SELECT column_name FROM table_name",
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "column_name",
+                    "type": "string"
+                },
+                {
+                    "name": "table_name",
+                    "type": "string"
+                }
+            ],
+            "summary": "When using Postgres as datasource, and you just want to know the first name, last name and email of customers, you can specify these column names in the SELECT clause."
+        }
+    },
+    {
+        "entities": [
+            "datasource",
+            "postgres"
+        ],
+        "language": "sql",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Ordering table data in ascending order",
+            "snippet": "SELECT column1, column2 FROM table_name ORDER BY column1 ASC;",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column1, column2 FROM table_name ORDER BY column1 ASC;",
+                    "summary": ""
+                }
+            ],
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "column1",
+                    "type": "string"
+                },
+                {
+                    "name": "column2",
+                    "type": "string"
+                },
+                {
+                    "name": "table_name",
+                    "type": "string"
+                }
+            ],
+            "summary": "When you query data from a table, the SELECT statement returns rows in an unspecified order. To sort the rows (ascending) of the result set, you use the ORDER BY and set ASC clause in the SELECT statement."
+        }
+    },
+    {
+        "entities": [
+            "datasource",
+            "postgres"
+        ],
+        "language": "sql",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Ordering table data in descending order",
+            "snippet": "SELECT column1, column2 FROM table_name ORDER BY column1 DESC;",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column1, column2 FROM table_name ORDER BY column1 DESC;",
+                    "summary": ""
+                }
+            ],
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "column1",
+                    "type": "string"
+                },
+                {
+                    "name": "column2",
+                    "type": "string"
+                },
+                {
+                    "name": "table_name",
+                    "type": "string"
+                }
+            ],
+            "summary": "When you query data from a table, the SELECT statement returns rows in an unspecified order. To sort the rows (ascending) of the result set, you use the ORDER BY and set DESC clause in the SELECT statement."
+        }
+    },
+    {
+        "entities": [
+            "postgres",
+            "datasource"
+        ],
+        "language": "sql",
+        "dataType": "STRING",
+        "fields": [],
+        "body": {
+            "snippetMeta": "",
+            "shortTitle": "",
+            "title": "Ordering table data based on the length of column value",
+            "snippet": "SELECT column1, LENGTH(column1) len FROM table_name ORDER BY len DESC;",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column1, LENGTH(column1) len FROM table_name ORDER BY len DESC;",
+                    "summary": ""
+                }
+            ],
+            "isTrigger": false,
+            "args": [
+                {
+                    "name": "column1",
+                    "type": "string"
+                },
+                {
+                    "name": "table_name",
+                    "type": "string"
+                }
+            ],
+            "summary": "If you want to sorts the rows by the lengths of the values in any column, you can use the LENGTH() function. This accepts a string and returns the length of the string."
+        }
+    }
+]

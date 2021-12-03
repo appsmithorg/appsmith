@@ -19,7 +19,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   ActionButton,
@@ -42,8 +42,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
 import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
+import { ButtonVariantTypes } from "components/constants";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface StateProps extends JSONtoFormProps {
+  applicationId: string;
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
@@ -66,13 +70,18 @@ type DatasourceSaaSEditorProps = StateProps &
   DispatchFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    applicationId: string;
     pageId: string;
     pluginPackageName: string;
   }>;
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
+
+enum AuthenticationStatus {
+  NONE = "NONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  SUCCESS = "SUCCESS",
+}
 
 const StyledButton = styled(Button)`
   &&&& {
@@ -88,6 +97,15 @@ const EditDatasourceButton = styled(AdsButton)`
     max-width: 160px;
     border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
+  }
+`;
+
+const StyledAuthMessage = styled.div`
+  color: ${(props) => props.theme.colors.error};
+  margin-top: 15px;
+  &:after {
+    content: " *";
+    color: inherit;
   }
 `;
 
@@ -111,7 +129,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
       AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
-        applicationId: _.get(this.props, "match.params.applicationId"),
+        applicationId: _.get(this.props, "applicationId"),
         datasourceId: _.get(this.props, "match.params.datasourceId"),
         pageId: _.get(this.props, "match.params.pageId"),
       });
@@ -131,16 +149,22 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      applicationId,
+      datasource,
       deleteDatasource,
       isDeleting,
       isSaving,
       match: {
-        params: { applicationId, datasourceId, pageId, pluginPackageName },
+        params: { datasourceId, pageId, pluginPackageName },
       },
     } = this.props;
 
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
+    const isAuthorized =
+      datasource?.datasourceConfiguration.authentication
+        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+
     return (
       <form
         onSubmit={(e) => {
@@ -152,6 +176,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
+
           {viewMode && (
             <EditDatasourceButton
               category={Category.tertiary}
@@ -178,9 +203,14 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : null}
+            {!isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
             <SaveButtonContainer>
               <ActionButton
-                accent="error"
+                // accent="error"
+                buttonStyle="DANGER"
+                buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() =>
@@ -194,6 +224,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 }
                 text="Delete"
               />
+
               <StyledButton
                 className="t--save-datasource"
                 disabled={this.validate()}
@@ -215,12 +246,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                   );
                 }}
                 size="small"
-                text="Continue"
+                text={isAuthorized ? "Re-authorize" : "Authorize"}
               />
             </SaveButtonContainer>
           </>
         ) : (
-          <Connected />
+          <>
+            <Connected />
+            {!isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
+          </>
         )}
       </form>
     );
@@ -253,6 +289,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

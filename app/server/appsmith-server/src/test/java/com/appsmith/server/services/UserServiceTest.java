@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
@@ -8,19 +9,29 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserSignupDTO;
+import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -30,7 +41,10 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -68,6 +82,15 @@ public class UserServiceTest {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    EncryptionService encryptionService;
+
+    @Autowired
+    UserDataService userDataService;
+
+    @MockBean
+    PasswordResetTokenRepository passwordResetTokenRepository;
 
     Mono<User> userMono;
 
@@ -211,6 +234,52 @@ public class UserServiceTest {
                     assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
+                    // Since there is a template organization, the user won't have an empty default organization. They
+                    // will get a clone of the default organization when they first login. So, we expect it to be
+                    // empty here.
+                    assertThat(user.getOrganizationIds()).hasSize(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewUser_WhenEmailHasUpperCase_SavedInLowerCase() {
+        String sampleEmail = "User-email@Email.cOm";
+        String sampleEmailLowercase = sampleEmail.toLowerCase();
+
+        User newUser = new User();
+        newUser.setEmail(sampleEmail);
+        newUser.setPassword("new-user-test-password");
+
+        Policy manageUserPolicy = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Policy manageUserOrgPolicy = Policy.builder()
+                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Policy readUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Policy readUserOrgPolicy = Policy.builder()
+                .permission(USER_READ_ORGANIZATIONS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Mono<User> userMono = userService.create(newUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getId()).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(sampleEmailLowercase);
+                    assertThat(user.getName()).isNullOrEmpty();
+                    assertThat(user.getPolicies()).isNotEmpty();
+                    assertThat(user.getPolicies()).containsAll(
+                            Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy)
+                    );
                     // Since there is a template organization, the user won't have an empty default organization. They
                     // will get a clone of the default organization when they first login. So, we expect it to be
                     // empty here.
@@ -386,7 +455,8 @@ public class UserServiceTest {
         signUpUser.setPassword("123456");
 
         Mono<User> invitedUserSignUpMono =
-                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
+                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
+                        .map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
@@ -439,15 +509,53 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateNameOfUser() {
-        User updateUser = new User();
-        updateUser.setEmail("api_user");
+        UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of api_user");
-
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
                 .assertNext(user -> {
                     assertNotNull(user);
                     assertThat(user.getEmail()).isEqualTo("api_user");
                     assertThat(user.getName()).isEqualTo("New name of api_user");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateRoleOfUser() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setRole("New role of user");
+        final Mono<UserData> resultMono = userService.updateCurrentUser(updateUser, null)
+                .then(userDataService.getForUserEmail("api_user"));
+        StepVerifier.create(resultMono)
+                .assertNext(userData -> {
+                    assertNotNull(userData);
+                    assertThat(userData.getRole()).isEqualTo("New role of user");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameRoleAndUseCaseOfUser() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("New name of user here");
+        updateUser.setRole("New role of user");
+        updateUser.setUseCase("New use case");
+        final Mono<Tuple2<User, UserData>> resultMono = userService.updateCurrentUser(updateUser, null)
+                .flatMap(user -> Mono.zip(
+                        Mono.just(user),
+                        userDataService.getForUserEmail("api_user")
+                ));
+        StepVerifier.create(resultMono)
+                .assertNext(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    assertNotNull(user);
+                    assertNotNull(userData);
+                    assertThat(user.getName()).isEqualTo("New name of user here");
+                    assertThat(userData.getRole()).isEqualTo("New role of user");
+                    assertThat(userData.getUseCase()).isEqualTo("New use case");
                 })
                 .verifyComplete();
     }
@@ -462,7 +570,8 @@ public class UserServiceTest {
         newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
         newUser.setSource(LoginSource.FORM);
         newUser.setPassword("abcdefgh");
-        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null);
+        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null)
+                .map(UserSignupDTO::getUser);
 
         StepVerifier.create(userAndSendEmail)
                 .expectErrorMessage(
@@ -470,4 +579,113 @@ public class UserServiceTest {
                 );
     }
 
+    @Test
+    public void forgotPasswordTokenGenerate_AfterTrying3TimesIn24Hours_ThrowsException() {
+        String testEmail = "test-email-for-password-reset";
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setRequestCount(3);
+        passwordResetToken.setFirstRequestTime(Instant.now());
+
+        // mock the passwordResetTokenRepository to return request count 3 in 24 hours
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.just(passwordResetToken));
+
+        ResetUserPasswordDTO resetUserPasswordDTO = new ResetUserPasswordDTO();
+        resetUserPasswordDTO.setEmail("test-email-for-password-reset");
+
+        StepVerifier.create(userService.forgotPasswordTokenGenerate(resetUserPasswordDTO))
+                .expectError(AppsmithException.class)
+                .verify();
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenMalformedToken_ThrowsException() {
+        String encryptedToken = "abcdef"; // malformed token
+        StepVerifier.create(userService.verifyPasswordResetToken(encryptedToken))
+                .verifyError(AppsmithException.class);
+    }
+
+    private String getEncodedToken(String emailAddress, String token) {
+        List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+        nameValuePairs.add(new BasicNameValuePair("email", emailAddress));
+        nameValuePairs.add(new BasicNameValuePair("token", token));
+        String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+        return encryptionService.encryptString(urlParams);
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenTokenDoesNotExist_ThrowsException() {
+        String testEmail = "abc@example.org";
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.empty());
+
+        StepVerifier.create(userService.verifyPasswordResetToken(getEncodedToken(testEmail, "123456789")))
+                .expectErrorMessage(AppsmithError.INVALID_PASSWORD_RESET.getMessage())
+                .verify();
+    }
+
+    private void testResetPasswordTokenMatch(String token1, String token2, boolean expectedResult) {
+        String testEmail = "abc@example.org";
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setTokenHash(passwordEncoder.encode(token1));
+
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.just(passwordResetToken));
+
+        StepVerifier.create(userService.verifyPasswordResetToken(getEncodedToken(testEmail, token2)))
+                .expectNext(expectedResult)
+                .verifyComplete();
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenTokenDoesNotMatch_ReturnsFalse() {
+        testResetPasswordTokenMatch("0123456789", "123456789", false); // different tokens
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenTokenMatches_ReturnsTrue() {
+        testResetPasswordTokenMatch("0123456789", "0123456789", true); // same token
+    }
+
+    @Test
+    public void resetPasswordAfterForgotPassword_WhenMalformedToken_ThrowsException() {
+        String encryptedToken = "abcdef"; // malformed token
+        StepVerifier.create(userService.resetPasswordAfterForgotPassword(encryptedToken, null))
+                .verifyError(AppsmithException.class);
+    }
+
+    @Test
+    public void resetPasswordAfterForgotPassword_WhenTokenDoesNotMatch_ThrowsException() {
+        String testEmail = "abc@example.org";
+        String token = getEncodedToken(testEmail, "123456789");
+
+        // ** check if token is not present in DB ** //
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.empty());
+
+        StepVerifier.create(userService.resetPasswordAfterForgotPassword(token, null))
+                .expectErrorMessage(AppsmithError.INVALID_PASSWORD_RESET.getMessage())
+                .verify();
+
+        // ** check if token present but hash does not match ** //
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setTokenHash(passwordEncoder.encode("abcdef"));
+
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.just(passwordResetToken));
+
+        StepVerifier.create(userService.resetPasswordAfterForgotPassword(token, null))
+                .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage(FieldName.TOKEN))
+                .verify();
+    }
+
+    @Test
+    public void buildUserProfileDTO_WhenAnonymousUser_ReturnsProfile() {
+        User user = new User();
+        user.setIsAnonymous(true);
+        user.setEmail("anonymousUser");
+        StepVerifier.create(userService.buildUserProfileDTO(user)).assertNext(userProfileDTO -> {
+            assertThat(userProfileDTO.getUsername()).isEqualTo("anonymousUser");
+            assertThat(userProfileDTO.isAnonymous()).isTrue();
+        }).verifyComplete();
+    }
 }

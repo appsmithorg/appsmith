@@ -2,6 +2,7 @@ import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
+import { EvaluationVersion } from "api/ApplicationApi";
 const history = createBrowserHistory();
 
 export type INJECTED_CONFIGS = {
@@ -32,6 +33,7 @@ export type INJECTED_CONFIGS = {
     apiId: string;
     apiKey: string;
     indexName: string;
+    snippetIndex: string;
   };
   logLevel: "debug" | "error";
   appVersion: {
@@ -40,16 +42,16 @@ export type INJECTED_CONFIGS = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  disableTelemetry: boolean;
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
-  onboardingFormEnabled: boolean;
   supportEmail: string;
 };
 declare global {
   interface Window {
     APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
     Intercom: any;
+    evaluationVersion: EvaluationVersion;
+    Sentry: any;
   }
 }
 
@@ -92,6 +94,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
       apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
       indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
+      snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -116,11 +119,9 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    disableTelemetry: true,
     cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
-    onboardingFormEnabled: !!process.env.REACT_APP_SHOW_ONBOARDING_FORM,
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
   };
 };
@@ -196,6 +197,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.algolia.indexName,
     APPSMITH_FEATURE_CONFIGS.algolia.indexName,
   );
+  const algoliaSnippetIndex = getConfig(
+    ENV_CONFIG.algolia.indexName,
+    APPSMITH_FEATURE_CONFIGS.algolia.snippetIndex,
+  );
 
   const segmentCEKey = getConfig(
     ENV_CONFIG.segment.ceKey,
@@ -205,21 +210,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   // We enable segment tracking if either the Cloud API key is set or the self-hosted CE key is set
   segment.enabled = segment.enabled || segmentCEKey.enabled;
 
-  let sentryTelemetry = true;
-  // Turn off all analytics if telemetry is disabled
-  if (APPSMITH_FEATURE_CONFIGS.disableTelemetry) {
-    smartLook.enabled = false;
-    segment.enabled = false;
-    sentryTelemetry = false;
-  }
-
   return {
     sentry: {
-      enabled:
-        sentryDSN.enabled &&
-        sentryRelease.enabled &&
-        sentryENV.enabled &&
-        sentryTelemetry,
+      enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,
@@ -250,6 +243,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
       apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
       indexName: algoliaIndex.value || "test_appsmith",
+      snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     google: {
       enabled: google.enabled,
@@ -280,12 +274,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
-    disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
     commentsTestModeEnabled: false,
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
-    onboardingFormEnabled: ENV_CONFIG.onboardingFormEnabled,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
   };
 };

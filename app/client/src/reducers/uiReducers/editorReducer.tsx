@@ -26,6 +26,9 @@ const initialState: EditorReduxState = {
     updatingWidgetName: false,
     updateWidgetNameError: false,
   },
+  isSnipingMode: false,
+  isPreviewMode: false,
+  zoomLevel: 1,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -132,7 +135,7 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.cloningPageError = false;
     return { ...state };
   },
-  [ReduxActionTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
+  [ReduxActionErrorTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.cloningPageError = true;
     state.loadingStates.cloningPage = false;
     return { ...state };
@@ -172,6 +175,24 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.updateWidgetNameError = true;
     return { ...state };
   },
+  [ReduxActionTypes.SET_SNIPING_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isSnipingMode: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_PREVIEW_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isPreviewMode: action.payload,
+    };
+  },
 });
 
 export interface EditorReduxState {
@@ -182,6 +203,9 @@ export interface EditorReduxState {
   currentPageId?: string;
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
+  isSnipingMode: boolean;
+  isPreviewMode: boolean;
+  zoomLevel: number;
   loadingStates: {
     saving: boolean;
     savingError: boolean;

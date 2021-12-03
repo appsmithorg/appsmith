@@ -19,6 +19,8 @@ import java.util.Set;
 
 public interface NewActionService extends CrudService<NewAction, String> {
 
+    Boolean validateActionName(String name);
+
     void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
 
     Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
@@ -67,9 +69,15 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId);
 
+    Mono<NewAction> archive(String id);
+
+    Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
+
     List<String> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
 
     Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
+
+    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 }

@@ -23,6 +23,7 @@ import com.external.constants.ResponseDataType;
 import com.external.helpers.BufferingFilter;
 import com.external.helpers.DataUtils;
 import com.external.helpers.DatasourceValidator;
+import com.external.helpers.RequestCaptureFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,8 +41,6 @@ import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedCaseInsensitiveMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -49,6 +48,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -59,16 +59,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.external.helpers.HintMessageUtils.getActionHintMessages;
+import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -158,7 +157,7 @@ public class RestApiPlugin extends BasePlugin {
                     // First extract all the bindings in order
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
-                    String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+                    String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
 
                     try {
                         updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
@@ -234,17 +233,19 @@ public class RestApiPlugin extends BasePlugin {
                         actionConfiguration.getQueryParameters(),
                         encodeParamsToggle);
             } catch (URISyntaxException e) {
-                ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null, insertedParams);
+                ActionExecutionRequest actionExecutionRequest =
+                        RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage(e));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage(e));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
-            ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri, insertedParams);
+            ActionExecutionRequest actionExecutionRequest =
+                    RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
             if (httpMethod == null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -266,7 +267,7 @@ public class RestApiPlugin extends BasePlugin {
             // Check for content type
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Invalid value for Content-Type."));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Invalid value for Content-Type."));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -318,6 +319,9 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(new BufferingFilter());
             }
 
+            final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
+            webClientBuilder.filter(requestCaptureFilter);
+
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             // Triggering the actual REST API call
@@ -333,7 +337,7 @@ public class RestApiPlugin extends BasePlugin {
                         ActionExecutionResult result = new ActionExecutionResult();
 
                         // Set the request fields
-                        result.setRequest(actionExecutionRequest);
+                        result.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
 
                         result.setStatusCode(statusCode.toString());
                         result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
@@ -415,6 +419,7 @@ public class RestApiPlugin extends BasePlugin {
                         return result;
                     })
                     .onErrorResume(error -> {
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
@@ -634,43 +639,6 @@ public class RestApiPlugin extends BasePlugin {
             return uriBuilder.build(true).toUri();
         }
 
-        private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
-                                                             URI uri,
-                                                             List<Map.Entry<String, String>> insertedParams) {
-
-            ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
-
-            if (!insertedParams.isEmpty()) {
-                final Map<String, Object> requestData = new HashMap<>();
-                requestData.put("smart-substitution-parameters", insertedParams);
-                actionExecutionRequest.setProperties(requestData);
-            }
-
-            if (actionConfiguration.getHeaders() != null) {
-                MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
-
-                actionConfiguration.getHeaders().stream()
-                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList((String) header.getValue())));
-                actionExecutionRequest.setHeaders(objectMapper.valueToTree(reqMultiMap));
-            }
-
-            // If the body is set, then use that field as the request body by default
-            if (actionConfiguration.getBody() != null) {
-                actionExecutionRequest.setBody(actionConfiguration.getBody());
-            }
-
-            if (actionConfiguration.getHttpMethod() != null) {
-                actionExecutionRequest.setHttpMethod(actionConfiguration.getHttpMethod());
-            }
-
-            if (uri != null) {
-                actionExecutionRequest.setUrl(uri.toString());
-            }
-
-            log.debug("Got request in actionExecutionResult as: {}", actionExecutionRequest);
-            return actionExecutionRequest;
-        }
-
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
                                                                            PaginationField paginationField) {
             if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
@@ -703,7 +671,7 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
         }
 
         @Override
@@ -713,6 +681,12 @@ public class RestApiPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
-    }
 
+        @Override
+        public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                           DatasourceConfiguration datasourceConfiguration) {
+            return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+                    Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
+        }
+    }
 }

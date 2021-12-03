@@ -1,11 +1,7 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
-
-export enum APP_MODE {
-  EDIT = "EDIT",
-  PUBLISHED = "PUBLISHED",
-}
+import { APP_MODE } from "entities/App";
 
 export type AuthUserState = {
   username: string;

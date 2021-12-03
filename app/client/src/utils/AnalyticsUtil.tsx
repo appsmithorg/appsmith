@@ -1,6 +1,5 @@
 // Events
 import * as log from "loglevel";
-import FeatureFlag from "./featureFlags";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
@@ -130,7 +129,59 @@ export type EventName =
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
-  | "CREATE_DATA_SOURCE_AUTH_API_CLICK";
+  | "DEBUGGER_NEW_ERROR_MESSAGE"
+  | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
+  | "DEBUGGER_CONTEXT_MENU_CLICK"
+  | "ADD_MOCK_DATASOURCE_CLICK"
+  | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
+  | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
+  | "GEN_CRUD_PAGE_FORM_SUBMIT"
+  | "GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG"
+  | "GEN_CRUD_PAGE_SELECT_DATASOURCE"
+  | "GEN_CRUD_PAGE_SELECT_TABLE"
+  | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
+  | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
+  | "BUILD_FROM_SCRATCH_ACTION_CARD_CLICK"
+  | "GEN_CRUD_PAGE_ACTION_CARD_CLICK"
+  | "GEN_CRUD_PAGE_DATA_SOURCE_CLICK"
+  | "DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION"
+  | "DATASOURCE_CARD_DELETE_ACTION"
+  | "DATASOURCE_CARD_EDIT_ACTION"
+  | "UNSUPPORTED_PLUGIN_DIALOG_BACK_ACTION"
+  | "UNSUPPORTED_PLUGIN_DIALOG_CONTINUE_ACTION"
+  | "SELECT_IN_CANVAS_CLICK"
+  | "WIDGET_SELECTED_VIA_SNIPING_MODE"
+  | "SUGGESTED_WIDGET_CLICK"
+  | "ASSOCIATED_ENTITY_CLICK"
+  | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
+  | "CONNECT_DATA_CLICK"
+  | "RESPONSE_TAB_RUN_ACTION_CLICK"
+  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK"
+  | "PAGES_LIST_LOAD"
+  | "WIDGET_GROUP"
+  | "CLOSE_GEN_PAGE_INFO_MODAL"
+  | "PAGES_LIST_LOAD"
+  | "COMMENTS_TOGGLE_MODE"
+  | "COMMENTS_ONBOARDING_SKIP_BUTTON_CLICK"
+  | "COMMENTS_ONBOARDING_STEP_CHANGE"
+  | "COMMENTS_ONBOARDING_SUBMIT_BUTTON_CLICK"
+  | "COMMENTS_ONBOARDING_MODAL_DISMISSED"
+  | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
+  | "REPLAY_UNDO"
+  | "REPLAY_REDO"
+  | "SNIPPET_CUSTOMIZE"
+  | "SNIPPET_EXECUTE"
+  | "SNIPPET_FILTER"
+  | "SNIPPET_COPIED"
+  | "SNIPPET_LOOKUP"
+  | "SIGNPOSTING_SKIP"
+  | "SIGNPOSTING_CREATE_DATASOURCE_CLICK"
+  | "SIGNPOSTING_CREATE_QUERY_CLICK"
+  | "SIGNPOSTING_ADD_WIDGET_CLICK"
+  | "SIGNPOSTING_CONNECT_WIDGET_CLICK"
+  | "SIGNPOSTING_PUBLISH_CLICK"
+  | "SIGNPOSTING_BUILD_APP_CLICK"
+  | "SIGNPOSTING_WELCOME_TOUR_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -155,9 +206,7 @@ class AnalyticsUtil {
       const analytics = (window.analytics = window.analytics || []);
       if (!analytics.initialize) {
         if (analytics.invoked) {
-          window.console &&
-            console.error &&
-            console.error("Segment snippet included twice.");
+          log.error("Segment snippet included twice.");
         } else {
           analytics.invoked = !0;
           analytics.methods = [
@@ -217,17 +266,12 @@ class AnalyticsUtil {
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
-      const app = (userData.applications || []).find(
-        (app: any) => app.id === appId,
-      );
       let user: any = {};
-      if (segment.enabled && segment.apiKey) {
+      if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
-          currentOrgId: userData.currentOrganizationId,
           appId: appId,
-          appName: app ? app.name : undefined,
           source: "cloud",
         };
       } else {
@@ -256,10 +300,9 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userData: User) {
-    const { segment, smartLook } = getAppsmithConfigs();
+    const { segment, sentry, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
-    FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
@@ -280,7 +323,7 @@ class AnalyticsUtil {
           AnalyticsUtil.cachedUserId = userId;
         }
         const userProperties = {
-          userId: AnalyticsUtil.cachedUserId,
+          userId: AnalyticsUtil.cachedAnonymoustId,
           source: "ce",
         };
         log.debug(
@@ -292,13 +335,16 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function(scope) {
-      scope.setUser({
-        id: userId,
-        username: userData.username,
-        email: userData.email,
+
+    if (sentry.enabled) {
+      Sentry.configureScope(function(scope) {
+        scope.setUser({
+          id: userId,
+          username: userData.username,
+          email: userData.email,
+        });
       });
-    });
+    }
 
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });

@@ -8,9 +8,13 @@
   "checkboxWidget": ".t--widget-checkboxwidget",
   "switchwidget": ".t--widget-switchwidget",
   "radioWidget": ".t--widget-radiogroupwidget",
+  "checkboxGroupWidget": ".t--widget-checkboxgroupwidget",
   "formWidget": ".t--widget-formwidget",
   "imageWidget": ".t--widget-imagewidget",
   "dropdownWidget": ".t--widget-dropdownwidget",
+  "multiselectwidget": ".t--widget-multiselectwidget",
+  "multiselecttreewidget": ".t--widget-multiselecttreewidget",
+  "singleselecttreewidget": ".t--widget-singleselecttreewidget",
   "tabWidget": ".t--widget-tabswidget",
   "chartWidget": ".t--widget-chartwidget",
   "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",
@@ -32,7 +36,7 @@
   "inputValue": ".t--table-filter-value-input",
   "canvas": ".canvas",
   "removeFilter": ".t--table-filter-remove-btn",
-  "rowHeight": ".t--table-compact-mode-toggle-btn",
+    "rowHeight": ".t--property-control-rowheight .bp3-popover-target",
   "rowHeightOpt": ".t--table-compact-mode-option",
   "visibilityMode": ".t--table-column-visibility-toggle-btn",
   "visibilityOpt": ".option-title",
@@ -40,5 +44,9 @@
   "pageInfo": ".bp3-heading",
   "inputGrp": ".bp3-input-group input",
   "datePickerNew": ".t--widget-datepickerwidget2",
-  "tab": ".t--tab-Tab"
+  "tab": ".t--tab-Tab",
+  "downloadOption": ".t--table-download-data-option",
+  "addFilter": ".t--add-filter-btn",
+  "operatorsDropdown": ".t--table-filter-operators-dropdown",
+  "attributesDropdown": ".t--table-filter-columns-dropdown"
 }

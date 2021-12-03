@@ -13,6 +13,7 @@ export const CanvasFactory = Factory.Sync.makeFactory<WidgetProps>({
   snapRows: 33,
   parentRowSpace: 1,
   type: "CANVAS_WIDGET",
+  isVisible: true,
   canExtend: true,
   minHeight: 1292,
   parentColumnSpace: 1,

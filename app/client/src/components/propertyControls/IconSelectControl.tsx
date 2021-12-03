@@ -6,6 +6,7 @@ import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
+import { Colors } from "constants/Colors";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -21,10 +22,10 @@ const IconSelectContainerStyles = createGlobalStyle<{
 
 const StyledButton = styled(Button)`
   box-shadow: none !important;
-  border: none !important;
+  border: 1px solid ${Colors.GREY_5};
   border-radius: 0;
+  height: 36px;
   background-color: #ffffff !important;
-
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
   }
@@ -38,7 +39,6 @@ const StyledMenu = styled(Menu)`
   max-height: 170px !important;
   padding-left: 5px !important;
   padding-right: 5px !important;
-
   &::-webkit-scrollbar {
     width: 8px;
     background-color: #eeeeee;
@@ -54,13 +54,11 @@ const StyledMenuItem = styled(MenuItem)`
   flex-direction: column;
   align-items: center;
   padding: 13px 5px;
-
   &:active,
   &:hover,
   &.bp3-active {
     background-color: #eeeeee !important;
   }
-
   > span.bp3-icon {
     margin-right: 0;
     color: #939090 !important;
@@ -74,6 +72,7 @@ const StyledMenuItem = styled(MenuItem)`
 
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
+  defaultIconName?: IconName;
 }
 
 export interface IconSelectControlState {
@@ -85,7 +84,7 @@ type IconType = IconName | typeof NONE;
 const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
-ICON_NAMES.push(NONE);
+ICON_NAMES.unshift(NONE);
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -105,10 +104,6 @@ class IconSelectControl extends BaseControl<
   componentDidMount() {
     this.timer = setTimeout(() => {
       const iconSelectTargetElement = this.iconSelectTargetRef.current;
-      console.log(
-        `target width: => `,
-        iconSelectTargetElement?.getBoundingClientRect().width,
-      );
       this.setState((prevState: IconSelectControlState) => {
         return {
           ...prevState,
@@ -126,12 +121,13 @@ class IconSelectControl extends BaseControl<
   }
 
   public render() {
-    const { propertyValue: iconName } = this.props;
+    const { defaultIconName, propertyValue: iconName } = this.props;
     const { popoverTargetWidth } = this.state;
     return (
       <>
         <IconSelectContainerStyles targetWidth={popoverTargetWidth} />
         <TypedSelect
+          activeItem={iconName || defaultIconName || NONE}
           className="icon-select-container"
           itemListRenderer={this.renderMenu}
           itemPredicate={this.filterIconName}
@@ -146,9 +142,9 @@ class IconSelectControl extends BaseControl<
             className={Classes.TEXT_OVERFLOW_ELLIPSIS}
             elementRef={this.iconSelectTargetRef}
             fill
-            icon={iconName}
+            icon={iconName || defaultIconName}
             rightIcon="caret-down"
-            text={iconName || NONE}
+            text={iconName || defaultIconName || NONE}
           />
         </TypedSelect>
       </>

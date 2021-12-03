@@ -14,6 +14,7 @@ import {
 } from "selectors/editorSelectors";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
+import { useSortedCommentThreadIds } from "../AppComments/AppCommentThreads";
 
 // TODO refactor application comment threads by page id to optimise
 // if lists turn out to be expensive
@@ -43,7 +44,7 @@ function InlinePageCommentPin({
 
 const MemoisedInlinePageCommentPin = React.memo(InlinePageCommentPin);
 
-const useSelectCommentThreadUsingQuery = () => {
+export const useSelectCommentThreadUsingQuery = () => {
   const location = useLocation();
   const [commentThreadIdInUrl, setCommentThreadIdInUrl] = useState<
     string | null
@@ -64,9 +65,13 @@ const useSelectCommentThreadUsingQuery = () => {
  * Children set their position themselves
  */
 function Comments({ refId }: { refId: string }) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const commentsThreadIds = useSelector(
+  const applicationId = useSelector(getCurrentApplicationId) as string;
+  const commentThreadIdsByRef = useSelector(
     refCommentThreadsSelector(refId, applicationId),
+  );
+  const commentThreadIds = useSortedCommentThreadIds(
+    applicationId,
+    commentThreadIdsByRef as string[],
   );
   const unpublishedCommentThread = useSelector(
     unpublishedCommentThreadSelector(refId),
@@ -75,14 +80,17 @@ function Comments({ refId }: { refId: string }) {
 
   return (
     <>
-      {Array.isArray(commentsThreadIds) &&
-        commentsThreadIds.map((commentsThreadId: any) => (
-          <MemoisedInlinePageCommentPin
-            commentThreadId={commentsThreadId}
-            focused={commentThreadIdInUrl === commentsThreadId}
-            key={commentsThreadId}
-          />
-        ))}
+      {Array.isArray(commentThreadIds) &&
+        commentThreadIds
+          .slice()
+          .reverse()
+          .map((commentsThreadId: any) => (
+            <MemoisedInlinePageCommentPin
+              commentThreadId={commentsThreadId}
+              focused={commentThreadIdInUrl === commentsThreadId}
+              key={commentsThreadId}
+            />
+          ))}
       {/**
        * Exists in store, not yet created in db
        * Its kept separately in state to reset easily

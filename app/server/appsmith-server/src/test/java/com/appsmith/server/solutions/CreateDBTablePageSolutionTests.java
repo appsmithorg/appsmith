@@ -1,6 +1,8 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
@@ -9,12 +11,13 @@ import com.appsmith.external.models.DatasourceStructure.TableType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
+import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -26,6 +29,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +44,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,7 +91,7 @@ public class CreateDBTablePageSolutionTests {
     private DatasourceStructure structure = new DatasourceStructure();
 
     // Regex to break string in separate words
-    final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*]+";
+    final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
 
     private final String SELECT_QUERY = "SelectQuery";
 
@@ -93,19 +99,19 @@ public class CreateDBTablePageSolutionTests {
 
     private final String LIST_QUERY = "ListFiles";
 
+    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
-            "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
+            "  WHERE \"primaryKey\" = {{Table1.triggeredRow.primaryKey}};",
 
         "InsertQuery", "INSERT INTO sampleTable (\n" +
-            "\t\"primaryKey\",\n" +
-            "\t\"field1\", \n" +
+            "\t\"field1.something\", \n" +
             "\t\"field2\",\n" +
             "\t\"field3\", \n" +
             "\t\"field4\"\n" +
             ")\n" +
             "VALUES (\n" +
-            "\t\t\t\t{{insert_col_input1.text}}, \n" +
             "\t\t\t\t{{insert_col_input2.text}}, \n" +
             "\t\t\t\t{{insert_col_input3.text}}, \n" +
             "\t\t\t\t{{insert_col_input4.text}}, \n" +
@@ -113,13 +119,13 @@ public class CreateDBTablePageSolutionTests {
             ");",
 
         "SelectQuery", "SELECT * FROM sampleTable\n" +
-            "WHERE \"field2\" like '%{{Table1.searchText || \"\"}}%'\n" +
-            "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionLabel}}\n" +
+            "WHERE \"field1.something\" like '%{{Table1.searchText || \"\"}}%'\n" +
+            "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionValue}}\n" +
             "LIMIT {{Table1.pageSize}}" +
             "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
 
         "UpdateQuery", "UPDATE sampleTable SET\n" +
-            "\t\t\"field1\" = '{{update_col_2.text}}',\n" +
+            "\t\t\"field1.something\" = '{{update_col_2.text}}',\n" +
             "    \"field2\" = '{{update_col_3.text}}',\n" +
             "    \"field3\" = '{{update_col_4.text}}',\n" +
             "\t\t\"field4\" = '{{update_col_5.text}}'\n" +
@@ -128,7 +134,7 @@ public class CreateDBTablePageSolutionTests {
 
     private final String dropdownOptions = "options -> [\n" +
         "{\n\t\"label\": \"field3\",\n\t\"value\": \"field3\"\n}, \n{\n\t\"label\": \"field4\",\n" +
-        "\t\"value\": \"field4\"\n}, \n{\n\t\"label\": \"field1\",\n\t\"value\": \"field1\"\n" +
+        "\t\"value\": \"field4\"\n}, \n{\n\t\"label\": \"field1_something\",\n\t\"value\": \"field1.something\"\n" +
         "}, \n{\n\t\"label\": \"field2\",\n\t\"value\": \"field2\"\n}, \n{\n\t\"label\": \"primaryKey\",\n" +
         "\t\"value\": \"primaryKey\"\n}]";
 
@@ -151,7 +157,7 @@ public class CreateDBTablePageSolutionTests {
         List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
         List<Column> columns = List.of(
             new Column("primaryKey", "type1", null, true),
-            new Column("field1", "type2", null, false),
+            new Column("field1.something", "VARCHAR(23)", null, false),
             new Column("field2", "type3", null, false),
             new Column("field3", "type4", null, false),
             new Column("field4", "type5", null, false)
@@ -162,6 +168,8 @@ public class CreateDBTablePageSolutionTests {
         testDatasource.setOrganizationId(testOrg.getId());
         testDatasource.setName("CRUD-Page-Table-DS");
         testDatasource.setStructure(structure);
+        datasourceConfiguration.setUrl("http://test.com");
+        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
         datasourceService.create(testDatasource).block();
 
         resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
@@ -177,7 +185,7 @@ public class CreateDBTablePageSolutionTests {
     @WithUserDetails(value = "api_user")
     public void createPageWithInvalidApplicationIdTest() {
         
-        Mono<PageDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
 
         StepVerifier
             .create(resultMono)
@@ -189,8 +197,33 @@ public class CreateDBTablePageSolutionTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createPageWithInvalidDatasourceTest() {
+
+        Datasource invalidDatasource = new Datasource();
+        invalidDatasource.setOrganizationId(testOrg.getId());
+        invalidDatasource.setName("invalid_datasource");
+        invalidDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        resource.setDatasourceId(invalidDatasource.getId());
+        Mono<CRUDPageResponseDTO> resultMono = datasourceService.create(invalidDatasource)
+            .flatMap(datasource -> {
+                resource.setApplicationId(testApp.getId());
+                resource.setDatasourceId(datasource.getId());
+                return solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+            });
+
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.INVALID_DATASOURCE.getMessage(FieldName.DATASOURCE, invalidDatasource.getId())))
+            .verify();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createPageWithInvalidRequestBodyTest() {
-        Mono<PageDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO());
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO());
 
         StepVerifier
             .create(resultMono)
@@ -204,13 +237,14 @@ public class CreateDBTablePageSolutionTests {
     public void createPageWithNullPageId() {
 
         resource.setApplicationId(testApp.getId());
-        Mono<PageDTO> resultMono = solution.createPageFromDBTable(null, resource);
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(null, resource);
 
         StepVerifier
             .create(resultMono)
-            .assertNext(page -> {
+            .assertNext(crudPage -> {
+                PageDTO page = crudPage.getPage();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -219,6 +253,8 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
                 assertThat(layout.getDsl().get("children").toString().replaceAll(specialCharactersRegex, ""))
                     .containsIgnoringCase(dropdownOptions.replaceAll(specialCharactersRegex, ""));
+                assertThat(crudPage.getSuccessMessage()).isNotNull();
+                assertThat(crudPage.getSuccessImageUrl()).isNotNull();
             })
             .verifyComplete();
     }
@@ -233,7 +269,8 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page");
 
         Mono<PageDTO> resultMono = applicationPageService.createPage(newPage)
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
             .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
@@ -254,12 +291,16 @@ public class CreateDBTablePageSolutionTests {
 
                 assertThat(actions).hasSize(4);
                 for (NewAction action : actions) {
-                    ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
+                    ActionDTO unpublishedAction = action.getUnpublishedAction();
+                    ActionConfiguration actionConfiguration = unpublishedAction.getActionConfiguration();
                     String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
                     String templateActionBody =  actionNameToBodyMap
                         .get(action.getUnpublishedAction().getName()).replaceAll(specialCharactersRegex, "")
                         .replace("like", "ilike");
                     assertThat(actionBody).isEqualTo(templateActionBody);
+                    if (!StringUtils.equals(unpublishedAction.getName(), SELECT_QUERY)) {
+                        assertThat(actionConfiguration.getPluginSpecifiedTemplates().get(0).getValue()).isEqualTo(Boolean.TRUE);
+                    }
                 }
             })
             .verifyComplete();
@@ -273,18 +314,21 @@ public class CreateDBTablePageSolutionTests {
         PageDTO newPage = new PageDTO();
         newPage.setApplicationId(testApp.getId());
         newPage.setName("crud-admin-page-mysql");
+        StringBuilder pluginName = new StringBuilder();
 
         Mono<Datasource> datasourceMono = pluginRepository.findByName("Mysql")
             .flatMap(plugin -> {
+                pluginName.append(plugin.getName());
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("MySql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
-        Mono<PageDTO> resultMono = datasourceMono
+        Mono<CRUDPageResponseDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
@@ -292,9 +336,10 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
 
         StepVerifier
-            .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
+            .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
             .assertNext(tuple -> {
-                PageDTO page = tuple.getT1();
+                CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
+                PageDTO page = crudPageResponseDTO.getPage();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
                 assertThat(page.getName()).isEqualTo(newPage.getName());
@@ -320,6 +365,9 @@ public class CreateDBTablePageSolutionTests {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
                     }
                 }
+                assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase(pluginName);
+                assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase("TABLE");
+                assertThat(crudPageResponseDTO.getSuccessImageUrl()).isNotNull();
             })
             .verifyComplete();
     }
@@ -340,6 +388,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Redshift-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -348,7 +397,8 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
             .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
@@ -393,6 +443,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("MSSql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -400,7 +451,8 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
                 return solution.createPageFromDBTable(null, resource);
-            });
+            })
+            .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
             .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
@@ -408,7 +460,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = tuple.getT1();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -445,6 +497,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Snowflake-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -452,7 +505,8 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
                 return solution.createPageFromDBTable(null, resource);
-            });
+            })
+            .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
             .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
@@ -460,7 +514,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = tuple.getT1();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -483,12 +537,12 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
-    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
 
         resource.setApplicationId(testApp.getId());
+        StringBuilder pluginName = new StringBuilder();
 
         Mono<Datasource> datasourceMono = pluginRepository.findByName("S3")
             .flatMap(plugin -> {
@@ -496,22 +550,25 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setPluginId(plugin.getId());
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("S3-CRUD-Page-Table-DS");
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
+                pluginName.append(plugin.getName());
                 return datasourceService.create(datasource);
             });
 
-        Mono<PageDTO> resultMono = datasourceMono
+        Mono<CRUDPageResponseDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
                 return solution.createPageFromDBTable(null, resource);
             });
 
         StepVerifier
-            .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
+            .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
             .assertNext(tuple -> {
-                PageDTO page = tuple.getT1();
+                CRUDPageResponseDTO crudPage = tuple.getT1();
+                PageDTO page = crudPage.getPage();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
@@ -524,9 +581,12 @@ public class CreateDBTablePageSolutionTests {
                 for (NewAction action : actions) {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
-                    assertThat(actionConfiguration.getPluginSpecifiedTemplates().get(1).getValue().toString())
+                    assertThat(actionConfiguration.getFormData().get("bucket"))
                         .isEqualTo(resource.getTableName());
                 }
+
+                assertThat(crudPage.getSuccessMessage()).containsIgnoringCase(pluginName);
+                assertThat(crudPage.getSuccessMessage()).containsIgnoringCase("LIST");
             })
             .verifyComplete();
     }
@@ -552,6 +612,7 @@ public class CreateDBTablePageSolutionTests {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
                 datasource.setOrganizationId(testOrg.getId());
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 datasource.setName("Google-Sheet-CRUD-Page-Table-DS");
                 return datasourceService.create(datasource);
             });
@@ -561,7 +622,8 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
             .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
@@ -595,8 +657,6 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
-    */
-
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithValidPageIdForMongoDB() {
@@ -614,6 +674,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Mongo-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -622,7 +683,8 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
             .create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
@@ -647,31 +709,47 @@ public class CreateDBTablePageSolutionTests {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
                     }
 
-                    List<Property> pluginSpecifiedTemplate = actionConfiguration.getPluginSpecifiedTemplates();
-                    assertThat(pluginSpecifiedTemplate.get(1).getValue().toString()).isEqualTo("FORM");
-                    assertThat(pluginSpecifiedTemplate.get(19).getValue().toString()).isEqualTo("sampleTable");
-                    String queryType = pluginSpecifiedTemplate.get(2).getValue().toString();
+                    Map<String, Object> formData = actionConfiguration.getFormData();
+                    assertThat(formData.get("collection")).isEqualTo("sampleTable");
+                    String queryType = formData.get("command").toString();
                     if (queryType.equals("UPDATE")) {
-                        assertThat(pluginSpecifiedTemplate.get(11).getValue().toString())
+                        Map<String, Object> updateMany = (Map<String, Object>) formData.get("updateMany");
+                        assertThat(updateMany.get("query"))
                             .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }");
 
-                        assertThat(pluginSpecifiedTemplate.get(12).getValue().toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{\"field1\" : {{update_col_1.text}},\"field2\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
+                        assertThat(updateMany.get("update").toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1.something\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
                                 .replaceAll(specialCharactersRegex, ""));
+                        assertThat(formData.get("smartSubstitution")).isEqualTo(true);
                     } else if (queryType.equals("DELETE")) {
-                        assertThat(pluginSpecifiedTemplate.get(13).getValue().toString().replaceAll(specialCharactersRegex, ""))
-                            .contains("ObjectId('{{data_table.selectedRow.primaryKey}}'"
+                        Map<String, Object> delete = (Map<String, Object>) formData.get("delete");
+                        assertThat(delete.get("query").toString().replaceAll(specialCharactersRegex, ""))
+                            .contains("{ primaryKey: ObjectId('{{data_table.triggeredRow.primaryKey}}') }"
                                 .replaceAll(specialCharactersRegex, ""));
+                        assertThat(formData.get("smartSubstitution")).isEqualTo(true);
                     } else if (queryType.equals("FIND")) {
-                        assertThat(pluginSpecifiedTemplate.get(4).getValue().toString().replaceAll(specialCharactersRegex, ""))
+
+                        Map<String, Object> find = (Map<String, Object>) formData.get("find");
+                        assertThat(find.get("sort").toString().replaceAll(specialCharactersRegex, ""))
                             .isEqualTo("{ \n\"{{key_select.selectedOptionValue}}: {{order_select.selectedOptionValue}} \n}"
                                 .replaceAll(specialCharactersRegex, ""));
 
-                        assertThat(pluginSpecifiedTemplate.get(6).getValue().toString()).isEqualTo("{{data_table.pageSize}}");
+                        assertThat(find.get("limit").toString()).isEqualTo("{{data_table.pageSize}}");
 
-                        assertThat(pluginSpecifiedTemplate.get(7).getValue().toString().replaceAll(specialCharactersRegex, ""))
+                        assertThat(find.get("skip").toString().replaceAll(specialCharactersRegex, ""))
                             .isEqualTo("{{(data_table.pageNo - 1) * data_table.pageSize}}".replaceAll(specialCharactersRegex, ""));
 
+                        assertThat(find.get("query").toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{ field1.something: /{{data_table.searchText||\"\"}}/i }".replaceAll(specialCharactersRegex, ""));
+
+                        assertThat(formData.get("smartSubstitution")).isEqualTo(false);
+                    } else if (queryType.equals("INSERT")) {
+                        Map<String, Object> insert = (Map<String, Object>) formData.get("insert");
+
+                        assertThat(insert.get("documents").toString().replaceAll(specialCharactersRegex, ""))
+                                .isEqualTo("{ \\\"field2\\\": {{insert_col_input1.text}}, \\\"field1.something\\\": {{insert_col_input2.text}}, \\\"field3\\\": {{insert_col_input3.text}}, \\\"field4\\\": {{insert_col_input4.text}}}"
+                                        .replaceAll(specialCharactersRegex, ""));
+                        assertThat(formData.get("smartSubstitution")).isEqualTo(true);
                     }
                 }
             })

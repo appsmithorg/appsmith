@@ -14,6 +14,11 @@ import Button from "components/editorComponents/Button";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import CloseEditor from "../../../components/editorComponents/CloseEditor";
 
+const StyledForm = styled(Form)`
+  flex: 1;
+  overflow: auto;
+`;
+
 const CurlImportFormContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -126,7 +131,7 @@ class CurlImportForm extends React.Component<Props> {
           </p>
           <hr className="divider" />
         </Header>
-        <Form onSubmit={handleSubmit(curlImportSubmitHandler)}>
+        <StyledForm onSubmit={handleSubmit(curlImportSubmitHandler)}>
           <CurlImport>
             <CurlContainer>
               <label className="inputLabel">{"Paste CURL Code Here"}</label>
@@ -158,7 +163,7 @@ class CurlImportForm extends React.Component<Props> {
               text="Import"
             />
           </CurlImportFormContainer>
-        </Form>
+        </StyledForm>
       </>
     );
   }

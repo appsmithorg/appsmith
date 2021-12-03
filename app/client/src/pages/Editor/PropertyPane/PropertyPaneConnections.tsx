@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, {
@@ -10,37 +10,39 @@ import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
-import { getPluginIcon, getWidgetIcon } from "../Explorer/ExplorerIcons";
-import { getAction, getDatasource } from "selectors/entitiesSelector";
-import { keyBy } from "lodash";
-import { isStoredDatasource } from "entities/Action";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
-import { useEntityLink } from "components/editorComponents/Debugger/hooks";
-import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { Message } from "entities/AppsmithConsole";
+import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
+import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
+import {
+  DEBUGGER_TAB_KEYS,
+  doesEntityHaveErrors,
+  getDependenciesFromInverseDependencies,
+} from "components/editorComponents/Debugger/helpers";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
+import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { useCallback } from "react";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { showDebugger } from "actions/debuggerActions";
-import { setActionTabsInitialIndex } from "actions/actionActions";
+import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
+import { Position } from "@blueprintjs/core";
 
-const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
 
 const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  border-bottom: 0.5px solid #e0dede;
 
   .connection-dropdown {
     box-shadow: none;
-    background-color: ${(props) => props.theme.colors.propertyPane.bg};
     border: none;
+    background-color: ${Colors.WHITE};
+    padding: 0;
+    width: auto;
   }
+
   .error {
     border: 1px solid
       ${(props) => props.theme.colors.propertyPane.connections.error};
@@ -51,16 +53,17 @@ const TopLayer = styled.div`
 const SelectedNodeWrapper = styled.div<{
   entityCount: number;
   hasError: boolean;
+  justifyContent: string;
 }>`
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  justify-content: ${(props) => props.justifyContent};
   color: ${(props) =>
     props.hasError
       ? props.theme.colors.propertyPane.connections.error
       : props.theme.colors.propertyPane.connections.connectionsCount};
   ${(props) => getTypographyByKey(props, "p3")}
-  width: 113px;
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {
@@ -155,13 +158,6 @@ const OptionContentWrapper = styled.div<{
   &:hover {
     background-color: ${(props) =>
       !props.hasError && props.theme.colors.dropdown.hovered.bg};
-
-    .${Classes.TEXT} {
-      color: ${(props) =>
-        props.hasError
-          ? props.theme.colors.propertyPane.connections.error
-          : props.theme.colors.textOnDarkBG};
-    }
   }
 `;
 
@@ -174,69 +170,17 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   iconAlignment: "LEFT" | "RIGHT";
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
-};
-
-const doesEntityHaveErrors = (
-  entityId: string,
-  debuggerErrors: Record<string, Message>,
-) => {
-  const ids = Object.keys(debuggerErrors);
-
-  return ids.some((e: string) => e.includes(entityId));
+  justifyContent: string;
+  tooltipPosition?: Position;
 };
 
 const doConnectionsHaveErrors = (
   options: DropdownOption[],
-  debuggerErrors: Record<string, Message>,
+  debuggerErrors: Record<string, Log>,
 ) => {
   return options.some((option) =>
     doesEntityHaveErrors(option.value as string, debuggerErrors),
   );
-};
-
-const useGetEntityInfo = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-  const debuggerErrors: Record<string, Message> = useSelector(
-    getDebuggerErrors,
-  );
-
-  const entity = dataTree[name];
-  const action = useSelector((state: AppState) =>
-    isAction(entity) ? getAction(state, entity.actionId) : undefined,
-  );
-
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
-  const datasource = useSelector((state: AppState) =>
-    action && isStoredDatasource(action.datasource)
-      ? getDatasource(state, action.datasource.id)
-      : undefined,
-  );
-
-  if (isWidget(entity)) {
-    const icon = getWidgetIcon(entity.type);
-    const hasError = doesEntityHaveErrors(entity.widgetId, debuggerErrors);
-
-    return {
-      name,
-      icon,
-      hasError,
-      type: ENTITY_TYPE.WIDGET,
-    };
-  } else if (isAction(entity)) {
-    const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
-
-    return {
-      name,
-      icon,
-      datasourceName: datasource?.name ?? "",
-      hasError,
-      type: ENTITY_TYPE.ACTION,
-    };
-  }
 };
 
 const useDependencyList = (name: string) => {
@@ -278,19 +222,24 @@ const useDependencyList = (name: string) => {
 };
 
 function OptionNode(props: any) {
-  const entityInfo = useGetEntityInfo(props.option.label);
+  const getEntityInfo = useGetEntityInfo(props.option.label);
+  const entityInfo = getEntityInfo();
   const dispatch = useDispatch();
   const { navigateToEntity } = useEntityLink();
 
   const onClick = () => {
     if (entityInfo?.hasError) {
-      if (entityInfo?.type === ENTITY_TYPE.ACTION) {
-        dispatch(setActionTabsInitialIndex(1));
-      } else {
+      if (entityInfo?.type === ENTITY_TYPE.WIDGET) {
         dispatch(showDebugger(true));
+      } else {
+        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
       }
     }
     navigateToEntity(props.option.label);
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
+      source: "PROPERTY_PANE",
+      entityType: entityInfo?.entityType,
+    });
   };
 
   return (
@@ -321,11 +270,17 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
     : `No ${props.connectionType.toLowerCase()} connections`;
   const iconColor = props.hasError ? "#f22b2b" : "";
 
+  const onClick = () => {
+    AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_DROPDOWN_CLICK");
+  };
+
   return (
     <SelectedNodeWrapper
       className={props.hasError ? "t--connection-error" : "t--connection"}
       entityCount={props.entityCount}
       hasError={props.hasError}
+      justifyContent={props.justifyContent}
+      onClick={onClick}
     >
       {props.iconAlignment === "LEFT" && (
         <Icon
@@ -336,7 +291,11 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
         />
       )}
       <span>
-        <Tooltip content={tooltipText} disabled={props.isOpen}>
+        <Tooltip
+          content={tooltipText}
+          disabled={props.isOpen}
+          position={props.tooltipPosition}
+        >
           {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
         </Tooltip>
       </span>
@@ -355,10 +314,12 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
 
 TriggerNode.displayName = "TriggerNode";
 
+const selectedOption = { label: "", value: "" };
+
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
-  const debuggerErrors = useSelector(getDebuggerErrors);
+  const debuggerErrors = useSelector(getFilteredErrors);
 
   const errorIncomingConnections = useMemo(() => {
     return doConnectionsHaveErrors(
@@ -380,10 +341,12 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"LEFT"}
+            justifyContent={"flex-start"}
             {...selectedValueProps}
             connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
             hasError={errorIncomingConnections}
+            tooltipPosition="bottom-left"
           />
         )}
         className={`connection-dropdown ${
@@ -396,20 +359,22 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         renderOption={(optionProps) => {
           return <OptionNode option={optionProps.option} />;
         }}
-        selected={{ label: "", value: "" }}
+        selected={selectedOption}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width="100%"
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
+            justifyContent={"flex-end"}
             {...selectedValueProps}
             connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
             hasError={errorOutgoingConnections}
+            tooltipPosition="bottom-right"
           />
         )}
         className={`connection-dropdown ${
@@ -426,7 +391,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width={`100%`}
       />
     </TopLayer>
   );

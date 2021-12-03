@@ -1,13 +1,14 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { JSCollection } from "entities/JSCollection";
 
 const isVisible = {
   "!type": "bool",
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
-export const entityDefinitions = {
+export const entityDefinitions: Record<string, unknown> = {
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
     let data: Record<string, any> = {
@@ -29,7 +30,15 @@ export const entityDefinitions = {
         "!type": "?",
       },
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
+      clear: "fn() -> void",
     };
+  },
+  AUDIO_WIDGET: {
+    "!doc":
+      "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",
+    "!url": "https://docs.appsmith.com/widget-reference/audio",
+    playState: "number",
+    autoPlay: "bool",
   },
   CONTAINER_WIDGET: {
     "!doc":
@@ -53,6 +62,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number type input",
+    },
     currencyCountryCode: {
       "!type": "string",
       "!doc": "Selected country code for Currency type input",
@@ -64,12 +77,18 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/table",
     selectedRow: generateTypeDef(widget.selectedRow),
     selectedRows: generateTypeDef(widget.selectedRows),
+    triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    totalRecordsCount: "number",
+    sortOrder: {
+      column: "string",
+      order: ["asc", "desc"],
+    },
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -83,6 +102,10 @@ export const entityDefinitions = {
       "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
+    filterText: {
+      "!type": "[string]",
+      "!doc": "The filter text for Server side filtering",
+    },
     selectedOptionValue: {
       "!type": "string",
       "!doc": "The value selected in a single select dropdown",
@@ -92,6 +115,28 @@ export const entityDefinitions = {
       "!type": "string",
       "!doc": "The selected option label in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
+  MULTI_SELECT_WIDGET: {
+    "!doc":
+      "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    isVisible: isVisible,
+    filterText: {
+      "!type": "[string]",
+      "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValues: {
       "!type": "[string]",
@@ -222,6 +267,14 @@ export const entityDefinitions = {
     files: "[file]",
     isDisabled: "bool",
   },
+  FILE_PICKER_WIDGET_V2: {
+    "!doc":
+      "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+    "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+    isVisible: isVisible,
+    files: "[file]",
+    isDisabled: "bool",
+  },
   LIST_WIDGET: (widget: any) => ({
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
@@ -235,6 +288,8 @@ export const entityDefinitions = {
     selectedItem: generateTypeDef(widget.selectedItem),
     items: generateTypeDef(widget.items),
     listData: generateTypeDef(widget.listData),
+    pageNo: generateTypeDef(widget.pageNo),
+    pageSize: generateTypeDef(widget.pageSize),
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",
@@ -243,13 +298,14 @@ export const entityDefinitions = {
     value: "number",
     maxCount: "number",
   },
-  IFRAME_WIDGET: {
+  IFRAME_WIDGET: (widget: any) => ({
     "!doc": "Iframe widget is used to display iframes in your app.",
     "!url": "https://docs.appsmith.com/widget-reference/iframe",
     isVisible: isVisible,
     source: "string",
     title: "string",
-  },
+    message: generateTypeDef(widget.message),
+  }),
   DIVIDER_WIDGET: {
     "!doc": "Divider is a simple UI widget used as a separator",
     "!url": "https://docs.appsmith.com/widget-reference/divider",
@@ -267,6 +323,75 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/menu-button",
     isVisible: isVisible,
     label: "string",
+  },
+  //TODO: fix this after development
+  SINGLE_SELECT_TREE_WIDGET: {
+    "!doc":
+      "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValue: {
+      "!type": "string",
+      "!doc": "The value selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+  },
+  MULTI_SELECT_TREE_WIDGET: {
+    "!doc":
+      "Multi TreeSelect is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A TreeSelect can capture a single choice as well as multiple choices",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+  },
+  ICON_BUTTON_WIDGET: {
+    "!doc":
+      "Icon button widget is just an icon, along with all other button properties.",
+    "!url": "https://docs.appsmith.com/widget-reference/icon-button",
+    isVisible: isVisible,
+  },
+  CHECKBOX_GROUP_WIDGET: {
+    "!doc":
+      "Checkbox group widget allows users to easily configure multiple checkboxes together.",
+    "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+    selectedValues: "[string]",
+  },
+  STATBOX_WIDGET: {
+    "!doc": "Show and highlight stats from your data sources",
+    "!url": "https://docs.appsmith.com/widget-reference/stat-box",
+    isVisible: isVisible,
+  },
+  AUDIO_RECORDER_WIDGET: {
+    "!doc":
+      "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
+    "!url": "https://docs.appsmith.com/widget-reference/recorder",
+    isVisible: isVisible,
+    blobUrl: "string",
+    dataURL: "string",
+    rawBinary: "string",
   },
 };
 
@@ -338,4 +463,32 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
+  setInterval: {
+    "!doc": "Execute triggers at a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+  clearInterval: {
+    "!doc": "Stop executing a setInterval with id",
+    "!type": "fn(id: string) -> void",
+  },
+};
+
+export const getPropsForJSActionEntity = (
+  entity: JSCollection,
+): Record<string, string> => {
+  const properties: Record<string, string> = {};
+  const actions = entity.actions;
+  if (actions && actions.length > 0)
+    for (let i = 0; i < entity.actions.length; i++) {
+      const action = entity.actions[i];
+      properties[action.name + "()"] = "Function";
+    }
+  const variablesProps = entity.variables;
+  if (variablesProps && variablesProps.length > 0) {
+    for (let i = 0; i < variablesProps.length; i++) {
+      const variableProp = variablesProps[i];
+      properties[variableProp.name] = variableProp.value;
+    }
+  }
+  return properties;
 };

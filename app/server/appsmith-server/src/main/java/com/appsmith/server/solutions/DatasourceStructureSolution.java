@@ -5,17 +5,17 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.CustomDatasourceRepository;
+import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
@@ -29,21 +29,19 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.appsmith.external.models.AuthenticationDTO.AuthenticationStatus.SUCCESS;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DatasourceStructureSolution {
 
-    public static final int GET_STRUCTURE_TIMEOUT_SECONDS = 10;
+    public static final int GET_STRUCTURE_TIMEOUT_SECONDS = 15;
 
     private final DatasourceService datasourceService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PluginService pluginService;
     private final DatasourceContextService datasourceContextService;
-    private final EncryptionService encryptionService;
     private final CustomDatasourceRepository datasourceRepository;
+    private final AuthenticationValidator authenticationValidator;
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
         return datasourceService.getById(datasourceId)
@@ -58,7 +56,7 @@ public class DatasourceStructureSolution {
                                 )
                 )
                 .onErrorMap(e -> {
-                    if(!(e instanceof AppsmithPluginException)) {
+                    if (!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
 
@@ -71,7 +69,7 @@ public class DatasourceStructureSolution {
                 });
     }
 
-    private Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
+    public Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
         if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
             // Don't attempt to get structure for invalid datasources.
             return Mono.empty();
@@ -121,7 +119,7 @@ public class DatasourceStructureSolution {
                 .onErrorMap(e -> {
                     log.error("In the datasource structure error mode.", e);
 
-                    if(!(e instanceof AppsmithPluginException)) {
+                    if (!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
 
@@ -136,6 +134,7 @@ public class DatasourceStructureSolution {
     /**
      * This function will be used to execute queries on datasource without creating the new action
      * e.g. get all spreadsheets from google drive, fetch 1st row from the table etc
+     *
      * @param datasourceId
      * @param pluginSpecifiedTemplates
      * @return
@@ -148,31 +147,34 @@ public class DatasourceStructureSolution {
             3. Execute DB query from the information provided present in pluginSpecifiedTemplates
          */
         Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
-            .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId
-            )));
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId
+                )))
+                .flatMap(authenticationValidator::validateAuthentication);
 
         return datasourceMono.flatMap(datasource -> {
 
             AuthenticationDTO auth = datasource.getDatasourceConfiguration() == null
-                || datasource.getDatasourceConfiguration().getAuthentication() == null ?
-                null : datasource.getDatasourceConfiguration().getAuthentication();
-            if (auth == null || !SUCCESS.equals(auth.getAuthenticationStatus())) {
+                    || datasource.getDatasourceConfiguration().getAuthentication() == null ?
+                    null : datasource.getDatasourceConfiguration().getAuthentication();
+            if (auth == null) {
                 // Don't attempt to run query for invalid datasources.
                 return Mono.error(new AppsmithException(
-                    AppsmithError.INVALID_DATASOURCE,
-                    datasource.getName(),
-                    "Authentication failure for datasource, please re-authenticate and try again!"
+                        AppsmithError.INVALID_DATASOURCE,
+                        datasource.getName(),
+                        "Authentication failure for datasource, please re-authenticate and try again!"
                 ));
             }
             // check if the plugin is present and call method from plugin executor
             return pluginExecutorHelper
-                .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
-                .flatMap(pluginExecutor ->
-                    pluginExecutor.getDatasourceMetadata(pluginSpecifiedTemplates, datasource.getDatasourceConfiguration())
-                )
-                .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS));
+                    .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
+                    .flatMap(pluginExecutor ->
+                            pluginExecutor.getDatasourceMetadata(pluginSpecifiedTemplates, datasource.getDatasourceConfiguration())
+                    )
+                    .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS));
         });
     }
+
+
 }

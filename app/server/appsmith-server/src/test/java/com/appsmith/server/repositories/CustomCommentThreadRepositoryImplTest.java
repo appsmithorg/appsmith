@@ -2,8 +2,10 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,9 +16,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +42,24 @@ public class CustomCommentThreadRepositoryImplTest {
 
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_THREAD), user);
         thread.setPolicies(Set.copyOf(policyMap.values()));
+        return thread;
+    }
+
+    private CommentThread createThreadWithAllPermission(String userEmail, String applicationId, String pageId) {
+        CommentThread thread = new CommentThread();
+        thread.setPageId(pageId);
+        thread.setApplicationId(applicationId);
+        thread.setMode(CommentMode.EDIT);
+        User user = new User();
+        user.setEmail(userEmail);
+
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD), user);
+        HashSet<Policy> policySet = new HashSet<>();
+
+        // not using Set.of here because the caller function may need to add more policies
+        policySet.addAll(policyMap.values());
+        thread.setPolicies(policySet);
         return thread;
     }
 
@@ -109,5 +132,174 @@ public class CustomCommentThreadRepositoryImplTest {
         StepVerifier.create(privateThreadMono).assertNext(commentThread -> {
             assertThat(commentThread.getAuthorUsername()).isEqualTo("author3");
         }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void findThread_WhenFilterExists_ReturnsFilteredResults() {
+        CommentThread.CommentThreadState resolvedState = new CommentThread.CommentThreadState();
+        resolvedState.setActive(true);
+
+        CommentThread.CommentThreadState unresolvedState = new CommentThread.CommentThreadState();
+        unresolvedState.setActive(false);
+
+        CommentThread app1ResolvedThread = createThreadWithPolicies("api_user");
+        app1ResolvedThread.setApplicationId("sample-application-id-1");
+        app1ResolvedThread.setAuthorUsername("app1ResolvedThread");
+        app1ResolvedThread.setResolvedState(resolvedState);
+
+        CommentThread app1UnResolvedThread = createThreadWithPolicies("api_user");
+        app1UnResolvedThread.setApplicationId("sample-application-id-1");
+        app1UnResolvedThread.setAuthorUsername("app1UnResolvedThread");
+        app1UnResolvedThread.setResolvedState(unresolvedState);
+
+        CommentThread app2UnResolvedThread = createThreadWithPolicies("api_user");
+        app2UnResolvedThread.setApplicationId("sample-application-id-2");
+        app2UnResolvedThread.setAuthorUsername("app2UnResolvedThread");
+        app2UnResolvedThread.setResolvedState(unresolvedState);
+
+        List<CommentThread> threadList = List.of(app1ResolvedThread, app1UnResolvedThread, app2UnResolvedThread);
+
+        Mono<List<CommentThread>> listMono = commentThreadRepository
+                .saveAll(threadList)
+                .collectList()
+                .flatMap(commentThreads -> {
+                    CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
+                    filterDTO.setApplicationId("sample-application-id-1");
+                    filterDTO.setResolved(false);
+                    return commentThreadRepository.find(filterDTO, AclPermission.READ_THREAD).collectList();
+                });
+
+        StepVerifier.create(listMono).assertNext(
+                commentThreads -> {
+                    assertThat(commentThreads.size()).isEqualTo(1);
+                    assertThat(commentThreads.get(0).getAuthorUsername()).isEqualTo("app1UnResolvedThread");
+                }
+        ).verifyComplete();
+    }
+
+    private CommentThread createThreadToTestUnreadCountByResolvedState(
+            String username, String applicationId, boolean isResolved, Boolean isRead) {
+        CommentThread.CommentThreadState resolvedState = new CommentThread.CommentThreadState();
+        resolvedState.setActive(isResolved);
+
+        Set<String> viewedByUsers = new HashSet<>();
+        if(isRead) {
+            viewedByUsers.add(username);
+        }
+
+        CommentThread commentThread = createThreadWithPolicies(username);
+        commentThread.setApplicationId(applicationId);
+        commentThread.setResolvedState(resolvedState);
+        commentThread.setViewedByUsers(viewedByUsers);
+        return commentThread;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void countUnreadThreads_WhenResolvedAndUnread_ResolvedNotCounted() {
+        String testApplicationId = UUID.randomUUID().toString();
+        CommentThread.CommentThreadState resolvedState = new CommentThread.CommentThreadState();
+        resolvedState.setActive(true);
+
+        CommentThread.CommentThreadState unresolvedState = new CommentThread.CommentThreadState();
+        unresolvedState.setActive(false);
+
+        CommentThread unresolvedUnread = createThreadToTestUnreadCountByResolvedState(
+                "api_user", testApplicationId, false, false
+        );
+        CommentThread unresolvedRead = createThreadToTestUnreadCountByResolvedState(
+                "api_user", testApplicationId, false, true
+        );
+        CommentThread resolvedUnread = createThreadToTestUnreadCountByResolvedState(
+                "api_user", testApplicationId, true, false
+        );
+
+        List<CommentThread> threadList = List.of(unresolvedUnread, unresolvedRead, resolvedUnread);
+
+        Mono<Long> unreadCountMono = commentThreadRepository
+                .saveAll(threadList)
+                .collectList()
+                .flatMap(commentThreads -> {
+                    CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
+                    filterDTO.setApplicationId("sample-application-id-1");
+                    filterDTO.setResolved(false);
+                    return commentThreadRepository.countUnreadThreads(testApplicationId, "api_user");
+                });
+
+        StepVerifier.create(unreadCountMono).assertNext(
+                unreadCount -> {
+                    assertThat(unreadCount).isEqualTo(1);
+                }
+        ).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void archiveByPageId_WhenCriteriaMatches_ThreadsDeleted() {
+        String uniqueRandomString = UUID.randomUUID().toString();
+
+        String pageOneId = "test-page1-"+uniqueRandomString, // we'll delete by this id
+                pageTwoId = "test-page2-" + uniqueRandomString, // this page id will not be deleted
+                applicationId = "test-app-" + uniqueRandomString; // same for all three so that we can fetch by application id
+
+        // create few comment threads with pageId and permission that'll be deleted
+        CommentThread threadOne = createThreadWithAllPermission("api_user", applicationId, pageOneId);
+        CommentThread threadTwo = createThreadWithAllPermission("api_user", applicationId, pageOneId);
+
+        // we'll not delete this
+        CommentThread threadThree = createThreadWithAllPermission("api_user", applicationId, pageTwoId);
+
+        List<CommentThread> threads = List.of(threadOne, threadTwo, threadThree);
+
+        Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.saveAll(threads)
+                .collectList()
+                .then(commentThreadRepository.archiveByPageId(pageOneId, CommentMode.EDIT))
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .collectMultimap(CommentThread::getPageId);
+
+        StepVerifier.create(pageIdThreadMono)
+                .assertNext(pageIdThreadMap -> {
+                    // check that page one has no comment
+                    assertThat(pageIdThreadMap.get(pageOneId)).isNull();
+                    // check that page two has one comment
+                    assertThat(pageIdThreadMap.get(pageTwoId).size()).isEqualTo(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void archiveByPageId_CriteriaDoesNotMatch_ThreadsNotDeleted() {
+        String uniqueRandomString = UUID.randomUUID().toString();
+        String testPageId = "test-page-" + uniqueRandomString, // we'll delete by this id
+                threadUser = "test_user_" + uniqueRandomString,
+                applicationId = "test-app-" + uniqueRandomString;
+
+        // create few comment threads with pageId and permission that'll be deleted
+        CommentThread thread = createThreadWithAllPermission(threadUser, applicationId, testPageId);
+        thread.setMode(CommentMode.PUBLISHED);
+
+        // add api_user to thread policy with read thread permission
+        for(Policy policy: thread.getPolicies()) {
+            if(policy.getPermission().equals(AclPermission.READ_THREAD.getValue())) {
+                Set<String> users = new HashSet<>();
+                users.addAll(policy.getUsers());
+                users.add("api_user");
+                policy.setUsers(users);
+            }
+        }
+
+        Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
+                .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT)) // this will do nothing
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .collectMultimap(CommentThread::getPageId);
+
+        StepVerifier.create(pageIdThreadMono)
+                .assertNext(pageIdThreadMap -> {
+                    // we've deleted by mode EDIT but thread has mode PUBLISHED so it should be there
+                    assertThat(pageIdThreadMap.get(testPageId).size()).isEqualTo(1);
+                })
+                .verifyComplete();
     }
 }

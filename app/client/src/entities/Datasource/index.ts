@@ -6,9 +6,11 @@ export interface DatasourceAuthentication {
   username?: string;
   password?: string;
   label?: string;
+  headerPrefix?: string;
   value?: string;
   addTo?: string;
   bearerToken?: string;
+  authenticationStatus?: string;
 }
 
 export interface DatasourceColumns {
@@ -27,6 +29,7 @@ export interface DatasourceStructure {
 }
 
 export interface QueryTemplate {
+  configuration: Record<string, unknown>;
   title: string;
   body: string;
   pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
@@ -77,6 +80,7 @@ export interface Datasource extends BaseDatasource {
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];
+  success?: boolean;
 }
 
 export interface MockDatasource {

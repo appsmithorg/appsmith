@@ -9,7 +9,7 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import ActiveDataSource from "./ActiveDataSources";
+import ActiveDataSources from "./ActiveDataSources";
 import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
@@ -23,6 +23,10 @@ import {
 } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
 import BackButton from "../DataSourceEditor/BackButton";
+import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -30,11 +34,13 @@ const HeaderFlex = styled.div`
 `;
 
 const ApiHomePage = styled.div`
+  display: flex;
+  flex-direction: column;
+
   font-size: 20px;
   padding: 20px 20px 0 20px;
   /* margin-left: 10px; */
-  min-height: calc(100vh - 66px);
-  max-height: calc(100vh - 66px);
+  flex: 1;
   overflow: hidden !important;
   .closeBtn {
     position: absolute;
@@ -64,17 +70,16 @@ const SectionGrid = styled.div`
   margin-top: 16px;
   display: grid;
   grid-template-columns: 1fr 180px;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
+  flex: 1;
+  min-height: 0;
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
   scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(
-    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
-  );
-  /* padding-bottom: 300px; */
-  /* margin-top: 16px; */
+  flex: 1;
   & > div {
     margin-bottom: 20px;
   }
@@ -82,10 +87,10 @@ const NewIntegrationsContainer = styled.div`
 
 type IntegrationsHomeScreenProps = {
   pageId: string;
-  applicationId: string;
   selectedTab: string;
   location: {
     search: string;
+    pathname: string;
   };
   history: {
     replace: (data: string) => void;
@@ -94,12 +99,14 @@ type IntegrationsHomeScreenProps = {
   isCreating: boolean;
   dataSources: Datasource[];
   mockDatasources: MockDatasource[];
+  applicationId: string;
 };
 
 type IntegrationsHomeScreenState = {
   page: number;
   activePrimaryMenuId: number;
   activeSecondaryMenuId: number;
+  unsupportedPluginDialogVisible: boolean;
 };
 
 type Props = IntegrationsHomeScreenProps &
@@ -141,7 +148,7 @@ const SECONDARY_MENU: TabProp[] = [
 const getSecondaryMenu = (hasActiveSources: boolean) => {
   const mockDbMenu = {
     key: "MOCK_DATABASE",
-    title: "Mock Databases",
+    title: "Sample Databases",
     panelComponent: <div />,
   };
   return hasActiveSources
@@ -198,7 +205,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Mock Databases</Text>
+      <Text type={TextType.H2}>Sample Databases</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -206,10 +213,10 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
 
 function CreateNewAPI({
   active,
-  applicationId,
   history,
   isCreating,
   pageId,
+  showUnsupportedPluginDialog,
 }: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
@@ -230,11 +237,11 @@ function CreateNewAPI({
     <div id="new-api" ref={newAPIRef}>
       <Text type={TextType.H2}>APIs</Text>
       <NewApiScreen
-        applicationId={applicationId}
         history={history}
         isCreating={isCreating}
         location={location}
         pageId={pageId}
+        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
   );
@@ -242,10 +249,10 @@ function CreateNewAPI({
 
 function CreateNewDatasource({
   active,
-  applicationId,
   history,
   isCreating,
   pageId,
+  showUnsupportedPluginDialog,
 }: any) {
   const newDatasourceRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -262,11 +269,11 @@ function CreateNewDatasource({
     <div id="new-datasources" ref={newDatasourceRef}>
       <Text type={TextType.H2}>Databases</Text>
       <NewQueryScreen
-        applicationId={applicationId}
         history={history}
         isCreating={isCreating}
         location={location}
         pageId={pageId}
+        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
   );
@@ -276,15 +283,18 @@ class IntegrationsHomeScreen extends React.Component<
   Props,
   IntegrationsHomeScreenState
 > {
+  unsupportedPluginContinueAction: () => void;
+
   constructor(props: Props) {
     super(props);
-
+    this.unsupportedPluginContinueAction = () => null;
     this.state = {
       page: 1,
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
       activeSecondaryMenuId: getSecondaryMenuIds(
         props.mockDatasources.length > 0,
       ).API,
+      unsupportedPluginDialogVisible: false,
     };
   }
 
@@ -307,16 +317,26 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   componentDidMount() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      location,
-      pageId,
-    } = this.props;
-    const params: string = location.search;
-    const redirectMode = new URLSearchParams(params).get("mode");
-    if (
+    const { applicationId, dataSources, history, pageId } = this.props;
+
+    const queryParams = getQueryParams();
+    const redirectMode = queryParams.mode;
+    const isGeneratePageInitiator = getIsGeneratePageInitiator();
+    if (isGeneratePageInitiator) {
+      if (redirectMode === INTEGRATION_EDITOR_MODES.AUTO) {
+        delete queryParams.mode;
+        delete queryParams.from;
+        history.replace(
+          INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            INTEGRATION_TABS.NEW,
+            "",
+            queryParams,
+          ),
+        );
+      }
+    } else if (
       dataSources.length > 0 &&
       redirectMode === INTEGRATION_EDITOR_MODES.AUTO
     ) {
@@ -376,19 +396,22 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({ activeSecondaryMenuId });
   };
 
-  render() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      isCreating,
-      location,
-      pageId,
-    } = this.props;
+  showUnsupportedPluginDialog = (callback: () => void) => {
+    this.setState({
+      unsupportedPluginDialogVisible: true,
+    });
+    this.unsupportedPluginContinueAction = callback;
+  };
 
-    let currentScreen = null;
+  render() {
+    const { dataSources, history, isCreating, location, pageId } = this.props;
+    const { unsupportedPluginDialogVisible } = this.state;
+    let currentScreen;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
 
+    const isGeneratePageInitiator = getIsGeneratePageInitiator();
+    // Avoid user to switch tabs when in generate page flow by hiding the tabs itself.
+    const showTabs = !isGeneratePageInitiator;
     const mockDataSection =
       this.props.mockDatasources.length > 0 ? (
         <UseMockDatasources
@@ -412,22 +435,22 @@ class IntegrationsHomeScreen extends React.Component<
               activeSecondaryMenuId ===
               getSecondaryMenuIds(dataSources.length > 0).API
             }
-            applicationId={applicationId}
             history={history}
             isCreating={isCreating}
             location={location}
             pageId={pageId}
+            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
           <CreateNewDatasource
             active={
               activeSecondaryMenuId ===
               getSecondaryMenuIds(dataSources.length > 0).DATABASE
             }
-            applicationId={applicationId}
             history={history}
             isCreating={isCreating}
             location={location}
             pageId={pageId}
+            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
           {dataSources.length > 0 &&
             this.props.mockDatasources.length > 0 &&
@@ -436,11 +459,9 @@ class IntegrationsHomeScreen extends React.Component<
       );
     } else {
       currentScreen = (
-        <ActiveDataSource
-          applicationId={applicationId}
+        <ActiveDataSources
           dataSources={dataSources}
           history={this.props.history}
-          isCreating={isCreating}
           location={location}
           onCreateNew={() =>
             this.onSelectPrimaryMenu(PRIMARY_MENU_IDS.CREATE_NEW)
@@ -452,6 +473,13 @@ class IntegrationsHomeScreen extends React.Component<
     return (
       <>
         <BackButton />
+        <UnsupportedPluginDialog
+          isModalOpen={unsupportedPluginDialogVisible}
+          onClose={() =>
+            this.setState({ unsupportedPluginDialogVisible: false })
+          }
+          onContinue={this.unsupportedPluginContinueAction}
+        />
         <ApiHomePage
           className="t--integrationsHomePage"
           style={{ overflow: "auto" }}
@@ -461,17 +489,20 @@ class IntegrationsHomeScreen extends React.Component<
           </HeaderFlex>
           <SectionGrid>
             <MainTabsContainer>
-              <TabComponent
-                onSelect={this.onSelectPrimaryMenu}
-                selectedIndex={this.state.activePrimaryMenuId}
-                tabs={PRIMARY_MENU}
-              />
+              {showTabs && (
+                <TabComponent
+                  onSelect={this.onSelectPrimaryMenu}
+                  selectedIndex={this.state.activePrimaryMenuId}
+                  tabs={PRIMARY_MENU}
+                />
+              )}
             </MainTabsContainer>
             <div />
 
             {currentScreen}
             {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
               <TabComponent
+                className="t--vertical-menu"
                 onSelect={this.onSelectSecondaryMenu}
                 selectedIndex={this.state.activeSecondaryMenuId}
                 tabs={
@@ -494,6 +525,7 @@ const mapStateToProps = (state: AppState) => {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

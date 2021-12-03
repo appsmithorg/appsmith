@@ -7,6 +7,7 @@ import {
   matchDatasourcePath,
   matchQueryPath,
   matchBuilderPath,
+  matchJSObjectPath,
 } from "constants/routes";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
@@ -42,6 +43,15 @@ const getRecentEntity = (pathName: string) => {
       id: datasourceMatch?.params?.datasourceId,
       params: datasourceMatch?.params,
     };
+
+  const jsObjectMatch = matchJSObjectPath(pathName);
+  if (jsObjectMatch) {
+    return {
+      type: "jsAction",
+      id: jsObjectMatch?.params?.collectionId,
+      params: jsObjectMatch?.params,
+    };
+  }
 
   return {};
 };

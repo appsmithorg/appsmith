@@ -25,6 +25,8 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -122,6 +124,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
                     // Set policies to null in the update object
                     resource.setPolicies(null);
+                    resource.setUpdatedAt(Instant.now());
+                    resource.setModifiedBy(user.getUsername());
 
                     DBObject update = getDbObject(resource);
                     Update updateObj = new Update();
@@ -152,6 +156,15 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
                     return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
                 });
+    }
+
+    public Mono<UpdateResult> updateByCriteria(Criteria criteria, Update updateObj) {
+        if (criteria == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteria"));
+        }
+        Query query = new Query(criteria);
+        query.addCriteria(new Criteria().andOperator(notDeleted()));
+        return mongoOperations.updateMulti(query, updateObj, this.genericDomain);
     }
 
     protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
@@ -193,11 +206,22 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
                     User user = (User) auth.getPrincipal();
-                    Query query = createQueryWithPermission(criterias, (User) auth.getPrincipal(), aclPermission);
+                    Query query = new Query();
+                    Criteria andCriteria = new Criteria();
+
+                    criteriaList.add(notDeleted());
+                    if (aclPermission != null) {
+                        criteriaList.add(userAcl(user, aclPermission));
+                    }
+
+                    andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
+
+                    query.addCriteria(andCriteria);
                     if (sort != null) {
                         query.with(sort);
                     }

@@ -210,7 +210,7 @@ public class RedshiftPlugin extends BasePlugin {
          *    can be triggered.
          */
         private void checkConnectionValidity(Connection connection) throws SQLException {
-            if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
+            if (connection == null || connection.isClosed()) {
                 throw new StaleConnectionException();
             }
         }
@@ -287,6 +287,13 @@ public class RedshiftPlugin extends BasePlugin {
                             log.warn("Error closing Redshift Statement", e);
                         }
                     }
+
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Redshift Connection", e);
+                    }
+
                 }
 
                 ActionExecutionResult result = new ActionExecutionResult();
@@ -609,15 +616,15 @@ public class RedshiftPlugin extends BasePlugin {
 
                 final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                 table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", null),
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
                         new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                 + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");", null),
+                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
                                 + setFragments.toString() + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                 ));
             }
         }
@@ -667,6 +674,14 @@ public class RedshiftPlugin extends BasePlugin {
                 } catch (AppsmithPluginException e) {
                     e.printStackTrace();
                     return Mono.error(e);
+
+                } finally {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Redshift Connection", e);
+                    }
+
                 }
 
                 structure.setTables(new ArrayList<>(tablesByName.values()));

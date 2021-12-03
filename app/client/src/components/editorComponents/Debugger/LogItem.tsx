@@ -1,24 +1,22 @@
 import { Collapse, Position } from "@blueprintjs/core";
+import { get } from "lodash";
+import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
+import { isString } from "lodash";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
-import React, { useCallback, useState } from "react";
+import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
+import React, { useState } from "react";
 import ReactJson from "react-json-view";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
-import { SeverityIcon, SeverityIconColor } from "./helpers";
-import { useDispatch } from "react-redux";
-import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
+import { SeverityIcon } from "./helpers";
 import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
+import ContextualMenu from "./ContextualMenu";
 
-const Log = styled.div<{ collapsed: boolean }>`
+const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
   display: flex;
 
@@ -32,6 +30,25 @@ const Log = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.error.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.error.borderBottom};
+
+    .${Classes.ICON}.search-menu {
+      path {
+        fill: ${(props) => props.theme.colors.debugger.error.iconColor};
+      }
+      &:hover {
+        path {
+          fill: ${(props) => props.theme.colors.debugger.error.hoverIconColor};
+        }
+      }
+    }
+
+    .${BPPopover2Classes.POPOVER2_OPEN} {
+      .${Classes.ICON}.search-menu {
+        path {
+          fill: ${(props) => props.theme.colors.debugger.error.hoverIconColor};
+        }
+      }
+    }
   }
 
   &.${Severity.WARNING} {
@@ -39,6 +56,26 @@ const Log = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
+    .${Classes.ICON}.search-menu {
+      path {
+        fill: ${(props) => props.theme.colors.debugger.warning.iconColor};
+      }
+      &:hover {
+        path {
+          fill: ${(props) =>
+            props.theme.colors.debugger.warning.hoverIconColor};
+        }
+      }
+    }
+
+    .${BPPopover2Classes.POPOVER2_OPEN} {
+      .${Classes.ICON}.search-menu {
+        path {
+          fill: ${(props) =>
+            props.theme.colors.debugger.warning.hoverIconColor};
+        }
+      }
+    }
   }
 
   .bp3-popover-target {
@@ -58,9 +95,11 @@ const Log = styled.div<{ collapsed: boolean }>`
   .debugger-description {
     display: inline-block;
     margin-left: 7px;
-
+    overflow-wrap: anywhere;
+    word-break: break-word;
     .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
+      margin-left: -5px;
     }
 
     .debugger-label {
@@ -100,6 +139,11 @@ const Log = styled.div<{ collapsed: boolean }>`
   }
 `;
 
+const RowWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const JsonWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[1]}px;
   svg {
@@ -129,12 +173,6 @@ const StyledSearchIcon = styled(Icon)`
   && {
     margin-left: 10px;
     vertical-align: middle;
-
-    &:hover {
-      path {
-        fill: ${(props) => props.fillColor};
-      }
-    }
   }
 `;
 
@@ -142,10 +180,9 @@ const MessageWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
-export const getLogItemProps = (e: Message) => {
+export const getLogItemProps = (e: Log) => {
   return {
     icon: SeverityIcon[e.severity] as IconName,
-    iconColor: SeverityIconColor[e.severity],
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -160,7 +197,6 @@ export const getLogItemProps = (e: Message) => {
 
 type LogItemProps = {
   icon: IconName;
-  iconColor: string;
   timestamp: string;
   label: string;
   timeTaken: string;
@@ -170,7 +206,7 @@ type LogItemProps = {
   id?: string;
   source?: SourceEntity;
   expand?: boolean;
-  messages: Message["messages"];
+  messages?: Message[];
 };
 
 function LogItem(props: LogItemProps) {
@@ -186,81 +222,80 @@ function LogItem(props: LogItemProps) {
     collapsed: 1,
   };
   const showToggleIcon = props.state || props.messages;
-  const dispatch = useDispatch();
+  // The error to sent to the contextual menu
+  const errorToSearch =
+    props.messages && props.messages.length
+      ? props.messages[0]
+      : { message: props.text };
 
-  const openHelpModal = useCallback((e, message?: string) => {
-    e.stopPropagation();
-    const text = message || props.text;
-
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-      source: "DEBUGGER",
-      searchTerm: text,
-    });
-    dispatch(setGlobalSearchQuery(text || ""));
-    dispatch(toggleShowGlobalSearchModal());
-  }, []);
   const messages = props.messages || [];
-
+  const theme = useTheme();
   return (
-    <Log
+    <Wrapper
       className={props.severity}
       collapsed={!isOpen}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={() => {
+        if (!isOpen) setIsOpen(true);
+      }}
     >
       <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
-        {showToggleIcon && (
-          <Icon
-            className={`${Classes.ICON} debugger-toggle`}
-            name={"downArrow"}
-            onClick={() => setIsOpen(!isOpen)}
-            size={IconSize.XXS}
-          />
-        )}
-        {props.source && (
-          <EntityLink
-            id={props.source.id}
-            name={props.source.name}
-            type={props.source.type}
-            uiComponent={DebuggerLinkUI.ENTITY_TYPE}
-          />
-        )}
-        <span className="debugger-label">{props.text}</span>
-        {props.timeTaken && (
-          <span className="debugger-timetaken">{props.timeTaken}</span>
-        )}
-        {props.severity !== Severity.INFO && (
-          <TooltipComponent
-            content={
-              <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                {createMessage(TROUBLESHOOT_ISSUE)}
-              </Text>
-            }
-            minimal
-            position={Position.BOTTOM_LEFT}
-          >
-            <StyledSearchIcon
-              className={Classes.ICON}
-              fillColor={props.iconColor}
-              name={"wand"}
-              onClick={openHelpModal}
-              size={IconSize.MEDIUM}
+        <RowWrapper>
+          {showToggleIcon && (
+            <Icon
+              className={`${Classes.ICON} debugger-toggle`}
+              fillColor={get(theme, "colors.debugger.jsonIcon")}
+              name={"downArrow"}
+              onClick={() => setIsOpen(!isOpen)}
+              size={IconSize.XXL}
             />
-          </TooltipComponent>
-        )}
+          )}
+          {props.source && (
+            <EntityLink
+              id={props.source.id}
+              name={props.source.name}
+              type={props.source.type}
+              uiComponent={DebuggerLinkUI.ENTITY_TYPE}
+            />
+          )}
+          <span className="debugger-label">{props.text}</span>
+          {props.timeTaken && (
+            <span className="debugger-timetaken">{props.timeTaken}</span>
+          )}
+          {props.severity !== Severity.INFO && (
+            <ContextualMenu entity={props.source} error={errorToSearch}>
+              <TooltipComponent
+                content={
+                  <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                    {createMessage(TROUBLESHOOT_ISSUE)}
+                  </Text>
+                }
+                minimal
+                position={Position.BOTTOM_LEFT}
+              >
+                <StyledSearchIcon
+                  className={`${Classes.ICON} search-menu`}
+                  name={"wand"}
+                  size={IconSize.MEDIUM}
+                />
+              </TooltipComponent>
+            </ContextualMenu>
+          )}
+        </RowWrapper>
 
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <span
-                    className="debugger-message"
-                    onClick={(event) => openHelpModal(event, e.message)}
-                  >
-                    {e.message}
-                  </span>
+                  <ContextualMenu entity={props.source} error={e}>
+                    <span className="debugger-message t--debugger-message">
+                      {isString(e.message)
+                        ? e.message
+                        : JSON.stringify(e.message)}
+                    </span>
+                  </ContextualMenu>
                 </MessageWrapper>
               );
             })}
@@ -283,7 +318,7 @@ function LogItem(props: LogItemProps) {
           uiComponent={DebuggerLinkUI.ENTITY_NAME}
         />
       )}
-    </Log>
+    </Wrapper>
   );
 }
 

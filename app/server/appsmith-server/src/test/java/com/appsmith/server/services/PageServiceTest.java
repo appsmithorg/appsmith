@@ -5,12 +5,11 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -20,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -167,7 +166,9 @@ public class PageServiceTest {
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("PageServiceTest TestApp".equals(page.getName()));
+
+                    assertThat(page.getName()).isEqualTo("PageServiceTest TestApp");
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
 
                     assertThat(page.getPolicies()).isNotEmpty();
                     assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
@@ -245,7 +246,8 @@ public class PageServiceTest {
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("New Page Name".equals(page.getName()));
+                    assertThat(page.getName()).isEqualTo("New Page Name");
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
 
                     // Check for the policy object not getting overwritten during update
                     assertThat(page.getPolicies()).isNotEmpty();
@@ -310,7 +312,7 @@ public class PageServiceTest {
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), layout.getId(), layout).block();
 
-        layoutActionService.createAction(action).block();
+        layoutActionService.createSingleAction(action).block();
 
         final Mono<PageDTO> pageMono = applicationPageService.clonePage(page.getId()).cache();
 
@@ -362,7 +364,7 @@ public class PageServiceTest {
         PageDTO firstPage = applicationPageService.createPage(testPage).block();
 
         // Publish the application
-        applicationPageService.publish(application.getId());
+        applicationPageService.publish(application.getId(), true);
 
         //Delete Page in edit mode
         applicationPageService.deleteUnpublishedPage(firstPage.getId()).block();

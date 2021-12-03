@@ -12,4 +12,5 @@ public interface CustomCommentRepository extends AppsmithRepository<Comment> {
 
     Mono<Void> updateAuthorNames(String authorId, String authorName);
 
+    Mono<Void> updatePhotoId(String authorId, String photoId);
 }

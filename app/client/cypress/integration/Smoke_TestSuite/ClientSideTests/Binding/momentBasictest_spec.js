@@ -13,8 +13,8 @@ describe("Moment basic test with input Widget", function() {
 
   it("Input widget test with default value from another Input widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputBinding);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.testJsontext("defaulttext", testdata.defaultInputBinding + "}}");
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -24,8 +24,8 @@ describe("Moment basic test with input Widget", function() {
 
   it("Binding second input widget with first input widget and validating", function() {
     cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput).type(testdata.momentInput);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.testJsontext("defaulttext", testdata.momentInput + "}}");
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

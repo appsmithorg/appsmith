@@ -20,6 +20,13 @@ const SectionContainer = styled.div`
   margin-bottom: 5;
 `;
 
+const TopBorder = styled.div`
+  height: 2px;
+  background-color: #d0d7dd;
+  margin-top: 24px;
+  margin-bottom: 24px;
+`;
+
 interface ComponentState {
   isOpen: boolean;
 }
@@ -47,13 +54,7 @@ class Collapsible extends React.Component<Props, ComponentState> {
 
     return (
       <>
-        <hr
-          style={{
-            border: "1px solid #D0D7DD",
-            marginTop: 24,
-            marginBottom: 24,
-          }}
-        />
+        <TopBorder />
         <SectionContainer
           data-cy={`section-${title}`}
           onClick={() => this.setState({ isOpen: !this.state.isOpen })}

@@ -124,6 +124,7 @@ const formToDatasourceAuthentication = (
         authenticationType: AuthType.apiKey,
         label: authentication.label,
         value: authentication.value,
+        headerPrefix: authentication.headerPrefix,
         addTo: authentication.addTo,
       };
       return apiKey;
@@ -204,6 +205,7 @@ const datasourceToFormAuthentication = (
       authenticationType: AuthType.apiKey,
       label: authentication.label || "",
       value: authentication.value || "",
+      headerPrefix: authentication.headerPrefix || "",
       addTo: authentication.addTo || "",
     };
     return apiKey;

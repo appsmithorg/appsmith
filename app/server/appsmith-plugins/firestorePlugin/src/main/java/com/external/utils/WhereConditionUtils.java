@@ -2,7 +2,7 @@ package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.external.plugins.Op;
+import com.appsmith.external.constants.ConditionalOperator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.Query;
@@ -26,9 +26,9 @@ public class WhereConditionUtils {
             );
         }
 
-        Op operator;
+        ConditionalOperator operator;
         try {
-            operator = StringUtils.isEmpty(operatorString) ? null : Op.valueOf(operatorString);
+            operator = StringUtils.isEmpty(operatorString) ? null : ConditionalOperator.valueOf(operatorString);
         } catch (IllegalArgumentException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,

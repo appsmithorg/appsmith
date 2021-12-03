@@ -8,6 +8,7 @@ import {
   Icon,
   Popover,
   PopoverInteractionKind,
+  Position,
 } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -19,6 +20,9 @@ import { ControlIcons } from "icons/ControlIcons";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { EntityClassNames } from ".";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import TooltipComponent from "components/ads/Tooltip";
+import { COPY_ELEMENT, createMessage } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const StyledValue = styled.pre<{ step: number }>`
   & {
@@ -63,33 +67,6 @@ const Wrapper = styled.div<{ step: number }>`
         background: ${Colors.RED};
       }
     }
-    & > div:first-of-type {
-      padding-top: 4px;
-      padding-bottom: 4px;
-      cursor: pointer;
-      & ~ span.${Classes.ICON} {
-        position: absolute;
-        right: 4px;
-        top: 10px;
-        opacity: 0;
-      }
-      &:hover {
-        &:before {
-          content: "";
-          background: ${Colors.TUNDORA};
-          opacity: 0.5;
-          position: absolute;
-          left: 0;
-          height: 100%;
-          top: 0;
-          width: 100%;
-          z-index: 1;
-        }
-        & ~ span.${Classes.ICON} {
-          opacity: 1;
-        }
-      }
-    }
 
     & {
       code.${SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH} {
@@ -123,7 +100,7 @@ const Wrapper = styled.div<{ step: number }>`
 `;
 
 const StyledPopoverContent = styled.div`
-  background: black;
+  background: ${Colors.WHITE};
   max-height: 500px;
   width: 400px;
   padding: 10px;
@@ -140,6 +117,43 @@ const StyledPopoverContent = styled.div`
     white-space: pre-wrap;
     color: white;
   }
+`;
+
+const CopyBox = styled.div`
+  cursor: pointer;
+  position: relative;
+  .${Classes.POPOVER_WRAPPER} {
+    position: absolute;
+    right: 4px;
+    top: 8px;
+    opacity: 0;
+    z-index: 2;
+    fill: ${Colors.TUNDORA};
+    &:hover {
+      opacity: 1;
+    }
+  }
+  &:hover {
+    &:before {
+      content: "";
+      background: ${Colors.Gallery};
+      opacity: 1;
+      position: absolute;
+      left: 0;
+      height: 100%;
+      top: 0;
+      width: 100%;
+      z-index: -1;
+    }
+    .${Classes.POPOVER_WRAPPER} {
+      opacity: 1;
+    }
+  }
+`;
+
+const StyledHighlightedCode = styled(HighlightedCode)`
+  padding-top: 4px;
+  padding-bottom: 4px;
 `;
 
 const CollapseIcon = ControlIcons.COLLAPSE_CONTROL;
@@ -204,7 +218,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
                 <CurrentValueViewer
                   evaluatedValue={props.value}
                   hideLabel
-                  theme={EditorTheme.DARK}
+                  theme={EditorTheme.LIGHT}
                 />
               )}
               {isString && <pre>{props.value}</pre>}
@@ -218,15 +232,29 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
 
   return (
     <Wrapper className={`${EntityClassNames.PROPERTY}`} step={props.step}>
-      <HighlightedCode
-        className="binding"
-        codeText={codeText}
-        language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
-        onClick={copyBindingToClipboard}
-        ref={propertyRef}
-        skin={Skin.DARK}
-      />
-      <Icon color={Colors.ALTO} icon="duplicate" iconSize={14} />
+      <CopyBox>
+        <StyledHighlightedCode
+          className="binding"
+          codeText={codeText}
+          language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
+          onClick={copyBindingToClipboard}
+          ref={propertyRef}
+          skin={Skin.DARK}
+        />
+        <TooltipComponent
+          boundary="viewport"
+          content={createMessage(COPY_ELEMENT)}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position={Position.RIGHT}
+        >
+          <Icon
+            color={Colors.ALTO}
+            icon="duplicate"
+            iconSize={14}
+            onClick={copyBindingToClipboard}
+          />
+        </TooltipComponent>
+      </CopyBox>
       {propertyValue}
     </Wrapper>
   );

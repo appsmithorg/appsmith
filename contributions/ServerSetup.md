@@ -23,20 +23,20 @@ You can run the server codebase in a docker container. This is the easiest way t
 ## Steps for setup
 
 1. Clone the Appsmith repository and `cd` into it
-```
+```console
 git clone https://github.com/appsmithorg/appsmith.git
 cd appsmith
 ```
 2. Change your directory to `app/server`
-```
+```console
 cd app/server
 ```
 3. Create a copy of the `envs/docker.env.example`
-```
+```console
 cp envs/docker.env.example envs/docker.env
 ```
 4. Start up the containers
-```
+```console
 docker-compose up -d
 ``` 
 5. Have fun!
@@ -54,13 +54,13 @@ Before you can start to hack on the Appsmith server, your machine should have th
 - A Redis instance - Refer to the [Setting up a local Redis instance](#setting-up-a-local-redis-instance) section to setup a Redis instance using `Docker`.
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development. To set it up, refer to the [Setting up IntelliJ IDEA](#setting-up-intellij-idea) section.
 
-This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these. Next we will setup MondoDB and Redis using `Docker`.
+This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these. Next we will setup MongoDB and Redis using `Docker`.
 
 ### Setting up a local MongoDB instance
 
 The following command will start a MongoDB docker instance locally:
 
-```sh
+```console
 docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo
 ```
 
@@ -74,7 +74,7 @@ MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
 The following command will start a Redis docker instance locally:
 
-```sh
+```console
 docker run -p 127.0.0.1:6379:6379 --name appsmith-redis redis
 ```
 
@@ -88,7 +88,7 @@ With the prerequisites met, let's build the code.
 2. Change your directory to `app/server`.
 3. Run the following command: 
 
-```sh
+```console
 mvn clean compile
 ```  
 
@@ -96,7 +96,7 @@ This generates a bunch of classes required by IntelliJ for compiling the rest of
 
 4. Create a copy of the `envs/dev.env.example` 
 
-```sh
+```console
 cp envs/dev.env.example .env
 ```
 
@@ -106,7 +106,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 
 6. Run the following command to create the final JAR for the Appsmith server:
 
-```
+```console
 ./build.sh
 ```
 This command will create a `dist` folder which contains the final packaged jar along with multiple jars for plugins as well.
@@ -115,11 +115,11 @@ Note:
 - If you want to skip tests, you can pass `-DskipTests` flag to the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
 - On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
-```
+```console
 sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
 ```
 - If the volume containing docker's data root path (macOS: `~/Library/Containers/com.docker.docker/Data/vms/0/`, Ubuntu: `/var/lib/docker/`) has less than 2 GB of free space, then the script may fail with the following error: 
-```
+```console
 Check failed: Docker environment should have more than 2GB free disk space.
 ```
 There are two ways to resolve this issue: (1) free up more space (2) change docker's data root path.
@@ -127,7 +127,7 @@ There are two ways to resolve this issue: (1) free up more space (2) change dock
 
 7. Start the Java server by running
 
-```
+```console
 ./scripts/start-dev-server.sh
 ```
 
@@ -157,8 +157,35 @@ Please note when setting **Working directory** option. If the path is not correc
 3. Load your env file by going to the EnvFile Tab in the Run/Debug configuration settings for your server.
 <img width="1067" alt="Screenshot 2021-03-03 at 1 49 17 PM" src="https://user-images.githubusercontent.com/458946/109775238-451c8d80-7c27-11eb-98ad-61fc33082b63.png">
 
-Happy hacking.
+## Configuration settings for version 2021.1.2 (Community Edition) IntelliJ IDEA
 
-## Need Assistance?
+After configuring settings as mentioned above, please also add the following to your IntelliJ IDEA setup.
+
+1.  [Optional] As shown in the image below, please enable the **Store as Project** checkbox to run the application from the main class specified. 
+<img width="1070" alt="intellij config_1" src="./images/intellij_config_1.png">
+
+2. Please enable the **Always update snapshots** checkbox so that the most recent build is picked up. 
+<img width="1070" alt="intellij config_2" src="./images/intellij_config_2.png"> 
+
+Happy hacking ✌️
+
+#### Note:
+In case the server doesn't work with the above config, please try re-compiling the code using the steps
+
+```console
+mvn -B clean compile && ./build.sh -DskipTests
+```
+## Running Tests on Server
+
+1. Ensure that you have Redis running on your local system.
+
+2. Run the command to execute tests
+```console
+  cd app/server
+  mvn clean package
+```
+
+
+## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please feel free to ask questions on our [Discord channel](https://discord.com/invite/rBTTVJp) or initiate a [Github discussion](https://github.com/appsmithorg/appsmith/discussions) or send an email to `support@appsmith.com`. We'll be happy to help you. 
 - In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.

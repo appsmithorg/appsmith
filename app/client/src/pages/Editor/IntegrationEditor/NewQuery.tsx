@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { QueryAction } from "entities/Action";
 import DataSourceHome from "./DatasourceHome";
 
@@ -17,7 +17,6 @@ const QueryHomePage = styled.div`
 `;
 
 type QueryHomeScreenProps = {
-  applicationId: string;
   pageId: string;
   createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
   isCreating: boolean;
@@ -28,19 +27,25 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showUnsupportedPluginDialog: (callback: any) => void;
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
-    const { applicationId, history, location, pageId } = this.props;
+    const {
+      history,
+      location,
+      pageId,
+      showUnsupportedPluginDialog,
+    } = this.props;
 
     return (
       <QueryHomePage>
         <DataSourceHome
-          applicationId={applicationId}
           history={history}
           location={location}
           pageId={pageId}
+          showUnsupportedPluginDialog={showUnsupportedPluginDialog}
         />
       </QueryHomePage>
     );

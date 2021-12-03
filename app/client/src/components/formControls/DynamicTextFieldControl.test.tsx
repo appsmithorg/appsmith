@@ -7,6 +7,7 @@ import { PluginType } from "entities/Action";
 import { waitFor } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { DatasourceComponentTypes, UIComponentTypes } from "api/PluginApi";
 
 function TestForm(props: any) {
   return <div>{props.children}</div>;
@@ -55,8 +56,8 @@ describe("DynamicTextFieldControl", () => {
                   templates: {
                     CREATE: "test plugin template",
                   },
-                  uiComponent: "DbEditorForm",
-                  datasourceComponent: "AutoForm",
+                  uiComponent: UIComponentTypes.DbEditorForm,
+                  datasourceComponent: DatasourceComponentTypes.AutoForm,
                 },
               ],
             },

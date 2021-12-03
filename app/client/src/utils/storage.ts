@@ -1,17 +1,23 @@
-import localforage from "localforage";
-import moment from "moment";
 import log from "loglevel";
+import moment from "moment";
+import localforage from "localforage";
 
 const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
-  DELETED_WIDGET_PREFIX: "DeletedWidget-",
+  GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
   RECENT_ENTITIES: "RecentEntities",
   COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
+  ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
+  FIRST_TIME_USER_ONBOARDING_APPLICATION_ID:
+    "FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
+  FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
+    "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+  HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
 };
 
 const store = localforage.createInstance({
@@ -23,7 +29,8 @@ export const resetAuthExpiration = () => {
     .add(1, "h")
     .format();
   store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
-    console.log("Unable to set expiration time", error);
+    log.error("Unable to set expiration time");
+    log.error(error);
   });
 };
 
@@ -59,43 +66,7 @@ export const getCopiedWidgets = async () => {
     log.error("An error occurred when fetching copied widget: ", error);
     return;
   }
-};
-
-export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
-  try {
-    await store.setItem(
-      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
-      JSON.stringify(widgets),
-    );
-    return true;
-  } catch (error) {
-    log.error(
-      "An error occurred when temporarily storing delete widget: ",
-      error,
-    );
-    return false;
-  }
-};
-
-export const getDeletedWidgets = async (widgetId: string) => {
-  try {
-    const widgets: string | null = await store.getItem(
-      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
-    );
-    if (widgets && widgets.length > 0) {
-      return JSON.parse(widgets);
-    }
-  } catch (error) {
-    log.error("An error occurred when fetching deleted widget: ", error);
-  }
-};
-
-export const flushDeletedWidgets = async (widgetId: string) => {
-  try {
-    await store.removeItem(`${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`);
-  } catch (error) {
-    log.error("An error occurred when flushing deleted widgets: ", error);
-  }
+  return [];
 };
 
 export const setOnboardingState = async (onboardingState: boolean) => {
@@ -155,12 +126,12 @@ export const setRecentAppEntities = async (entities: any, appId: string) => {
   }
 };
 
-export const fetchRecentAppEntities = async (appId: string) => {
+export const fetchRecentAppEntities = async (recentEntitiesKey: string) => {
   try {
     const recentEntities = (await store.getItem(
       STORAGE_KEYS.RECENT_ENTITIES,
     )) as Record<string, any>;
-    return (recentEntities && recentEntities[appId]) || [];
+    return (recentEntities && recentEntities[recentEntitiesKey]) || [];
   } catch (error) {
     log.error("An error occurred while fetching recent entities");
     log.error(error);
@@ -175,34 +146,12 @@ export const deleteRecentAppEntities = async (appId: string) => {
         any
       >) || {};
     if (typeof recentEntities === "object") {
+      // todo (rishabh s) purge recent entities across branches
       delete recentEntities[appId];
     }
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
   } catch (error) {
     log.error("An error occurred while saving recent entities");
-    log.error(error);
-  }
-};
-
-export const setCommentsIntroSeen = async (flag: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.COMMENTS_INTRO_SEEN, flag);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting COMMENTS_INTRO_SEEN");
-    log.error(error);
-    return false;
-  }
-};
-
-export const getCommentsIntroSeen = async () => {
-  try {
-    const commentsIntroSeen = (await store.getItem(
-      STORAGE_KEYS.COMMENTS_INTRO_SEEN,
-    )) as boolean;
-    return commentsIntroSeen;
-  } catch (error) {
-    log.error("An error occurred while fetching COMMENTS_INTRO_SEEN");
     log.error(error);
   }
 };
@@ -226,6 +175,121 @@ export const getOnboardingFormInProgress = async () => {
     return onboardingFormInProgress;
   } catch (error) {
     log.error("An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS");
+    log.error(error);
+  }
+};
+
+export const setEnableFirstTimeUserOnboarding = async (flag: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING, flag);
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting ENABLE_FIRST_TIME_USER_ONBOARDING",
+    );
+    log.error(error);
+  }
+};
+
+export const getEnableFirstTimeUserOnboarding = async () => {
+  try {
+    const enableFirstTimeUserOnboarding: any = await store.getItem(
+      STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
+    );
+    return enableFirstTimeUserOnboarding;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching ENABLE_FIRST_TIME_USER_ONBOARDING",
+    );
+    log.error(error);
+  }
+};
+
+export const setFirstTimeUserOnboardingApplicationId = async (id: string) => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      id,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
+    );
+    log.error(error);
+  }
+};
+
+export const getFirstTimeUserOnboardingApplicationId = async () => {
+  try {
+    const id = await store.getItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+    );
+    return id;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
+    );
+    log.error(error);
+  }
+};
+
+export const setFirstTimeUserOnboardingIntroModalVisibility = async (
+  flag: boolean,
+) => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
+      flag,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+    );
+    log.error(error);
+  }
+};
+
+export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
+  try {
+    const flag = await store.getItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
+    );
+    return flag;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+    );
+    log.error(error);
+  }
+};
+
+export const hideConcurrentEditorWarningToast = async () => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.HIDE_CONCURRENT_EDITOR_WARNING_TOAST,
+      true,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
+    );
+    log.error(error);
+  }
+};
+
+export const getIsConcurrentEditorWarningToastHidden = async () => {
+  try {
+    const flag = await store.getItem(
+      STORAGE_KEYS.HIDE_CONCURRENT_EDITOR_WARNING_TOAST,
+    );
+    return flag;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
+    );
     log.error(error);
   }
 };

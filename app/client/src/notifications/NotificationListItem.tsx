@@ -6,7 +6,10 @@ import UserApi from "api/UserApi";
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getCommentThreadURL } from "comments/utils";
-import { markNotificationAsReadRequest } from "actions/notificationActions";
+import {
+  markNotificationAsReadRequest,
+  setIsNotificationsListVisible,
+} from "actions/notificationActions";
 
 import history from "utils/history";
 import { useDispatch } from "react-redux";
@@ -14,7 +17,7 @@ import { useDispatch } from "react-redux";
 import moment from "moment";
 import styled from "styled-components";
 
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import OrgApi from "api/OrgApi";
 
 import {
@@ -106,6 +109,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     comment,
     createdAt,
     creationTime,
+    event,
     id,
     isRead,
   } = props.notification;
@@ -114,6 +118,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     applicationName,
     authorName,
     authorUsername,
+    branchName,
     mode: modeFromComment,
     orgId,
     pageId,
@@ -123,6 +128,12 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
 
   const _createdAt = createdAt || creationTime;
   const displayName = authorName || authorUsername;
+  let eventName = event;
+  if (!event || event == "CREATED") {
+    eventName = "left";
+  } else if (event == "TAGGED") {
+    eventName = "mentioned you in";
+  }
 
   const handleClick = async () => {
     const modeFromRole = await getModeFromUserRole(orgId);
@@ -130,11 +141,13 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
 
     const commentThreadUrl = getCommentThreadURL({
       applicationId,
+      branch: branchName,
       commentThreadId: threadId,
       // isResolved: resolvedState?.active,
       mode,
       pageId,
     });
+    dispatch(setIsNotificationsListVisible(false));
     history.push(
       `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
     );
@@ -154,7 +167,8 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
       </ProfileImageContainer>
       <NotificationBodyContainer>
         <div>
-          <b>{displayName}</b> left a comment on <b>{applicationName}</b>
+          <b>{displayName}</b> {eventName.toLowerCase()} a comment on
+          <b> {applicationName}</b>
         </div>
         <Time>{moment(_createdAt).fromNow()}</Time>
       </NotificationBodyContainer>
@@ -171,6 +185,7 @@ function CommentThreadNotification(props: {
     commentThread,
     createdAt,
     creationTime,
+    event,
     id: notificationId,
     isRead,
   } = props.notification;
@@ -181,6 +196,7 @@ function CommentThreadNotification(props: {
     applicationName,
     authorName,
     authorUsername,
+    branchName,
     id,
     mode: modeFromThread,
     orgId,
@@ -196,11 +212,14 @@ function CommentThreadNotification(props: {
 
     const commentThreadUrl = getCommentThreadURL({
       applicationId,
+      branch: branchName,
       commentThreadId,
       isResolved: resolvedState?.active,
       mode,
       pageId,
     });
+
+    dispatch(setIsNotificationsListVisible(false));
 
     history.push(
       `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
@@ -215,6 +234,7 @@ function CommentThreadNotification(props: {
 
   const _createdAt = createdAt || creationTime;
   const displayName = authorName || authorUsername;
+  const eventName = event || "updated";
 
   return (
     <FlexContainer onClick={handleClick}>
@@ -228,7 +248,8 @@ function CommentThreadNotification(props: {
       </ProfileImageContainer>
       <NotificationBodyContainer>
         <div>
-          <b>{displayName}</b> left a comment on <b>{applicationName}</b>
+          <b>{displayName}</b> {eventName.toLowerCase()} a thread on
+          <b> {applicationName}</b>
         </div>
         <Time>{moment(_createdAt).fromNow()}</Time>
       </NotificationBodyContainer>

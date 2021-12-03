@@ -1,17 +1,17 @@
 package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
-import java.util.List;
+import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 
 @Getter
 @Setter
@@ -21,23 +21,11 @@ public class Count extends MongoCommand {
     public Count(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, COUNT_QUERY)) {
-            this.query = (String) pluginSpecifiedTemplates.get(COUNT_QUERY).getValue();
+        if (validConfigurationPresentInFormData(formData, COUNT_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, COUNT_QUERY);
         }
-    }
-
-    @Override
-    public Boolean isValid() {
-        if (super.isValid()) {
-            if (!StringUtils.isNullOrEmpty(query)) {
-                return Boolean.TRUE;
-            } else {
-                fieldNamesWithNoConfiguration.add("Query");
-            }
-        }
-        return Boolean.FALSE;
     }
 
     @Override
@@ -45,6 +33,10 @@ public class Count extends MongoCommand {
         Document document = new Document();
 
         document.put("count", this.collection);
+
+        if (StringUtils.isNullOrEmpty(this.query)) {
+            this.query = "{}";
+        }
 
         document.put("query", parseSafely("Query", this.query));
 

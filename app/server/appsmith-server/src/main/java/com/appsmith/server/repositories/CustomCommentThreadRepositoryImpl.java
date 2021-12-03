@@ -1,8 +1,10 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.QCommentThread;
+import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -64,11 +68,51 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
+    public Mono<UpdateResult> archiveByPageId(String pageId, CommentMode commentMode) {
+        // create an update object that'll be applied
+        Update update = new Update();
+        update.set(fieldName(QCommentThread.commentThread.deleted), true);
+        update.set(fieldName(QCommentThread.commentThread.deletedAt), Instant.now());
+
+        // create a criteria for pageId. The permission criteria will be added by updateByCriteria method
+        Criteria criteria = where(fieldName(QCommentThread.commentThread.pageId)).is(pageId)
+                .and(fieldName(QCommentThread.commentThread.mode)).is(commentMode);
+
+        return this.updateByCriteria(criteria, update);
+    }
+
+    @Override
     public Mono<Long> countUnreadThreads(String applicationId, String userEmail) {
+        String resolvedActiveFieldKey = String.format("%s.%s",
+                fieldName(QCommentThread.commentThread.resolvedState),
+                fieldName(QCommentThread.commentThread.resolvedState.active)
+        );
         List<Criteria> criteriaList = List.of(
-            where(fieldName(QCommentThread.commentThread.viewedByUsers)).ne(userEmail),
-            where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId)
+                where(fieldName(QCommentThread.commentThread.viewedByUsers)).ne(userEmail),
+                where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId),
+                where(resolvedActiveFieldKey).is(false)
         );
         return count(criteriaList, AclPermission.READ_THREAD);
+    }
+
+    @Override
+    public Flux<CommentThread> find(CommentThreadFilterDTO commentThreadFilterDTO, AclPermission permission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        criteriaList.add(
+                where(fieldName(QCommentThread.commentThread.applicationId))
+                        .is(commentThreadFilterDTO.getApplicationId())
+        );
+
+        if(commentThreadFilterDTO.getResolved() != null) {
+            String fieldKey = String.format("%s.%s",
+                    fieldName(QCommentThread.commentThread.resolvedState),
+                    fieldName(QCommentThread.commentThread.resolvedState.active)
+            );
+            criteriaList.add(where(fieldKey).is(commentThreadFilterDTO.getResolved()));
+        }
+        if(commentThreadFilterDTO.getMode() != null) {
+            criteriaList.add(where(fieldName(QCommentThread.commentThread.mode)).is(commentThreadFilterDTO.getMode()));
+        }
+        return queryAll(criteriaList, permission);
     }
 }

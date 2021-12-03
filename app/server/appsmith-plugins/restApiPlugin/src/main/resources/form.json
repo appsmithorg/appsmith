@@ -70,7 +70,7 @@
               "value": "basic"
             },
             {
-              "label": "OAuth2 (Client credentials)",
+              "label": "OAuth 2.0",
               "value": "oAuth2"
             },
             {

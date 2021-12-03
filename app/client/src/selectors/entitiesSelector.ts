@@ -5,13 +5,21 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import { Datasource, MockDatasource } from "entities/Datasource";
+import {
+  Datasource,
+  MockDatasource,
+  DatasourceStructure,
+} from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollection } from "entities/JSCollection";
+import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import { APP_MODE } from "entities/App";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -20,8 +28,22 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
+export const getDatasourcesStructure = (
+  state: AppState,
+): Record<string, DatasourceStructure> => {
+  return state.entities.datasources.structure;
+};
+
+export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
+  return state.entities.datasources.fetchingDatasourceStructure;
+};
+
 export const getMockDatasources = (state: AppState): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
+};
+
+export const getIsDeletingDatasource = (state: AppState): boolean => {
+  return state.entities.datasources.isDeleting;
 };
 
 export const getPluginIdsOfNames = (
@@ -95,6 +117,16 @@ export const getPluginNameFromId = (
 export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
+export const getIsFetchingSinglePluginForm = (
+  state: AppState,
+  pluginId: string,
+): boolean => {
+  return !!state.entities.plugins.fetchingSinglePluginForm[pluginId];
+};
+
+export const getIsExecutingDatasourceQuery = (state: AppState): boolean => {
+  return state.entities.datasources.executingDatasourceQuery;
+};
 
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
@@ -106,6 +138,9 @@ export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
+
+export const getJSCollections = (state: AppState): JSCollectionDataState =>
+  state.entities.jsActions;
 
 export const getDatasource = (
   state: AppState,
@@ -146,6 +181,13 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
+export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter(
+    (plugin) =>
+      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+  ),
+);
+
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
   state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
 
@@ -158,6 +200,19 @@ export const getDBDatasources = createSelector(
 
     return datasources.filter((datasource) =>
       dbPluginIds.includes(datasource.pluginId),
+    );
+  },
+);
+
+export const getDBAndRemoteDatasources = createSelector(
+  getDBAndRemotePlugins,
+  getEntities,
+  (plugins, entities) => {
+    const datasources = entities.datasources.list;
+    const pluginIds = plugins.map((plugin) => plugin.id);
+
+    return datasources.filter((datasource) =>
+      pluginIds.includes(datasource.pluginId),
     );
   },
 );
@@ -220,6 +275,19 @@ export const getPluginDocumentationLinks = createSelector(
   },
 );
 
+export const getGenerateCRUDEnabledPluginMap = createSelector(
+  getPlugins,
+  (plugins) => {
+    const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
+    plugins.map((plugin) => {
+      if (plugin.generateCRUDPageComponent) {
+        pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
+      }
+    });
+    return pluginIdGenerateCRUDPageEnabled;
+  },
+);
+
 export const getActionsForCurrentPage = createSelector(
   getCurrentPageId,
   getActions,
@@ -229,12 +297,12 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
-export const getQueryActionsForCurrentPage = createSelector(
-  getActionsForCurrentPage,
-  (actions) => {
-    return actions.filter((action) => {
-      return action.config.pluginType === PluginType.DB;
-    });
+export const getJSCollectionsForCurrentPage = createSelector(
+  getCurrentPageId,
+  getJSCollections,
+  (pageId, actions) => {
+    if (!pageId) return [];
+    return actions.filter((a) => a.config.pageId === pageId);
   },
 );
 
@@ -259,11 +327,33 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getJSCollection = (
+  state: AppState,
+  actionId: string,
+): JSCollection | undefined => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction ? jsaction.config : undefined;
+};
+
 export function getCurrentPageNameByActionId(
   state: AppState,
   actionId: string,
 ): string {
   const action = state.entities.actions.find((action) => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
+export function getCurrentPageNameByJSCollectionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.jsActions.find((action) => {
     return action.config.id === actionId;
   });
   const pageId = action ? action.config.pageId : "";
@@ -312,6 +402,39 @@ export const getCurrentPageWidgets = createSelector(
   (widgetsByPage, currentPageId) =>
     currentPageId ? widgetsByPage[currentPageId] : {},
 );
+
+const getParentModalId = (widget: any, pageWidgets: Record<string, any>) => {
+  let parentModalId;
+  let { parentId } = widget;
+  let parentWidget = pageWidgets[parentId];
+  while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
+    if (parentWidget?.type === "MODAL_WIDGET") {
+      parentModalId = parentId;
+      break;
+    }
+    parentId = parentWidget?.parentId;
+    parentWidget = pageWidgets[parentId];
+  }
+  return parentModalId;
+};
+
+export const getCanvasWidgetsWithParentId = createSelector(
+  getCanvasWidgets,
+  (canvasWidgets: CanvasWidgetsReduxState) => {
+    return Object.entries(canvasWidgets).reduce(
+      (res, [widgetId, widget]: any) => {
+        const parentModalId = getParentModalId(widget, canvasWidgets);
+
+        return {
+          ...res,
+          [widgetId]: { ...widget, parentModalId },
+        };
+      },
+      {},
+    );
+  },
+);
+
 export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {
@@ -319,17 +442,7 @@ export const getAllWidgetsMap = createSelector(
       (res: any, [pageId, pageWidgets]: any) => {
         const widgetsMap = Object.entries(pageWidgets).reduce(
           (res, [widgetId, widget]: any) => {
-            let parentModalId;
-            let { parentId } = widget;
-            let parentWidget = pageWidgets[parentId];
-            while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
-              if (parentWidget?.type === "MODAL_WIDGET") {
-                parentModalId = parentId;
-                break;
-              }
-              parentId = parentWidget?.parentId;
-              parentWidget = pageWidgets[parentId];
-            }
+            const parentModalId = getParentModalId(widget, pageWidgets);
 
             return {
               ...res,
@@ -359,4 +472,55 @@ export const getAllPageWidgets = createSelector(
   },
 );
 
+export const getPageListAsOptions = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) =>
+    pages.map((page) => ({
+      label: page.pageName,
+      id: page.pageId,
+      value: `'${page.pageName}'`,
+    })),
+);
+
+export const getExistingPageNames = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) => pages.map((page) => page.pageName),
+);
+
+export const getExistingWidgetNames = createSelector(
+  (state: AppState) => state.entities.canvasWidgets,
+  (widgets) => Object.values(widgets).map((widget) => widget.pageName),
+);
+
+export const getExistingActionNames = createSelector(
+  (state: AppState) => state.entities.actions,
+  (actions) =>
+    actions.map((action: { config: { name: string } }) => action.config.name),
+);
+
 export const getAppMode = (state: AppState) => state.entities.app.mode;
+
+export const widgetsMapWithParentModalId = (state: AppState) => {
+  const appMode = getAppMode(state);
+  return appMode === APP_MODE.EDIT
+    ? getAllWidgetsMap(state)
+    : getCanvasWidgetsWithParentId(state);
+};
+
+export const getIsOnboardingTasksView = createSelector(
+  getCanvasWidgets,
+  (widgets) => {
+    return Object.keys(widgets).length == 1;
+  },
+);
+
+export const getIsOnboardingWidgetSelection = (state: AppState) =>
+  state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getPageActions = (pageId = "") => {
+  return (state: AppState) => {
+    return state.entities.actions.filter((action) => {
+      return action.config.pageId == pageId;
+    });
+  };
+};

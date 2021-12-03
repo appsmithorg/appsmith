@@ -40,7 +40,7 @@
         "label": "Data",
         "widgetName": "Table1",
         "searchKey": "",
-        "tableData": "[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]",
+        "tableData": "{{[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]}}",
         "type": "TABLE_WIDGET",
         "isLoading": false,
         "parentColumnSpace": 74,

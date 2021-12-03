@@ -10,7 +10,7 @@ import {
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
 import { getApplicationViewerPageURL } from "constants/routes";
-import OrgInviteUsersForm from "./OrgInviteUsersForm";
+import OrgInviteUsersForm, { InviteButtonWidth } from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
@@ -57,10 +57,10 @@ function AppInviteUsersForm(props: any) {
   );
 
   const getViewApplicationURL = () => {
-    const appViewEndPoint = getApplicationViewerPageURL(
-      applicationId,
-      defaultPageId,
-    );
+    const appViewEndPoint = getApplicationViewerPageURL({
+      applicationId: applicationId,
+      pageId: defaultPageId,
+    });
     return window.location.origin.toString() + appViewEndPoint;
   };
 
@@ -75,7 +75,7 @@ function AppInviteUsersForm(props: any) {
       {canShareWithPublic && (
         <ShareWithPublicOption>
           <Text type={TextType.H5}>Make the application public</Text>
-          <ShareToggle>
+          <ShareToggle className="t--share-public-toggle">
             {currentApplicationDetails && (
               <Toggle
                 disabled={isChangingViewAccess || isFetchingApplication}
@@ -93,11 +93,12 @@ function AppInviteUsersForm(props: any) {
         </ShareWithPublicOption>
       )}
       <Title>
-        <Text type={TextType.H5}>
-          Get Shareable link for this for this application
-        </Text>
+        <Text type={TextType.H5}>Get shareable link for this application</Text>
       </Title>
-      <CopyToClipBoard copyText={getViewApplicationURL()} />
+      <CopyToClipBoard
+        btnWidth={InviteButtonWidth}
+        copyText={getViewApplicationURL()}
+      />
 
       {canInviteToOrg && (
         <OrgInviteUsersForm isApplicationInvite orgId={props.orgId} />

@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitAuth;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,4 +29,11 @@ public interface CustomApplicationRepository extends AppsmithRepository<Applicat
 
     Mono<UpdateResult> setDefaultPage(String applicationId, String pageId);
 
+    Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission);
+
+    Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission);
+
+    Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId);
+
+    Mono<List<String>> getAllApplicationId(String organizationId);
 }
