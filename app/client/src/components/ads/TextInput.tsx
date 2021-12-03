@@ -408,6 +408,7 @@ const TextInput = forwardRef(
           data-cy={props.cypressSelector}
           hasLeftIcon={hasLeftIcon}
           inputRef={ref}
+          name={props?.name}
           onBlur={onBlurHandler}
           onChange={memoizedChangeHandler}
           onFocus={onFocusHandler}

@@ -228,6 +228,7 @@ function renderTextInput(
       defaultValue={props.defaultValue}
       errorMsg={props.errorMsg}
       helperText={props.helperText}
+      name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       validator={props.keyFieldValidate}
