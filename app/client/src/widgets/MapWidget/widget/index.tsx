@@ -142,7 +142,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           {
             propertyName: "enableSearch",
             label: "Enable search location",
-            helpText: "Enables locaton search",
+            helpText: "Allows a user to search for a location",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -185,7 +185,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             propertyName: "onMarkerClick",

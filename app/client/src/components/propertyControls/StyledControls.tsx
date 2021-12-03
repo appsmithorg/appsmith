@@ -330,3 +330,23 @@ export const StyledPropertyPaneButton = styled(Button)`
     }
   }
 `;
+
+export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 60px;
+  padding-bottom: 4px;
+  text-overflow: ellipsis;
+  background: inherit;
+  &&& {
+    input {
+      padding-left: 24px;
+      border: none;
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      &:focus {
+        border: none;
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+      }
+    }
+  }
+`;

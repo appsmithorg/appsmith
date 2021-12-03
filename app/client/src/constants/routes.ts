@@ -154,7 +154,9 @@ export const BUILDER_PAGE_URL = (props: {
   const suffixPath = suffix ? `/${suffix}` : "";
   const hashPath = hash ? `#${hash}` : "";
 
-  return `/applications/${applicationId}/pages/${pageId}/edit${suffixPath}${hashPath}${queryString}`;
+  // hash fragment should be at the end of the href
+  // ref: https://www.rfc-editor.org/rfc/rfc3986#section-4.1
+  return `/applications/${applicationId}/pages/${pageId}/edit${suffixPath}${queryString}${hashPath}`;
 };
 
 export const API_EDITOR_URL = (
@@ -302,6 +304,16 @@ export const JS_COLLECTION_ID_URL = (
     suffix: `jsObjects/${collectionId}`,
     params,
   });
+};
+
+export const getApplicationEditorPageURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  params: Record<string, string> = {},
+): string => {
+  const url = `/applications/${applicationId}/pages/${pageId}/edit`;
+  const queryString = convertToQueryParams(params);
+  return url + queryString;
 };
 
 export const getApplicationViewerPageURL = (props: {

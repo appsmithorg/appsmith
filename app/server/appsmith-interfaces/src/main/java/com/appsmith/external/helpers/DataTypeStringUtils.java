@@ -245,7 +245,6 @@ public class DataTypeStringUtils {
             case STRING:
             default:
                 try {
-                    replacement = escapeSpecialCharacters(replacement);
                     String valueAsString = objectMapper.writeValueAsString(replacement);
                     input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(valueAsString));
                 } catch (JsonProcessingException e) {
@@ -260,19 +259,6 @@ public class DataTypeStringUtils {
         }
 
         return input;
-    }
-
-    private static String escapeSpecialCharacters(String raw) {
-        String escaped = raw;
-        escaped = escaped.replace("\\", "\\\\");
-        escaped = escaped.replace("\"", "\\\"");
-        escaped = escaped.replace("\b", "\\b");
-        escaped = escaped.replace("\f", "\\f");
-        escaped = escaped.replace("\n", "\\n");
-        escaped = escaped.replace("\r", "\\r");
-        escaped = escaped.replace("\t", "\\t");
-        // TODO: escape other non-printing characters using uXXXX notation
-        return escaped;
     }
 
     private static boolean isBinary(String input) {
