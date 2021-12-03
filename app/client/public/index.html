@@ -170,7 +170,6 @@
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
 
     const INTERCOM_APP_ID = parseConfig("%REACT_APP_INTERCOM_APP_ID%") || parseConfig("__APPSMITH_INTERCOM_APP_ID__");
-    const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__");
     const DISABLE_INTERCOM = parseConfig("__APPSMITH_DISABLE_INTERCOM__");
 
     // Initialize the Intercom library
@@ -215,7 +214,6 @@
       },
       intercomAppID: INTERCOM_APP_ID,
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
-      disableTelemetry: DISABLE_TELEMETRY === "" || DISABLE_TELEMETRY,
       cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") || "https://cs.appsmith.com",
       googleRecaptchaSiteKey: parseConfig("__APPSMITH_RECAPTCHA_SITE_KEY__"),
     };

@@ -18,7 +18,12 @@ import {
   updateIconAlignment,
   getBasePropertyPath,
   hideByColumnType,
+  uniqueColumnNameValidation,
 } from "./propertyUtils";
+import {
+  createMessage,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+} from "constants/messages";
 
 export default [
   {
@@ -51,6 +56,17 @@ export default [
         dependencies: ["derivedColumns", "columnOrder"],
         isBindProperty: false,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: uniqueColumnNameValidation,
+            expected: {
+              type: "Unique Column Names",
+              example: "abc",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
@@ -1043,6 +1059,7 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultIconName: "add",
                   isJSConvertible: true,
                   isBindProperty: false,
                   isTriggerProperty: false,
@@ -1170,6 +1187,8 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
+                  defaultValue: ButtonVariantTypes.PRIMARY,
+
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
@@ -1300,6 +1319,7 @@ export default [
                   controlType: "COLOR_PICKER",
                   isBindProperty: false,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
                   defaultColor: Colors.GREEN,
@@ -1647,7 +1667,7 @@ export default [
                         ],
                       },
                       {
-                        sectionName: "Actions",
+                        sectionName: "Events",
                         children: [
                           {
                             helpText:
@@ -1737,8 +1757,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText:
-          "Bind the Table.pageSize and Table.pageNo property in your API and call it onPageChange. Without this the Table widget cannot calculate the number of pages and disable page buttons.",
+        helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
         propertyName: "totalRecordsCount",
         label: "Total Record Count",
         controlType: "INPUT_TEXT",
@@ -1768,7 +1787,24 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        helpText: "Controls sorting in View Mode",
+        propertyName: "isSortable",
+        isJSConvertible: true,
+        label: "Sortable",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+          params: {
+            default: true,
+          },
+        },
       },
       {
         propertyName: "multiRowSelection",
@@ -1780,7 +1816,7 @@ export default [
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a table row is selected",

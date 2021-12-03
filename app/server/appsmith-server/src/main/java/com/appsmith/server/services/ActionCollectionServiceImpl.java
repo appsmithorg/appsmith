@@ -160,6 +160,13 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
         return repository
                 .findByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS)
+                // Filter out all the action collections which haven't been published
+                .flatMap(actionCollection -> {
+                    if (actionCollection.getPublishedCollection() == null) {
+                        return Mono.empty();
+                    }
+                    return Mono.just(actionCollection);
+                })
                 .flatMap(actionCollection -> {
                     ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
                     final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
@@ -168,6 +175,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
                     actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
                     actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+                    actionCollectionViewDTO.setBody(publishedCollection.getBody());
                     return Flux.fromIterable(publishedCollection.getActionIds())
                             .flatMap(actionId -> {
                                 return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);

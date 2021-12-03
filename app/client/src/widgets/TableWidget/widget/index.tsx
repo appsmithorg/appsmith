@@ -54,6 +54,7 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
+import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -379,7 +380,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
+              menuColor: cellProperties.menuColor || Colors.GREEN,
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
@@ -400,13 +401,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   dynamicTrigger: columnProperties.onClick || "",
                 },
               ],
-              iconName: cellProperties.iconName as IconName,
+              iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
               buttonColor: cellProperties.buttonColor || Colors.GREEN,
-              buttonVariant: cellProperties.buttonVariant,
+              buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius: cellProperties.borderRadius || "SHARP",
               boxShadow: cellProperties.boxShadow || "NONE",
               boxShadowColor: cellProperties.boxShadowColor || "",
               isCellVisible: cellProperties.isCellVisible ?? true,
+              disabled: !!cellProperties.isDisabled,
             };
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
@@ -786,9 +788,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // It is switched ON:
       if (this.props.multiRowSelection) {
         // Use the selectedRowIndex if available as default selected index
-        const selectedRowIndices = this.props.selectedRowIndex
-          ? [this.props.selectedRowIndex]
-          : []; // Else use an empty array
+        let selectedRowIndices: number[] = [];
+        // Check if selectedRowIndex is valid
+        if (this.props.selectedRowIndex && this.props.selectedRowIndex > -1) {
+          selectedRowIndices = [this.props.selectedRowIndex];
+        }
+        // Else use the defaultSelectedRow if available
+        else if (
+          isNumber(this.props.defaultSelectedRow) ||
+          Array.isArray(this.props.defaultSelectedRow)
+        ) {
+          selectedRowIndices = isNumber(this.props.defaultSelectedRow)
+            ? [this.props.defaultSelectedRow]
+            : this.props.defaultSelectedRow;
+        }
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
@@ -968,6 +981,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
+          isSortable={this.props.isSortable ?? true}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}

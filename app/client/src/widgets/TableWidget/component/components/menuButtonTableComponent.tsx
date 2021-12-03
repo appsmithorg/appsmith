@@ -1,6 +1,13 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Alignment, Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
+import {
+  Alignment,
+  Button,
+  Classes as CoreClasses,
+  Icon,
+  Menu,
+  MenuItem,
+} from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import {
@@ -21,6 +28,7 @@ import {
 } from "components/constants";
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
+import { Colors } from "constants/Colors";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
@@ -66,7 +74,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.solid.bgColor
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
@@ -76,10 +84,10 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.outline.hoverColor
+          ? theme.colors.button.primary.secondary.hoverColor
           : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
       } !important;
     }
 
@@ -92,7 +100,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
-        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
 
@@ -112,7 +120,6 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       } !important;
     }
   `}
-
 
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
@@ -137,6 +144,9 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+  &.${CoreClasses.MENU_ITEM}.${CoreClasses.DISABLED} {
+    background-color: ${Colors.GREY_1} !important;
+  }
   ${({ backgroundColor, theme }) =>
     backgroundColor
       ? `
@@ -152,14 +162,14 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
     background: none !important
       &:hover {
         background-color: ${tinycolor(
-          theme.colors.button.primary.solid.textColor,
+          theme.colors.button.primary.primary.textColor,
         )
           .darken()
           .toString()} !important;
       }
       &:active {
         background-color: ${tinycolor(
-          theme.colors.button.primary.solid.textColor,
+          theme.colors.button.primary.primary.textColor,
         )
           .darken()
           .toString()} !important;

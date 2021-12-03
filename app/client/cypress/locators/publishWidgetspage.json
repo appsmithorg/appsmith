@@ -44,5 +44,9 @@
   "pageInfo": ".bp3-heading",
   "inputGrp": ".bp3-input-group input",
   "datePickerNew": ".t--widget-datepickerwidget2",
-  "tab": ".t--tab-Tab"
+  "tab": ".t--tab-Tab",
+  "downloadOption": ".t--table-download-data-option",
+  "addFilter": ".t--add-filter-btn",
+  "operatorsDropdown": ".t--table-filter-operators-dropdown",
+  "attributesDropdown": ".t--table-filter-columns-dropdown"
 }
