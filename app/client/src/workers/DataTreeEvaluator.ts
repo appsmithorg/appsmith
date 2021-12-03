@@ -67,6 +67,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { error as logError } from "loglevel";
+import { extractIdentifiersFromCode } from "workers/ast";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -448,9 +449,20 @@ export default class DataTreeEvaluator {
     });
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(path, this.allKeys),
-        ),
+        dependencyMap[key].map((path) => {
+          try {
+            return extractReferencesFromBinding(path, this.allKeys);
+          } catch (e) {
+            this.errors.push({
+              type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+              message: e.message,
+              context: {
+                script: path,
+              },
+            });
+            return [];
+          }
+        }),
       );
     });
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
@@ -1321,9 +1333,20 @@ export default class DataTreeEvaluator {
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
-            this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(path, this.allKeys),
-            ),
+            this.dependencyMap[key].map((path) => {
+              try {
+                return extractReferencesFromBinding(path, this.allKeys);
+              } catch (e) {
+                this.errors.push({
+                  type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+                  message: e.message,
+                  context: {
+                    script: path,
+                  },
+                });
+                return [];
+              }
+            }),
           ),
         );
       });
@@ -1462,9 +1485,22 @@ export default class DataTreeEvaluator {
         Object.keys(entityPropertyBindings).forEach((path) => {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
-            propertyBindings.map((binding) =>
-              extractReferencesFromBinding(binding, this.allKeys),
-            ),
+            propertyBindings.map((binding) => {
+              {
+                try {
+                  return extractReferencesFromBinding(binding, this.allKeys);
+                } catch (e) {
+                  this.errors.push({
+                    type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+                    message: e.message,
+                    context: {
+                      script: binding,
+                    },
+                  });
+                  return [];
+                }
+              }
+            }),
           );
           references.forEach((value) => {
             if (isChildPropertyPath(propertyPath, value)) {
@@ -1545,18 +1581,17 @@ export default class DataTreeEvaluator {
   }
 }
 
-const extractReferencesFromBinding = (
-  dependentPath: string,
-  all: Record<string, true>,
-): Array<string> => {
-  const subDeps: Array<string> = [];
-  const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
-    dependentPath,
-  ];
+export const extractReferencesFromBinding = (
+  script: string,
+  allPaths: Record<string, true>,
+): string[] => {
+  const references: Set<string> = new Set<string>();
+  const identifiers = extractIdentifiersFromCode(script);
+
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
-    if (all.hasOwnProperty(identifier)) {
-      subDeps.push(identifier);
+    if (allPaths.hasOwnProperty(identifier)) {
+      references.add(identifier);
       return;
     }
     const subpaths = _.toPath(identifier);
@@ -1568,14 +1603,14 @@ const extractReferencesFromBinding = (
     while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
-      if (all.hasOwnProperty(current)) {
-        subDeps.push(current);
+      if (allPaths.hasOwnProperty(current)) {
+        references.add(current);
         return;
       }
       subpaths.pop();
     }
   });
-  return _.uniq(subDeps);
+  return Array.from(references);
 };
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function
