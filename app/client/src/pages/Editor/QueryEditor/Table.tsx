@@ -197,16 +197,21 @@ const renderCell = (props: any) => {
 function Table(props: TableProps) {
   const data = React.useMemo(() => {
     const emptyString = "";
-    const keys = Object.keys(props.data[0]);
-    keys.forEach((key) => {
-      if (key === emptyString) {
-        const value = props.data[0][key];
-        delete props.data[0][key];
-        props.data[0][uniqueId()] = value;
-      }
-    });
+    /* Check for length greater than 0 of rows returned from the query for mappings keys */
+    if (props.data?.length > 0) {
+      const keys = Object.keys(props.data[0]);
+      keys.forEach((key) => {
+        if (key === emptyString) {
+          const value = props.data[0][key];
+          delete props.data[0][key];
+          props.data[0][uniqueId()] = value;
+        }
+      });
 
-    return props.data;
+      return props.data;
+    }
+
+    return [];
   }, [props.data]);
   const columns = React.useMemo(() => {
     if (data.length) {

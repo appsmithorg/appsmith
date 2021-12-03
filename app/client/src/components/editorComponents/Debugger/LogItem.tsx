@@ -100,7 +100,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
       margin-left: -5px;
-      margin-top: 
     }
 
     .debugger-label {
