@@ -188,7 +188,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     return Mono.just(application);
                 }).flatMap(application -> {
                     // add this organization id to the recently used organization id of User Data
-                    return userDataService.updateLastUsedOrgList(application.getOrganizationId())
+                    return userDataService.updateLastUsedAppAndOrgList(application)
                             .thenReturn(application);
                 })
                 .cache();
