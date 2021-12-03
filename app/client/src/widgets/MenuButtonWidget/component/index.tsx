@@ -20,22 +20,46 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  WidgetContainerDiff,
 } from "widgets/WidgetUtils";
+import _ from "lodash";
 
-export const MenuButtonContainer = styled.div`
+type MenuButtonContainerProps = {
+  disabled?: boolean;
+};
+
+export const MenuButtonContainer = styled.div<MenuButtonContainerProps>`
   width: 100%;
   height: 100%;
   text-align: center;
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
   & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
+const PopoverStyles = createGlobalStyle<{
+  parentWidth: number;
+  menuDropDownWidth: number;
+  id: string;
+}>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
+  ${({ id, menuDropDownWidth, parentWidth }) => `
+  .menu-button-width-${id} {
+
+    max-width: ${
+      menuDropDownWidth > parentWidth
+        ? `${menuDropDownWidth}px`
+        : `${parentWidth}px`
+    } !important;
+    min-width: ${
+      parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
+    }px !important;
+  }
+`}
 `;
 
 export interface BaseStyleProps {
@@ -86,6 +110,11 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      pointer-events: none;
+      border-color: ${theme.colors.button.disabled.bgColor} !important;
+      > span {
+        color: ${theme.colors.button.disabled.textColor} !important;
+      }
     }
 
     border: ${
@@ -183,6 +212,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
 
 const StyledMenu = styled(Menu)`
   padding: 0;
+  min-width: 0px;
 `;
 
 export interface PopoverContentProps {
@@ -347,6 +377,8 @@ export interface MenuButtonComponentProps {
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
   backgroundColor?: string;
+  width: number;
+  menuDropDownWidth: number;
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
@@ -360,14 +392,21 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     isDisabled,
     label,
     menuColor,
+    menuDropDownWidth,
     menuItems,
     menuVariant,
     onItemClicked,
+    width,
   } = props;
+  const id = _.uniqueId();
 
   return (
-    <MenuButtonContainer>
-      <PopoverStyles />
+    <MenuButtonContainer disabled={isDisabled}>
+      <PopoverStyles
+        id={id}
+        menuDropDownWidth={menuDropDownWidth}
+        parentWidth={width - WidgetContainerDiff}
+      />
       <Popover2
         content={
           <PopoverContent
@@ -380,7 +419,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         fill
         minimal
         placement="bottom-end"
-        popoverClassName="menu-button-popover"
+        popoverClassName={`menu-button-popover menu-button-width-${id}`}
       >
         <PopoverTargetButton
           borderRadius={borderRadius}

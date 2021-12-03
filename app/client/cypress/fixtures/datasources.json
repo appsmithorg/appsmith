@@ -42,5 +42,6 @@
     "mockHostAddress":"fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
     "mockDatabaseName": "fakeapi",
     "mockDatabaseUsername": "fakeapi",
-    "mockDatabasePassword": "LimitedAccess123#"
+    "mockDatabasePassword": "LimitedAccess123#",
+    "readonly":"readonly"
 }

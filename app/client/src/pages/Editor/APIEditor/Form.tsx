@@ -260,7 +260,6 @@ interface APIFormProps {
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 export const NameWrapper = styled.div`
-  width: 49%;
   display: flex;
   align-items: center;
   input {
