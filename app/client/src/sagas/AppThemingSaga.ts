@@ -57,105 +57,141 @@ const dummyThemes: AppTheme[] = [
       },
     },
     stylesheet: {
-      "AUDIO_RECORDER_WIDGET.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "AUDIO_RECORDER_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "AUDIO_RECORDER_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "BUTTON_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "BUTTON_GROUP_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "BUTTON_GROUP_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "BUTTON_GROUP_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CHART_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CHART_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CHART_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CHECKBOX_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CHECKBOX_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CHECKBOX_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CONTAINER_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CONTAINER_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CONTAINER_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "DATE_PICKER_WIDGET2.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "DATE_PICKER_WIDGET2.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "DATE_PICKER_WIDGET2.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "FILE_PICKER_WIDGET_V2.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "FILE_PICKER_WIDGET_V2.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "FILE_PICKER_WIDGET_V2.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "FORM_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "FORM_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "FORM_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "ICON_BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "ICON_BUTTON_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "ICON_BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "IFRAME_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "IFRAME_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "IFRAME_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "IMAGE_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "IMAGE_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "INPUT_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "INPUT_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "INPUT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "LIST_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "LIST_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "LIST_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MAP_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MAP_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MENU_BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MENU_BUTTON_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MENU_BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MODAL_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MODAL_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_TREE_WIDGET.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "MULTI_SELECT_TREE_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_TREE_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MULTI_SELECT_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MULTI_SELECT_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "DROPDOWN_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "RADIO_GROUP_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "RICH_TEXT_EDITOR_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "RICH_TEXT_EDITOR_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "STATBOX_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "STATBOX_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "STATBOX_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "SWITCH_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "TABLE_WIDGET.accentColor": "{{AppTheme.colors.primaryColor}}",
-      "TABLE_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TABLE_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "TABS_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "TABS_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TABS_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "TEXT_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "TEXT_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TEXT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "VIDEO_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "VIDEO_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "VIDEO_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "SINGLE_SELECT_TREE_WIDGET.selectedTabColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "SINGLE_SELECT_TREE_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "SINGLE_SELECT_TREE_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
+      AUDIO_RECORDER_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      BUTTON_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CHART_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CHECKBOX_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CONTAINER_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      DATE_PICKER_WIDGET2: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      FILE_PICKER_WIDGET_V2: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      FORM_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      ICON_BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      IFRAME_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      IMAGE_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      INPUT_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      LIST_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MAP_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MENU_BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MODAL_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
+      MULTI_SELECT_TREE_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MULTI_SELECT_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      DROPDOWN_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      RADIO_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      RICH_TEXT_EDITOR_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      STATBOX_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      SWITCH_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      TABLE_WIDGET: {
+        accentColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      TABS_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      TEXT_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      VIDEO_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      SINGLE_SELECT_TREE_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
     },
     properties: {
       colors: {
@@ -175,7 +211,7 @@ const dummyThemes: AppTheme[] = [
       },
     },
     variants: {
-      "Button.default.buttonColor": "{{Apptheme.colors.primary_colors}}",
+      "Button.default.buttonColor": "{{appsmith.theme.colors.primary_colors}}",
     },
   },
   {
@@ -221,105 +257,141 @@ const dummyThemes: AppTheme[] = [
       },
     },
     stylesheet: {
-      "AUDIO_RECORDER_WIDGET.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "AUDIO_RECORDER_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "AUDIO_RECORDER_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "BUTTON_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "BUTTON_GROUP_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "BUTTON_GROUP_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "BUTTON_GROUP_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CHART_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CHART_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CHART_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CHECKBOX_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CHECKBOX_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CHECKBOX_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CONTAINER_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CONTAINER_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CONTAINER_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "DATE_PICKER_WIDGET2.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "DATE_PICKER_WIDGET2.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "DATE_PICKER_WIDGET2.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "FILE_PICKER_WIDGET_V2.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "FILE_PICKER_WIDGET_V2.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "FILE_PICKER_WIDGET_V2.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "FORM_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "FORM_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "FORM_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "ICON_BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "ICON_BUTTON_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "ICON_BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "IFRAME_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "IFRAME_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "IFRAME_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "IMAGE_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "IMAGE_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "INPUT_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "INPUT_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "INPUT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "LIST_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "LIST_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "LIST_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MAP_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MAP_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MENU_BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MENU_BUTTON_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MENU_BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MODAL_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MODAL_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_TREE_WIDGET.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "MULTI_SELECT_TREE_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_TREE_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MULTI_SELECT_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MULTI_SELECT_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "DROPDOWN_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "RADIO_GROUP_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "RICH_TEXT_EDITOR_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "RICH_TEXT_EDITOR_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "STATBOX_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "STATBOX_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "STATBOX_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "SWITCH_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "TABLE_WIDGET.accentColor": "{{AppTheme.colors.primaryColor}}",
-      "TABLE_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TABLE_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "TABS_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "TABS_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TABS_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "TEXT_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "TEXT_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TEXT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "VIDEO_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "VIDEO_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "VIDEO_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "SINGLE_SELECT_TREE_WIDGET.selectedTabColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "SINGLE_SELECT_TREE_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "SINGLE_SELECT_TREE_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
+      AUDIO_RECORDER_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      BUTTON_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CHART_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CHECKBOX_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CONTAINER_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      DATE_PICKER_WIDGET2: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      FILE_PICKER_WIDGET_V2: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      FORM_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      ICON_BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      IFRAME_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      IMAGE_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      INPUT_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      LIST_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MAP_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MENU_BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MODAL_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
+      MULTI_SELECT_TREE_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MULTI_SELECT_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      DROPDOWN_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      RADIO_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      RICH_TEXT_EDITOR_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      STATBOX_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      SWITCH_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      TABLE_WIDGET: {
+        accentColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      TABS_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      TEXT_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      VIDEO_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      SINGLE_SELECT_TREE_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
     },
     properties: {
       colors: {
@@ -339,7 +411,7 @@ const dummyThemes: AppTheme[] = [
       },
     },
     variants: {
-      "Button.default.buttonColor": "{{Apptheme.colors.primary_colors}}",
+      "Button.default.buttonColor": "{{appsmith.theme.colors.primary_colors}}",
     },
   },
   {
@@ -385,105 +457,141 @@ const dummyThemes: AppTheme[] = [
       },
     },
     stylesheet: {
-      "AUDIO_RECORDER_WIDGET.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "AUDIO_RECORDER_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "AUDIO_RECORDER_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "BUTTON_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "BUTTON_GROUP_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "BUTTON_GROUP_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "BUTTON_GROUP_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CHART_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CHART_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CHART_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CHECKBOX_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CHECKBOX_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CHECKBOX_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "CONTAINER_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "CONTAINER_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "CONTAINER_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "DATE_PICKER_WIDGET2.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "DATE_PICKER_WIDGET2.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "DATE_PICKER_WIDGET2.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "FILE_PICKER_WIDGET_V2.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "FILE_PICKER_WIDGET_V2.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "FILE_PICKER_WIDGET_V2.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "FORM_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "FORM_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "FORM_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "ICON_BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "ICON_BUTTON_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "ICON_BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "IFRAME_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "IFRAME_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "IFRAME_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "IMAGE_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "IMAGE_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "INPUT_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "INPUT_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "INPUT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "LIST_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "LIST_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "LIST_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MAP_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MAP_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MENU_BUTTON_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MENU_BUTTON_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MENU_BUTTON_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MODAL_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MODAL_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_TREE_WIDGET.backgroundColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "MULTI_SELECT_TREE_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_TREE_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "MULTI_SELECT_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "MULTI_SELECT_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "MULTI_SELECT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "DROPDOWN_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "RADIO_GROUP_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "RICH_TEXT_EDITOR_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "RICH_TEXT_EDITOR_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
-      "STATBOX_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "STATBOX_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "STATBOX_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "SWITCH_WIDGET.backgroundColor": "{{AppTheme.colors.primaryColor}}",
-      "TABLE_WIDGET.accentColor": "{{AppTheme.colors.primaryColor}}",
-      "TABLE_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TABLE_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "TABS_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "TABS_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TABS_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "TEXT_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "TEXT_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "TEXT_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "VIDEO_WIDGET.selectedTabColor": "{{AppTheme.colors.primaryColor}}",
-      "VIDEO_WIDGET.borderRadius": "{{AppTheme.borderRadius.appBorderRadius}}",
-      "VIDEO_WIDGET.boxShadow": "{{AppTheme.borderRadius.appBoxShadow}}",
-      "SINGLE_SELECT_TREE_WIDGET.selectedTabColor":
-        "{{AppTheme.colors.primaryColor}}",
-      "SINGLE_SELECT_TREE_WIDGET.borderRadius":
-        "{{AppTheme.borderRadius.appBorderRadius}}",
-      "SINGLE_SELECT_TREE_WIDGET.boxShadow":
-        "{{AppTheme.borderRadius.appBoxShadow}}",
+      AUDIO_RECORDER_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      BUTTON_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CHART_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CHECKBOX_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      CONTAINER_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      DATE_PICKER_WIDGET2: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      FILE_PICKER_WIDGET_V2: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      FORM_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      ICON_BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      IFRAME_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      IMAGE_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      INPUT_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      LIST_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MAP_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MENU_BUTTON_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MODAL_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
+      MULTI_SELECT_TREE_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      MULTI_SELECT_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      DROPDOWN_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      RADIO_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      RICH_TEXT_EDITOR_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      STATBOX_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      SWITCH_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+      },
+      TABLE_WIDGET: {
+        accentColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      TABS_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      TEXT_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      VIDEO_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
+      SINGLE_SELECT_TREE_WIDGET: {
+        selectedTabColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
+      },
     },
     properties: {
       colors: {
@@ -504,7 +612,7 @@ const dummyThemes: AppTheme[] = [
       },
     },
     variants: {
-      "Button.default.buttonColor": "{{Apptheme.colors.primary_colors}}",
+      "Button.default.buttonColor": "{{appsmith.theme.colors.primary_colors}}",
     },
   },
 ];

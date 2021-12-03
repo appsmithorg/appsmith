@@ -290,7 +290,7 @@ function* setWidgetDynamicPropertySaga(
   yield put(updateAndSaveLayout(widgets));
 }
 
-function getPropertiesToUpdate(
+export function getPropertiesToUpdate(
   widget: WidgetProps,
   updates: Record<string, unknown>,
   triggerPaths?: string[],

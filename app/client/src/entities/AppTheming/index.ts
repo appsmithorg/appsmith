@@ -26,7 +26,9 @@ export interface AppTheme {
     };
   };
   stylesheet: {
-    [key: string]: string;
+    [key: string]: {
+      [key: string]: string;
+    };
   };
   properties: {
     colors: {
