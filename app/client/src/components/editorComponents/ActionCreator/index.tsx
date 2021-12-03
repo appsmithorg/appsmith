@@ -11,7 +11,7 @@ import {
 } from "constants/routes";
 import { PluginType } from "entities/Action";
 import { Datasource } from "entities/Datasource";
-import { keyBy } from "lodash";
+import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
   apiIcon,
@@ -40,34 +40,33 @@ import {
 import { createNewQueryName } from "utils/AppsmithUtils";
 import history from "utils/history";
 import Fields, {
-  ActionType,
   ACTION_ANONYMOUS_FUNC_REGEX,
   ACTION_TRIGGER_REGEX,
+  ActionType,
   FieldType,
 } from "./Fields";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import _ from "lodash";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import getFeatureFlags from "utils/featureFlags";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
-  createMessage,
-  EXECUTE_JS_FUNCTION,
-  RESET_WIDGET,
-  COPY_TO_CLIPBOARD,
-  DOWNLOAD,
-  STORE_VALUE,
-  CLOSE_MODAL,
-  OPEN_MODAL,
-  SHOW_MESSAGE,
-  NAVIGATE_TO,
-  EXECUTE_A_QUERY,
-  NO_ACTION,
-  SET_INTERVAL,
   CLEAR_INTERVAL,
+  CLOSE_MODAL,
+  COPY_TO_CLIPBOARD,
+  createMessage,
+  DOWNLOAD,
+  EXECUTE_A_QUERY,
+  EXECUTE_JS_FUNCTION,
+  NAVIGATE_TO,
+  NO_ACTION,
+  OPEN_MODAL,
+  RESET_WIDGET,
+  SET_INTERVAL,
+  SHOW_MESSAGE,
+  STORE_VALUE,
 } from "constants/messages";
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -126,10 +125,10 @@ const baseOptions: any = [
 
 const getBaseOptions = () => {
   if (isJSEditorEnabled) {
-    const jsoption = baseOptions.find(
+    const jsOption = baseOptions.find(
       (option: any) => option.value === ActionType.jsFunction,
     );
-    if (!jsoption) {
+    if (!jsOption) {
       baseOptions.splice(2, 0, {
         label: createMessage(EXECUTE_JS_FUNCTION),
         value: ActionType.jsFunction,
@@ -155,7 +154,7 @@ function getFieldFromValue(
     ];
   }
   let entity;
-  if (_.isString(value)) {
+  if (isString(value)) {
     const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
     const entityProps = getEntityNameAndPropertyPath(trimmedVal);
     entity = dataTree && dataTree[entityProps.entityName];
@@ -173,20 +172,19 @@ function getFieldFromValue(
         const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
         const successArg = args[0];
         const errorArg = args[1];
-        let sucesssValue;
+        let successValue;
         if (successArg && successArg.length > 0) {
-          sucesssValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
+          successValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
         }
         const successFields = getFieldFromValue(
-          sucesssValue,
+          successValue,
           (changeValue: string) => {
             const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
             const args = [
               ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
             ];
-            let successArg = args[0] ? args[0][0] : "() => {}";
             const errorArg = args[1] ? args[1][0] : "() => {}";
-            successArg = changeValue.endsWith(")")
+            const successArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
               : `() => ${changeValue}()`;
 
@@ -212,8 +210,7 @@ function getFieldFromValue(
               ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
             ];
             const successArg = args[0] ? args[0][0] : "() => {}";
-            let errorArg = args[1] ? args[1][0] : "() => {}";
-            errorArg = changeValue.endsWith(")")
+            const errorArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
               : `() => ${changeValue}()`;
             return value.replace(
@@ -361,7 +358,7 @@ function getFieldFromValue(
 
   if (value.indexOf("clearInterval") !== -1) {
     fields.push({
-      field: FieldType.ID_FIELD,
+      field: FieldType.CLEAR_INTERVAL_ID_FIELD,
     });
   }
   return fields;
@@ -384,7 +381,7 @@ function useModalDropdownList() {
           setter({
             value: `${modalName}`,
           });
-          dispatch(createModalAction(nextModalName));
+          dispatch(createModalAction(modalName));
         }
       },
     },
@@ -562,7 +559,7 @@ function useIntegrationsOptionTree() {
   const currentSubStep = useSelector(getCurrentSubStep);
   const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
-  const integrationOptionTree = getIntegrationOptionsWithChildren(
+  return getIntegrationOptionsWithChildren(
     pageId,
     applicationId,
     pluginGroups,
@@ -598,7 +595,6 @@ function useIntegrationsOptionTree() {
     },
     dispatch,
   );
-  return integrationOptionTree;
 }
 
 type ActionCreatorProps = {
