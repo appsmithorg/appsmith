@@ -23,16 +23,15 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
 
     return (
-      <div>
-        <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
-          <Field
-            component={renderDropdown}
-            name={this.props.configProperty}
-            options={this.props.options}
-            props={this.props}
-          />
-        </DropdownSelect>
-      </div>
+      <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
+        <Field
+          component={renderDropdown}
+          name={this.props.configProperty}
+          options={this.props.options}
+          props={this.props}
+          type={this.props?.isMultiSelect ? "select-multiple" : undefined}
+        />
+      </DropdownSelect>
     );
   }
 
@@ -62,6 +61,7 @@ function renderDropdown(props: {
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}
       helperText={props.props?.info}
+      isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth="50vh"
       options={props.options}
@@ -78,6 +78,7 @@ export interface DropDownControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
+  isMultiSelect?: boolean;
   isDisabled?: boolean;
   isSearchable?: boolean;
 }

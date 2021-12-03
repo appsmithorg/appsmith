@@ -23,7 +23,7 @@ function SelectedValueNode(props: DefaultDropDownValueNodeProps) {
   const { selected } = props;
   return (
     <SelectedValueNodeContainer>
-      <span className="label">{selected.label}</span>
+      <span className="label">{(selected as DropdownOption).label}</span>
       <ChevronDown />
     </SelectedValueNodeContainer>
   );
