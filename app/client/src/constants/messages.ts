@@ -563,10 +563,8 @@ export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
-export const COMMIT = () => "COMMIT";
+export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
-export const PUSH = () => "PUSH";
-export const PULL = () => "PULL";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
