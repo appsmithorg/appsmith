@@ -393,6 +393,12 @@ export const entityDefinitions: Record<string, unknown> = {
     dataURL: "string",
     rawBinary: "string",
   },
+  PROGRESSBAR_WIDGET: {
+    "!doc": "Progress bar is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/progressbar",
+    isVisible: isVisible,
+    progress: "number",
+  },
 };
 
 export const GLOBAL_DEFS = {
