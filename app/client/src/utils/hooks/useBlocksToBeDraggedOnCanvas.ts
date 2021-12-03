@@ -52,8 +52,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   snapRowSpace,
   widgetId,
 }: CanvasDraggingArenaProps) => {
-  // eslint-disable-next-line no-console
-  console.log("useBlocksToBeDraggedOnCanvas");
   const dispatch = useDispatch();
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();

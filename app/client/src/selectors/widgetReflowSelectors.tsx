@@ -5,33 +5,14 @@ import { createSelector } from "reselect";
 export const getReflow = (state: AppState): widgetReflowState =>
   state.ui.widgetReflow;
 
+export const getShouldResize = (state: any): boolean =>
+  state.ui.widgetReflow.shouldResize;
+
 export const getReflowSelector = (widgetId: string) => {
   return createSelector(getReflow, (reflowState: widgetReflowState) => {
-    if (reflowState?.reflow?.reflowingWidgets) {
-      return reflowState.reflow.reflowingWidgets[widgetId];
+    if (reflowState?.reflowingWidgets) {
+      return reflowState?.reflowingWidgets[widgetId];
     }
     return;
-  });
-};
-
-export const getReflowStaticWidgetSelector = (widgetId: string) => {
-  return createSelector(getReflow, (reflowState: widgetReflowState) => {
-    if (
-      reflowState?.reflow?.staticWidget &&
-      reflowState.reflow.staticWidget.id === widgetId
-    ) {
-      return reflowState.reflow.staticWidget;
-    }
-  });
-};
-
-export const getReflowWidgetSelector = (widgetId: string) => {
-  return createSelector(getReflow, (reflowState: widgetReflowState) => {
-    if (
-      reflowState?.reflow?.staticWidget &&
-      reflowState.reflow.staticWidget.id === widgetId
-    ) {
-      return reflowState;
-    }
   });
 };

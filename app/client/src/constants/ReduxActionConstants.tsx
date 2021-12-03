@@ -788,9 +788,9 @@ export enum ReplayReduxActionTypes {
 }
 
 export const ReflowReduxActionTypes = {
-  START_REFLOW: "START_REFLOW",
   STOP_REFLOW: "STOP_REFLOW",
   REFLOW_MOVE: "REFLOW_MOVE",
+  RESIZE_RESIZING: "RESIZE_RESIZING",
 };
 
 export const WidgetReduxActionTypes: { [key: string]: string } = {

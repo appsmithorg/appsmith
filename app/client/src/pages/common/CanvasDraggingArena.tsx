@@ -52,8 +52,6 @@ export function CanvasDraggingArena({
 
   const canvasRef = React.useRef<HTMLDivElement>(null);
   const canvasDrawRef = React.useRef<HTMLCanvasElement>(null);
-  // eslint-disable-next-line no-console
-  console.log("Hey hi");
   const { showCanvas } = useCanvasDragging(canvasRef, canvasDrawRef, {
     canExtend,
     dropDisabled,

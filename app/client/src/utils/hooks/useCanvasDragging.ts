@@ -6,9 +6,8 @@ import {
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
-import { reflowWidgets } from "reducers/uiReducers/reflowReducer";
-import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
-import { useDragReflow } from "resizable/resizenreflow/useDragReflow";
+import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
+import { useReflow } from "utils/hooks/useReflow";
 import { getNearestParentCanvas } from "utils/generators";
 import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
@@ -62,9 +61,10 @@ export const useCanvasDragging = (
     snapRowSpace,
     widgetId,
   });
-  const widgetParentSpaces = {
+  const gridProps = {
     parentColumnSpace: snapColumnSpace,
     parentRowSpace: snapRowSpace,
+    maxGrirdColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
     paddingOffset: 0,
   };
   const reflowStateRef = useRef<any>();
@@ -77,12 +77,10 @@ export const useCanvasDragging = (
   //   reflowStateRef.current = reflowState;
   // }, [reflowStateChange]);
   const reflow = useRef<any>();
-  reflow.current = useDragReflow(
+  reflow.current = useReflow(
     widgetOccupiedSpace ? widgetOccupiedSpace.id : "",
     widgetId || "",
-    canvasRef,
-    false,
-    widgetParentSpaces,
+    gridProps,
   );
 
   const {
@@ -172,19 +170,19 @@ export const useCanvasDragging = (
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
       const scrollObj: any = {};
       let currentReflowParams: {
-        verticalMove: boolean;
-        horizontalMove: boolean;
-        reflowingWidgets: reflowWidgets;
+        canVerticalMove: boolean;
+        canHorizontalMove: boolean;
+        movementMap: ReflowedSpaceMap;
       } = {
-        verticalMove: false,
-        horizontalMove: false,
-        reflowingWidgets: {},
+        canVerticalMove: false,
+        canHorizontalMove: false,
+        movementMap: {},
       };
       let last_position = {
         x: 0,
         y: 0,
       };
-      let currentDirection = ResizeDirection.UNSET;
+      let currentDirection = ReflowDirection.UNSET;
 
       const resetCanvasState = () => {
         if (canvasDrawRef.current && canvasRef.current) {
@@ -204,7 +202,7 @@ export const useCanvasDragging = (
         const startPoints = defaultHandlePositions;
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
-            const { reflowingWidgets } = currentReflowParams;
+            const { movementMap: reflowingWidgets } = currentReflowParams;
             const reflowedPositionsUpdatesWidgets: OccupiedSpace[] = occSpaces
               .filter((each) => !!reflowingWidgets[each.id])
               .map((each) => {
@@ -306,7 +304,7 @@ export const useCanvasDragging = (
               movements.push("RIGHT");
             }
             return movements.length
-              ? (movements.join("|") as ResizeDirection)
+              ? (movements.join("|") as ReflowDirection)
               : currentDirection;
           }
           return currentDirection;
@@ -366,37 +364,19 @@ export const useCanvasDragging = (
                     y: 0,
                   },
                 );
-
-                const block: DimensionProps = {
-                  width: currentBlock.width / snapColumnSpace,
-                  height: currentBlock.height / snapRowSpace,
-                  x: 0,
-                  y: 0,
-                  X:
-                    (leftColumn -
-                      (widgetOccupiedSpace ? widgetOccupiedSpace.left : 0)) *
-                    snapColumnSpace,
-                  Y:
-                    (topRow -
-                      (widgetOccupiedSpace ? widgetOccupiedSpace.top : 0)) *
-                    snapRowSpace,
-                  direction: currentDirection,
+                const resizedPositions = {
+                  left: leftColumn,
+                  top: topRow,
+                  right: leftColumn + currentBlock.width / snapColumnSpace,
+                  bottom: topRow + currentBlock.height / snapRowSpace,
+                  id: currentBlock.widgetId,
                 };
                 currentReflowParams = reflow.current(
-                  block,
+                  resizedPositions,
                   widgetOccupiedSpace,
-                  {
-                    ...currentBlock,
-                    width: currentBlock.width / snapColumnSpace,
-                    height: currentBlock.height / snapRowSpace,
-                    left: leftColumn,
-                    top: topRow,
-                  },
-                  reflowStateRef.current,
+                  currentDirection,
                 );
-                const isReflowing = !isEmpty(
-                  currentReflowParams.reflowingWidgets,
-                );
+                const isReflowing = !isEmpty(currentReflowParams.movementMap);
                 if (isReflowing) {
                   const block = currentRectanglesToDraw[0];
                   const isNotInParentBoundaries = noCollision(
@@ -414,8 +394,8 @@ export const useCanvasDragging = (
                   );
                   currentRectanglesToDraw[0].isNotColliding =
                     isNotInParentBoundaries &&
-                    (currentReflowParams.horizontalMove ||
-                      currentReflowParams.verticalMove);
+                    currentReflowParams.canHorizontalMove &&
+                    currentReflowParams.canVerticalMove;
                 }
               }
               renderBlocks();

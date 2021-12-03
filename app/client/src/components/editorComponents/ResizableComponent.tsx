@@ -7,7 +7,11 @@ import {
   WidgetProps,
 } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { UIElementSize, computeFinalRowCols } from "./ResizableUtils";
+import {
+  UIElementSize,
+  computeFinalRowCols,
+  computeRowCols,
+} from "./ResizableUtils";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
@@ -17,6 +21,7 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable/resizenreflow";
 import { omit, get } from "lodash";
+import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
   LeftHandleStyles,
@@ -35,6 +40,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -75,7 +81,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     canvasWidgets,
   );
 
-  // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
     focusedWidget === props.widgetId ||
     selectedWidget === props.widgetId ||
@@ -90,6 +95,58 @@ export const ResizableComponent = memo(function ResizableComponent(
     height:
       (props.bottomRow - props.topRow) * props.parentRowSpace -
       2 * props.paddingOffset,
+  };
+
+  // onResize handler
+  const getResizedPositions = (
+    newDimensions: UIElementSize,
+    position: XYCord,
+  ) => {
+    const delta: UIElementSize = {
+      height: newDimensions.height - dimensions.height,
+      width: newDimensions.width - dimensions.width,
+    };
+    const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
+    let canResizeHorizontally = true,
+      canResizeVertically = true;
+
+    // this is required for list widget so that template have no collision
+    if (props.ignoreCollision)
+      return {
+        canResizeHorizontally,
+        canResizeVertically,
+      };
+
+    if (
+      newRowCols &&
+      (newRowCols.rightColumn > getSnapColumns() ||
+        newRowCols.leftColumn < 0 ||
+        newRowCols.rightColumn - newRowCols.leftColumn < 2)
+    ) {
+      canResizeHorizontally = false;
+    }
+
+    if (
+      newRowCols &&
+      (newRowCols.topRow < 0 || newRowCols.bottomRow - newRowCols.topRow < 4)
+    ) {
+      canResizeVertically = false;
+    }
+
+    const resizedPositions = {
+      id: props.widgetId,
+      left: newRowCols.leftColumn,
+      top: newRowCols.topRow,
+      bottom: newRowCols.bottomRow,
+      right: newRowCols.rightColumn,
+    };
+
+    // Check if new row cols are occupied by sibling widgets
+    return {
+      canResizeHorizontally,
+      canResizeVertically,
+      resizedPositions,
+    };
   };
 
   // onResizeStop handler
@@ -192,14 +249,19 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectedWidgets.length > 1 &&
     selectedWidgets.includes(props.widgetId);
 
-  const widgetPosition = {
-    rightColumn: props.rightColumn,
-    leftColumn: props.leftColumn,
-    bottomRow: props.bottomRow,
-    topRow: props.topRow,
-    parentRowSpace: props.parentRowSpace,
+  const gridProps = {
     parentColumnSpace: props.parentColumnSpace,
+    parentRowSpace: props.parentRowSpace,
     paddingOffset: props.paddingOffset,
+    maxGrirdColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+  };
+
+  const originalPositions = {
+    id: props.widgetId,
+    left: props.leftColumn,
+    top: props.topRow,
+    bottom: props.bottomRow,
+    right: props.rightColumn,
   };
 
   return (
@@ -208,14 +270,15 @@ export const ResizableComponent = memo(function ResizableComponent(
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={isEnabled}
+      getResizedPositions={getResizedPositions}
+      gridProps={gridProps}
       handles={handles}
-      ignoreCollision={!!props.ignoreCollision}
       onStart={handleResizeStart}
       onStop={updateSize}
+      originalPositions={originalPositions}
       parentId={props.parentId}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
       widgetId={props.widgetId}
-      widgetPosition={widgetPosition}
       // Used only for performance tracking, can be removed after optimization.
       zWidgetId={props.widgetId}
       zWidgetType={props.type}

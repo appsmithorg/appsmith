@@ -1,5 +1,7 @@
 import { Position } from "@blueprintjs/core";
 import { updateApplicationLayout } from "actions/applicationActions";
+import { setShouldResize } from "actions/reflowActions";
+import Checkbox from "components/ads/Checkbox";
 import Dropdown from "components/ads/Dropdown";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import TooltipComponent from "components/ads/Tooltip";
@@ -16,6 +18,7 @@ import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
+import { getShouldResize } from "selectors/widgetReflowSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import { noop } from "utils/AppsmithUtils";
@@ -104,6 +107,7 @@ export function MainContainerLayoutControl() {
     ? layoutOptions.find((each) => each.type === appLayout.type)
     : layoutOptions[0];
   const dispatch = useDispatch();
+  const shouldResize = useSelector(getShouldResize);
 
   const updateAppLayout = (layoutConfig: AppLayoutConfig) => {
     const { type } = layoutConfig;
@@ -142,6 +146,13 @@ export function MainContainerLayoutControl() {
           selected={selectedLayout || layoutOptions[0]}
           showDropIcon={false}
           width={"30px"}
+        />
+      </div>
+      <div>
+        <Checkbox
+          isDefaultChecked={shouldResize}
+          label="Resize others while Reflowing"
+          onCheckChange={(isChecked) => dispatch(setShouldResize(isChecked))}
         />
       </div>
     </LayoutControlWrapper>

@@ -184,8 +184,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       updateDropTargetRows,
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
-  // eslint-disable-next-line no-console
-  console.log("DropTargetContext");
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget

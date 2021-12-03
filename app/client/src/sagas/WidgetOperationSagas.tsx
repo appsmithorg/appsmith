@@ -156,10 +156,10 @@ export function* reflowWidgets(widgets: {
 }) {
   const reflowState: widgetReflowState = yield select(getReflow);
 
-  if (!reflowState || !reflowState.isReflowing || !reflowState.reflow)
+  if (!reflowState || !reflowState.isReflowing || !reflowState.reflowingWidgets)
     return false;
 
-  const { reflowingWidgets } = reflowState.reflow;
+  const reflowingWidgets = reflowState.reflowingWidgets;
 
   const reflowWidgetKeys = Object.keys(reflowingWidgets || {});
 

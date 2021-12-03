@@ -6,10 +6,11 @@ import { Spring } from "react-spring/renderprops";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { WidgetExtendedPosition } from "components/editorComponents/ResizableUtils";
-import { useReflow } from "./useReflow";
+import { useReflow } from "utils/hooks/useReflow";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
+import { OccupiedSpace } from "constants/editorConstants";
+import { GridProps, ReflowDirection } from "reflow/reflowTypes";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
@@ -19,18 +20,6 @@ const ResizeWrapper = styled.div<{ prevents: boolean }>`
     }
   }
 `;
-
-export enum ResizeDirection {
-  LEFT = "LEFT",
-  RIGHT = "RIGHT",
-  TOP = "TOP",
-  BOTTOM = "BOTTOM",
-  TOPLEFT = "TOP|LEFT",
-  TOPRIGHT = "TOP|RIGHT",
-  BOTTOMLEFT = "BOTTOM|LEFT",
-  BOTTOMRIGHT = "BOTTOM|RIGHT",
-  UNSET = "UNSET",
-}
 
 const getSnappedValues = (
   x: number,
@@ -49,7 +38,7 @@ export type DimensionProps = {
   x: number;
   y: number;
   reset?: boolean;
-  direction: ResizeDirection;
+  direction: ReflowDirection;
   X?: number;
   Y?: number;
 };
@@ -108,6 +97,15 @@ type ResizableProps = {
   componentWidth: number;
   componentHeight: number;
   children: ReactNode;
+  getResizedPositions: (
+    size: { width: number; height: number },
+    position: { x: number; y: number },
+  ) => {
+    canResizeHorizontally: boolean;
+    canResizeVertically: boolean;
+    resizedPositions?: OccupiedSpace;
+  };
+  originalPositions: OccupiedSpace;
   onStart: () => void;
   onStop: (
     size: { width: number; height: number },
@@ -118,8 +116,7 @@ type ResizableProps = {
   className?: string;
   parentId?: string;
   widgetId: string;
-  widgetPosition: WidgetExtendedPosition;
-  ignoreCollision: boolean;
+  gridProps: GridProps;
   zWidgetType?: string;
   zWidgetId?: string;
 };
@@ -146,27 +143,10 @@ export function Resizable(props: ResizableProps) {
 
   const reflowedPosition = useSelector(reflowSelector, equal);
 
-  const widgetOccupiedSpace = {
-    top: props.widgetPosition.topRow,
-    right: props.widgetPosition.rightColumn,
-    left: props.widgetPosition.leftColumn,
-    bottom: props.widgetPosition.bottomRow,
-    id: props.widgetId,
-  };
-
-  const widgetParentSpaces = {
-    parentColumnSpace: props.widgetPosition.parentColumnSpace,
-    parentRowSpace: props.widgetPosition.parentRowSpace,
-    paddingOffset: props.widgetPosition.paddingOffset,
-  };
-
   const reflow = useReflow(
     props.widgetId,
     props.parentId || "",
-    widgetOccupiedSpace,
-    resizableRef,
-    props.ignoreCollision,
-    widgetParentSpaces,
+    props.gridProps,
   );
 
   useEffect(() => {
@@ -182,33 +162,51 @@ export function Resizable(props: ResizableProps) {
     x: 0,
     y: 0,
     reset: false,
-    direction: ResizeDirection.UNSET,
+    direction: ReflowDirection.UNSET,
   });
 
   const setNewDimensions = (rect: DimensionProps) => {
-    const { horizontalMove, verticalMove } = reflow(rect);
-    set((prevState) => {
-      let newRect = { ...rect };
-      if (!horizontalMove) {
-        newRect = {
-          ...newRect,
-          width: prevState.width,
-          x: prevState.x,
-          X: prevState.X,
-        };
-      }
+    const { direction, height, width, x, y } = rect;
+    const {
+      canResizeHorizontally,
+      canResizeVertically,
+      resizedPositions,
+    } = props.getResizedPositions({ width, height }, { x, y });
 
-      if (!verticalMove) {
-        newRect = {
-          ...newRect,
-          height: prevState.height,
-          y: prevState.y,
-          Y: prevState.Y,
-        };
-      }
+    if (canResizeHorizontally || canResizeVertically)
+      set((prevState) => {
+        let newRect = { ...rect };
 
-      return newRect;
-    });
+        let canVerticalMove = true,
+          canHorizontalMove = true;
+        if (resizedPositions)
+          ({ canHorizontalMove, canVerticalMove } = reflow(
+            resizedPositions,
+            props.originalPositions,
+            direction,
+            true,
+          ));
+
+        if (!canHorizontalMove || !canResizeHorizontally) {
+          newRect = {
+            ...newRect,
+            width: prevState.width,
+            x: prevState.x,
+            X: prevState.X,
+          };
+        }
+
+        if (!canVerticalMove || !canResizeVertically) {
+          newRect = {
+            ...newRect,
+            height: prevState.height,
+            y: prevState.y,
+            Y: prevState.Y,
+          };
+        }
+
+        return newRect;
+      });
   };
 
   useEffect(() => {
@@ -234,7 +232,7 @@ export function Resizable(props: ResizableProps) {
           height: newDimensions.height,
           x: x,
           y: newDimensions.y,
-          direction: ResizeDirection.LEFT,
+          direction: ReflowDirection.LEFT,
           X: x,
         });
       },
@@ -250,7 +248,7 @@ export function Resizable(props: ResizableProps) {
           height: props.componentHeight - y,
           y: y,
           x: newDimensions.x,
-          direction: ResizeDirection.TOP,
+          direction: ReflowDirection.TOP,
           Y: y,
         });
       },
@@ -266,7 +264,7 @@ export function Resizable(props: ResizableProps) {
           height: newDimensions.height,
           x: newDimensions.x,
           y: newDimensions.y,
-          direction: ResizeDirection.RIGHT,
+          direction: ReflowDirection.RIGHT,
           X: x,
         });
       },
@@ -282,7 +280,7 @@ export function Resizable(props: ResizableProps) {
           height: props.componentHeight + y,
           x: newDimensions.x,
           y: newDimensions.y,
-          direction: ResizeDirection.BOTTOM,
+          direction: ReflowDirection.BOTTOM,
           Y: y,
         });
       },
@@ -298,7 +296,7 @@ export function Resizable(props: ResizableProps) {
           height: props.componentHeight - y,
           x: x,
           y: y,
-          direction: ResizeDirection.TOPLEFT,
+          direction: ReflowDirection.TOPLEFT,
           X: x,
           Y: y,
         });
@@ -315,7 +313,7 @@ export function Resizable(props: ResizableProps) {
           height: props.componentHeight - y,
           x: newDimensions.x,
           y: y,
-          direction: ResizeDirection.TOPRIGHT,
+          direction: ReflowDirection.TOPRIGHT,
           X: x,
           Y: y,
         });
@@ -332,7 +330,7 @@ export function Resizable(props: ResizableProps) {
           height: props.componentHeight + y,
           x: newDimensions.x,
           y: newDimensions.y,
-          direction: ResizeDirection.BOTTOMRIGHT,
+          direction: ReflowDirection.BOTTOMRIGHT,
           X: x,
           Y: y,
         });
@@ -349,7 +347,7 @@ export function Resizable(props: ResizableProps) {
           height: props.componentHeight + y,
           x,
           y: newDimensions.y,
-          direction: ResizeDirection.BOTTOMLEFT,
+          direction: ReflowDirection.BOTTOMLEFT,
           X: x,
           Y: y,
         });
