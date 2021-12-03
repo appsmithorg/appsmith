@@ -306,6 +306,16 @@ export const JS_COLLECTION_ID_URL = (
   });
 };
 
+export const getApplicationEditorPageURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  params: Record<string, string> = {},
+): string => {
+  const url = `/applications/${applicationId}/pages/${pageId}/edit`;
+  const queryString = convertToQueryParams(params);
+  return url + queryString;
+};
+
 export const getApplicationViewerPageURL = (props: {
   applicationId?: string;
   pageId?: string; // TODO make pageId this mandatory
