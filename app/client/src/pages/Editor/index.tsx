@@ -28,7 +28,6 @@ import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
-import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
@@ -142,10 +141,12 @@ class Editor extends Component<Props> {
     const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
 
     const branch = getSearchQuery(this.props.location.search, "branch");
+    const prevBranch = getSearchQuery(prevProps.location.search, "branch");
 
     const isPageIdUpdated = pageId !== prevPageId;
 
-    if (isBranchUpdated && applicationId) {
+    // to prevent re-init during connect
+    if (prevBranch && isBranchUpdated && applicationId) {
       this.props.initEditor(applicationId, pageId, branch);
     } else {
       /**
@@ -204,7 +205,6 @@ class Editor extends Component<Props> {
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
-              <AppComments />
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />

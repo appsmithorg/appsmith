@@ -12,7 +12,7 @@ import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -128,7 +128,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             },
           },
           {
-            helpText: "Label Text",
+            helpText: "Sets a Label Text",
             propertyName: "labelText",
             label: "Label Text",
             controlType: "INPUT_TEXT",
@@ -138,7 +138,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Input Place Holder",
+            helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
@@ -146,6 +146,16 @@ class SingleSelectTreeWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -161,16 +171,6 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "isDisabled",
             label: "Disabled",
             helpText: "Disables input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -215,6 +215,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
+            defaultValue: "PARAGRAPH",
             options: [
               {
                 label: "Heading 1",
@@ -272,7 +273,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when a user selects an option",
@@ -323,7 +324,8 @@ class SingleSelectTreeWidget extends BaseWidget<
       : undefined;
 
     const filteredValue = this.filterValues(values);
-
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
     return (
       <SingleSelectTreeComponent
         allowClear={this.props.allowClear}
@@ -335,10 +337,12 @@ class SingleSelectTreeWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
+        dropDownWidth={dropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
+        isValid={this.props.isValid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -348,6 +352,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         value={filteredValue}
+        width={componentWidth}
       />
     );
   }

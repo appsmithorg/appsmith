@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "appsmith utils tool",
   "main": "bin/index.js",
-	"author": "",
+  "author": "",
   "license": "Apache-2.0",
   "private": true,
   "repository": {
@@ -16,7 +16,8 @@
     "chalk": "^4.1.2",
     "dotenv": "^10.0.0",
     "shelljs": "^0.8.4",
-    "yargs": "^17.1.1"
+    "yargs": "^17.1.1",
+    "readline-sync": "^1.4.10"
   },
   "bin": {
     "appsmithctl": "./bin/index.js"
