@@ -7,7 +7,6 @@ import {
 } from "constants/ReduxActionConstants";
 import moment from "moment";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
-import { CommentsReduxState } from "./commentsReducer/interfaces";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -28,6 +27,8 @@ const initialState: EditorReduxState = {
     updateWidgetNameError: false,
   },
   isSnipingMode: false,
+  isPreviewMode: false,
+  zoomLevel: 1,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -175,12 +176,21 @@ const editorReducer = createReducer(initialState, {
     return { ...state };
   },
   [ReduxActionTypes.SET_SNIPING_MODE]: (
-    state: CommentsReduxState,
+    state: EditorReduxState,
     action: ReduxAction<boolean>,
   ) => {
     return {
       ...state,
       isSnipingMode: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_PREVIEW_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isPreviewMode: action.payload,
     };
   },
 });
@@ -194,6 +204,8 @@ export interface EditorReduxState {
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
   isSnipingMode: boolean;
+  isPreviewMode: boolean;
+  zoomLevel: number;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
