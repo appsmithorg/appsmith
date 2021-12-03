@@ -12,6 +12,7 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
+import { MinimumPopupRows } from "widgets/constants";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -166,7 +167,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                   ],
                 },
                 {
-                  sectionName: "Actions",
+                  sectionName: "Events",
                   children: [
                     {
                       helpText:
@@ -234,15 +235,15 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             options: [
               {
                 label: "Primary",
-                value: "SOLID",
+                value: ButtonVariantTypes.PRIMARY,
               },
               {
                 label: "Secondary",
-                value: "OUTLINE",
+                value: ButtonVariantTypes.SECONDARY,
               },
               {
                 label: "Tertiary",
-                value: "GHOST",
+                value: ButtonVariantTypes.TERTIARY,
               },
             ],
             isJSConvertible: true,
@@ -251,8 +252,12 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                default: ButtonVariantTypes.SOLID,
-                allowedValues: ["SOLID", "OUTLINE", "GHOST"],
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
               },
             },
           },
@@ -364,10 +369,15 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    const { componentWidth } = this.getComponentDimensions();
+    const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+
     return (
       <MenuButtonComponent
         {...this.props}
+        menuDropDownWidth={menuDropDownWidth}
         onItemClicked={this.menuItemClickHandler}
+        width={componentWidth}
       />
     );
   }

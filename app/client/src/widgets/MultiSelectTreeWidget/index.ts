@@ -8,8 +8,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 1.72 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 1.725 * GRID_DENSITY_MIGRATION_V1,
+    columns: 5 * GRID_DENSITY_MIGRATION_V1,
     mode: "SHOW_ALL",
     options: [
       {
@@ -29,7 +29,7 @@ export const CONFIG = {
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
-    widgetName: "MultiSelectTree",
+    widgetName: "MultiTreeSelect",
     defaultOptionValue: ["GREEN"],
     version: 1,
     isVisible: true,
@@ -37,7 +37,7 @@ export const CONFIG = {
     isDisabled: false,
     allowClear: false,
     expandAll: false,
-    placeholderText: "select option(s)",
+    placeholderText: "Select option(s)",
     labelText: "Label",
   },
   properties: {

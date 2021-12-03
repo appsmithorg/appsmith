@@ -12,6 +12,7 @@ import {
   ButtonBoxShadow,
   ButtonVariant,
   ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
 } from "components/constants";
 import { Colors } from "constants/Colors";
 
@@ -65,7 +66,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -97,15 +98,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             options: [
               {
                 label: "Primary",
-                value: "SOLID",
+                value: ButtonVariantTypes.PRIMARY,
               },
               {
                 label: "Secondary",
-                value: "OUTLINE",
+                value: ButtonVariantTypes.SECONDARY,
               },
               {
                 label: "Tertiary",
-                value: "GHOST",
+                value: ButtonVariantTypes.TERTIARY,
               },
             ],
             isBindProperty: false,

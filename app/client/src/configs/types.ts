@@ -68,8 +68,6 @@ export type AppsmithUIConfigs = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-
-  disableTelemetry: boolean;
   commentsTestModeEnabled: boolean;
 
   cloudServicesBaseUrl: string;
@@ -79,5 +77,4 @@ export type AppsmithUIConfigs = {
     apiKey: string;
   };
   appsmithSupportEmail: string;
-  isAppsmithCloud: boolean;
 };
