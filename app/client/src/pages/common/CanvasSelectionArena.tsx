@@ -12,6 +12,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
@@ -68,6 +69,7 @@ export function CanvasSelectionArena({
     (parentWidget && parentWidget.detachFromLayout)
   );
   const appMode = useSelector(getAppMode);
+  const isPreviewMode = useSelector(previewModeSelector);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
@@ -442,7 +444,8 @@ export function CanvasSelectionArena({
   ]);
 
   const shouldShow =
-    appMode === APP_MODE.EDIT && !(isDragging || isResizing || isCommentMode);
+    appMode === APP_MODE.EDIT &&
+    !(isDragging || isResizing || isCommentMode || isPreviewMode);
 
   return shouldShow ? (
     <StyledSelectionCanvas

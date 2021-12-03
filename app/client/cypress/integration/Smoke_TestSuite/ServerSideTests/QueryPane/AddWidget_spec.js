@@ -3,7 +3,7 @@ const queryEditor = require("../../../../locators/QueryEditor.json");
 
 let datasourceName;
 
-describe("Add widget", function() {
+describe("Add widget - Postgress DataSource", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
@@ -12,7 +12,7 @@ describe("Add widget", function() {
     });
   });
 
-  it("Add widget", () => {
+  it("1. Verify 'Add to widget [Widget Suggestion]' functionality - Postgress", () => {
     cy.NavigateToQueryEditor();
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)

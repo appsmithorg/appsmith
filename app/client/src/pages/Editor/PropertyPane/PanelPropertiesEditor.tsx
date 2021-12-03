@@ -159,7 +159,7 @@ export function PanelPropertiesEditor(
     }
   };
   return (
-    <div className="relative flex flex-col w-full py-3 space-y-2">
+    <div className="relative flex flex-col w-full pt-3 overflow-y-auto">
       <PanelHeader
         closePanel={closePanel}
         isEditable={panelConfig.editableTitle}
@@ -167,7 +167,7 @@ export function PanelPropertiesEditor(
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      <div className="px-3">
+      <div className="p-3 pb-24 overflow-y-scroll">
         {panelConfigs &&
           generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
             id: widgetProperties.widgetId,
