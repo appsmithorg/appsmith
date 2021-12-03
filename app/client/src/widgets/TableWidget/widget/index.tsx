@@ -218,7 +218,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
+              menuColor: cellProperties.menuColor || Colors.GREEN,
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
