@@ -27,7 +27,6 @@
     "copyURLicon": "//button/span[@icon='link']",
     "deleteFileicon": "//button/span[@icon='trash']",
     "snipeableTable":"//input[@type='search']",
-    "Query1": "//div[contains(@class, 't--entity-name')][text()='Query1']",
     "suggestedWidgetDropdown": "//div[contains(@class, 't--suggested-widget-DROP_DOWN_WIDGET')]",
     "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
     "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
