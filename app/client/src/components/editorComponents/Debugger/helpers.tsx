@@ -5,9 +5,9 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
-  API_EDITOR_URL,
-  BUILDER_PAGE_URL,
-  QUERIES_EDITOR_URL,
+  matchBuilderPath,
+  matchApiPath,
+  matchQueryPath,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import { isMac } from "utils/helpers";
@@ -125,35 +125,14 @@ export const doesEntityHaveErrors = (
   return ids.some((e: string) => e.includes(entityId));
 };
 
-export const onApiEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      API_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onApiEditor = () => {
+  return matchApiPath(window.location.pathname);
 };
 
-export const onQueryEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      QUERIES_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onQueryEditor = () => {
+  return matchQueryPath(window.location.pathname);
 };
 
-export const onCanvas = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      BUILDER_PAGE_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onCanvas = () => {
+  return matchBuilderPath(window.location.pathname);
 };

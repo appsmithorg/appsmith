@@ -13,7 +13,7 @@ import {
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -44,6 +44,9 @@ type TreeDropdownProps = {
 };
 
 const StyledMenu = styled(Menu)`
+  max-height: ${(props) =>
+    `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
+  overflow: auto;
   min-width: 220px;
   padding: 0px;
   border-radius: 0px;
@@ -58,7 +61,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
     font-size: 14px;
-    line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
+    line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
     display: flex;
     align-items: center;
     height: 30px;
@@ -105,7 +108,7 @@ const DropdownTarget = styled.div`
     box-shadow: none;
     border-radius: 0px;
     border: 1px solid ${Colors.GREY_5};
-    height: 36px;
+    min-height: 36px;
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
     background-image: none;
@@ -144,10 +147,6 @@ function getSelectedOption(
   return selectedOption;
 }
 
-const getMoreIcons = (icon: React.ReactNode) => {
-  return <Icon name={icon as IconName} size={IconSize.XXL} />;
-};
-
 export default function TreeDropdown(props: TreeDropdownProps) {
   const {
     defaultText,
@@ -184,7 +183,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       <MenuItem
         active={isSelected}
         className={option.className || "single-select"}
-        icon={getMoreIcons(option.icon)}
+        icon={option.icon}
         intent={option.intent}
         key={option.value}
         onClick={
@@ -218,7 +217,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
           selectedLabelModifier ? "code-highlight" : ""
         }`}
-        rightIcon={getMoreIcons("downArrow")}
+        rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={
           selectedLabelModifier
             ? selectedLabelModifier(selectedOption, displayValue)

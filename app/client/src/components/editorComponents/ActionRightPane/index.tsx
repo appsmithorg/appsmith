@@ -31,6 +31,7 @@ import {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -38,8 +39,8 @@ const SideBar = styled.div`
   overflow: auto;
   height: 100%;
   width: 100%;
-  -webkit-animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-  animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 
   & > div {
     margin-top: ${(props) => props.theme.spaces[11]}px;
@@ -84,7 +85,6 @@ const SideBar = styled.div`
       transform: translateX(0);
     }
   }
-
 `;
 
 const Label = styled.span`
@@ -215,7 +215,8 @@ function ActionSidebar({
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
+  const { pageId } = useParams<ExplorerURLParams>();
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const handleBindData = () => {
     AnalyticsUtil.logEvent("SELECT_IN_CANVAS_CLICK", {
@@ -226,7 +227,7 @@ function ActionSidebar({
     dispatch(
       bindDataOnCanvas({
         queryId: (params.apiId || params.queryId) as string,
-        applicationId,
+        applicationId: applicationId as string,
         pageId,
       }),
     );
@@ -242,7 +243,7 @@ function ActionSidebar({
   }
 
   const navigeteToCanvas = () => {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
   };
 
   return (

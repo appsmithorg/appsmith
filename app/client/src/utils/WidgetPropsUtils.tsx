@@ -8,7 +8,7 @@ import {
 } from "widgets/BaseWidget";
 import { GridDefaults, RenderMode } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { transformDSL } from "./DSLMigrations";
@@ -33,8 +33,11 @@ const defaultDSL = defaultTemplate;
 export const extractCurrentDSL = (
   fetchPageResponse?: FetchPageResponse,
 ): DSLWidget => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
-  return transformDSL(currentDSL);
+  const newPage = !fetchPageResponse;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
+    ...defaultDSL,
+  };
+  return transformDSL(currentDSL, newPage);
 };
 
 export const getDropZoneOffsets = (

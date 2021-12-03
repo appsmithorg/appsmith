@@ -136,6 +136,7 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
           },
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",
@@ -155,7 +156,7 @@ class TabsWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",

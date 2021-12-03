@@ -11,9 +11,11 @@ export type FetchJSCollectionsPayload = {
   applicationId: string;
 };
 
-export const fetchJSCollections = (
-  applicationId: string,
-): EvaluationReduxAction<unknown> => {
+export const fetchJSCollections = ({
+  applicationId,
+}: {
+  applicationId: string;
+}): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_INIT,
     payload: { applicationId },
@@ -131,9 +133,11 @@ export const fetchJSCollectionsForPageSuccess = (actions: JSCollection[]) => {
   };
 };
 
-export const fetchJSCollectionsForView = (
-  applicationId: string,
-): ReduxAction<FetchJSCollectionsPayload> => {
+export const fetchJSCollectionsForView = ({
+  applicationId,
+}: {
+  applicationId: string;
+}): ReduxAction<FetchJSCollectionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
     payload: { applicationId },

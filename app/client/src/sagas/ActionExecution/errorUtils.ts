@@ -8,6 +8,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ApiResponse } from "api/ApiResponses";
+import { isString } from "lodash";
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -57,15 +58,11 @@ export const logActionExecutionError = (
   });
 };
 
-export class PluginTriggerFailureError extends TriggerFailureError {
+export class PluginTriggerFailureError extends Error {
   responseData: unknown[] = [];
 
-  constructor(
-    reason: string,
-    responseData: unknown[],
-    triggerMeta: TriggerMeta,
-  ) {
-    super(reason, triggerMeta);
+  constructor(reason: string, responseData: unknown[]) {
+    super(reason);
     this.responseData = responseData;
   }
 }
@@ -108,3 +105,7 @@ export class UncaughtAppsmithPromiseError extends TriggerFailureError {
     super(message, triggerMeta, error);
   }
 }
+
+export const getErrorAsString = (error: unknown): string => {
+  return isString(error) ? error : JSON.stringify(error);
+};

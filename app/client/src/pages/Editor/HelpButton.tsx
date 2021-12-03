@@ -12,6 +12,11 @@ import { getCurrentUser } from "../../selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { bootIntercom } from "utils/helpers";
 import { Colors } from "constants/Colors";
+import TooltipComponent from "components/ads/Tooltip";
+import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { useCallback } from "react";
+import { useState } from "react";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -36,26 +41,44 @@ const StyledTrigger = styled.div`
   }
 `;
 
-const Trigger = withTheme(({ theme }: { theme: Theme }) => (
-  <StyledTrigger>
-    <Icon
-      fillColor={theme.colors.globalSearch.helpIcon}
-      name="help"
-      size={IconSize.LARGE}
-    />
-  </StyledTrigger>
-));
-
-const onOpened = () => {
-  AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
+type TriggerProps = {
+  tooltipsDisabled: boolean;
+  theme: Theme;
 };
+
+const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
+  <TooltipComponent
+    content={createMessage(HELP_RESOURCE_TOOLTIP)}
+    disabled={tooltipsDisabled}
+    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+    position={Position.BOTTOM}
+  >
+    <StyledTrigger>
+      <Icon
+        fillColor={theme.colors.globalSearch.helpIcon}
+        name="help"
+        size={IconSize.LARGE}
+      />
+    </StyledTrigger>
+  </TooltipComponent>
+));
 
 function HelpButton() {
   const user = useSelector(getCurrentUser);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   useEffect(() => {
     bootIntercom(user);
   }, [user?.email]);
+
+  const onOpened = useCallback(() => {
+    AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
+    setIsHelpOpen(true);
+  }, []);
+
+  const onClose = useCallback(() => {
+    setIsHelpOpen(false);
+  }, []);
 
   return (
     <Popover
@@ -66,13 +89,14 @@ function HelpButton() {
           offset: "0, 6",
         },
       }}
+      onClosed={onClose}
       onOpened={onOpened}
       popoverClassName="navbar-help-popover"
       position={Position.BOTTOM_RIGHT}
     >
       <>
         <HelpPopoverStyle />
-        <Trigger />
+        <Trigger tooltipsDisabled={isHelpOpen} />
       </>
       <div style={{ width: HELP_MODAL_WIDTH }}>
         <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
