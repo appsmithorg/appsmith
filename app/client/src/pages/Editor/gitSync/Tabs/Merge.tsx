@@ -194,8 +194,8 @@ export default function Merge() {
           options={branchList}
           selected={selectedBranchOption}
           showLabelOnly
+          truncateOption
           width={"220px"}
-          wrappedOption
         />
 
         <Space horizontal size={3} />
@@ -208,8 +208,8 @@ export default function Merge() {
           onSelect={() => null}
           options={[currentBranchDropdownOption]}
           selected={currentBranchDropdownOption}
+          truncateOption
           width={"220px"}
-          wrappedOption
         />
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
