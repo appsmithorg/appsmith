@@ -1,6 +1,9 @@
 import { DependencyMap } from "../utils/DynamicBindingUtils";
 import { call, fork, put, select, take } from "redux-saga/effects";
-import { getEvaluationInverseDependencyMap } from "../selectors/dataTreeSelectors";
+import {
+  getEvaluationInverseDependencyMap,
+  getDataTree,
+} from "../selectors/dataTreeSelectors";
 import { getActions } from "../selectors/entitiesSelector";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import {
@@ -9,6 +12,7 @@ import {
 } from "../constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import { get } from "lodash";
 
 const createEntityDependencyMap = (dependencyMap: DependencyMap) => {
   const entityDepMap: DependencyMap = {};
@@ -65,11 +69,14 @@ const getEntityDependencies = (
 };
 
 const ACTION_EXECUTION_REDUX_ACTIONS = [
+  // Actions
   ReduxActionTypes.RUN_ACTION_REQUEST,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
   ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+  // Widget evalution
+  ReduxActionTypes.SET_EVALUATED_TREE,
 ];
 
 function* setWidgetsLoadingSaga() {
@@ -85,6 +92,15 @@ function* setWidgetsLoadingSaga() {
     entityDependencyMap,
     new Set<string>(),
   );
+
+  // get all widgets evaluted data
+  const dataTree = yield select(getDataTree);
+  // check animateLoading is active on current widgets and set
+  Object.keys(entityDependencyMap).forEach((entity) => {
+    if (get(dataTree, [entity, "animateLoading"])) {
+      loadingEntities.add(entity);
+    }
+  });
 
   yield put({
     type: ReduxActionTypes.SET_LOADING_ENTITIES,
