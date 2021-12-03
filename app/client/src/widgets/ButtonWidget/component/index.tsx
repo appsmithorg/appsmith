@@ -162,7 +162,6 @@ const StyledButton = styled((props) => (
     }
   `}
 
-
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
 
