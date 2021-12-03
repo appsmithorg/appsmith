@@ -8,8 +8,8 @@ import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
 import {
+  logActionExecutionError,
   PluginTriggerFailureError,
-  UncaughtAppsmithPromiseError,
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 
@@ -65,7 +65,12 @@ export default function* executePromiseSaga(
       });
     } else {
       log.error(e);
-      throw new UncaughtAppsmithPromiseError(e.message, triggerMeta, e);
+      /* Logging the error instead of throwing an error as it was making the ui to go into a loading states */
+      logActionExecutionError(
+        e.message,
+        triggerMeta.source,
+        triggerMeta.triggerPropertyName,
+      );
     }
   }
 

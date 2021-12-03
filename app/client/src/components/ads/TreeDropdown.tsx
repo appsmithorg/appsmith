@@ -44,6 +44,9 @@ type TreeDropdownProps = {
 };
 
 const StyledMenu = styled(Menu)`
+  max-height: ${(props) =>
+    `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
+  overflow: auto;
   min-width: 220px;
   padding: 0px;
   border-radius: 0px;
@@ -58,7 +61,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
     font-size: 14px;
-    line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
+    line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
     display: flex;
     align-items: center;
     height: 30px;

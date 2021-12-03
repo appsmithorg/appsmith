@@ -10,13 +10,14 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.OrganizationService;
-import com.appsmith.server.services.SessionUserServiceImpl;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -27,9 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 @RequiredArgsConstructor
@@ -39,7 +42,7 @@ public class ApplicationFetcher {
      * TODO: Return applications shared with the user as part of this.
      */
 
-    private final SessionUserServiceImpl sessionUserService;
+    private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
     private final OrganizationService organizationService;
@@ -65,8 +68,10 @@ public class ApplicationFetcher {
                 .flatMap(userService::findByEmail)
                 .cache();
 
+        Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData()).cache();
+
         return userMono
-                .zipWith(userDataService.getForCurrentUser().defaultIfEmpty(new UserData()))
+                .zipWith(userDataMono)
                 .flatMap(userAndUserDataTuple -> {
                     User user = userAndUserDataTuple.getT1();
                     UserData userData = userAndUserDataTuple.getT2();
@@ -90,12 +95,30 @@ public class ApplicationFetcher {
                     orgIdSortedSet.addAll(orgIds); // add all other if not added already
 
                     // Collect all the applications as a map with organization id as a key
-                    Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationRepository
+                    Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             // TODO only fetch the latest application branch instead of default one
                             .filter(application -> application.getGitApplicationMetadata() == null
-                                || (StringUtils.equals(application.getId(),application.getGitApplicationMetadata().getDefaultApplicationId())))
-                            .collectMultimap(Application::getOrganizationId, Function.identity());
+                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId())));
+
+                    // sort the list of applications if user has recent applications
+                    if(!CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())) {
+                        // creating a map of applicationId and corresponding index to reduce sorting time
+                        Map<String, Integer> idToIndexMap = IntStream.range(0, userData.getRecentlyUsedAppIds().size())
+                                .boxed()
+                                .collect(toMap(userData.getRecentlyUsedAppIds()::get, i -> i));
+
+                        applicationFlux = applicationFlux.sort((o1, o2) -> {
+                            String o1Id = o1.getId(), o2Id = o2.getId();
+                            Integer idx1 = idToIndexMap.get(o1Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o1Id);
+                            Integer idx2 = idToIndexMap.get(o2Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o2Id);
+                            return (idx1-idx2);
+                        });
+                    }
+
+                    Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationFlux.collectMultimap(
+                            Application::getOrganizationId, Function.identity()
+                    );
 
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)
@@ -137,7 +160,7 @@ public class ApplicationFetcher {
                                 // In case of an error or empty response from CS Server, continue without this data.
                                 .onErrorResume(error -> Mono.empty())
                                 .defaultIfEmpty(Collections.emptyList()),
-                        userDataService.getForUser(userHomepageDTO.getUser())
+                        userDataMono
                 ))
                 .flatMap(tuple -> {
                     final UserHomepageDTO userHomepageDTO = tuple.getT1();
