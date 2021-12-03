@@ -185,9 +185,13 @@ export const useCanvasDragging = (
         horizontalMove: false,
         reflowingWidgets: {},
       };
-      let latestMousePosition = {
+      let lastMousePosition = {
         x: 0,
         y: 0,
+      };
+      let lastSnappedPosition = {
+        leftColumn: 0,
+        topRow: 0,
       };
       let currentDirection = ResizeDirection.UNSET;
 
@@ -282,7 +286,7 @@ export const useCanvasDragging = (
             }
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
-            latestMousePosition = {
+            lastMousePosition = {
               x: e.clientX,
               y: e.clientY,
             };
@@ -301,11 +305,11 @@ export const useCanvasDragging = (
           );
         };
         const getMouseMoveDirection = (event: any) => {
-          if (latestMousePosition) {
-            const deltaX = latestMousePosition.x - event.clientX,
-              deltaY = latestMousePosition.y - event.clientY;
+          if (lastMousePosition) {
+            const deltaX = lastMousePosition.x - event.clientX,
+              deltaY = lastMousePosition.y - event.clientY;
             const movements = [];
-            latestMousePosition = {
+            lastMousePosition = {
               x: event.clientX,
               y: event.clientY,
             };
@@ -375,21 +379,27 @@ export const useCanvasDragging = (
               const canReflow =
                 currentRectanglesToDraw.length === 1 &&
                 canReflowBasedOnMouseSpeed;
-              if (canReflow) {
-                const currentBlock = currentRectanglesToDraw[0];
-                const [leftColumn, topRow] = getDropZoneOffsets(
-                  snapColumnSpace,
-                  snapRowSpace,
-                  {
-                    x: currentBlock.left,
-                    y: currentBlock.top,
-                  },
-                  {
-                    x: 0,
-                    y: 0,
-                  },
-                );
-
+              const currentBlock = currentRectanglesToDraw[0];
+              const [leftColumn, topRow] = getDropZoneOffsets(
+                snapColumnSpace,
+                snapRowSpace,
+                {
+                  x: currentBlock.left,
+                  y: currentBlock.top,
+                },
+                {
+                  x: 0,
+                  y: 0,
+                },
+              );
+              const needsReflow =
+                lastSnappedPosition.leftColumn === leftColumn &&
+                lastSnappedPosition.topRow === topRow;
+              lastSnappedPosition = {
+                leftColumn,
+                topRow,
+              };
+              if (canReflow && needsReflow) {
                 const block: DimensionProps = {
                   width: currentBlock.width / snapColumnSpace,
                   height: currentBlock.height / snapRowSpace,
