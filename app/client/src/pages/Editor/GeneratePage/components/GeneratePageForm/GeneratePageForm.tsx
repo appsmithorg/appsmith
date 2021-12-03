@@ -244,7 +244,6 @@ function GeneratePageForm() {
   const {
     bucketList,
     failedFetchingBucketList,
-    // fetchBucketList,
     isFetchingBucketList,
   } = useS3BucketList();
 
