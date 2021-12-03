@@ -68,12 +68,7 @@ describe("Switch datasource", function() {
       .focus()
       .type("select * from users limit 10");
 
-    cy.get(queryLocators.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.runQuery();
 
     cy.get(".t--switch-datasource").click();
     cy.contains(".t--datasource-option", mongoDatasourceName).click();
@@ -84,12 +79,7 @@ describe("Switch datasource", function() {
         editor[0].CodeMirror.setValue('{"find": "planets"}');
       });
 
-    cy.get(queryLocators.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.runQuery();
   });
 
   it("Delete the query and datasources", function() {
