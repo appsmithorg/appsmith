@@ -55,7 +55,7 @@ export default function Link({ setting }: SettingComponentProps) {
   } else if (setting.action) {
     linkProps.onClick = () => {
       if (setting.action) {
-        dispatch(setting.action());
+        setting.action(dispatch);
       }
     };
   }

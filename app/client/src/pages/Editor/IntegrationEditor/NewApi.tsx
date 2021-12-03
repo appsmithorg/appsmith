@@ -319,7 +319,7 @@ function NewApiScreen(props: Props) {
                     src={p.iconLocation}
                   />
                 </div>
-                <p className="textBtn">{p.name}</p>
+                <p className="t--plugin-name textBtn">{p.name}</p>
               </CardContentWrapper>
             </ApiCard>
           ))}

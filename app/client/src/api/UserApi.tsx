@@ -54,6 +54,8 @@ export interface InviteUserRequest {
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
+  role?: string;
+  useCase?: string;
 }
 
 export interface CommentsOnboardingStateRequest {
@@ -91,6 +93,8 @@ class UserApi extends Api {
   static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
   static adminSettingsURL = "v1/admin/env";
   static restartServerURL = "v1/admin/restart";
+  static downloadConfigURL = "v1/admin/env/download";
+  static sendTestEmailURL = "/v1/admin/send-test-email";
 
   static createUser(
     request: CreateUserRequest,
@@ -148,7 +152,14 @@ class UserApi extends Api {
     return Api.post(UserApi.logoutURL);
   }
 
-  static uploadPhoto(request: { file: File }): AxiosPromise<ApiResponse> {
+  static uploadPhoto(request: {
+    file: File;
+  }): AxiosPromise<{
+    id: string;
+    new: boolean;
+    profilePhotoAssetId: string;
+    recentlyUsedOrgIds: string[];
+  }> {
     const formData = new FormData();
     if (request.file) {
       formData.append("file", request.file);
@@ -185,6 +196,10 @@ class UserApi extends Api {
     return Api.patch(UserApi.commentsOnboardingStateURL, request);
   }
 
+  /*
+   * Super user endpoints
+   */
+
   static fetchAdminSettings(): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.adminSettingsURL);
   }
@@ -197,6 +212,10 @@ class UserApi extends Api {
 
   static restartServer(): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.restartServerURL);
+  }
+
+  static sendTestEmail(): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.sendTestEmailURL);
   }
 }
 

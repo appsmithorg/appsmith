@@ -6,7 +6,7 @@ import React, {
   forwardRef,
   useCallback,
 } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
 import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
@@ -30,10 +30,19 @@ export enum EntityClassNames {
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
   WRAPPER = "t--entity",
   PROPERTY = "t--entity-property",
+  TOOLTIP = "t--entity-tooltp",
 }
 
 const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+`;
+
+export const entityTooltipCSS = css`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const EntityItem = styled.div<{
@@ -47,8 +56,7 @@ export const EntityItem = styled.div<{
   position: relative;
   font-size: 14px;
   user-select: none;
-  padding-left: ${(props) =>
-    props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
+  padding-left: ${(props) => `calc(0.75rem + (0.25 * ${props.step}rem))`};
   background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
   height: 30px;
   width: 100%;
@@ -62,12 +70,12 @@ export const EntityItem = styled.div<{
   &:hover {
     background: ${Colors.GREY_2};
   }
-  & .${Classes.POPOVER_TARGET}, & .${Classes.POPOVER_WRAPPER} {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+  & .${EntityClassNames.TOOLTIP} {
+    ${entityTooltipCSS}
+    .${Classes.POPOVER_TARGET} {
+      ${entityTooltipCSS}
+    }
   }
 
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
@@ -124,6 +132,11 @@ export const EntityItem = styled.div<{
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
+
+  div {
+    cursor: pointer;
+  }
+
   svg {
     width: 16px;
     height: 16px;
@@ -153,6 +166,7 @@ export type EntityProps = {
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
   addButtonHelptext?: string;
+  isBeta?: boolean;
 };
 
 export const Entity = forwardRef(
@@ -234,9 +248,8 @@ export const Entity = forwardRef(
           alwaysShowRightIcon={props.alwaysShowRightIcon}
           className={`${props.highlight ? "highlighted" : ""} ${
             props.active ? "active" : ""
-          }`}
+          } t--entity-item`}
           highlight={!!props.highlight}
-          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
@@ -254,6 +267,7 @@ export const Entity = forwardRef(
             enterEditMode={enterEditMode}
             entityId={props.entityId}
             exitEditMode={exitEditMode}
+            isBeta={props.isBeta}
             isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
             nameTransformFn={props.onNameEdit}
@@ -270,6 +284,7 @@ export const Entity = forwardRef(
           {props.addButtonHelptext ? (
             <TooltipComponent
               boundary="viewport"
+              className={EntityClassNames.TOOLTIP}
               content={props.addButtonHelptext}
               hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
               position={Position.RIGHT}
