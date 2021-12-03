@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
-import Text, { TextProps, TextType } from "./Text";
+import Text, { TextType } from "./Text";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
@@ -450,24 +450,66 @@ const StyledText = styled(Text)`
   white-space: nowrap;
 `;
 
-function TooltipWrappedText(
-  props: TextProps & {
-    label: string;
-  },
-) {
-  const { label, ...textProps } = props;
-  const targetRef = useRef<HTMLDivElement | null>(null);
+function Option(props: {
+  option: DropdownOption;
+  onClick: (option: DropdownOption) => void;
+  selected: boolean;
+  showLabelOnly?: boolean;
+}) {
+  const { option } = props;
+  const targetRef = useRef<HTMLDivElement>(null);
   return (
-    <Tooltip
-      boundary="window"
-      content={label}
-      disabled={!isEllipsisActive(targetRef.current)}
-      position={Position.TOP}
+    <OptionWrapper
+      className="t--dropdown-option"
+      onClick={() => props.onClick(option)}
+      ref={targetRef}
+      selected={props.selected}
     >
-      <StyledText ref={targetRef} {...textProps}>
-        {label}
-      </StyledText>
-    </Tooltip>
+      {option.leftElement && (
+        <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
+      )}
+      {option.icon ? (
+        <SelectedIcon
+          fillColor={option?.iconColor}
+          hoverFillColor={option?.iconColor}
+          name={option.icon}
+          size={option.iconSize || IconSize.XL}
+        />
+      ) : null}
+
+      {props.showLabelOnly ? (
+        isEllipsisActive(targetRef.current) ? (
+          <Tooltip
+            boundary="window"
+            content={option.label || ""}
+            position={Position.TOP}
+          >
+            <StyledText type={TextType.P1}>{option.label}</StyledText>
+          </Tooltip>
+        ) : (
+          <Text type={TextType.P1}>{option.label}</Text>
+        )
+      ) : option.label && option.value ? (
+        <LabelWrapper className="label-container">
+          <Text type={TextType.H5}>{option.value}</Text>
+          <Text type={TextType.P1}>{option.label}</Text>
+        </LabelWrapper>
+      ) : isEllipsisActive(targetRef.current) ? (
+        <Tooltip
+          boundary="window"
+          content={option.label || ""}
+          position={Position.TOP}
+        >
+          <StyledText type={TextType.P1}>{option.label}</StyledText>
+        </Tooltip>
+      ) : (
+        <Text type={TextType.P1}>{option.label}</Text>
+      )}
+
+      {option.subText ? (
+        <StyledSubText type={TextType.P3}>{option.subText}</StyledSubText>
+      ) : null}
+    </OptionWrapper>
   );
 }
 
@@ -590,47 +632,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             });
           }
           return !option.isSectionHeader ? (
-            <OptionWrapper
-              className="t--dropdown-option"
+            <Option
               key={index}
-              onClick={() => props.optionClickHandler(option)}
+              onClick={props.optionClickHandler}
+              option={option}
               selected={props.selected.value === option.value}
-            >
-              {option.leftElement && (
-                <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
-              )}
-              {option.icon ? (
-                <SelectedIcon
-                  fillColor={option?.iconColor}
-                  hoverFillColor={option?.iconColor}
-                  name={option.icon}
-                  size={option.iconSize || IconSize.XL}
-                />
-              ) : null}
-
-              {props.showLabelOnly ? (
-                <TooltipWrappedText
-                  label={option.label || ""}
-                  type={TextType.P1}
-                />
-              ) : option.label && option.value ? (
-                <LabelWrapper className="label-container">
-                  <Text type={TextType.H5}>{option.value}</Text>
-                  <Text type={TextType.P1}>{option.label}</Text>
-                </LabelWrapper>
-              ) : (
-                <TooltipWrappedText
-                  label={option.label || ""}
-                  type={TextType.P1}
-                />
-              )}
-
-              {option.subText ? (
-                <StyledSubText type={TextType.P3}>
-                  {option.subText}
-                </StyledSubText>
-              ) : null}
-            </OptionWrapper>
+              showLabelOnly={props.showLabelOnly}
+            />
           ) : (
             <SegmentHeader
               style={{ paddingRight: theme.spaces[5] }}
