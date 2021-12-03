@@ -12,6 +12,7 @@ import {
   EvaluationScriptType,
   ScriptTemplate,
 } from "workers/evaluate";
+import { ECMA_VERSION } from "workers/constants";
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,
@@ -61,7 +62,7 @@ export const getLintingErrors = (
 
   const options = {
     indent: 2,
-    esversion: 11, // For optional chaining and null coalescing support
+    esversion: ECMA_VERSION,
     eqeqeq: false, // Not necessary to use ===
     curly: false, // Blocks can be added without {}, eg if (x) return true
     freeze: true, // Overriding inbuilt classes like Array is not allowed

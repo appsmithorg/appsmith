@@ -44,6 +44,9 @@ public class UserData extends BaseDomain {
     // list of organisation ids that were recently accessed by the user
     private List<String> recentlyUsedOrgIds;
 
+    // list of application ids that were recently accessed by the user
+    private List<String> recentlyUsedAppIds;
+
     // last state related to comment feature on-boarding
     private CommentOnboardingState commentOnboardingState;
 
