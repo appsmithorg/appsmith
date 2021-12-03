@@ -5,6 +5,8 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
+import { FileDataTypes } from "widgets/constants";
 
 import CameraComponent from "../component";
 import { CameraMode, CameraModeTypes } from "../constants";
@@ -116,9 +118,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      videoURL: `{{ URL.createObjectURL(this.video) }}`,
-    };
+    return {};
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -127,8 +127,12 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      image: undefined,
-      video: undefined,
+      imageBlobURL: undefined,
+      imageDataURL: undefined,
+      imageRawBinary: undefined,
+      videoBlobURL: undefined,
+      videoDataURL: undefined,
+      videoRawBinary: undefined,
     };
   }
 
@@ -169,10 +173,28 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
   handleImageCapture = (image?: string | null) => {
     if (!image) {
-      this.props.updateWidgetMetaProperty("image", image);
+      URL.revokeObjectURL(this.props.imageBlobURL);
+      this.props.updateWidgetMetaProperty("imageBlobURL", undefined);
+      this.props.updateWidgetMetaProperty("imageDataURL", undefined);
+      this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
       return;
     }
-    this.props.updateWidgetMetaProperty("image", image, {
+    const base64Data = image.split(",")[1];
+    const imageBlob = base64ToBlob(base64Data, "image/webp");
+    const blobURL = URL.createObjectURL(imageBlob);
+    const blobIdForBase64 = createBlobUrl(imageBlob, FileDataTypes.Base64);
+    const blobIdForRaw = createBlobUrl(imageBlob, FileDataTypes.Binary);
+
+    this.props.updateWidgetMetaProperty("imageBlobURL", blobURL);
+
+    this.props.updateWidgetMetaProperty("imageDataURL", blobIdForBase64, {
+      triggerPropertyName: "onImageCapture",
+      dynamicString: this.props.onImageCapture,
+      event: {
+        type: EventType.ON_CAMERA_IMAGE_CAPTURE,
+      },
+    });
+    this.props.updateWidgetMetaProperty("imageRawBinary", blobIdForRaw, {
       triggerPropertyName: "onImageCapture",
       dynamicString: this.props.onImageCapture,
       event: {
@@ -195,10 +217,28 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
   handleRecordingStop = (video?: Blob | null) => {
     if (!video) {
-      this.props.updateWidgetMetaProperty("video", video);
+      if (this.props.videoBlobURL) {
+        URL.revokeObjectURL(this.props.videoBlobURL);
+      }
+      this.props.updateWidgetMetaProperty("videoBlobURL", undefined);
+      this.props.updateWidgetMetaProperty("videoDataURL", undefined);
+      this.props.updateWidgetMetaProperty("videoRawBinary", undefined);
       return;
     }
-    this.props.updateWidgetMetaProperty("video", video, {
+
+    const blobURL = URL.createObjectURL(video);
+    const blobIdForBase64 = createBlobUrl(video, FileDataTypes.Base64);
+    const blobIdForRaw = createBlobUrl(video, FileDataTypes.Binary);
+
+    this.props.updateWidgetMetaProperty("videoBlobURL", blobURL);
+    this.props.updateWidgetMetaProperty("videoDataURL", blobIdForBase64, {
+      triggerPropertyName: "onRecordingStop",
+      dynamicString: this.props.onRecordingStop,
+      event: {
+        type: EventType.ON_CAMERA_VIDEO_RECORDING_STOP,
+      },
+    });
+    this.props.updateWidgetMetaProperty("videoRawBinary", blobIdForRaw, {
       triggerPropertyName: "onRecordingStop",
       dynamicString: this.props.onRecordingStop,
       event: {

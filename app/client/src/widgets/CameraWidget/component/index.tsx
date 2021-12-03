@@ -725,7 +725,7 @@ function CameraComponent(props: CameraComponentProps) {
   }, []);
 
   useEffect(() => {
-    setVideoConstraints({ ...videoConstraints, height, width });
+    // setVideoConstraints({ ...videoConstraints, height, width });
     if (width > height) {
       setScaleAxis("x");
       return;
@@ -754,9 +754,7 @@ function CameraComponent(props: CameraComponentProps) {
   }, [image]);
 
   useEffect(() => {
-    if (video) {
-      onRecordingStop(video);
-    }
+    onRecordingStop(video);
 
     if (video && videoElementRef.current) {
       videoElementRef.current.src = URL.createObjectURL(video);

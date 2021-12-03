@@ -397,9 +397,12 @@ export const entityDefinitions: Record<string, unknown> = {
     "!doc":
       "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",
     "!url": "https://docs.appsmith.com/widget-reference/camera",
-    image: "string",
-    video: "blob",
-    videoURL: "string",
+    imageBlobURL: "string",
+    imageDataURL: "string",
+    imageRawBinary: "string",
+    videoBlobURL: "string",
+    videoDataURL: "string",
+    videoRawBinary: "string",
   },
 };
 
