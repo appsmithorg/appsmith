@@ -267,7 +267,7 @@ class AnalyticsUtil {
     if (userData) {
       const { segment } = getAppsmithConfigs();
       let user: any = {};
-      if (userData.enableTelemetry && segment.apiKey) {
+      if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -291,7 +291,7 @@ class AnalyticsUtil {
       };
     }
 
-    if (userData?.enableTelemetry && windowDoc.analytics) {
+    if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
     } else {
@@ -300,7 +300,7 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userData: User) {
-    const { segment, smartLook } = getAppsmithConfigs();
+    const { segment, sentry, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
@@ -335,13 +335,16 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function(scope) {
-      scope.setUser({
-        id: userId,
-        username: userData.username,
-        email: userData.email,
+
+    if (sentry.enabled) {
+      Sentry.configureScope(function(scope) {
+        scope.setUser({
+          id: userId,
+          username: userData.username,
+          email: userData.email,
+        });
       });
-    });
+    }
 
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
