@@ -13,6 +13,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
+  themeModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
@@ -56,6 +57,7 @@ export const canDrag = (
   isCommentMode: boolean,
   isSnipingMode: boolean,
   isPreviewMode: boolean,
+  isThemeMode: boolean,
 ) => {
   return (
     !isResizingOrDragging &&
@@ -63,7 +65,8 @@ export const canDrag = (
     !props?.dragDisabled &&
     !isCommentMode &&
     !isSnipingMode &&
-    !isPreviewMode
+    !isPreviewMode &&
+    !isThemeMode
   );
 };
 
@@ -74,6 +77,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isThemeMode = useSelector(themeModeSelector);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
@@ -148,6 +152,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     isCommentMode,
     isSnipingMode,
     isPreviewMode,
+    isThemeMode,
   );
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);

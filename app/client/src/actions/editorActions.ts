@@ -40,6 +40,6 @@ export const updateCanvasLayoutAction = (
  */
 
 export const setThemeModeAction = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_THEME_MODE,
+  type: ReduxActionTypes.SET_EDITOR_THEME_MODE,
   payload,
 });

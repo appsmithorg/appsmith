@@ -46,7 +46,12 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import { createMessage, ENTITY_EXPLORER_TITLE } from "constants/messages";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+import {
+  createMessage,
+  ENTITY_EXPLORER_TITLE,
+  LOCK_ENTITY_EXPLORER_MESSAGE,
+} from "constants/messages";
 
 type Props = {
   width: number;
@@ -232,17 +237,15 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           <h3 className="flex items-center text-sm font-medium text-gray-800 uppercase min-h-7">
             {createMessage(ENTITY_EXPLORER_TITLE)}
           </h3>
-          <div
-            className={classNames({
-              "items-center transition-all duration-300 transform ": true,
-              "opacity-0 pointer-events-none scale-50": pinned === false,
-              "opacity-0 scale-100 group-hover:opacity-100": pinned,
-            })}
-          >
+          <div className="flex items-center">
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">
-                  <span>Close sidebar</span>
+                  <span>
+                    {pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : "Close sidebar"}
+                  </span>
                   <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
                 </div>
               }
@@ -252,7 +255,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
                 onClick={onPin}
                 type="button"
               >
-                <PinIcon className="w-3 h-3 text-trueGray-500" />
+                {pinned ? (
+                  <PinIcon className="w-3 h-3 text-trueGray-400" />
+                ) : (
+                  <UnpinIcon className="w-3 h-3 text-trueGray-400" />
+                )}
               </button>
             </TooltipComponent>
           </div>

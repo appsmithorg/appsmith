@@ -13,7 +13,7 @@ import { AppThemingMode } from "selectors/appThemingSelectors";
 
 function Toolbar() {
   const dispatch = useDispatch();
-  const isThemeMode = useSelector(themeModeSelector);
+  const isEditorThemeMode = useSelector(themeModeSelector);
   const explorerPinned = useSelector(getExplorerPinned);
 
   /**
@@ -47,20 +47,22 @@ function Toolbar() {
             onMouseEnter={onMenuHover}
           />
         )}
+        {isEditorThemeMode === true && (
+          <h3 className="uppercase font-medium text-sm">
+            Global Theme Settings{" "}
+          </h3>
+        )}
       </div>
       <div>
         <div className="flex items-center space-x-2">
-          {isThemeMode && (
-            <>
-              <Button
-                category={Category.tertiary}
-                onClick={onBackToCanvasButtonClick}
-                text="Back to Canvas"
-              />
-              <Button text="Save changes" />
-            </>
+          {isEditorThemeMode && (
+            <Button
+              category={Category.tertiary}
+              onClick={onBackToCanvasButtonClick}
+              text="Back to Canvas"
+            />
           )}
-          {!isThemeMode && (
+          {!isEditorThemeMode && (
             <PaintBrushIcon
               className="w-5 h-5 cursor-pointer text-trueGray-600 hover:bg-trueGray-100 ring-3 ring-transparent hover:ring-trueGray-100"
               onClick={onThemeButtonClick}

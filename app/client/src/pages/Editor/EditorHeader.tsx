@@ -21,6 +21,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
+  themeModeSelector,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -73,20 +74,12 @@ import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
-  LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
 } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
-import { getExplorerPinned } from "selectors/explorerSelector";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
-import {
-  setExplorerActiveAction,
-  setExplorerPinnedAction,
-} from "actions/explorerActions";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -253,13 +246,13 @@ export function EditorHeader(props: EditorHeaderProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
-  const pinned = useSelector(getExplorerPinned);
   const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
   const shouldHideComments = useHideComments();
   const isPreviewMode = useSelector(previewModeSelector);
+  const isThemingMode = useSelector(themeModeSelector);
 
   useEffect(() => {
     if (window.location.href) {
@@ -309,20 +302,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
 
-  /**
-   * on hovering the menu, make the explorer active
-   */
-  const onMenuHover = useCallback(() => {
-    dispatch(setExplorerActiveAction(true));
-  }, [setExplorerActiveAction]);
-
-  /**
-   * toggles the pinned state of sidebar
-   */
-  const onPin = useCallback(() => {
-    dispatch(setExplorerPinnedAction(!pinned));
-  }, [pinned, dispatch, setExplorerPinnedAction]);
-
   //Fetch all users for the application to show the share button tooltip
   useEffect(() => {
     if (orgId) {
@@ -335,36 +314,8 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper className="pr-3">
+      <HeaderWrapper className="px-3">
         <HeaderSection className="space-x-3">
-          <div
-            className={classNames({
-              "text-gray-800 transform transition-all duration-400 pl-3 relative": true,
-              "ml-0": !pinned,
-              "-ml-7": pinned,
-            })}
-          >
-            <TooltipComponent
-              content={
-                <div className="flex items-center justify-between">
-                  <span>{createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)}</span>
-                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
-                </div>
-              }
-              position="bottom-left"
-            >
-              <div
-                className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
-                onMouseEnter={onMenuHover}
-              >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
-                <UnpinIcon
-                  className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                  onClick={onPin}
-                />
-              </div>
-            </TooltipComponent>
-          </div>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}

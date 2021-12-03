@@ -194,7 +194,7 @@ const editorReducer = createReducer(initialState, {
       isPreviewMode: action.payload,
     };
   },
-  [ReduxActionTypes.SET_THEME_MODE]: (
+  [ReduxActionTypes.SET_EDITOR_THEME_MODE]: (
     state: EditorReduxState,
     action: ReduxAction<boolean>,
   ) => {

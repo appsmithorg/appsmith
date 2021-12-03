@@ -3,6 +3,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
+  themeModeSelector,
 } from "selectors/editorSelectors";
 import { useSelector } from "store";
 
@@ -34,11 +35,14 @@ export const useAllowEditorDragToSelect = () => {
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isThemeMode = useSelector(themeModeSelector);
+
   return (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !isCommentMode &&
     !isSnipingMode &&
-    !isPreviewMode
+    !isPreviewMode &&
+    !isThemeMode
   );
 };
