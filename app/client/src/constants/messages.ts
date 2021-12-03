@@ -701,14 +701,15 @@ export const ONBOARDING_CHECKLIST_FOOTER = () =>
   "Not sure where to start? Take the welcome tour";
 
 //Introduction modal
-export const HOW_APPSMITH_WORKS = () => "Here’s how Appsmith works";
+export const HOW_APPSMITH_WORKS = () =>
+  "Here’s a quick overview of how Appsmith works. ";
 export const ONBOARDING_INTRO_CONNECT_YOUR_DATABASE = () =>
   "Connect your database or API";
 export const ONBOARDING_INTRO_CONNECT_DATA_WIDGET = () =>
   "Connect queried data to pre-built widgets and customise with Javascript.";
 export const ONBOARDING_INTRO_PUBLISH = () =>
   "Instantly publish and share your apps";
-export const BUILD_MY_FIRST_APP = () => "Build my first app";
+export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
   "Want more help getting started, let’s";
 export const BUILD_APP_TOGETHER = () => "build an app together.";

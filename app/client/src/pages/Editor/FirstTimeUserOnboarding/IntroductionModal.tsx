@@ -1,13 +1,8 @@
 import { Icon, Overlay } from "@blueprintjs/core";
 import Button, { Category } from "components/ads/Button";
 import {
-  ONBOARDING_INTRO_CONNECT_DATA_WIDGET,
-  ONBOARDING_INTRO_CONNECT_YOUR_DATABASE,
   HOW_APPSMITH_WORKS,
-  ONBOARDING_INTRO_PUBLISH,
   BUILD_MY_FIRST_APP,
-  ONBOARDING_INTRO_FOOTER,
-  BUILD_APP_TOGETHER,
   createMessage,
 } from "constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -27,62 +22,88 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 const CenteredContainer = styled.div`
-  width: 783px;
-  height: 420px;
+  width: 926px;
   background: #fff;
-  padding: 16px 24px;
   position: relative;
 `;
 
+const ModalHeaderWrapper = styled.div`
+  margin: 40px 54px 0px;
+`;
 const ModalHeader = styled.h5`
+  font-size: 28px;
+  font-weight: 600;
+`;
+
+const ModalSubHeader = styled.h5`
   font-size: 20px;
-  margin: 16px 0 6px;
-  text-align: center;
+  margin-top: 20px;
 `;
 
 const ModalBody = styled.div`
-  text-align: center;
-`;
-
-const ModalImgWrapper = styled.div`
-  display: flex;
-  justify-content: center;
+  margin: 21px 54px 16px;
 `;
 
 const ModalContentWrapper = styled.div``;
+const ModalContentRow = styled.div<{ border?: boolean }>`
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
+  height: 113px;
+  padding: 20px 0px;
+  ${(props) => (props.border ? "border-bottom: 1px solid #E8E8E8;" : "")}
+`;
+const ModalContentTextWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 3;
+`;
 
 const StyledImgWrapper = styled.div`
-  text-align: center;
+  display: flex;
+  flex: 1;
+  justify-content: center;
 `;
 
 const StyledImg = styled.img`
-  width: ${(props) => props.width}px;
   vertical-align: middle;
 `;
 
 const StyledCount = styled.h5`
-  font-size: 20px;
-  margin: 0 0 5px;
-  font-weight: 500;
+  font-size: 36px;
+  font-weight: 600;
+  color: #716e6e;
 `;
 
-const ModalContent = styled.p``;
+const ModalContent = styled.p`
+  margin-left: 36px;
+`;
+const ModalContentHeader = styled.h5`
+  font-size: 18px;
+  font-weight: 500;
+`;
+const ModalContentDescription = styled.h5`
+  font-size: 16px;
+`;
 
 const ModalFooter = styled.div`
-  text-align: center;
+  border-top: 1px solid #e8e8e8;
+  padding: 0px 56px;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ModalFooterText = styled.span`
+  font-size: 20px;
+  letter-spacing: -0.24px;
 `;
 
 const StyledButton = styled(Button)`
   width: 145px;
   height: 38px;
   display: inline-block;
-`;
-
-const ModalFooterNote = styled.p`
-  & span {
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.welcomeTourStickySidebarBackground};
-  }
 `;
 
 const StyledClose = styled(Icon)`
@@ -97,7 +118,6 @@ type IntroductionModalProps = {
 };
 
 const getConnectDataImg = () => `${ASSETS_CDN_URL}/ConnectData.svg`;
-const getArrowImg = () => `${ASSETS_CDN_URL}/Arrow.svg`;
 const getQueryDataImg = () => `${ASSETS_CDN_URL}/QueryData.svg`;
 const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps.svg`;
 
@@ -123,61 +143,86 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             iconSize={16}
             onClick={onBuildApp}
           />
-          <ModalHeader className="t--how-appsmith-works-modal-header">
-            {createMessage(HOW_APPSMITH_WORKS)}
-          </ModalHeader>
+          <ModalHeaderWrapper className="t--how-appsmith-works-modal-header">
+            <ModalHeader>Welcome to Appsmith!</ModalHeader>
+            <ModalSubHeader>{createMessage(HOW_APPSMITH_WORKS)}</ModalSubHeader>
+          </ModalHeaderWrapper>
+
           <ModalBody>
-            <ModalImgWrapper>
-              <StyledImgWrapper className="flex">
-                <StyledImg src={getConnectDataImg()} />
-                <StyledImg src={getArrowImg()} />
-              </StyledImgWrapper>
-              <StyledImgWrapper className="flex flex-grow px-5">
-                <StyledImg src={getQueryDataImg()} />
-              </StyledImgWrapper>
-              <StyledImgWrapper className="flex pr-12">
-                <StyledImg src={getArrowImg()} />
-                <StyledImg src={getPublishAppsImg()} />
-              </StyledImgWrapper>
-            </ModalImgWrapper>
-            <ModalContentWrapper className="flex">
-              <div>
-                <StyledCount>1.</StyledCount>
-                <ModalContent>
-                  {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
-                </ModalContent>
-              </div>
-              <div className="px-5">
-                <StyledCount>2.</StyledCount>
-                <ModalContent className="px-4">
-                  {createMessage(ONBOARDING_INTRO_CONNECT_DATA_WIDGET)}
-                </ModalContent>
-              </div>
-              <div>
-                <StyledCount>3.</StyledCount>
-                <ModalContent>
-                  {createMessage(ONBOARDING_INTRO_PUBLISH)}
-                </ModalContent>
-              </div>
+            <ModalContentWrapper>
+              <ModalContentRow border>
+                <ModalContentTextWrapper>
+                  <StyledCount>1</StyledCount>
+                  <ModalContent>
+                    <ModalContentHeader>
+                      Connect to your database or APIs
+                    </ModalContentHeader>
+                    <ModalContentDescription>
+                      Query your own database or API inside Appsmith. Write JS
+                      to construct dynamic queries.
+                    </ModalContentDescription>
+                  </ModalContent>
+                </ModalContentTextWrapper>
+                <StyledImgWrapper>
+                  <StyledImg src={getConnectDataImg()} />
+                </StyledImgWrapper>
+              </ModalContentRow>
+              <ModalContentRow border>
+                <ModalContentTextWrapper>
+                  <StyledCount>2</StyledCount>
+                  <ModalContent>
+                    <ModalContentHeader>
+                      Drag and drop pre-built widgets to build UI
+                    </ModalContentHeader>
+                    <ModalContentDescription>
+                      Customise the styling of every widget. Then bind your data
+                      to the widget and use JS to write any logic.
+                    </ModalContentDescription>
+                  </ModalContent>
+                </ModalContentTextWrapper>
+                <StyledImgWrapper>
+                  <StyledImg src={getQueryDataImg()} />
+                </StyledImgWrapper>
+              </ModalContentRow>
+              <ModalContentRow className="border-b-0">
+                <ModalContentTextWrapper>
+                  <StyledCount>3</StyledCount>
+                  <ModalContent>
+                    <ModalContentHeader>
+                      Publish & Share with permissions
+                    </ModalContentHeader>
+                    <ModalContentDescription>
+                      Instantly publish & share your apps with users. Choose
+                      from pre-defined access controls roles.
+                    </ModalContentDescription>
+                  </ModalContent>
+                </ModalContentTextWrapper>
+                <StyledImgWrapper>
+                  <StyledImg src={getPublishAppsImg()} />
+                </StyledImgWrapper>
+              </ModalContentRow>
             </ModalContentWrapper>
           </ModalBody>
           <ModalFooter>
-            <StyledButton
-              category={Category.primary}
-              className="t--introduction-modal-build-button my-6"
-              onClick={onBuildApp}
-              tag="button"
-              text={createMessage(BUILD_MY_FIRST_APP)}
-            />
-            <ModalFooterNote className="pb-4">
-              {createMessage(ONBOARDING_INTRO_FOOTER)}&nbsp;
-              <span
-                className="t--introduction-modal-welcome-tour-button"
+            <ModalFooterText>
+              Let’s start building your first application{" "}
+            </ModalFooterText>
+            <div>
+              <StyledButton
+                category={Category.tertiary}
+                className="t--introduction-modal-build-button my-6"
                 onClick={() => triggerWelcomeTour(dispatch)}
-              >
-                {createMessage(BUILD_APP_TOGETHER)}
-              </span>
-            </ModalFooterNote>
+                tag="button"
+                text={"START TUTORIAL"}
+              />
+              <StyledButton
+                category={Category.primary}
+                className="t--introduction-modal-build-button my-6 ml-5"
+                onClick={onBuildApp}
+                tag="button"
+                text={createMessage(BUILD_MY_FIRST_APP)}
+              />
+            </div>
           </ModalFooter>
         </CenteredContainer>
       </Wrapper>
