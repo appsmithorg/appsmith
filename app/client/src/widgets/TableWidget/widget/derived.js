@@ -435,7 +435,7 @@ export default {
         ? Object.values(item)
             .join(", ")
             .toLowerCase()
-            .includes(searchKey())
+            .includes(getSearchKey())
         : true;
       if (!searchFound) return false;
       if (!props.filters || props.filters.length === 0) return true;
