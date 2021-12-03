@@ -7,10 +7,7 @@ import {
   AUTHOR_EMAIL,
 } from "constants/messages";
 import styled from "styled-components";
-import TextInput, {
-  emailValidator,
-  notEmptyValidator,
-} from "components/ads/TextInput";
+import TextInput, { emailValidator } from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
@@ -119,6 +116,7 @@ type UserGitProfileSettingsProps = {
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
   isLocalConfigDefined: boolean;
   isGlobalConfigDefined: boolean;
+  triedSubmit: boolean;
 };
 
 const goToGitProfile = () => {
@@ -131,6 +129,7 @@ function UserGitProfileSettings({
   isLocalConfigDefined,
   setAuthorInfo,
   toggleUseDefaultConfig,
+  triedSubmit,
   useGlobalConfig,
 }: UserGitProfileSettingsProps) {
   //
@@ -201,7 +200,7 @@ function UserGitProfileSettings({
             defaultValue={authorInfo.authorName}
             disabled={disableInput}
             errorMsg={
-              !authorInfo.authorName && !nameInputFocused
+              !authorInfo.authorName && !nameInputFocused && triedSubmit
                 ? "Author name cannot be empty"
                 : ""
             }
@@ -210,7 +209,7 @@ function UserGitProfileSettings({
             onBlur={() => setNameInputFocused(false)}
             onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
             onFocus={() => setNameInputFocused(true)}
-            validator={notEmptyValidator}
+            trimValue={false}
           />
         </InputContainer>
 
@@ -224,7 +223,7 @@ function UserGitProfileSettings({
             dataType="email"
             disabled={disableInput}
             errorMsg={
-              !isValidEmail && !emailInputFocused
+              !isValidEmail && !emailInputFocused && triedSubmit
                 ? "Please enter a valid email"
                 : ""
             }
