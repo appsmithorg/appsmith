@@ -79,6 +79,7 @@ export type DropdownProps = CommonComponentProps &
     dontUsePortal?: boolean;
     hideSubText?: boolean;
     boundary?: PopperBoundary;
+    defaultIcon?: IconName;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -335,8 +336,8 @@ const StyledSubText = styled(Text)<{
   }
   &.sub-text {
     color: ${(props) => props.theme.colors.dropdown.selected.subtext};
-    position: absolute;
-    right: ${(props) => (props.showDropIcon ? "39px" : "12px")};
+    text-align: end;
+    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
   }
 `;
 
@@ -685,7 +686,7 @@ export default function Dropdown(props: DropdownProps) {
             <DropdownIcon
               fillColor={downIconColor}
               hoverFillColor={downIconColor}
-              name="expand-more"
+              name={props.defaultIcon || "expand-more"}
               size={IconSize.XXL}
             />
           )

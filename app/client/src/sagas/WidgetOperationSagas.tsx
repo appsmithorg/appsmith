@@ -56,7 +56,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { forceOpenPropertyPane } from "actions/widgetActions";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -752,8 +751,12 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
     pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
 
-  // to avoid invoking old copied widgets
-  if (!Array.isArray(copiedWidgetGroups)) return;
+  if (
+    // to avoid invoking old way of copied widgets implementaion
+    !Array.isArray(copiedWidgetGroups) ||
+    !copiedWidgetGroups.length
+  )
+    return;
 
   const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
     copiedWidgetGroups,
@@ -1093,7 +1096,6 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       widgetId: newWidget.newWidgetId,
       applicationId,
     });
-    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
     log.error(error);
   }

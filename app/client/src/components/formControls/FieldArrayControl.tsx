@@ -42,9 +42,10 @@ const SecondaryBox = styled.div`
     width: 20vw !important;
   }
 
+  & > .t--form-control-DROP_DOWN,
   & > .t--form-control-DROP_DOWN > div > div,
   & > .t--form-control-DROP_DOWN > div > div > div > div {
-    width: 8vw;
+    width: 12vw;
   }
 `;
 
