@@ -289,6 +289,17 @@ export const useCanvasDragging = (
             onMouseMove(e);
           }
         };
+
+        const canReflowForCurrentMouseMove = (e: any) => {
+          const { movementX = 0, movementY = 0 } = e;
+          const threshold = 10;
+          return !(
+            movementX > threshold ||
+            movementX < -threshold ||
+            movementY > threshold ||
+            movementY < -threshold
+          );
+        };
         const getMouseMoveDirection = (event: any) => {
           if (latestMousePosition) {
             const deltaX = latestMousePosition.x - event.clientX,
@@ -322,6 +333,7 @@ export const useCanvasDragging = (
         };
         const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
+            const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove(e);
             currentDirection = getMouseMoveDirection(e);
 
             const delta = {
@@ -360,7 +372,9 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const canReflow = currentRectanglesToDraw.length === 1;
+              const canReflow =
+                currentRectanglesToDraw.length === 1 &&
+                canReflowBasedOnMouseSpeed;
               if (canReflow) {
                 const currentBlock = currentRectanglesToDraw[0];
                 const [leftColumn, topRow] = getDropZoneOffsets(
