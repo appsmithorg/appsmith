@@ -1,5 +1,5 @@
 import { APIResponseError } from "api/ApiResponses";
-import { Property } from "entities/Action";
+import { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
 export interface DatasourceAuthentication {
   authType?: string;
@@ -29,7 +29,7 @@ export interface DatasourceStructure {
 }
 
 export interface QueryTemplate {
-  actionConfiguration?: Record<string, unknown>;
+  actionConfiguration?: ActionConfig;
   configuration: Record<string, unknown>;
   title: string;
   body: string;
