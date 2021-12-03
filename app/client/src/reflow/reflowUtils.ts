@@ -1,4 +1,4 @@
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { Rect } from "utils/WidgetPropsUtils";
 import {
   CollidingSpace,

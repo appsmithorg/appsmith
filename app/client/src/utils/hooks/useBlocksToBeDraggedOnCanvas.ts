@@ -9,7 +9,7 @@ import { AppState } from "reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
@@ -23,7 +23,6 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useShowPropertyPane } from "./dragResizeHooks";
 import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
@@ -53,7 +52,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   widgetId,
 }: CanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
-  const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
 
@@ -275,7 +273,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
       selectWidget(updateWidgetParams.payload.newWidgetId);
-      showPropertyPane(updateWidgetParams.payload.newWidgetId);
     }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,
@@ -283,7 +280,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
       didDrop: true,
     });
   };
-  const updateRows = (drawingBlocks: WidgetDraggingBlock[], rows: number) => {
+  const updateRelativeRows = (
+    drawingBlocks: WidgetDraggingBlock[],
+    rows: number,
+  ) => {
     if (drawingBlocks.length) {
       const sortedByTopBlocks = drawingBlocks.sort(
         (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
@@ -298,9 +298,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
         } as XYCord,
         { x: 0, y: 0 },
       );
-      if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
-        return updateDropTargetRows && updateDropTargetRows(widgetId, top);
-      }
+      return updateBottomRow(top, rows);
+    }
+  };
+  const updateBottomRow = (bottom: number, rows: number) => {
+    if (bottom > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
+      return updateDropTargetRows && updateDropTargetRows(widgetId, bottom);
     }
   };
   const rowRef = useRef(snapRows);
@@ -363,7 +366,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
     relativeStartPoints,
     rowRef,
     stopReflowing,
-    updateRows,
+    updateBottomRow,
+    updateRelativeRows,
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,
     )[0],

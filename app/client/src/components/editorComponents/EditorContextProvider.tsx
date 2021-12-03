@@ -13,7 +13,7 @@ import {
 } from "actions/controlActions";
 
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 import {
   resetChildrenMetaProperty,

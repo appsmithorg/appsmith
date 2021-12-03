@@ -1,4 +1,3 @@
-import { OccupiedSpace } from "constants/editorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -8,6 +7,8 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
 import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
 import { useReflow } from "utils/hooks/useReflow";
+import { useSelector } from "react-redux";
+import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
@@ -16,6 +17,7 @@ import {
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 export interface XYCord {
   x: number;
@@ -34,6 +36,7 @@ export const useCanvasDragging = (
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
+  const canvasZoomLevel = useSelector(getZoomLevel);
   const { devicePixelRatio: scale = 1 } = window;
   const {
     blocksToDraw,
@@ -51,7 +54,8 @@ export const useCanvasDragging = (
     relativeStartPoints,
     rowRef,
     stopReflowing,
-    updateRows,
+    updateBottomRow,
+    updateRelativeRows,
     widgetOccupiedSpace,
   } = useBlocksToBeDraggedOnCanvas({
     canExtend,
@@ -67,7 +71,7 @@ export const useCanvasDragging = (
     maxGrirdColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
     paddingOffset: 0,
   };
-  const reflowStateRef = useRef<any>();
+  //const reflowStateRef = useRef<any>();
   // const reflowStateChange = useSelector(
   //   (state: AppState): widgetReflowState => state.ui.widgetReflow,
   // );
@@ -112,11 +116,12 @@ export const useCanvasDragging = (
         height: scrollParentTopHeight,
       } = parentCanvas.getBoundingClientRect();
       const { width } = canvasRef.current.getBoundingClientRect();
-      canvasDrawRef.current.style.width = width + "px";
+      canvasDrawRef.current.style.width = width / canvasZoomLevel + "px";
       canvasDrawRef.current.style.position = canExtend ? "absolute" : "sticky";
       canvasDrawRef.current.style.left = "0px";
       canvasDrawRef.current.style.top = getCanvasTopOffset() + "px";
-      canvasDrawRef.current.style.height = scrollParentTopHeight + "px";
+      canvasDrawRef.current.style.height =
+        scrollParentTopHeight / canvasZoomLevel + "px";
     }
   };
 
@@ -178,9 +183,13 @@ export const useCanvasDragging = (
         canHorizontalMove: false,
         movementMap: {},
       };
-      let last_position = {
+      let lastMousePosition = {
         x: 0,
         y: 0,
+      };
+      let lastSnappedPosition = {
+        leftColumn: 0,
+        topRow: 0,
       };
       let currentDirection = ReflowDirection.UNSET;
 
@@ -275,15 +284,30 @@ export const useCanvasDragging = (
             }
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
+            lastMousePosition = {
+              x: e.clientX,
+              y: e.clientY,
+            };
             onMouseMove(e);
           }
         };
+
+        const canReflowForCurrentMouseMove = (e: any) => {
+          const { movementX = 0, movementY = 0 } = e;
+          const threshold = 10;
+          return !(
+            movementX > threshold ||
+            movementX < -threshold ||
+            movementY > threshold ||
+            movementY < -threshold
+          );
+        };
         const getMouseMoveDirection = (event: any) => {
-          if (last_position) {
-            const deltaX = last_position.x - event.clientX,
-              deltaY = last_position.y - event.clientY;
+          if (lastMousePosition) {
+            const deltaX = lastMousePosition.x - event.clientX,
+              deltaY = lastMousePosition.y - event.clientY;
             const movements = [];
-            last_position = {
+            lastMousePosition = {
               x: event.clientX,
               y: event.clientY,
             };
@@ -311,6 +335,7 @@ export const useCanvasDragging = (
         };
         const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
+            const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove(e);
             currentDirection = getMouseMoveDirection(e);
 
             const delta = {
@@ -323,7 +348,7 @@ export const useCanvasDragging = (
               left: each.left + delta.left,
               top: each.top + delta.top,
             }));
-            const newRows = updateRows(drawingBlocks, rowRef.current);
+            const newRows = updateRelativeRows(drawingBlocks, rowRef.current);
             const rowDelta = newRows ? newRows - rowRef.current : 0;
             rowRef.current = newRows ? newRows : rowRef.current;
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
@@ -349,21 +374,30 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const canReflow = currentRectanglesToDraw.length === 1;
-              if (canReflow) {
-                const currentBlock = currentRectanglesToDraw[0];
-                const [leftColumn, topRow] = getDropZoneOffsets(
-                  snapColumnSpace,
-                  snapRowSpace,
-                  {
-                    x: currentBlock.left,
-                    y: currentBlock.top,
-                  },
-                  {
-                    x: 0,
-                    y: 0,
-                  },
-                );
+              const canReflow =
+                currentRectanglesToDraw.length === 1 &&
+                canReflowBasedOnMouseSpeed;
+              const currentBlock = currentRectanglesToDraw[0];
+              const [leftColumn, topRow] = getDropZoneOffsets(
+                snapColumnSpace,
+                snapRowSpace,
+                {
+                  x: currentBlock.left,
+                  y: currentBlock.top,
+                },
+                {
+                  x: 0,
+                  y: 0,
+                },
+              );
+              const needsReflow =
+                lastSnappedPosition.leftColumn === leftColumn &&
+                lastSnappedPosition.topRow === topRow;
+              lastSnappedPosition = {
+                leftColumn,
+                topRow,
+              };
+              if (canReflow && needsReflow) {
                 const resizedPositions = {
                   left: leftColumn,
                   top: topRow,
@@ -392,6 +426,35 @@ export const useCanvasDragging = (
                     GridDefaults.DEFAULT_GRID_COLUMNS,
                     block.detachFromLayout,
                   );
+                  const reflowedWidgets = Object.entries(
+                    currentReflowParams.movementMap,
+                  );
+                  const bottomReflowedWidgets = reflowedWidgets.filter(
+                    (each) => !!each[1].Y,
+                  );
+                  const reflowedWidgetsBottomMostRow = bottomReflowedWidgets.reduce(
+                    (bottomMostRow, each) => {
+                      const [id, reflowedParams] = each;
+                      const widget = occSpaces.find(
+                        (eachSpace) => eachSpace.id === id,
+                      );
+                      if (widget) {
+                        const bottomMovement =
+                          (reflowedParams.Y || 0) / snapRowSpace;
+                        const bottomRow = widget.bottom + bottomMovement;
+                        if (bottomRow > bottomMostRow) {
+                          return bottomRow;
+                        }
+                      }
+                      return bottomMostRow;
+                    },
+                    0,
+                  );
+                  const newRows = updateBottomRow(
+                    reflowedWidgetsBottomMostRow,
+                    rowRef.current,
+                  );
+                  rowRef.current = newRows ? newRows : rowRef.current;
                   currentRectanglesToDraw[0].isNotColliding =
                     isNotInParentBoundaries &&
                     currentReflowParams.canHorizontalMove &&
@@ -480,6 +543,7 @@ export const useCanvasDragging = (
               canvasDrawRef.current.height,
             );
             isUpdatingRows = false;
+            canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
             if (canvasIsDragging) {
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);

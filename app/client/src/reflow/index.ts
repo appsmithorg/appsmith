@@ -1,4 +1,4 @@
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getMovementMap } from "./reflowHelpers";
 import { CollidingSpaceMap, GridProps, ReflowDirection } from "./reflowTypes";
 import {

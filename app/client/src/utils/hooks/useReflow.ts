@@ -1,5 +1,5 @@
 import { reflowMove, stopReflow } from "actions/reflowActions";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { isEmpty } from "lodash";
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";

@@ -9,7 +9,7 @@ import PerformanceTracker, {
 import { useReflow } from "utils/hooks/useReflow";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridProps, ReflowDirection } from "reflow/reflowTypes";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`

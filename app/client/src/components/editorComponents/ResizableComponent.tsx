@@ -35,7 +35,10 @@ import {
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
@@ -55,6 +58,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -243,7 +247,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     isWidgetFocused &&
     !props.resizeDisabled &&
     !isCommentMode &&
-    !isSnipingMode;
+    !isSnipingMode &&
+    !isPreviewMode;
   const isMultiSelectedWidget =
     selectedWidgets &&
     selectedWidgets.length > 1 &&
