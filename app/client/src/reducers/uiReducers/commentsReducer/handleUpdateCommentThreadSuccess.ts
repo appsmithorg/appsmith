@@ -22,6 +22,10 @@ const handleUpdateCommentThreadSuccess = (
   return {
     ...state,
     creatingNewThreadComment: false,
+    lastUpdatedCommentThreadByAppId: {
+      ...state.lastUpdatedCommentThreadByAppId,
+      [commentThreadInStore.applicationId]: id,
+    },
   };
 };
 

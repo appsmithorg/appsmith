@@ -49,7 +49,7 @@
           ]
         },
         {
-          "label": "Document/Collection Path",
+          "label": "Collection/Document Path",
           "configProperty": "actionConfiguration.path",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true,
@@ -167,43 +167,32 @@
           "initialValue": "10"
         },
         {
-          "sectionName": "Query",
-          "id": 2,
-          "children": [
+          "label": "Where Conditions Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "whereConditionTuples"
+        },
+        {
+          "label": "Where Conditions",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+          "controlType": "ARRAY_FIELD",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "schema": [
             {
-              "label": "Field Path Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "fieldPath"
-            },
-            {
-              "label": "Where Condition: Field Path (leave empty to not apply any conditions)",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+              "label": "Path",
+              "key": "path",
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": ""
+              "placeholderText": "key1/nestedKey2"
             },
             {
-              "label": "Operator Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "operator"
-            },
-            {
-              "label": "Where Condition: Operator",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+              "label": "Operator",
+              "key": "operator",
               "controlType": "DROP_DOWN",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
               "initialValue": "EQ",
               "options": [
                 {
@@ -241,22 +230,10 @@
               ]
             },
             {
-              "label": "Value Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "fieldValue"
-            },
-            {
-              "label": "Where Condition: Value",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+              "label": "Value",
+              "key": "value",
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": ""
+              "placeholderText": "value"
             }
           ]
         },

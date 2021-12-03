@@ -1,9 +1,9 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.QDatasource;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -33,9 +33,10 @@ public class CustomDatasourceRepositoryImpl extends BaseAppsmithRepositoryImpl<D
     }
 
     @Override
-    public Mono<Datasource> findByName(String name, AclPermission aclPermission) {
+    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
-        return queryOne(List.of(nameCriteria), aclPermission);
+        Criteria orgIdCriteria = where(fieldName(QDatasource.datasource.organizationId)).is(organizationId);
+        return queryOne(List.of(nameCriteria, orgIdCriteria), aclPermission);
     }
 
     @Override

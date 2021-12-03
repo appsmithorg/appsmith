@@ -1,0 +1,21 @@
+version: 1
+labels:
+  - label: "Enhancement"
+    titles:
+      - "^feat:.*"
+      - "^feature:.*"
+  - label: "Bug"
+    titles:
+      - "^fix:.*"
+  - label: "CI"
+    titles:
+      - "^ci:.*"
+  - label: "Test"
+    titles:
+      - "^test:.*"
+  - label: "skip-changelog"
+    titles:
+      - "^test:.*"
+      - "^ci:.*"
+      - "^doc:.*"
+      - "^chore:.*"

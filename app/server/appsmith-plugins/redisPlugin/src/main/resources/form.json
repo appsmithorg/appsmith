@@ -21,6 +21,13 @@
               "controlType": "KEYVALUE_ARRAY"
             }
           ]
+        },
+        {
+          "label": "Database Number",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "controlType": "INPUT_TEXT",
+          "dataType": "NUMBER",
+          "placeholderText": "0"
         }
       ]
     },

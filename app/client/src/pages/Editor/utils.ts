@@ -1,4 +1,5 @@
-import { debounce } from "lodash";
+import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
+import _, { debounce } from "lodash";
 import ReactDOM from "react-dom";
 import ResizeObserver from "resize-observer-polyfill";
 
@@ -7,7 +8,14 @@ export const draggableElement = (
   element: any,
   onPositionChange: any,
   initPostion?: any,
+  renderDragBlockPositions?: {
+    left?: string;
+    top?: string;
+    zIndex?: string;
+    position?: string;
+  },
   dragHandle?: () => JSX.Element,
+  cypressSelectorDragHandle?: string,
 ) => {
   let newXPos = 0,
     newYPos = 0,
@@ -32,6 +40,8 @@ export const draggableElement = (
     calculatedLeft: number,
     calculatedTop: number,
   ) => {
+    const bottomBarOffset = 34;
+
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;
     }
@@ -41,8 +51,12 @@ export const draggableElement = (
     if (calculatedLeft >= window.innerWidth - element.clientWidth) {
       calculatedLeft = window.innerWidth - element.clientWidth;
     }
-    if (calculatedTop >= window.innerHeight - element.clientHeight) {
-      calculatedTop = window.innerHeight - element.clientHeight;
+    if (
+      calculatedTop >=
+      window.innerHeight - (element.clientHeight + bottomBarOffset)
+    ) {
+      calculatedTop =
+        window.innerHeight - element.clientHeight - bottomBarOffset;
     }
     return {
       left: calculatedLeft,
@@ -113,7 +127,13 @@ export const draggableElement = (
 
   const OnInit = () => {
     if (dragHandle) {
-      dragHandler = createDragHandler(id, element, dragHandle);
+      dragHandler = createDragHandler(
+        id,
+        element,
+        dragHandle,
+        renderDragBlockPositions,
+        cypressSelectorDragHandle,
+      );
     }
     if (initPostion) {
       setElementPosition();
@@ -130,16 +150,68 @@ const createDragHandler = (
   id: string,
   el: any,
   dragHandle: () => JSX.Element,
+  renderDragBlockPositions?: {
+    left?: string;
+    top?: string;
+    zIndex?: string;
+    position?: string;
+  },
+  cypressSelectorDragHandle?: string,
 ) => {
   const oldDragHandler = document.getElementById(`${id}-draghandler`);
   const dragElement = document.createElement("div");
   dragElement.setAttribute("id", `${id}-draghandler`);
-  dragElement.style.position = "absolute";
-  dragElement.style.left = "0px";
-  dragElement.style.top = "0px";
+  dragElement.style.position = renderDragBlockPositions?.position ?? "absolute";
+  dragElement.style.left = renderDragBlockPositions?.left ?? "135px";
+  dragElement.style.top = renderDragBlockPositions?.top ?? "0px";
+  dragElement.style.zIndex = renderDragBlockPositions?.zIndex ?? "3";
+
+  if (cypressSelectorDragHandle) {
+    dragElement.setAttribute("data-cy", cypressSelectorDragHandle);
+  }
+
   oldDragHandler
     ? el.replaceChild(dragElement, oldDragHandler)
     : el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
   return dragElement;
+};
+
+// Function to access nested property in an object
+const getNestedValue = (obj: Record<string, any>, path = "") => {
+  return path.split(".").reduce((prev, cur) => {
+    return prev && prev[cur];
+  }, obj);
+};
+
+export const useIsWidgetActionConnectionPresent = (
+  widgets: any,
+  actions: any,
+  deps: any,
+): boolean => {
+  const actionLables = actions.map((action: any) => action.config.name);
+
+  let isBindingAvailable = !!Object.values(widgets).find((widget: any) => {
+    const depsConnections = getDependenciesFromInverseDependencies(
+      deps,
+      widget.widgetName,
+    );
+    return !!_.intersection(depsConnections?.directDependencies, actionLables)
+      .length;
+  });
+
+  if (!isBindingAvailable) {
+    isBindingAvailable = !!Object.values(widgets).find((widget: any) => {
+      return (
+        widget.dynamicTriggerPathList &&
+        !!widget.dynamicTriggerPathList.find((path: { key: string }) => {
+          return !!actionLables.find((label: string) => {
+            const snippet = getNestedValue(widget, path.key);
+            return snippet ? snippet.indexOf(`${label}.run`) > -1 : false;
+          });
+        })
+      );
+    });
+  }
+  return isBindingAvailable;
 };

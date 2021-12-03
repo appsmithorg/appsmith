@@ -5,19 +5,20 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.BsonArray;
 import org.bson.Document;
+import org.bson.json.JsonParseException;
 import org.pf4j.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 
 @Getter
 @Setter
@@ -27,10 +28,10 @@ public class Aggregate extends MongoCommand {
     public Aggregate(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, AGGREGATE_PIPELINE)) {
-            this.pipeline = (String) pluginSpecifiedTemplates.get(AGGREGATE_PIPELINE).getValue();
+        if (validConfigurationPresentInFormData(formData, AGGREGATE_PIPELINE)) {
+            this.pipeline = (String) getValueSafelyFromFormData(formData, AGGREGATE_PIPELINE);
         }
     }
 
@@ -56,14 +57,14 @@ public class Aggregate extends MongoCommand {
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.pipeline);
         if (dataType.equals(DataType.ARRAY)) {
             try {
-                List arrayListFromInput = objectMapper.readValue(this.pipeline, List.class);
+                BsonArray arrayListFromInput = BsonArray.parse(this.pipeline);
                 if (arrayListFromInput.isEmpty()) {
                     commandDocument.put("pipeline", "[]");
                 } else {
                     commandDocument.put("pipeline", arrayListFromInput);
                 }
-            } catch (IOException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Array of Pipelines could not be parsed into expected JSON Array format.");
+            } catch (JsonParseException e) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Array of Pipelines could not be parsed into expected Mongo BSON Array format.");
             }
         } else {
             // The command expects the pipelines to be sent in an array. Parse and create a single element array

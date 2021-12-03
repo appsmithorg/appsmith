@@ -1,5 +1,11 @@
 import { getPropertyControlTypes } from "components/propertyControls";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -35,6 +41,11 @@ export type PropertyPaneControlConfig = {
   dataTreePath?: string;
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
+  updateRelatedWidgetProperties?: (
+    propertyName: string,
+    propertyValue: any,
+    props: any,
+  ) => UpdateWidgetPropertyPayload[];
   updateHook?: (
     props: any,
     propertyName: string,
@@ -43,11 +54,47 @@ export type PropertyPaneControlConfig = {
   hidden?: (props: any, propertyPath: string) => boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
-  validation?: VALIDATION_TYPES;
+  validation?: ValidationConfig;
   useValidationMessage?: boolean;
   additionalAutoComplete?: (
     props: any,
   ) => Record<string, Record<string, unknown>>;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
+  dependencies?: string[];
+  expected?: CodeEditorExpected;
+};
+
+type ValidationConfigParams = {
+  min?: number; // min allowed for a number
+  max?: number; // max allowed for a number
+  natural?: boolean; // is a positive integer
+  default?: unknown; // default for any type
+  unique?: boolean | string[]; // unique in an array (string if a particular path is unique)
+  required?: boolean; // required type
+  regex?: RegExp; // validator regex for text type
+  allowedKeys?: Array<{
+    // Allowed keys in an object type
+    name: string;
+    type: ValidationTypes;
+    params?: ValidationConfigParams;
+  }>;
+  allowedValues?: unknown[]; // Allowed values in a string and array type
+  children?: ValidationConfig; // Children configurations in an ARRAY or OBJECT_ARRAY type
+  fn?: (
+    value: unknown,
+    props: any,
+    _?: any,
+    moment?: any,
+  ) => ValidationResponse; // Function in a FUNCTION type
+  fnString?: string; // AUTO GENERATED, SHOULD NOT BE SET BY WIDGET DEVELOPER
+  expected?: CodeEditorExpected; // FUNCTION type expected type and example
+  strict?: boolean; //for strict string validation of TEXT type
+  ignoreCase?: boolean; //to ignore the case of key
+};
+
+export type ValidationConfig = {
+  type: ValidationTypes;
+  params?: ValidationConfigParams;
 };
 
 export type PropertyPaneConfig =

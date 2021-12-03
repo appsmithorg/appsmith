@@ -1,0 +1,173 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+      nodejs: 14
+
+batch:
+  fail-fast: false
+
+  build-graph:
+
+    # Note: Do NOT use `-` in identifier values. There's pain on the other side of doing that.
+
+    # Run unit tests on client and server.
+    - identifier: client_unit_tests
+      buildspec: ci/1-client-unit-tests.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Run unit tests on client and server.
+    - identifier: server_unit_tests
+      buildspec: ci/1-server-unit-tests.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+        # This job doesn't build any Docker images, but the backend tests use Docker to bring up database containers, so
+        # we need the privileged mode for that.
+        privileged-mode: true
+      debug-session: true
+
+    # Run all Cypress tests.
+    - identifier: cypress01
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress02
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress03
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress04
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress05
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress06
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress07
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress08
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress09
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress10
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress11
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress12
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress13
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress14
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress15
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    - identifier: cypress16
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/2-cypress.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+      debug-session: true
+
+    # Publish
+    - identifier: publish
+      depend-on: [client_unit_tests, server_unit_tests]
+      buildspec: ci/3-publish.yml
+      env:
+        compute-type: BUILD_GENERAL1_MEDIUM
+        privileged-mode: true
+      debug-session: true
+      depend-on:
+        - cypress01
+        - cypress02
+        - cypress03
+        - cypress04
+        - cypress05
+        - cypress06
+        - cypress07
+        - cypress08
+        - cypress09
+        - cypress10
+        - cypress11
+        - cypress12
+        - cypress13
+        - cypress14
+        - cypress15
+        - cypress16

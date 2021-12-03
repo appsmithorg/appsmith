@@ -16,11 +16,12 @@ const Wrapper = styled.span<{
   background-color: ${(props) =>
     props.theme.colors.codeMirror.background.hoverState};
   position: absolute;
-  bottom: ${(props) => -props.bottomOffset}px;
+  bottom: ${(props) => props.bottomOffset}px;
+  transform: translateY(100%);
   width: 100%;
   line-height: 13px;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  z-index: 1;
+  z-index: 3;
 `;
 
 const CurlyBraces = styled.span`
@@ -35,17 +36,12 @@ function BindingPrompt(props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
   editorTheme?: EditorTheme;
+  showLightningMenu?: boolean;
 }): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
-  let bottomOffset = 30;
   const customMessage = !!props.promptMessage;
-  if (promptRef.current) {
-    const boundingRect = promptRef.current.getBoundingClientRect();
-    bottomOffset = boundingRect.height;
-  }
-  if (customMessage) {
-    bottomOffset = 36;
-  }
+  const bottomOffset = customMessage ? 6 : -2;
+
   return (
     <Wrapper
       bottomOffset={bottomOffset}
@@ -59,7 +55,13 @@ function BindingPrompt(props: {
         props.promptMessage
       ) : (
         <>
-          Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+          Type{" "}
+          <CurlyBraces>
+            {props.showLightningMenu === false ? "{{" : "/"}
+          </CurlyBraces>{" "}
+          {props.showLightningMenu === false
+            ? "to see a list of variables"
+            : "to access quick commands"}
         </>
       )}
     </Wrapper>

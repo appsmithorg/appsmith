@@ -5,9 +5,12 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+
+import { ValidationTypes } from "constants/WidgetValidation";
+
+// const WidgetTypes = WidgetFactory.widgetTypes;
 
 describe("generateDataTreeWidget", () => {
   beforeEach(() => {
@@ -59,7 +62,7 @@ describe("generateDataTreeWidget", () => {
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "placeholderText",
@@ -67,7 +70,7 @@ describe("generateDataTreeWidget", () => {
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "regex",
@@ -75,7 +78,7 @@ describe("generateDataTreeWidget", () => {
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.REGEX,
+            validation: { type: ValidationTypes.REGEX },
           },
           {
             propertyName: "errorMessage",
@@ -83,7 +86,7 @@ describe("generateDataTreeWidget", () => {
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -92,7 +95,7 @@ describe("generateDataTreeWidget", () => {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -101,7 +104,7 @@ describe("generateDataTreeWidget", () => {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -110,7 +113,7 @@ describe("generateDataTreeWidget", () => {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "resetOnSubmit",
@@ -119,12 +122,12 @@ describe("generateDataTreeWidget", () => {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             propertyName: "onTextChanged",
@@ -161,7 +164,7 @@ describe("generateDataTreeWidget", () => {
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
-      type: WidgetTypes.INPUT_WIDGET,
+      type: "INPUT_WIDGET",
       version: 0,
       widgetId: "123",
       widgetName: "Input1",
@@ -204,14 +207,14 @@ describe("generateDataTreeWidget", () => {
         onTextChanged: true,
       },
       validationPaths: {
-        defaultText: VALIDATION_TYPES.TEXT,
-        errorMessage: VALIDATION_TYPES.TEXT,
-        isDisabled: VALIDATION_TYPES.BOOLEAN,
-        isRequired: VALIDATION_TYPES.BOOLEAN,
-        isVisible: VALIDATION_TYPES.BOOLEAN,
-        placeholderText: VALIDATION_TYPES.TEXT,
-        regex: VALIDATION_TYPES.REGEX,
-        resetOnSubmit: VALIDATION_TYPES.BOOLEAN,
+        defaultText: { type: ValidationTypes.TEXT },
+        errorMessage: { type: ValidationTypes.TEXT },
+        isDisabled: { type: ValidationTypes.BOOLEAN },
+        isRequired: { type: ValidationTypes.BOOLEAN },
+        isVisible: { type: ValidationTypes.BOOLEAN },
+        placeholderText: { type: ValidationTypes.TEXT },
+        regex: { type: ValidationTypes.REGEX },
+        resetOnSubmit: { type: ValidationTypes.BOOLEAN },
       },
       dynamicBindingPathList: [
         {
@@ -221,6 +224,10 @@ describe("generateDataTreeWidget", () => {
           key: "value",
         },
       ],
+      logBlackList: {
+        isValid: true,
+        value: true,
+      },
       value: "{{Input1.text}}",
       isDirty: true,
       isFocused: false,
@@ -234,12 +241,16 @@ describe("generateDataTreeWidget", () => {
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
-      type: WidgetTypes.INPUT_WIDGET,
+      type: "INPUT_WIDGET",
       version: 0,
       widgetId: "123",
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       defaultText: "Testing",
+      defaultMetaProps: ["text", "isDirty", "isFocused"],
+      defaultProps: {
+        text: "defaultText",
+      },
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);

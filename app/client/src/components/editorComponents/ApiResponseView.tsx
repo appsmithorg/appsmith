@@ -1,7 +1,6 @@
-import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect } from "react-redux";
+import React, { useRef, RefObject, useCallback } from "react";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
@@ -12,10 +11,17 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import { useLocalStorage } from "utils/hooks/localstorage";
-import { CHECK_REQUEST_BODY, createMessage } from "constants/messages";
-import { TabComponent } from "components/ads/Tabs";
+import {
+  CHECK_REQUEST_BODY,
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  EMPTY_RESPONSE_FIRST_HALF,
+  EMPTY_RESPONSE_LAST_HALF,
+  INSPECT_ENTITY,
+} from "constants/messages";
 import Text, { TextType } from "components/ads/Text";
+import { Text as BlueprintText } from "@blueprintjs/core";
 import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -25,11 +31,21 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
+import EntityDeps from "./Debugger/EntityDependecies";
+import Button, { Size } from "components/ads/Button";
+import EntityBottomTabs from "./EntityBottomTabs";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { setCurrentTab } from "actions/debuggerActions";
+
+type TextStyleProps = {
+  accent: "primary" | "secondary" | "error";
+};
+export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
-  height: 60%;
+  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -62,8 +78,8 @@ const ResponseTabWrapper = styled.div`
   width: 100%;
 `;
 
-const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
-  height: calc(100% - 30px);
+const TabbedViewWrapper = styled.div`
+  height: 100%;
 
   &&& {
     ul.react-tabs__tab-list {
@@ -71,18 +87,11 @@ const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
     }
   }
 
-  ${(props) =>
-    props.isCentered
-      ? `
-    &&& {
-      .react-tabs__tab-panel {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+  & {
+    .react-tabs__tab-panel {
+      height: calc(100% - 32px);
     }
-    }
-  `
-      : null}
+  }
 `;
 
 const SectionDivider = styled.div`
@@ -102,7 +111,7 @@ const Flex = styled.div`
 `;
 
 const NoResponseContainer = styled.div`
-  height: 100%;
+  flex: 1;
   width: 100%;
   display: flex;
   align-items: center;
@@ -125,6 +134,26 @@ const FailedMessage = styled.div`
   display: flex;
   align-items: center;
   margin-left: 5px;
+
+  .api-debugcta {
+    margin-top: 0px;
+  }
+`;
+
+const StyledCallout = styled(Callout)`
+  .${Classes.TEXT} {
+    line-height: normal;
+  }
+`;
+
+const InlineButton = styled(Button)`
+  display: inline-flex;
+  margin: 0 4px;
+`;
+
+const HelpSection = styled.div`
+  padding-bottom: 5px;
+  padding-top: 10px;
 `;
 
 interface ReduxStateProps {
@@ -136,6 +165,7 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams> & {
     theme?: EditorTheme;
     apiName: string;
+    onRunClick: () => void;
   };
 
 export const EMPTY_RESPONSE: ActionResponse = {
@@ -157,6 +187,16 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
+const ResponseDataContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  & .CodeEditorTarget {
+    overflow: hidden;
+  }
+`;
+
 function ApiResponseView(props: Props) {
   const {
     match: {
@@ -173,84 +213,100 @@ function ApiResponseView(props: Props) {
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-
-  const [requestDebugVisible, setRequestDebugVisible] = useLocalStorage(
-    "requestDebugVisible",
-    "true",
-  );
+  const dispatch = useDispatch();
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
     });
-    setSelectedIndex(1);
+    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const onRunClick = () => {
+    props.onRunClick();
+    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
+      source: "API_PANE",
+    });
+  };
+
+  const messages = response?.messages;
+
   const tabs = [
     {
       key: "body",
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
-          {hasFailed && !isRunning && requestDebugVisible && (
-            <Callout
-              closeButton
+          {Array.isArray(messages) && messages.length > 0 && (
+            <HelpSection>
+              {messages.map((msg, i) => (
+                <Callout fill key={i} text={msg} variant={Variant.warning} />
+              ))}
+            </HelpSection>
+          )}
+          {hasFailed && !isRunning && (
+            <StyledCallout
               fill
               label={
                 <FailedMessage>
-                  <DebugButton onClick={onDebugClick} />
+                  <DebugButton
+                    className="api-debugcta"
+                    onClick={onDebugClick}
+                  />
                 </FailedMessage>
               }
-              onClose={() => setRequestDebugVisible(false)}
               text={createMessage(CHECK_REQUEST_BODY)}
               variant={Variant.danger}
             />
           )}
-          {_.isEmpty(response.statusCode) ? (
-            <NoResponseContainer>
-              <Icon name="no-response" />
-              <Text type={TextType.P1}>Hit Run to get a Response</Text>
-            </NoResponseContainer>
-          ) : (
-            <ReadOnlyEditor
-              folding
-              height={"100%"}
-              input={{
-                value: response.body
-                  ? JSON.stringify(response.body, null, 2)
-                  : "",
-              }}
-            />
-          )}
+          <ResponseDataContainer>
+            {_.isEmpty(response.statusCode) ? (
+              <NoResponseContainer>
+                <Icon name="no-response" />
+                <Text type={TextType.P1}>
+                  {EMPTY_RESPONSE_FIRST_HALF()}
+                  <InlineButton
+                    isLoading={isRunning}
+                    onClick={onRunClick}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                  {EMPTY_RESPONSE_LAST_HALF()}
+                </Text>
+              </NoResponseContainer>
+            ) : (
+              <ReadOnlyEditor
+                folding
+                height={"100%"}
+                input={{
+                  value: response.body
+                    ? JSON.stringify(response.body, null, 2)
+                    : "",
+                }}
+              />
+            )}
+          </ResponseDataContainer>
         </ResponseTabWrapper>
       ),
     },
     {
-      key: "ERROR",
-      title: "Errors",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+      title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
-      title: "Logs",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+      title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
+    {
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
+      title: createMessage(INSPECT_ENTITY),
+      panelComponent: <EntityDeps />,
+    },
   ];
-
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(tabs[index].key) &&
-      debuggerTabKeys.includes(tabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: tabs[index].key,
-      });
-    }
-
-    setSelectedIndex(index);
-  };
 
   return (
     <ResponseContainer ref={panelRef}>
@@ -261,9 +317,7 @@ function ApiResponseView(props: Props) {
           Sending Request
         </LoadingOverlayScreen>
       )}
-      <TabbedViewWrapper
-        isCentered={_.isEmpty(response.body) && selectedIndex === 0}
-      >
+      <TabbedViewWrapper>
         {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
@@ -305,11 +359,7 @@ function ApiResponseView(props: Props) {
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <TabComponent
-          onSelect={onTabSelect}
-          selectedIndex={selectedIndex}
-          tabs={tabs}
-        />
+        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
       </TabbedViewWrapper>
     </ResponseContainer>
   );

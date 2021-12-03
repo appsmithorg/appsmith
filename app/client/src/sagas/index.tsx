@@ -1,72 +1,90 @@
 import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
-import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecutionSagas";
+import { watchJSActionSagas } from "./JSActionSagas";
+import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import applicationSagas from "./ApplicationSagas";
 import { watchDatasourcesSagas } from "./DatasourcesSagas";
 import initSagas from "./InitSagas";
 import apiPaneSagas from "./ApiPaneSagas";
+import jsPaneSagas from "./JSPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
 import orgSagas from "./OrgSagas";
 import importedCollectionsSagas from "./CollectionSagas";
 import providersSagas from "./ProvidersSaga";
 import curlImportSagas from "./CurlImportSagas";
+import snipingModeSagas from "./SnipingModeSagas";
 import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./EvaluationsSaga";
-import onboardingSaga from "./OnboardingSagas";
+import onboardingSagas from "./OnboardingSagas";
 import utilSagas from "./UtilSagas";
 import saaSPaneSagas from "./SaaSPaneSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
 import commentSagas from "./CommentSagas";
-import websocketSagas from "./WebsocketSagas";
+import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
+import notificationsSagas from "./NotificationsSagas";
+import selectionCanvasSagas from "./SelectionCanvasSagas";
+import replaySaga from "./ReplaySaga";
+import draggingCanvasSagas from "./DraggingCanvasSagas";
+import gitSyncSagas from "./GitSyncSagas";
+
 import log from "loglevel";
 import * as sentry from "@sentry/react";
-
+import formEvaluationChangeListener from "./FormEvaluationSaga";
+import SuperUserSagas from "./SuperUserSagas";
 const sagas = [
   initSagas,
   pageSagas,
-  fetchWidgetCardsSaga,
   watchActionSagas,
+  watchJSActionSagas,
   watchActionExecutionSagas,
+  watchPluginActionExecutionSagas,
   widgetOperationSagas,
   errorSagas,
   watchDatasourcesSagas,
   applicationSagas,
   apiPaneSagas,
+  jsPaneSagas,
   userSagas,
   pluginSagas,
   orgSagas,
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,
+  snipingModeSagas,
   queryPaneSagas,
   modalSagas,
   batchSagas,
   themeSagas,
   evaluationsSaga,
-  onboardingSaga,
+  onboardingSagas,
   actionExecutionChangeListeners,
+  formEvaluationChangeListener,
   utilSagas,
-  saaSPaneSagas,
   globalSearchSagas,
   recentEntitiesSagas,
   commentSagas,
   websocketSagas,
   debuggerSagas,
-  utilSagas,
   saaSPaneSagas,
   tourSagas,
+  notificationsSagas,
+  selectionCanvasSagas,
+  replaySaga,
+  draggingCanvasSagas,
+  gitSyncSagas,
+  SuperUserSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

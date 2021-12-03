@@ -16,6 +16,7 @@ import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "components/ads/Toast";
 import localStorage from "utils/localStorage";
+import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
@@ -26,11 +27,7 @@ import AppErrorBoundary from "./AppErrorBoundry";
 import GlobalStyles from "globalStyles";
 appInitializer();
 
-import useRemoveSignUpCompleteParam from "utils/hooks/useRemoveSignUpCompleteParam";
-
 function App() {
-  useRemoveSignUpCompleteParam();
-
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>

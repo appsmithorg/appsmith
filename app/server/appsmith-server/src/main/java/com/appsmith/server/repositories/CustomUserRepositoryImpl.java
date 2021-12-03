@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 @Slf4j
@@ -38,4 +39,18 @@ public class CustomUserRepositoryImpl extends BaseAppsmithRepositoryImpl<User> i
         query.addCriteria(emailCriteria);
         return mongoOperations.findOne(query, User.class);
     }
+
+    /**
+     * Fetch minmal information from *a* user document in the database, and if found, return `true`, if empty, return `false`.
+     * @return Boolean, indicated where there exists at least one user in the system or not.
+     */
+    @Override
+    public Mono<Boolean> isUsersEmpty() {
+        final Query q = query(new Criteria());
+        q.fields().include(fieldName(QUser.user.email));
+        return mongoOperations.findOne(q, User.class)
+                .map(ignored -> false)
+                .defaultIfEmpty(true);
+    }
+
 }

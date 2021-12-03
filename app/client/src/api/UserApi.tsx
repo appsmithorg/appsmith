@@ -1,6 +1,7 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
+import { CommentsOnboardingState } from "../constants/userConstants";
 
 export interface LoginUserRequest {
   email: string;
@@ -40,6 +41,10 @@ export interface FetchUserRequest {
   id: string;
 }
 
+export interface LeaveOrgRequest {
+  orgId: string;
+}
+
 export interface InviteUserRequest {
   email: string;
   groupIds: string[];
@@ -49,6 +54,25 @@ export interface InviteUserRequest {
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
+  role?: string;
+  useCase?: string;
+}
+
+export interface CommentsOnboardingStateRequest {
+  commentOnboardingState: CommentsOnboardingState;
+}
+
+export interface CreateSuperUserRequest {
+  email: string;
+  name: string;
+  source: "FORM";
+  state: "ACTIVATED";
+  isEnabled: boolean;
+  password: string;
+  role: "Developer";
+  companyName: string;
+  allowCollectingAnonymousData: boolean;
+  signupForNewsletter: boolean;
 }
 
 class UserApi extends Api {
@@ -60,9 +84,17 @@ class UserApi extends Api {
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
   static addOrgURL = `${UserApi.usersURL}/addOrganization`;
+  static leaveOrgURL = `${UserApi.usersURL}/leaveOrganization`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
+  static featureFlagsURL = "v1/users/features";
+  static superUserURL = "v1/users/super";
+  static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
+  static adminSettingsURL = "v1/admin/env";
+  static restartServerURL = "v1/admin/restart";
+  static downloadConfigURL = "v1/admin/env/download";
+  static sendTestEmailURL = "/v1/admin/send-test-email";
 
   static createUser(
     request: CreateUserRequest,
@@ -120,7 +152,14 @@ class UserApi extends Api {
     return Api.post(UserApi.logoutURL);
   }
 
-  static uploadPhoto(request: { file: File }): AxiosPromise<ApiResponse> {
+  static uploadPhoto(request: {
+    file: File;
+  }): AxiosPromise<{
+    id: string;
+    new: boolean;
+    profilePhotoAssetId: string;
+    recentlyUsedOrgIds: string[];
+  }> {
     const formData = new FormData();
     if (request.file) {
       formData.append("file", request.file);
@@ -135,6 +174,48 @@ class UserApi extends Api {
 
   static deletePhoto(): AxiosPromise<ApiResponse> {
     return Api.delete(UserApi.photoURL);
+  }
+
+  static leaveOrg(request: LeaveOrgRequest): AxiosPromise<LeaveOrgRequest> {
+    return Api.put(UserApi.leaveOrgURL + "/" + request.orgId);
+  }
+
+  static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.featureFlagsURL);
+  }
+
+  static createSuperUser(
+    request: CreateSuperUserRequest,
+  ): AxiosPromise<CreateUserResponse> {
+    return Api.post(UserApi.superUserURL, request);
+  }
+
+  static updateUsersCommentOnboardingState(
+    request: CommentsOnboardingStateRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.patch(UserApi.commentsOnboardingStateURL, request);
+  }
+
+  /*
+   * Super user endpoints
+   */
+
+  static fetchAdminSettings(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.adminSettingsURL);
+  }
+
+  static saveAdminSettings(
+    request: Record<string, string>,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(UserApi.adminSettingsURL, request);
+  }
+
+  static restartServer(): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.restartServerURL);
+  }
+
+  static sendTestEmail(): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.sendTestEmailURL);
   }
 }
 

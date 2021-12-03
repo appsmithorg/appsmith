@@ -7,7 +7,7 @@ const useIsScrolledToBottom = (
   ref: React.RefObject<HTMLDivElement | null>,
   deps: any[] = [],
 ) => {
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
   useEffect(() => {
     const calculateIsScrolledToBottom = (e: any) => {
       if (!e.target) return;

@@ -1,0 +1,1 @@
+export const MY_CHECKBOXGROUP_WIDGET_CONSTANT = "";

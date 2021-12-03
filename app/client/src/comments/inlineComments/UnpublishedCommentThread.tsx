@@ -1,23 +1,36 @@
 import React from "react";
-import { Popover, Position } from "@blueprintjs/core";
 import AddCommentInput from "./AddCommentInput";
 import { ThreadContainer } from "./StyledComponents";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { get } from "lodash";
 import {
   createCommentThreadRequest as createCommentThreadAction,
   removeUnpublishedCommentThreads,
+  updateUnpublishedThreadDraftComment,
 } from "actions/commentActions";
 import Icon from "components/ads/Icon";
-import { RawDraftContentState } from "draft-js";
+import { EditorState, RawDraftContentState } from "draft-js";
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
-const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
-  position: absolute;
-  bottom: calc(${(props) => 100 - props.top}% - 2px);
-  right: calc(${(props) => 100 - props.left}% - 2px);
+import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
+import { Popover2 } from "@blueprintjs/popover2";
+import { getUnpublishedThreadDraftComment } from "selectors/commentsSelectors";
 
+const Container = document.getElementById("root");
+
+const CommentTriggerContainer = styled.div<{
+  top?: number;
+  left?: number;
+  leftPercent: number;
+  topPercent: number;
+  positionAbsolutely: boolean;
+  xOffset: number;
+  yOffset: number;
+}>`
+  position: absolute;
+  ${(props) => getPosition(props)}
+  z-index: 1;
   & svg {
     width: 30px;
     height: 30px;
@@ -33,18 +46,34 @@ function UnpublishedCommentThread({
 }: {
   commentThread: CommentThread;
 }) {
-  const { left, top } = get(commentThread, "position", {
-    top: 0,
-    left: 0,
-  });
+  const { left, leftPercent, top, topPercent } = get(
+    commentThread,
+    "position",
+    {
+      left: 0,
+      leftPercent: 0,
+      top: 0,
+      topPercent: 0,
+    },
+  );
   const dispatch = useDispatch();
-  const onClosing = () => {
-    dispatch(removeUnpublishedCommentThreads());
+  const onClosing = (shouldPersistComment?: boolean) => {
+    dispatch(removeUnpublishedCommentThreads(shouldPersistComment));
+  };
+
+  const onChange = (editorState: EditorState) => {
+    dispatch(updateUnpublishedThreadDraftComment(editorState));
   };
 
   const createCommentThread = (text: RawDraftContentState) => {
     dispatch(createCommentThreadAction({ commentBody: text, commentThread }));
   };
+
+  const unpublishedThreadDraftComment = useSelector(
+    getUnpublishedThreadDraftComment,
+  );
+
+  const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
 
   return (
     <div
@@ -56,36 +85,56 @@ function UnpublishedCommentThread({
         e.stopPropagation();
       }}
     >
-      <CommentTriggerContainer left={left} top={top}>
-        <Popover
-          autoFocus
-          boundary="viewport"
+      <CommentTriggerContainer
+        left={left}
+        leftPercent={leftPercent}
+        positionAbsolutely={positionAbsolutely}
+        top={top}
+        topPercent={topPercent}
+        xOffset={2}
+        yOffset={1}
+      >
+        <Popover2
+          autoFocus={false}
+          boundary={Container as HTMLDivElement}
           canEscapeKeyClose
+          content={
+            <ThreadContainer tabIndex={0}>
+              <AddCommentInput
+                initialEditorState={unpublishedThreadDraftComment}
+                onCancel={onClosing}
+                onChange={onChange}
+                onSave={createCommentThread}
+              />
+            </ThreadContainer>
+          }
+          enforceFocus={false}
           hasBackdrop
           isOpen
           minimal
           modifiers={{
             offset: {
               enabled: true,
-              offset: "-8, 10",
+              options: {
+                offset: [-8, 10],
+              },
             },
           }}
-          onInteraction={(nextOpenState) => {
+          onInteraction={(
+            nextOpenState,
+            e?: React.SyntheticEvent<HTMLElement>,
+          ) => {
             if (!nextOpenState) {
-              onClosing();
+              const shouldPersistComment = e?.type === "mousedown";
+              onClosing(shouldPersistComment);
             }
           }}
+          placement={"right-start"}
           popoverClassName="comment-thread"
-          position={Position.RIGHT_TOP}
+          portalClassName="inline-comment-thread"
         >
           <Icon keepColors name="unread-pin" />
-          <ThreadContainer tabIndex={0}>
-            <AddCommentInput
-              onCancel={onClosing}
-              onSave={createCommentThread}
-            />
-          </ThreadContainer>
-        </Popover>
+        </Popover2>
       </CommentTriggerContainer>
     </div>
   );

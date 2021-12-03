@@ -1,234 +1,321 @@
 {
-    "dsl": {
-      "widgetName": "MainContainer",
-      "backgroundColor": "none",
-      "rightColumn": 1224,
-      "snapColumns": 16,
-      "detachFromLayout": true,
-      "widgetId": "0",
-      "topRow": 0,
-      "bottomRow": 1254,
-      "containerStyle": "none",
-      "snapRows": 33,
-      "parentRowSpace": 1,
-      "type": "CANVAS_WIDGET",
-      "canExtend": true,
-      "dynamicBindingPathList": [],
-      "version": 4,
-      "minHeight": 1292,
-      "parentColumnSpace": 1,
-      "leftColumn": 0,
-      "children": [
-        {
-          "backgroundColor": "#FFFFFF",
-          "widgetName": "Container3",
-          "type": "CONTAINER_WIDGET",
-          "containerStyle": "card",
-          "isVisible": true,
-          "isLoading": false,
-          "parentColumnSpace": 75.25,
-          "parentRowSpace": 38,
-          "dynamicBindingPathList": [],
-          "leftColumn": 0,
-          "rightColumn": 15,
-          "topRow": 0,
-          "bottomRow": 20,
-          "snapColumns": 16,
-          "orientation": "VERTICAL",
-          "children": [
-            {
-              "backgroundColor": "transparent",
-              "widgetName": "7hf8kkvvgv",
-              "type": "CANVAS_WIDGET",
-              "containerStyle": "none",
-              "isVisible": true,
-              "isLoading": false,
-              "parentColumnSpace": 1,
-              "parentRowSpace": 1,
-              "leftColumn": 0,
-              "rightColumn": 1204,
-              "topRow": 0,
-              "bottomRow": 532,
-              "snapColumns": 16,
-              "orientation": "VERTICAL",
-              "children": [
-                {
-                  "isVisible": true,
-                  "inputType": "TEXT",
-                  "label": "",
-                  "widgetName": "Input1",
-                  "type": "INPUT_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 71.75,
-                  "parentRowSpace": 38,
-                  "leftColumn": 0,
-                  "rightColumn": 5,
-                  "topRow": 1,
-                  "bottomRow": 2,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "i9cuq42zmc"
-                },
-                {
-                  "isVisible": true,
-                  "label": "",
-                  "selectionType": "SINGLE_SELECT",
-                  "options": "",
-                  "widgetName": "Dropdown1",
-                  "type": "DROP_DOWN_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 71.75,
-                  "parentRowSpace": 38,
-                  "leftColumn": 10,
-                  "rightColumn": 15,
-                  "topRow": 1,
-                  "bottomRow": 2,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "nl5sy9cuaa",
-                  "dynamicBindingPathList": []
-                },
-                {
-                  "isVisible": true,
-                  "text": "Submit",
-                  "buttonStyle": "PRIMARY_BUTTON",
-                  "widgetName": "Button1",
-                  "isDisabled": false,
-                  "isDefaultClickDisabled": true,
-                  "type": "BUTTON_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 71.75,
-                  "parentRowSpace": 38,
-                  "leftColumn": 1,
-                  "rightColumn": 3,
-                  "topRow": 4,
-                  "bottomRow": 5,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "gn6ug210ef",
-                  "dynamicBindingPathList": []
-                },
-                {
-                  "isVisible": true,
-                  "label": "Label",
-                  "defaultCheckedState": true,
-                  "widgetName": "Checkbox1",
-                  "type": "CHECKBOX_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 71.75,
-                  "parentRowSpace": 38,
-                  "leftColumn": 10,
-                  "rightColumn": 13,
-                  "topRow": 4,
-                  "bottomRow": 5,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "szjhneuog5"
-                },
-                {
-                  "isVisible": true,
-                  "label": "Switch",
-                  "defaultSwitchState": true,
-                  "widgetName": "Switch1",
-                  "type": "SWITCH_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 71.75,
-                  "parentRowSpace": 38,
-                  "leftColumn": 10,
-                  "rightColumn": 13,
-                  "topRow": 18,
-                  "bottomRow": 19,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "szjhneuog9"
-                },
-                {
-                  "isVisible": true,
-                  "label": "",
-                  "options": [
-                    {
-                      "label":"Male",
-                      "value":"M"
-                    },
-                    {
-                      "label":"Female",
-                      "value":"F"
-                    }
-                  ],
-                  "defaultOptionValue": "1",
-                  "widgetName": "RadioGroup1",
-                  "type": "RADIO_GROUP_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 71.75,
-                  "parentRowSpace": 38,
-                  "leftColumn": 0,
-                  "rightColumn": 3,
-                  "topRow": 7,
-                  "bottomRow": 9,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "nb2usgp3hv"
-                },
-                {
-                  "isVisible": true,
-                  "isDisabled": false,
-                  "datePickerType": "DATE_PICKER",
-                  "label": "",
-                  "dateFormat": "DD/MM/YYYY",
-                  "widgetName": "DatePicker1",
-                  "defaultDate": "2020-06-03T12:05:44.699+05:30",
-                  "type": "DATE_PICKER_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 71.75,
-                  "parentRowSpace": 38,
-                  "leftColumn": 10,
-                  "rightColumn": 15,
-                  "topRow": 7,
-                  "bottomRow": 8,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "kyrvcdcm4e",
-                  "dynamicTriggerPathList": [{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1254,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "dynamicBindingPathList": [],
+    "version": 4,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "leftColumn": 0,
+    "children": [
+      {
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container3",
+        "type": "CONTAINER_WIDGET",
+        "containerStyle": "card",
+        "isVisible": true,
+        "isLoading": false,
+        "parentColumnSpace": 75.25,
+        "parentRowSpace": 38,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "rightColumn": 15,
+        "topRow": 0,
+        "bottomRow": 20,
+        "snapColumns": 16,
+        "orientation": "VERTICAL",
+        "children": [
+          {
+            "backgroundColor": "transparent",
+            "widgetName": "7hf8kkvvgv",
+            "type": "CANVAS_WIDGET",
+            "containerStyle": "none",
+            "isVisible": true,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "parentRowSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 1204,
+            "topRow": 0,
+            "bottomRow": 532,
+            "snapColumns": 16,
+            "orientation": "VERTICAL",
+            "children": [
+              {
+                "isVisible": true,
+                "inputType": "TEXT",
+                "label": "",
+                "iconAlign": "left",
+                "widgetName": "Input1",
+                "type": "INPUT_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 0,
+                "rightColumn": 5,
+                "topRow": 1,
+                "bottomRow": 2,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "i9cuq42zmc"
+              },
+              {
+                "isVisible": true,
+                "label": "",
+                "selectionType": "SINGLE_SELECT",
+                "options": "",
+                "widgetName": "Dropdown1",
+                "type": "DROP_DOWN_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 10,
+                "rightColumn": 15,
+                "topRow": 1,
+                "bottomRow": 2,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "nl5sy9cuaa",
+                "dynamicBindingPathList": []
+              },
+              {
+                "isRequired": false,
+                "widgetName": "MultiSelect1",
+                "widgetId": "zd37fz90fe",
+                "topRow": 12,
+                "bottomRow": 16,
+                "parentRowSpace": 10,
+                "rightColumn": 15,
+                "isVisible": true,
+                "label": "",
+                "type": "MULTI_SELECT_WIDGET",
+                "parentId": "zizrooqfps",
+                "isLoading": false,
+                "defaultOptionValue": [
+                  "First",
+                  "Seventh"
+                ],
+                "parentColumnSpace": 71.75,
+                "leftColumn": 10,
+                "options": [
+                  {
+                    "label": "Hashirama Senju",
+                    "value": "First"
+                  },
+                  {
+                    "label": "Tobirama Senju",
+                    "value": "Second"
+                  },
+                  {
+                    "label": "Hiruzen Sarutobi",
+                    "value": "Third"
+                  },
+                  {
+                    "label": "Minato Namikaze",
+                    "value": "Fourth"
+                  },
+                  {
+                    "label": "Tsunade Senju",
+                    "value": "Fifth"
+                  },
+                  {
+                    "label": "Kakashi Hatake",
+                    "value": "Sixth"
+                  },
+                  {
+                    "label": "Naruto Uzumaki",
+                    "value": "Seventh"
+                  }
+                ],
+                "placeholderText": "select option(s)",
+                "isDisabled": false
+              },
+              {
+                "isVisible": true,
+                "text": "Submit",
+                "buttonStyle": "PRIMARY_BUTTON",
+                "widgetName": "Button1",
+                "isDisabled": false,
+                "isDefaultClickDisabled": true,
+                "type": "BUTTON_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 1,
+                "rightColumn": 3,
+                "topRow": 4,
+                "bottomRow": 5,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "gn6ug210ef",
+                "dynamicBindingPathList": []
+              },
+              {
+                "isVisible": true,
+                "label": "Label",
+                "defaultCheckedState": true,
+                "widgetName": "Checkbox1",
+                "type": "CHECKBOX_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 10,
+                "rightColumn": 13,
+                "topRow": 4,
+                "bottomRow": 5,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "szjhneuog5"
+              },
+              {
+                "isVisible": true,
+                "label": "Switch",
+                "defaultSwitchState": true,
+                "widgetName": "Switch1",
+                "type": "SWITCH_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 10,
+                "rightColumn": 13,
+                "topRow": 18,
+                "bottomRow": 19,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "szjhneuog9"
+              },
+              {
+                "isVisible": true,
+                "label": "",
+                "options": [
+                  {
+                    "label": "Male",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Female",
+                    "value": "F"
+                  }
+                ],
+                "defaultOptionValue": "1",
+                "widgetName": "RadioGroup1",
+                "type": "RADIO_GROUP_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 0,
+                "rightColumn": 3,
+                "topRow": 7,
+                "bottomRow": 9,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "nb2usgp3hv"
+              },
+              {
+                "isVisible": true,
+                "isDisabled": false,
+                "datePickerType": "DATE_PICKER",
+                "label": "",
+                "dateFormat": "DD/MM/YYYY",
+                "widgetName": "DatePicker1",
+                "defaultDate": "2020-06-03T12:05:44.699+05:30",
+                "type": "DATE_PICKER_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 10,
+                "rightColumn": 15,
+                "topRow": 7,
+                "bottomRow": 8,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "kyrvcdcm4e",
+                "dynamicTriggerPathList": [
+                  {
                     "key": "onDateSelected"
-                  }],
-                  "onDateSelected": "{{showModal()}}"
-                },
-                {
-                  "isVisible": true,
-                  "files": [],
-                  "label": "Select Files",
-                  "widgetName": "FilePicker1",
-                  "isDefaultClickDisabled": true,
-                  "type": "FILE_PICKER_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 67.1171875,
-                  "parentRowSpace": 38,
-                  "leftColumn": 10,
-                  "rightColumn": 14,
-                  "topRow": 11,
-                  "bottomRow": 12,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "ca22py6vlv"
-                },
-                {
-                  "isVisible": true,
-                  "defaultText": "",
-                  "isDisabled": false,
-                  "widgetName": "RichTextEditor1",
-                  "isDefaultClickDisabled": true,
-                  "type": "RICH_TEXT_EDITOR_WIDGET",
-                  "isLoading": false,
-                  "parentColumnSpace": 67.1171875,
-                  "parentRowSpace": 38,
-                  "leftColumn": 0,
-                  "rightColumn": 8,
-                  "topRow": 11,
-                  "bottomRow": 16,
-                  "parentId": "e3tq9qwta6",
-                  "widgetId": "2uvezzlkn5",
-                  "dynamicBindingPathList": []
-                }
-              ],
-              "widgetId": "e3tq9qwta6",
-              "detachFromLayout": true,
-              "canExtend": false
-            }
-          ],
-          "widgetId": "jaftzrmtin"
-        }
-      ]
-    }
+                  }
+                ],
+                "onDateSelected": "{{showModal()}}"
+              },
+              {
+                "isVisible": true,
+                "files": [],
+                "label": "Select Files",
+                "widgetName": "FilePicker1",
+                "isDefaultClickDisabled": true,
+                "type": "FILE_PICKER_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 67.1171875,
+                "parentRowSpace": 38,
+                "leftColumn": 10,
+                "rightColumn": 14,
+                "topRow": 11,
+                "bottomRow": 12,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "ca22py6vlv"
+              },
+              {
+                "isVisible": true,
+                "defaultText": "",
+                "isDisabled": false,
+                "widgetName": "RichTextEditor1",
+                "isDefaultClickDisabled": true,
+                "type": "RICH_TEXT_EDITOR_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 67.1171875,
+                "parentRowSpace": 38,
+                "leftColumn": 0,
+                "rightColumn": 8,
+                "topRow": 11,
+                "bottomRow": 16,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "2uvezzlkn5",
+                "dynamicBindingPathList": []
+              },
+              {
+                "isVisible": true,
+                "options": [
+                  {
+                    "label": "Apple",
+                    "value": "apple"
+                  },
+                  {
+                    "label": "Orange",
+                    "value": "orange"
+                  },
+                  {
+                    "label": "Lemon",
+                    "value": "lemon"
+                  }
+                ],
+                "defaultSelectedValues": "apple",
+                "isDisabled": false,
+                "isRequired": false,
+                "widgetName": "CheckboxGroup1",
+                "version": 1,
+                "type": "CHECKBOX_GROUP_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 7.852001953124999,
+                "parentRowSpace": 10,
+                "leftColumn": 6,
+                "rightColumn": 18,
+                "topRow": 9,
+                "bottomRow": 17,
+                "parentId": "kipfh779n5",
+                "widgetId": "zbzrlbiose"
+              }
+            ],
+            "widgetId": "e3tq9qwta6",
+            "detachFromLayout": true,
+            "canExtend": false
+          }
+        ],
+        "widgetId": "jaftzrmtin"
+      }
+    ]
   }
+}

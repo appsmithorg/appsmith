@@ -70,8 +70,16 @@
               "value": "basic"
             },
             {
-              "label": "OAuth2 (Client credentials)",
+              "label": "OAuth 2.0",
               "value": "oAuth2"
+            },
+            {
+              "label": "API Key",
+              "value": "apiKey"
+            },
+            {
+              "label": "Bearer Token",
+              "value": "bearerToken"
             }
           ]
         },
@@ -159,6 +167,28 @@
               "value": false
             }
           ]
+        },
+        {
+          "label": "Audience(s)",
+          "configProperty": "datasourceConfiguration.authentication.audience",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Resource(s)",
+          "configProperty": "datasourceConfiguration.authentication.resource",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
         }
       ]
     }

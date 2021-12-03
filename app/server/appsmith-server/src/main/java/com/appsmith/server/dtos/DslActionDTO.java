@@ -4,6 +4,7 @@ import com.appsmith.server.domains.PluginType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 
 @Getter
 @Setter
+@ToString
 @EqualsAndHashCode
 public class DslActionDTO {
     String id;

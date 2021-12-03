@@ -1,10 +1,10 @@
 import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
-import { pageGroupIcon } from "../ExplorerIcons";
+import { pageGroupIcon, settingsIcon } from "../ExplorerIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
-import { useParams } from "react-router";
+import { useParams, useHistory } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
@@ -13,6 +13,18 @@ import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer"
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { PAGE_LIST_EDITOR_URL } from "constants/routes";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import {
+  ADD_PAGE_TOOLTIP,
+  createMessage,
+  PAGE_PROPERTIES_TOOLTIP,
+} from "constants/messages";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -22,6 +34,7 @@ type ExplorerPageGroupProps = {
   datasources: Record<string, Datasource[]>;
   plugins: Plugin[];
   showWidgetsSidebar: (pageId: string) => void;
+  jsActions: Record<string, JSCollectionData[]>;
 };
 
 const pageGroupEqualityCheck = (
@@ -31,14 +44,28 @@ const pageGroupEqualityCheck = (
   return (
     prev.widgets === next.widgets &&
     prev.actions === next.actions &&
+    prev.jsActions === next.jsActions &&
     prev.datasources === next.datasources &&
     prev.searchKeyword === next.searchKeyword
   );
 };
 
+const settingsIconWithTooltip = (
+  <TooltipComponent
+    boundary="viewport"
+    content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
+    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+    position={Position.BOTTOM}
+  >
+    {settingsIcon}
+  </TooltipComponent>
+);
+
 export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
@@ -52,12 +79,13 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
     const defaultPageLayouts = [
       { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
     ];
-    dispatch(createPage(params.applicationId, name, defaultPageLayouts));
-  }, [dispatch, pages, params.applicationId]);
+    dispatch(createPage(applicationId, name, defaultPageLayouts));
+  }, [dispatch, pages, applicationId]);
 
   const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
     const pageActions = props.actions[page.pageId] || [];
+    const pageJSActions = props.jsActions[page.pageId] || [];
     const datasources = props.datasources[page.pageId] || [];
     if (!pageWidgets && pageActions.length === 0 && datasources.length === 0)
       return null;
@@ -65,6 +93,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       <ExplorerPageEntity
         actions={pageActions}
         datasources={datasources}
+        jsActions={pageJSActions}
         key={page.pageId}
         page={page}
         plugins={props.plugins}
@@ -80,12 +109,22 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
 
   return (
     <Entity
+      action={() =>
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId))
+      }
+      addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
+      alwaysShowRightIcon
       className="group pages"
+      disabled
       entityId="Pages"
       icon={pageGroupIcon}
       isDefaultExpanded
       name="Pages"
+      onClickRightIcon={() => {
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
+      }}
       onCreate={createPageCallback}
+      rightIcon={settingsIconWithTooltip}
       searchKeyword={props.searchKeyword}
       step={props.step}
     >

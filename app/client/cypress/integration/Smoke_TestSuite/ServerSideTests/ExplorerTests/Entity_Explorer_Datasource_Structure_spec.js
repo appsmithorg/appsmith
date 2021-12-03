@@ -53,7 +53,7 @@ describe("Entity explorer datasource structure", function() {
     cy.get(explorer.templateMenuIcon)
       .first()
       .click({ force: true });
-    cy.get(".bp3-popover-content")
+    cy.get(".t--structure-template-menu-popover")
       .last()
       .contains("SELECT")
       .click({ force: true });
@@ -63,7 +63,8 @@ describe("Entity explorer datasource structure", function() {
       201,
     );
 
-    cy.get(queryEditor.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -72,14 +73,15 @@ describe("Entity explorer datasource structure", function() {
 
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
-    cy.get(queryEditor.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
 
-    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
     cy.deleteDatasource(datasourceName);
   });
@@ -102,7 +104,7 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
     const tableName = Math.random()
       .toString(36)
@@ -112,12 +114,7 @@ describe("Entity explorer datasource structure", function() {
       .focus()
       .type(`CREATE TABLE ${tableName} ( ID int );`);
 
-    cy.get(queryEditor.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.runQuery();
 
     cy.GlobalSearchEntity(datasourceName);
     cy.get("@datasourceEntityCollapse")
@@ -144,21 +141,16 @@ describe("Entity explorer datasource structure", function() {
       .then((editor) => {
         editor[0].CodeMirror.setValue(`DROP TABLE ${tableName}`);
         cy.WaitAutoSave();
-        cy.get(queryEditor.runQuery).click();
-        cy.wait("@postExecute").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-
-        cy.get(queryEditor.deleteQuery).click();
+        cy.runQuery();
+        cy.get(queryEditor.queryMoreAction).click();
+        cy.get(queryEditor.deleteUsingContext).click();
         cy.wait("@deleteAction").should(
           "have.nested.property",
           "response.body.responseMeta.status",
           200,
         );
 
-        cy.get(commonlocators.entityExplorersearch).clear();
+        cy.get(commonlocators.entityExplorersearch).clear({ force: true });
         cy.deleteDatasource(datasourceName);
       });
   });

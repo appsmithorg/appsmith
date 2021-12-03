@@ -12,7 +12,7 @@ describe("API Panel request body", function() {
     cy.contains(apiEditor.bodyTab).click();
     cy.contains(testdata.apiFormDataBodyType).click();
 
-    cy.xpath(apiwidget.formEncoded).should("be.visible");
+    cy.get(apiwidget.formEncoded).should("be.visible");
 
     cy.DeleteAPI();
   });

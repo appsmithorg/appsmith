@@ -1,12 +1,16 @@
 import Api from "api/Api";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
-import { WidgetProps } from "widgets/BaseWidget";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import { DSLWidget } from "widgets/constants";
+import {
+  ClonePageActionPayload,
+  CreatePageActionPayload,
+} from "actions/pageActions";
 
 export interface FetchPageRequest {
   id: string;
+  isFirstLoad?: boolean;
 }
 
 export interface FetchPublishedPageRequest {
@@ -15,14 +19,14 @@ export interface FetchPublishedPageRequest {
 }
 
 export interface SavePageRequest {
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: DSLWidget;
   layoutId: string;
   pageId: string;
 }
 
 export interface PageLayout {
   id: string;
-  dsl: Partial<ContainerWidgetProps<any>>;
+  dsl: Partial<DSLWidget>;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
 }
@@ -39,7 +43,7 @@ export type FetchPageResponse = ApiResponse & {
 export type FetchPublishedPageResponse = ApiResponse & {
   data: {
     id: string;
-    dsl: Partial<ContainerWidgetProps<any>>;
+    dsl: Partial<DSLWidget>;
     pageId: string;
   };
 };
@@ -48,7 +52,7 @@ export interface SavePageResponse extends ApiResponse {
   data: {
     id: string;
     layoutOnLoadActions: PageAction[][];
-    dsl: Partial<ContainerWidgetProps<any>>;
+    dsl: Partial<DSLWidget>;
     messages: string[];
     actionUpdates: Array<{
       executeOnLoad: boolean;
@@ -58,16 +62,21 @@ export interface SavePageResponse extends ApiResponse {
   };
 }
 
-export interface CreatePageRequest {
-  applicationId: string;
-  name: string;
-  layouts: Partial<PageLayout>[];
-}
+export type CreatePageRequest = Omit<
+  CreatePageActionPayload,
+  "blockNavigation"
+>;
 
 export interface UpdatePageRequest {
   id: string;
   name: string;
   isHidden?: boolean;
+}
+
+export interface SetPageOrderRequest {
+  order: number;
+  pageId: string;
+  applicationId: string;
 }
 
 export interface CreatePageResponse extends ApiResponse {
@@ -91,9 +100,7 @@ export interface DeletePageRequest {
   id: string;
 }
 
-export interface ClonePageRequest {
-  id: string;
-}
+export type ClonePageRequest = Omit<ClonePageActionPayload, "blockNavigation">;
 
 export interface UpdateWidgetNameRequest {
   pageId: string;
@@ -106,6 +113,26 @@ export interface UpdateWidgetNameResponse extends ApiResponse {
   data: PageLayout;
 }
 
+export interface GenerateTemplatePageRequest {
+  pageId: string;
+  tableName: string;
+  datasourceId: string;
+  applicationId: string;
+  columns?: string[];
+  searchColumn?: string;
+  mode?: string;
+  pluginSpecificParams?: Record<any, any>;
+}
+
+export type GenerateTemplatePageRequestResponse = ApiResponse & {
+  data: {
+    id: string;
+    name: string;
+    applicationId: string;
+    layouts: Array<PageLayout>;
+  };
+};
+
 class PageApi extends Api {
   static url = "v1/pages";
   static refactorLayoutURL = "v1/layouts/refactor";
@@ -114,12 +141,21 @@ class PageApi extends Api {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
   };
 
+  static getGenerateTemplateURL = (pageId?: string) => {
+    return `${PageApi.url}/crud-page${pageId ? `/${pageId}` : ""}`;
+  };
+
   static getPublishedPageURL = (pageId: string, bustCache?: boolean) => {
     const url = `v1/pages/${pageId}/view`;
     return !!bustCache ? url + "?v=" + +new Date() : url;
   };
 
   static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
+  static setPageOrderUrl = (
+    applicationId: string,
+    pageId: string,
+    order: number,
+  ) => `v1/applications/${applicationId}/page/${pageId}/reorder?order=${order}`;
 
   static fetchPage(
     pageRequest: FetchPageRequest,
@@ -164,6 +200,16 @@ class PageApi extends Api {
     return Api.put(PageApi.updatePageUrl(request.id), request);
   }
 
+  static generateTemplatePage(
+    request: GenerateTemplatePageRequest,
+  ): AxiosPromise<ApiResponse> {
+    if (request.pageId) {
+      return Api.put(PageApi.getGenerateTemplateURL(request.pageId), request);
+    } else {
+      return Api.post(PageApi.getGenerateTemplateURL(), request);
+    }
+  }
+
   static fetchPageList(
     applicationId: string,
   ): AxiosPromise<FetchPageListResponse> {
@@ -188,6 +234,18 @@ class PageApi extends Api {
     request: UpdateWidgetNameRequest,
   ): AxiosPromise<UpdateWidgetNameResponse> {
     return Api.put(PageApi.refactorLayoutURL, request);
+  }
+
+  static setPageOrder(
+    request: SetPageOrderRequest,
+  ): AxiosPromise<FetchPageListResponse> {
+    return Api.put(
+      PageApi.setPageOrderUrl(
+        request.applicationId,
+        request.pageId,
+        request.order,
+      ),
+    );
   }
 }
 

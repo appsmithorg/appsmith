@@ -1,0 +1,128 @@
+{
+   "dsl":{
+      "widgetName":"MainContainer",
+      "backgroundColor":"none",
+      "rightColumn":1034.3999999999999,
+      "snapColumns":64,
+      "detachFromLayout":true,
+      "widgetId":"0",
+      "topRow":0,
+      "bottomRow":1990,
+      "containerStyle":"none",
+      "snapRows":125,
+      "parentRowSpace":1,
+      "type":"CANVAS_WIDGET",
+      "canExtend":true,
+      "version":38,
+      "minHeight":2000,
+      "parentColumnSpace":1,
+      "dynamicTriggerPathList":[],
+      "dynamicBindingPathList":[],
+      "leftColumn":0,
+      "children":[
+         {
+            "widgetName":"MultiSelectTree1",
+            "displayName":"Multi TreeSelect",
+            "iconSVG":"/static/media/icon.f264210c.svg",
+            "labelText":"Label",
+            "topRow":38,
+            "bottomRow":44.88,
+            "parentRowSpace":10,
+            "type":"MULTI_SELECT_TREE_WIDGET",
+            "hideCard":false,
+            "mode":"SHOW_ALL",
+            "defaultOptionValue":[],
+            "parentColumnSpace":15.974999999999998,
+            "leftColumn":18,
+            "options":[
+               {
+                  "label":"Blue",
+                  "value":"BLUE",
+                  "children":[
+                     {
+                        "label":"Dark Blue",
+                        "value":"DARK BLUE"
+                     },
+                     {
+                        "label":"Light Blue",
+                        "value":"LIGHT BLUE"
+                     }
+                  ]
+               },
+               {
+                  "label":"Green",
+                  "value":"GREEN"
+               },
+               {
+                  "label":"Red",
+                  "value":"RED"
+               }
+            ],
+            "placeholderText":"select option(s)",
+            "isDisabled":false,
+            "key":"1zu067mn51",
+            "isRequired":false,
+            "rightColumn":34,
+            "widgetId":"zvm3vcs5gp",
+            "isVisible":true,
+            "version":1,
+            "expandAll":false,
+            "parentId":"0",
+            "renderMode":"CANVAS",
+            "isLoading":false,
+            "allowClear":false
+         },
+         {
+            "widgetName":"SingleSelectTree1",
+            "displayName":"TreeSelect",
+            "iconSVG":"/static/media/icon.f815ebe3.svg",
+            "labelText":"Label",
+            "topRow":58,
+            "bottomRow":64.8,
+            "parentRowSpace":10,
+            "type":"SINGLE_SELECT_TREE_WIDGET",
+            "hideCard":false,
+            "defaultOptionValue":"BLUE",
+            "parentColumnSpace":15.974999999999998,
+            "leftColumn":17,
+            "options":[
+               {
+                  "label":"Blue",
+                  "value":"BLUE",
+                  "children":[
+                     {
+                        "label":"Dark Blue",
+                        "value":"DARK BLUE"
+                     },
+                     {
+                        "label":"Light Blue",
+                        "value":"LIGHT BLUE"
+                     }
+                  ]
+               },
+               {
+                  "label":"Green",
+                  "value":"GREEN"
+               },
+               {
+                  "label":"Red",
+                  "value":"RED"
+               }
+            ],
+            "placeholderText":"select option",
+            "isDisabled":false,
+            "key":"cul8w70bzs",
+            "isRequired":false,
+            "rightColumn":33,
+            "widgetId":"0zloh94nd4",
+            "isVisible":true,
+            "version":1,
+            "expandAll":false,
+            "parentId":"0",
+            "renderMode":"CANVAS",
+            "isLoading":false,
+            "allowClear":false
+         }
+      ]
+   }
+}

@@ -3,7 +3,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {
@@ -28,7 +27,7 @@ describe("Table Widget Functionality", function() {
     //   .click({ force: true })
     //   .get(commonlocators.dropdownmenu)
     //   .children()
-    //   .contains("Navigate To")
+    //   .contains("Navigate to")
     //   .click();
     // cy.wait("@updateLayout");
     // cy.get(widgetsPage.tableOnRowSelected)
@@ -36,12 +35,9 @@ describe("Table Widget Functionality", function() {
     //   .first()
     //   .find("> .bp3-button-text")
     //   .should("have.text", "{{navigateTo()}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.PublishtheApp();
   });
 
   it("Table Widget Functionality To Verify The Data", function() {
-    cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -50,7 +46,6 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Table Widget Functionality To Show a Base64 Image", function() {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.editColumn("image");
     cy.changeColumnType("Image");
@@ -59,7 +54,7 @@ describe("Table Widget Functionality", function() {
     const index = 1;
     const imageVal = this.data.TableInput[index].image;
     cy.readTableLinkPublish(index, "1").then((hrefVal) => {
-      expect(hrefVal).to.be.equal(imageVal);
+      expect(hrefVal).to.contain(imageVal);
     });
   });
 
@@ -83,7 +78,9 @@ describe("Table Widget Functionality", function() {
       cy.wait(5000);
       cy.get(publish.searchInput)
         .first()
-        .clear()
+        .within(() => {
+          return cy.get("input").clear();
+        })
         .type("7434532");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
@@ -97,7 +94,9 @@ describe("Table Widget Functionality", function() {
   it("Table Widget Functionality To Filter The Data", function() {
     cy.get(publish.searchInput)
       .first()
-      .clear();
+      .within(() => {
+        return cy.get("input").clear();
+      });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.isSelectRow(1);
@@ -117,13 +116,14 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type(tabValue);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
+      // cy.get(widgetsPage.filterCloseBtn).click({force:true});
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -134,7 +134,8 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
+      cy.wait(500);
     });
   });
 
@@ -156,13 +157,13 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type("Lindsay");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -173,7 +174,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
@@ -195,13 +196,13 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type("Lindsay");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -212,7 +213,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
@@ -234,13 +235,13 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.inputValue).type("Ferguson");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -251,38 +252,83 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
-  it("Table Widget Functionality To Check Compact Mode", function() {
-    cy.isSelectRow(1);
+  it("Table Widget Functionality To Check if Table is Sortable", function() {
+    cy.openPropertyPane("tablewidget");
+    // Confirm if isSortable is true
+    cy.get(commonlocators.isSortable).should("be.checked");
+    // Publish App
+    cy.PublishtheApp();
+    // Confirm Current order
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
-      cy.log("the value is" + tabValue);
-      cy.get(publish.compactMode).click();
-      cy.get(publish.compactOpt)
-        .contains("Tall")
-        .click();
-      cy.scrollTabledataPublish("3", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).to.be.equal("Byron Fields");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Michael Lawson");
+    });
+    // Sort Username Column
+    cy.contains('[role="columnheader"]', "userName")
+      .first()
+      .click({
+        force: true,
       });
-      cy.get(publish.compactMode).click();
-      cy.get(publish.compactOpt)
-        .contains("Short")
-        .click();
-      cy.readTabledataPublish("4", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).to.be.equal("Ryan Holmes");
+    cy.wait(1000);
+    // Confirm order after sort
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Ryan Holmes");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Tobias Funke");
+    });
+    // Back to edit page
+    cy.get(publish.backToEditor).click({
+      force: true,
+    });
+
+    cy.openPropertyPane("tablewidget");
+    // Disable isSortable
+    // Confirm if isSortable is false
+    cy.togglebarDisable(commonlocators.isSortable);
+
+    // Publish App
+    cy.PublishtheApp();
+    // Confirm Current order
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Michael Lawson");
+    });
+    // Confirm Sort is disable on Username Column
+    cy.contains('[role="columnheader"]', "userName")
+      .first()
+      .click({
+        force: true,
       });
+    cy.wait(1000);
+    // Confirm order after sort
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).not.to.be.equal("Ryan Holmes");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).not.to.be.equal("Tobias Funke");
     });
   });
 
   /*
   To enabled later
-  
+
   it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
     cy.get(publish.backToEditor)
       .first()

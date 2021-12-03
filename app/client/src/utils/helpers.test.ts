@@ -1,4 +1,4 @@
-import { flattenObject } from "./helpers";
+import { flattenObject, getSubstringBetweenTwoWords } from "./helpers";
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
@@ -82,5 +82,25 @@ describe("flattenObject test", () => {
     tests.map((test) =>
       expect(flattenObject(test.input)).toStrictEqual(test.output),
     );
+  });
+});
+
+describe("#getSubstringBetweenTwoWords", () => {
+  it("returns substring between 2 words from a string", () => {
+    const input: [string, string, string][] = [
+      ["aaa.bbb.ccc", "aaa.", ".ccc"],
+      ["aaa.bbb.bbb.ccc", "aaa.", ".ccc"],
+      ["aaa.aaa.aaa.aaa", "aaa", "aaa"],
+      ["aaa...aaa.aaa.aaa", "aaa", "aaa"],
+      ["aaa..bbb", "aaa.", ".bbb"],
+      ["aaa.bbb", "aaa.", ".bbb"],
+      ["aaabbb", "aaab", "abbb"],
+    ];
+
+    const output = ["bbb", "bbb.bbb", ".aaa.aaa.", "...aaa.aaa.", "", "", ""];
+
+    input.forEach((inp, index) => {
+      expect(getSubstringBetweenTwoWords(...inp)).toBe(output[index]);
+    });
   });
 });

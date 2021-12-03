@@ -1,4 +1,5 @@
 const pages = require("../../../../locators/Pages.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 
 describe("Pages", function() {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
@@ -20,12 +21,13 @@ describe("Pages", function() {
     );
 
     // to check if apis are cloned
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Page1)").click({
-      multiple: true,
-    });
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(APIs)").click({
-      multiple: true,
-    });
+    cy.get(".t--entity-name:contains(Page1)")
+      .its("length")
+      .should("be.gt", 1);
+
+    cy.get(explorerLocators.addEntityAPI)
+      .last()
+      .click();
     cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 2);
   });
 

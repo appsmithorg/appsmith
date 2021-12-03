@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
 import reactor.core.publisher.Mono;
 
