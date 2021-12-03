@@ -62,7 +62,8 @@ export const hexToRgb = (
         b: -1,
       };
 };
-
+// Padding between PostionContainer and Widget
+export const WidgetContainerDiff = 8;
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
@@ -79,7 +80,7 @@ export const generateReactKey = ({
 
 export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
   if (!backgroundColor)
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].solid
+    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].primary
       .textColor;
   const isDark = tinycolor(backgroundColor).isDark();
   if (isDark) {
@@ -105,21 +106,21 @@ export const getCustomHoverColor = (
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
-        : theme.colors.button.primary.outline.hoverColor;
+        : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
-        : theme.colors.button.primary.ghost.hoverColor;
+        : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .darken(10)
             .toString()
-        : theme.colors.button.primary.solid.hoverColor;
+        : theme.colors.button.primary.primary.hoverColor;
   }
 };
 
@@ -139,4 +140,14 @@ export const getCustomBorderColor = (
   return buttonVariant === ButtonVariantTypes.SECONDARY
     ? backgroundColor
     : "none";
+};
+
+export const escapeSpecialChars = (stringifiedJSONObject: string) => {
+  return stringifiedJSONObject
+    .replace(/\\n/g, "\\\\n") // new line char
+    .replace(/\\b/g, "\\\\b") //
+    .replace(/\\t/g, "\\\\t") // tab
+    .replace(/\\f/g, "\\\\f") //
+    .replace(/\\/g, "\\\\") //
+    .replace(/\\r/g, "\\\\r"); //
 };

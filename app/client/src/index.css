@@ -28,7 +28,12 @@ div.bp3-select-popover .bp3-popover-content {
 }
 
 span.bp3-popover-target {
-  display: block;
+  display: flex;
+  width: 100%;
+}
+
+span.bp3-popover-target > * {
+  flex-grow: 1;
 }
 
 div.bp3-popover-arrow {
@@ -46,6 +51,7 @@ div.bp3-popover-arrow {
 .Toastify__toast {
   padding: 0 !important;
   border-radius: 4px !important;
+  box-shadow: none !important;
 }
 .Toastify__toast-body {
   margin: 0 !important;

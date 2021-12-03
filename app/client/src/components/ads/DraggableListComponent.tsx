@@ -12,6 +12,7 @@ type RenderComponentProps = {
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
 };
 
 interface DroppableComponentProps {
@@ -23,6 +24,7 @@ interface DroppableComponentProps {
   toggleVisibility?: (index: number) => void;
   updateItems: (items: Array<Record<string, unknown>>) => void;
   onEdit?: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
 }
 
 export class DroppableComponent extends React.Component<
@@ -46,6 +48,7 @@ export class DroppableComponent extends React.Component<
       id: item.id,
       label: item.label,
       isVisible: item.isVisible,
+      isDuplicateLabel: item.isDuplicateLabel,
     };
   }
 
@@ -60,11 +63,13 @@ export class DroppableComponent extends React.Component<
       onEdit,
       renderComponent,
       toggleVisibility,
+      updateFocus,
       updateOption,
     } = this.props;
 
     return renderComponent({
       deleteOption,
+      updateFocus,
       updateOption,
       toggleVisibility,
       onEdit,
