@@ -20,6 +20,10 @@ import {
   hideByColumnType,
   uniqueColumnNameValidation,
 } from "./propertyUtils";
+import {
+  createMessage,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+} from "constants/messages";
 
 export default [
   {
@@ -50,7 +54,7 @@ export default [
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
         dependencies: ["derivedColumns", "columnOrder"],
-        isBindProperty: true,
+        isBindProperty: false,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.FUNCTION,
@@ -819,6 +823,8 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
+                  defaultValue: ButtonVariantTypes.PRIMARY,
+
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
@@ -949,6 +955,7 @@ export default [
                   controlType: "COLOR_PICKER",
                   isBindProperty: false,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
                   defaultColor: Colors.GREEN,
@@ -1296,7 +1303,7 @@ export default [
                         ],
                       },
                       {
-                        sectionName: "Actions",
+                        sectionName: "Events",
                         children: [
                           {
                             helpText:
@@ -1397,8 +1404,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText:
-          "Bind the Table.pageSize and Table.pageNo property in your API and call it onPageChange. Without this the Table widget cannot calculate the number of pages and disable page buttons.",
+        helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
         propertyName: "totalRecordsCount",
         label: "Total Record Count",
         controlType: "INPUT_TEXT",
@@ -1457,7 +1463,7 @@ export default [
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a table row is selected",

@@ -7,7 +7,10 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -32,11 +35,13 @@ public class CustomUserDataRepositoryImpl extends BaseAppsmithRepositoryImpl<Use
     }
 
     @Override
-    public Mono<UpdateResult> removeOrgFromRecentlyUsedList(String userId, String organizationId) {
+    public Mono<UpdateResult> removeIdFromRecentlyUsedList(String userId, String organizationId, List<String> applicationIds) {
+        Update update = new Update().pull(fieldName(QUserData.userData.recentlyUsedOrgIds), organizationId);
+        if(!CollectionUtils.isEmpty(applicationIds)) {
+            update = update.pullAll(fieldName(QUserData.userData.recentlyUsedAppIds), applicationIds.toArray());
+        }
         return mongoOperations.updateFirst(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)),
-                new Update().pull(fieldName(QUserData.userData.recentlyUsedOrgIds), organizationId),
-                UserData.class
-                );
+                query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class
+        );
     }
 }
