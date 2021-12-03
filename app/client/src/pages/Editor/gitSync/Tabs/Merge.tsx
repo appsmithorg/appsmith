@@ -42,7 +42,7 @@ import ConflictInfo from "../components/ConflictInfo";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import { getShowRemoteSectionHeader } from "pages/Editor/gitSync/utils";
+import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 
 const Row = styled.div`
   display: flex;
@@ -74,43 +74,47 @@ export default function Merge() {
     value: DEFAULT_OPTION,
   });
 
+  /**
+   * Removes the current branch from the list
+   * Also filters the remote branches
+   */
   const branchList = useMemo(() => {
-    const branches: Array<string> = []; // string array to determine segment header position
-    const listOfBranches: DropdownOptions = [];
-    gitBranches.map((branchObj, index) => {
+    const branchOptions: DropdownOptions = [];
+    let index = 0;
+    while (true) {
+      if (index === gitBranches.length) break;
+      const branchObj = gitBranches[index];
+
       if (currentBranch !== branchObj.branchName) {
         if (!branchObj.default) {
-          listOfBranches.push({
+          branchOptions.push({
             label: branchObj.branchName,
             value: branchObj.branchName,
           });
-          branches.push(branchObj.branchName);
         } else {
-          listOfBranches.unshift({
+          branchOptions.unshift({
             label: branchObj.branchName,
             value: branchObj.branchName,
-          });
-          branches.unshift(branchObj.branchName);
-        }
-        branches.push(branchObj.branchName);
-        const insertRemoteBranchSectionHeader = getShowRemoteSectionHeader(
-          branches,
-          index,
-        );
-
-        if (insertRemoteBranchSectionHeader) {
-          listOfBranches.splice(listOfBranches.length - 1, 0, {
-            label: "Remote branches",
-            isSectionHeader: true,
           });
         }
       }
-    });
-    listOfBranches.unshift({
+
+      const nextBranchObj = gitBranches[index + 1];
+      if (
+        getIsStartingWithRemoteBranches(
+          branchObj.branchName,
+          nextBranchObj?.branchName,
+        )
+      )
+        break;
+
+      index++;
+    }
+    branchOptions.unshift({
       label: "Local branches",
       isSectionHeader: true,
     });
-    return listOfBranches;
+    return branchOptions;
   }, [gitBranches]);
 
   const currentBranchDropdownOption = {

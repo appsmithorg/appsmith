@@ -41,7 +41,7 @@ import Spinner from "components/ads/Spinner";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { isEllipsisActive } from "utils/helpers";
-import { getShowRemoteSectionHeader } from "pages/Editor/gitSync/utils";
+import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 
 import SegmentHeader from "components/ads/ListSegmentHeader";
 
@@ -498,9 +498,10 @@ export default function BranchList(props: {
             <SegmentHeader title={"Local branches"} />
             {filteredBranches.map((branch: string, index: number) => (
               <>
-                {getShowRemoteSectionHeader(filteredBranches, index) && (
-                  <SegmentHeader title={"Remote branches"} />
-                )}
+                {getIsStartingWithRemoteBranches(
+                  filteredBranches[index - 1],
+                  branch,
+                ) && <SegmentHeader title={"Remote branches"} />}
                 <BranchListItem
                   active={currentBranch === branch}
                   branch={branch}
