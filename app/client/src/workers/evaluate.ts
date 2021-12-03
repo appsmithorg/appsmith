@@ -287,8 +287,7 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
         }
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
+      self.IS_ASYNC = false;
     }
     return self.IS_ASYNC;
   })();
