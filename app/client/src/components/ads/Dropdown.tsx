@@ -92,6 +92,7 @@ export type DropdownProps = CommonComponentProps &
     hideSubText?: boolean;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
+    wrappedOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -455,6 +456,7 @@ function Option(props: {
   onClick: (option: DropdownOption) => void;
   selected: boolean;
   showLabelOnly?: boolean;
+  wrappedOption?: boolean;
 }) {
   const { option } = props;
   const targetRef = useRef<HTMLDivElement>(null);
@@ -478,7 +480,7 @@ function Option(props: {
       ) : null}
 
       {props.showLabelOnly ? (
-        isEllipsisActive(targetRef.current) ? (
+        props.wrappedOption && isEllipsisActive(targetRef.current) ? (
           <Tooltip
             boundary="window"
             content={option.label || ""}
@@ -494,7 +496,7 @@ function Option(props: {
           <Text type={TextType.H5}>{option.value}</Text>
           <Text type={TextType.P1}>{option.label}</Text>
         </LabelWrapper>
-      ) : isEllipsisActive(targetRef.current) ? (
+      ) : props.wrappedOption && isEllipsisActive(targetRef.current) ? (
         <Tooltip
           boundary="window"
           content={option.label || ""}
@@ -638,6 +640,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               option={option}
               selected={props.selected.value === option.value}
               showLabelOnly={props.showLabelOnly}
+              wrappedOption={props.wrappedOption}
             />
           ) : (
             <SegmentHeader
