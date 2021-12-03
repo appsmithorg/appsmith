@@ -1,4 +1,5 @@
 import * as React from "react";
+import { tw } from "twind";
 import styled from "styled-components";
 import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
 
@@ -9,33 +10,19 @@ import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
 } from "components/constants";
+import TooltipComponent from "components/ads/Tooltip";
 
-const StyledButtonGroup = styled(ButtonGroup)`
-  height: 33px;
-`;
-
-const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
-  border: ${(props) =>
-    props.active ? `1px solid #6A86CE` : `1px solid #A9A7A7`};
-  border-radius: 0;
-  box-shadow: none !important;
-  background-image: none !important;
-  background-color: #ffffff !important;
-  & > div {
-    display: flex;
-  }
-  &.bp3-active {
-    box-shadow: none !important;
-    background-color: #ffffff !important;
-  }
-  &:hover {
-    background-color: #ffffff !important;
-  }
-`;
+const options: { [key: string]: string } = {
+  none: "0px",
+  DEFAULT: "0.25rem",
+  md: "0.375rem",
+  lg: "0.5rem",
+  full: "9999px",
+};
 
 export interface BorderRadiusOptionsControlProps extends ControlProps {
-  propertyValue: ButtonBorderRadius | undefined;
-  onChange: (borderRaidus: ButtonBorderRadius) => void;
+  propertyValue: string | undefined;
+  onChange: (borderRaidus: string) => void;
   options: any[];
 }
 
@@ -51,63 +38,32 @@ class BorderRadiusOptionsControl extends BaseControl<
   }
 
   public render() {
-    const { options, propertyValue } = this.props;
+    const { propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
-        {options.map((option: ButtonBorderRadius) => {
-          const active =
-            option === ButtonBorderRadiusTypes.SHARP
-              ? propertyValue === option || propertyValue === undefined
-              : propertyValue === option;
-          const icon =
-            option === ButtonBorderRadiusTypes.SHARP ? (
-              <ControlIcons.BORDER_RADIUS_SHARP color="#979797" width={15} />
-            ) : option === ButtonBorderRadiusTypes.ROUNDED ? (
-              <ControlIcons.BORDER_RADIUS_ROUNDED color="#979797" width={15} />
-            ) : (
-              <ControlIcons.BORDER_RADIUS_CIRCLE color="#979797" width={15} />
-            );
-
-          return (
-            <StyledButton
-              active={active}
-              icon={icon}
-              key={option}
-              large
-              onClick={() => this.toggleOption(option)}
-            />
-          );
-        })}
-        {/* <StyledButton
-          active={propertyValue === ButtonBorderRadiusTypes.SHARP || undefined}
-          icon={<ControlIcons.BORDER_RADIUS_SHARP color="#979797" width={15} />}
-          large
-          onClick={() => this.toggleOption(ButtonBorderRadiusTypes.SHARP)}
-        />
-        <StyledButton
-          active={propertyValue === ButtonBorderRadiusTypes.ROUNDED}
-          icon={
-            <ControlIcons.BORDER_RADIUS_ROUNDED color="#979797" width={15} />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBorderRadiusTypes.ROUNDED)}
-        />
-        <StyledButton
-          active={propertyValue === ButtonBorderRadiusTypes.CIRCLE}
-          icon={
-            <ControlIcons.BORDER_RADIUS_CIRCLE color="#979797" width={15} />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBorderRadiusTypes.CIRCLE)}
-        /> */}
-      </StyledButtonGroup>
+      <div className="grid grid-flow-col auto-cols-max gap-2 mt-1">
+        {Object.keys(options).map((optionKey) => (
+          <TooltipComponent content={optionKey} key={optionKey}>
+            <button
+              className={`flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-primary-500 cursor-pointer hover:bg-trueGray-50 ${
+                propertyValue === options[optionKey] ? "ring-1" : ""
+              }`}
+              onClick={() => {
+                this.updateProperty(
+                  this.props.propertyName,
+                  options[optionKey],
+                );
+              }}
+            >
+              <div
+                className={`${tw`rounded-tl-[${options[optionKey]}]`} w-4 h-4 border-t-2 border-l-2 rounded- border-gray-600`}
+              />
+            </button>
+          </TooltipComponent>
+        ))}
+      </div>
     );
   }
-
-  private toggleOption = (option: ButtonBorderRadius) => {
-    this.updateProperty(this.props.propertyName, option);
-  };
 }
 
 export default BorderRadiusOptionsControl;

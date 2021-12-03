@@ -77,7 +77,7 @@ interface RecorderLeftButtonStyleProps {
   backgroundColor: string;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
   dimension: number;
   disabled: boolean;
   iconColor: string;
@@ -89,7 +89,7 @@ const StyledRecorderLeftButton = styled(Button)<
   ThemeProp & RecorderLeftButtonStyleProps
 >`
   background-image: none !important;
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  border-radius: ${({ borderRadius }) => borderRadius};
   height: ${({ dimension }) => dimension * 0.8}px;
   width: ${({ dimension }) => dimension * 0.8}px;
   box-shadow: ${({ boxShadow, boxShadowColor }) =>
@@ -174,7 +174,7 @@ const renderRecorderIcon = (
 
 interface RecorderLeftProps {
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   dimension: number;
@@ -530,7 +530,7 @@ function RecorderRight(props: RecorderRightProps) {
 
 export interface RecorderComponentProps {
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   height: number;
@@ -761,7 +761,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
 
 AudioRecorderComponent.defaultProps = {
   backgroundColor: FALLBACK_COLORS.backgroundColor,
-  borderRadius: ButtonBorderRadiusTypes.CIRCLE,
+  borderRadius: "0px",
 };
 
 export default AudioRecorderComponent;

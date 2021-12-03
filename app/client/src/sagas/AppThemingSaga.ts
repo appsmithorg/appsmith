@@ -31,6 +31,9 @@ const dummyThemes: AppTheme[] = [
           md: "0.375rem",
           lg: "0.5rem",
           full: "9999px",
+          xl: "0.75rem",
+          "2xl": "1rem",
+          "3xl": "1.5rem",
         },
         buttonBorderRadius: {
           none: "0px",
@@ -83,7 +86,6 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
       },
       CONTAINER_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
       },
@@ -230,6 +232,9 @@ const dummyThemes: AppTheme[] = [
           DEFAULT: "0.25rem",
           md: "0.375rem",
           lg: "0.5rem",
+          xl: "0.75rem",
+          "2xl": "1rem",
+          "3xl": "1.5rem",
           full: "9999px",
         },
         buttonBorderRadius: {
@@ -283,7 +288,6 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
       },
       CONTAINER_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
       },
@@ -430,6 +434,9 @@ const dummyThemes: AppTheme[] = [
           DEFAULT: "0.25rem",
           md: "0.375rem",
           lg: "0.5rem",
+          xl: "0.75rem",
+          "2xl": "1rem",
+          "3xl": "1.5rem",
           full: "9999px",
         },
         buttonBorderRadius: {
@@ -483,7 +490,6 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
       },
       CONTAINER_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.borderRadius.appBoxShadow}}",
       },

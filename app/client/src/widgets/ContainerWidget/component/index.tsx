@@ -32,7 +32,7 @@ const StyledContainerComponent = styled.div<
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
 
     border-width: ${(props) => props.borderWidth}px;
-    border-radius: ${(props) => getBorderRadiusValue(props.borderRadius)};
+    border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow:  ${(props) =>
       getBoxShadowValue(props.boxShadowColor, props.boxShadow)} !important;
     border-color: ${(props) => props.borderColor || "transparent"};

@@ -168,18 +168,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
-            isBindProperty: false,
+            isBindProperty: true,
+            isJSConvertible: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-              },
             },
           },
           {

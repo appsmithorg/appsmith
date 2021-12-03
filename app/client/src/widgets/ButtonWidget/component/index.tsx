@@ -164,7 +164,7 @@ const StyledButton = styled((props) => (
     }
   `}
 
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  border-radius: ${({ borderRadius }) => borderRadius};
 
   box-shadow: ${({ boxShadow, boxShadowColor }) =>
     `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
@@ -175,7 +175,7 @@ type ButtonStyleProps = {
   buttonVariant?: ButtonVariant;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
 };

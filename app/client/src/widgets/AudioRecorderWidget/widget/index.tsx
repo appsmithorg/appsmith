@@ -8,15 +8,11 @@ import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
-import {
-  ButtonBoxShadow,
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-} from "components/constants";
+import { ButtonBoxShadow } from "components/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   backgroundColor: string;
-  borderRadius: ButtonBorderRadius;
+  borderRadius: string;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   iconColor: string;
@@ -102,11 +98,6 @@ class AudioRecorderWidget extends BaseWidget<
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
