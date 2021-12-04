@@ -3915,7 +3915,7 @@ public class DatabaseChangelog {
             mongockTemplate.save(jsAction);
         }
     }
-  
+
     @ChangeSet(order = "098", id = "add-google-sheets-plugin-name", author = "")
     public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
         Plugin googleSheetsPlugin = mongockTemplate.findOne(
@@ -3928,4 +3928,14 @@ public class DatabaseChangelog {
 
         mongockTemplate.save(googleSheetsPlugin);
     }
+
+    @ChangeSet(order = "099", id = "update-mockdb-endpoint", author = "")
+    public void updateMockdbEndpoint(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.endpoints.host").is("fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com")),
+                update("datasourceConfiguration.endpoints.$.host", "mockdb.internal.appsmith.com"),
+                Datasource.class
+        );
+    }
+
 }
