@@ -182,8 +182,8 @@ public class MockDataServiceImpl implements MockDataService {
         connection.setSsl(sslDetails);
         connection.setMode(Connection.Mode.READ_WRITE);
         endpoint.setHost(credentials.getHost());
+        endpoint.setPort(Long.valueOf(credentials.getPort()));
         endpointList.add(endpoint);
-
 
         auth.setDatabaseName(credentials.getDbname());
         auth.setPassword(credentials.getPassword());
