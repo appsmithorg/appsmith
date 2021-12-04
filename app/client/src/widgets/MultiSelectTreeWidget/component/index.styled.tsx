@@ -9,8 +9,6 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);

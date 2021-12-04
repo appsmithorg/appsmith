@@ -6,8 +6,6 @@ import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import {
-  ButtonBoxShadow,
-  ButtonBorderRadius,
   ButtonBorderRadiusTypes,
   ButtonStyleType,
   ButtonVariant,
@@ -17,12 +15,10 @@ import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 import {
-  getBorderRadiusValue,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-  getBoxShadowValue,
 } from "widgets/WidgetUtils";
 
 interface WrapperStyleProps {

@@ -9,17 +9,14 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import _ from "lodash";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
 import {
-  getBorderRadiusValue,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-  getBoxShadowValue,
 } from "widgets/WidgetUtils";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 

@@ -163,62 +163,6 @@ export const getCustomBorderColor = (
     : "none";
 };
 
-/**
- * maps border radius names to actual value
- *
- * @param borderRadius
- * @returns
- */
-export const getBorderRadiusValue = (
-  borderRadius: ButtonBorderRadius | number | undefined,
-) => {
-  switch (borderRadius) {
-    case ButtonBorderRadiusTypes.CIRCLE:
-      return "17px";
-    case ButtonBorderRadiusTypes.ROUNDED:
-      return "5px";
-    case ButtonBorderRadiusTypes.SHARP:
-      return 0;
-    default:
-      return `${borderRadius}px`;
-  }
-};
-
-/**
- * maps box shadow names to actual box shadow css value
- *
- * @param borderRadius
- * @returns
- */
-export const getBoxShadowValue = (
-  boxShadowColor: string | undefined,
-  boxShadow: ButtonBoxShadow | undefined,
-) => {
-  switch (boxShadow) {
-    case ButtonBoxShadowTypes.VARIANT1:
-      return `0px 0px 4px 3px ${boxShadowColor ||
-        Colors.BOX_SHADOW_DEFAULT_VARIANT1}`;
-    case ButtonBoxShadowTypes.VARIANT2:
-      return `3px 3px 4px ${boxShadowColor ||
-        Colors.BOX_SHADOW_DEFAULT_VARIANT2}`;
-    case ButtonBoxShadowTypes.VARIANT3:
-      return `0px 1px 3px ${boxShadowColor ||
-        Colors.BOX_SHADOW_DEFAULT_VARIANT3}`;
-    case ButtonBoxShadowTypes.VARIANT4:
-      return `2px 2px 0px ${boxShadowColor ||
-        Colors.BOX_SHADOW_DEFAULT_VARIANT4}`;
-    case ButtonBoxShadowTypes.VARIANT5:
-      return `2px -2px 0px  ${boxShadowColor ||
-        Colors.BOX_SHADOW_DEFAULT_VARIANT5}`;
-    case ButtonBoxShadowTypes.LARGE:
-      return `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`;
-    case ButtonBoxShadowTypes.MEDIUM:
-      return `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`;
-    default:
-      return "0px 0px 0px transparent";
-  }
-};
-
 export const escapeSpecialChars = (stringifiedJSONObject: string) => {
   return stringifiedJSONObject
     .replace(/\\n/g, "\\\\n") // new line char

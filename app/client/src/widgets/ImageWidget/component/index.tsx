@@ -3,8 +3,6 @@ import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Colors } from "constants/Colors";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 export interface StyledImageProps {
   defaultImageUrl: string;

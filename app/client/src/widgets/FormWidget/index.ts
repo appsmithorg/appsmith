@@ -55,7 +55,6 @@ export const CONFIG = {
                   props: {
                     text: "Submit",
                     buttonVariant: ButtonVariantTypes.PRIMARY,
-                    buttonColor: Colors.GREEN,
                     disabledWhenInvalid: true,
                     resetFormOnClick: true,
                     recaptchaV2: false,
@@ -75,7 +74,6 @@ export const CONFIG = {
                   props: {
                     text: "Reset",
                     buttonVariant: ButtonVariantTypes.SECONDARY,
-                    buttonColor: Colors.GREEN,
                     disabledWhenInvalid: false,
                     resetFormOnClick: true,
                     recaptchaV2: false,

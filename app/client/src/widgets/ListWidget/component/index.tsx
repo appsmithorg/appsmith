@@ -4,8 +4,6 @@ import React, { RefObject, ReactNode, useMemo } from "react";
 import { ListWidgetProps } from "../constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
 interface ListComponentProps {
   children?: ReactNode;

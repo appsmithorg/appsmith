@@ -44,8 +44,6 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -100,7 +98,6 @@ const InputComponentWrapper = styled((props) => (
       }
     }
     .${Classes.INPUT} {
-      min-height: 36px;
       ${(props) =>
         props.inputType === InputTypes.CURRENCY &&
         props.allowCurrencyChange &&

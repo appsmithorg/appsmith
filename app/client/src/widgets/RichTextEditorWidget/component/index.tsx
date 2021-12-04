@@ -2,8 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const StyledRTEditor = styled.div<{
   borderRadius: string;

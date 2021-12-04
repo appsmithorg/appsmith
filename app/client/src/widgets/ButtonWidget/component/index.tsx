@@ -449,8 +449,4 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
   }
 }
 
-ButtonComponent.defaultProps = {
-  backgroundColor: FALLBACK_COLORS.backgroundColor,
-};
-
 export default ButtonComponent;

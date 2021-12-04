@@ -20,9 +20,6 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
-import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
-import { ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
@@ -38,10 +35,10 @@ const StyledControlGroup = styled(ControlGroup)<{
       border-radius: ${({ borderRadius }) => borderRadius};
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
-      border-color: ${(props) =>
-        !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
+      border-color: ${({ isValid }) =>
+        !isValid ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       width: 100%;
-      height: inherit;
+      height: 100%;
       align-items: center;
       &:active {
         border-color: ${({ isValid }) =>
@@ -77,15 +74,6 @@ const StyledControlGroup = styled(ControlGroup)<{
       text-align: right;
       align-self: flex-start;
       max-width: calc(30% - ${WIDGET_PADDING}px);
-    }
-  }
-  &&& {
-    input {
-      border: 1px solid;
-      border-color: ${(props) =>
-        !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      box-shadow: none;
-      font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
 `;

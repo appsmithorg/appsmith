@@ -6,8 +6,6 @@ import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 interface MapComponentProps {
   apiKey: string;

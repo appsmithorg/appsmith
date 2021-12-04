@@ -4,8 +4,6 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 

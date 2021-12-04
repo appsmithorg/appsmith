@@ -18,16 +18,10 @@ import {
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import { ThemeProp } from "components/ads/common";
-import {
-  ButtonBorderRadius,
-  ButtonBoxShadow,
-  ButtonVariant,
-  ButtonVariantTypes,
-} from "components/constants";
+import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const MenuButtonContainer = styled.div`
   width: 100%;

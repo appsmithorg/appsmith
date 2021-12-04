@@ -25,8 +25,6 @@ import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ButtonBorderRadius } from "components/constants";
-import { getBorderRadiusValue } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 
 const Container = styled.div<{

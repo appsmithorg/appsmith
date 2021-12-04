@@ -9,8 +9,6 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { Color } from "constants/Colors";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";

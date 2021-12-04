@@ -1,8 +1,6 @@
 import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const locale = {
   // Options.jsx

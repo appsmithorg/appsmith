@@ -3,8 +3,6 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 import { getSelectedRowBgColor } from "./TableUtilities";
 
 export const TableWrapper = styled.div<{

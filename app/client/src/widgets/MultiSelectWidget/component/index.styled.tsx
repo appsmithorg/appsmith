@@ -8,8 +8,6 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {

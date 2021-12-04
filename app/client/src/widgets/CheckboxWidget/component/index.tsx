@@ -4,7 +4,6 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
 import { AlignWidget } from "widgets/constants";
 import { Colors } from "constants/Colors";
-import { getBorderRadiusValue } from "widgets/WidgetUtils";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 type StyledCheckboxProps = {

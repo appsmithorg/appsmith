@@ -11,7 +11,6 @@ import WidgetStyleContainer, {
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const scrollContents = css`
   overflow-y: auto;

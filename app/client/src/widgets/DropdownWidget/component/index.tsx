@@ -14,8 +14,6 @@ import { TextSize } from "constants/WidgetConstants";
 import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
 import Icon from "components/ads/Icon";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -45,6 +43,11 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
       height: 100%;
     }
   }
+
+  &&&& .${Classes.CONTROL_GROUP} {
+    height: 100%;
+  }
+
   &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
@@ -55,10 +58,10 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
       `${backgroundColor || Colors.WHITE}`} !important;
     border-radius: ${({ borderRadius }) => borderRadius} !important;
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    min-height: 34px;
-    padding-left: 12px;
-    border: 1.2px solid
-      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+    padding: 5px 10px;
+    border: 1px solid;
+    border-color: ${({ isValid }) =>
+      isValid ? Colors.GREY_3 : Colors.DANGER_SOLID};
     ${(props) =>
       props.isValid
         ? `
@@ -161,7 +164,6 @@ const DropdownStyles = createGlobalStyle<{
           top: 13px;
 
           .${Classes.BUTTON} {
-            min-height: 34px;
             min-width: 35px;
             margin: 0px;
             color: ${Colors.GREY_6} !important;

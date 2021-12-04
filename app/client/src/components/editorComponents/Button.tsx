@@ -15,8 +15,6 @@ import {
 } from "@blueprintjs/core";
 import { Direction, Directions } from "utils/helpers";
 import { omit } from "lodash";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const outline = css`
   &&&&&& {

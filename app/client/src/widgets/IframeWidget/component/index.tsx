@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import {
-  getBorderRadiusValue,
-  hexToRgba,
-  getBoxShadowValue,
-} from "widgets/WidgetUtils";
+import { hexToRgba } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
 import { useSelector } from "store";
@@ -12,7 +8,6 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { RenderMode } from "constants/WidgetConstants";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 interface IframeContainerProps {
   borderColor?: string;
