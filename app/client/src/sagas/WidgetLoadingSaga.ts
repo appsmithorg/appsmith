@@ -100,8 +100,6 @@ function* setWidgetsLoadingSaga() {
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
       if (get(dataTree, [entityName, "animateLoading"]) === false) {
-        loadingEntities.add(entityName);
-      } else {
         loadingEntities.delete(entityName);
       }
   });
