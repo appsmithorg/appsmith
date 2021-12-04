@@ -99,7 +99,7 @@ function* setWidgetsLoadingSaga() {
   // check animateLoading is active on current widgets and set
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
-      if (get(dataTree, [entityName, "animateLoading"])) {
+      if (get(dataTree, [entityName, "animateLoading"]) === false) {
         loadingEntities.add(entityName);
       } else {
         loadingEntities.delete(entityName);
