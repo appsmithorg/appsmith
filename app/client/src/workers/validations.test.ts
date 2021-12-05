@@ -362,7 +362,7 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        parsed: -120,
+        parsed: -8,
         messages: ["Minimum allowed value: -8"],
       },
       {
