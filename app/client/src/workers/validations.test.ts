@@ -294,7 +294,7 @@ describe("Validate Validators", () => {
         default: 150,
       },
     };
-    const inputs = [120, 90, 220, undefined, {}, [], "120", ""];
+    const inputs = [120, 90, 220, undefined, {}, [], "120", "-120", ""];
     const expected = [
       {
         isValid: true,
@@ -328,6 +328,10 @@ describe("Validate Validators", () => {
         messages: [
           `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
         ],
+      },
+      {
+        isValid: true,
+        parsed: 120,
       },
       {
         isValid: true,
