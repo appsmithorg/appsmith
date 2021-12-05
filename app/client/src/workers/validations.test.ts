@@ -363,9 +363,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: -120,
-        messages: [
-          `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
-        ],
+        messages: ["Minimum allowed value: -8"],
       },
       {
         isValid: true,
