@@ -294,7 +294,7 @@ describe("Validate Validators", () => {
         default: 150,
       },
     };
-    const inputs = [120, 90, 220, undefined, {}, [], "120", "-120", ""];
+    const inputs = [120, 90, 220, undefined, {}, [], "120", ""];
     const expected = [
       {
         isValid: true,
@@ -334,10 +334,6 @@ describe("Validate Validators", () => {
         parsed: 120,
       },
       {
-        isValid: true,
-        parsed: 120,
-      },
-      {
         isValid: false,
         parsed: 150,
         messages: ["This value is required"],
@@ -353,16 +349,27 @@ describe("Validate Validators", () => {
     const config = {
       type: ValidationTypes.NUMBER,
       params: {
-        min: 100,
+        min: -8,
         max: 200,
         default: 150,
       },
     };
-    const inputs = [""];
+    const inputs = ["", "-120", "-8"];
     const expected = [
       {
         isValid: true,
         parsed: 150,
+      },
+      {
+        isValid: false,
+        parsed: -120,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
+        ],
+      },
+      {
+        isValid: true,
+        parsed: -8,
       },
     ];
     inputs.forEach((input, index) => {
