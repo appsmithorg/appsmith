@@ -211,14 +211,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             );
           } else if (columnProperties.columnType === "menuButton") {
             const menuButtonProps: RenderMenuButtonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete?: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               isDisabled: cellProperties.isDisabled || false,
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
+              menuColor: cellProperties.menuColor || Colors.GREEN,
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,

@@ -53,6 +53,11 @@ export const createImmerReducer = (
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
+  log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
+};
+
+export const initializeAnalyticsAndTrackers = () => {
+  const appsmithConfigs = getAppsmithConfigs();
 
   if (appsmithConfigs.sentry.enabled) {
     window.Sentry = Sentry;
@@ -92,8 +97,6 @@ export const appInitializer = () => {
       AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
     }
   }
-
-  log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
 };
 
 export const mapToPropList = (map: Record<string, string>): Property[] => {
