@@ -15,10 +15,15 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "entities/Datasource";
 
 const ActionButton = styled(Button)`
-  padding: 10px 20px;
+  padding: 10px 10px;
+  font-size: 12px;
   &&&& {
     height: 36px;
     width: 136px;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
   }
   .${Classes.ICON} {
     svg {
