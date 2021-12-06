@@ -93,7 +93,7 @@ export const useDynamicAppLayout = () => {
     let calculatedWidth = screenWidth - scrollbarWidth();
 
     // if preview mode is on, we don't need to subtract the Property Pane width
-    if (isPreviewMode === false && isThemeMode === false) {
+    if (isPreviewMode === false) {
       const propertyPaneWidth = domPropertyPane?.clientWidth || 0;
 
       calculatedWidth -= propertyPaneWidth;
