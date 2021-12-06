@@ -435,36 +435,39 @@ public class PageLoadActionsUtil {
         Set<ActionDependencyEdge> actionDataFromConfigurationEdges = new HashSet<>();
         // All actions data paths actually depend on the action configuration paths. Add this implicit relationship in the
         // graph as well
-        for (ActionDependencyEdge edge : edges) {
-            Set<String> vertices = Set.of(edge.getSource(), edge.getTarget());
 
-            vertices
-                    .stream()
-                    .forEach(vertex -> {
-                                Optional<String> validActionParent = getPossibleParents(vertex)
-                                        .stream()
-                                        .filter(parent -> {
-                                            if (!actionNames.contains(parent)) {
-                                                return false;
-                                            }
-                                            return true;
-                                        }).findFirst();
+        Set<String> verticesFound = new HashSet<>(actionSchedulingGraph.vertexSet());
+        edges.stream().forEach(edge -> {
+            verticesFound.add(edge.getSource());
+            verticesFound.add(edge.getTarget());
+        });
 
-                                if (validActionParent.isPresent()) {
-                                    String actionName = validActionParent.get();
-                                    for (String actionDataPath : actionDataPaths) {
-                                        if (vertex.contains(actionDataPath)) {
-                                            // This vertex is actually a path on top of action.data.
-                                            // Add a relationship from action.actionConfiguration to action.data
-                                            String source = actionName + ".actionConfiguration";
-                                            String destination = vertex;
-                                            actionDataFromConfigurationEdges.add(new ActionDependencyEdge(source, destination));
+
+        verticesFound
+                .stream()
+                .forEach(vertex -> {
+                            Optional<String> validActionParent = getPossibleParents(vertex)
+                                    .stream()
+                                    .filter(parent -> {
+                                        if (!actionNames.contains(parent)) {
+                                            return false;
                                         }
+                                        return true;
+                                    }).findFirst();
+
+                            if (validActionParent.isPresent()) {
+                                String actionName = validActionParent.get();
+                                for (String actionDataPath : actionDataPaths) {
+                                    if (vertex.contains(actionDataPath)) {
+                                        // This vertex is actually a path on top of action.data.
+                                        // Add a relationship from action.actionConfiguration to action.data
+                                        String source = actionName + ".actionConfiguration";
+                                        String destination = vertex;
+                                        actionDataFromConfigurationEdges.add(new ActionDependencyEdge(source, destination));
                                     }
                                 }
-                    });
-
-        }
+                            }
+                });
 
         edges.addAll(actionDataFromConfigurationEdges);
 
@@ -996,16 +999,16 @@ public class PageLoadActionsUtil {
                 Boolean isCandidateForPageLoad = TRUE;
 
 
-                if (PluginType.JS.equals(action.getPluginType())) {
+//                if (PluginType.JS.equals(action.getPluginType())) {
 
-                    // This is a JS action. Only add it for page load if it is not a function call. Aka the data
-                    // of this async call is being referred to in the binding.
+                    // Only add it for page load if it is not a function call. Aka the data
+                    // of this call is being referred to in the binding.
 
                     String validBinding = entity + "." + "data";
                     if (!vertex.contains(validBinding)) {
                         isCandidateForPageLoad = FALSE;
                     }
-                }
+//                }
 
                 if (isCandidateForPageLoad) {
 
