@@ -168,11 +168,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor:
-                cellProperties.buttonColor || FALLBACK_COLORS.backgroundColor,
+                cellProperties.buttonColor || this.props.primaryColor,
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
-              borderRadius: cellProperties.borderRadius,
+              borderRadius:
+                cellProperties.borderRadius || this.props.borderRadius,
               boxShadow: cellProperties.boxShadow,
               columnActions: [
                 {
@@ -223,9 +224,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
               menuColor: cellProperties.menuColor || Colors.GREEN,
-              borderRadius: cellProperties.borderRadius,
+              borderRadius:
+                cellProperties.borderRadius || this.props.borderRadius,
               boxShadow: cellProperties.boxShadow,
-
               iconName: cellProperties.iconName,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -244,9 +245,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
               iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
-              buttonColor: cellProperties.buttonColor || Colors.GREEN,
+              buttonColor:
+                cellProperties.buttonColor ||
+                this.props.primaryColor ||
+                Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
-              borderRadius: cellProperties.borderRadius || "SHARP",
+              borderRadius:
+                cellProperties.borderRadius || this.props.borderRadius,
               boxShadow: cellProperties.boxShadow || "NONE",
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
@@ -737,7 +742,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
-          accentColor={this.props.accentColor}
           applyFilter={this.applyFilters}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
@@ -766,6 +770,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
+          primaryColor={this.props.primaryColor}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}

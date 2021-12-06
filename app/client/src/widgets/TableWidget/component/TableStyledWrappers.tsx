@@ -3,13 +3,13 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
-import { getSelectedRowBgColor } from "./TableUtilities";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
   tableSizes: TableSizes;
-  accentColor: string;
+  primaryColor: string;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
@@ -67,12 +67,12 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${({ accentColor }) =>
-          `${getSelectedRowBgColor(accentColor)}`} !important;
+        background: ${({ primaryColor }) =>
+          `${lightenColor(primaryColor)}`} !important;
       }
       &:hover {
-        background: ${({ accentColor }) =>
-          `${getSelectedRowBgColor(accentColor)}`} !important;
+        background: ${({ primaryColor }) =>
+          `${lightenColor(primaryColor)}`} !important;
       }
     }
     .th,

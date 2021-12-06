@@ -173,7 +173,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
-        accentColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
@@ -369,7 +369,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
-        accentColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
@@ -562,7 +562,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
-        accentColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
@@ -762,7 +762,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
-        accentColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },

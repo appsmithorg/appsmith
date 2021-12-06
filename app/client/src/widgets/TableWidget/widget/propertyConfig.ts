@@ -1559,7 +1559,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        propertyName: "accentColor",
+        propertyName: "primaryColor",
         helpText: "Sets the accent color of the widget",
         label: "Accent color",
         controlType: "COLOR_PICKER",

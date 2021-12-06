@@ -78,7 +78,7 @@ interface ReactTableComponentProps {
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
-  accentColor: string;
+  primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
 }
@@ -252,7 +252,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
   return (
     <Table
-      accentColor={props.accentColor}
       applyFilter={applyFilter}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
@@ -282,6 +281,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      primaryColor={props.primaryColor}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -301,7 +301,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 }
 
 ReactTableComponent.defaultProps = {
-  accentColor: FALLBACK_COLORS.backgroundColor,
+  primaryColor: FALLBACK_COLORS.backgroundColor,
 };
 
 export default React.memo(ReactTableComponent, (prev, next) => {
@@ -342,7 +342,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     isEqual(prev.tableData, next.tableData) &&
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
-    prev.accentColor === next.accentColor &&
+    prev.primaryColor === next.primaryColor &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns)

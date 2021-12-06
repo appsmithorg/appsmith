@@ -79,7 +79,7 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
-  accentColor: string;
+  primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
 }
@@ -217,13 +217,13 @@ export function Table(props: TableProps) {
 
   return (
     <TableWrapper
-      accentColor={props.accentColor}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}
+      primaryColor={props.primaryColor}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
       width={props.width}
