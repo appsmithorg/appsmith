@@ -377,7 +377,7 @@ function getFieldFromValue(
     });
   }
 
-  if (value.indexOf("getGeolocation") !== -1) {
+  if (value.indexOf("getCurrentPosition") !== -1) {
     fields.push({
       field: FieldType.CALLBACK_FUNCTION_FIELD,
     });
