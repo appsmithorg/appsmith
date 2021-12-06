@@ -519,9 +519,9 @@ public class DatabaseChangelog {
     @ChangeSet(order = "014", id = "set-initial-sequence-for-datasource", author = "")
     public void setInitialSequenceForDatasource(MongoTemplate mongoTemplate) {
         final Long maxUntitledDatasourceNumber = mongoTemplate.find(
-                query(where(FieldName.NAME).regex("^" + Datasource.DEFAULT_NAME_PREFIX + " \\d+$")),
-                Datasource.class
-        )
+                        query(where(FieldName.NAME).regex("^" + Datasource.DEFAULT_NAME_PREFIX + " \\d+$")),
+                        Datasource.class
+                )
                 .stream()
                 .map(datasource -> Long.parseLong(datasource.getName().split(" ")[2]))
                 .max(Long::compareTo)
@@ -2299,10 +2299,10 @@ public class DatabaseChangelog {
         // Fetch all the actions built on top of a mongo database, not having any value set for input type
         assert mongoPlugin != null;
         List<NewAction> rawMongoActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                NewAction.class
-        )
+                        query(new Criteria().andOperator(
+                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                        NewAction.class
+                )
                 .stream()
                 .filter(mongoAction -> {
                     if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
@@ -2529,10 +2529,10 @@ public class DatabaseChangelog {
         // Fetch all the actions built on top of a mongo database with command type update_one or update_many
         assert mongoPlugin != null;
         List<NewAction> updateMongoActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                NewAction.class
-        )
+                        query(new Criteria().andOperator(
+                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                        NewAction.class
+                )
                 .stream()
                 .filter(mongoAction -> {
                     if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
@@ -2666,10 +2666,10 @@ public class DatabaseChangelog {
         // Fetch all the actions built on top of a mongo database with input type set to raw.
         assert mongoPlugin != null;
         List<NewAction> rawMongoQueryActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
-                NewAction.class
-        )
+                        query(new Criteria().andOperator(
+                                where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                        NewAction.class
+                )
                 .stream()
                 .filter(mongoAction -> {
                     boolean result = false;
@@ -2991,8 +2991,8 @@ public class DatabaseChangelog {
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
 
         ensureIndexes(mongoTemplate, Application.class,
-            makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
-                .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
+                makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
+                        .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
         );
     }
 
@@ -3221,7 +3221,7 @@ public class DatabaseChangelog {
         List<NewAction> mongoActions = mongoTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId())
-                        )),
+                )),
                 NewAction.class
         );
 
@@ -3320,7 +3320,7 @@ public class DatabaseChangelog {
                 "#F5D1D1", "#FFEFDB", "#F3F1C7", "#FFEBFB", "#D9E7FF", "#FFDEDE", "#F5D1D1"
         };
 
-        for(int i = 0; i < oldColors.length; i++) {
+        for (int i = 0; i < oldColors.length; i++) {
             String oldColor = oldColors[i], newColor = newColors[i];
 
             // Migrate old color to new color
@@ -3390,7 +3390,7 @@ public class DatabaseChangelog {
      * However, a value cannot be set against this toggle if the value for previous keys in the list are missing.
      * Hence, this method populates the values for all the keys that appear before the permanent url toggle key. To
      * check out the indexes for each key / property please look into the `editor.json` file for s3 plugin.
-     *
+     * <p>
      * The keys are saved as `null` for properties where editor.json does not define any value for the property keys.
      *
      * @param oldPluginSpecifiedTemplates : current config saved in db.
@@ -3398,7 +3398,7 @@ public class DatabaseChangelog {
      */
     private List<Property> setS3ListActionDefaults(List<Property> oldPluginSpecifiedTemplates) {
         List<Property> newPluginSpecifiedTemplates = new ArrayList<>(oldPluginSpecifiedTemplates);
-        switch(newPluginSpecifiedTemplates.size()) {
+        switch (newPluginSpecifiedTemplates.size()) {
             case 0:
                 /**
                  * This case is never expected to be hit. However, I am still adding the handling here for the sake
@@ -3804,12 +3804,13 @@ public class DatabaseChangelog {
             }
         }
     }
-  
+
     /**
      * Updates all existing S3 actions to modify the body parameter.
      * Earlier, the body used to be a base64 encoded or a blob of file data.
      * With this migration, the structure is expected to follow the
      * {@link com.appsmith.external.dtos.MultipartFormDataDTO} format
+     *
      * @param mongockTemplate
      */
     @ChangeSet(order = "096", id = "update-s3-action-configuration-for-type", author = "")
@@ -3860,6 +3861,7 @@ public class DatabaseChangelog {
      * when they are edited but in policies anonymousUser still have read application permission.
      * This migration will set isPublic=true to those applications which have isPublic=false but anonymousUser has
      * read:applications permission in policies
+     *
      * @param mongockTemplate
      */
     @ChangeSet(order = "097", id = "fix-ispublic-is-false-for-public-apps", author = "")
@@ -3912,5 +3914,18 @@ public class DatabaseChangelog {
         for (NewAction jsAction : actionsToSave) {
             mongockTemplate.save(jsAction);
         }
+    }
+  
+    @ChangeSet(order = "098", id = "add-google-sheets-plugin-name", author = "")
+    public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
+        Plugin googleSheetsPlugin = mongockTemplate.findOne(
+                query(where("packageName").is("google-sheets-plugin")),
+                Plugin.class
+        );
+
+        assert googleSheetsPlugin != null;
+        googleSheetsPlugin.setPluginName("google-sheets-plugin");
+
+        mongockTemplate.save(googleSheetsPlugin);
     }
 }
