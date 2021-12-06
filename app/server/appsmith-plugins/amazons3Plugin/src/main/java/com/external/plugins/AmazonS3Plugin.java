@@ -848,12 +848,9 @@ public class AmazonS3Plugin extends BasePlugin {
                             /* Get name of each bucket */
                             .map(Bucket::getName)
                             /* Get command templates and use it to create Table object */
-                            .map(bucketName -> {
-                                String fileName = getOneFileNameOrDefault(connection, bucketName, DEFAULT_FILE_NAME);
-                                return new DatasourceStructure.Table(DatasourceStructure.TableType.BUCKET, "",
+                            .map(bucketName -> new DatasourceStructure.Table(DatasourceStructure.TableType.BUCKET, "",
                                     bucketName, new ArrayList<>(), new ArrayList<>(), getTemplates(bucketName,
-                                        fileName));
-                            })
+                                    DEFAULT_FILE_NAME)))
                             /* Collect all Table objects in a list */
                             .collect(Collectors.toList());
                 } catch (SdkClientException e) {
