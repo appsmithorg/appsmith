@@ -227,7 +227,8 @@ class SingleSelectTreeWidget extends BaseWidget<
             helpText: "Sets the background color of the widget",
             label: "Background color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
           },
           {
@@ -240,7 +241,8 @@ class SingleSelectTreeWidget extends BaseWidget<
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -255,7 +257,8 @@ class SingleSelectTreeWidget extends BaseWidget<
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -276,7 +279,8 @@ class SingleSelectTreeWidget extends BaseWidget<
             helpText: "Sets the shadow color of the widget",
             label: "Shadow Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,

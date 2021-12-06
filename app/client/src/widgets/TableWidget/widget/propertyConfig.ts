@@ -863,7 +863,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
@@ -892,7 +892,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
@@ -925,7 +925,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                 },
                 {
@@ -958,7 +958,8 @@ export default [
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isJSConvertible: true,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
@@ -1107,7 +1108,8 @@ export default [
                               "Sets the background color of a menu item",
                             label: "Background color",
                             controlType: "COLOR_PICKER",
-                            isBindProperty: false,
+                            isJSConvertible: true,
+                            isBindProperty: true,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
 
@@ -1479,7 +1481,8 @@ export default [
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {
@@ -1604,7 +1607,8 @@ export default [
         helpText: "Sets the accent color of the widget",
         label: "Accent color",
         controlType: "COLOR_PICKER",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {
@@ -1617,7 +1621,8 @@ export default [
           ButtonBorderRadiusTypes.ROUNDED,
           ButtonBorderRadiusTypes.CIRCLE,
         ],
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
@@ -1632,7 +1637,8 @@ export default [
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
@@ -1653,7 +1659,8 @@ export default [
         helpText: "Sets the shadow color of the widget",
         label: "Shadow Color",
         controlType: "COLOR_PICKER",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,

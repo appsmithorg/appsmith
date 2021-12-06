@@ -63,6 +63,7 @@ class ContainerWidget extends BaseWidget<
             propertyName: "backgroundColor",
             label: "Background Colour",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -98,7 +99,8 @@ class ContainerWidget extends BaseWidget<
               ButtonBorderRadiusTypes.ROUNDED,
               ButtonBorderRadiusTypes.CIRCLE,
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -113,7 +115,8 @@ class ContainerWidget extends BaseWidget<
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,

@@ -316,7 +316,8 @@ export default [
         helpText: "Sets the background color of the widget",
         label: "Background color",
         controlType: "COLOR_PICKER",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {
@@ -324,7 +325,8 @@ export default [
         label: "Border Radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {
@@ -333,7 +335,8 @@ export default [
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
     ],

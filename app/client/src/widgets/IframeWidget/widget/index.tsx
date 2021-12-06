@@ -68,7 +68,8 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             propertyName: "borderColor",
             label: "Border Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
           },
           {
@@ -105,7 +106,8 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -120,7 +122,8 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -141,7 +144,8 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             helpText: "Sets the shadow color of the widget",
             label: "Shadow Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,

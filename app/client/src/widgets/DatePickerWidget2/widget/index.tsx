@@ -224,7 +224,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             helpText: "Sets the background color of the widget",
             label: "Background color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
           },
           {
@@ -238,7 +239,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
               ButtonBorderRadiusTypes.ROUNDED,
               ButtonBorderRadiusTypes.CIRCLE,
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -253,7 +255,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
