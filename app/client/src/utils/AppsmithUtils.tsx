@@ -102,7 +102,12 @@ export const initializeAnalyticsAndTrackers = () => {
       }
     }
   } catch (e) {
-    Sentry.captureException(e);
+    // In case the error is due to sentry itself
+    try {
+      Sentry.captureException(e);
+    } catch (e) {
+      log.error(e);
+    }
     log.error(e);
   }
 };
