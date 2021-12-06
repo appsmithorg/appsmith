@@ -1,11 +1,6 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/inputdsl.json");
-const pages = require("../../../../locators/Pages.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
-const testdata = require("../../../../fixtures/testdata.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 
 let datasourceName;
 
@@ -17,6 +12,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
+
   it("Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
@@ -37,7 +33,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
         fixture: "addWidgetTable-mock",
       });
 
-      cy.runQuery();
+      cy.onlyQueryRun();
       cy.get(queryEditor.suggestedTableWidget).click();
       cy.createJSObject("return Query1.data;");
 
