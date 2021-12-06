@@ -1,7 +1,8 @@
-package com.appsmith.server.repositories;
+package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -9,7 +10,8 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Set;
 
-public interface CustomNewActionRepository extends AppsmithRepository<NewAction> {
+public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewAction> {
+
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
 
     Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
