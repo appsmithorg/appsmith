@@ -7,10 +7,7 @@ import tinycolor from "tinycolor2";
 
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import {
-  ButtonBoxShadow,
-  ButtonBoxShadowTypes,
   ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
@@ -20,8 +17,9 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  WidgetContainerDiff,
 } from "widgets/WidgetUtils";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
+import _ from "lodash";
 
 type MenuButtonContainerProps = {
   disabled?: boolean;
@@ -38,15 +36,32 @@ export const MenuButtonContainer = styled.div<MenuButtonContainerProps>`
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
+const PopoverStyles = createGlobalStyle<{
+  parentWidth: number;
+  menuDropDownWidth: number;
+  id: string;
+}>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
+  ${({ id, menuDropDownWidth, parentWidth }) => `
+  .menu-button-width-${id} {
+
+    max-width: ${
+      menuDropDownWidth > parentWidth
+        ? `${menuDropDownWidth}px`
+        : `${parentWidth}px`
+    } !important;
+    min-width: ${
+      parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
+    }px !important;
+  }
+`}
 `;
 
 export interface BaseStyleProps {
   backgroundColor?: string;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   boxShadow?: string;
 
   buttonColor?: string;
@@ -127,9 +142,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     }
   `}
 
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
-
+  border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow}  !important;
 `;
 
@@ -176,8 +189,11 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   `}
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu)<{ borderRadius?: string }>`
   padding: 0;
+  min-width: 0px;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
 `;
 
 export interface PopoverContentProps {
@@ -200,10 +216,11 @@ export interface PopoverContentProps {
   >;
   onItemClicked: (onClick: string | undefined) => void;
   isCompact?: boolean;
+  borderRadius?: string;
 }
 
 function PopoverContent(props: PopoverContentProps) {
-  const { isCompact, menuItems: itemsObj, onItemClicked } = props;
+  const { borderRadius, isCompact, menuItems: itemsObj, onItemClicked } = props;
 
   if (!itemsObj) return <StyledMenu />;
   const items = Object.keys(itemsObj)
@@ -250,11 +267,11 @@ function PopoverContent(props: PopoverContentProps) {
     );
   });
 
-  return <StyledMenu>{listItems}</StyledMenu>;
+  return <StyledMenu borderRadius={borderRadius}>{listItems}</StyledMenu>;
 }
 
 export interface PopoverTargetButtonProps {
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   boxShadow?: string;
 
   buttonColor?: string;
@@ -332,13 +349,14 @@ export interface MenuButtonComponentProps {
   >;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   boxShadow?: string;
-
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
   backgroundColor?: string;
+  width: number;
+  menuDropDownWidth: number;
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
@@ -351,17 +369,25 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     isDisabled,
     label,
     menuColor,
+    menuDropDownWidth,
     menuItems,
     menuVariant,
     onItemClicked,
+    width,
   } = props;
+  const id = _.uniqueId();
 
   return (
     <MenuButtonContainer disabled={isDisabled}>
-      <PopoverStyles />
+      <PopoverStyles
+        id={id}
+        menuDropDownWidth={menuDropDownWidth}
+        parentWidth={width - WidgetContainerDiff}
+      />
       <Popover2
         content={
           <PopoverContent
+            borderRadius={borderRadius}
             isCompact={isCompact}
             menuItems={menuItems}
             onItemClicked={onItemClicked}
@@ -371,7 +397,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         fill
         minimal
         placement="bottom-end"
-        popoverClassName="menu-button-popover"
+        popoverClassName={`menu-button-popover menu-button-width-${id}`}
       >
         <PopoverTargetButton
           borderRadius={borderRadius}
@@ -387,9 +413,5 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     </MenuButtonContainer>
   );
 }
-
-MenuButtonComponent.defaultProps = {
-  menuColor: FALLBACK_COLORS.backgroundColor,
-};
 
 export default MenuButtonComponent;

@@ -464,6 +464,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             <ProfileDropdownContainer>
               <ProfileDropdown
                 name={user.name}
+                photoId={user?.photoId}
                 userName={user?.username || ""}
               />
             </ProfileDropdownContainer>

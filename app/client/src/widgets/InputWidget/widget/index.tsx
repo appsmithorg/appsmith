@@ -573,7 +573,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{
-        function(){
+        (function(){
           if (!this.isRequired && !this.text) {
             return true
           }
@@ -642,7 +642,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           } else {
             return true;
           }
-        }()
+        })()
       }}`,
       value: `{{this.text}}`,
     };
@@ -749,6 +749,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    console.log({ props: this.props });
     const value = this.props.text ?? "";
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -792,7 +793,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        // show label and Input side by side if true
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -800,6 +800,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               1 && this.props.inputType === "TEXT"
           )
         }
+        // show label and Input side by side if true
         currencyCountryCode={currencyCountryCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}

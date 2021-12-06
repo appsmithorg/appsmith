@@ -76,7 +76,18 @@ const rcSelectDropdownSlideUpOut = keyframes`
 	}
 `;
 
-export const DropdownStyles = createGlobalStyle`
+export const DropdownStyles = createGlobalStyle<{
+  parentWidth: number;
+  dropDownWidth: number;
+  id: string;
+}>`
+${({ dropDownWidth, id, parentWidth }) => `
+  .treeselect-popover-width-${id} {
+    min-width: ${
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
+    }px !important;
+  }
+`}
 .rc-tree-select-dropdown-hidden {
 	display: none;
 }
@@ -219,7 +230,6 @@ export const DropdownStyles = createGlobalStyle`
 
 .tree-select-dropdown {
   min-height: 100px;
-  min-width: 250px !important;
   position: absolute;
   background: #fff;
   width: 100%;
@@ -656,9 +666,8 @@ export const TreeSelectContainer = styled.div<{
       background-color: ${Colors.GREY_1} !important;
     }
     .rc-tree-select-selector {
-      border: 1.2px solid ${Colors.GREY_3} !important;
+      border: 1px solid ${Colors.GREY_3} !important;
       background-color: ${Colors.GREY_1} !important;
-
       .rc-tree-select-selection-search input {
         background-color: ${Colors.GREY_1}; // color fix for mozilla
       }
@@ -687,7 +696,7 @@ export const TreeSelectContainer = styled.div<{
   .rc-tree-select-single {
     &:hover {
       .rc-tree-select-selector {
-        border: 1.2px solid
+        border: 1px solid
           ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
       }
     }
@@ -696,17 +705,18 @@ export const TreeSelectContainer = styled.div<{
     display: flex;
     flex-wrap: wrap;
     padding-right: 42px;
-    border: 1.2px solid
+    border: 1px solid
       ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
     box-sizing: border-box;
     background: ${({ backgroundColor }) =>
       `${backgroundColor || Colors.WHITE}`};
-  border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    overflow: hidden;
     width: 100%;
-    transition: border-color 0.15s ease-in-out 0s,
-      box-shadow 0.15s ease-in-out 0s;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
     height: 100%;
+
     .rc-tree-select-selection-search {
       width: 100%;
       height: 100%;
@@ -922,9 +932,9 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
+          border: 1px solid ${Colors.GREEN_SOLID};
           box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;

@@ -55,7 +55,6 @@ export const StyledButton = styled((props) => (
     ])}
   />
 ))<ThemeProp & ButtonStyleProps>`
-
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};

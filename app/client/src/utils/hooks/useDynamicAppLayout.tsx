@@ -93,14 +93,14 @@ export const useDynamicAppLayout = () => {
     let calculatedWidth = screenWidth - scrollbarWidth();
 
     // if preview mode is on, we don't need to subtract the Property Pane width
-    if (isPreviewMode === false) {
+    if (isPreviewMode === false && isThemeMode === false) {
       const propertyPaneWidth = domPropertyPane?.clientWidth || 0;
 
       calculatedWidth -= propertyPaneWidth;
     }
 
-    // if explorer is unpinned or its preview mode, we don't need to subtract the EE width
-    if (isExplorerPinned === true && isPreviewMode === false) {
+    // if explorer is closed or its preview mode, we don't need to subtract the EE width
+    if (isExplorerPinned === true && !(isPreviewMode || isThemeMode)) {
       const explorerWidth = domEntityExplorer?.clientWidth || 0;
 
       calculatedWidth -= explorerWidth;
@@ -112,7 +112,7 @@ export const useDynamicAppLayout = () => {
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
         return (
           calculatedWidth -
-          (appMode === APP_MODE.EDIT && !isPreviewMode
+          (appMode === APP_MODE.EDIT && !(isPreviewMode || isThemeMode)
             ? BORDERS_WIDTH + GUTTER_WIDTH
             : 0)
         );

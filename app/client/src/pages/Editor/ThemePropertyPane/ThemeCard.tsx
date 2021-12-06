@@ -138,7 +138,7 @@ export function ThemeCard(props: ThemeCard) {
         </div>
       </aside>
       {props.isSelected && (
-        <CheckmarkIcon className="absolute -right-2 -top-2 bg-primary-500 text-white rounded-full border-2 border-white h-6 w-6" />
+        <CheckmarkIcon className="absolute w-6 h-6 text-white border-2 border-white rounded-full -right-2 -top-2 bg-primary-500" />
       )}
     </div>
   );

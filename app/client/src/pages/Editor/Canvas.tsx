@@ -77,7 +77,7 @@ const Canvas = memo((props: CanvasProps) => {
   try {
     return (
       <div
-        className="t--canvas-artboard relative mx-auto pb-52"
+        className="relative mx-auto t--canvas-artboard pb-52"
         data-testid="t--canvas-artboard"
         id="art-board"
         onMouseMove={(e) => {

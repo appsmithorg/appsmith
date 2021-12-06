@@ -13,12 +13,7 @@ import MultiSelectComponent from "../component";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
+import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -296,10 +291,6 @@ class MultiSelectWidget extends BaseWidget<
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
@@ -378,6 +369,9 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
+
     return (
       <MultiSelectComponent
         backgroundColor={this.props.backgroundColor}
@@ -391,6 +385,7 @@ class MultiSelectWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
+        dropDownWidth={dropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
@@ -406,6 +401,7 @@ class MultiSelectWidget extends BaseWidget<
         placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
+        width={componentWidth}
       />
     );
   }

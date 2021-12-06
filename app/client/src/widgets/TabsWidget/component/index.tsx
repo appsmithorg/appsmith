@@ -45,11 +45,12 @@ const TabsContainerWrapper = styled.div<{
   flex-direction: column;
   height: 100%;
   width: 100%;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   overflow: hidden;
+  background: white;
 `;
 
 const ChildrenWrapper = styled.div<ChildrenWrapperProps>`
@@ -80,7 +81,6 @@ const TabsContainer = styled.div`
   background: ${(props) => props.theme.colors.builderBodyBG};
   overflow: hidden;
   && {
-    height: ${TAB_CONTAINER_HEIGHT};
     width: 100%;
     display: flex;
     justify-content: flex-start;
@@ -96,10 +96,11 @@ type TabProps = {
 
 const StyledTab = styled.div`
   height: 32px;
-  background: ${(props) => props.theme.colors.builderBodyBG};
   border-bottom: 1px solid ${(props) => props.theme.colors.bodyBG};
   border-color: ${(props) => props.theme.colors.bodyBG};
   width: 100%;
+  position: absolute;
+  border-bottom: ${(props) => `1px solid ${props.theme.colors.bodyBG}`};
 `;
 
 const StyledText = styled.div<TabProps>`
@@ -110,25 +111,18 @@ const StyledText = styled.div<TabProps>`
   line-height: 32px;
   height: 32px;
   padding: 0 16px;
-  border-bottom: ${(props) => (props.selected ? "0" : "1px")} solid;
-  border-color: ${(props) => props.theme.colors.bodyBG};
-  cursor: pointer;
-  box-shadow: ${(props) =>
+  border-bottom: ${(props) =>
     props.selected
-      ? `inset -1px 0px 0px #ebeff2, inset 1px 0px 0px #ebeff2, inset 0px 4px 0px ${props.selectedTabColor}`
-      : ""};
+      ? `3px solid ${props.selectedTabColor}`
+      : `1px solid ${props.theme.colors.bodyBG}`};
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
   &:hover {
     background: ${(props) =>
       props.selected
         ? props.theme.colors.textOnDarkBG
         : props.theme.colors.hover};
-  }
-  &:first-child {
-    box-shadow: ${(props) =>
-      props.selected
-        ? `inset -1px 0px 0px #ebeff2, inset 1px 0px 0px #ebeff2, inset 0px 4px 0px ${props.selectedTabColor ||
-            Colors.GREEN}`
-        : ""};
   }
 `;
 

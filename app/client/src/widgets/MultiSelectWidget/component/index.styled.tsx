@@ -33,7 +33,18 @@ const rcSelectDropdownSlideUpOut = keyframes`
 	}
 `;
 
-export const DropdownStyles = createGlobalStyle`
+export const DropdownStyles = createGlobalStyle<{
+  parentWidth: number;
+  dropDownWidth: number;
+  id: string;
+}>`
+${({ dropDownWidth, id, parentWidth }) => `
+  .multiselect-popover-width-${id} {
+    min-width: ${
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
+    }px !important;
+  }
+`}
 .rc-select-dropdown-hidden {
 	display: none;
 }
@@ -58,7 +69,9 @@ export const DropdownStyles = createGlobalStyle`
 .rc-select-item-option-content {
 	flex: 1 1 0;
   overflow-wrap: break-word;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
   color: ${Colors.GREY_8};
   font-weight: 400;
 }
@@ -158,7 +171,6 @@ export const DropdownStyles = createGlobalStyle`
 
 .multi-select-dropdown {
   min-height: 100px;
-  min-width: 170px !important;
   position: absolute;
   background: #fff;
   width: auto;
@@ -166,6 +178,10 @@ export const DropdownStyles = createGlobalStyle`
   margin-top: 5px;
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+   overflow-x: scroll;
+  > div {
+      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
+    }
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
     padding-left: 42px;
@@ -225,8 +241,8 @@ export const MultiSelectContainer = styled.div<{
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
 
   label.tree-multiselect-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+    margin-bottom: 0px;
+    margin-right: 0px;
   }
   .rc-select {
     display: inline-block;
@@ -267,7 +283,7 @@ export const MultiSelectContainer = styled.div<{
     }
     & .rc-select-selector {
       background-color: ${Colors.GREY_1} !important;
-      border: 1.2px solid ${Colors.GREY_3};
+      border: 1px solid ${Colors.GREY_3};
       .rc-select-selection-item-content {
         color: ${Colors.GREY_7};
       }
@@ -419,10 +435,10 @@ export const MultiSelectContainer = styled.div<{
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
-      border: 1.2px solid
+      border: 1px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
-        border: 1.2px solid
+        border: 1px solid
           ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       }
     }
@@ -452,14 +468,17 @@ export const MultiSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
+          border: 1px solid ${Colors.GREEN_SOLID};
           box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
 export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     height: 38px;
     padding-bottom: 0 !important;
     color: ${Colors.GREY_8} !important;

@@ -22,9 +22,10 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import _ from "lodash";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 export interface TreeSelectProps
   extends Required<
@@ -46,6 +47,8 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  dropDownWidth: number;
+  width: number;
   isValid: boolean;
   backgroundColor: string;
   borderRadius: string;
@@ -95,6 +98,7 @@ function SingleSelectTreeComponent({
   compactMode,
   disabled,
   dropdownStyle,
+  dropDownWidth,
   expandAll,
   isValid,
   labelStyle,
@@ -106,6 +110,7 @@ function SingleSelectTreeComponent({
   options,
   placeholder,
   value,
+  width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const _menu = useRef<HTMLElement | null>(null);
@@ -126,6 +131,7 @@ function SingleSelectTreeComponent({
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
   const onClear = useCallback(() => onChange([], []), []);
+  const id = _.uniqueId();
 
   return (
     <TreeSelectContainer
@@ -136,7 +142,11 @@ function SingleSelectTreeComponent({
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
@@ -168,7 +178,7 @@ function SingleSelectTreeComponent({
           />
         }
         disabled={disabled}
-        dropdownClassName="tree-select-dropdown single-tree-select-dropdown"
+        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${id}`}
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
         inputIcon={

@@ -113,11 +113,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       } !important;
     }
   `}
-
-
   border-radius: ${({ borderRadius }) => borderRadius};
-box-shadow: ${({ boxShadow }) => `$boxShadow}`} !important;
-
+  box-shadow: ${({ boxShadow }) => `$boxShadow}`} !important;
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`

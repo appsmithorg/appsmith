@@ -201,9 +201,13 @@ const InputComponentWrapper = styled((props) => (
     }
     height: 100%;
     align-items: center;
+    justify-content: flex-end;
+
     label {
       ${labelStyle}
       margin-right: 5px;
+      margin-bottom: 0px;
+      fon
       text-align: right;
       align-self: flex-start;
       color: ${(props) =>
@@ -292,7 +296,6 @@ const TextLableWrapper = styled.div<{
   ${(props) =>
     props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
   display: flex;
-  max-height: 20px;
 `;
 
 const TextInputWrapper = styled.div`

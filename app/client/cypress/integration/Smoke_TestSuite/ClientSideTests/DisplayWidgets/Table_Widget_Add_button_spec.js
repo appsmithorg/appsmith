@@ -171,9 +171,11 @@ describe("Table Widget property pane feature validation", function() {
         force: true,
       });
     // update menu item background color
-    cy.get(widgetsPage.backgroundcolorPickerNew).type("#FFC13D", {
-      force: true,
-    });
+    cy.get(widgetsPage.backgroundcolorPickerNew)
+      .clear()
+      .type("#FFC13D", {
+        force: true,
+      });
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
 

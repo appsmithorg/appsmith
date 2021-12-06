@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -11,12 +12,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import {
-  ButtonBoxShadow,
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-} from "components/constants";
+import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -285,11 +281,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
@@ -365,10 +356,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
+    console.log("dropDownWidth Select", dropDownWidth);
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
@@ -384,6 +377,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           )
         }
         disabled={this.props.isDisabled}
+        dropDownWidth={dropDownWidth}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}

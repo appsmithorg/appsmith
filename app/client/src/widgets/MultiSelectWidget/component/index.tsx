@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select, { SelectProps } from "rc-select";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
@@ -16,6 +17,8 @@ import {
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Classes } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
@@ -35,6 +38,8 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  dropDownWidth: number;
+  width: number;
   labelText?: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
@@ -48,24 +53,28 @@ export interface MultiSelectProps
 
 const DEBOUNCE_TIMEOUT = 800;
 
-function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
-  const {
-    compactMode,
-    disabled,
-    dropdownStyle,
-    isValid,
-    labelStyle,
-    labelText,
-    labelTextColor,
-    labelTextSize,
-    loading,
-    onChange,
-    onFilterChange,
-    options,
-    placeholder,
-    serverSideFiltering,
-    value,
-  } = props;
+function MultiSelectComponent({
+  backgroundColor,
+  borderRadius,
+  boxShadow,
+  compactMode,
+  disabled,
+  dropdownStyle,
+  dropDownWidth,
+  isValid,
+  labelStyle,
+  labelText,
+  labelTextColor,
+  labelTextSize,
+  loading,
+  onChange,
+  onFilterChange,
+  options,
+  placeholder,
+  serverSideFiltering,
+  value,
+  width,
+}: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
   const _menu = useRef<HTMLElement | null>(null);
 
@@ -143,17 +152,23 @@ function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
+  const id = _.uniqueId();
+  console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
-      backgroundColor={props.backgroundColor}
-      borderRadius={props.borderRadius}
-      boxShadow={props.boxShadow}
+      backgroundColor={backgroundColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
@@ -178,7 +193,7 @@ function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
-        dropdownClassName="multi-select-dropdown"
+        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
