@@ -122,20 +122,26 @@ export type ClearIntervalDescription = {
   };
 };
 
+type GeolocationOptions = {
+  maximumAge?: number;
+  timeout?: number;
+  enableHighAccuracy?: boolean;
+};
+
 export type GetCurrentLocationDescription = {
   type: ActionTriggerType.GET_CURRENT_LOCATION;
   payload: {
-    options?: {
-      maximumAge?: number;
-      timeout?: number;
-      enableHighAccuracy?: boolean;
-    };
+    options?: GeolocationOptions;
   };
 };
 
 export type WatchCurrentLocationDescription = {
   type: ActionTriggerType.WATCH_CURRENT_LOCATION;
-  payload: GetCurrentLocationDescription["payload"];
+  payload: {
+    onSuccess: string | undefined;
+    onError: string | undefined;
+    options?: GeolocationOptions;
+  };
 };
 
 export type StopWatchingCurrentLocationDescription = {

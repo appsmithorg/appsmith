@@ -3,11 +3,14 @@ import {
   WatchCurrentLocationDescription,
 } from "entities/DataTree/actionTriggers";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { call, put } from "redux-saga/effects";
+import {
+  executeAppAction,
+  TriggerMeta,
+} from "sagas/ActionExecution/ActionExecutionSagas";
+import { call, put, spawn, take } from "redux-saga/effects";
 import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
-import store from "store";
+import { Channel, channel } from "redux-saga";
 
 // Making the getCurrentPosition call in a promise fashion
 const getUserLocation = (options?: PositionOptions) =>
@@ -53,6 +56,49 @@ const extractGeoLocation = (
   };
 };
 
+let successChannel: Channel<any> | undefined;
+let errorChannel: Channel<any> | undefined;
+
+function* successCallbackHandler() {
+  if (successChannel) {
+    while (true) {
+      const payload = yield take(successChannel);
+      const { callback, eventType, location, triggerMeta } = payload;
+      const currentLocation = extractGeoLocation(location);
+      yield put(setUserCurrentGeoLocation(currentLocation));
+      if (callback) {
+        yield call(executeAppAction, {
+          dynamicString: callback,
+          responseData: [currentLocation],
+          event: { type: eventType },
+          triggerPropertyName: triggerMeta.triggerPropertyName,
+          source: triggerMeta.source,
+        });
+      }
+    }
+  }
+}
+
+function* errorCallbackHandler() {
+  if (errorChannel) {
+    while (true) {
+      const payload = yield take(errorChannel);
+      const { callback, error, eventType, triggerMeta } = payload;
+      if (callback) {
+        yield call(executeAppAction, {
+          dynamicString: callback,
+          responseData: [error],
+          event: { type: eventType },
+          triggerPropertyName: triggerMeta.triggerPropertyName,
+          source: triggerMeta.source,
+        });
+      } else {
+        throw new TriggerFailureError(error.message, triggerMeta);
+      }
+    }
+  }
+}
+
 export function* getCurrentLocationSaga(
   actionPayload: GetCurrentLocationDescription["payload"],
   eventType: EventType,
@@ -82,15 +128,35 @@ export function* watchCurrentLocation(
   if (watchId) {
     // When a watch is already active, we will not start a new watch.
     // at a given point in time, only one watch is active
-    return;
+    throw new TriggerFailureError(
+      "A watchLocation is already active. Clear it before before starting a new one",
+      triggerMeta,
+    );
   }
+  successChannel = channel();
+  errorChannel = channel();
+  yield spawn(successCallbackHandler);
+  yield spawn(errorCallbackHandler);
   watchId = navigator.geolocation.watchPosition(
     (location) => {
-      const currentLocation = extractGeoLocation(location);
-      store.dispatch(setUserCurrentGeoLocation(currentLocation));
+      if (successChannel) {
+        successChannel.put({
+          location,
+          callback: actionPayload.onSuccess,
+          eventType,
+          triggerMeta,
+        });
+      }
     },
     (error) => {
-      throw new TriggerFailureError(error.message, triggerMeta);
+      if (errorChannel) {
+        errorChannel.put({
+          error,
+          callback: actionPayload.onError,
+          eventType,
+          triggerMeta,
+        });
+      }
     },
     actionPayload.options,
   );
@@ -105,4 +171,10 @@ export function* stopWatchCurrentLocation(
   }
   navigator.geolocation.clearWatch(watchId);
   watchId = undefined;
+  if (successChannel) {
+    successChannel.close();
+  }
+  if (errorChannel) {
+    errorChannel.close();
+  }
 }
