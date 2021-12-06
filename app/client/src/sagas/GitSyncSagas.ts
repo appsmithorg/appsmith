@@ -362,7 +362,9 @@ function* fetchGitStatusSaga() {
   }
 }
 
-function* mergeBranchSaga(action: ReduxAction<MergeBranchPayload>) {
+function* mergeBranchSaga(
+  action: ReduxActionWithCallbacks<MergeBranchPayload, void, void>,
+) {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
 
@@ -386,10 +388,9 @@ function* mergeBranchSaga(action: ReduxAction<MergeBranchPayload>) {
 
     if (isValidResponse) {
       yield put(mergeBranchSuccess());
-      Toaster.show({
-        text: "Merge Successful",
-        variant: Variant.success,
-      });
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback();
+      }
     }
   } catch (error) {
     // yield put(mergeBranchFailure());

@@ -631,6 +631,7 @@ export const COMING_SOON = () => "Coming Soon!";
 export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
+export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>

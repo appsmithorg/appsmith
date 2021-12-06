@@ -177,9 +177,12 @@ export const updateBranchLocally = (payload: string) => ({
 
 type MergeBranchPayload = { sourceBranch: string; destinationBranch: string };
 
-export const mergeBranchInit = (payload: MergeBranchPayload) => ({
+export const mergeBranchInit = (params: {
+  payload: { sourceBranch: string; destinationBranch: string };
+  onSuccessCallback: () => void;
+}) => ({
   type: ReduxActionTypes.MERGE_BRANCH_INIT,
-  payload,
+  ...params,
 });
 
 export const mergeBranchSuccess = () => ({
