@@ -60,31 +60,35 @@ export const initializeAnalyticsAndTrackers = () => {
   try {
     const appsmithConfigs = getAppsmithConfigs();
 
-    if (appsmithConfigs.sentry.enabled && !window.Sentry) {
-      window.Sentry = Sentry;
-      Sentry.init({
-        ...appsmithConfigs.sentry,
-        beforeBreadcrumb(breadcrumb) {
-          if (
-            breadcrumb.category === "console" &&
-            breadcrumb.level !== "error"
-          ) {
-            return null;
-          }
-          if (breadcrumb.category === "sentry.transaction") {
-            return null;
-          }
-          if (breadcrumb.category === "redux.action") {
+    try {
+      if (appsmithConfigs.sentry.enabled && !window.Sentry) {
+        window.Sentry = Sentry;
+        Sentry.init({
+          ...appsmithConfigs.sentry,
+          beforeBreadcrumb(breadcrumb) {
             if (
-              breadcrumb.data &&
-              breadcrumb.data.type === "SET_EVALUATED_TREE"
+              breadcrumb.category === "console" &&
+              breadcrumb.level !== "error"
             ) {
-              breadcrumb.data = undefined;
+              return null;
             }
-          }
-          return breadcrumb;
-        },
-      });
+            if (breadcrumb.category === "sentry.transaction") {
+              return null;
+            }
+            if (breadcrumb.category === "redux.action") {
+              if (
+                breadcrumb.data &&
+                breadcrumb.data.type === "SET_EVALUATED_TREE"
+              ) {
+                breadcrumb.data = undefined;
+              }
+            }
+            return breadcrumb;
+          },
+        });
+      }
+    } catch (e) {
+      log.error(e);
     }
 
     if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
@@ -102,12 +106,7 @@ export const initializeAnalyticsAndTrackers = () => {
       }
     }
   } catch (e) {
-    // In case the error is due to sentry itself
-    try {
-      Sentry.captureException(e);
-    } catch (e) {
-      log.error(e);
-    }
+    Sentry.captureException(e);
     log.error(e);
   }
 };
