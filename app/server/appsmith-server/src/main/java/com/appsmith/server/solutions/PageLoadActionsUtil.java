@@ -66,23 +66,21 @@ public class PageLoadActionsUtil {
 
     /**
      * This function computes the sequenced on page load actions.
-     *
+     * <p>
      * !!!WARNING!!! : This function edits the parameters edges, actionsUsedInDSL and flatPageLoadActions
      * and the same are used by the caller function for further processing.
      *
-     * @param pageId : Argument used for fetching actions in this page
-     * @param widgetNames : Set of widget names which SHOULD have been populated before calling this function.
-     * @param edges : Set where this function adds all the relationships (dependencies) between actions
+     * @param pageId                   : Argument used for fetching actions in this page
+     * @param widgetNames              : Set of widget names which SHOULD have been populated before calling this function.
+     * @param edges                    : Set where this function adds all the relationships (dependencies) between actions
      * @param widgetDynamicBindingsMap : A map of widget path and the set of dynamic binding words in the mustache at the
      *                                 path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
-     *
-     *     Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
+     *                                 <p>
+     *                                 Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
      *                                 Map.entry("Table1.tableData", Set.of("Api1.data"))
-     *
-     * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
-     *                            would be called on page load)
-     * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
-     *
+     * @param flatPageLoadActions      : A flat list of on page load actions (Not in the sequence in which these actions
+     *                                 would be called on page load)
+     * @param actionsUsedInDSL         : Set where this function adds all the actions directly used in the DSL
      * @return : Returns page load actions which is a list of sets of actions. Inside a set, all actions can be executed
      * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
@@ -221,14 +219,15 @@ public class PageLoadActionsUtil {
 
     /**
      * This function takes the page load schedule consisting of only action names.
-     *
+     * <p>
      * First it trims the order to remove any unwanted actions which shouldn't be run.
      * Following actions are filtered out :
      * 1. Any JS Action since they are not supported to run on page load currently. TODO : Remove this check once the
-     *    client implements execution of JS functions.
+     * client implements execution of JS functions.
      * 2. Any action which has been marked to not run on page load by the user.
-     *
+     * <p>
      * Next it creates a new schedule order consisting of DslActionDTO instead of just action names.
+     *
      * @param onPageLoadActionSet
      * @param actionNameToActionMapMono
      * @param computeOnPageLoadScheduleNamesMono
@@ -250,12 +249,7 @@ public class PageLoadActionsUtil {
 
                         for (String name : names) {
                             ActionDTO action = actionMap.get(name);
-                            // TODO : Remove this check once JS actions on page load functionality has been
-                            //  implemented on the client side
-                            if (PluginType.JS.equals(action.getPluginType())) {
-                                // trim out the JS actions in the on page load schedule
-                                onPageLoadActionSet.remove(name);
-                            } else if (hasUserSetActionToNotRunOnPageLoad(action)) {
+                            if (hasUserSetActionToNotRunOnPageLoad(action)) {
                                 onPageLoadActionSet.remove(name);
                             } else {
                                 actionsInLevel.add(getDslAction(action));
@@ -273,7 +267,7 @@ public class PageLoadActionsUtil {
      * This function finds all the actions in the page whose name matches the possible entity names found in the
      * bindings in the widget. Caveat : It first removes all invalid bindings from the set of all bindings from the DSL
      * This today means only the usage of an async JS function as a call instead of referring to the `.data`.
-     *
+     * <p>
      * !!! WARNING !!! : This function updates actionsUsedInDSL set which is used to store all the directly referenced
      * actions in the DSL.
      *
@@ -356,12 +350,13 @@ public class PageLoadActionsUtil {
      * 2. Add implicit relationship between property paths and their immediate parents. This is to ensure that in the
      * DAG, all the relationships are considered.
      * e.g following are the implicit relationships generated for property path `Dropdown1.options[1].value`:
-     *
+     * <p>
      * Dropdown1.options[1].value -> Dropdown1.options[1]
      * Dropdown1.options[1] -> Dropdown1.options
      * Dropdown1.options -> Dropdown1
-     *
+     * <p>
      * 3. Now create the DAG using the edges after the two steps.
+     *
      * @param actionNames
      * @param widgetNames
      * @param edges
@@ -457,16 +452,17 @@ public class PageLoadActionsUtil {
      * dependencies. The 0th index set contains actions which are executable immediately. The next index contains all
      * actions which depend on one or more of the actions which were executed from the 0th index set and so on.
      * Breadth First level by level traversal is used to compute each set of such independent actions.
-     * @param dag : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     *
+     * @param dag                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
      * @param onPageLoadActionSet
-     * @param actionNames : All the action names for the page
+     * @param actionNames           : All the action names for the page
      * @param actionNameToActionMap : Map indexed by the action name for all the actions in the page.
      * @return
      */
     private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
-                                                                          Set<String> onPageLoadActionSet,
-                                                                          Set<String> actionNames,
-                                                                          Map<String, ActionDTO> actionNameToActionMap) {
+                                                                      Set<String> onPageLoadActionSet,
+                                                                      Set<String> actionNames,
+                                                                      Map<String, ActionDTO> actionNameToActionMap) {
         List<Set<String>> onPageLoadActions = new ArrayList<>();
 
         // Find all root nodes to start the BFS traversal from
@@ -542,11 +538,11 @@ public class PageLoadActionsUtil {
     /**
      * This function finds all the actions which have been set to run on page load by the user and adds their
      * dependencies to the graph.
-     *
+     * <p>
      * Note : If such an action has no dependencies and no interesting entity depends on it,
      * this action would still not get added to the output of page load scheduler. This function only ensures that the
      * dependencies of user set on page load actions are accounted for.
-     *
+     * <p>
      * !!! WARNING !!! : This function updates the set `explicitUserSetOnLoadActions` and adds the names of all such
      * actions found in this function.
      *
@@ -581,7 +577,7 @@ public class PageLoadActionsUtil {
      * walking the action configuration and finding the paths and the mustache JS snippets found at the said path. Then
      * the relationship between the complete path and the property paths found in the mustache JS snippets are added to
      * the graph edges.
-     *
+     * <p>
      * !!! WARNING !!! : This function updates the set actionsFoundDuringWalk since this function is called from all
      * places to add the action dependencies. If the action has already been discovered, this function exits by checking
      * in the actionsFoundDuringWalk, else, it adds it to the set.
@@ -769,9 +765,9 @@ public class PageLoadActionsUtil {
 
     /**
      * This function creates all `child -> parent` edges given a path.
-     *
+     * <p>
      * For example, given path `Dropdown1.options[1].value`, the following relationships are generated :
-     *
+     * <p>
      * Dropdown1.options[1].value -> Dropdown1.options[1]
      * Dropdown1.options[1] -> Dropdown1.options
      * Dropdown1.options -> Dropdown1
@@ -803,11 +799,11 @@ public class PageLoadActionsUtil {
     /**
      * Given a dynamic binding, this function checks if it is a candidate for on page load. This is done by checking for
      * the following two conditions :
-     *  - Is it an action name (which has been found in the page). If not, ignore.
-     *  - Has this action already been found for page load? If yes, ignore.
-     *  - If JS, following two conditions are checked for :
-     *      - If sync function, ignore. This is because client would execute the same during dynamic binding eval
-     *      - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
+     * - Is it an action name (which has been found in the page). If not, ignore.
+     * - Has this action already been found for page load? If yes, ignore.
+     * - If JS, following two conditions are checked for :
+     * - If sync function, ignore. This is because client would execute the same during dynamic binding eval
+     * - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
      *
      * @param allActionNames
      * @param actionNameToActionMap
@@ -833,8 +829,7 @@ public class PageLoadActionsUtil {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
-                if (PluginType.JS.equals(action.getPluginType()) &&
-                        TRUE.equals(action.getActionConfiguration().getIsAsync())) {
+                if (PluginType.JS.equals(action.getPluginType())) {
 
                     // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
                     // of this async call is being referred to in the binding.
