@@ -23,7 +23,7 @@ class ImageAnnotatorWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Url of the image to be annotated",
+            helpText: "To add an image to the canvas, enter its URL here.",
             propertyName: "imageUrl",
             label: "Image URL",
             controlType: "INPUT_TEXT",
@@ -34,7 +34,8 @@ class ImageAnnotatorWidget extends BaseWidget<
           },
           {
             propertyName: "imageAltText",
-            helpText: "Sets image alt attribute",
+            helpText:
+              "Enter the alternative text for the image here, giving a short description of it.",
             label: "Image Alt Text",
             controlType: "INPUT_TEXT",
             placeholderText: "A text description of the image",
@@ -189,7 +190,8 @@ class ImageAnnotatorWidget extends BaseWidget<
           },
           {
             propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
+            helpText:
+              "Controls widget's visibility on the page. When turned off, the widget will not be visible when the app is published.",
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -199,7 +201,8 @@ class ImageAnnotatorWidget extends BaseWidget<
           },
           {
             propertyName: "isDisabled",
-            helpText: "Sets to true to disable creating of annotations",
+            helpText:
+              "It enables or disables the annotation. If turned on, the user cannot annotate the image.",
             label: "Disabled",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -209,7 +212,8 @@ class ImageAnnotatorWidget extends BaseWidget<
           },
           {
             propertyName: "selector",
-            helpText: "Sets the selector of the widget",
+            helpText:
+              "It allows you to choose the type of selector for the annotation.",
             label: "Selector",
             controlType: "DROP_DOWN",
             options: [
