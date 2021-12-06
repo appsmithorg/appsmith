@@ -856,6 +856,11 @@ public class PageLoadActionsUtil {
             // Each of these might have nested structures, so we iterate through them to find the leaf node for each
             for (Property x : dynamicBindingPathList) {
                 final String fieldPath = String.valueOf(x.getKey());
+                // Ignore pagination configuration
+                if (fieldPath.equals("prev") || fieldPath.equals("next")) {
+                    continue;
+                }
+
                 String[] fields = fieldPath.split("[].\\[]");
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = configurationObj;

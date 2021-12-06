@@ -31,6 +31,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -2280,6 +2281,96 @@ public class ActionServiceTest {
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
+    }
+
+    private Mono<PageDTO> createPage(Application app, PageDTO page) {
+        return newPageService
+                .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
+                .switchIfEmpty(applicationPageService.createApplication(app, orgId)
+                        .map(application -> {
+                            page.setApplicationId(application.getId());
+                            return page;
+                        })
+                        .flatMap(applicationPageService::createPage));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getActionsExecuteOnLoadPaginatedApi() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("ActionsExecuteOnLoad Paginated Api Test Page");
+
+        Application app = new Application();
+        app.setName("newApplication-paginated-api-execute-on-load-Test");
+
+        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+
+        Mono<LayoutDTO> testMono = pageMono
+                .flatMap(page1 -> {
+                    List<Mono<ActionDTO>> monos = new ArrayList<>();
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("paginatedApi");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
+                    action.getActionConfiguration().setPaginationType(PaginationType.URL);
+                    action.getActionConfiguration().setNext("{{paginatedApi.data.next}}");
+                    action.getActionConfiguration().setPrev("{{paginatedApi.data.prev}}");
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    action.setDynamicBindingPathList(List.of(new Property("next", null), new Property("prev", null)));
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    return Mono.zip(monos, objects -> page1);
+                })
+                .zipWhen(page1 -> {
+                    Layout layout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "key", "value"
+                    ));
+                    layout.setDsl(obj);
+
+                    return layoutService.createLayout(page1.getId(), layout);
+                })
+                .flatMap(tuple2 -> {
+                    final PageDTO page1 = tuple2.getT1();
+                    final Layout layout = tuple2.getT2();
+
+                    Layout newLayout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "widgetName", "testWidget",
+                            "key", "value-updated",
+                            "bindingPath", "{{paginatedApi.data}}"
+                    ));
+                    JSONArray dynamicBindingsPathList = new JSONArray();
+                    dynamicBindingsPathList.addAll(List.of(
+                            new JSONObject(Map.of("key", "bindingPath"))
+                    ));
+
+                    obj.put("dynamicBindingPathList", dynamicBindingsPathList);
+                    newLayout.setDsl(obj);
+
+                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+
+                });
+        StepVerifier
+                .create(testMono)
+                .assertNext(layout -> {
+                    assertThat(layout).isNotNull();
+                    assertThat(layout.getId()).isNotNull();
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                    // TODO: This is an incorrect expectation, it should be 8 actions in the first set
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(1);
+
+                    Set<String> firstSetPageLoadActions = Set.of(
+                            "paginatedApi"
+                    );
+                })
+                .verifyComplete();
     }
 
 }
