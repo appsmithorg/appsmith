@@ -21,6 +21,7 @@ export const CONFIG = {
     isVisible: true,
     widgetName: "CheckboxGroup",
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
