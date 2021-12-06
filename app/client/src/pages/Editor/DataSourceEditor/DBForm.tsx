@@ -9,8 +9,6 @@ import Button, { Category } from "components/ads/Button";
 import { Colors } from "constants/Colors";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
-
-import EditButton from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
@@ -24,46 +22,32 @@ import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { AppState } from "reducers";
 import {
-  ActionButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
   JSONtoFormProps,
   PluginImage,
-  SaveButtonContainer,
 } from "./JSONtoForm";
-import { ButtonVariantTypes } from "components/constants";
+import DatasourceAuth from "../common/datasourceAuth";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps extends JSONtoFormProps {
-  onSave: (formValues: Datasource) => void;
-  onTest: (formValus: Datasource) => void;
-  handleDelete: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
-  isSaving: boolean;
-  isDeleting: boolean;
   datasourceId: string;
   applicationId: string;
   pageId: string;
-  isTesting: boolean;
   isNewDatasource: boolean;
   pluginImage: string;
   viewMode: boolean;
   pluginType: string;
   messages?: Array<string>;
+  datasource: Datasource;
 }
 
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
-
-const StyledButton = styled(EditButton)`
-  &&&& {
-    width: 87px;
-    height: 32px;
-  }
-`;
 
 const StyledOpenDocsIcon = styled(Icon)`
   svg {
@@ -94,31 +78,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     }
   }
 
-  save = () => {
-    const normalizedValues = this.normalizeValues();
-    const trimmedValues = this.getTrimmedData(normalizedValues);
-    AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
-      pageId: this.props.pageId,
-      appId: this.props.applicationId,
-    });
-    this.props.onSave(trimmedValues);
-  };
-
   openOmnibarReadMore = () => {
     const { openOmnibarReadMore } = this.props;
     openOmnibarReadMore("connect to databases");
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "READ_MORE_DATASOURCE" });
-  };
-
-  test = () => {
-    const normalizedValues = this.normalizeValues();
-    const trimmedValues = this.getTrimmedData(normalizedValues);
-    AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
-      pageId: this.props.pageId,
-      appId: this.props.applicationId,
-    });
-
-    this.props.onTest(trimmedValues);
   };
 
   render() {
@@ -128,15 +91,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
 
   renderDataSourceConfigForm = (sections: any) => {
-    const {
-      datasourceId,
-      handleDelete,
-      isDeleting,
-      isSaving,
-      isTesting,
-      messages,
-      pluginType,
-    } = this.props;
+    const { datasource, messages, pluginType } = this.props;
     const { viewMode } = this.props;
     return (
       <form
@@ -193,37 +148,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : undefined}
-            <SaveButtonContainer>
-              <ActionButton
-                buttonStyle="DANGER"
-                buttonVariant={ButtonVariantTypes.PRIMARY}
-                // accent="error"
-                className="t--delete-datasource"
-                loading={isDeleting}
-                onClick={() => handleDelete(datasourceId)}
-                text="Delete"
+            {datasource && (
+              <DatasourceAuth
+                datasource={datasource}
+                isInvalid={this.validate()}
+                sanitizedFormData={this.getTrimmedData(this.normalizeValues())}
               />
-
-              <ActionButton
-                // accent="secondary"
-                buttonStyle="PRIMARY"
-                buttonVariant={ButtonVariantTypes.SECONDARY}
-                className="t--test-datasource"
-                loading={isTesting}
-                onClick={this.test}
-                text="Test"
-              />
-              <StyledButton
-                className="t--save-datasource"
-                disabled={this.validate()}
-                filled
-                intent="primary"
-                loading={isSaving}
-                onClick={this.save}
-                size="small"
-                text="Save"
-              />
-            </SaveButtonContainer>
+            )}
           </>
         ) : (
           <Connected />
@@ -242,6 +173,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   return {
     messages: hintMessages,
+    datasource,
   };
 };
 

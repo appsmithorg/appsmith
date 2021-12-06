@@ -287,12 +287,12 @@ export const REST_API_AUTHORIZATION_FAILED = () =>
 export const REST_API_AUTHORIZATION_APPSMITH_ERROR = () =>
   "Something went wrong.";
 
-export const SAAS_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
-export const SAAS_AUTHORIZATION_FAILED =
+export const OAUTH_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
+export const OAUTH_AUTHORIZATION_FAILED =
   "Authorization failed. Please check your details or try again.";
 // Todo: improve this for appsmith_error error message
-export const SAAS_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
-export const SAAS_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
+export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
