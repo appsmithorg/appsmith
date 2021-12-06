@@ -293,7 +293,10 @@ class AnalyticsUtil {
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
-      windowDoc.analytics.track(eventName, finalEventData);
+      windowDoc.analytics.track(eventName, {
+        ...finalEventData,
+        source: "FROM_CI",
+      });
     } else {
       log.debug("Event fired locally", eventName, finalEventData);
     }
