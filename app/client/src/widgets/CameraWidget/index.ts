@@ -11,8 +11,8 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "Camera",
-    rows: 10.5 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7.5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 8.25 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6.25 * GRID_DENSITY_MIGRATION_V1,
     mode: CameraModeTypes.CAMERA,
     isDisabled: false,
     isVisible: true,

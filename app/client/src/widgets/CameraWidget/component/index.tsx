@@ -45,7 +45,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: auto;
+  overflow: hidden;
   background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};
 
   .fullscreen {
@@ -53,6 +53,8 @@ const CameraContainer = styled.div<CameraContainerProps>`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 100%;
 
     span.error-text {
       color: ${Colors.GREY_8};
@@ -60,6 +62,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   }
 
   video {
+    max-width: none;
     ${({ scaleAxis }) => (scaleAxis === "x" ? `width: 100%` : `height: 100%`)};
   }
 `;
