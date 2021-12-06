@@ -4,6 +4,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
   JSToggleButton,
+  ThemeBound,
 } from "components/propertyControls/StyledControls";
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
@@ -24,6 +25,7 @@ import {
   getEvalValuePath,
   isPathADynamicProperty,
   isPathADynamicTrigger,
+  isThemeBoundProperty,
 } from "utils/DynamicBindingUtils";
 import {
   getWidgetPropsForPropertyName,
@@ -360,6 +362,10 @@ const PropertyControl = memo((props: Props) => {
       widgetProperties,
       propertyName,
     );
+    const isThemeBound: boolean = isThemeBoundProperty(
+      widgetProperties,
+      propertyName,
+    );
     const isConvertible = !!props.isJSConvertible;
     const className = props.label
       .split(" ")
@@ -434,6 +440,11 @@ const PropertyControl = memo((props: Props) => {
                 >
                   <ControlIcons.JS_TOGGLE />
                 </JSToggleButton>
+              )}
+              {isThemeBound && (
+                <ThemeBound>
+                  <ControlIcons.THEME_BOUND />
+                </ThemeBound>
               )}
             </ControlPropertyLabelContainer>
             <Indicator

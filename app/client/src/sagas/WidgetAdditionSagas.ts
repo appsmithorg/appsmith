@@ -33,7 +33,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
-import { omit } from "lodash";
+import _, { omit } from "lodash";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
@@ -137,7 +137,8 @@ function* getChildWidgetProps(
     widget,
     themeDefaultConfig,
   );
-  widget.dynamicBindingPathList = dynamicBindingPathList;
+  widget.dynamicBindingPathList = _.cloneDeep(dynamicBindingPathList);
+  widget.dynamicPropertyPathList = _.cloneDeep(dynamicBindingPathList);
   return widget;
 }
 function* generateChildWidgets(
