@@ -60,7 +60,7 @@ export const initializeAnalyticsAndTrackers = () => {
   try {
     const appsmithConfigs = getAppsmithConfigs();
 
-    if (appsmithConfigs.sentry.enabled) {
+    if (appsmithConfigs.sentry.enabled && !window.Sentry) {
       window.Sentry = Sentry;
       Sentry.init({
         ...appsmithConfigs.sentry,
@@ -92,7 +92,7 @@ export const initializeAnalyticsAndTrackers = () => {
       AnalyticsUtil.initializeSmartLook(id);
     }
 
-    if (appsmithConfigs.segment.enabled) {
+    if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
         AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
