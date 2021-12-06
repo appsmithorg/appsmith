@@ -44,6 +44,7 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
+import { lightenColor } from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -77,6 +78,7 @@ const InputComponentWrapper = styled((props) => (
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }>`
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   &&&& {
@@ -162,14 +164,12 @@ const InputComponentWrapper = styled((props) => (
         border-color: ${Colors.GREY_5};
       }
       &:focus {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.MYSTIC};
-
-        &:focus {
-          outline: 0;
-          border: 1px solid ${Colors.GREEN_1};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2} !important;
-        }
+        outline: 0;
+        border: 1px solid;
+        border-color: ${({ hasError, primaryColor }) =>
+          hasError ? Colors.DANGER_SOLID : primaryColor};
+        box-shadow: ${({ primaryColor }) =>
+          `0px 0px 0px 2px ${lightenColor(primaryColor)} !important;`}
       }
       &:disabled {
         background-color: ${Colors.GREY_1};
@@ -569,6 +569,7 @@ class InputComponent extends React.Component<
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={this.props.multiline.toString()}
         numeric={isNumberInputType(this.props.inputType)}
+        primaryColor={this.props.primaryColor}
       >
         {showLabelHeader && (
           <TextLableWrapper
@@ -676,6 +677,7 @@ export interface InputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
+  primaryColor: string;
 }
 
 export default InputComponent;

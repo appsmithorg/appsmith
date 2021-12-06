@@ -6,7 +6,6 @@ export interface AppTheme {
     colors: {
       primaryColor: string;
       backgroundColor: string;
-      secondaryColor: string;
       [key: string]: string;
     };
     borderRadius: {

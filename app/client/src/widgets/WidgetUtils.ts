@@ -210,6 +210,45 @@ export const getComplementaryGrayscaleColor = (color = "#fff", alpha = 1) => {
 };
 
 /**
+ * lightens the color by given amount
+ *
+ * @param borderRadius
+ * @returns
+ */
+export const lightenColor = (color = "#fff") => {
+  const tinyAccentColor = tinycolor(color);
+  const brightness = tinycolor(color)
+    .greyscale()
+    .getBrightness();
+
+  const percentageBrightness = (brightness / 255) * 100;
+  let nextBrightness = 0;
+
+  switch (true) {
+    case percentageBrightness > 70:
+      nextBrightness = 15;
+      break;
+    case percentageBrightness > 60:
+      nextBrightness = 25;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 35;
+      break;
+    case percentageBrightness > 40:
+      nextBrightness = 45;
+      break;
+    default:
+      nextBrightness = 65;
+  }
+
+  if (brightness > 180) {
+    return tinyAccentColor.darken(10).toString();
+  } else {
+    return tinyAccentColor.lighten(nextBrightness).toString();
+  }
+};
+
+/**
  * checks if color is dark or not
  *
  * @param color

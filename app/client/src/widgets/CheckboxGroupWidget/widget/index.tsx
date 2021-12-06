@@ -190,7 +190,8 @@ class CheckboxGroupWidget extends BaseWidget<
             helpText: "Sets the background color of the widget",
             label: "Background color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
           },
           {
@@ -204,7 +205,8 @@ class CheckboxGroupWidget extends BaseWidget<
               ButtonBorderRadiusTypes.ROUNDED,
               ButtonBorderRadiusTypes.CIRCLE,
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,

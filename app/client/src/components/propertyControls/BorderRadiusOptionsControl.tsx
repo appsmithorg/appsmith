@@ -11,6 +11,9 @@ const options: { [key: string]: string } = {
   DEFAULT: "0.25rem",
   md: "0.375rem",
   lg: "0.5rem",
+  xl: "0.75rem",
+  "2xl": "1rem",
+  "3xl": "1.5rem",
   full: "9999px",
 };
 
@@ -33,7 +36,7 @@ class BorderRadiusOptionsControl extends BaseControl<
     const { propertyValue } = this.props;
 
     return (
-      <div className="grid grid-flow-col gap-2 mt-1 auto-cols-max">
+      <div className="grid grid-cols-6 gap-2 auto-cols-max">
         {Object.keys(options).map((optionKey) => (
           <TooltipComponent content={optionKey} key={optionKey}>
             <button

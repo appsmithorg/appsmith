@@ -115,7 +115,7 @@ export function ThemeCard(props: ThemeCard) {
               Button
             </button>
             <button
-              className={`${tw`rounded-[${primaryBorderRadius}] border border-[${primaryColor}] bg-[${secondaryColor}] text-[${primaryColor}] ${tw`${css(
+              className={`${tw`rounded-[${primaryBorderRadius}] border border-[${primaryColor}] bg-white text-[${primaryColor}] ${tw`${css(
                 {
                   "&": {
                     boxShadow: primaryBoxShadow,

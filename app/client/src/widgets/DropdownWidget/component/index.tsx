@@ -13,7 +13,7 @@ import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { lightenColor, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 
 const FUSE_OPTIONS = {
@@ -32,6 +32,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }>`
   div {
     flex: 1 1 auto;
@@ -64,10 +65,10 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
       props.isValid
         ? `
         &:hover {
-          border: 1.2px solid ${Colors.GREY_5};
+          border: 1px solid ${Colors.GREY_5};
         }
         &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
+          border: 1px solid ${props.primaryColor};
           outline: 0;
         }
       `
@@ -79,7 +80,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     ${(props) =>
       props.isValid
         ? `
-        border: 1.2px solid ${Colors.GREEN_SOLID};
+        border: 1px solid ${props.primaryColor};
         box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
       `
         : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
@@ -137,6 +138,7 @@ const DropdownStyles = createGlobalStyle<{
   dropDownWidth: number;
   borderRadius: string;
   id: string;
+  primaryColor: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-width-${id} {
@@ -174,6 +176,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
           }
         }
       }
+
       & > .${Classes.INPUT_ACTION} {
         &:last-child {
           right: 13px;
@@ -192,35 +195,39 @@ ${({ dropDownWidth, id, parentWidth }) => `
           }
         }
       }
+
       .${Classes.INPUT} {
         height: 36px;
         border: 1px solid ${Colors.GREY_3};
         color: ${Colors.GREY_10};
         border-radius: ${({ borderRadius }) => borderRadius} !important;
         &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+          border: ${({ primaryColor }) => `1.2px solid ${primaryColor}`};
+          box-shadow: ${({ primaryColor }) =>
+            `0px 0px 0px 2px ${lightenColor(primaryColor)}`};
         }
       }
     }
-    && .${Classes.MENU} {
+
+    & .${Classes.MENU} {
       margin-top: -3px;
       max-width: 100%;
       max-height: auto;
       min-width: 0px !important;
     }
-    &&&& .${Classes.MENU_ITEM} {
+
+    & .${Classes.MENU_ITEM} {
       min-height: 38px;
       padding: 9px 12px;
       color: ${Colors.GREY_8};
       &:hover{
-        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
       }
       &.is-focused{
-        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
       }
       &.${Classes.ACTIVE} {
-        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
         color: ${Colors.GREY_10};
         position:relative;
       }
@@ -305,6 +312,7 @@ class DropDownComponent extends React.Component<
           dropDownWidth={this.props.dropDownWidth}
           id={id}
           parentWidth={this.props.width - WidgetContainerDiff}
+          primaryColor={this.props.primaryColor}
         />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode}>
@@ -362,6 +370,7 @@ class DropDownComponent extends React.Component<
               },
               popoverClassName: `select-popover-wrapper select-popover-width-${id}`,
             }}
+            primaryColor={this.props.primaryColor}
           >
             <Button
               disabled={this.props.disabled}
@@ -446,6 +455,7 @@ export interface DropDownComponentProps extends ComponentProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 export default DropDownComponent;
