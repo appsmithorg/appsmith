@@ -409,20 +409,6 @@ class ButtonGroupWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
           },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
         ],
       },
     ];

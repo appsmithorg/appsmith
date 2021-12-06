@@ -193,7 +193,6 @@ const dummyThemes: AppTheme[] = [
     properties: {
       colors: {
         primaryColor: "#50AF6C",
-        secondaryColor: "#EDE9FE",
         backgroundColor: "#F6F6F6",
       },
       borderRadius: {
@@ -218,7 +217,6 @@ const dummyThemes: AppTheme[] = [
     config: {
       colors: {
         primaryColor: "#553DE9",
-        secondaryColor: "#f00",
         backgroundColor: "#F6F6F6",
       },
       borderRadius: {
@@ -391,7 +389,6 @@ const dummyThemes: AppTheme[] = [
     properties: {
       colors: {
         primaryColor: "#553DE9",
-        secondaryColor: "#EDE9FE",
         backgroundColor: "#F6F6F6",
       },
       borderRadius: {
@@ -417,7 +414,6 @@ const dummyThemes: AppTheme[] = [
     config: {
       colors: {
         primaryColor: "#3B7DDD",
-        secondaryColor: "#f00",
         backgroundColor: "#153D77",
       },
       borderRadius: {
@@ -594,7 +590,6 @@ const dummyThemes: AppTheme[] = [
     properties: {
       colors: {
         primaryColor: "#3B7DDD",
-        secondaryColor: "#fff",
         backgroundColor: "#153D77",
       },
       borderRadius: {
@@ -619,7 +614,6 @@ const dummyThemes: AppTheme[] = [
     config: {
       colors: {
         primaryColor: "#DE1593",
-        secondaryColor: "#f00",
         backgroundColor: "#F6F6F6",
       },
       borderRadius: {
@@ -796,7 +790,6 @@ const dummyThemes: AppTheme[] = [
     properties: {
       colors: {
         primaryColor: "#DE1593",
-        secondaryColor: "#fff",
         backgroundColor: "#F6F6F6",
       },
       borderRadius: {

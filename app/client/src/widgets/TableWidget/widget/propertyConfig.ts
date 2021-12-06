@@ -853,11 +853,6 @@ export default [
                       ColumnTypes.BUTTON,
                     ]);
                   },
-                  options: [
-                    ButtonBorderRadiusTypes.SHARP,
-                    ButtonBorderRadiusTypes.ROUNDED,
-                    ButtonBorderRadiusTypes.CIRCLE,
-                  ],
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -865,12 +860,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-                    },
-                  },
                 },
                 {
                   propertyName: "boxShadow",
@@ -885,39 +874,6 @@ export default [
                       ColumnTypes.ICON_BUTTON,
                       ColumnTypes.MENU_BUTTON,
                       ColumnTypes.BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      allowedValues: [
-                        "NONE",
-                        "VARIANT1",
-                        "VARIANT2",
-                        "VARIANT3",
-                        "VARIANT4",
-                        "VARIANT5",
-                      ],
-                    },
-                  },
-                },
-                {
-                  propertyName: "boxShadowColor",
-                  helpText: "Sets the shadow color of the widget",
-                  label: "Shadow Color",
-                  controlType: "COLOR_PICKER",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.ICON_BUTTON,
                     ]);
                   },
                   dependencies: [
@@ -1616,20 +1572,9 @@ export default [
         label: "Border Radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
-        options: [
-          ButtonBorderRadiusTypes.SHARP,
-          ButtonBorderRadiusTypes.ROUNDED,
-          ButtonBorderRadiusTypes.CIRCLE,
-        ],
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ["SHARP", "ROUNDED"],
-          },
-        },
       },
       {
         propertyName: "boxShadow",
@@ -1640,34 +1585,6 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              "NONE",
-              "VARIANT1",
-              "VARIANT2",
-              "VARIANT3",
-              "VARIANT4",
-              "VARIANT5",
-            ],
-          },
-        },
-      },
-      {
-        propertyName: "boxShadowColor",
-        helpText: "Sets the shadow color of the widget",
-        label: "Shadow Color",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
       },
     ],
   },

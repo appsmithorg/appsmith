@@ -41,7 +41,6 @@ export function ThemeCard(props: ThemeCard) {
   const userDefinedColors = theme.properties.colors;
   const primaryColor = userDefinedColors.primaryColor;
   const backgroundColor = userDefinedColors.backgroundColor;
-  const secondaryColor = userDefinedColors.secondaryColor;
 
   // border radius
   const borderRadius = theme.properties.borderRadius;

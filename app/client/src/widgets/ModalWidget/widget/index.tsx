@@ -83,10 +83,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-            ],
+
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
