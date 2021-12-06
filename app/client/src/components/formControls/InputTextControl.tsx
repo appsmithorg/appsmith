@@ -62,6 +62,7 @@ function renderComponent(
     <TextInput
       dataType={props.dataType}
       disabled={props.disabled || false}
+      name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       value={props.input.value}

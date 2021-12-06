@@ -121,6 +121,7 @@ function KeyValueRow(
                     ? props.extraData[1]?.placeholderText
                     : "",
                   isRequired: extraData[0]?.isRequired,
+                  name: keyTextFieldName,
                 }}
               />
             </div>
@@ -136,6 +137,7 @@ function KeyValueRow(
                       placeholder: props.extraData
                         ? props.extraData[1]?.placeholderText
                         : "",
+                      name: valueTextFieldName,
                       isRequired: extraData[1]?.isRequired,
                     }}
                   />
@@ -234,6 +236,7 @@ function renderTextInput(
       defaultValue={props.defaultValue}
       errorMsg={props.errorMsg}
       helperText={props.helperText}
+      name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       validator={props.keyFieldValidate}

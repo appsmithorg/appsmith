@@ -522,7 +522,9 @@ function DefaultDropDownValueNode({
       return errorMsg ? (
         <ErrorLabel>{LabelText}</ErrorLabel>
       ) : (
-        <Text type={TextType.P1}>{LabelText}</Text>
+        <span style={{ width: "100%" }}>
+          <Text type={TextType.P1}>{LabelText}</Text>
+        </span>
       );
   }
 
@@ -639,7 +641,6 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           return (
             <OptionWrapper
               className="t--dropdown-option"
-              isMultiSelect={props.isMultiSelect}
               key={index}
               onClick={() => props.optionClickHandler(option)}
               selected={isSelected}
