@@ -1256,4 +1256,62 @@ public class FilterDataServiceTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testFilterDataNew_withTimestampClause_returnsCorrectValues() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"date\": \"2021-09-01 00:01:00\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"date\": \"2021-09-02 00:02:00\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"date\": \"2021-09-03 00:03:00\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"date\",\n" +
+                "        \"condition\": \"GTE\",\n" +
+                "        \"value\": \"2021-09-02 00:02:00\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 2);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

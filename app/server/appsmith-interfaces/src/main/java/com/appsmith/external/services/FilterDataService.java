@@ -53,7 +53,8 @@ public class FilterDataService {
             DataType.DOUBLE, "DOUBLE",
             DataType.BOOLEAN, "BOOLEAN",
             DataType.STRING, "VARCHAR",
-            DataType.DATE, "DATE"
+            DataType.DATE, "DATE",
+            DataType.TIMESTAMP, "TIMESTAMP"
     );
 
     private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
