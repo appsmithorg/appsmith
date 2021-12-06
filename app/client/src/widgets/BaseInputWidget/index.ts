@@ -5,11 +5,10 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Input",
+  hideCard: true,
   iconSVG: IconSVG,
   needsMeta: true,
-  hideCard: true,
   defaults: {
-    inputType: "TEXT",
     rows: GRID_DENSITY_MIGRATION_V1,
     label: "",
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
@@ -22,8 +21,6 @@ export const CONFIG = {
     resetOnSubmit: true,
     isRequired: false,
     isDisabled: false,
-    allowCurrencyChange: false,
-    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

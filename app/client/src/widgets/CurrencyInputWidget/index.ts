@@ -1,29 +1,20 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
+import { getDefaultCurrency } from "./component/CurrencyCodeDropdown";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Input",
+  name: "Currency Input",
   iconSVG: IconSVG,
   needsMeta: true,
-  hideCard: true,
   defaults: {
-    inputType: "TEXT",
-    rows: GRID_DENSITY_MIGRATION_V1,
-    label: "",
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
-    widgetName: "Input",
+    ...BaseConfig.defaults,
+    widgetName: "CurrencyInput",
     version: 1,
-    defaultText: "",
-    iconAlign: "left",
-    autoFocus: false,
-    labelStyle: "",
-    resetOnSubmit: true,
-    isRequired: false,
-    isDisabled: false,
     allowCurrencyChange: false,
-    animateLoading: true,
+    countryCode: getDefaultCurrency().code,
+    decimals: 0,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
