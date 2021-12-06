@@ -1,7 +1,8 @@
-package com.appsmith.server.repositories;
+package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 
