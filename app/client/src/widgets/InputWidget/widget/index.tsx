@@ -23,7 +23,6 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { ButtonBorderRadiusTypes } from "components/constants";
 
 export function defaultValueValidation(
   value: any,

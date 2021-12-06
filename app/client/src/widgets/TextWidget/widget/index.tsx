@@ -5,14 +5,9 @@ import { TextSize } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
+import { Color } from "constants/Colors";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
-import { Color } from "constants/Colors";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {

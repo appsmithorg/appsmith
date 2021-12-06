@@ -6,7 +6,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { ButtonBorderRadiusTypes } from "components/constants";
 
 const PropertyPaneConfig = [
   {

@@ -4,14 +4,13 @@ import {
   UpdateSelectedAppThemeAction,
   ChangeSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import AppThemingApi from "api/AppThemingApi";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
-import { all, takeLatest, select, put } from "redux-saga/effects";
+import { all, takeLatest, put } from "redux-saga/effects";
 
 const dummyThemes: AppTheme[] = [
   {
@@ -816,6 +815,7 @@ const dummyThemes: AppTheme[] = [
  * @param action
  */
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
+  // eslint-disable-next-line
   const { applicationId } = action.payload;
 
   try {
@@ -841,8 +841,8 @@ export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
 export function* fetchAppSelectedTheme(
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
+  // eslint-disable-next-line
   const { applicationId } = action.payload;
-
   try {
     // const response = yield ThemingApi.fetchThemes(applicationId);
 
@@ -866,7 +866,7 @@ export function* fetchAppSelectedTheme(
 export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
-  const { applicationId, theme } = action.payload;
+  const { theme } = action.payload;
 
   try {
     // const response = yield ThemingApi.updateTheme(applicationId, theme);
@@ -891,7 +891,7 @@ export function* updateSelectedTheme(
 export function* changeSelectedTheme(
   action: ReduxAction<ChangeSelectedAppThemeAction>,
 ) {
-  const { applicationId, theme } = action.payload;
+  const { theme } = action.payload;
 
   try {
     // const response = yield ThemingApi.updateTheme(applicationId, theme);

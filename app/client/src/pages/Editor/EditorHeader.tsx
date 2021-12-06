@@ -21,7 +21,6 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
-  themeModeSelector,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -252,7 +251,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const user = useSelector(getCurrentUser);
   const shouldHideComments = useHideComments();
   const isPreviewMode = useSelector(previewModeSelector);
-  const isThemingMode = useSelector(themeModeSelector);
 
   useEffect(() => {
     if (window.location.href) {

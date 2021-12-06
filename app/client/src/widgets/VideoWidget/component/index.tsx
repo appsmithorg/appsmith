@@ -1,8 +1,8 @@
 import ReactPlayer from "react-player";
 import React, { Ref } from "react";
 import styled from "styled-components";
+import { ButtonBorderRadius } from "components/constants";
 import { createMessage, ENTER_VIDEO_URL } from "constants/messages";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 export interface VideoComponentProps {
   url?: string;

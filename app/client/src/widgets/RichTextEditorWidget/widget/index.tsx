@@ -6,11 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
+
 const showdown = require("showdown");
 
 export enum RTEFormats {

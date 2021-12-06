@@ -14,11 +14,6 @@ import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };

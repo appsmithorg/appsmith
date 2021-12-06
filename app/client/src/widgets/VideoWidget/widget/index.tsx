@@ -7,11 +7,7 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
+import { ButtonBorderRadius } from "components/constants";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 

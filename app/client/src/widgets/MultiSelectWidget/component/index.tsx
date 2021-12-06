@@ -20,7 +20,6 @@ import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;

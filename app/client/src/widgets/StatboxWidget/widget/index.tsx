@@ -3,7 +3,6 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget from "widgets/ContainerWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonBorderRadiusTypes } from "components/constants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneConfig() {

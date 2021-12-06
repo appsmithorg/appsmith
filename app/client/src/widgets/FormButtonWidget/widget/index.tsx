@@ -8,11 +8,7 @@ import {
 import ButtonComponent, { ButtonType } from "widgets/ButtonWidget/component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import ButtonWidget from "widgets/ButtonWidget";
-import {
-  ButtonBorderRadius,
-  ButtonBoxShadow,
-  ButtonVariant,
-} from "components/constants";
+import { ButtonBorderRadius, ButtonVariant } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 

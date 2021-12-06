@@ -7,7 +7,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment } from "@blueprintjs/core";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";

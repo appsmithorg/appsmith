@@ -33,7 +33,6 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 interface TableProps {
   width: number;

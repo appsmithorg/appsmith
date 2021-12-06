@@ -2,7 +2,7 @@ import _, { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
-import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
+import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
 import {
   ChartDataPoint,

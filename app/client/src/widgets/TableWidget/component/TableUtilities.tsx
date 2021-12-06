@@ -40,11 +40,7 @@ import { noop } from "utils/AppsmithUtils";
 import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
 import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
 
-import {
-  ButtonVariant,
-  ButtonBoxShadow,
-  ButtonBorderRadius,
-} from "components/constants";
+import { ButtonVariant } from "components/constants";
 
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";

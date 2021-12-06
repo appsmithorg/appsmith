@@ -14,8 +14,6 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import CheckboxGroupComponent, { OptionProps } from "../component";
-import { ButtonBorderRadiusTypes } from "components/propertyControls/ButtonBorderRadiusControl";
-import { ButtonBorderRadius } from "components/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,

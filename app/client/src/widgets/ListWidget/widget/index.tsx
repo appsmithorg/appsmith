@@ -37,7 +37,6 @@ import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {

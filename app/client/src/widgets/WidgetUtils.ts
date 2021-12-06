@@ -10,16 +10,11 @@ import generate from "nanoid/generate";
 import { WidgetPositionProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-  ButtonBoxShadowTypes,
   ButtonStyleTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
-import { Colors } from "constants/Colors";
 
 export function getDisplayName(WrappedComponent: {
   displayName: any;

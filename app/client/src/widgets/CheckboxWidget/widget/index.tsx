@@ -6,10 +6,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "widgets/constants";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-} from "components/constants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {

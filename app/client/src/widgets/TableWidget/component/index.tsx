@@ -10,7 +10,6 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 export interface ColumnMenuOptionProps {

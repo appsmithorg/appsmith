@@ -12,7 +12,6 @@ import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
-import { ButtonBorderRadiusTypes } from "components/constants";
 
 export function selectedTabValidation(
   value: unknown,

@@ -20,9 +20,7 @@ import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
-import { ButtonBorderRadiusTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
 
 const minSize = 100;
 

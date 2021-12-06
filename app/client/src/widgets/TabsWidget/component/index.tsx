@@ -4,7 +4,6 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import { Colors } from "constants/Colors";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 interface TabsComponentProps extends ComponentProps {

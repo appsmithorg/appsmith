@@ -49,7 +49,6 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 
 const ReactTableComponent = lazy(() =>

@@ -27,7 +27,6 @@ import _ from "lodash";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 export interface TreeSelectProps
   extends Required<

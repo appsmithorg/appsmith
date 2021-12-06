@@ -3,7 +3,6 @@ import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonStyleType,
   ButtonVariant,
 } from "components/constants";

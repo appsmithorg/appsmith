@@ -12,7 +12,6 @@ import { ThemeProp } from "components/ads/common";
 import _ from "lodash";
 import {
   ButtonStyleTypes,
-  ButtonBoxShadow,
   ButtonBoxShadowTypes,
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,

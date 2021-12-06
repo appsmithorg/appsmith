@@ -5,10 +5,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import {
-  ButtonBorderRadiusTypes,
-  ButtonVariantTypes,
-} from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import {
   updateDerivedColumnsHook,
   ColumnTypes,

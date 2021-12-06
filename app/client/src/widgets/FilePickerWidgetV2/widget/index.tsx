@@ -16,11 +16,6 @@ import _, { findIndex } from "lodash";
 import FileDataTypes from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,

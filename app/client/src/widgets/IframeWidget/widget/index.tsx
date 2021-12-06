@@ -4,7 +4,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
-import { ButtonBorderRadiusTypes } from "components/constants";
+
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [

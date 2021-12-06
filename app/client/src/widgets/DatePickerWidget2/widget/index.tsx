@@ -9,11 +9,6 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import moment from "moment";
 import { DatePickerType } from "../constants";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {

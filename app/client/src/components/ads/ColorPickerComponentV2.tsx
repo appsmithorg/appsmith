@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -7,7 +7,6 @@ import {
   Position,
   Classes,
 } from "@blueprintjs/core";
-import { ReactComponent as CheckedIcon } from "assets/icons/control/checkmark.svg";
 import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
 import { Colors } from "constants/Colors";

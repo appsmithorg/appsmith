@@ -19,7 +19,7 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { ButtonBorderRadiusTypes } from "components/constants";
+
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState

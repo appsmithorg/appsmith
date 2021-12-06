@@ -14,11 +14,6 @@ import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import MultiTreeSelectComponent from "../component";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];

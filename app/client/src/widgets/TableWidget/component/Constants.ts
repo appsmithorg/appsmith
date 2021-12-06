@@ -5,7 +5,6 @@ import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonStyleType,
   ButtonVariant,
 } from "components/constants";

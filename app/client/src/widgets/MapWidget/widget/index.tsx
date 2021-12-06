@@ -12,7 +12,6 @@ import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { MarkerProps } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ButtonBorderRadiusTypes } from "components/constants";
 
 const { google } = getAppsmithConfigs();
 
