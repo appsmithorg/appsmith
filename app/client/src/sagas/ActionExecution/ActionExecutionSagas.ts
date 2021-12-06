@@ -8,7 +8,7 @@ import * as log from "loglevel";
 import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   evaluateArgumentSaga,
-  evaluateDynamicTrigger,
+  evaluateAndExecuteDynamicTrigger,
   evaluateSnippetSaga,
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
@@ -120,7 +120,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
   }
 
   const response = yield call(
-    evaluateDynamicTrigger,
+    evaluateAndExecuteDynamicTrigger,
     dynamicString,
     type,
     { source, triggerPropertyName },

@@ -182,7 +182,15 @@ export function* evaluateActionBindings(
   return values;
 }
 
-export function* evaluateDynamicTrigger(
+/*
+ * Used to evaluate and execute dynamic trigger end to end
+ * Widget action fields and JS Object run triggers this flow
+ *
+ * We start a duplex request with the worker and wait till the time we get a 'finished' event from the
+ * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
+ * execution is returned to the worker where it can resolve/reject the current promise.
+ */
+export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
   triggerMeta: TriggerMeta,
@@ -203,16 +211,21 @@ export function* evaluateDynamicTrigger(
     log.debug({ requestData });
     if (requestData.finished) {
       keepAlive = false;
-      // Handle errors during evaluation
+      /* Handle errors during evaluation
+       * A finish event with errors means that the error was not caught by the user code.
+       * We raise an error telling the user that an uncaught error has occured
+       * */
       if (requestData.result.errors.length) {
         throw new UncaughtPromiseError(
           requestData.result.errors[0].errorMessage,
         );
       }
+      // This is returned to be stored in the data property of async js object actions
       return requestData.result;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
+      // if we have found a trigger, we need to execute it and respond back
       log.debug({ trigger: requestData.trigger });
       yield spawn(
         executeTriggerRequestSaga,
@@ -234,6 +247,10 @@ interface ResponsePayload {
   success: boolean;
 }
 
+/*
+ * It is necessary to respond back as the worker is waiting with a pending promise and wanting to know if it should
+ * resolve or reject it with the data the execution has provided
+ */
 function* executeTriggerRequestSaga(
   requestData: { trigger: ActionDescription; subRequestId: string },
   eventType: EventType,
@@ -336,7 +353,7 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   if (isAsync) {
     try {
       response = yield call(
-        evaluateDynamicTrigger,
+        evaluateAndExecuteDynamicTrigger,
         functionCall,
         EventType.ON_JS_FUNCTION_EXECUTE,
         {},

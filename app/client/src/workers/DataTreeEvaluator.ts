@@ -56,7 +56,7 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import evaluate, {
+import evaluateSync, {
   createGlobalData,
   EvalResult,
   EvaluationScriptType,
@@ -740,17 +740,6 @@ export default class DataTreeEvaluator {
     });
   }
 
-  clearAllCaches() {
-    this.parsedValueCache.clear();
-    this.clearErrors();
-    this.dependencyMap = {};
-    this.allKeys = {};
-    this.inverseDependencyMap = {};
-    this.sortedDependencies = [];
-    this.evalTree = {};
-    this.oldUnEvalTree = {};
-  }
-
   getDynamicValue(
     dynamicBinding: string,
     data: DataTree,
@@ -779,7 +768,6 @@ export default class DataTreeEvaluator {
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
-          // TODO handle async functions here
           const result = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
@@ -856,7 +844,7 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
   ): EvalResult {
     try {
-      return evaluate(js, data, resolvedFunctions);
+      return evaluateSync(js, data, resolvedFunctions);
     } catch (e) {
       return {
         result: undefined,
@@ -964,7 +952,7 @@ export default class DataTreeEvaluator {
     if (correctFormat) {
       const body = entity.body.replace(/export default/g, "");
       try {
-        const { result } = evaluate(body, unEvalDataTree, {});
+        const { result } = evaluateSync(body, unEvalDataTree, {});
         delete this.resolvedFunctions[`${entityName}`];
         delete this.currentJSCollectionState[`${entityName}`];
         if (result) {
