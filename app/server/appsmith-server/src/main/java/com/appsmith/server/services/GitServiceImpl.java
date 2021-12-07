@@ -635,7 +635,6 @@ public class GitServiceImpl implements GitService {
 
     /**
      * Disconnect from the git repo. This method will remove all the git metadata for the application
-     * TODO Remove the files from the machine, since these files are stale
      * @param applicationId
      * @return Application data
      */
@@ -645,17 +644,34 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application -> {
                     if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
                             || isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
-                        return Mono.just(application);
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
                     }
                     //Remove the git contents from file system
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     String repoName = gitApplicationMetadata.getRepoName();
                     Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                    String defaultApplicationBranchName = gitApplicationMetadata.getBranchName();
                     application.setGitApplicationMetadata(null);
-                    return fileUtils.detachRemote(repoPath)
-                            .then(Mono.just(application));
+                    return Mono.zip(
+                            listBranchForApplication(applicationId, false),
+                            applicationService.save(application),
+                            Mono.just(repoPath),
+                            Mono.just(defaultApplicationBranchName));
                 })
-                .flatMap(applicationService::save)
+                .flatMap(tuple -> {
+                    Application application = tuple.getT2();
+                    Path repoPath = tuple.getT3();
+                    List<String> branch = tuple.getT1().stream().map(gitBranchDTO -> gitBranchDTO.getBranchName()).collect(Collectors.toList());
+
+                    //Remove the parent application branch name from the list
+                    branch.remove(tuple.getT4());
+
+                    return fileUtils.detachRemote(repoPath)
+                            .flatMap(status -> Flux.fromIterable(branch)
+                                    .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, applicationId, MANAGE_APPLICATIONS)
+                                            .flatMap(applicationPageService::deleteApplicationByResource))
+                            .then(Mono.just(application)));
+                })
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
