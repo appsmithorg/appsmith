@@ -23,6 +23,7 @@ const initialState: OnboardingState = {
   hadReachedStep: 1,
   showEndTourDialog: false,
   showDeviatingDialog: false,
+  showPostCompletionMessage: false,
 };
 
 export interface OnboardingState {
@@ -45,6 +46,7 @@ export interface OnboardingState {
   hadReachedStep: number;
   showEndTourDialog: boolean;
   showDeviatingDialog: boolean;
+  showPostCompletionMessage: boolean;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -206,6 +208,15 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       showEndTourDialog: action.payload,
+    };
+  },
+  [ReduxActionTypes.SHOW_POST_COMPLETION_MESSAGE]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showPostCompletionMessage: action.payload,
     };
   },
 });

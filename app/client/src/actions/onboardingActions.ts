@@ -89,3 +89,10 @@ export const toggleShowEndTourDialog = (payload: boolean) => {
     payload,
   };
 };
+
+export const showPostCompletionMessage = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.TOGGLE_END_GUIDED_TOUR_DIALOG,
+    payload,
+  };
+};

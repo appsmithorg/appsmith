@@ -36,18 +36,31 @@ import GlobalHotKeys from "./GlobalHotKeys";
 
 import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
+import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section<{ hasPages: boolean }>`
+const AppViewerBody = styled.section<{
+  hasPages: boolean;
+  showGuidedTourMessage: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
   height: calc(
     100vh -
-      ${(props) =>
-        !props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
+      ${(props) => {
+        let height = !props.hasPages
+          ? `${props.theme.smallHeaderHeight} - 1px`
+          : "72px";
+
+        if (props.showGuidedTourMessage) {
+          height += " - 100px";
+        }
+
+        return height;
+      }}
   );
 `;
 
@@ -71,6 +84,7 @@ export type AppViewerProps = {
     branch?: string;
   }) => void;
   isInitialized: boolean;
+  showGuidedTourMessage: boolean;
   isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   updateWidgetProperty: (
@@ -155,7 +169,10 @@ class AppViewer extends Component<Props> {
             <ContainerWithComments>
               <AppViewerCommentsSidebar />
               <AppViewerBodyContainer>
-                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                <AppViewerBody
+                  hasPages={this.props.pages.length > 1}
+                  showGuidedTourMessage={this.props.showGuidedTourMessage}
+                >
                   {isInitialized && this.state.registered && (
                     <Switch>
                       <SentryRoute
@@ -186,6 +203,7 @@ const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  showGuidedTourMessage: showPostCompletionMessage(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -132,6 +132,8 @@ import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
+import StarLineIcon from "remixicon-react/StarLineIcon";
+import StarFillIcon from "remixicon-react/StarFillIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -278,6 +280,8 @@ export const IconCollection = [
   "share-box",
   "share-line",
   "shine",
+  "star-line",
+  "star-fill",
   "success",
   "support",
   "tables",
@@ -633,6 +637,12 @@ const Icon = forwardRef(
         break;
       case "shine":
         returnIcon = <ShineIcon />;
+        break;
+      case "star-line":
+        returnIcon = <StarLineIcon />;
+        break;
+      case "star-fill":
+        returnIcon = <StarFillIcon />;
         break;
       case "success":
         returnIcon = <SuccessIcon />;

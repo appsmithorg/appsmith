@@ -63,7 +63,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 
-import { deleteRecentAppEntities } from "utils/storage";
+import {
+  deleteRecentAppEntities,
+  setPostWelcomeTourState,
+} from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
@@ -72,6 +75,7 @@ import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 
 import {
+  getCurrentStep,
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
   inGuidedTour,
@@ -109,11 +113,16 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
-
-      const appicationViewPageUrl = getApplicationViewerPageURL({
+      const guidedTour = yield select(inGuidedTour);
+      const currentStep = yield select(getCurrentStep);
+      let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
         pageId: currentPageId,
       });
+      if (guidedTour && currentStep === 9) {
+        appicationViewPageUrl += "&guidedTourComplete=true";
+        yield call(setPostWelcomeTourState, true);
+      }
 
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_INIT,
