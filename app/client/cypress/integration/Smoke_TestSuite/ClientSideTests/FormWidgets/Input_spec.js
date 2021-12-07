@@ -166,14 +166,14 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click()
       .clear()
-      .type("13242.2");
+      .type("13242.2")
+      .blur();
 
     cy.get(commonlocators.inputCurrencyChangeType)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal("€");
       });
-    // closing property pane to blur the input
     cy.closePropertyPane("inputwidget");
     cy.wait(1000);
     cy.get(widgetsPage.innertext)
