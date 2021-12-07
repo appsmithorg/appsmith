@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -25,6 +26,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Slf4j
 @Component
 public class SanitiseResponse {
 
@@ -33,6 +35,8 @@ public class SanitiseResponse {
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getApplicationId())
                 || StringUtils.isEmpty(defaults.getPageId())) {
+
+            log.debug("Unable to find default ids for page: {}", page.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", page.getId());
         }
         page.setApplicationId(defaults.getApplicationId());
@@ -51,6 +55,7 @@ public class SanitiseResponse {
     public NewPage updateNewPageWithDefaultResources(NewPage newPage) {
         DefaultResources defaultResources = newPage.getDefaultResources();
         if (defaultResources == null) {
+            log.debug("Unable to find default ids for page: {}", newPage.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId());
         }
         newPage.setId(defaultResources.getPageId());
@@ -68,6 +73,7 @@ public class SanitiseResponse {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
         pageNameIdList.forEach(page -> {
             if (StringUtils.isEmpty(page.getDefaultPageId())) {
+                log.debug("Unable to find default pageId for applicationPage: {}", page.getId());
                 throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId());
             }
             page.setId(page.getDefaultPageId());
@@ -81,6 +87,7 @@ public class SanitiseResponse {
                 || StringUtils.isEmpty(defaults.getApplicationId())
                 || StringUtils.isEmpty(defaults.getPageId())
                 || StringUtils.isEmpty(defaults.getActionId())) {
+            log.debug("Unable to find default ids for action: {}", action.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getId());
         }
         action.setApplicationId(defaults.getApplicationId());
@@ -103,8 +110,10 @@ public class SanitiseResponse {
     }
 
     public Layout updateLayoutWithDefaultResources(Layout layout) {
-        layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
-                layoutOnLoadAction.forEach(onLoadAction -> onLoadAction.setId(onLoadAction.getDefaultActionId())));
+        if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
+            layout.getLayoutOnLoadActions().forEach(layoutOnLoadAction ->
+                    layoutOnLoadAction.forEach(onLoadAction -> onLoadAction.setId(onLoadAction.getDefaultActionId())));
+        }
         return layout;
     }
 
@@ -112,6 +121,7 @@ public class SanitiseResponse {
         DefaultResources defaults = viewDTO.getDefaultResources();
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getActionId())) {
+            log.debug("Unable to find default ids for actionViewDTO: {}", viewDTO.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionView", viewDTO.getId());
         }
         viewDTO.setId(defaults.getActionId());
@@ -122,6 +132,7 @@ public class SanitiseResponse {
     public NewAction updateNewActionWithDefaultResources(NewAction newAction) {
         DefaultResources defaultResources = newAction.getDefaultResources();
         if (defaultResources == null) {
+            log.debug("Unable to find default ids for newAction: {}", newAction.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", newAction.getId());
         }
         newAction.setId(defaultResources.getActionId());
@@ -138,6 +149,7 @@ public class SanitiseResponse {
     public ActionCollection updateActionCollectionWithDefaultResources(ActionCollection actionCollection) {
         DefaultResources defaultResources = actionCollection.getDefaultResources();
         if (defaultResources == null) {
+            log.debug("Unable to find default ids for actionCollection: {}", actionCollection.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", actionCollection.getId());
         }
         actionCollection.setId(defaultResources.getCollectionId());
@@ -157,6 +169,7 @@ public class SanitiseResponse {
                 || StringUtils.isEmpty(defaults.getApplicationId())
                 || StringUtils.isEmpty(defaults.getPageId())
                 || StringUtils.isEmpty(defaults.getCollectionId())) {
+            log.debug("Unable to find default ids for actionCollection: {}", collection.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", collection.getId());
         }
         collection.setApplicationId(defaults.getApplicationId());
@@ -174,6 +187,7 @@ public class SanitiseResponse {
         DefaultResources defaults = viewDTO.getDefaultResources();
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getCollectionId())) {
+            log.debug("Unable to find default ids for actionCollectionViewDTO: {}", viewDTO.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollectionView", viewDTO.getId());
         }
         viewDTO.setId(defaults.getCollectionId());
