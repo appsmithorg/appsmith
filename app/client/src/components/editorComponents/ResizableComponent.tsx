@@ -179,6 +179,8 @@ export const ResizableComponent = memo(function ResizableComponent(
         updateWidget(WidgetOperations.RESIZE, props.widgetId, {
           ...newRowCols,
           parentId: props.parentId,
+          snapColumnSpace: props.parentColumnSpace,
+          snapRowSpace: props.parentRowSpace,
         });
     }
     // Tell the Canvas that we've stopped resizing
@@ -278,7 +280,6 @@ export const ResizableComponent = memo(function ResizableComponent(
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
-      isResizing={isResizing}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}

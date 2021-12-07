@@ -105,7 +105,6 @@ type ResizableProps = {
     canResizeVertically: boolean;
     resizedPositions?: OccupiedSpace;
   };
-  isResizing: boolean;
   originalPositions: OccupiedSpace;
   onStart: () => void;
   onStop: (
@@ -124,6 +123,7 @@ type ResizableProps = {
 
 export function Resizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
+  const [isResizing, setResizing] = useState(false);
   // Performance tracking start
   const sentryPerfTags = props.zWidgetType
     ? [{ name: "widget_type", value: props.zWidgetType }]
@@ -221,7 +221,7 @@ export function Resizable(props: ResizableProps) {
         reset: true,
       };
     });
-  }, [props.componentHeight, props.componentWidth, props.isResizing]);
+  }, [props.componentHeight, props.componentWidth, isResizing]);
 
   const handles = [];
 
@@ -368,6 +368,7 @@ export function Resizable(props: ResizableProps) {
         y: newDimensions.y,
       },
     );
+    setResizing(false);
   };
 
   const renderHandles = handles.map((handle, index) => (
@@ -378,6 +379,7 @@ export function Resizable(props: ResizableProps) {
       onStart={() => {
         togglePointerEvents(false);
         props.onStart();
+        setResizing(true);
       }}
       onStop={onResizeStop}
       snapGrid={props.snapGrid}

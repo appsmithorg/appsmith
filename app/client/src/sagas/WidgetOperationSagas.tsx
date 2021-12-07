@@ -115,6 +115,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       leftColumn,
       parentId,
       rightColumn,
+      snapColumnSpace,
+      snapRowSpace,
       topRow,
       widgetId,
     } = resizeAction.payload;
@@ -127,7 +129,13 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
-    } = yield call(reflowWidgets, widgets, widget);
+    } = yield call(
+      reflowWidgets,
+      widgets,
+      widget,
+      snapColumnSpace,
+      snapRowSpace,
+    );
 
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,
@@ -160,15 +168,17 @@ export function* reflowWidgets(
     [widgetId: string]: FlattenedWidgetProps;
   },
   widget: FlattenedWidgetProps,
+  snapColumnSpace: number,
+  snapRowSpace: number,
 ) {
   const reflowState: widgetReflowState = yield select(getReflow);
 
   const currentWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
-  } = { ...widgets, [widget.id]: { ...widget } };
+  } = { ...widgets, [widget.widgetId]: { ...widget } };
 
   if (!reflowState || !reflowState.isReflowing || !reflowState.reflowingWidgets)
-    return widgets;
+    return currentWidgets;
 
   const reflowingWidgets = reflowState.reflowingWidgets;
 
@@ -182,10 +192,8 @@ export function* reflowWidgets(
     const canvasWidget = { ...currentWidgets[reflowedWidgetId] };
     if (reflowWidget.X !== undefined && reflowWidget.width !== undefined) {
       const leftColumn =
-        canvasWidget.leftColumn +
-        reflowWidget.X / canvasWidget.parentColumnSpace;
-      const rightColumn =
-        leftColumn + reflowWidget.width / canvasWidget.parentColumnSpace;
+        canvasWidget.leftColumn + reflowWidget.X / snapColumnSpace;
+      const rightColumn = leftColumn + reflowWidget.width / snapColumnSpace;
       currentWidgets[reflowedWidgetId] = {
         ...canvasWidget,
         leftColumn,
@@ -195,10 +203,8 @@ export function* reflowWidgets(
       reflowWidget.Y !== undefined &&
       reflowWidget.height !== undefined
     ) {
-      const topRow =
-        canvasWidget.topRow + reflowWidget.Y / canvasWidget.parentRowSpace;
-      const bottomRow =
-        topRow + reflowWidget.height / canvasWidget.parentRowSpace;
+      const topRow = canvasWidget.topRow + reflowWidget.Y / snapRowSpace;
+      const bottomRow = topRow + reflowWidget.height / snapRowSpace;
       currentWidgets[reflowedWidgetId] = { ...canvasWidget, topRow, bottomRow };
     }
   }
