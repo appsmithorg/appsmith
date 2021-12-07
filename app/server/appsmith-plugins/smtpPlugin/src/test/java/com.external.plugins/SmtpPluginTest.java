@@ -12,7 +12,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.springframework.util.CollectionUtils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
@@ -312,5 +311,31 @@ public class SmtpPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
                 .verifyComplete();
+    }
+
+    /**
+     * This test case asserts that we can send multiple emails concurrently using the same email Session
+     */
+    @Test
+    public void testSendMultipleEmailsConcurrently() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Session> sessionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration1 = createActionConfiguration();
+        ActionConfiguration actionConfiguration2 = createActionConfiguration();
+        PluginUtils.setValueSafelyInFormData(actionConfiguration2.getFormData(), "send.from", "from2@example.com");
+
+        Mono<ActionExecutionResult> email1Mono = sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration1));
+        Mono<ActionExecutionResult> email2Mono = sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration2));
+
+        StepVerifier.create(Mono.zip(email1Mono, email2Mono))
+                .assertNext(tuple -> {
+                    ActionExecutionResult result1 = tuple.getT1();
+                    ActionExecutionResult result2 = tuple.getT2();
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertTrue(result2.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
     }
 }
