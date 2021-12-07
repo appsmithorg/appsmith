@@ -15,7 +15,8 @@ public class PageNameIdDTO {
 
     Boolean isHidden;
 
-    // This field will represent the root pageId in git system where we are connecting resources among the branches
+    // This field will represent the default pageId for current page in git system where we are connecting resources
+    // among the branches
     @JsonIgnore
-    String gitDefaultPageId;
+    String defaultPageId;
 }

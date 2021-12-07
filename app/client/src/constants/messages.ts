@@ -404,6 +404,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
+export const GET_GEO_LOCATION = () => `Get Geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
@@ -563,10 +566,8 @@ export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
-export const COMMIT = () => "COMMIT";
+export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
-export const PUSH = () => "PUSH";
-export const PULL = () => "PULL";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
@@ -633,6 +634,7 @@ export const COMING_SOON = () => "Coming Soon!";
 export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
+export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>

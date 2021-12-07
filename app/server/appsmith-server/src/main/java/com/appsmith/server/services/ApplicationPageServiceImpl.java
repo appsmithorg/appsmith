@@ -149,12 +149,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     page.setDefaultResources(defaultResources);
                     return createPage(page);
                 })
-                .map(pageDTO -> {
-                    if (StringUtils.isEmpty(defaultResources.getPageId())) {
-                        defaultResources.setPageId(page.getId());
-                    }
-                    return sanitiseResponse.updatePageDTOWithDefaultResources(page);
-                });
+                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
 
     /**
@@ -419,7 +414,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<PageDTO> clonePageByDefaultPageAndBranch(String defaultPageId, String branchName) {
+    public Mono<PageDTO> clonePageByDefaultPageIdAndBranch(String defaultPageId, String branchName) {
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> clonePage(newPage.getId()))
                 .map(sanitiseResponse::updatePageDTOWithDefaultResources);
@@ -457,10 +452,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
                             .findApplicationPagesByApplicationIdViewMode(page.getApplicationId(), false);
 
-                    Mono<Application> destApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                    Mono<Application> destinationApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
-                    return Mono.zip(pageNamesMono, destApplicationMono)
+                    return Mono.zip(pageNamesMono, destinationApplicationMono)
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
                             .flatMap(tuple -> {
@@ -581,6 +576,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             return name;
                         }));
 
+        // We don't have to sanitise the response to update the Ids with the default ones as client want child application only
         Mono<Application> clonedResultMono = Mono.zip(applicationMono, newAppNameMono)
                 .flatMap(tuple -> {
                     Application sourceApplication = tuple.getT1();
@@ -625,8 +621,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         return applicationService.save(savedApplication);
                                     })
                             );
-                })
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                });
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
         // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow
@@ -866,22 +861,26 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     /** This function walks through all the pages and reorders them and updates the order as per the user preference.
      * A page can be moved up or down from the current position and accordingly the order of the remaining page changes.
-     * @param applicationId The id of the Application
-     * @param pageId Targetted page id
+     * @param defaultAppId The id of the Application
+     * @param defaultPageId Targetted page id
      * @param order New order for the selected page
      * @return Application object with the latest order
      **/
     @Override
-    public Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order, String branchName) {
-        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(application -> {
+    public Mono<ApplicationPagesDTO> reorderPage(String defaultAppId, String defaultPageId, Integer order, String branchName) {
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId)))
+                .zipWhen(branchedPage -> applicationService.findById(branchedPage.getApplicationId(), MANAGE_APPLICATIONS)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultAppId))))
+                .flatMap(tuple -> {
+                    final NewPage branchedPage = tuple.getT1();
+                    Application application = tuple.getT2();
                     // Update the order in unpublished pages here, since this should only ever happen in edit mode.
                     List<ApplicationPage> pages = application.getPages();
 
                     ApplicationPage foundPage = null;
                     for (final ApplicationPage page : pages) {
-                        if (pageId.equals(page.getId())) {
+                        if (branchedPage.getId().equals(page.getId())) {
                             foundPage = page;
                         }
                     }
@@ -892,8 +891,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     }
 
                     return applicationRepository
-                            .setPages(applicationId, pages)
-                            .then(newPageService.findApplicationPagesByApplicationIdViewMode(applicationId,Boolean.FALSE));
+                            .setPages(application.getId(), pages)
+                            .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE));
                 })
                 .map(sanitiseResponse::updateApplicationPagesDTOWithDefaultResources);
     }

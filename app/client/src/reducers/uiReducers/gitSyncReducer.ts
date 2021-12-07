@@ -23,6 +23,9 @@ const initialState: GitSyncReducerState = {
   localGitConfig: { authorEmail: "", authorName: "" },
   isFetchingLocalGitConfig: false,
   isFetchingGitConfig: false,
+
+  showRepoLimitError: false,
+  showRepoLimitErrorModal: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -345,6 +348,20 @@ const gitSyncReducer = createReducer(initialState, {
       tempRemoteUrl: action.payload,
     };
   },
+  [ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    showRepoLimitError: action.payload,
+  }),
+  [ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    showRepoLimitErrorModal: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -404,6 +421,9 @@ export type GitSyncReducerState = {
 
   isMerging?: boolean;
   tempRemoteUrl?: string;
+
+  showRepoLimitError?: boolean;
+  showRepoLimitErrorModal: boolean;
 };
 
 export default gitSyncReducer;

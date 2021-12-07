@@ -197,7 +197,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             applicationIdMono = Mono.just(id);
         }
         return applicationIdMono
-                .flatMap(appId -> repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
+                .flatMap(appId -> repository.updateById(appId, application, AclPermission.MANAGE_APPLICATIONS)
                     .onErrorResume(error -> {
                         if (error instanceof DuplicateKeyException) {
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
@@ -214,6 +214,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     })
                     .flatMap(analyticsService::sendUpdateEvent)
                 );
+    }
+
+    public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .flatMap(branchedApplication -> {
+                    application.setPages(null);
+                    application.setGitApplicationMetadata(null);
+                    return this.update(branchedApplication.getId(), application);
+                });
     }
 
     @Override

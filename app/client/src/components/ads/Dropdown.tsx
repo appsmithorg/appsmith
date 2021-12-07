@@ -14,6 +14,7 @@ import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
+import { replayHighlightClass } from "globalStyles/portals";
 import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
@@ -92,6 +93,7 @@ export type DropdownProps = CommonComponentProps &
     hideSubText?: boolean;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
+    truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -444,7 +446,7 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
-const TextWrapper = styled.div`
+const StyledText = styled(Text)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -464,9 +466,9 @@ function TooltipWrappedText(
       disabled={!isEllipsisActive(targetRef.current)}
       position={Position.TOP}
     >
-      <TextWrapper ref={targetRef}>
-        <Text {...textProps}>{label}</Text>
-      </TextWrapper>
+      <StyledText ref={targetRef} {...textProps}>
+        {label}
+      </StyledText>
     </Tooltip>
   );
 }
@@ -609,20 +611,26 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
 
               {props.showLabelOnly ? (
-                <TooltipWrappedText
-                  label={option.label || ""}
-                  type={TextType.P1}
-                />
+                props.truncateOption ? (
+                  <TooltipWrappedText
+                    label={option.label || ""}
+                    type={TextType.P1}
+                  />
+                ) : (
+                  <Text type={TextType.P1}>{option.label}</Text>
+                )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
                   <Text type={TextType.H5}>{option.value}</Text>
                   <Text type={TextType.P1}>{option.label}</Text>
                 </LabelWrapper>
-              ) : (
+              ) : props.truncateOption ? (
                 <TooltipWrappedText
-                  label={option.label || ""}
+                  label={option.value || ""}
                   type={TextType.P1}
                 />
+              ) : (
+                <Text type={TextType.P1}>{option.value}</Text>
               )}
 
               {option.subText ? (
@@ -763,9 +771,9 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
-      className={props.containerClassName}
+      className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
+      height={props.height || "36px"}
       tabIndex={0}
       width={dropdownWidth}
     >
