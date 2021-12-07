@@ -92,7 +92,6 @@ type ValidationConfigParams = {
   ignoreCase?: boolean; //to ignore the case of key
   type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
   params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
-  passthroughvalue?: boolean; // Should return the passed value incase of validation error
 };
 
 export type ValidationConfig = {

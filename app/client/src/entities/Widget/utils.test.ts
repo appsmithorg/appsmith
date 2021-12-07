@@ -209,7 +209,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             params: {
               regex: COLOR_REGEX,
               default: Colors.GREEN,
-              passthroughvalue: true,
               expected: {
                 type: "HEX / RGB Color",
                 example: "#ff0000",
@@ -225,7 +224,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             params: {
               regex: COLOR_REGEX,
               default: Colors.WHITE,
-              passthroughvalue: true,
               expected: {
                 type: "HEX / RGB Color",
                 example: "#ff0000",
