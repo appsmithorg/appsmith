@@ -25,7 +25,6 @@ import {
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "constants/messages";
 import { IconNames } from "@blueprintjs/icons";
-import { COLOR_REGEX } from "widgets/constants";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -649,22 +648,6 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: COLOR_REGEX,
-                        default: Colors.BLACK,
-                        passthroughvalue: true,
-                        expected: {
-                          type: "HEX / RGB Color",
-                          example: "#ff0000",
-                          autocompleteDataType: AutocompleteDataType.STRING,
-                        },
-                      },
-                    },
-                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -680,22 +663,6 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: COLOR_REGEX,
-                        default: "",
-                        passthroughvalue: true,
-                        expected: {
-                          type: "HEX / RGB Color",
-                          example: "#ff0000",
-                          autocompleteDataType: AutocompleteDataType.STRING,
-                        },
-                      },
-                    },
-                  },
                   isTriggerProperty: false,
                 },
               ],
@@ -832,21 +799,6 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: COLOR_REGEX,
-                        default: Colors.GREEN,
-                        expected: {
-                          type: "HEX / RGB Color",
-                          example: "#ff0000",
-                          autocompleteDataType: AutocompleteDataType.STRING,
-                        },
-                      },
-                    },
-                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -979,22 +931,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: COLOR_REGEX,
-                        default: Colors.GREY_8,
-                        expected: {
-                          type: "HEX / RGB Color",
-                          example: "#ff0000",
-                          autocompleteDataType: AutocompleteDataType.STRING,
-                        },
-                      },
-                    },
-                  },
+                  isBindProperty: false,
                   isTriggerProperty: false,
                 },
                 {
@@ -1016,21 +953,6 @@ export default [
                   ],
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: COLOR_REGEX,
-                        default: Colors.WHITE,
-                        expected: {
-                          type: "HEX / RGB Color",
-                          example: "#ff0000",
-                          autocompleteDataType: AutocompleteDataType.STRING,
-                        },
-                      },
-                    },
-                  },
                   isTriggerProperty: false,
                 },
 
@@ -1040,10 +962,11 @@ export default [
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+                  validation: { type: ValidationTypes.TEXT },
                   defaultColor: Colors.GREEN,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -1057,21 +980,6 @@ export default [
                   ],
                   // Remove menu Style once Custom is Chosen
                   updateHook: updateDerivedColumnsHook,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: COLOR_REGEX,
-                        default: Colors.GREEN,
-                        expected: {
-                          type: "HEX / RGB Color",
-                          example: "#ff0000",
-                          autocompleteDataType: AutocompleteDataType.STRING,
-                        },
-                      },
-                    },
-                  },
                 },
                 {
                   propertyName: "menuVariant",

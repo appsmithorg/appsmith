@@ -26,5 +26,3 @@ export type AlignWidget = "LEFT" | "RIGHT";
 
 // Minimum Rows for Widget Popups
 export const MinimumPopupRows = 12;
-
-export const COLOR_REGEX = /^(#([0-9a-f]{2}){2,4}|#[0-9a-f]{3}|(rgb)\((\s*\d+\s*,){2}\s*\d+\s*\)|(rgba)\((\s*\d+\s*,){3}\s*[\d.]+\s*\))$/i;

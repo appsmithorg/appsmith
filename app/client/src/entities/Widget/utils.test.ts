@@ -4,9 +4,6 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { Colors } from "constants/Colors";
-import { COLOR_REGEX } from "widgets/constants";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -201,100 +198,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         isVisible: {
           type: "BOOLEAN",
-        },
-        "primaryColumns.status.buttonColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: COLOR_REGEX,
-              default: Colors.GREEN,
-              expected: {
-                type: "HEX / RGB Color",
-                example: "#ff0000",
-                autocompleteDataType: AutocompleteDataType.STRING,
-              },
-            },
-          },
-        },
-        "primaryColumns.status.buttonLabelColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: COLOR_REGEX,
-              default: Colors.WHITE,
-              expected: {
-                type: "HEX / RGB Color",
-                example: "#ff0000",
-                autocompleteDataType: AutocompleteDataType.STRING,
-              },
-            },
-          },
-        },
-        "primaryColumns.createdAt.cellBackground": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: COLOR_REGEX,
-              default: "",
-              passthroughvalue: true,
-              expected: {
-                type: "HEX / RGB Color",
-                example: "#ff0000",
-                autocompleteDataType: AutocompleteDataType.STRING,
-              },
-            },
-          },
-        },
-        "primaryColumns.name.cellBackground": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: COLOR_REGEX,
-              default: "",
-              passthroughvalue: true,
-              expected: {
-                type: "HEX / RGB Color",
-                example: "#ff0000",
-                autocompleteDataType: AutocompleteDataType.STRING,
-              },
-            },
-          },
-        },
-        "primaryColumns.createdAt.textColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: COLOR_REGEX,
-              default: Colors.BLACK,
-              passthroughvalue: true,
-              expected: {
-                type: "HEX / RGB Color",
-                example: "#ff0000",
-                autocompleteDataType: AutocompleteDataType.STRING,
-              },
-            },
-          },
-        },
-        "primaryColumns.name.textColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: COLOR_REGEX,
-              default: Colors.BLACK,
-              passthroughvalue: true,
-              expected: {
-                type: "HEX / RGB Color",
-                example: "#ff0000",
-                autocompleteDataType: AutocompleteDataType.STRING,
-              },
-            },
-          },
         },
         isSortable: {
           type: "BOOLEAN",
