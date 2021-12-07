@@ -38,6 +38,11 @@ import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
+import {
+  getCurrentLocationSaga,
+  stopWatchCurrentLocation,
+  watchCurrentLocation,
+} from "sagas/ActionExecution/GetCurrentLocationSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -100,6 +105,27 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.CLEAR_INTERVAL:
       yield call(clearIntervalSaga, trigger.payload, triggerMeta);
+      break;
+    case ActionTriggerType.GET_CURRENT_LOCATION:
+      response = yield call(
+        getCurrentLocationSaga,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
+      break;
+
+    case ActionTriggerType.WATCH_CURRENT_LOCATION:
+      response = yield call(
+        watchCurrentLocation,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
+      break;
+
+    case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
+      response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
       break;
     default:
       log.error("Trigger type unknown", trigger);
