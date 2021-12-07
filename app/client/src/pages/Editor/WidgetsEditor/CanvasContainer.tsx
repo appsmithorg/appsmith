@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -9,6 +9,7 @@ import {
   themeModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
+import webfontloader from "webfontloader";
 import { getCanvasClassName } from "utils/generators";
 
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
@@ -59,6 +60,15 @@ function CanvasContainer() {
     node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
 
+  // loads font for canvas based on theme
+  useEffect(() => {
+    webfontloader.load({
+      google: {
+        families: [selectedTheme.properties.fontFamily.appFont],
+      },
+    });
+  }, [selectedTheme.properties.fontFamily.appFont]);
+
   return (
     <Container
       className={classNames({
@@ -69,6 +79,7 @@ function CanvasContainer() {
       key={currentPageId}
       style={{
         height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
+        fontFamily: selectedTheme.properties.fontFamily.appFont,
         background:
           isThemeMode || isPreviewMode
             ? selectedTheme.properties.colors.backgroundColor

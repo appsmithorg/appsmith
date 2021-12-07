@@ -23,13 +23,13 @@ function ThemeFontControl(props: ThemeFontControlProps) {
           value: option,
           label: option,
         }))}
-        renderOption={({ isSelectedNode, option, optionClickHandler }) => (
+        renderOption={({ isSelectedNode, option }) => (
           <div
             className={`flex py-2 space-x-2 w-full ${
               isSelectedNode ? "" : "px-2 hover:bg-gray-100 cursor-pointer"
             }`}
             onClick={() => {
-              !isSelectedNode &&
+              if (!isSelectedNode) {
                 updateTheme({
                   ...theme,
                   properties: {
@@ -40,6 +40,7 @@ function ThemeFontControl(props: ThemeFontControlProps) {
                     },
                   },
                 });
+              }
             }}
           >
             <div className="flex items-center justify-center w-6 h-6 bg-trueGray-100">

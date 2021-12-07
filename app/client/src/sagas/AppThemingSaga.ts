@@ -52,7 +52,7 @@ const dummyThemes: AppTheme[] = [
         },
       },
       fontFamily: {
-        appFont: ["Roboto", "Nunito Sans"],
+        appFont: ["Roboto", "Nunito Sans", "Poppins"],
       },
     },
     stylesheet: {
@@ -247,7 +247,7 @@ const dummyThemes: AppTheme[] = [
       },
 
       fontFamily: {
-        appFont: ["Roboto", "Nunito Sans"],
+        appFont: ["Roboto", "Nunito Sans", "Poppins"],
       },
     },
     stylesheet: {
@@ -442,7 +442,7 @@ const dummyThemes: AppTheme[] = [
         },
       },
       fontFamily: {
-        appFont: ["Roboto", "Nunito Sans"],
+        appFont: ["Roboto", "Nunito Sans", "Poppins"],
       },
     },
     stylesheet: {
@@ -640,7 +640,7 @@ const dummyThemes: AppTheme[] = [
         },
       },
       fontFamily: {
-        appFont: ["Roboto", "Nunito Sans"],
+        appFont: ["Roboto", "Nunito Sans", "Poppins"],
       },
     },
     stylesheet: {

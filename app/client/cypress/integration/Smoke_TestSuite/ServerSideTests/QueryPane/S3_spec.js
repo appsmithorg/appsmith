@@ -3,7 +3,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
 
-let datasourceName;
+let datasourceName = "Amazon S3 CRUD ds 3ebc2243";
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {
   beforeEach(() => {
@@ -51,7 +51,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteEntitybyName("ListFilesQuery");
   });
 
-  it("3. Validate Create a new file in bucket command, Verify possible error msgs, run & delete the query", () => {
+  it.only("3. Validate Create a new file in bucket command, Verify possible error msgs, run & delete the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.renameWithInPane("CreateFileQuery");
     cy.validateNSelectDropdown(
@@ -203,7 +203,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteEntitybyName("ReadFileQuery");
   });
 
-  it("5. Validate List Files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
+  it.only("5. Validate List Files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.renameWithInPane("ListFilesQuery");
     cy.validateNSelectDropdown("Commands", "List files in bucket");
@@ -255,7 +255,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteEntitybyName("ListFilesQuery");
   });
 
-  it("6. Validate Delete file command for new file, Verify possible error msgs, run & delete the query", () => {
+  it.only("6. Validate Delete file command for new file, Verify possible error msgs, run & delete the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.renameWithInPane("DeleteFileQuery");
     cy.validateNSelectDropdown(
@@ -303,7 +303,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteEntitybyName("DeleteFileQuery");
   });
 
-  it("7. Validate List Files in bucket command after new file is deleted, Verify possible error msgs, run & delete the query", () => {
+  it.only("7. Validate List Files in bucket command after new file is deleted, Verify possible error msgs, run & delete the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.renameWithInPane("ListNewFileQuery");
     cy.validateNSelectDropdown("Commands", "List files in bucket");
