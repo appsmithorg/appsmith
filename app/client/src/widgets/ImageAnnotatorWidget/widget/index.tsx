@@ -5,9 +5,9 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  AnnotationObject,
   AnnotationSelector,
   AnnotationSelectorTypes,
-  SelectionMode,
 } from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
@@ -63,121 +63,56 @@ class ImageAnnotatorWidget extends BaseWidget<
                   params: {
                     allowedKeys: [
                       {
-                        name: "selection",
-                        type: ValidationTypes.OBJECT,
+                        name: "shape",
+                        type: ValidationTypes.TEXT,
                         params: {
-                          required: false,
-                          allowedKeys: [
-                            {
-                              name: "mode",
-                              type: ValidationTypes.TEXT,
-                              params: {
-                                allowedValues: [
-                                  SelectionMode.New,
-                                  SelectionMode.Selecting,
-                                  SelectionMode.Editing,
-                                  SelectionMode.Final,
-                                ],
-                                default: SelectionMode.Editing,
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "showEditor",
-                              type: ValidationTypes.BOOLEAN,
-                              params: {
-                                default: false,
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "anchorX",
-                              type: ValidationTypes.NUMBER,
-                            },
-                            {
-                              name: "anchorY",
-                              type: ValidationTypes.NUMBER,
-                            },
+                          allowedValues: [
+                            AnnotationSelectorTypes.RECTANGLE,
+                            AnnotationSelectorTypes.POINT,
+                            AnnotationSelectorTypes.OVAL,
                           ],
+                          default: AnnotationSelectorTypes.RECTANGLE,
+                          required: true,
                         },
                       },
                       {
-                        name: "geometry",
-                        type: ValidationTypes.OBJECT,
+                        name: "x",
+                        type: ValidationTypes.NUMBER,
                         params: {
+                          default: 0,
                           required: true,
-                          allowedKeys: [
-                            {
-                              name: "type",
-                              type: ValidationTypes.TEXT,
-                              params: {
-                                allowedValues: [
-                                  AnnotationSelectorTypes.RECTANGLE,
-                                  AnnotationSelectorTypes.POINT,
-                                  AnnotationSelectorTypes.OVAL,
-                                ],
-                                default: AnnotationSelectorTypes.RECTANGLE,
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "x",
-                              type: ValidationTypes.NUMBER,
-                              params: {
-                                default: 0,
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "y",
-                              type: ValidationTypes.NUMBER,
-                              params: {
-                                default: 0,
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "height",
-                              type: ValidationTypes.NUMBER,
-                              params: {
-                                default: 0,
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "width",
-                              type: ValidationTypes.NUMBER,
-                              params: {
-                                default: 0,
-                                required: true,
-                              },
-                            },
-                          ],
                         },
                       },
                       {
-                        name: "data",
-                        type: ValidationTypes.OBJECT,
+                        name: "y",
+                        type: ValidationTypes.NUMBER,
                         params: {
+                          default: 0,
                           required: true,
-                          allowedKeys: [
-                            {
-                              name: "text",
-                              type: ValidationTypes.TEXT,
-                              params: {
-                                default: "",
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "id",
-                              type: ValidationTypes.NUMBER,
-                              params: {
-                                default: 0,
-                                unique: true,
-                              },
-                            },
-                          ],
+                        },
+                      },
+                      {
+                        name: "height",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          default: 0,
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "width",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          default: 0,
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "text",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
                         },
                       },
                     ],
@@ -282,13 +217,17 @@ class ImageAnnotatorWidget extends BaseWidget<
   };
 
   handleAnnotationSubmit = (annotation: IAnnotation) => {
-    const { data, geometry } = annotation;
+    const {
+      data: { text },
+      geometry: { height, type, width, x, y },
+    } = annotation;
     const newAnnotations = this.props.annotations.concat({
-      geometry,
-      data: {
-        ...data,
-        id: Math.random(),
-      },
+      shape: type,
+      x,
+      y,
+      width,
+      height,
+      text,
     });
 
     this.props.updateWidgetMetaProperty("annotations", newAnnotations, {
@@ -322,11 +261,30 @@ class ImageAnnotatorWidget extends BaseWidget<
       selector,
     } = this.props;
 
+    const transformedAnnotations: IAnnotation[] = annotations.map(
+      (annotation: AnnotationObject) => {
+        const { height, shape, text, width, x, y } = annotation;
+        return {
+          geometry: {
+            type: shape,
+            x,
+            y,
+            width,
+            height,
+          },
+          data: {
+            text,
+            id: Math.random(),
+          },
+        };
+      },
+    );
+
     return (
       <div onBlur={this.enableDrag} onFocus={this.disableDrag} tabIndex={1}>
         <ImageAnnotatorComponent
           annotation={annotation}
-          annotations={annotations}
+          annotations={transformedAnnotations}
           disabled={isDisabled}
           imageAltText={imageAltText}
           imageUrl={imageUrl}
@@ -346,7 +304,7 @@ class ImageAnnotatorWidget extends BaseWidget<
 
 export interface ImageAnnotatorWidgetProps extends WidgetProps {
   annotation: IAnnotation;
-  annotations: IAnnotation[];
+  annotations: AnnotationObject[];
   imageAltText?: string;
   imageUrl: string;
   isDisabled?: boolean;

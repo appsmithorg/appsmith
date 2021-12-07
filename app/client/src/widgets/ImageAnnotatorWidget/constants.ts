@@ -12,3 +12,12 @@ export enum SelectionMode {
   Editing = "EDITING",
   Final = "FINAL",
 }
+
+export interface AnnotationObject {
+  shape: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  text: string;
+}
