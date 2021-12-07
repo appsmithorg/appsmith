@@ -980,7 +980,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Michael Lawson\",\n" +
                 "    \"productName\": \"Chicken Sandwich\",\n" +
                 "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"id\": \"\",\n" +
@@ -988,7 +989,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
                 "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"id\": \"\",\n" +
@@ -996,7 +998,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Tobias Funke\",\n" +
                 "    \"productName\": \"Beef steak\",\n" +
                 "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  }\n" +
                 "]";
 
