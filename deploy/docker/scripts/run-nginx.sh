@@ -11,6 +11,11 @@ if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
   if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
     source "/opt/appsmith/init_ssl_cert.sh"
     init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"
+    
+    if (($? != 0)); then
+      echo $?
+      APP_TEMPLATE="$TEMPLATE_DIR/nginx-app-http.conf.template.sh"
+    fi
   fi
 fi
 
