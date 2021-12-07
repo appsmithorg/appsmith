@@ -3472,15 +3472,24 @@ public class DatabaseChangelog {
                                 List<Map<String, Object>> oldListOfConditions = (List<Map<String, Object>>) value;
                                 oldListOfConditions.stream()
                                         .forEachOrdered(oldCondition -> {
-                                            Map<String, Object> uqiCondition = new HashMap<>();
-                                            uqiCondition.put("condition", oldCondition.get("operator"));
-                                            uqiCondition.put("key", oldCondition.get("path"));
-                                            uqiCondition.put("value", oldCondition.get("value"));
+                                            if (StringUtils.isNotBlank((String) oldCondition.get("path"))
+                                                    || StringUtils.isNotBlank((String) oldCondition.get("value"))) {
+                                                Map<String, Object> uqiCondition = new HashMap<>();
+                                                uqiCondition.put("condition", oldCondition.get("operator"));
+                                                uqiCondition.put("key", oldCondition.get("path"));
+                                                uqiCondition.put("value", oldCondition.get("value"));
+                                                ((List) uqiWhereMap.get("children")).add(uqiCondition);
+                                            }
                                         });
 
-                                break;
+                                return uqiWhereMap;
                             default:
-                                return value;
+                                /* Throw error since no handler could be found for the pluginName and
+                                transformationName combination. */
+                                String transformationKeyNotFoundErrorMessage = "Data transformer failed to find any " +
+                                        "matching case for plugin: " + pluginName + " and key: " + transformationName + ". Please " +
+                                        "contact Appsmith customer support to resolve this.";
+                                assert false : transformationKeyNotFoundErrorMessage;
                         }
 
                         break;
