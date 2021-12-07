@@ -233,10 +233,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
       );
       if (newWidget) {
-        if (draggedBlocksToUpdate.length > 1) {
-          bulkMoveWidgets(movedWidgets);
-        }
-        addNewWidget(newWidget);
+        addNewWidget(newWidget, movedWidgets);
       }
     } else {
       bulkMoveWidgets(draggedBlocksToUpdate);
@@ -255,14 +252,29 @@ export const useBlocksToBeDraggedOnCanvas = ({
     });
   };
 
-  const addNewWidget = (newWidget: WidgetDraggingUpdateParams) => {
+  const addNewWidget = (
+    newWidget: WidgetDraggingUpdateParams,
+    movedWidgets: WidgetDraggingUpdateParams[],
+  ) => {
     const { updateWidgetParams } = newWidget;
-    updateWidget &&
-      updateWidget(
-        updateWidgetParams.operation,
-        updateWidgetParams.widgetId,
-        updateWidgetParams.payload,
-      );
+    if (movedWidgets && movedWidgets.length) {
+      dispatch({
+        type: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
+        payload: {
+          newWidget: updateWidgetParams.payload,
+          draggedBlocksToUpdate: movedWidgets,
+          canvasId: widgetId,
+        },
+      });
+    } else {
+      updateWidget &&
+        updateWidget(
+          updateWidgetParams.operation,
+          updateWidgetParams.widgetId,
+          updateWidgetParams.payload,
+        );
+    }
+
     // close filter pane if any open, before property pane open
     tableFilterPaneState.isVisible &&
       dispatch({

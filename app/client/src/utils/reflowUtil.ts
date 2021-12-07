@@ -14,15 +14,16 @@ export function collisionCheckPostReflow(
 
     if (widgets[widgetId].type === "MODAL_WIDGET") return false;
 
+    if (reflowWidgetKeys.includes(widgetId)) return false;
+
     return true;
   });
 
   for (const reflowedKey of reflowWidgetKeys) {
     for (const widgetId of widgetKeys) {
-      if (reflowedKey === widgetId) continue;
-
-      if (areIntersecting(widgets[reflowedKey], widgets[widgetId]))
+      if (areIntersecting(widgets[reflowedKey], widgets[widgetId])) {
         return false;
+      }
     }
   }
 

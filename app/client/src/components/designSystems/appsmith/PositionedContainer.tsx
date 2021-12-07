@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { memoize } from "lodash";
-import { getReflowSelector } from "selectors/widgetReflowSelectors";
+import { getReflow, getReflowSelector } from "selectors/widgetReflowSelectors";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -55,6 +55,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
     props,
     isDropTarget,
   );
+  const { isReflowing } = useSelector(getReflow);
 
   const reflowSelector = getReflowSelector(props.widgetId);
 
@@ -72,6 +73,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const reflowHeight = reflowedPosition?.height;
 
   const containerStyle: CSSProperties = useMemo(() => {
+    const transformStyles = isReflowing
+      ? {
+          transform: `translate(${reflowX}px,${reflowY}px)`,
+        }
+      : {};
     const styles: CSSProperties = {
       position: "absolute",
       left: x,
@@ -85,7 +91,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",
-      transform: `translate(${reflowX}px,${reflowY}px)`,
+      ...transformStyles,
     };
     // if (reflowedPosition) {
     //   styles.padding = "0px";
