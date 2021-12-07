@@ -36,7 +36,11 @@ const Label = styled.div`
 function ProgressBarComponent(props: ProgressBarComponentProps) {
   return (
     <ProgressBarWrapper className="t--progressbar-widget">
-      <ProgressBar fillColor={props.fillColor} progress={props.progress} />
+      <ProgressBar
+        data-cy={props.progress}
+        fillColor={props.fillColor}
+        progress={props.progress}
+      />
       {props.showResult && <Label>{props.progress}%</Label>}
     </ProgressBarWrapper>
   );

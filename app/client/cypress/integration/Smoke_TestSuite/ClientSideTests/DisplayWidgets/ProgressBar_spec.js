@@ -15,19 +15,9 @@ describe("ProgressBar Widget Functionality", function() {
       force: true,
     });
     cy.testJsontext("showresult", "true");
+    cy.wait(200);
+    cy.get(`.t--progressbar-widget > div[data-cy='${30}']`).should("exist");
 
-    cy.get(".t--progressbar-widget > div")
-      .eq(0)
-      .then(($els) => {
-        // get Window reference from element
-        const win = $els[0].ownerDocument.defaultView;
-        // use getComputedStyle to read the pseudo selector
-        const after = win.getComputedStyle($els[0], "after");
-        // read the value of the `content` CSS property
-        const contentValue = after.getPropertyValue("width");
-        // the returned value will have double quotes around it, but this is correct
-        expect(contentValue).to.eq("90.0156px"); // 30% to px
-      });
     cy.get(".t--progressbar-widget > div")
       .eq(1)
       .should("have.text", "30%");
