@@ -392,7 +392,7 @@ const Steps: StepsType = {
         text: (
           <>
             In the property pane of Name input, add the{" "}
-            <b>&#123;&#123;CustomersTable.selectedrow.name&#125;&#125;</b>{" "}
+            <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>{" "}
             binding to the <b>Default Text</b> property
           </>
         ),
@@ -408,7 +408,8 @@ const Steps: StepsType = {
     },
   },
   5: {
-    title: "Connect all input fields in the Customer Update Form with table",
+    title:
+      "Connect all input fields in the Customer Update Form with the table",
     hints: [
       {
         text: (
@@ -421,17 +422,17 @@ const Steps: StepsType = {
           <>
             Connect <b>{`"Email Input"`}</b>
             {"'"}s Default Text Property to
-            &#123;&#123;CustomersTable.selectedrow.email&#125;&#125;
+            &#123;&#123;CustomersTable.selectedRow.email&#125;&#125;
           </>,
           <>
             Connect <b>{`"Country Input"`}</b>
             {"'"}s Default Text Property to
-            &#123;&#123;CustomersTable.selectedrow.country&#125;&#125;
+            &#123;&#123;CustomersTable.selectedRow.country&#125;&#125;
           </>,
           <>
             Connect <b>{`"Display Image"`}</b>
             {"'"}s Image Property to
-            &#123;&#123;CustomersTable.selectedrow.image&#125;&#125;
+            &#123;&#123;CustomersTable.selectedRow.image&#125;&#125;
           </>,
         ],
       },
@@ -482,7 +483,7 @@ const Steps: StepsType = {
           <>
             Select the button widget to see the properties in the propety pane.
             From the onClick dropdown, select <b>Execute a query</b> {"&"} then
-            select <b>updateCustomer</b> query
+            select <b>updateCustomerInfo</b> query
           </>
         ),
       },
