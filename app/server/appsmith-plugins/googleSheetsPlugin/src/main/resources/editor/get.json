@@ -55,7 +55,7 @@
           "configProperty": "actionConfiguration.formData.range",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === RANGE}}"
+            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === 'RANGE'}}"
           },
           "initialValue": "",
           "placeholderText": "A2:B"
@@ -65,7 +65,7 @@
           "configProperty": "actionConfiguration.formData.rowOffset",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === ROWS}}"
+            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === 'ROWS'}}"
           },
           "initialValue": "0",
           "placeholderText": "0"
@@ -75,7 +75,7 @@
           "configProperty": "actionConfiguration.formData.rowLimit",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === ROWS}}"
+            "show": "{{actionConfiguration.formData.command === 'GET' && actionConfiguration.formData.queryFormat === 'ROWS'}}"
           },
           "initialValue": "10",
           "placeholderText": "10"
