@@ -424,7 +424,7 @@ public class GitServiceImpl implements GitService {
                     } else {
                         String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
-                        Mono<String> defaultBranch = gitExecutor.cloneApplication(
+                        Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
                                 repoPath,
                                 gitConnectDTO.getRemoteUrl(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
@@ -441,7 +441,7 @@ public class GitServiceImpl implements GitService {
                         });
                         return Mono.zip(
                                 Mono.just(application),
-                                defaultBranch,
+                                defaultBranchMono,
                                 Mono.just(repoName),
                                 Mono.just(repoPath)
                         );
@@ -463,6 +463,7 @@ public class GitServiceImpl implements GitService {
                                         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                                         gitApplicationMetadata.setDefaultApplicationId(applicationId);
                                         gitApplicationMetadata.setBranchName(defaultBranch);
+                                        gitApplicationMetadata.setDefaultBranchName(defaultBranch);
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
                                         // Set branchName for each application resource
@@ -899,7 +900,6 @@ public class GitServiceImpl implements GitService {
                             this.getStatus(defaultGitMetadata.getDefaultApplicationId(), branchName),
                             Mono.just(defaultGitMetadata.getGitAuth()),
                             Mono.just(branchedApplication)
-
                     );
                 })
                 .flatMap(tuple -> {
@@ -990,30 +990,6 @@ public class GitServiceImpl implements GitService {
         return gitPullDTO;
     }
 
-    private Mono<Boolean> checkIfRepoIsClean(String defaultApplicationId, String branchName, Path repoSuffix) {
-        final String finalBranchName = branchName.replace("origin/", "");
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                .onErrorResume(error ->  {
-                    //if the branch does not exist in local, checkout remote branch
-                    return checkoutBranch(defaultApplicationId, branchName)
-                            .map(application -> application.getId());
-                })
-                .flatMap(branchedApplicationId -> importExportApplicationService.exportApplicationById(branchedApplicationId, SerialiseApplicationObjective.VERSION_CONTROL))
-                .flatMap(applicationJson -> {
-                    try {
-                        return fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName)
-                                .flatMap(repoPath -> this.getStatus(defaultApplicationId, finalBranchName)
-                                        .map(status -> CollectionUtils.isNullOrEmpty(status.getModified())));
-                    } catch (IOException e) {
-                        log.error("Error while saving git files to repo {}. Details: {}", repoSuffix, e);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-                    } catch (GitAPIException e) {
-                        log.error("Error while git checkout to repo {}. Details: {}", repoSuffix, e);
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", e.getMessage()));
-                    }
-                });
-    }
-
     @Override
     public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches) {
         return getApplicationById(defaultApplicationId)
@@ -1024,7 +1000,6 @@ public class GitServiceImpl implements GitService {
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Unable to find default application. Please configure the application with git"));
                     }
-                    final String dbDefaultBranch = gitApplicationMetadata.getBranchName();
                     Path repoPath = Paths.get(application.getOrganizationId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
@@ -1047,10 +1022,17 @@ public class GitServiceImpl implements GitService {
                     Application application = tuple.getT2();
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Path repoPath = tuple.getT3();
+                    final String dbDefaultBranch = StringUtils.isEmptyOrNull(gitApplicationMetadata.getDefaultBranchName())
+                            ? gitApplicationMetadata.getBranchName()
+                            : gitApplicationMetadata.getDefaultBranchName();
 
                     if (Boolean.TRUE.equals(pruneBranches)) {
                         String defaultBranchRemote = gitBranchListDTOS
-                                .stream().filter(gitBranchDTO -> gitBranchDTO.isDefault()).map(gitBranchDTO -> gitBranchDTO.getBranchName()).toString();
+                                .stream()
+                                .filter(GitBranchDTO::isDefault)
+                                .map(GitBranchDTO::getBranchName)
+                                .findFirst()
+                                .orElse(dbDefaultBranch);
 
                         //update the default branch in db
                         gitApplicationMetadata.setDefaultBranchName(defaultBranchRemote);
@@ -1058,7 +1040,7 @@ public class GitServiceImpl implements GitService {
 
                         // delete local branches which are not present in remote repo
                         List<String> remoteBranches = gitBranchListDTOS.stream()
-                                .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("origin"))
+                                .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().startsWith("origin"))
                                 .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
                                 .collect(Collectors.toList());
 
@@ -1076,11 +1058,11 @@ public class GitServiceImpl implements GitService {
                                 .then(applicationService.save(application)
                                         .then(Mono.just(gitBranchListDTOS)));
                     } else {
-                        //gitBranchListDTOS.stream()
+
                         gitBranchListDTOS
                                 .stream()
-                                .filter(branchDTO -> StringUtils.equalsIgnoreCase(branchDTO.getBranchName(), gitApplicationMetadata.getBranchName()))
-                                .findAny()
+                                .filter(branchDTO -> StringUtils.equalsIgnoreCase(branchDTO.getBranchName(), dbDefaultBranch))
+                                .findFirst()
                                 .ifPresent(branchDTO -> branchDTO.setDefault(true));
                         return Mono.just(gitBranchListDTOS);
                     }
@@ -1147,6 +1129,10 @@ public class GitServiceImpl implements GitService {
 
         if (StringUtils.isEmptyOrNull(sourceBranch) || StringUtils.isEmptyOrNull(destinationBranch)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        } else if (sourceBranch.startsWith("origin/")) {
+            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, sourceBranch));
+        } else if (destinationBranch.startsWith("origin/")) {
+            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, destinationBranch));
         }
 
         return getApplicationById(defaultApplicationId)
