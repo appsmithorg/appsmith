@@ -3875,7 +3875,7 @@ public class DatabaseChangelog {
         mongockTemplate.updateMulti(query, update, Application.class);
     }
 
-    @ChangeSet(order = "099", id = "add-ssh-plugin", author = "")
+    @ChangeSet(order = "100", id = "add-ssh-plugin", author = "")
     public void addSSHPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SSH");
