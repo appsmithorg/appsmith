@@ -335,7 +335,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
 
     return (
-      <DatasourceContainer>
+      <DatasourceContainer data-replay-id={btoa(props.input.name || "")}>
         <CodeEditor
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
