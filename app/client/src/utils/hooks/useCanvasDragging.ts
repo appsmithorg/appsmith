@@ -71,15 +71,7 @@ export const useCanvasDragging = (
     maxGrirdColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
     paddingOffset: 0,
   };
-  //const reflowStateRef = useRef<any>();
-  // const reflowStateChange = useSelector(
-  //   (state: AppState): widgetReflowState => state.ui.widgetReflow,
-  // );
-  // const widgetReflowSelector = getReflowWidgetSelector(widgetId);
-  // const reflowState = useSelector(widgetReflowSelector);
-  // useEffect(() => {
-  //   reflowStateRef.current = reflowState;
-  // }, [reflowStateChange]);
+
   const reflow = useRef<any>();
   reflow.current = useReflow(
     widgetOccupiedSpace ? widgetOccupiedSpace.id : "",
@@ -177,10 +169,12 @@ export const useCanvasDragging = (
       let currentReflowParams: {
         canVerticalMove: boolean;
         canHorizontalMove: boolean;
+        bottomMostRow: number;
         movementMap: ReflowedSpaceMap;
       } = {
         canVerticalMove: false,
         canHorizontalMove: false,
+        bottomMostRow: 0,
         movementMap: {},
       };
       let lastMousePosition = {
@@ -390,35 +384,39 @@ export const useCanvasDragging = (
                   y: 0,
                 },
               );
-              const needsReflow =
+              const needsReflow = !(
                 lastSnappedPosition.leftColumn === leftColumn &&
-                lastSnappedPosition.topRow === topRow;
+                lastSnappedPosition.topRow === topRow
+              );
               lastSnappedPosition = {
                 leftColumn,
                 topRow,
               };
-              if (canReflow && needsReflow) {
-                const resizedPositions = {
-                  left: leftColumn,
-                  top: topRow,
-                  right: leftColumn + currentBlock.width / snapColumnSpace,
-                  bottom: topRow + currentBlock.height / snapRowSpace,
-                  id: currentBlock.widgetId,
-                };
-                const originalPositions = widgetOccupiedSpace
-                  ? { ...widgetOccupiedSpace }
-                  : {
-                      left: 0,
-                      top: 0,
-                      right: 0,
-                      bottom: 0,
-                      id: currentBlock.widgetId,
-                    };
-                currentReflowParams = reflow.current(
-                  resizedPositions,
-                  originalPositions,
-                  currentDirection,
-                );
+              if (canReflow) {
+                if (needsReflow) {
+                  const resizedPositions = {
+                    left: leftColumn,
+                    top: topRow,
+                    right: leftColumn + currentBlock.width / snapColumnSpace,
+                    bottom: topRow + currentBlock.height / snapRowSpace,
+                    id: currentBlock.widgetId,
+                  };
+                  const originalPositions = widgetOccupiedSpace
+                    ? { ...widgetOccupiedSpace }
+                    : {
+                        left: 0,
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        id: currentBlock.widgetId,
+                      };
+                  currentReflowParams = reflow.current(
+                    resizedPositions,
+                    originalPositions,
+                    currentDirection,
+                  );
+                }
+
                 const isReflowing = !isEmpty(currentReflowParams.movementMap);
                 if (isReflowing) {
                   const block = currentRectanglesToDraw[0];
@@ -435,32 +433,8 @@ export const useCanvasDragging = (
                     GridDefaults.DEFAULT_GRID_COLUMNS,
                     block.detachFromLayout,
                   );
-                  const reflowedWidgets = Object.entries(
-                    currentReflowParams.movementMap,
-                  );
-                  const bottomReflowedWidgets = reflowedWidgets.filter(
-                    (each) => !!each[1].Y,
-                  );
-                  const reflowedWidgetsBottomMostRow = bottomReflowedWidgets.reduce(
-                    (bottomMostRow, each) => {
-                      const [id, reflowedParams] = each;
-                      const widget = occSpaces.find(
-                        (eachSpace) => eachSpace.id === id,
-                      );
-                      if (widget) {
-                        const bottomMovement =
-                          (reflowedParams.Y || 0) / snapRowSpace;
-                        const bottomRow = widget.bottom + bottomMovement;
-                        if (bottomRow > bottomMostRow) {
-                          return bottomRow;
-                        }
-                      }
-                      return bottomMostRow;
-                    },
-                    0,
-                  );
                   const newRows = updateBottomRow(
-                    reflowedWidgetsBottomMostRow,
+                    currentReflowParams.bottomMostRow,
                     rowRef.current,
                   );
                   rowRef.current = newRows ? newRows : rowRef.current;

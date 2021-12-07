@@ -213,7 +213,9 @@ function* generateChildWidgets(
   return { widgetId: widget.widgetId, widgets };
 }
 
-function* getUpdateDslAfterCreatingChild(addChildPayload: WidgetAddChild) {
+export function* getUpdateDslAfterCreatingChild(
+  addChildPayload: WidgetAddChild,
+) {
   // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
   const { widgetId } = addChildPayload;
   // Get the current parent widget whose child will be the new widget.
