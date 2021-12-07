@@ -47,6 +47,8 @@ import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
+import { Indices } from "constants/Layers";
 
 type ReduxStateProps = {
   orgId: string;
@@ -73,9 +75,12 @@ const DatasourceContainer = styled.div`
   position: relative;
   align-items: center;
   .t--datasource-editor {
-    background-color: transparent;
+    background-color: ${Colors.WHITE};
     .cm-s-duotone-light.CodeMirror {
-      background: transparent;
+      background: ${Colors.WHITE};
+    }
+    .CodeEditorTarget {
+      z-index: ${Indices.Layer5};
     }
   }
 `;
@@ -340,7 +345,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
-          height="35px"
         />
         {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
