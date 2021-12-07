@@ -1,5 +1,4 @@
 import { defaultSelectedRowValidation } from "./propertyUtils";
-import { TableWidgetProps } from "../constants";
 import _ from "lodash";
 
 const tableWProps = {
