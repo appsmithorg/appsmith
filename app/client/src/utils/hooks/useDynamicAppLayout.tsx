@@ -110,10 +110,12 @@ export const useDynamicAppLayout = () => {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
+        const totalWidthToSubtract = BORDERS_WIDTH + GUTTER_WIDTH;
+        // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
-          (appMode === APP_MODE.EDIT && !(isPreviewMode || isThemeMode)
-            ? BORDERS_WIDTH + GUTTER_WIDTH
+          (appMode === APP_MODE.EDIT && !isPreviewMode && !isThemeMode
+            ? totalWidthToSubtract
             : 0)
         );
       case calculatedWidth < minWidth:

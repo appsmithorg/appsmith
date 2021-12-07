@@ -19,9 +19,7 @@ export interface AppTheme {
       };
     };
     fontFamily: {
-      [key: string]: {
-        [key: string]: [string, string];
-      };
+      [key: string]: string[];
     };
   };
   stylesheet: {
@@ -42,7 +40,7 @@ export interface AppTheme {
       [key: string]: string;
     };
     fontFamily: {
-      [key: string]: [string, string];
+      [key: string]: string;
     };
   };
   variants: {

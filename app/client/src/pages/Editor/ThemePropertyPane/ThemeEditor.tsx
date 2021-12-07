@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateSelectedThemeAction } from "actions/appThemingActions";
 import { AppTheme } from "entities/AppTheming";
+import ThemeFontControl from "./controls/ThemeFontControl";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
@@ -82,6 +83,33 @@ function ThemeEditor() {
                     selectedOption={get(
                       selectedTheme,
                       `properties.boxShadow.${boxShadowSectionName}`,
+                    )}
+                    theme={selectedTheme}
+                    updateTheme={updateSelectedTheme}
+                  />
+                </section>
+              );
+            },
+          )}
+        </SettingSection>
+
+        {/* FONT  */}
+        <SettingSection className="border-t" title="Font">
+          {Object.keys(selectedTheme.config.fontFamily).map(
+            (fontFamilySectionName: string, index: number) => {
+              return (
+                <section className="space-y-2" key={index}>
+                  <h3>{startCase(fontFamilySectionName)}</h3>
+                  <ThemeFontControl
+                    options={get(
+                      selectedTheme,
+                      `config.fontFamily.${fontFamilySectionName}`,
+                      {},
+                    )}
+                    sectionName={fontFamilySectionName}
+                    selectedOption={get(
+                      selectedTheme,
+                      `properties.fontFamily.${fontFamilySectionName}`,
                     )}
                     theme={selectedTheme}
                     updateTheme={updateSelectedTheme}

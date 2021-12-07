@@ -6,6 +6,7 @@ import {
   getCanvasWidgetDsl,
   getViewModePageList,
   previewModeSelector,
+  themeModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -15,6 +16,7 @@ import { Spinner } from "@blueprintjs/core";
 import Canvas from "../Canvas";
 import { useParams } from "react-router";
 import classNames from "classnames";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 const Container = styled.section`
   width: 100%;
@@ -37,8 +39,11 @@ function CanvasContainer() {
   const widgets = useSelector(getCanvasWidgetDsl);
   const pages = useSelector(getViewModePageList);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isThemeMode = useSelector(themeModeSelector);
+  const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
+  const shouldHaveTopMargin =
+    (!isPreviewMode || pages.length > 1) && !isThemeMode;
 
   const pageLoading = (
     <Centered>
@@ -62,7 +67,13 @@ function CanvasContainer() {
         "mt-9": shouldHaveTopMargin,
       })}
       key={currentPageId}
-      style={{ height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})` }}
+      style={{
+        height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
+        background:
+          isThemeMode || isPreviewMode
+            ? selectedTheme.properties.colors.backgroundColor
+            : "initial",
+      }}
     >
       {node}
     </Container>

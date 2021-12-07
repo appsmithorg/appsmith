@@ -41,15 +41,15 @@ function Toolbar() {
   return (
     <div className="flex items-center justify-between px-3 py-2 border-b z-1">
       <div>
-        {explorerPinned === false && (
+        {explorerPinned === false && isEditorThemeMode === false && (
           <MenuIcon
             className="w-5 h-5 cursor-pointer text-trueGray-600"
             onMouseEnter={onMenuHover}
           />
         )}
         {isEditorThemeMode === true && (
-          <h3 className="uppercase font-medium text-sm">
-            Global Theme Settings{" "}
+          <h3 className="text-sm font-medium uppercase">
+            Global Theme Settings
           </h3>
         )}
       </div>

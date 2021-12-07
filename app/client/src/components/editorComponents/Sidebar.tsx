@@ -287,7 +287,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         onTouchStart={resizer.onTouchStart}
         style={{
           left: resizerLeft,
-          display: isPreviewMode ? "none" : "initial",
+          display: isPreviewMode || isThemeMode ? "none" : "initial",
         }}
       >
         <div

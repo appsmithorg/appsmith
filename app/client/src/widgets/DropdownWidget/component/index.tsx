@@ -211,7 +211,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
 
     & .${Classes.MENU} {
       margin-top: -3px;
-      max-width: 100%;
+      max-width: 100% !important;
       max-height: auto;
       min-width: 0px !important;
     }
