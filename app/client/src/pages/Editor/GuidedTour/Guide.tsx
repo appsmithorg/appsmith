@@ -48,6 +48,7 @@ import TableData from "./table-data.png";
 
 const GuideWrapper = styled.div`
   margin-bottom: 10px;
+  user-select: text;
 `;
 
 const CardWrapper = styled.div`
