@@ -147,3 +147,15 @@ export type SlashCommandPayload = {
   callback?: (binding: string) => void;
   args: any;
 };
+
+export function isAPIAction(action: Action): action is ApiAction {
+  return action.pluginType === PluginType.API;
+}
+
+export function isQueryAction(action: Action): action is QueryAction {
+  return action.pluginType === PluginType.DB;
+}
+
+export function isSaaSAction(action: Action): action is SaaSAction {
+  return action.pluginType === PluginType.SAAS;
+}

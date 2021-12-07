@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,6 +11,10 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
 import Icon, { IconSize } from "components/ads/Icon";
+import Tooltip from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { isEllipsisActive } from "utils/helpers";
+import { getGitStatus } from "selectors/gitSyncSelectors";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -42,6 +46,8 @@ function BranchButton() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const fetchBranches = () => dispatch(fetchBranchesInit());
+  const labelTarget = useRef<HTMLDivElement>(null);
+  const status = useSelector(getGitStatus);
 
   useEffect(() => {
     fetchBranches();
@@ -58,12 +64,23 @@ function BranchButton() {
       }}
       placement="top-start"
     >
-      <ButtonContainer className="t--branch-button">
-        <div className="icon">
-          <Icon name="git-branch" size={IconSize.XXXXL} />
-        </div>
-        <div className="label">{currentBranch}</div>
-      </ButtonContainer>
+      <Tooltip
+        boundary="window"
+        content={currentBranch || ""}
+        disabled={!isEllipsisActive(labelTarget.current)}
+        hoverOpenDelay={1000}
+        position={Position.TOP_LEFT}
+      >
+        <ButtonContainer className="t--branch-button">
+          <div className="icon">
+            <Icon name="git-branch" size={IconSize.XXXXL} />
+          </div>
+          <div className="label" ref={labelTarget}>
+            {currentBranch}
+            {!status?.isClean && "*"}
+          </div>
+        </ButtonContainer>
+      </Tooltip>
     </Popover2>
   );
 }
