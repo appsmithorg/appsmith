@@ -456,7 +456,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
                 "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01 00:02:00\",\n" +
+                "    \"date\": \"2021-09-02 00:02:00\",\n" +
                 "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -465,7 +465,7 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Tobias Funke\",\n" +
                 "    \"productName\": \"Beef steak\",\n" +
                 "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01 00:03:00\",\n" +
+                "    \"date\": \"2021-09-03 00:03:00\",\n" +
                 "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  }\n" +
                 "]";
@@ -480,7 +480,7 @@ public class FilterDataServiceTest {
 
             ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
-            assertEquals(filteredData.size(), 2);
+            assertEquals(2, filteredData.size());
 
 
         } catch (IOException e) {
