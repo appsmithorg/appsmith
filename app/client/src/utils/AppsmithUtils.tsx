@@ -57,40 +57,40 @@ export const appInitializer = () => {
 };
 
 export const initializeAnalyticsAndTrackers = () => {
+  const appsmithConfigs = getAppsmithConfigs();
+
   try {
-    const appsmithConfigs = getAppsmithConfigs();
-
-    try {
-      if (appsmithConfigs.sentry.enabled && !window.Sentry) {
-        window.Sentry = Sentry;
-        Sentry.init({
-          ...appsmithConfigs.sentry,
-          beforeBreadcrumb(breadcrumb) {
+    if (appsmithConfigs.sentry.enabled && !window.Sentry) {
+      window.Sentry = Sentry;
+      Sentry.init({
+        ...appsmithConfigs.sentry,
+        beforeBreadcrumb(breadcrumb) {
+          if (
+            breadcrumb.category === "console" &&
+            breadcrumb.level !== "error"
+          ) {
+            return null;
+          }
+          if (breadcrumb.category === "sentry.transaction") {
+            return null;
+          }
+          if (breadcrumb.category === "redux.action") {
             if (
-              breadcrumb.category === "console" &&
-              breadcrumb.level !== "error"
+              breadcrumb.data &&
+              breadcrumb.data.type === "SET_EVALUATED_TREE"
             ) {
-              return null;
+              breadcrumb.data = undefined;
             }
-            if (breadcrumb.category === "sentry.transaction") {
-              return null;
-            }
-            if (breadcrumb.category === "redux.action") {
-              if (
-                breadcrumb.data &&
-                breadcrumb.data.type === "SET_EVALUATED_TREE"
-              ) {
-                breadcrumb.data = undefined;
-              }
-            }
-            return breadcrumb;
-          },
-        });
-      }
-    } catch (e) {
-      log.error(e);
+          }
+          return breadcrumb;
+        },
+      });
     }
+  } catch (e) {
+    log.error(e);
+  }
 
+  try {
     if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
       const { id } = appsmithConfigs.smartLook;
       AnalyticsUtil.initializeSmartLook(id);
