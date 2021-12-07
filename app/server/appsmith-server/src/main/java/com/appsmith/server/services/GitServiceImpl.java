@@ -1150,6 +1150,14 @@ public class GitServiceImpl implements GitService {
         final String sourceBranch = gitMergeDTO.getSourceBranch();
         final String destinationBranch = gitMergeDTO.getDestinationBranch();
 
+        if(sourceBranch.startsWith("origin/")) {
+            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, sourceBranch));
+        }
+
+        if(destinationBranch.startsWith("origin/")) {
+            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, destinationBranch));
+        }
+
         if (StringUtils.isEmptyOrNull(sourceBranch) || StringUtils.isEmptyOrNull(destinationBranch)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
@@ -1267,6 +1275,12 @@ public class GitServiceImpl implements GitService {
         String destinationBranch = gitMergeDTO.getDestinationBranch();
         if (StringUtils.isEmptyOrNull(sourceBranch) || StringUtils.isEmptyOrNull(destinationBranch)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+        if(sourceBranch.startsWith("origin/")) {
+            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, sourceBranch));
+        }
+        if(destinationBranch.startsWith("origin/")) {
+            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, destinationBranch));
         }
 
         return getApplicationById(defaultApplicationId)
