@@ -14,6 +14,7 @@ import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
+import { replayHighlightClass } from "globalStyles/portals";
 import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
@@ -770,9 +771,9 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
-      className={props.containerClassName}
+      className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
+      height={props.height || "36px"}
       tabIndex={0}
       width={dropdownWidth}
     >
