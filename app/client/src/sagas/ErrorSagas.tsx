@@ -93,13 +93,6 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
     throw new IncorrectBindingError(response.responseMeta.error.message);
   }
 
-  if (response?.gitRequest) {
-    yield put({
-      type: ReduxActionErrorTypes.GIT_SYNC_ERROR,
-      payload: response.responseMeta.error,
-    });
-  }
-
   yield put({
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
