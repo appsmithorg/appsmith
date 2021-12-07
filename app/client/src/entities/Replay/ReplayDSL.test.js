@@ -1,8 +1,8 @@
-import ReplayDSL from "./ReplayDSL";
 import { diff as deepDiff } from "deep-diff";
+import ReplayCanvas from "./ReplayEntity/ReplayCanvas";
 
 describe("Checks ReplayDSL functionality", () => {
-  const replayDSL = new ReplayDSL({});
+  const replayDSL = new ReplayCanvas({});
   const updatedWidgets = {
     "widget-id": {
       widgetName: "Text1",
@@ -11,7 +11,7 @@ describe("Checks ReplayDSL functionality", () => {
 
   it("checks the initialization of the class", () => {
     const currentDiff = replayDSL.getDiffs();
-    const currentDSL = replayDSL.dsl;
+    const currentDSL = replayDSL.entity;
 
     expect(currentDiff).toStrictEqual([]);
     expect(currentDSL).toStrictEqual({});
@@ -19,7 +19,7 @@ describe("Checks ReplayDSL functionality", () => {
 
   it("checks if dsl is updated on change in widgets", () => {
     replayDSL.update(updatedWidgets);
-    const currentDSL = replayDSL.dsl;
+    const currentDSL = replayDSL.entity;
     const currentDiff = replayDSL.getDiffs();
 
     expect(currentDSL).toStrictEqual(updatedWidgets);
@@ -29,14 +29,14 @@ describe("Checks ReplayDSL functionality", () => {
   it("checks if dsl is reverted on undo", () => {
     replayDSL.replay("UNDO");
 
-    const currentDSL = replayDSL.dsl;
+    const currentDSL = replayDSL.entity;
     expect(currentDSL).toStrictEqual({});
   });
 
   it("checks if undo is reverted on redo", () => {
     replayDSL.replay("REDO");
 
-    const currentDSL = replayDSL.dsl;
+    const currentDSL = replayDSL.entity;
     expect(currentDSL).toStrictEqual(updatedWidgets);
   });
 
