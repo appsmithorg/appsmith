@@ -235,3 +235,17 @@ export const remoteUrlInputValue = (payload?: { tempRemoteUrl?: string }) => ({
   type: ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE,
   payload,
 });
+
+export const setShouldShowRepoLimitError = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR,
+  payload,
+});
+
+export const setShowRepoLimitErrorModal = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL,
+  payload,
+});
+
+export const showConnectGitModal = () => ({
+  type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
+});

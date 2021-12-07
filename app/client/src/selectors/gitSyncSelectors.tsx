@@ -130,3 +130,9 @@ export const getCountOfChangesToCommit = (state: AppState) => {
   const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};
   return modifiedPages + modifiedQueries;
 };
+
+export const getShouldShowRepoLimitError = (state: AppState) =>
+  state.ui.gitSync.showRepoLimitError;
+
+export const getShowRepoLimitErrorModal = (state: AppState) =>
+  state.ui.gitSync.showRepoLimitErrorModal;

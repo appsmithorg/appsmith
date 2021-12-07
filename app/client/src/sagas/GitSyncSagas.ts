@@ -31,6 +31,7 @@ import {
   fetchGitStatusInit,
   setIsGitSyncModalOpen,
   setIsGitErrorPopupVisible,
+  setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -59,7 +60,10 @@ import {
   mergeBranchSuccess,
   // mergeBranchFailure,
 } from "../actions/gitSyncActions";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  getShouldShowRepoLimitError,
+} from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 
@@ -144,8 +148,13 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       history.replace(updatedPath);
     }
   } catch (error) {
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+    if ((error as any).message === "REPO_LIMIT_REACHED") {
+      yield put(setIsGitSyncModalOpen({ isOpen: false }));
+      yield put(setShowRepoLimitErrorModal(true));
+    } else {
+      if (action.onErrorCallback) {
+        action.onErrorCallback(error as string);
+      }
     }
     // yield put({
     //   type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
@@ -455,6 +464,17 @@ function* gitPullSaga(
   }
 }
 
+function* showConnectGitModal() {
+  const showRepoLimitError: boolean = yield select(getShouldShowRepoLimitError);
+  if (showRepoLimitError) {
+    yield put(setShowRepoLimitErrorModal(true));
+  } else {
+    yield put(
+      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    );
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -487,5 +507,6 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
     takeLatest(ReduxActionTypes.FETCH_MERGE_STATUS_INIT, fetchMergeStatusSaga),
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
+    takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
   ]);
 }

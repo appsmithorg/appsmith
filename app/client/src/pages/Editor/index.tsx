@@ -45,6 +45,7 @@ import {
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -221,6 +222,7 @@ class Editor extends Component<Props> {
               <CommentShowCaseCarousel />
               <GitSyncModal />
               <ConcurrentPageEditorToast />
+              <RepoLimitExceededErrorModal />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />
