@@ -111,7 +111,7 @@ describe("Rest Bugs tests", function () {
       });
   });
 
-  it("Bug 5550: Not able to run APIs in parallel", function () {
+  it("Bug 4775: No Cyclical dependency when Api returns an error", function () {
     cy.addDsl(dslTable);
     //Api 1
     cy.NavigateToAPI_Panel();
