@@ -15,7 +15,14 @@
    "ignoreTestFiles": [
     "**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
     "**/Smoke_TestSuite/ClientSideTests/DisplayWidgets/Table_Filter_spec*.js",
-    "**/Smoke_TestSuite/ClientSideTests/Onboarding/FirstTimeUserOnboarding_spec*.js"
+    "**/Smoke_TestSuite/ClientSideTests/Onboarding/FirstTimeUserOnboarding_spec*.js",
+     "**/Smoke_TestSuite/Application/*.js",
+     "**/Smoke_TestSuite/ClientSideTests/*.js",
+     "**/Smoke_TestSuite/ServerSideTests/A*/**.js",
+     "**/Smoke_TestSuite/ServerSideTests/U*/**.js",
+     "**/Smoke_TestSuite/ServerSideTests/D*/**.js",
+     "**/Smoke_TestSuite/ServerSideTests/E*/**.js",
+     "**/Smoke_TestSuite/ServerSideTests/O*/**.js"
   ],
   "chromeWebSecurity": false,
   "viewportHeight": 900,
