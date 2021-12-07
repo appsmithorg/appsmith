@@ -249,3 +249,7 @@ export const setShowRepoLimitErrorModal = (payload: boolean) => ({
 export const showConnectGitModal = () => ({
   type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
 });
+
+export const disconnectGit = () => ({
+  type: ReduxActionTypes.DISCONNECT_GIT,
+});

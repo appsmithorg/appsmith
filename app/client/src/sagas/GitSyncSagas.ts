@@ -53,7 +53,7 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
-import { addBranchParam } from "constants/routes";
+import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
 
 import {
@@ -475,6 +475,27 @@ function* showConnectGitModal() {
   }
 }
 
+function* disconnectGitSaga() {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.disconnectGit({
+      applicationId,
+    });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete(GIT_BRANCH_QUERY_KEY);
+      history.push(url.toString().slice(url.origin.length));
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR,
+      payload: { error: e, logToSentry: true },
+    });
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -508,5 +529,6 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.FETCH_MERGE_STATUS_INIT, fetchMergeStatusSaga),
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
+    takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
   ]);
 }

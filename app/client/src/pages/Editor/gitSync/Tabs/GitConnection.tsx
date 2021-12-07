@@ -28,6 +28,7 @@ import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 import {
+  disconnectGit,
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
   remoteUrlInputValue,
@@ -444,6 +445,7 @@ function GitConnection({ isImport }: Props) {
           </ButtonContainer>
         </>
       ) : null}
+      <Button onClick={() => dispatch(disconnectGit())} text="disconnect git" />
       <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="47px" />
     </Container>
   );
