@@ -78,6 +78,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     }
   }
 
+  getSanitizedData = () => {
+    return this.getTrimmedData(this.normalizeValues());
+  };
+
   openOmnibarReadMore = () => {
     const { openOmnibarReadMore } = this.props;
     openOmnibarReadMore("connect to databases");
@@ -93,6 +97,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   renderDataSourceConfigForm = (sections: any) => {
     const { datasource, messages, pluginType } = this.props;
     const { viewMode } = this.props;
+
     return (
       <form
         onSubmit={(e) => {
@@ -148,16 +153,18 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : undefined}
-            {datasource && (
-              <DatasourceAuth
-                datasource={datasource}
-                isInvalid={this.validate()}
-                sanitizedFormData={this.getTrimmedData(this.normalizeValues())}
-              />
-            )}
+            {""}
           </>
         ) : (
           <Connected />
+        )}
+        {datasource && (
+          <DatasourceAuth
+            datasource={datasource}
+            getSanitizedFormData={_.memoize(this.getSanitizedData)}
+            isInvalid={this.validate()}
+            shouldRender={!viewMode}
+          />
         )}
       </form>
     );

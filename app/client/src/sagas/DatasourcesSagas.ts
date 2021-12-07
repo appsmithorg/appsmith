@@ -395,6 +395,7 @@ function* redirectAuthorizationCodeSaga(
         datasourceId,
         pageId,
       );
+
       if (validateResponse(response)) {
         const appsmithToken = response.data;
         // Save the token for later use once we come back from the auth flow
@@ -1011,10 +1012,7 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
       redirectAuthorizationCodeSaga,
     ),
-    takeEvery(
-      ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
-      getOAuthAccessTokenSaga,
-    ),
+    takeEvery(ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN, getOAuthAccessTokenSaga),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
       fetchDatasourceStructureSaga,

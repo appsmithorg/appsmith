@@ -26,6 +26,7 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
+import TestSaveDelete from "../common/datasourceAuth/TestSaveDeleteAuth";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -49,12 +50,6 @@ type DatasourceSaaSEditorProps = StateProps &
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
 
-enum AuthenticationStatus {
-  NONE = "NONE",
-  IN_PROGRESS = "IN_PROGRESS",
-  SUCCESS = "SUCCESS",
-}
-
 const EditDatasourceButton = styled(AdsButton)`
   padding: 10px 20px;
   &&&& {
@@ -62,15 +57,6 @@ const EditDatasourceButton = styled(AdsButton)`
     max-width: 160px;
     border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
-  }
-`;
-
-const StyledAuthMessage = styled.div`
-  color: ${(props) => props.theme.colors.error};
-  margin-top: 15px;
-  &:after {
-    content: " *";
-    color: inherit;
   }
 `;
 
@@ -84,6 +70,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     return this.renderForm(content);
   }
 
+  getSanitizedData = () => {
+    return this.normalizeValues();
+  };
+
   renderDataSourceConfigForm = (sections: any) => {
     const {
       applicationId,
@@ -95,9 +85,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
-    const isAuthorized =
-      datasource?.datasourceConfiguration.authentication
-        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
     return (
       <form
@@ -137,24 +124,18 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : null}
-            {!isAuthorized && (
-              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
-            )}
-            {datasource && (
-              <DatasourceAuth
-                datasource={datasource}
-                isInvalid={this.validate()}
-                sanitizedFormData={this.normalizeValues()}
-              />
-            )}
+            {""}
           </>
         ) : (
-          <>
-            <Connected />
-            {!isAuthorized && (
-              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
-            )}
-          </>
+          <Connected />
+        )}
+        {datasource && (
+          <DatasourceAuth
+            datasource={datasource}
+            getSanitizedFormData={_.memoize(this.getSanitizedData)}
+            isInvalid={this.validate()}
+            shouldRender={!viewMode}
+          />
         )}
       </form>
     );

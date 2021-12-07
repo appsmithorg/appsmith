@@ -32,8 +32,9 @@ import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 
 interface Props {
   datasource: Datasource;
-  sanitizedFormData: Datasource;
+  getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
+  shouldRender: boolean;
 }
 
 enum AuthorizationStatus {
@@ -47,10 +48,20 @@ const StyledButton = styled(EditButton)`
   }
 `;
 
+const StyledAuthMessage = styled.div`
+  color: ${(props) => props.theme.colors.error};
+  margin-top: 15px;
+  &:after {
+    content: " *";
+    color: inherit;
+  }
+`;
+
 function OAuth({
   datasource,
+  getSanitizedFormData,
   isInvalid,
-  sanitizedFormData,
+  shouldRender,
 }: Props): JSX.Element {
   const { id: datasourceId } = datasource;
   const {
@@ -73,7 +84,7 @@ function OAuth({
   const handleDatasourceSave = () => {
     dispatch(
       updateDatasource(
-        sanitizedFormData,
+        getSanitizedFormData(),
         pluginType
           ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
           : undefined,
@@ -100,7 +111,7 @@ function OAuth({
         }
         Toaster.show({ text: display_message || message, variant });
       } else {
-        getOAuthAccessToken(datasourceId);
+        dispatch(getOAuthAccessToken(datasourceId));
       }
       AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
         applicationId,
@@ -111,28 +122,35 @@ function OAuth({
   }, []);
 
   return (
-    <SaveButtonContainer>
-      <ActionButton
-        // accent="error"
-        buttonStyle="DANGER"
-        buttonVariant={ButtonVariantTypes.PRIMARY}
-        className="t--delete-datasource"
-        loading={isDeleting}
-        onClick={handleDatasourceDelete}
-        text="Delete"
-      />
+    <>
+      {!isAuthorized && (
+        <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+      )}
+      {shouldRender ? (
+        <SaveButtonContainer>
+          <ActionButton
+            // accent="error"
+            buttonStyle="DANGER"
+            buttonVariant={ButtonVariantTypes.PRIMARY}
+            className="t--delete-datasource"
+            loading={isDeleting}
+            onClick={handleDatasourceDelete}
+            text="Delete"
+          />
 
-      <StyledButton
-        className="t--save-datasource"
-        disabled={isInvalid}
-        filled
-        intent="primary"
-        loading={isSaving}
-        onClick={handleDatasourceSave}
-        size="small"
-        text={isAuthorized ? "Save and Re-authorize" : "Save and Authorize"}
-      />
-    </SaveButtonContainer>
+          <StyledButton
+            className="t--save-datasource"
+            disabled={isInvalid}
+            filled
+            intent="primary"
+            loading={isSaving}
+            onClick={handleDatasourceSave}
+            size="small"
+            text={isAuthorized ? "Save and Re-authorize" : "Save and Authorize"}
+          />
+        </SaveButtonContainer>
+      ) : null}{" "}
+    </>
   );
 }
 

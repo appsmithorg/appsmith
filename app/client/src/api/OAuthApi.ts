@@ -4,7 +4,7 @@ import { GenericApiResponse } from "api/ApiResponses";
 import { Datasource } from "entities/Datasource";
 
 class OAuthApi extends Api {
-  static url = "v1/sass";
+  static url = "v1/saas";
   static getAppsmithToken(
     datasourceId: string,
     pageId: string,

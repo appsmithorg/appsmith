@@ -5,11 +5,17 @@ import TestSaveDeleteAuth from "./TestSaveDeleteAuth";
 
 interface Props {
   datasource: Datasource;
-  sanitizedFormData: Datasource;
+  getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
+  shouldRender: boolean;
 }
 
-function DatasourceAuth({ datasource, isInvalid, sanitizedFormData }: Props) {
+function DatasourceAuth({
+  datasource,
+  getSanitizedFormData,
+  isInvalid,
+  shouldRender,
+}: Props) {
   const authType =
     datasource.datasourceConfiguration.authentication?.authenticationType ||
     datasource.datasourceConfiguration.authentication?.authType;
@@ -19,8 +25,9 @@ function DatasourceAuth({ datasource, isInvalid, sanitizedFormData }: Props) {
       return (
         <OAuth
           datasource={datasource}
+          getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
-          sanitizedFormData={sanitizedFormData}
+          shouldRender={shouldRender}
         />
       );
 
@@ -28,8 +35,9 @@ function DatasourceAuth({ datasource, isInvalid, sanitizedFormData }: Props) {
       return (
         <TestSaveDeleteAuth
           datasource={datasource}
+          getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
-          sanitizedFormData={sanitizedFormData}
+          shouldRender={shouldRender}
         />
       );
 
@@ -37,8 +45,9 @@ function DatasourceAuth({ datasource, isInvalid, sanitizedFormData }: Props) {
       return (
         <TestSaveDeleteAuth
           datasource={datasource}
+          getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
-          sanitizedFormData={sanitizedFormData}
+          shouldRender={shouldRender}
         />
       );
   }

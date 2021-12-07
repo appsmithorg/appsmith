@@ -23,8 +23,9 @@ import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 
 interface Props {
   datasource: Datasource;
-  sanitizedFormData: Datasource;
+  getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
+  shouldRender: boolean;
 }
 const StyledButton = styled(EditButton)`
   &&&& {
@@ -35,8 +36,9 @@ const StyledButton = styled(EditButton)`
 
 export default function TestSaveDelete({
   datasource,
+  getSanitizedFormData,
   isInvalid,
-  sanitizedFormData,
+  shouldRender,
 }: Props): JSX.Element {
   const { id: datasourceId } = datasource;
 
@@ -58,7 +60,7 @@ export default function TestSaveDelete({
       pageId: pageId,
       appId: applicationId,
     });
-    dispatch(testDatasource(sanitizedFormData));
+    dispatch(testDatasource(getSanitizedFormData()));
   };
 
   const handleDatasourceSave = () => {
@@ -67,42 +69,47 @@ export default function TestSaveDelete({
       appId: applicationId,
     });
     updateDatasource(
-      sanitizedFormData,
+      getSanitizedFormData(),
       redirectToNewIntegrations(applicationId, pageId, getQueryParams()),
     );
   };
 
   return (
-    <SaveButtonContainer>
-      <ActionButton
-        buttonStyle="DANGER"
-        buttonVariant={ButtonVariantTypes.PRIMARY}
-        // accent="error"
-        className="t--delete-datasource"
-        loading={isDeleting}
-        onClick={handleDatasourceDelete}
-        text="Delete"
-      />
+    <>
+      {shouldRender && (
+        <SaveButtonContainer>
+          <ActionButton
+            buttonStyle="DANGER"
+            buttonVariant={ButtonVariantTypes.PRIMARY}
+            // accent="error"
+            className="t--delete-datasource"
+            loading={isDeleting}
+            onClick={handleDatasourceDelete}
+            text="Delete"
+          />
 
-      <ActionButton
-        // accent="secondary"
-        buttonStyle="PRIMARY"
-        buttonVariant={ButtonVariantTypes.SECONDARY}
-        className="t--test-datasource"
-        loading={isTesting}
-        onClick={handleDatasourceTest}
-        text="Test"
-      />
-      <StyledButton
-        className="t--save-datasource"
-        disabled={isInvalid}
-        filled
-        intent="primary"
-        loading={isSaving}
-        onClick={handleDatasourceSave}
-        size="small"
-        text="Save"
-      />
-    </SaveButtonContainer>
+          <ActionButton
+            // accent="secondary"
+            buttonStyle="PRIMARY"
+            buttonVariant={ButtonVariantTypes.SECONDARY}
+            className="t--test-datasource"
+            loading={isTesting}
+            onClick={handleDatasourceTest}
+            text="Test"
+          />
+          <StyledButton
+            className="t--save-datasource"
+            disabled={isInvalid}
+            filled
+            intent="primary"
+            loading={isSaving}
+            onClick={handleDatasourceSave}
+            size="small"
+            text="Save"
+          />
+        </SaveButtonContainer>
+      )}
+      {""}
+    </>
   );
 }
