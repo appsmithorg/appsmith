@@ -68,9 +68,11 @@ export default function TestSaveDelete({
       pageId: pageId,
       appId: applicationId,
     });
-    updateDatasource(
-      getSanitizedFormData(),
-      redirectToNewIntegrations(applicationId, pageId, getQueryParams()),
+    dispatch(
+      updateDatasource(
+        getSanitizedFormData(),
+        redirectToNewIntegrations(applicationId, pageId, getQueryParams()),
+      ),
     );
   };
 
