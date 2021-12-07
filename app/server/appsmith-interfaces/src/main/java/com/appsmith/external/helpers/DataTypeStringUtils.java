@@ -25,7 +25,9 @@ import reactor.core.Exceptions;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -128,7 +130,7 @@ public class DataTypeStringUtils {
             final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
                     .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
                     .toFormatter();
-            LocalDateTime.parse(input, dateFormatter);
+            LocalDate.parse(input, dateFormatter);
             return DataType.DATE;
         } catch (DateTimeParseException ex) {
             // Not date
@@ -138,7 +140,7 @@ public class DataTypeStringUtils {
             final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder()
                     .appendOptional(DateTimeFormatter.ISO_LOCAL_TIME)
                     .toFormatter();
-            LocalDateTime.parse(input, timeFormatter);
+            LocalTime.parse(input, timeFormatter);
             return DataType.TIME;
         } catch (DateTimeParseException ex) {
             // Not time
