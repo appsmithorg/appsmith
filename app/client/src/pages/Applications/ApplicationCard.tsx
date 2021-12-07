@@ -54,6 +54,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
 import { Colors } from "constants/Colors";
+import { CONNECTED_TO_GIT, createMessage } from "constants/messages";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -363,6 +364,38 @@ const MenuItemWrapper = styled(MenuItem)`
   }
 `;
 
+const StyledGitConnectedBadge = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
+  background: ${Colors.WHITE};
+`;
+
+function GitConnectedBadge() {
+  return (
+    <StyledGitConnectedBadge>
+      <TooltipComponent
+        content={createMessage(CONNECTED_TO_GIT)}
+        maxWidth="400px"
+      >
+        <Icon fillColor={Colors.GREY_7} name="fork" size={IconSize.XXL} />
+      </TooltipComponent>
+    </StyledGitConnectedBadge>
+  );
+}
+
+const Container = styled.div`
+  position: relative;
+  overflow: visible;
+`;
+
 export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
@@ -385,6 +418,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   const applicationId = props.application?.id;
+  const showGitBadge = props.application?.gitApplicationMetadata;
 
   useEffect(() => {
     let colorCode;
@@ -670,82 +704,88 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
 
   return (
-    <NameWrapper
-      className="t--application-card"
-      hasReadPermission={hasReadPermission}
-      isMenuOpen={isMenuOpen}
-      onMouseEnter={() => {
-        !isFetchingApplications && setShowOverlay(true);
-      }}
-      onMouseLeave={() => {
-        // If the menu is not open, then setOverlay false
-        // Set overlay false on outside click.
-        !isMenuOpen && setShowOverlay(false);
-      }}
-      showOverlay={showOverlay}
-    >
-      <Wrapper
-        backgroundColor={selectedColor}
-        className={
-          isFetchingApplications
-            ? Classes.SKELETON
-            : "t--application-card-background"
-        }
+    <Container>
+      <NameWrapper
+        className="t--application-card"
         hasReadPermission={hasReadPermission}
-        key={props.application.id}
+        isMenuOpen={isMenuOpen}
+        onMouseEnter={() => {
+          !isFetchingApplications && setShowOverlay(true);
+        }}
+        onMouseLeave={() => {
+          // If the menu is not open, then setOverlay false
+          // Set overlay false on outside click.
+          !isMenuOpen && setShowOverlay(false);
+        }}
+        showOverlay={showOverlay}
       >
-        <CircleAppIcon name={appIcon} size={Size.large} />
-        <AppNameWrapper
-          className={isFetchingApplications ? Classes.SKELETON : ""}
-          isFetching={isFetchingApplications}
-          ref={appNameWrapperRef}
+        <Wrapper
+          backgroundColor={selectedColor}
+          className={
+            isFetchingApplications
+              ? Classes.SKELETON
+              : "t--application-card-background"
+          }
+          hasReadPermission={hasReadPermission}
+          key={props.application.id}
         >
-          {isEllipsisActive(appNameWrapperRef?.current) ? (
-            <TooltipComponent content={props.application.name} maxWidth="400px">
-              {appNameText}
-            </TooltipComponent>
-          ) : (
-            appNameText
+          <CircleAppIcon name={appIcon} size={Size.large} />
+          <AppNameWrapper
+            className={isFetchingApplications ? Classes.SKELETON : ""}
+            isFetching={isFetchingApplications}
+            ref={appNameWrapperRef}
+          >
+            {isEllipsisActive(appNameWrapperRef?.current) ? (
+              <TooltipComponent
+                content={props.application.name}
+                maxWidth="400px"
+              >
+                {appNameText}
+              </TooltipComponent>
+            ) : (
+              appNameText
+            )}
+          </AppNameWrapper>
+          {showOverlay && (
+            <div className="overlay">
+              <div className="overlay-blur" />
+              <ApplicationImage className="image-container">
+                <Control className="control">
+                  {hasEditPermission && !isMenuOpen && (
+                    <EditButton
+                      className="t--application-edit-link"
+                      fill
+                      href={editApplicationURL}
+                      icon={"edit"}
+                      iconPosition={IconPositions.left}
+                      size={Size.medium}
+                      text="Edit"
+                    />
+                  )}
+                  {!isMenuOpen && (
+                    <Button
+                      category={Category.tertiary}
+                      className="t--application-view-link"
+                      fill
+                      href={viewApplicationURL}
+                      icon={"rocket"}
+                      iconPosition={IconPositions.left}
+                      size={Size.medium}
+                      text="Launch"
+                    />
+                  )}
+                </Control>
+              </ApplicationImage>
+            </div>
           )}
-        </AppNameWrapper>
-        {showOverlay && (
-          <div className="overlay">
-            <div className="overlay-blur" />
-            <ApplicationImage className="image-container">
-              <Control className="control">
-                {hasEditPermission && !isMenuOpen && (
-                  <EditButton
-                    className="t--application-edit-link"
-                    fill
-                    href={editApplicationURL}
-                    icon={"edit"}
-                    iconPosition={IconPositions.left}
-                    size={Size.medium}
-                    text="Edit"
-                  />
-                )}
-                {!isMenuOpen && (
-                  <Button
-                    category={Category.tertiary}
-                    className="t--application-view-link"
-                    fill
-                    href={viewApplicationURL}
-                    icon={"rocket"}
-                    iconPosition={IconPositions.left}
-                    size={Size.medium}
-                    text="Launch"
-                  />
-                )}
-              </Control>
-            </ApplicationImage>
-          </div>
-        )}
-      </Wrapper>
-      <CardFooter>
-        <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-        {!!moreActionItems.length && ContextMenu}
-      </CardFooter>
-    </NameWrapper>
+        </Wrapper>
+        <CardFooter>
+          <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
+          {!!moreActionItems.length && ContextMenu}
+        </CardFooter>
+      </NameWrapper>
+      {showGitBadge && <GitConnectedBadge />}
+    </Container>
   );
 }
 
