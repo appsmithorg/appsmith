@@ -42,6 +42,10 @@ import {
 } from "actions/evaluationActions";
 import { getUIComponent } from "selectors/formSelectors";
 import { diff } from "deep-diff";
+import {
+  setActionResponseDisplayFormat,
+  UpdateActionPropertyActionPayload,
+} from "actions/pluginActionActions";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -63,6 +67,11 @@ type ReduxDispatchProps = {
     settingConfig: any,
     formId: string,
   ) => void;
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
 };
 
 type ReduxStateProps = {
@@ -170,6 +179,7 @@ class QueryEditor extends React.Component<Props> {
       runErrorMessage,
       settingConfig,
       uiComponent,
+      updateActionResponseDisplayFormat,
     } = this.props;
     const { pageId } = this.props.match.params;
 
@@ -213,6 +223,7 @@ class QueryEditor extends React.Component<Props> {
         runErrorMessage={runErrorMessage[queryId]}
         settingConfig={settingConfig}
         uiComponent={uiComponent}
+        updateActionResponseDisplayFormat={updateActionResponseDisplayFormat}
       />
     );
   }
@@ -283,6 +294,13 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     formId: string,
   ) => {
     dispatch(initFormEvaluations(editorConfig, settingsConfig, formId));
+  },
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => {
+    dispatch(setActionResponseDisplayFormat({ id, field, value }));
   },
 });
 

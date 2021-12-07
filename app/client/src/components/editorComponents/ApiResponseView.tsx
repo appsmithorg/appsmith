@@ -7,7 +7,6 @@ import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
@@ -36,6 +35,14 @@ import Button, { Size } from "components/ads/Button";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
+import Table from "pages/Editor/QueryEditor/Table";
+import JSONViewer from "pages/Editor/QueryEditor/JSONViewer";
+import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
+import MultiSwitch from "components/ads/MultiSwitch";
+import {
+  setActionResponseDisplayFormat,
+  UpdateActionPropertyActionPayload,
+} from "actions/pluginActionActions";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -156,16 +163,32 @@ const HelpSection = styled.div`
   padding-top: 10px;
 `;
 
+const MultiSwitchContainer = styled.div`
+  padding: 12px 0px;
+  height: 100%;
+  margin: 0px 10px;
+`;
+
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
 }
+interface ReduxDispatchProps {
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
+}
 
 type Props = ReduxStateProps &
+  ReduxDispatchProps &
   RouteComponentProps<APIEditorRouteParams> & {
     theme?: EditorTheme;
     apiName: string;
     onRunClick: () => void;
+    responseDataTypes: { key: string; title: string }[];
+    responseDisplayFormat: { title: string; value: string };
   };
 
 export const EMPTY_RESPONSE: ActionResponse = {
@@ -180,6 +203,8 @@ export const EMPTY_RESPONSE: ActionResponse = {
     url: "",
   },
   size: "",
+  responseDisplayFormat: "",
+  dataTypes: [],
 };
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
@@ -202,7 +227,10 @@ function ApiResponseView(props: Props) {
     match: {
       params: { apiId },
     },
+    responseDataTypes,
+    responseDisplayFormat,
     responses,
+    updateActionResponseDisplayFormat,
   } = props;
   let response: ActionResponse = EMPTY_RESPONSE;
   let isRunning = false;
@@ -230,6 +258,29 @@ function ApiResponseView(props: Props) {
   };
 
   const messages = response?.messages;
+
+  const responseTabComponent = (
+    key: string,
+    responseType: string,
+    output: any,
+    tableBodyHeight?: number,
+  ): JSX.Element => {
+    return {
+      [API_RESPONSE_TYPE_OPTIONS.JSON]: (
+        <JSONViewer src={output.length > 150 ? _.chunk(output, 100) : output} />
+      ),
+      [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
+        <Table data={output} tableBodyHeight={tableBodyHeight} />
+      ),
+      [API_RESPONSE_TYPE_OPTIONS.RAW]: (
+        <div
+          style={{ width: "95%", backgroundColor: "#f5f6f7", padding: "10px" }}
+        >
+          <p>{JSON.stringify(output, null, 3)}</p>
+        </div>
+      ),
+    }[responseType];
+  };
 
   const tabs = [
     {
@@ -277,15 +328,35 @@ function ApiResponseView(props: Props) {
                 </Text>
               </NoResponseContainer>
             ) : (
-              <ReadOnlyEditor
-                folding
-                height={"100%"}
-                input={{
-                  value: response.body
-                    ? JSON.stringify(response.body, null, 2)
-                    : "",
-                }}
-              />
+              <MultiSwitchContainer>
+                <MultiSwitch
+                  customStyle={{
+                    paddingTop: "20px",
+                  }}
+                  onSelect={(title: string) =>
+                    updateActionResponseDisplayFormat({
+                      id: apiId ? apiId : "",
+                      field: "responseDisplayFormat",
+                      value: title,
+                    })
+                  }
+                  selected={responseDisplayFormat}
+                  stickyTabHeader
+                  tabs={responseDataTypes.map(
+                    (el: { key: string; title: string }) => {
+                      return {
+                        key: el.key,
+                        title: el.title,
+                        panelComponent: responseTabComponent(
+                          el.key,
+                          el.title,
+                          response.body,
+                        ),
+                      };
+                    },
+                  )}
+                />
+              </MultiSwitchContainer>
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>
@@ -372,4 +443,17 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
   };
 };
 
-export default connect(mapStateToProps)(withRouter(ApiResponseView));
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => {
+    dispatch(setActionResponseDisplayFormat({ id, field, value }));
+  },
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withRouter(ApiResponseView));

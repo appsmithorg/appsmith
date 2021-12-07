@@ -14,6 +14,7 @@ import {
   runAction,
   showRunActionConfirmModal,
   updateAction,
+  setActionResponseDisplayFormat,
 } from "actions/pluginActionActions";
 import {
   ApplicationPayload,
@@ -31,6 +32,7 @@ import ActionAPI, {
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getPlugin,
   isActionDirty,
   isActionSaving,
 } from "selectors/entitiesSelector";
@@ -655,7 +657,7 @@ function* executePluginActionSaga(
     pluginAction = yield select(getAction, actionOrActionId);
     actionId = actionOrActionId;
   } else {
-    pluginAction = actionOrActionId;
+    pluginAction = yield select(getAction, actionOrActionId.id);
     actionId = actionOrActionId.id;
   }
 
@@ -707,10 +709,22 @@ function* executePluginActionSaga(
   try {
     yield validateResponse(response);
     const payload = createActionExecutionResponse(response);
+
     yield put(
       executePluginActionSuccess({
         id: actionId,
         response: payload,
+      }),
+    );
+    let plugin;
+    if (!!pluginAction.pluginId) {
+      plugin = yield select(getPlugin, pluginAction.pluginId);
+    }
+    yield put(
+      setActionResponseDisplayFormat({
+        id: actionId,
+        field: "responseDisplayFormat",
+        value: plugin && plugin.responseType ? plugin.responseType : "JSON",
       }),
     );
     return {

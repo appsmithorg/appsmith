@@ -9,6 +9,7 @@ import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
   getAction,
+  getActionData,
   getPluginImages,
   getDatasourceByPluginId,
   getActionResponses,
@@ -19,6 +20,8 @@ import {
   deleteAction,
   runAction,
   setActionProperty,
+  setActionResponseDisplayFormat,
+  UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
 import {
   EditorJSONtoForm,
@@ -40,14 +43,33 @@ type StateAndRouteProps = EditorJSONtoFormProps & {
     apiId: string;
   }>;
 
-type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
+type ReduxDispatchProps = {
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
+  initFormEvaluation?: (
+    editorConfig: any,
+    settingConfig: any,
+    formId: string,
+  ) => void;
+};
+
+type Props = StateAndRouteProps &
+  ReduxDispatchProps &
+  InjectedFormProps<Action, StateAndRouteProps>;
 
 function ActionForm(props: Props) {
   const {
     actionName,
+    formEvaluationState,
     match: {
       params: { apiId, pageId },
     },
+    responseDataTypes,
+    responseDisplayFormat,
+    updateActionResponseDisplayFormat,
   } = props;
 
   const dispatch = useDispatch();
@@ -85,6 +107,10 @@ function ActionForm(props: Props) {
     onRunClick,
     onDeleteClick,
     onCreateDatasourceClick,
+    responseDataTypes,
+    responseDisplayFormat,
+    updateActionResponseDisplayFormat,
+    formEvaluationState,
   };
   return <EditorJSONtoForm {...childProps} />;
 }
@@ -133,6 +159,30 @@ const mapStateToProps = (state: AppState, props: any) => {
     image: pluginImages[dataSource.pluginId],
   }));
 
+  const actionData = getActionData(state, apiId);
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+  if (!!actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
+      };
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
+    };
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = {
+      title: "JSON",
+      value: "JSON",
+    };
+  }
+
+  const formData = getFormValues(SAAS_EDITOR_FORM)(state) as SaaSAction;
+
   const responses = getActionResponses(state);
   return {
     isRunning: state.ui.queryPane.isRunning[apiId],
@@ -143,7 +193,9 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId,
     plugin,
     responseType: responseTypes[pluginId],
-    formData: getFormValues(SAAS_EDITOR_FORM)(state) as SaaSAction,
+    responseDataTypes,
+    responseDisplayFormat,
+    formData,
     documentationLink: documentationLinks[pluginId],
     initialValues,
     dataSources,
@@ -155,7 +207,20 @@ const mapStateToProps = (state: AppState, props: any) => {
   };
 };
 
-export default connect(mapStateToProps)(
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => {
+    dispatch(setActionResponseDisplayFormat({ id, field, value }));
+  },
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm<Action, StateAndRouteProps>({
     form: SAAS_EDITOR_FORM,
     enableReinitialize: true,

@@ -52,6 +52,21 @@ export enum ApiContentTypes {
   RAW = "raw",
 }
 
+export enum ApiResponseTypes {
+  JSON = "JSON",
+  TABLE = "TABLE",
+  RAW = "RAW",
+}
+
+// export const ApiResponseTypesOptions:
+export const API_RESPONSE_TYPE_OPTIONS: {
+  [key in keyof typeof ApiResponseTypes]: string;
+} = {
+  JSON: "JSON",
+  TABLE: "TABLE",
+  RAW: "RAW",
+};
+
 export const POST_BODY_FORMAT_OPTIONS: Array<{
   label: ApiContentTypes;
   value: string;

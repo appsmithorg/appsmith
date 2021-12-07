@@ -39,31 +39,53 @@ const Tab = styled.div<{ selected: boolean }>`
   border-right: 1px solid ${(props) => props.theme.colors.multiSwitch.border};
 `;
 
+const TabHeader = styled.div<{ stickyTabHeader?: boolean }>`
+  ${({ stickyTabHeader }) =>
+    stickyTabHeader &&
+    `
+      background-color: white;
+      position: sticky;
+      top: -10px;
+      z-index: 10;
+      padding-top: 10px;
+      padding-bottom: 5px;
+      overflow: hidden;
+    `}
+`;
+
 type MultiSwitchProps<T> = CommonComponentProps & {
   tabs: Array<TabProp<T>>;
   selected: { title: T; value: string };
   onSelect: (title: T) => void;
+  stickyTabHeader?: boolean;
+  customStyle?: Record<string, string>;
 };
 
 export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
   const selectedTab = props.tabs.find(
     (tab) => tab.key === props.selected.value,
   );
+
   return (
     <div data-cy={props.cypressSelector}>
-      <TabList>
-        {props.tabs.map((tab) => (
-          <Tab
-            key={tab.key}
-            onClick={() => props.onSelect(tab.title)}
-            selected={props.selected.value === tab.key}
-          >
-            <Text case={Case.UPPERCASE} type={TextType.P3}>
-              {tab.title}
-            </Text>
-          </Tab>
-        ))}
-      </TabList>
+      <TabHeader
+        stickyTabHeader={props.stickyTabHeader}
+        style={props.customStyle}
+      >
+        <TabList>
+          {props.tabs.map((tab) => (
+            <Tab
+              key={tab.key}
+              onClick={() => props.onSelect(tab.title)}
+              selected={props.selected.value === tab.key}
+            >
+              <Text case={Case.UPPERCASE} type={TextType.P3}>
+                {tab.title}
+              </Text>
+            </Tab>
+          ))}
+        </TabList>
+      </TabHeader>
       {selectedTab && <TabContent>{selectedTab.panelComponent}</TabContent>}
     </div>
   );

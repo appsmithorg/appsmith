@@ -1,5 +1,6 @@
 import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
+import _ from "lodash";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
 import {
@@ -74,6 +75,9 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import MultiSwitch from "components/ads/MultiSwitch";
+import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -374,6 +378,10 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   width: ${(props) => props.theme.actionSidePane.width}px;
 `;
 
+const MultiSwitchContainer = styled.div`
+  height: 100%;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -398,11 +406,17 @@ type QueryFormProps = {
   formName: string;
   settingConfig: any;
   formData: SaaSAction | QueryAction;
+  responseDisplayFormat: { title: string; value: string };
+  responseDataTypes: any[];
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
 };
 
 type ReduxProps = {
   actionName: string;
-  responseType: string | undefined;
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
@@ -428,10 +442,12 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
-    responseType,
+    responseDataTypes,
+    responseDisplayFormat,
     runErrorMessage,
     settingConfig,
     uiComponent,
+    updateActionResponseDisplayFormat,
   } = props;
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
@@ -465,8 +481,6 @@ export function EditorJSONtoForm(props: Props) {
       hintMessages = executedQueryData.messages;
     }
   }
-
-  const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
 
@@ -579,7 +593,6 @@ export function EditorJSONtoForm(props: Props) {
       ) {
         allowToRender = props?.formEvaluationState[section.identifier].visible;
       }
-
       if (!allowToRender) return null;
     }
     if (section.hasOwnProperty("controlType")) {
@@ -588,6 +601,8 @@ export function EditorJSONtoForm(props: Props) {
         section.controlType === "SECTION" &&
         section.hasOwnProperty("children")
       ) {
+        // eslint-disable-next-line no-debugger
+        debugger;
         return section.children.map((section: any, idx: number) => {
           return renderEachConfigV2(formName, section, idx);
         });
@@ -645,6 +660,30 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
+  // multi switch response tab for display different data types
+  const responseTabComponent = (
+    key: string,
+    responseType: string,
+    output: any,
+    tableBodyHeight: number,
+  ): JSX.Element => {
+    return {
+      [API_RESPONSE_TYPE_OPTIONS.JSON]: (
+        <JSONViewer src={output.length > 150 ? _.chunk(output, 100) : output} />
+      ),
+      [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
+        <Table data={output} tableBodyHeight={tableBodyHeight} />
+      ),
+      [API_RESPONSE_TYPE_OPTIONS.RAW]: (
+        <div
+          style={{ width: "95%", backgroundColor: "#f5f6f7", padding: "10px" }}
+        >
+          <p>{JSON.stringify(output, null, 3)}</p>
+        </div>
+      ),
+    }[responseType];
+  };
+
   const responseTabs = [
     {
       key: "Response",
@@ -689,12 +728,33 @@ export function EditorJSONtoForm(props: Props) {
               ))}
             </HelpSection>
           )}
-          {output &&
-            (isTableResponse ? (
-              <Table data={output} tableBodyHeight={tableBodyHeight} />
-            ) : (
-              <JSONViewer src={output} />
-            ))}
+          {currentActionConfig && output && (
+            <MultiSwitchContainer>
+              <MultiSwitch
+                onSelect={(title: string) =>
+                  updateActionResponseDisplayFormat({
+                    id: currentActionConfig.id,
+                    field: "responseDisplayFormat",
+                    value: title,
+                  })
+                }
+                selected={responseDisplayFormat}
+                stickyTabHeader
+                tabs={responseDataTypes.map((el) => {
+                  return {
+                    key: el.key,
+                    title: el.title,
+                    panelComponent: responseTabComponent(
+                      el.key,
+                      el.title,
+                      output,
+                      tableBodyHeight,
+                    ),
+                  };
+                })}
+              />
+            </MultiSwitchContainer>
+          )}
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />

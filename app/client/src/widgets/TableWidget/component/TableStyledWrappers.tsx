@@ -358,6 +358,7 @@ export const CellWrapper = styled.div<{
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
+  lineHeight?: number;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
 
@@ -371,7 +372,7 @@ export const CellWrapper = styled.div<{
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
   ${TableStyles};
   padding: 0 10px;
-  line-height: 28px;
+  line-height: 36px;
   .image-cell-wrapper {
     width: 100%;
     height: 100%;

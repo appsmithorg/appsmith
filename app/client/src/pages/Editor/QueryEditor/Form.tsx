@@ -7,6 +7,7 @@ import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
   getPlugin,
+  getActionData,
 } from "selectors/entitiesSelector";
 import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
 import { getFormValues } from "redux-form";
@@ -15,9 +16,31 @@ import { getFormEvaluationState } from "selectors/formSelectors";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
 const mapStateToProps = (state: AppState) => {
+  const actionId = valueSelector(state, "id");
   const actionName = valueSelector(state, "name");
   const pluginId = valueSelector(state, "datasource.pluginId");
   const selectedDbId = valueSelector(state, "datasource.id");
+  const actionData = getActionData(state, actionId);
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+  if (actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
+      };
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
+    };
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = {
+      title: "JSON",
+      value: "JSON",
+    };
+  }
 
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
@@ -37,6 +60,8 @@ const mapStateToProps = (state: AppState) => {
     plugin,
     pluginId,
     selectedDbId,
+    responseDataTypes,
+    responseDisplayFormat,
     responseType: responseTypes[pluginId],
     documentationLink: documentationLinks[pluginId],
     formName: QUERY_EDITOR_FORM_NAME,
