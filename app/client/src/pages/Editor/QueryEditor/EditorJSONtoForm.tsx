@@ -78,6 +78,8 @@ import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import MultiSwitch from "components/ads/MultiSwitch";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -873,7 +875,7 @@ export function EditorJSONtoForm(props: Props) {
               <TabComponent
                 tabs={[
                   {
-                    key: "query",
+                    key: EDITOR_TABS.QUERY,
                     title: "Query",
                     panelComponent: (
                       <SettingsWrapper>
@@ -915,7 +917,7 @@ export function EditorJSONtoForm(props: Props) {
                     ),
                   },
                   {
-                    key: "settings",
+                    key: EDITOR_TABS.SETTINGS,
                     title: "Settings",
                     panelComponent: (
                       <SettingsWrapper>

@@ -45,7 +45,6 @@ const mapStateToProps = (state: AppState) => {
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
-
   const plugin = getPlugin(state, pluginId);
   // State to manage the evaluations for the form
   let formEvaluationState = {};
