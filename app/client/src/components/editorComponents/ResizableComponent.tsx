@@ -278,6 +278,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
+      isResizing={isResizing}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}

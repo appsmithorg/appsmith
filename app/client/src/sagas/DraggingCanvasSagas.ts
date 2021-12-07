@@ -19,6 +19,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { collisionCheckPostReflow } from "utils/reflowUtil";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -112,6 +113,15 @@ function* moveWidgetsSaga(
         allWidgets: widgetsObj,
       });
     }, widgets);
+
+    if (
+      !collisionCheckPostReflow(
+        updatedWidgets,
+        draggedBlocksToUpdate.map((block) => block.widgetId),
+        canvasId,
+      )
+    )
+      throw Error;
 
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,

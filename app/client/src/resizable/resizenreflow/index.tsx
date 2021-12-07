@@ -105,6 +105,7 @@ type ResizableProps = {
     canResizeVertically: boolean;
     resizedPositions?: OccupiedSpace;
   };
+  isResizing: boolean;
   originalPositions: OccupiedSpace;
   onStart: () => void;
   onStop: (
@@ -220,7 +221,7 @@ export function Resizable(props: ResizableProps) {
         reset: true,
       };
     });
-  }, [props.componentHeight, props.componentWidth]);
+  }, [props.componentHeight, props.componentWidth, props.isResizing]);
 
   const handles = [];
 

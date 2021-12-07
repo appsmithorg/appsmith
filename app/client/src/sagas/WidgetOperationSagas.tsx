@@ -104,6 +104,7 @@ import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
 import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
 import { stopReflow } from "actions/reflowActions";
+import { collisionCheckPostReflow } from "utils/reflowUtil";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -124,23 +125,25 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
-    widgets[widgetId] = widget;
-    const isReflowed: boolean = yield call(reflowWidgets, widgets);
+    const movedWidgets: {
+      [widgetId: string]: FlattenedWidgetProps;
+    } = yield call(reflowWidgets, widgets, widget);
+
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,
       parentId,
       bottomRow,
     );
     if (updatedCanvasBottomRow) {
-      const canvasWidget = widgets[parentId];
-      widgets[parentId] = {
+      const canvasWidget = movedWidgets[parentId];
+      movedWidgets[parentId] = {
         ...canvasWidget,
         bottomRow: updatedCanvasBottomRow,
       };
     }
     log.debug("resize computations took", performance.now() - start, "ms");
-    if (isReflowed) yield put(stopReflow());
-    yield put(updateAndSaveLayout(widgets));
+    yield put(stopReflow());
+    yield put(updateAndSaveLayout(movedWidgets));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -152,37 +155,43 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   }
 }
 
-export function* reflowWidgets(widgets: {
-  [widgetId: string]: FlattenedWidgetProps;
-}) {
+export function* reflowWidgets(
+  widgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  },
+  widget: FlattenedWidgetProps,
+) {
   const reflowState: widgetReflowState = yield select(getReflow);
 
+  const currentWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = { ...widgets, [widget.id]: { ...widget } };
+
   if (!reflowState || !reflowState.isReflowing || !reflowState.reflowingWidgets)
-    return false;
+    return widgets;
 
   const reflowingWidgets = reflowState.reflowingWidgets;
 
   const reflowWidgetKeys = Object.keys(reflowingWidgets || {});
 
-  if (reflowWidgetKeys.length <= 0) return true;
+  if (reflowWidgetKeys.length <= 0) return widgets;
 
   for (const reflowedWidgetId of reflowWidgetKeys) {
     //eslint-disable-next-line
     const reflowWidget = reflowingWidgets![reflowedWidgetId];
-    const canvasWidget = { ...widgets[reflowedWidgetId] };
-    if (
-      reflowWidget.maxX !== undefined &&
-      reflowWidget.X !== undefined &&
-      reflowWidget.width !== undefined
-    ) {
+    const canvasWidget = { ...currentWidgets[reflowedWidgetId] };
+    if (reflowWidget.X !== undefined && reflowWidget.width !== undefined) {
       const leftColumn =
         canvasWidget.leftColumn +
         reflowWidget.X / canvasWidget.parentColumnSpace;
       const rightColumn =
         leftColumn + reflowWidget.width / canvasWidget.parentColumnSpace;
-      widgets[reflowedWidgetId] = { ...canvasWidget, leftColumn, rightColumn };
+      currentWidgets[reflowedWidgetId] = {
+        ...canvasWidget,
+        leftColumn,
+        rightColumn,
+      };
     } else if (
-      reflowWidget.maxY !== undefined &&
       reflowWidget.Y !== undefined &&
       reflowWidget.height !== undefined
     ) {
@@ -190,11 +199,17 @@ export function* reflowWidgets(widgets: {
         canvasWidget.topRow + reflowWidget.Y / canvasWidget.parentRowSpace;
       const bottomRow =
         topRow + reflowWidget.height / canvasWidget.parentRowSpace;
-      widgets[reflowedWidgetId] = { ...canvasWidget, topRow, bottomRow };
+      currentWidgets[reflowedWidgetId] = { ...canvasWidget, topRow, bottomRow };
     }
   }
 
-  return true;
+  if (
+    collisionCheckPostReflow(currentWidgets, reflowWidgetKeys, widget.parentId)
+  ) {
+    return currentWidgets;
+  }
+
+  return widgets;
 }
 
 enum DynamicPathUpdateEffectEnum {

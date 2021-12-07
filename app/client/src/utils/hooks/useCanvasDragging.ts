@@ -405,9 +405,18 @@ export const useCanvasDragging = (
                   bottom: topRow + currentBlock.height / snapRowSpace,
                   id: currentBlock.widgetId,
                 };
+                const originalPositions = widgetOccupiedSpace
+                  ? { ...widgetOccupiedSpace }
+                  : {
+                      left: 0,
+                      top: 0,
+                      right: 0,
+                      bottom: 0,
+                      id: currentBlock.widgetId,
+                    };
                 currentReflowParams = reflow.current(
                   resizedPositions,
-                  widgetOccupiedSpace,
+                  originalPositions,
                   currentDirection,
                 );
                 const isReflowing = !isEmpty(currentReflowParams.movementMap);

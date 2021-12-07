@@ -10,6 +10,7 @@ import {
   CollidingSpaceMap,
   GridProps,
   ReflowDirection,
+  ReflowedSpace,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { getLimitedMovementMap } from "reflow/reflowUtils";
@@ -78,10 +79,35 @@ export const useReflow = (
       isReflowing.current = false;
       dispatch(stopReflow());
     }
+    const reflowedWidgets: [string, ReflowedSpace][] = Object.entries(
+      movementMap || {},
+    );
+    const bottomReflowedWidgets = reflowedWidgets.filter((each) => !!each[1].Y);
+
+    const reflowedWidgetsBottomMostRow = bottomReflowedWidgets.reduce(
+      (bottomMostRow, each) => {
+        const [id, reflowedParams] = each;
+        const widget = occupiedSpaces.find((eachSpace) => eachSpace.id === id);
+        if (widget) {
+          const bottomMovement =
+            (reflowedParams.Y || 0) / gridProps.parentRowSpace;
+          const bottomRow = widget.bottom + bottomMovement;
+          if (bottomRow > bottomMostRow) {
+            return bottomRow;
+          }
+        }
+        return bottomMostRow;
+      },
+      0,
+    );
 
     return {
       ...movementLimit,
       movementMap: correctedMovementMap,
+      bottomMostRow: Math.max(
+        reflowedWidgetsBottomMostRow,
+        newPositions.bottom,
+      ),
     };
   };
 };
