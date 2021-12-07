@@ -704,7 +704,7 @@ export default function Dropdown(props: DropdownProps) {
     (e) => {
       if (focused) {
         e.preventDefault();
-        if (!isOpen) onClickHandler();
+        if (!isOpen) setIsOpen(true);
         else {
           setSelected((prevSelected) => {
             let index = findIndex(props.options, prevSelected);
@@ -726,10 +726,9 @@ export default function Dropdown(props: DropdownProps) {
   useKey(
     (e) => e.key === " " || e.key === "Enter",
     (e) => {
-      if (focused) {
-        e.preventDefault();
-        if (isOpen) optionClickHandler(selected);
-        else onClickHandler();
+      e.preventDefault();
+      if (focused && isOpen) {
+        optionClickHandler(selected);
       }
     },
     {},
