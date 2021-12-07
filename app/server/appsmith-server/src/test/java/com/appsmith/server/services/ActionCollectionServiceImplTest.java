@@ -88,7 +88,7 @@ public class ActionCollectionServiceImplTest {
     ApplicationService applicationService;
 
     @MockBean
-    private SanitiseResponse sanitiseResponse;
+    SanitiseResponse sanitiseResponse;
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
@@ -393,6 +393,10 @@ public class ActionCollectionServiceImplTest {
                 .when(layoutActionService.updateSingleAction(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocation -> {
                     final ActionDTO argument = (ActionDTO) invocation.getArguments()[1];
+                    DefaultResources defaultResources = new DefaultResources();
+                    defaultResources.setActionId((String) invocation.getArguments()[0]);
+                    argument.setDefaultResources(defaultResources);
+                    argument.setId(defaultResources.getActionId());
                     updatedActions.put(argument.getId(), argument);
                     return Mono.just(argument);
                 });
@@ -417,11 +421,15 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(modifiedActionCollection));
 
         Mockito
-                .when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+                .when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenAnswer(invocation -> {
                     String id = (String) invocation.getArguments()[0];
                     return Mono.just(updatedActions.get(id));
                 });
+
+        Mockito
+                .when(sanitiseResponse.updateCollectionDTOWithDefaultResources(Mockito.any()))
+                .thenReturn(modifiedActionCollectionDTO);
 
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
 
@@ -702,6 +710,10 @@ public class ActionCollectionServiceImplTest {
                 .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
+        Mockito
+                .when(sanitiseResponse.updateLayoutDTOWithDefaultResources(Mockito.any()))
+                .thenReturn(layout);
+
         final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO, null);
 
         StepVerifier
@@ -775,6 +787,10 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
+
+        Mockito
+                .when(sanitiseResponse.updateLayoutDTOWithDefaultResources(Mockito.any()))
+                .thenReturn(layout);
 
         final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO, null);
 

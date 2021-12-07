@@ -38,9 +38,4 @@ public class ApplicationJson {
      */
     Map<String, Set<String>> publishedLayoutmongoEscapedWidgets;
     Map<String, Set<String>> unpublishedLayoutmongoEscapedWidgets;
-
-    // This field will be used to share the default resources across branches within single instance. For across
-    // instances we will be using gitSyncId for fetching the resource and then
-//    @JsonIgnore
-//    Map<Type, Map<String, DefaultResources>> defaultResourcesMap;
 }

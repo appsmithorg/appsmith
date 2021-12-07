@@ -290,7 +290,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         if (pageFromDb.getDefaultResources() == null) {
                             return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", pageFromDb.getId()));
                         }
-                        pageNameIdDTO.setGitDefaultPageId(pageFromDb.getDefaultResources().getPageId());
+                        pageNameIdDTO.setDefaultPageId(pageFromDb.getDefaultResources().getPageId());
 
                         if (Boolean.TRUE.equals(view)) {
                             if (pageFromDb.getPublishedPage() == null) {
@@ -482,16 +482,16 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
 
         if (StringUtils.isEmpty(defaultPageId)) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (StringUtils.isEmpty(branchName)) {
             return this.findById(defaultPageId, permission)
                     .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                     );
         }
         return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId + ", " + branchName))
                 );
     }
 
@@ -505,7 +505,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         }
         return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
                 )
                 .map(NewPage::getId);
     }

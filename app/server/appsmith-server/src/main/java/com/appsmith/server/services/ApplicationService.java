@@ -23,13 +23,15 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> save(Application application);
 
+    Mono<Application> update(String defaultApplicationId, Application application, String branchName);
+
     Mono<Application> createDefault(Application object);
 
     Mono<Application> archive(Application application);
 
-    Mono<Application> changeViewAccess (String id, ApplicationAccessDTO applicationAccessDTO);
+    Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO);
 
-    Mono<Application> changeViewAccess (String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
+    Mono<Application> changeViewAccess(String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
 
     Flux<Application> findAllApplicationsByOrganizationId(String organizationId);
 

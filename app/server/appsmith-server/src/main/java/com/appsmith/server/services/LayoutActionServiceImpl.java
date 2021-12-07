@@ -1008,7 +1008,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName) {
-        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
+
         DefaultResources defaultResources = new DefaultResources();
         defaultResources.setBranchName(branchName);
 
@@ -1025,7 +1025,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         defaultResources.setCollectionId(action.getCollectionId());
                     }
                     action.setDefaultResources(defaultResources);
-                    return createAction(action, eventContext);
+                    return createSingleAction(action);
                 })
                 .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
@@ -1058,33 +1058,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         NewAction newAction = new NewAction();
         newAction.setPublishedAction(new ActionDTO());
         newAction.getPublishedAction().setDatasource(new Datasource());
-
-        final DefaultResources immutableDefaultResources = action.getDefaultResources();
-        // Only store defaultPageId and defaultCollectionId for actionDTO level resource
-        DefaultResources defaultActionResource =  new DefaultResources();
-        BeanCopyUtils.copyNewFieldValuesIntoOldObject(immutableDefaultResources, defaultActionResource);
-
-        defaultActionResource.setApplicationId(null);
-        defaultActionResource.setActionId(null);
-        defaultActionResource.setBranchName(null);
-        if(StringUtils.isEmpty(defaultActionResource.getPageId())) {
-            defaultActionResource.setPageId(action.getPageId());
-        }
-        if(StringUtils.isEmpty(defaultActionResource.getCollectionId())) {
-            defaultActionResource.setCollectionId(action.getCollectionId());
-        }
-        action.setDefaultResources(defaultActionResource);
-
-        // Only store defaultApplicationId and defaultActionId for NewAction level resource
-        DefaultResources defaults = new DefaultResources();
-        BeanCopyUtils.copyNewFieldValuesIntoOldObject(immutableDefaultResources, defaults);
-        defaults.setPageId(null);
-        defaults.setCollectionId(null);
-        if(StringUtils.isEmpty(defaults.getApplicationId())) {
-            defaults.setApplicationId(action.getApplicationId());
-        }
-        newAction.setDefaultResources(defaults);
-
 
         Mono<NewPage> pageMono = newPageService
                 .findById(action.getPageId(), READ_PAGES)
@@ -1131,6 +1104,32 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
                         action.setExecuteOnLoad(false);
                     }
+
+                    final DefaultResources immutableDefaultResources = action.getDefaultResources();
+                    // Only store defaultPageId and defaultCollectionId for actionDTO level resource
+                    DefaultResources defaultActionResource =  new DefaultResources();
+                    BeanCopyUtils.copyNestedNonNullProperties(immutableDefaultResources, defaultActionResource);
+
+                    defaultActionResource.setApplicationId(null);
+                    defaultActionResource.setActionId(null);
+                    defaultActionResource.setBranchName(null);
+                    if(StringUtils.isEmpty(defaultActionResource.getPageId())) {
+                        defaultActionResource.setPageId(action.getPageId());
+                    }
+                    if(StringUtils.isEmpty(defaultActionResource.getCollectionId())) {
+                        defaultActionResource.setCollectionId(action.getCollectionId());
+                    }
+                    action.setDefaultResources(defaultActionResource);
+
+                    // Only store defaultApplicationId and defaultActionId for NewAction level resource
+                    DefaultResources defaults = new DefaultResources();
+                    BeanCopyUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
+                    defaults.setPageId(null);
+                    defaults.setCollectionId(null);
+                    if(StringUtils.isEmpty(defaults.getApplicationId())) {
+                        defaults.setApplicationId(newAction.getApplicationId());
+                    }
+                    newAction.setDefaultResources(defaults);
 
                     newAction.setUnpublishedAction(action);
 
