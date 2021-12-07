@@ -79,6 +79,7 @@ import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
@@ -3458,8 +3459,57 @@ public class DatabaseChangelog {
             Map.entry(8, List.of("list.unSignedUrl"))
     );
 
-    private void updateFormDataMultipleOptions(int index, Object value, Map formData, Map<Integer, List<String>> migrationMap) {
+    public class UQIMigrationDataTransformer {
+        public Object transformData(String pluginName, String transformationName, Object value) {
+
+            switch (pluginName) {
+                case "firestore-plugin":
+                        switch (transformationName) {
+                            case "where-clause-migration":
+                                HashMap<String, Object> uqiWhereMap = new HashMap<>();
+                                uqiWhereMap.put("condition", "AND");
+                                uqiWhereMap.put("children", new ArrayList<>());
+                                List<Map<String, Object>> oldListOfConditions = (List<Map<String, Object>>) value;
+                                oldListOfConditions.stream()
+                                        .forEachOrdered(oldCondition -> {
+                                            Map<String, Object> uqiCondition = new HashMap<>();
+                                            uqiCondition.put("condition", oldCondition.get("operator"));
+                                            uqiCondition.put("key", oldCondition.get("path"));
+                                            uqiCondition.put("value", oldCondition.get("value"));
+                                        });
+
+                                break;
+                            default:
+                                return value;
+                        }
+
+                        break;
+                default:
+                    /* Throw error since no handler could be found for the plugin matching pluginName */
+                    String noPluginHandlerFoundErrorMessage = "Data transformer failed to find any matching case for " +
+                            "plugin: " + pluginName + ". Please contact Appsmith customer support to resolve this.";
+                    assert false : noPluginHandlerFoundErrorMessage;
+            }
+
+            /* Execution flow is never expected to reach here. */
+            String badExecutionFlowErrorMessage = "Execution flow is never supposed to reach here. Please contact " +
+                    "Appsmith customer support to resolve this.";
+            assert false : badExecutionFlowErrorMessage;
+
+            return value;
+        }
+    }
+
+    private void updateFormDataMultipleOptions(int index, Object value, Map formData,
+                                               Map<Integer, List<String>> migrationMap,
+                                               Map<Integer, String> uqiDataTransformationMap,
+                                               UQIMigrationDataTransformer dataTransformer,
+                                               String pluginName) {
         if (migrationMap.containsKey(index)) {
+            if (dataTransformer != null && uqiDataTransformationMap.containsKey(index)) {
+                String transformationKey = uqiDataTransformationMap.get(index);
+                value = dataTransformer.transformData(pluginName, transformationKey, value);
+            }
             List<String> paths = migrationMap.get(index);
             for (String path : paths) {
                 setValueSafelyInFormData(formData, path, value);
@@ -3467,16 +3517,20 @@ public class DatabaseChangelog {
         }
     }
 
-    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates, Map<Integer, List<String>> migrationMap) {
+    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates,
+               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
+               UQIMigrationDataTransformer dataTransformer, String pluginName) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
             for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
                 Property template = pluginSpecifiedTemplates.get(i);
                 if (template != null) {
-                    updateFormDataMultipleOptions(i, template.getValue(), formData, migrationMap);
+                    updateFormDataMultipleOptions(i, template.getValue(), formData, migrationMap,
+                            uqiDataTransformationMap, dataTransformer, pluginName);
                 }
             }
+
             return formData;
         }
 
@@ -3517,7 +3571,8 @@ public class DatabaseChangelog {
             List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
 
             unpublishedAction.getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                            s3MigrationMap, null, null, null)
             );
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
@@ -3526,7 +3581,8 @@ public class DatabaseChangelog {
                     publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
                 pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
                 publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                                s3MigrationMap, null, null, null)
                 );
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
@@ -3965,6 +4021,10 @@ public class DatabaseChangelog {
             Map.entry(9, List.of("deleteKeyPath"))
     );
 
+    public static final Map<Integer, String> firestoreUQIDataTransformationMap = Map.ofEntries(
+            Map.entry(3, "where-clause-migration")
+    );
+
     @ChangeSet(order = "099", id = "migrate-firestore-to-uqi", author = "")
     public void migrateFirestorePluginToUqi(MongockTemplate mongockTemplate) {
 
@@ -3995,9 +4055,12 @@ public class DatabaseChangelog {
             }
 
             List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+            UQIMigrationDataTransformer uqiMigrationDataTransformer = new UQIMigrationDataTransformer();
 
             unpublishedAction.getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, firestoreMigrationMap)
+                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                            firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer,
+                            "firestore-plugin")
             );
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
@@ -4006,7 +4069,9 @@ public class DatabaseChangelog {
                     publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
                 pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
                 publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, firestoreMigrationMap)
+                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                                firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer
+                                , "firestore-plugin")
                 );
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
