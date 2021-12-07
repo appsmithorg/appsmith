@@ -62,6 +62,12 @@ init_ssl_cert() {
     --agree-tos \
     --force-renewal
 
+  if (($? != 0)); then
+    echo "Stop Nginx due to provisioning fail"
+    nginx -s stop
+    return 1
+  fi
+
   echo "Stop Nginx"
   nginx -s stop
 }
