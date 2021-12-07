@@ -18,6 +18,7 @@ import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
+import { findIndex } from "lodash";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -696,6 +697,57 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
+  const handleKeydown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case "Escape":
+          if (isOpen) {
+            setIsOpen(false);
+            e.nativeEvent.stopImmediatePropagation();
+          }
+          break;
+        case " ":
+        case "Enter":
+          e.preventDefault();
+          if (isOpen) optionClickHandler(selected);
+          else onClickHandler();
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          if (isOpen) {
+            setSelected((prevSelected) => {
+              let index = findIndex(props.options, prevSelected);
+              if (index === 0) index = props.options.length - 1;
+              else index--;
+              return props.options[index];
+            });
+          } else {
+            onClickHandler();
+          }
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          if (isOpen) {
+            setSelected((prevSelected) => {
+              let index = findIndex(props.options, prevSelected);
+              if (index === props.options.length - 1) index = 0;
+              else index++;
+              return props.options[index];
+            });
+          } else {
+            onClickHandler();
+          }
+          break;
+        case "Tab":
+          if (isOpen) {
+            setIsOpen(false);
+          }
+          break;
+      }
+    },
+    [isOpen, props.options, selected],
+  );
+
   const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
     "100%",
   );
@@ -773,6 +825,7 @@ export default function Dropdown(props: DropdownProps) {
       className={props.containerClassName}
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
+      onKeyDown={handleKeydown}
       tabIndex={0}
       width={dropdownWidth}
     >
@@ -791,11 +844,7 @@ export default function Dropdown(props: DropdownProps) {
           {...props}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
-          selected={
-            props.selected
-              ? props.selected
-              : { id: undefined, value: undefined }
-          }
+          selected={selected ? selected : { id: undefined, value: undefined }}
         />
       </Popover>
     </DropdownContainer>
