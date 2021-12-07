@@ -640,6 +640,7 @@ export const ReduxActionTypes = {
   UPDATE_REPLAY_ENTITY: "UPDATE_REPLAY_ENTITY",
   DELETE_ORG_INIT: "DELETE_ORG_INIT",
   DELETE_ORG_SUCCESS: "DELETE_ORG_SUCCESS",
+  SET_USER_CURRENT_GEO_LOCATION: "SET_USER_CURRENT_GEO_LOCATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
