@@ -120,6 +120,12 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
+    /**
+     * This filter method is using the new UQI format of
+     * @param items
+     * @param condition
+     * @return
+     */
     public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
 
         if (items == null || items.size() == 0) {
