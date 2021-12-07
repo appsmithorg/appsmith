@@ -46,6 +46,8 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -73,6 +75,7 @@ type Props = {
   setPreviewModeAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
+  showCommitModal: () => void;
 };
 
 @HotkeysTarget
@@ -369,6 +372,14 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
           }}
         />
+        <Hotkey
+          combo="ctrl + shift + g"
+          global
+          label="Show git commit modal"
+          onKeyDown={() => {
+            this.props.showCommitModal();
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -410,6 +421,10 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(setPreviewModeAction(shouldSet)),
     setExplorerPinnedAction: (shouldSet: boolean) =>
       dispatch(setExplorerPinnedAction(shouldSet)),
+    showCommitModal: () =>
+      dispatch(
+        setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+      ),
   };
 };
 
