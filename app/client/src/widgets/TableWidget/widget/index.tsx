@@ -211,7 +211,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             );
           } else if (columnProperties.columnType === "menuButton") {
             const menuButtonProps: RenderMenuButtonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete?: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               isDisabled: cellProperties.isDisabled || false,
