@@ -1,0 +1,15 @@
+{
+  "command" : {
+    "label": "Commands",
+    "description": "Choose method you would like to use to send an email",
+    "configProperty": "actionConfiguration.formData.command",
+    "controlType": "DROP_DOWN",
+    "initialValue": "SEND",
+    "options": [
+      {
+        "label": "Send Email",
+        "fileName" : "send.json"
+      }
+    ]
+  }
+}

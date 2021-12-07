@@ -56,17 +56,16 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
-``;
+
 import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
-import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
@@ -295,19 +294,13 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  const showGitSyncModal = useCallback(() => {
-    dispatch(
-      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
-    );
-  }, [dispatch, setIsGitSyncModalOpen]);
-
   const handleClickDeploy = useCallback(() => {
     if (getFeatureFlags().GIT && isGitConnected) {
-      showGitSyncModal();
+      dispatch(showConnectGitModal());
     } else {
       handlePublish();
     }
-  }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
+  }, [getFeatureFlags().GIT, dispatch, handlePublish]);
 
   /**
    * on hovering the menu, make the explorer active

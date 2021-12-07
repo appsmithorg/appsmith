@@ -1,12 +1,10 @@
-export const getShowRemoteSectionHeader = (
-  filteredBranches: string[],
-  index: number,
-) => {
+export const getIsStartingWithRemoteBranches = (curr: string, next: string) => {
   const remotePrefix = "origin/";
-  const prevIndex = index - 1;
-  if (prevIndex < 0) return;
+
   return (
-    !filteredBranches[prevIndex].startsWith(remotePrefix) &&
-    filteredBranches[index].startsWith(remotePrefix)
+    curr &&
+    !curr.startsWith(remotePrefix) &&
+    next &&
+    next.startsWith(remotePrefix)
   );
 };

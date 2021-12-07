@@ -23,13 +23,12 @@ import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
 import { useGitConnect, useSSHKeyPair, useUserGitConfig } from "../hooks";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 import {
+  disconnectGit,
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
   remoteUrlInputValue,
@@ -42,8 +41,6 @@ import {
   CONNECT_BTN_LABEL,
   PASTE_SSH_URL_INFO,
   GENERATE_KEY,
-  COPIED_SSH_KEY,
-  INVALID_USER_DETAILS_MSG,
 } from "constants/messages";
 import {
   getIsFetchingGlobalGitConfig,
@@ -448,6 +445,7 @@ function GitConnection({ isImport }: Props) {
           </ButtonContainer>
         </>
       ) : null}
+      <Button onClick={() => dispatch(disconnectGit())} text="disconnect git" />
       <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="47px" />
     </Container>
   );
