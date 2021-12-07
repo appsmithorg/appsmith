@@ -14,8 +14,6 @@ import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
-import { useKey } from "react-use";
-import { findIndex } from "lodash";
 import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
@@ -666,7 +664,6 @@ export default function Dropdown(props: DropdownProps) {
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
-  const [focused, setFocused] = useState<boolean>(false);
 
   const closeIfOpen = () => {
     if (isOpen) {
@@ -698,42 +695,6 @@ export default function Dropdown(props: DropdownProps) {
       setIsOpen(!isOpen);
     }
   };
-
-  useKey(
-    (e) => e.key === "ArrowUp" || e.key === "ArrowDown",
-    (e) => {
-      if (focused) {
-        e.preventDefault();
-        if (!isOpen) setIsOpen(true);
-        else {
-          setSelected((prevSelected) => {
-            let index = findIndex(props.options, prevSelected);
-            if (e.key === "ArrowUp")
-              if (index === 0) index = props.options.length - 1;
-              else index--;
-            if (e.key === "ArrowDown")
-              if (index === props.options.length - 1) index = 0;
-              else index++;
-            return props.options[index];
-          });
-        }
-      }
-    },
-    {},
-    [focused, isOpen, props.options],
-  );
-
-  useKey(
-    (e) => e.key === " " || e.key === "Enter",
-    (e) => {
-      e.preventDefault();
-      if (focused && isOpen) {
-        optionClickHandler(selected);
-      }
-    },
-    {},
-    [focused, isOpen, selected],
-  );
 
   const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
     "100%",
@@ -812,8 +773,6 @@ export default function Dropdown(props: DropdownProps) {
       className={props.containerClassName}
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
-      onBlur={() => setFocused(false)}
-      onFocus={() => setFocused(true)}
       tabIndex={0}
       width={dropdownWidth}
     >
@@ -832,7 +791,11 @@ export default function Dropdown(props: DropdownProps) {
           {...props}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
-          selected={selected ? selected : { id: undefined, value: undefined }}
+          selected={
+            props.selected
+              ? props.selected
+              : { id: undefined, value: undefined }
+          }
         />
       </Popover>
     </DropdownContainer>
