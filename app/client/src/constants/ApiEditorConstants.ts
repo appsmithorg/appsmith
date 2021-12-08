@@ -1,6 +1,6 @@
 import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
-import log from "loglevel";
+import { zipObject } from "lodash";
 
 // This constant lists all the support HTTP methods & their color in
 // the entity explorer
@@ -93,7 +93,6 @@ export const CONTENT_TYPE_HEADER_KEY = "content-type";
 
 export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
   (option) => {
-    log.debug();
     return option;
   },
 );
