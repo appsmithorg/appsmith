@@ -120,7 +120,7 @@ export function* publishApplicationSaga(
         pageId: currentPageId,
       });
       if (guidedTour && currentStep === 9) {
-        appicationViewPageUrl += "&guidedTourComplete=true";
+        appicationViewPageUrl += "?&guidedTourComplete=true";
         yield call(setPostWelcomeTourState, true);
       }
 
