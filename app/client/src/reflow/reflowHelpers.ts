@@ -136,11 +136,18 @@ export function getMovementMap(
       directionYIndicator: verticalAccessors.directionIndicator,
     };
   }
-
   newPositionsMovement = {
     ...horizontalStaticWidget,
     ...verticalStaticWidget,
   };
+
+  //eslint-disable-next-line
+  console.log("reflowInfo", {
+    collidingSpaceMap,
+    collisionTree,
+    movementMap,
+    newPositionsMovement,
+  });
 
   return {
     newPositionsMovement,
