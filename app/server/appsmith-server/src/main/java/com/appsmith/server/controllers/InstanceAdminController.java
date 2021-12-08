@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.solutions.EnvManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,9 +58,9 @@ public class InstanceAdminController {
     }
 
     @PostMapping("/send-test-email")
-    public Mono<ResponseDTO<Boolean>> sendTestEmail() {
+    public Mono<ResponseDTO<Boolean>> sendTestEmail(@RequestBody @Valid TestEmailConfigRequestDTO requestDTO) {
         log.debug("Sending test email");
-        return envManager.sendTestEmail()
+        return envManager.sendTestEmail(requestDTO)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
