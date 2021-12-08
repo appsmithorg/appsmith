@@ -29,6 +29,7 @@ public class Authentication {
     public static final String RESPONSE_TYPE = "response_type";
     public static final String AUDIENCE = "audience";
     public static final String RESOURCE = "resource";
+    public static final String CUSTOM_TOKEN_PARAMETER = "custom_token_parameter";
 
     // Request parameter values
     public static final String AUTHORIZATION_CODE = "authorization_code";

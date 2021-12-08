@@ -93,6 +93,9 @@ const formToDatasourceAuthentication = (
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {
@@ -174,6 +177,9 @@ const datasourceToFormAuthentication = (
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {
