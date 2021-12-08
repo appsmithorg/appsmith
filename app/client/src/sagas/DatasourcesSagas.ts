@@ -94,6 +94,7 @@ import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 import { trimQueryString } from "utils/helpers";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
+import { AppState } from "reducers";
 
 function* fetchDatasourcesSaga() {
   try {
