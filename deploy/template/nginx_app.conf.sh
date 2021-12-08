@@ -11,9 +11,9 @@ NGINX_SSL_CMNT="$1"
 custom_domain="$2"
 
 cat <<EOF
-map $http_x_forwarded_proto $origin_scheme {
-  default $http_x_forwarded_proto;
-  '' $scheme;
+map \$http_x_forwarded_proto \$origin_scheme {
+  default \$http_x_forwarded_proto;
+  '' \$scheme;
 }
 
 server {

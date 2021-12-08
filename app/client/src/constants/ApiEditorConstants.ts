@@ -22,6 +22,20 @@ export const HTTP_METHODS_COLOR: {
   PATCH: "#6D6D6D",
 };
 
+export enum API_EDITOR_TABS {
+  HEADERS = "HEADERS",
+  PARAMS = "PARAMS",
+  BODY = "BODY",
+  PAGINATION = "PAGINATION",
+  SETTINGS = "SETTINGS",
+  AUTHENTICATION = "AUTHENTICATION",
+}
+
+export const HTTP_METHOD_COLOR_MAP = zipObject(
+  HTTP_METHODS,
+  HTTP_METHOD_COLORS,
+);
+
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHODS).map(
   (method) => ({
     value: method,

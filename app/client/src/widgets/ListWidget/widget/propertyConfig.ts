@@ -96,7 +96,7 @@ const PropertyPaneConfig = [
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a grid list item is clicked",

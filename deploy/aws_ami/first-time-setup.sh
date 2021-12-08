@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# helpers function
-move_file() {
-    local relative_path="$1"
-    local template_file="$2"
-    local full_path="$install_dir/$relative_path"
-    mv -f "$template_file" "$full_path"
-}
-
 wait_for_containers_start() {
     local timeout=$1
 
@@ -69,14 +61,6 @@ urlencode() {
 
 ## Default configuration
 install_dir="/home/ubuntu/appsmith"
-mongo_host="mongo"
-mongo_database="appsmith"
-mongo_root_user=$(generate_random_string)
-mongo_root_password=$(generate_random_string)
-user_encryption_password=$(generate_random_string)
-user_encryption_salt=$(generate_random_string)
-disable_telemetry="false"
-NGINX_SSL_CMNT="#"
 
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 
@@ -94,45 +78,25 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
 }' > /dev/null
 
 # Step 1: Download the templates
-echo "Downloading the configuration templates..."
-templates_dir="$(mktemp -d)"
-mkdir -p "$templates_dir"
+echo "Downloading the Docker Compose file..."
+mkdir -p "$install_dir"
 (
-    cd "$templates_dir"
-    curl --remote-name-all --silent --show-error \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/docker-compose.yml.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/mongo-init.js.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/docker.env.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/nginx_app.conf.sh \
-        https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/encryption.env.sh
+    cd "$install_dir"
+    curl -L https://github.com/appsmithorg/appsmith/raw/master/deploy/aws_ami/docker-compose.yml -o $PWD/docker-compose.yml
 )
-# Step 2: Generate config from template
-mkdir -p "$install_dir/data/"{nginx,mongo/db}
-echo "Generating the configuration files from the templates"
-bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
-bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
-bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir/docker.env.sh" "$mongo_database" "$mongo_root_user" "$mongo_root_password" "$mongo_host" "$disable_telemetry" > docker.env
-bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
 
-move_file "data/nginx/app.conf.template" "nginx_app.conf"
-move_file "docker-compose.yml" "docker-compose.yml"
-move_file "data/mongo/init.js" "mongo-init.js"
-move_file "docker.env" "docker.env"
-move_file "encryption.env" "encryption.env"
-rm -rf "$templates_dir"
-
-# Step 3: Pulling the latest container images
+# Step 2: Pulling the latest container images
 cd $install_dir;
 echo ""
 echo "Pulling the latest container images"
 docker-compose pull
 echo ""
-# Step 4: Starting the Appsmith containers
+# Step 3: Starting the Appsmith containers
 echo "Starting the Appsmith containers"
 docker-compose up --detach --remove-orphans
 
-wait_for_containers_start 60
+# This timeout is set to 180 seconds to wait for all services (MongoDB, Redis, Backend, RTS) to be ready
+wait_for_containers_start 180
 if [[ $status_code -eq 401 ]]; then
     echo "Installation is complete!"
     echo "Creating default user"
@@ -146,7 +110,7 @@ if [[ $status_code -eq 401 ]]; then
     default_user_name="${tokens[0]}"
     default_user_password="${tokens[1]}"
 
-    curl -k -X POST 'http://localhost/api/v1/users' \
+    curl -k -X POST 'http://localhost/api/v1/users/super' \
     --header 'Content-Type: application/json' \
     --data-raw '{
         "name" : "'"$default_user_name"'",
