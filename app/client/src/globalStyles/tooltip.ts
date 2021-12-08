@@ -8,9 +8,10 @@ export const GLOBAL_STYLE_TOOLTIP_CLASSNAME = "ads-global-tooltip";
 export const TooltipStyles = createGlobalStyle<{
   theme: Theme;
 }>`
-  .${Classes.PORTAL} {
-    .${Classes.TOOLTIP}.${GLOBAL_STYLE_TOOLTIP_CLASSNAME} {
-      max-width: 350px;
+  .${Classes.PORTAL} .${Classes.TOOLTIP}.${GLOBAL_STYLE_TOOLTIP_CLASSNAME}, .${
+  Classes.TOOLTIP
+}.${GLOBAL_STYLE_TOOLTIP_CLASSNAME} {
+    max-width: 350px;
       overflow-wrap: anywhere;
       .${Classes.POPOVER_CONTENT} {
         padding: 10px 12px;
@@ -30,6 +31,5 @@ export const TooltipStyles = createGlobalStyle<{
       .${CsClasses.BP3_POPOVER_ARROW_FILL} {
         fill: ${(props) => props.theme.colors.tooltip.darkBg};
       }
-    }
   }
 `;
