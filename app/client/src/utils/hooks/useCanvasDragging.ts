@@ -37,6 +37,7 @@ export const useCanvasDragging = (
   }: CanvasDraggingArenaProps,
 ) => {
   const canvasZoomLevel = useSelector(getZoomLevel);
+  const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   const { devicePixelRatio: scale = 1 } = window;
   const {
     blocksToDraw,
@@ -185,7 +186,6 @@ export const useCanvasDragging = (
         leftColumn: 0,
         topRow: 0,
       };
-      let currentDirection = ReflowDirection.UNSET;
 
       const resetCanvasState = () => {
         if (canvasDrawRef.current && canvasRef.current) {
@@ -300,37 +300,39 @@ export const useCanvasDragging = (
           if (lastMousePosition) {
             const deltaX = lastMousePosition.x - event.clientX,
               deltaY = lastMousePosition.y - event.clientY;
-            const movements = [];
             lastMousePosition = {
               x: event.clientX,
               y: event.clientY,
             };
-            if (deltaY === 0 && ["TOP", "BOTTOM"].includes(currentDirection)) {
-              movements.push(currentDirection);
+            if (
+              deltaX === 0 &&
+              ["TOP", "BOTTOM"].includes(currentDirection.current)
+            ) {
+              return currentDirection.current;
             }
             if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
-              movements.push("TOP");
+              return ReflowDirection.TOP;
             } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
-              movements.push("BOTTOM");
+              return ReflowDirection.BOTTOM;
             }
-            if (deltaY === 0 && ["LEFT", "RIGHT"].includes(currentDirection)) {
-              movements.push(currentDirection);
+            if (
+              deltaY === 0 &&
+              ["LEFT", "RIGHT"].includes(currentDirection.current)
+            ) {
+              return currentDirection.current;
             }
             if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
-              movements.push("LEFT");
+              return ReflowDirection.LEFT;
             } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-              movements.push("RIGHT");
+              return ReflowDirection.RIGHT;
             }
-            return movements.length
-              ? (movements.join("|") as ReflowDirection)
-              : currentDirection;
           }
-          return currentDirection;
+          return currentDirection.current;
         };
         const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
             const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove(e);
-            currentDirection = getMouseMoveDirection(e);
+            currentDirection.current = getMouseMoveDirection(e);
 
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
@@ -413,7 +415,7 @@ export const useCanvasDragging = (
                   currentReflowParams = reflow.current(
                     resizedPositions,
                     originalPositions,
-                    currentDirection,
+                    currentDirection.current,
                   );
                 }
 

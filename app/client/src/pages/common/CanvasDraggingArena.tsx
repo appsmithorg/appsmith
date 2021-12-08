@@ -76,6 +76,6 @@ export function CanvasDraggingArena({
   ) : null;
 }
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
-CanvasDraggingArena.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
+// CanvasDraggingArena.whyDidYouRender = {
+//   logOnDifferentValues: false,
+// };

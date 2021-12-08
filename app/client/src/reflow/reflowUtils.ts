@@ -290,15 +290,51 @@ function getCorrectedDirection(
   if (isCorrectDirection) return primaryDirection;
   else if (secondaryDirection) return secondaryDirection;
 
-  if (primaryAccessors.isHorizontal) {
-    return collidingSpace.bottom <= prevPositions.top
-      ? ReflowDirection.TOP
-      : ReflowDirection.BOTTOM;
+  return getVerifiedDirection(
+    collidingSpace,
+    prevPositions,
+    primaryDirection,
+    primaryAccessors.isHorizontal,
+  );
+}
+
+function getVerifiedDirection(
+  collidingSpace: OccupiedSpace,
+  prevPositions: OccupiedSpace,
+  direction: ReflowDirection,
+  isHorizontalMove: boolean,
+) {
+  if (isHorizontalMove) {
+    if (collidingSpace.bottom <= prevPositions.top) return ReflowDirection.TOP;
+    else if (collidingSpace.top >= prevPositions.bottom)
+      return ReflowDirection.BOTTOM;
+    else if (
+      direction !== ReflowDirection.RIGHT &&
+      collidingSpace.left >= prevPositions.right
+    )
+      return ReflowDirection.RIGHT;
+    else if (
+      direction !== ReflowDirection.LEFT &&
+      collidingSpace.right <= prevPositions.left
+    )
+      return ReflowDirection.LEFT;
   } else {
-    return collidingSpace.right <= prevPositions.left
-      ? ReflowDirection.LEFT
-      : ReflowDirection.RIGHT;
+    if (collidingSpace.right <= prevPositions.left) return ReflowDirection.LEFT;
+    else if (collidingSpace.left >= prevPositions.right)
+      return ReflowDirection.RIGHT;
+    else if (
+      direction !== ReflowDirection.TOP &&
+      collidingSpace.bottom <= prevPositions.top
+    )
+      return ReflowDirection.TOP;
+    else if (
+      direction !== ReflowDirection.BOTTOM &&
+      collidingSpace.top >= prevPositions.bottom
+    )
+      return ReflowDirection.BOTTOM;
   }
+
+  return direction;
 }
 
 export function compareNumbers(
