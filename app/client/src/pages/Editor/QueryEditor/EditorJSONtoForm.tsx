@@ -74,6 +74,7 @@ import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import Indicator from "../GuidedTour/Indicator";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -824,7 +825,7 @@ export function EditorJSONtoForm(props: Props) {
               <TabComponent
                 tabs={[
                   {
-                    key: "query",
+                    key: EDITOR_TABS.QUERY,
                     title: "Query",
                     panelComponent: (
                       <SettingsWrapper>
@@ -866,7 +867,7 @@ export function EditorJSONtoForm(props: Props) {
                     ),
                   },
                   {
-                    key: "settings",
+                    key: EDITOR_TABS.SETTINGS,
                     title: "Settings",
                     panelComponent: (
                       <SettingsWrapper>

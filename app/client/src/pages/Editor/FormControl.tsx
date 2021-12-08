@@ -36,7 +36,10 @@ function FormControl(props: FormControlProps) {
       step={1}
       targetTagName="div"
     >
-      <div className={`t--form-control-${props.config.controlType}`}>
+      <div
+        className={`t--form-control-${props.config.controlType}`}
+        data-replay-id={btoa(props.config.configProperty)}
+      >
         {FormControlFactory.createControl(
           props.config,
           props.formName,

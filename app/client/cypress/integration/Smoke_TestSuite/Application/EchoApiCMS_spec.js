@@ -91,11 +91,11 @@ describe("Content Management System App", function() {
     cy.xpath(appPage.contentField)
       .last()
       .type("Task completed", { force: true });
-    cy.xpath(appPage.confirmButton).click();
-    cy.xpath(appPage.closeButton).click();
-    cy.xpath(appPage.pagebutton).click();
-    cy.xpath(appPage.datasourcesbutton).click();
-    cy.xpath(appPage.postApi).click();
+    cy.xpath(appPage.confirmButton).click({ force: true });
+    cy.xpath(appPage.closeButton).click({ force: true });
+    cy.xpath(appPage.pagebutton).click({ force: true });
+    cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    cy.xpath(appPage.postApi).click({ force: true });
     cy.ResponseCheck("Test");
     // cy.ResponseCheck("Task completed");
     cy.ResponseCheck("Curt50@gmail.com");
@@ -103,16 +103,16 @@ describe("Content Management System App", function() {
 
   it("Delete proposal and verify delete request body", function() {
     // navigating back to canvas
-    cy.xpath(appPage.pagebutton).click();
+    cy.xpath(appPage.pagebutton).click({ force: true });
     cy.xpath(appPage.submitButton).should("be.visible");
     cy.xpath("//span[text()='Dan.Wyman@hotmail.com']").click({ force: true });
     // deleting the proposal and asserting delete call's response
-    cy.xpath(appPage.deleteButton).click();
+    cy.xpath(appPage.deleteButton).click({ force: true });
     cy.xpath(appPage.deleteTaskText).should("be.visible");
-    cy.xpath(appPage.confirmButton).click();
-    cy.xpath(appPage.pagebutton).click();
-    cy.xpath(appPage.datasourcesbutton).click();
-    cy.xpath(appPage.deleteApi).click();
+    cy.xpath(appPage.confirmButton).click({ force: true });
+    cy.xpath(appPage.pagebutton).click({ force: true });
+    cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    cy.xpath(appPage.deleteApi).click({ force: true });
     cy.ResponseCheck("Dan.Wyman@hotmail.com");
     cy.ResponseCheck("Recusan");
   });

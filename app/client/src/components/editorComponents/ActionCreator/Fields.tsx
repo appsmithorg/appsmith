@@ -230,6 +230,9 @@ export const ActionType = {
   jsFunction: "jsFunction",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
+  getGeolocation: "appsmith.geolocation.getCurrentPosition",
+  watchGeolocation: "appsmith.geolocation.watchPosition",
+  stopWatchGeolocation: "appsmith.geolocation.clearWatch",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -399,6 +402,9 @@ const fieldConfigs: FieldConfigs = {
           break;
         case ActionType.setInterval:
           defaultParams = "() => { \n\t // add code here \n}, 5000";
+          break;
+        case ActionType.getGeolocation:
+          defaultParams = "(location) => { \n\t // add code here \n  }";
           break;
         default:
           break;

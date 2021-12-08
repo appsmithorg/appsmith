@@ -45,6 +45,7 @@ import {
 } from "actions/appCollabActions";
 import { loading } from "selectors/onboardingSelectors";
 import GuidedTourDialog from "./GuidedTour/Dialog";
+import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -67,6 +68,7 @@ type EditorProps = {
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
+  pageLevelSocketRoomId: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -96,7 +98,9 @@ class Editor extends Component<Props> {
     this.unlisten = history.listen(this.handleHistoryChange);
 
     if (this.props.isPageLevelSocketConnected && pageId) {
-      this.props.collabStartSharingPointerEvent(pageId);
+      this.props.collabStartSharingPointerEvent(
+        getPageLevelSocketRoomId(pageId, branch),
+      );
     }
   }
 
@@ -161,15 +165,23 @@ class Editor extends Component<Props> {
     }
 
     if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
-      this.props.collabStartSharingPointerEvent(pageId);
+      this.props.collabStartSharingPointerEvent(
+        getPageLevelSocketRoomId(pageId, branch),
+      );
     }
   }
 
   componentWillUnmount() {
     const { pageId } = this.props.match.params || {};
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
-    this.props.collabStopSharingPointerEvent(pageId);
+    this.props.collabStopSharingPointerEvent(
+      getPageLevelSocketRoomId(pageId, branch),
+    );
   }
 
   handleHistoryChange = (location: any) => {
