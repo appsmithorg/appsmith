@@ -13,9 +13,10 @@ ENV LC_ALL C.UTF-8
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
   supervisor curl cron certbot nginx gnupg wget \
   software-properties-common gettext openjdk-11-jre \
-  python3-pip python-setuptools git \
+  python3-pip python-setuptools git msmtp \
   && add-apt-repository ppa:redislabs/redis \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
+  && pip install pymongo \
   && apt-get remove -y git python3-pip \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
@@ -25,9 +26,17 @@ RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get remove wget -y
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis \
+  && curl -s https://packagecloud.io/install/repositories/netdata/netdata/script.deb.sh | bash \
+  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis netdata\
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
+
+# Apply the permissions as described in
+# https://docs.netdata.cloud/docs/netdata-security/#netdata-directories, but own everything by root group due to https://github.com/netdata/netdata/pull/6543
+# hadolint ignore=DL3013
+RUN chown -R  root:netdata /usr/share/netdata
+
 
 # Clean up cache file - Service layer
 RUN rm -rf \
@@ -66,6 +75,18 @@ COPY ./app/rts/node_modules rts/node_modules
 # Nginx & MongoDB config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* ./deploy/docker/templates/mongo-init.js.sh ./deploy/docker/templates/docker.env.sh templates/
 
+# Copy Netdata config
+COPY ./deploy/docker/templates/netdata/netdata.conf /etc/netdata/
+COPY ./deploy/docker/templates/netdata/httpcheck.conf /etc/netdata/go.d/
+COPY ./deploy/docker/templates/netdata/alarms/* /etc/netdata/health.d/
+COPY ./deploy/docker/templates/netdata/*.sh templates/
+
+# Copy Netdata config
+COPY ./deploy/docker/templates/netdata/netdata.conf /etc/netdata/
+COPY ./deploy/docker/templates/netdata/httpcheck.conf /etc/netdata/go.d/
+COPY ./deploy/docker/templates/netdata/alarms/* /etc/netdata/health.d/
+COPY ./deploy/docker/templates/netdata/*.sh templates/
+
 # Add bootstrapfile
 COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./
 
@@ -88,6 +109,5 @@ ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 9001
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n"]
