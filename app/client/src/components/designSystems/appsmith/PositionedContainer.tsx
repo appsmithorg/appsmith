@@ -8,8 +8,8 @@ import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainer
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
-import { memoize } from "lodash";
-import { getReflow, getReflowSelector } from "selectors/widgetReflowSelectors";
+import { isEqual, memoize } from "lodash";
+import { getReflowSelector } from "selectors/widgetReflowSelectors";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -55,17 +55,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
     props,
     isDropTarget,
   );
-  const { isReflowing } = useSelector(getReflow);
 
   const reflowSelector = getReflowSelector(props.widgetId);
 
-  const equal = (reflowA: any, reflowB: any) => {
-    if (reflowA || reflowB) return false;
-
-    return true;
-  };
-
-  const reflowedPosition = useSelector(reflowSelector, equal);
+  const reflowedPosition = useSelector(reflowSelector, isEqual);
 
   const reflowX = reflowedPosition?.X || 0;
   const reflowY = reflowedPosition?.Y || 0;
@@ -73,11 +66,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const reflowHeight = reflowedPosition?.height;
 
   const containerStyle: CSSProperties = useMemo(() => {
-    const transformStyles = isReflowing
-      ? {
-          transform: `translate(${reflowX}px,${reflowY}px)`,
-        }
-      : {};
+    const transformStyles = {
+      transform: `translate(${reflowX}px,${reflowY}px)`,
+    };
     const styles: CSSProperties = {
       position: "absolute",
       left: x,
@@ -106,7 +97,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
     reflowY,
     reflowWidth,
     reflowHeight,
-    reflowedPosition,
   ]);
 
   const onClickFn = useCallback(

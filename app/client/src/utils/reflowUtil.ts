@@ -14,8 +14,6 @@ export function collisionCheckPostReflow(
 
     if (widgets[widgetId].type === "MODAL_WIDGET") return false;
 
-    if (reflowWidgetKeys.includes(widgetId)) return false;
-
     return true;
   });
 
@@ -31,6 +29,8 @@ export function collisionCheckPostReflow(
 }
 
 function areIntersecting(r1: FlattenedWidgetProps, r2: FlattenedWidgetProps) {
+  if (r1.widgetId === r2.widgetId) return false;
+
   return !(
     r2.leftColumn >= r1.rightColumn ||
     r2.rightColumn <= r1.leftColumn ||

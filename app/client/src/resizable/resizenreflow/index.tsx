@@ -10,7 +10,7 @@ import { useReflow } from "utils/hooks/useReflow";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridProps, ReflowDirection } from "reflow/reflowTypes";
+import { GridProps, ReflowDirection, ReflowedSpace } from "reflow/reflowTypes";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
@@ -136,8 +136,15 @@ export function Resizable(props: ResizableProps) {
   );
   const reflowSelector = getReflowSelector(props.widgetId);
 
-  const equal = (reflowA: any, reflowB: any) => {
-    if (reflowA || reflowB) return false;
+  const equal = (
+    reflowA: ReflowedSpace | undefined,
+    reflowB: ReflowedSpace | undefined,
+  ) => {
+    if (
+      reflowA?.width !== reflowB?.width ||
+      reflowA?.height !== reflowB?.height
+    )
+      return false;
 
     return true;
   };
@@ -154,7 +161,7 @@ export function Resizable(props: ResizableProps) {
     PerformanceTracker.stopTracking(
       PerformanceTransactionName.SHOW_RESIZE_HANDLES,
     );
-  });
+  }, []);
   //end
   const [pointerEvents, togglePointerEvents] = useState(true);
   const [newDimensions, set] = useState<DimensionProps>({
