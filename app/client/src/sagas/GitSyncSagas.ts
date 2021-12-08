@@ -24,7 +24,6 @@ import {
   updateLocalGitConfigSuccess,
   fetchLocalGitConfigInit,
   switchGitBranchInit,
-  updateBranchLocally,
   gitPullSuccess,
   fetchMergeStatusSuccess,
   fetchMergeStatusFailure,
