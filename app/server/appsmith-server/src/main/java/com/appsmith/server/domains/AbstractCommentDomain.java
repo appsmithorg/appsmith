@@ -20,6 +20,6 @@ public abstract class AbstractCommentDomain extends BaseDomain {
     String orgId;
 
     /** Edit/Published Mode */
-    CommentMode mode;
+    ApplicationMode mode;
 
 }

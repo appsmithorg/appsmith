@@ -413,6 +413,7 @@ public class ExamplesOrganizationCloner {
         return applicationPageService.setApplicationPolicies(userMono, orgId, application)
                 .flatMap(applicationToCreate ->
                         createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
+
                 );
     }
 

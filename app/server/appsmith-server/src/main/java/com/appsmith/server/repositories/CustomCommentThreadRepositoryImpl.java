@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.CommentMode;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
@@ -68,7 +68,7 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> archiveByPageId(String pageId, CommentMode commentMode) {
+    public Mono<UpdateResult> archiveByPageId(String pageId, ApplicationMode mode) {
         // create an update object that'll be applied
         Update update = new Update();
         update.set(fieldName(QCommentThread.commentThread.deleted), true);
@@ -76,7 +76,7 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
 
         // create a criteria for pageId. The permission criteria will be added by updateByCriteria method
         Criteria criteria = where(fieldName(QCommentThread.commentThread.pageId)).is(pageId)
-                .and(fieldName(QCommentThread.commentThread.mode)).is(commentMode);
+                .and(fieldName(QCommentThread.commentThread.mode)).is(mode);
 
         return this.updateByCriteria(criteria, update);
     }

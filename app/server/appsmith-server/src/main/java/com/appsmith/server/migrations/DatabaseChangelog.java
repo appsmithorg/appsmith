@@ -18,7 +18,6 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.BorderRadius;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Group;
@@ -39,6 +38,7 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Theme;
@@ -3918,7 +3918,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "099", id = "add-google-sheets-plugin-name", author = "")
+    @ChangeSet(order = "098", id = "add-google-sheets-plugin-name", author = "")
     public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
         Plugin googleSheetsPlugin = mongockTemplate.findOne(
                 query(where("packageName").is("google-sheets-plugin")),
@@ -3931,7 +3931,7 @@ public class DatabaseChangelog {
         mongockTemplate.save(googleSheetsPlugin);
     }
 
-    @ChangeSet(order = "100", id = "add-smtp-plugin", author = "")
+    @ChangeSet(order = "99", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SMTP");
@@ -3951,7 +3951,7 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "101", id = "update-mockdb-endpoint", author = "")
+    @ChangeSet(order = "100", id = "update-mockdb-endpoint", author = "")
     public void updateMockdbEndpoint(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
                 query(where("datasourceConfiguration.endpoints.host").is("fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com")),
@@ -3960,34 +3960,32 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "102", id = "create-system-themes", author = "")
-    public void createSystemThemes(MongockTemplate mongockTemplate) {
-        Theme.Colors defaultColors = new Theme.Colors("#50AF6C", "#E1E1E1");
+    @ChangeSet(order = "101", id = "create-system-themes", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        Index uniqueApplicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index");
 
-        Theme defaultTheme = new Theme();
-        defaultTheme.setName("Default");
-        defaultTheme.setProperties(new Theme.Properties(
-                defaultColors, BorderRadius.ROUNDED, null, "#E1E1E1"
-        ));
+        ensureIndexes(mongockTemplate.getImpl(), Theme.class, uniqueApplicationIdIndex);
 
-        Theme sharpTheme = new Theme();
-        sharpTheme.setName("Sharp");
-        sharpTheme.setProperties(new Theme.Properties(
-                defaultColors, BorderRadius.SHARP, null, "#E1E1E1"
-        ));
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
 
-        Theme roundedTheme = new Theme();
-        roundedTheme.setName("Rounded");
-        roundedTheme.setProperties(new Theme.Properties(
-                defaultColors, BorderRadius.SHARP, null, "#E1E1E1"
-        ));
+        Theme legacyTheme = null;
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            Theme savedTheme = mongockTemplate.save(theme);
+            if(savedTheme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+        }
 
-        mongockTemplate.save(defaultTheme);
-        mongockTemplate.save(roundedTheme);
-        Theme savedSharpTheme = mongockTemplate.save(sharpTheme);
-
-        // now set this theme to all applications
-        Update update = new Update().set(fieldName(QApplication.application.themeId), savedSharpTheme.getId());
+        // migrate all applications and set legacy theme to them in both mode
+        Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
         mongockTemplate.updateMulti(
                 new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
         );

@@ -11,6 +11,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.regex.Pattern;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @Slf4j
@@ -19,24 +22,18 @@ public class CustomThemeRepositoryImpl extends BaseAppsmithRepositoryImpl<Theme>
         super(mongoOperations, mongoConverter);
     }
 
-    /**
-     * Returns all the themes under an application or system themes which do not have applicationId set
-     * @param applicationId DB id of the application object
-     * @return Flux of themes
-     */
+
     @Override
-    public Flux<Theme> getApplicationThemes(String applicationId) {
-        Criteria criteria = new Criteria().orOperator(
-                Criteria.where(fieldName(QTheme.theme.applicationId)).exists(false),
-                Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId)
-        );
+    public Flux<Theme> getSystemThemes() {
+        Criteria criteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         return queryAll(List.of(criteria), null);
     }
 
     @Override
-    public Mono<Theme> findByIdAndApplicationId(String themeId, String applicationId) {
-        Criteria criteria = Criteria.where(fieldName(QTheme.theme.id)).is(themeId)
-                .and(fieldName(QTheme.theme.applicationId)).is(applicationId);
+    public Mono<Theme> getSystemThemeByName(String themeName) {
+        String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
+        Criteria criteria = where(fieldName(QTheme.theme.name)).regex(findNameRegex, "i")
+                .and(fieldName(QTheme.theme.isSystemTheme)).is(true);
         return queryOne(List.of(criteria), null);
     }
 }

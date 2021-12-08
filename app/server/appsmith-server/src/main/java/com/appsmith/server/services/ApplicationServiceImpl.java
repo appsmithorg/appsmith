@@ -58,6 +58,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
+    private final ThemeService themeService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -69,12 +70,14 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
-                                  SessionUserService sessionUserService) {
+                                  SessionUserService sessionUserService,
+                                  ThemeService themeService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
+        this.themeService = themeService;
     }
 
     @Override

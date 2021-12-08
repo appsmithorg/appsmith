@@ -4,6 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -13,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.GitService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -26,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,6 +54,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitService gitService;
+    private final ThemeService themeService;
 
     @Autowired
     public ApplicationController(
@@ -59,13 +63,15 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
             ImportExportApplicationService importExportApplicationService,
-            GitService gitService) {
+            GitService gitService,
+            ThemeService themeService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
         this.gitService = gitService;
+        this.themeService = themeService;
     }
 
     @PostMapping
@@ -189,5 +195,11 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     public Mono<ResponseDTO<GitAuth>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @PatchMapping("{applicationId}/themes/{themeId}")
+    public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
+        return themeService.changeCurrentTheme(themeId, applicationId)
+                .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 }

@@ -132,6 +132,9 @@ public class ApplicationServiceTest {
     @Autowired
     PolicyUtils policyUtils;
 
+    @Autowired
+    ThemeService themeService;
+
     @MockBean
     ReleaseNotesService releaseNotesService;
 
@@ -172,19 +175,23 @@ public class ApplicationServiceTest {
                 .build();
 
         StepVerifier
-                .create(applicationMono)
-                .assertNext(application -> {
+                .create(applicationMono.zipWith(themeService.getDefaultThemeId()))
+                .assertNext(tuple2 -> {
+                    Application application = tuple2.getT1();
+                    String defaultThemeId = tuple2.getT2();
                     assertThat(application).isNotNull();
                     assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getOrganizationId().equals(orgId));
+                    assertThat(application.getOrganizationId()).isEqualTo(orgId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
+                    assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
+                    assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
                 })
                 .verifyComplete();
     }

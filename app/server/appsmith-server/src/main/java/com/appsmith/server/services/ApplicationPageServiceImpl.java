@@ -9,14 +9,15 @@ import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -57,7 +58,6 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
-;
 
 @Service
 @Slf4j
@@ -77,6 +77,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
     private final CommentThreadRepository commentThreadRepository;
+//    private final ThemeRepository themeRepository;
+    private final ThemeService themeService;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -260,7 +262,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(tuple -> {
                     Application application1 = tuple.getT1();
                     application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                    return applicationService.createDefault(application1);
+                    // assign the default theme id to edit mode
+                    return themeService.getDefaultThemeId().map(themeId-> {
+                        application1.setEditModeThemeId(themeId);
+                        application1.setPublishedModeThemeId(themeId);
+                        return themeId;
+                    }).then(applicationService.createDefault(application1));
                 })
                 .flatMap(savedApplication -> {
 
@@ -516,6 +523,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
                                 return applicationService.createDefault(application1);
                             })
+                            // duplicate the source application's themes if required i.e. if they were customized
+                            .flatMap(application ->
+                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application.getId())
+                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application.getId()))
+                                            .map(themesZip -> {
+                                                application.setEditModeThemeId(themesZip.getT1().getId());
+                                                application.setPublishedModeThemeId(themesZip.getT2().getId());
+                                                return application;
+                                            })
+                            )
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
@@ -598,7 +615,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             }).collectList();
 
                     Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(
-                            id, CommentMode.EDIT
+                            id, ApplicationMode.EDIT
                     );
 
                     /**
@@ -673,7 +690,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Mono<List<Boolean>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, CommentMode.PUBLISHED)
+                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
                                         .then(newPageService.archiveById(id))
                                 )
                                 .collectList();
@@ -734,12 +751,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .collectList()
                 .flatMapMany(actionCollectionService::saveAll);
 
+        Mono<Theme> publishThemeMono = applicationMono.flatMap(application ->  themeService.publishTheme(
+                application.getEditModeThemeId(), application.getPublishedModeThemeId(), application.getId()
+        ));
+
         return Mono.when(
                 publishApplicationAndPages.collectList(),
                 publishedActionsFlux.collectList(),
-                publishedCollectionsFlux
-        )
-                .then(applicationMono);
+                publishedCollectionsFlux,
+                publishThemeMono
+        ).then(applicationMono);
     }
 
     @Override
