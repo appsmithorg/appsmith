@@ -273,12 +273,6 @@ class MultiSelectTreeWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",
@@ -443,6 +437,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        primaryColor={this.props.primaryColor}
         value={filteredValue}
         width={componentWidth}
       />
@@ -524,6 +519,7 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 export default MultiSelectTreeWidget;

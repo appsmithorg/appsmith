@@ -302,6 +302,7 @@ const StyledPagination = styled(Pagination)<{
   disabled?: boolean;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }>`
   ${paginatorCss}
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
@@ -310,13 +311,16 @@ const StyledPagination = styled(Pagination)<{
   .rc-pagination-item {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    color:  ${({ primaryColor }) => primaryColor} !important;
+    border-color:  ${({ primaryColor }) => primaryColor} !important;
 
   }
 
   .rc-pagination-prev .rc-pagination-item-link, .rc-pagination-next .rc-pagination-item-link  {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-
+    border-color:  ${({ primaryColor }) => primaryColor} !important;
+    color:  ${({ primaryColor }) => primaryColor} !important;
   }
 `;
 
@@ -328,6 +332,7 @@ interface ListPaginationProps {
   onChange: (page: number) => void;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 function ListPagination(props: ListPaginationProps) {
@@ -340,6 +345,7 @@ function ListPagination(props: ListPaginationProps) {
       locale={locale}
       onChange={props.onChange}
       pageSize={props.perPage}
+      primaryColor={props.primaryColor}
       total={props.total}
     />
   );

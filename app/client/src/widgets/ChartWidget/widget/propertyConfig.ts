@@ -312,15 +312,6 @@ export default [
     sectionName: "Styles",
     children: [
       {
-        propertyName: "backgroundColor",
-        helpText: "Sets the background color of the widget",
-        label: "Background color",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-      },
-      {
         propertyName: "borderRadius",
         label: "Border Radius",
         helpText: "Rounds the corners of the icon button's outer border edge",

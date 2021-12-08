@@ -388,8 +388,8 @@ class SingleSelectTreeWidget extends BaseWidget<
       : undefined;
 
     const filteredValue = this.filterValues(values);
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const dropDownWidth = 300;
+    const componentWidth = 300;
     return (
       <SingleSelectTreeComponent
         allowClear={this.props.allowClear}

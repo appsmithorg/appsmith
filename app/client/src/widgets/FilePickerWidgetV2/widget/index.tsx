@@ -224,12 +224,6 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",

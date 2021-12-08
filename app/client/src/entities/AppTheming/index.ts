@@ -43,7 +43,4 @@ export interface AppTheme {
       [key: string]: string;
     };
   };
-  variants: {
-    [key: string]: string;
-  };
 }

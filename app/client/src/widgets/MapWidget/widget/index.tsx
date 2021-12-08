@@ -25,7 +25,7 @@ const DisabledContainer = styled.div<{
   display: flex;
   flex-direction: column;
   border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  box-shadow: ${({ boxShadow }) => boxShadow} !important;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   h1 {
     margin-top: 15%;
@@ -223,12 +223,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",

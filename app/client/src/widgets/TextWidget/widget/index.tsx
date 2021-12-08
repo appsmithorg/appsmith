@@ -194,12 +194,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",

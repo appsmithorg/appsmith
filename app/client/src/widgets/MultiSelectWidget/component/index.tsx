@@ -8,6 +8,7 @@ import {
   StyledCheckbox,
   TextLabelWrapper,
   StyledLabel,
+  SelectAllMenuItem,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
@@ -21,8 +22,16 @@ import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 
-const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
-  return <StyledCheckbox checked={props.isSelected} />;
+const menuItemSelectedIcon = (props: {
+  isSelected: boolean;
+  primaryColor: string;
+}) => {
+  return (
+    <StyledCheckbox
+      checked={props.isSelected}
+      primaryColor={props.primaryColor}
+    />
+  );
 };
 
 export interface MultiSelectProps
@@ -48,6 +57,7 @@ export interface MultiSelectProps
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -70,6 +80,7 @@ function MultiSelectComponent({
   onFilterChange,
   options,
   placeholder,
+  primaryColor,
   serverSideFiltering,
   value,
   width,
@@ -115,13 +126,16 @@ function MultiSelectComponent({
     ) => (
       <div className={loading ? Classes.SKELETON : ""}>
         {options.length ? (
-          <StyledCheckbox
-            alignIndicator="left"
-            checked={isSelectAll}
-            className={`all-options ${isSelectAll ? "selected" : ""}`}
-            label="Select all"
-            onChange={handleSelectAll}
-          />
+          <SelectAllMenuItem primaryColor={primaryColor}>
+            <StyledCheckbox
+              alignIndicator="left"
+              checked={isSelectAll}
+              className={`all-options ${isSelectAll ? "selected" : ""}`}
+              label="Select all"
+              onChange={handleSelectAll}
+              primaryColor={primaryColor}
+            />
+          </SelectAllMenuItem>
         ) : null}
         {menu}
       </div>
@@ -161,12 +175,15 @@ function MultiSelectComponent({
       className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
       isValid={isValid}
+      primaryColor={primaryColor}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
+        borderRadius={borderRadius}
         dropDownWidth={dropDownWidth}
         id={id}
         parentWidth={width - WidgetContainerDiff}
+        primaryColor={primaryColor}
       />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>

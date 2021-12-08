@@ -23,16 +23,12 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   align-items: center;
   justify-content: center;
   height: 100%;
-  background-color: #ffffff;
   font-weight: bold;
-  border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 
   iframe {
     width: 100%;
     height: 100%;
     border-style: solid;
-    border-radius: ${({ borderRadius }) => borderRadius};
     border-color: ${(props) =>
       hexToRgba(
         props.borderColor || props.theme.colors.border,
@@ -42,6 +38,8 @@ export const IframeContainer = styled.div<IframeContainerProps>`
       )};
     border-width: ${(props) =>
       props.borderWidth ? Number(props.borderWidth) : 0}px;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   }
 `;
 

@@ -174,15 +174,6 @@ class TabsWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "selectedTabColor",
-            helpText: "Sets the selected tab accent color of the widget",
-            label: "Selected Tab Accent color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-          },
-          {
             propertyName: "borderRadius",
             label: "Border Radius",
             helpText:
@@ -192,12 +183,6 @@ class TabsWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",
@@ -253,7 +238,7 @@ class TabsWidget extends BaseWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
-        selectedTabColor={this.props.selectedTabColor}
+        primaryColor={this.props.primaryColor}
       >
         {this.renderComponent()}
       </TabsComponent>

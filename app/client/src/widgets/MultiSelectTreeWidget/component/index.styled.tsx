@@ -9,6 +9,7 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -80,6 +81,8 @@ export const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   dropDownWidth: number;
   id: string;
+  primaryColor: string;
+  borderRadius: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .multiselecttree-popover-width-${id} {
@@ -252,7 +255,7 @@ cursor: not-allowed;
         width: 10px;
         height: 10px;
       transform: translate(-50%,-50%) scale(1);
-       background: rgb(3, 179, 101) !important;
+       background: ${({ primaryColor }) => primaryColor} !important;
        opacity: 1;
     content: " ";
         border-radius: 100%;
@@ -266,7 +269,8 @@ cursor: not-allowed;
   position: absolute;
   background: #fff;
   width: 100%;
-  border-radius: 0px;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
   margin-top: 5px;
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
@@ -290,9 +294,9 @@ cursor: not-allowed;
       }
     }
     .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: rgb(3, 179, 101) !important;
+      background: ${({ primaryColor }) => `${primaryColor}`} !important;
 						color: rgb(255, 255, 255);
-						border-color: rgb(3, 179, 101) !important;
+						border-color: ${({ primaryColor }) => primaryColor} !important;
 						box-shadow: none;
 						outline: none !important;
     }
@@ -383,7 +387,7 @@ cursor: not-allowed;
 
 .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
   border: none !important;
-  background-color: ${Colors.GREEN_SOLID};
+  background-color: ${({ primaryColor }) => primaryColor};
 
   &:after {
     content: "";
@@ -415,7 +419,8 @@ cursor: not-allowed;
 
 .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
   border: none !important;
-  background: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' fill='%2350AF6C'/%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A");
+  background-color: ${({ primaryColor }) => primaryColor};
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' fill='transparent' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A");
 }
 
 .rc-tree-select-tree-checkbox-inner {
@@ -435,8 +440,8 @@ cursor: not-allowed;
 	.rc-tree-select-tree-treenode
 	span.rc-tree.select-tree-checkbox-checked {
     .rc-tree-select-tree-checkbox-inner {
-      border-color: rgb(3, 179, 101) !important;
-      background: rgb(3, 179, 101) !important;
+      border-color:${({ primaryColor }) => primaryColor} !important;
+      background: ${({ primaryColor }) => primaryColor} !important;
     }
   }
   .single-tree-select-dropdown
@@ -445,7 +450,6 @@ cursor: not-allowed;
 	span.rc-tree-select-tree-iconEle {
     	width: 20px;
   }
-
 .rc-tree-select-tree
 	.rc-tree-select-tree-treenode
 	span.rc-tree-select-tree-iconEle {
@@ -535,19 +539,20 @@ cursor: not-allowed;
 	cursor: not-allowed;
 }
 .rc-tree-select-tree-treenode-active {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: ${({ primaryColor }) => lightenColor(primaryColor)};
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: ${({ primaryColor }) => lightenColor(primaryColor)};
   .rc-tree-select-tree-title {
     color: ${Colors.GREY_9};
   }
-  .rc-tree-select-tree-checkbox-inner {
-    background-color: transparent;
+  :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
+    background-color:  ${({ primaryColor }) => lightenColor(primaryColor)};
+    border-color: ${({ primaryColor }) => primaryColor};
   }
 }
 .rc-tree-select-tree-treenode-checkbox-checked {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  background: ${({ primaryColor }) => lightenColor(primaryColor)};
   .rc-tree-select-tree-title {
     color: ${Colors.GREY_10};
   }
@@ -601,9 +606,10 @@ export const TreeSelectContainer = styled.div<{
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  justify-content: end;
 
   label.tree-select-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
+    margin-bottom: 0px;
     margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
   }
   .rc-tree-select {
@@ -619,7 +625,7 @@ export const TreeSelectContainer = styled.div<{
       position: absolute;
       top: 50%;
       right: 12px;
-      left: 19px;
+      left: 10px;
       transform: translateY(-50%);
       transition: all 0.3s;
       flex: 1;
@@ -649,7 +655,7 @@ export const TreeSelectContainer = styled.div<{
       background-color: ${Colors.GREY_1} !important;
     }
     .rc-tree-select-selector {
-      border: 1.2px solid ${Colors.GREY_3} !important;
+      border: 1px solid ${Colors.GREY_3} !important;
       background-color: ${Colors.GREY_1} !important;
       .rc-tree-select-selection-item-content {
         color: ${Colors.GREY_7};
@@ -675,7 +681,7 @@ export const TreeSelectContainer = styled.div<{
   .rc-tree-select-single {
     &:hover {
       .rc-tree-select-selector {
-        border: 1.2px solid ${Colors.GREY_5};
+        border: 1px solid ${Colors.GREY_5};
       }
     }
   }
@@ -688,7 +694,7 @@ export const TreeSelectContainer = styled.div<{
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     border: 1px solid rgb(231, 231, 231);
-    border: 1.2px solid ${Colors.GREY_3};
+    border: 1px solid ${Colors.GREY_3};
     box-sizing: border-box;
     width: 100%;
     transition: border-color 0.15s ease-in-out 0s,
@@ -856,19 +862,20 @@ export const TreeSelectContainer = styled.div<{
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
       padding-right: ${({ allowClear }) => (allowClear ? "40px" : "20px")};
-      padding-left: 12px;
+      padding-left: 10px;
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
+      line-height: 30px;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
-      border: 1.2px solid
+      border: 1px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
-        border: 1.2px solid
+        border: 1px solid
           ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
       }
     }
@@ -921,9 +928,9 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID} !important;
+          border: 1px solid ${Colors.GREEN_SOLID} !important;
           box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
@@ -937,7 +944,7 @@ export const inputIcon = (): JSX.Element => (
   <svg data-icon="chevron-down" height="16" viewBox="0 0 16 16" width="16">
     <desc>chevron-down</desc>
     <path
-      d="M12 5c-.28 0-.53.11-.71.29L8 8.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42l4 4c.18.18.43.29.71.29s.53-.11.71-.29l4-4A1.003 1.003 0 0012 5z"
+      d="M12 5c-.28 0-.53.11-.719L8 8.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42l4 4c.18.18.43.29.719s.53-.11.71-.29l4-4A1.003 1.003 0 0012 5z"
       fillRule="evenodd"
     />
   </svg>

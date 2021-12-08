@@ -8,7 +8,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 1.725 * GRID_DENSITY_MIGRATION_V1,
+    rows: 1.5 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     placeholderText: "Select option",
     labelText: "Label",

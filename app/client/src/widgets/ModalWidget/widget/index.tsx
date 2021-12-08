@@ -85,12 +85,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED"],
-              },
-            },
           },
         ],
       },

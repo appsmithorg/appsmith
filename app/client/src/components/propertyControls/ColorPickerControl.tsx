@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import ColorPickerComponent from "components/ads/ColorPickerComponent";
+import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
 
 class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   handleChangeColor = (color: string) => {

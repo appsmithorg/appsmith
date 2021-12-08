@@ -293,12 +293,6 @@ class MultiSelectWidget extends BaseWidget<
             controlType: "BORDER_RADIUS_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",
@@ -372,6 +366,7 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        primaryColor={this.props.primaryColor}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         width={componentWidth}
@@ -437,6 +432,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 export default MultiSelectWidget;

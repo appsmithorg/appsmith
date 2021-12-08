@@ -151,6 +151,8 @@ export const CONFIG = {
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",
+                                    boxShadow: "none",
+                                    objectFit: "cover",
                                     dynamicBindingPathList: [
                                       {
                                         key: "image",
@@ -173,6 +175,7 @@ export const CONFIG = {
                                     text: "{{currentItem.name}}",
                                     textStyle: "HEADING",
                                     textAlign: "LEFT",
+                                    boxShadow: "none",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",
@@ -195,6 +198,7 @@ export const CONFIG = {
                                     text: "{{currentItem.id}}",
                                     textStyle: "BODY",
                                     textAlign: "LEFT",
+                                    boxShadow: "none",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",

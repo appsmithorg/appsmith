@@ -302,6 +302,7 @@ const TextInputWrapper = styled.div`
   width: 100%;
   display: flex;
   flex: 1;
+  height: 100%;
 `;
 
 export const isNumberInputType = (inputType: InputType) => {

@@ -31,6 +31,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 
 const RecaptchaWrapper = styled.div`
@@ -146,7 +147,7 @@ const StyledButton = styled((props) => (
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, backgroundColor)
+          ? getComplementaryGrayscaleColor(backgroundColor)
           : getCustomBackgroundColor(
               ButtonVariantTypes.PRIMARY,
               backgroundColor,

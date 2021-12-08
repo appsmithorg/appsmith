@@ -20,12 +20,14 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
+import { lightenColor } from "widgets/WidgetUtils";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }>`
   &&& {
     .${Classes.INPUT} {
@@ -41,19 +43,16 @@ const StyledControlGroup = styled(ControlGroup)<{
       height: 100%;
       align-items: center;
       &:active {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.HIT_GRAY};
+        border-color: ${({ isValid, primaryColor }) =>
+          !isValid ? Colors.DANGER_SOLID : primaryColor};
       }
       &:focus {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.MYSTIC};
-
-        &:focus {
-          border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-          border-color: #80bdff;
-          outline: 0;
-          box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
-        }
+        outline: 0;
+        border: 1px solid;
+        border-color: ${({ isValid, primaryColor }) =>
+          !isValid ? Colors.DANGER_SOLID : primaryColor};
+        box-shadow: ${({ primaryColor }) =>
+          `0px 0px 0px 2px ${lightenColor(primaryColor)} !important;`}
       }
     }
     .${Classes.INPUT}:disabled {
@@ -128,6 +127,7 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
+
     return (
       <StyledControlGroup
         backgroundColor={this.props.backgroundColor}
@@ -138,6 +138,7 @@ class DatePickerComponent extends React.Component<
         onClick={(e: any) => {
           e.stopPropagation();
         }}
+        primaryColor={this.props.primaryColor}
       >
         {this.props.label && (
           <Label
@@ -263,6 +264,7 @@ interface DatePickerComponentProps extends ComponentProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 interface DatePickerComponentState {

@@ -1,6 +1,13 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Alignment, Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
+import {
+  Alignment,
+  Button,
+  Icon,
+  Menu,
+  MenuItem,
+  Classes as BClasses,
+} from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
@@ -36,10 +43,23 @@ const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
   menuDropDownWidth: number;
   id: string;
+  borderRadius: string;
 }>`
-  .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
+  .menu-button-popover, .${BClasses.MINIMAL}.menu-button-popover.${
+  Classes.POPOVER2
+} {
     background: none;
+    box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+    margin-top: 8px !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: none;
+    overflow: hidden;
   }
+
+  .menu-button-popover .${BClasses.MENU_ITEM} {
+    padding: 9px 12px;
+  }
+
   ${({ id, menuDropDownWidth, parentWidth }) => `
   .menu-button-width-${id} {
 
@@ -345,7 +365,7 @@ export interface MenuButtonComponentProps {
   >;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: string;
+  borderRadius: string;
   boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
@@ -376,6 +396,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
   return (
     <MenuButtonContainer disabled={isDisabled}>
       <PopoverStyles
+        borderRadius={borderRadius}
         id={id}
         menuDropDownWidth={menuDropDownWidth}
         parentWidth={width - WidgetContainerDiff}

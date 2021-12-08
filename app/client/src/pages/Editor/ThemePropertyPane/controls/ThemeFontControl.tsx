@@ -16,7 +16,6 @@ function ThemeFontControl(props: ThemeFontControlProps) {
 
   return (
     <section className="space-y-2">
-      <h3 className="font-semibold">Corners</h3>
       <Dropdown
         className="px-0"
         options={options.map((option) => ({

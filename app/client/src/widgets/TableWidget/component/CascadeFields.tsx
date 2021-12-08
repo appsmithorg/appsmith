@@ -572,6 +572,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             isLoading={false}
             label=""
             onDateSelected={onDateSelected}
+            primaryColor="blue"
             selectedDate={value}
             shortcuts={false}
             widgetId=""

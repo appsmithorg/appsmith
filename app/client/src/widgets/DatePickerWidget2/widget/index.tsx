@@ -215,15 +215,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-          },
-          {
             propertyName: "borderRadius",
             label: "Border Radius",
             helpText:
@@ -283,6 +274,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}
+        primaryColor={this.props.primaryColor}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         widgetId={this.props.widgetId}
@@ -323,6 +315,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 export default DatePickerWidget;

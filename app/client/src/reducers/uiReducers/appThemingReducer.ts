@@ -28,7 +28,6 @@ const initialState: AppThemingState = {
       boxShadow: {},
       fontFamily: {},
     },
-    variants: {},
     properties: {
       colors: {
         backgroundColor: "#f6f6f6",

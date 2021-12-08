@@ -240,10 +240,11 @@ const DropdownContainer = styled.div<{ compactMode: boolean }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  justify-content: end;
 
   label.select-label {
     margin-bottom: 0px;
-    margin-right: 0px;
+    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
   }
 `;
 const DEBOUNCE_TIMEOUT = 800;

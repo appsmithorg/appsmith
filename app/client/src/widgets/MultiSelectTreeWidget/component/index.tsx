@@ -55,6 +55,7 @@ export interface TreeSelectProps
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -112,6 +113,7 @@ function MultiTreeSelectComponent({
   onChange,
   options,
   placeholder,
+  primaryColor,
   value,
   width,
 }: TreeSelectProps): JSX.Element {
@@ -147,9 +149,11 @@ function MultiTreeSelectComponent({
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
+        borderRadius={borderRadius}
         dropDownWidth={dropDownWidth}
         id={id}
         parentWidth={width - WidgetContainerDiff}
+        primaryColor={primaryColor}
       />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>

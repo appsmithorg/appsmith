@@ -5,6 +5,11 @@ import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
+import { Colors } from "constants/Colors";
+import {
+  getComplementaryGrayscaleColor,
+  lightenColor,
+} from "widgets/WidgetUtils";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -14,7 +19,7 @@ interface TabsComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
 
-  selectedTabColor: string;
+  primaryColor: string;
   onTabChange: (tabId: string) => void;
   tabs: Array<{
     id: string;
@@ -90,7 +95,7 @@ const TabsContainer = styled.div`
 type TabProps = {
   selected?: boolean;
   onClick: (e: React.MouseEvent<HTMLDivElement>) => void;
-  selectedTabColor: string;
+  primaryColor: string;
 };
 
 const StyledTab = styled.div`
@@ -104,7 +109,7 @@ const StyledTab = styled.div`
 
 const StyledText = styled.div<TabProps>`
   white-space: nowrap;
-  background: ${(props) => props.theme.colors.builderBodyBG};
+  background: ${Colors.WHITE};
   color: ${(props) => props.theme.colors.menuIconColorInactive};
   font-size: ${(props) => props.theme.fontSizes[3]}px;
   line-height: 32px;
@@ -112,16 +117,19 @@ const StyledText = styled.div<TabProps>`
   padding: 0 16px;
   border-bottom: ${(props) =>
     props.selected
-      ? `3px solid ${props.selectedTabColor}`
+      ? `3px solid ${props.primaryColor}`
       : `1px solid ${props.theme.colors.bodyBG}`};
   cursor: pointer;
   position: relative;
   z-index: 1;
   &:hover {
     background: ${(props) =>
+      props.selected ? Colors.WHITE : lightenColor(props.primaryColor)};
+
+    border-bottom: ${(props) =>
       props.selected
-        ? props.theme.colors.textOnDarkBG
-        : props.theme.colors.hover};
+        ? `3px solid ${props.primaryColor}`
+        : `1px solid ${lightenColor(props.primaryColor)}`};
   }
 `;
 
@@ -155,8 +163,8 @@ function TabsComponent(props: TabsComponentProps) {
                 onTabChange(tab.widgetId);
                 event.stopPropagation();
               }}
+              primaryColor={props.primaryColor}
               selected={props.selectedTabWidgetId === tab.widgetId}
-              selectedTabColor={props.selectedTabColor}
             >
               {tab.label}
             </StyledText>
@@ -182,7 +190,7 @@ function TabsComponent(props: TabsComponentProps) {
 }
 
 TabsComponent.defaultProps = {
-  selectedTabColor: FALLBACK_COLORS.backgroundColor,
+  primaryColor: FALLBACK_COLORS.backgroundColor,
 };
 
 export default TabsComponent;
