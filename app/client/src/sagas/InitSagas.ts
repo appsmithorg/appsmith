@@ -309,6 +309,15 @@ export function* initializeAppViewerSaga(
     [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
   );
   if (!jsActionsCall) return;
+
+  const selectedThemeCall = yield failFastApiCalls(
+    [fetchSelectedAppThemeAction(applicationId)],
+    [ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR],
+  );
+
+  if (!selectedThemeCall) return;
+
   const initCalls = [
     // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView({ applicationId })),

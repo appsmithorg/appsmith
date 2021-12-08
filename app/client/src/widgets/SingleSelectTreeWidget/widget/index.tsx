@@ -388,8 +388,8 @@ class SingleSelectTreeWidget extends BaseWidget<
       : undefined;
 
     const filteredValue = this.filterValues(values);
-    const dropDownWidth = 300;
-    const componentWidth = 300;
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
     return (
       <SingleSelectTreeComponent
         allowClear={this.props.allowClear}
@@ -418,6 +418,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        primaryColor={this.props.primaryColor}
         value={filteredValue}
         width={componentWidth}
       />
@@ -495,6 +496,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }
 
 export default SingleSelectTreeWidget;

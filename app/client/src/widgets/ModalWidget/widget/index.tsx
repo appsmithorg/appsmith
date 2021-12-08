@@ -20,7 +20,6 @@ import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
-import { ValidationTypes } from "constants/WidgetValidation";
 
 const minSize = 100;
 

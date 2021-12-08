@@ -185,6 +185,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SINGLE_SELECT_TREE_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       },
     },

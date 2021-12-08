@@ -9,6 +9,7 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -80,6 +81,8 @@ export const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   dropDownWidth: number;
   id: string;
+  primaryColor: string;
+  borderRadius: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .treeselect-popover-width-${id} {
@@ -236,6 +239,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
   border-radius: 0px;
   margin-top: 5px;
   background: white;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
@@ -257,9 +262,9 @@ ${({ dropDownWidth, id, parentWidth }) => `
     }
   }
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: rgb(3, 179, 101) !important;
+    background: ${({ primaryColor }) => primaryColor} !important;
     color: rgb(255, 255, 255);
-    border-color: rgb(3, 179, 101) !important;
+    border-color: ${({ primaryColor }) => primaryColor} !important;
     box-shadow: none;
     outline: none !important;
   }
@@ -389,7 +394,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     left: 50%;
     width: 8px;
     height: 8px;
-    background-color: rgb(3, 179, 101) !important;
+    background-color: ${({ primaryColor }) => primaryColor} !important;
     border: 0;
     transform: translate(-50%,-50%) scale(1);
     opacity: 1;
@@ -425,11 +430,11 @@ ${({ dropDownWidth, id, parentWidth }) => `
 
 
 .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
- border-color: rgb(3, 179, 101) !important;
+ border-color: ${({ primaryColor }) => primaryColor} !important;
 }
 .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
-  border-color: rgb(3, 179, 101) !important;
-  background: rgb(3, 179, 101) !important;
+  border-color: ${({ primaryColor }) => primaryColor} !important;
+  background: ${({ primaryColor }) => primaryColor} !important;
 }
 
 .rc-tree-select-tree-checkbox-inner {
@@ -450,8 +455,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	.rc-tree-select-tree-treenode
 	span.rc-tree.select-tree-checkbox-checked {
     .rc-tree-select-tree-checkbox-inner {
-      border-color: rgb(3, 179, 101) !important;
-      background: rgb(3, 179, 101) !important;
+      border-color: ${({ primaryColor }) => primaryColor} !important;
+      background: ${({ primaryColor }) => primaryColor} !important;
     }
   }
   .single-tree-select-dropdown
@@ -551,10 +556,10 @@ ${({ dropDownWidth, id, parentWidth }) => `
 .rc-tree-select-tree-treenode-active,
 .rc-tree-select-tree-treenode-selected
 {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: ${({ primaryColor }) => lightenColor(primaryColor)};
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: ${({ primaryColor }) => lightenColor(primaryColor)};
 }
 .rc-tree-select-tree-node-selected {
 	background-color: none;
@@ -567,7 +572,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
 
   .rc-tree-select-tree-icon__customize {
     border: none !important;
-    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='10' height='10' rx='5' stroke='%2350AF6C' stroke-width='4'/%3E%3C/svg%3E%0A") !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='10' height='10' rx='5' stroke='${({
+      primaryColor,
+    }) =>
+      primaryColor.replace(
+        "#",
+        "%23",
+      )}' stroke-width='4'/%3E%3C/svg%3E%0A") !important;
   }
 }
 .rc-tree-select-tree-icon__open {
@@ -614,6 +625,7 @@ export const TreeSelectContainer = styled.div<{
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -932,8 +944,8 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          border: 1px solid ${props.primaryColor};
+          box-shadow: 0px 0px 0px 2px ${props.primaryColor};`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }

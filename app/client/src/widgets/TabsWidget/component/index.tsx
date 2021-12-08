@@ -1,15 +1,12 @@
-import React, { RefObject, ReactNode, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
+import React, { RefObject, ReactNode, useEffect, useRef } from "react";
+
+import { Colors } from "constants/Colors";
+import { lightenColor } from "widgets/WidgetUtils";
 import { ComponentProps } from "widgets/BaseComponent";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import ScrollIndicator from "components/ads/ScrollIndicator";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
-import { Colors } from "constants/Colors";
-import {
-  getComplementaryGrayscaleColor,
-  lightenColor,
-} from "widgets/WidgetUtils";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -188,9 +185,5 @@ function TabsComponent(props: TabsComponentProps) {
     </TabsContainerWrapper>
   );
 }
-
-TabsComponent.defaultProps = {
-  primaryColor: FALLBACK_COLORS.backgroundColor,
-};
 
 export default TabsComponent;

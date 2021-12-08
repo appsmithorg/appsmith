@@ -1,10 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  labelStyle,
-  IntentColors,
-  getBorderCSSShorthand,
-} from "constants/DefaultTheme";
+import { labelStyle } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";

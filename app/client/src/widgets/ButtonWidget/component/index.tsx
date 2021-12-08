@@ -30,7 +30,6 @@ import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getCustomTextColor,
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 
