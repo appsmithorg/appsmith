@@ -46,6 +46,7 @@ import { Dispatch } from "redux";
 import { onboardingContainerBlueprint } from "./constants";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
+import { highlightSection } from "./utils";
 
 const GuideWrapper = styled.div`
   margin-bottom: 10px;
@@ -261,6 +262,7 @@ const ProgressBar = styled.div`
 type Step = {
   title: string;
   description?: string;
+  elementSelector?: string;
   hints: {
     text: ReactNode;
     image?: string;
@@ -284,6 +286,7 @@ type StepsType = Record<number, Step>;
 const Steps: StepsType = {
   1: {
     title: `First step is querying the database. Here we are querying a Postgres database populated with customers data.`,
+    elementSelector: "query-table-response",
     hints: [
       {
         text: (
@@ -713,6 +716,7 @@ function useComputeCurrentStep(isExploring: boolean) {
       } else if (queryExecutedSuccessfully) {
         dispatch(setIndicatorLocation("NONE"));
         dispatch(markStepComplete());
+        highlightSection(Steps[1].elementSelector);
       } else {
         dispatch(setIndicatorLocation("RUN_QUERY"));
       }
