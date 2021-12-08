@@ -44,7 +44,8 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Dispatch } from "redux";
 import { onboardingContainerBlueprint } from "./constants";
-import TableData from "./table-data.png";
+import TableData from "assets/gifs/table_data.gif";
+import DefaultText from "assets/gifs/default_text.gif";
 
 const GuideWrapper = styled.div`
   margin-bottom: 10px;
@@ -192,6 +193,11 @@ const HintTextWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  img {
+    height: 85px;
+    width: 186px;
+  }
 `;
 
 const SuccessMessageWrapper = styled.div`
@@ -386,7 +392,8 @@ const Steps: StepsType = {
         button: {
           text: "PROCEED TO NEXT STEP",
         },
-        image: TableData,
+        // Get gif from url
+        image: DefaultText,
       },
       {
         text: (
