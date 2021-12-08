@@ -3940,7 +3940,7 @@ public class DatabaseChangelog {
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://assets.appsmith.com/smtp-icon.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-smtp-plugin");
-        plugin.setDefaultInstall(false);
+        plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
