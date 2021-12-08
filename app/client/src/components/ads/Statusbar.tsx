@@ -71,10 +71,14 @@ type StatusbarProps = {
   percentage: number;
   active: boolean;
   message?: string;
+  showOnlyMessage?: boolean;
 };
 
 export default function OnboardingStatusbar(props: StatusbarProps) {
-  const { active, message, percentage } = props;
+  const { active, message, percentage, showOnlyMessage } = props;
+  const displayMessage = showOnlyMessage
+    ? message
+    : `${percentage}% ${message}`;
   return (
     <Wrapper active={active} data-testid="statusbar-container">
       <StatusProgressbar
@@ -83,9 +87,7 @@ export default function OnboardingStatusbar(props: StatusbarProps) {
         percentage={percentage}
       />
       <StatusText>
-        <span data-testid="statusbar-text">
-          {percentage}% {message}
-        </span>
+        <span data-testid="statusbar-text">{displayMessage}</span>
       </StatusText>
     </Wrapper>
   );
