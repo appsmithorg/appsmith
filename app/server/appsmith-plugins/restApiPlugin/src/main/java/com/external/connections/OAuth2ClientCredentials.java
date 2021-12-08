@@ -2,10 +2,7 @@ package com.external.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.AuthenticationResponse;
-import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.models.UpdatableConnection;
+import com.appsmith.external.models.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +26,10 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -176,6 +176,14 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
         // Optionally add scope, if applicable
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
+        }
+        //Custom Client Credentials
+        if (oAuth2.getCustomTokenParameters() != null) {
+            Set<Property> customProps= new HashSet();
+            oAuth2.getCustomTokenParameters().forEach(x ->
+                customProps.add(new Property(x.getKey(), x.getValue()))
+                    );
+            body.with(Authentication.CUSTOM_TOKEN_PARAMETER, StringUtils.collectionToDelimitedString(customProps,""));
         }
         return body;
     }
