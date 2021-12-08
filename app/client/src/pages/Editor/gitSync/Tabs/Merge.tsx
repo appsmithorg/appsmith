@@ -10,6 +10,7 @@ import {
   FETCH_MERGE_STATUS,
   FETCH_GIT_STATUS,
   IS_MERGING,
+  MERGED_SUCCESSFULLY,
 } from "constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
@@ -42,7 +43,14 @@ import ConflictInfo from "../components/ConflictInfo";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import { getShowRemoteSectionHeader } from "pages/Editor/gitSync/utils";
+import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
+import { Classes } from "../constants";
+import SuccessTick from "pages/common/SuccessTick";
+import Text, { Case, TextType } from "components/ads/Text";
+import { Colors } from "constants/Colors";
+
+import { useTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
   display: flex;
@@ -51,6 +59,25 @@ const Row = styled.div`
 
 const DEFAULT_OPTION = "--Select--";
 const DROPDOWNMENU_MAXHEIGHT = "350px";
+
+function MergeSuccessIndicator() {
+  const theme = useTheme() as Theme;
+
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <SuccessTick height="36px" style={{ marginBottom: 0 }} width="30px" />
+      <Text
+        case={Case.UPPERCASE}
+        color={Colors.GREY_9}
+        style={{ marginLeft: theme.spaces[2] }}
+        type={TextType.P1}
+        weight="600"
+      >
+        {createMessage(MERGED_SUCCESSFULLY)}
+      </Text>
+    </div>
+  );
+}
 
 export default function Merge() {
   const dispatch = useDispatch();
@@ -68,49 +95,56 @@ export default function Merge() {
   // const pullFailed: any = useSelector(getPullFailed);
   const currentBranch = gitMetaData?.branchName;
   const isMerging = useSelector(getIsMergeInProgress);
+  const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] = useState(
+    false,
+  );
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
     label: DEFAULT_OPTION,
     value: DEFAULT_OPTION,
   });
 
+  /**
+   * Removes the current branch from the list
+   * Also filters the remote branches
+   */
   const branchList = useMemo(() => {
-    const branches: Array<string> = []; // string array to determine segment header position
-    const listOfBranches: DropdownOptions = [];
-    gitBranches.map((branchObj, index) => {
+    const branchOptions: DropdownOptions = [];
+    let index = 0;
+    while (true) {
+      if (index === gitBranches.length) break;
+      const branchObj = gitBranches[index];
+
       if (currentBranch !== branchObj.branchName) {
         if (!branchObj.default) {
-          listOfBranches.push({
+          branchOptions.push({
             label: branchObj.branchName,
             value: branchObj.branchName,
           });
-          branches.push(branchObj.branchName);
         } else {
-          listOfBranches.unshift({
+          branchOptions.unshift({
             label: branchObj.branchName,
             value: branchObj.branchName,
-          });
-          branches.unshift(branchObj.branchName);
-        }
-        branches.push(branchObj.branchName);
-        const insertRemoteBranchSectionHeader = getShowRemoteSectionHeader(
-          branches,
-          index,
-        );
-
-        if (insertRemoteBranchSectionHeader) {
-          listOfBranches.splice(listOfBranches.length - 1, 0, {
-            label: "Remote branches",
-            isSectionHeader: true,
           });
         }
       }
-    });
-    listOfBranches.unshift({
+
+      const nextBranchObj = gitBranches[index + 1];
+      if (
+        getIsStartingWithRemoteBranches(
+          branchObj.branchName,
+          nextBranchObj?.branchName,
+        )
+      )
+        break;
+
+      index++;
+    }
+    branchOptions.unshift({
       label: "Local branches",
       isSectionHeader: true,
     });
-    return listOfBranches;
+    return branchOptions;
   }, [gitBranches]);
 
   const currentBranchDropdownOption = {
@@ -118,12 +152,19 @@ export default function Merge() {
     value: currentBranch || "",
   };
 
+  const handleMergeSuccess = () => {
+    setShowMergeSuccessIndicator(true);
+  };
+
   const mergeHandler = useCallback(() => {
     if (currentBranch && selectedBranchOption.value) {
       dispatch(
         mergeBranchInit({
-          sourceBranch: currentBranch,
-          destinationBranch: selectedBranchOption.value,
+          payload: {
+            sourceBranch: currentBranch,
+            destinationBranch: selectedBranchOption.value,
+          },
+          onSuccessCallback: handleMergeSuccess,
         }),
       );
     }
@@ -183,6 +224,7 @@ export default function Merge() {
       <Space size={4} />
       <Row>
         <Dropdown
+          className={Classes.MERGE_DROPDOWN}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
@@ -194,6 +236,7 @@ export default function Merge() {
           options={branchList}
           selected={selectedBranchOption}
           showLabelOnly
+          truncateOption
           width={"220px"}
         />
 
@@ -207,22 +250,27 @@ export default function Merge() {
           onSelect={() => null}
           options={[currentBranchDropdownOption]}
           selected={currentBranchDropdownOption}
+          truncateOption
           width={"220px"}
         />
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
       <ConflictInfo isConflicting={isConflicting} />
-      {showMergeButton && (
-        <Button
-          disabled={mergeBtnDisabled}
-          isLoading={isMerging}
-          onClick={mergeHandler}
-          size={Size.large}
-          tag="button"
-          text={createMessage(MERGE_CHANGES)}
-          width="max-content"
-        />
+      {showMergeSuccessIndicator ? (
+        <MergeSuccessIndicator />
+      ) : (
+        showMergeButton && (
+          <Button
+            disabled={mergeBtnDisabled}
+            isLoading={isMerging}
+            onClick={mergeHandler}
+            size={Size.large}
+            tag="button"
+            text={createMessage(MERGE_CHANGES)}
+            width="max-content"
+          />
+        )
       )}
       {isMerging && (
         <StatusbarWrapper>

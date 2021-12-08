@@ -1,6 +1,10 @@
 import { createGlobalStyle } from "styled-components";
 import { Layers } from "constants/Layers";
 import { Classes } from "@blueprintjs/core";
+import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
+import { Colors } from "constants/Colors";
+
+export const replayHighlightClass = "ur--has-border";
 
 export const PortalStyles = createGlobalStyle`
   #header-root {
@@ -25,5 +29,18 @@ export const PortalStyles = createGlobalStyle`
 
   .bp3-portal.inline-comment-thread {
     z-index: ${Layers.appComments};
+  }
+
+  .${GitSyncClasses.MERGE_DROPDOWN} .ads-dropdown-options-wrapper {
+    border: none;
+  }
+  .flash .${replayHighlightClass} {
+    border-color: ${Colors.WARNING_SOLID} !important;
+    box-shadow: 0px 0px 4px 0.5px rgba(254, 184, 17, 0.7) !important;
+
+    & > input, .CodeMirror, .appsmith-select__control {
+      border-color: ${Colors.WARNING_SOLID} !important;
+      box-shadow: 0px 0px 4px 0.5px rgba(254, 184, 17, 0.7) !important;
+    }
   }
 `;

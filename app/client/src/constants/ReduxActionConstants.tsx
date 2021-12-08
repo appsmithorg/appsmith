@@ -11,6 +11,11 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  DISCONNECT_GIT: "DISCONNECT_GIT",
+  SHOW_CONNECT_GIT_MODAL: "SHOW_CONNECT_GIT_MODAL",
+  SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL:
+    "SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL",
+  SET_SHOULD_SHOW_REPO_LIMIT_ERROR: "SET_SHOULD_SHOW_REPO_LIMIT_ERROR",
   RESET_PULL_MERGE_STATUS: "RESET_PULL_MERGE_STATUS",
   GIT_PULL_INIT: "GIT_PULL_INIT",
   GIT_PULL_SUCCESS: "GIT_PULL_SUCCESS",
@@ -19,7 +24,6 @@ export const ReduxActionTypes = {
   FETCH_MERGE_STATUS_INIT: "FETCH_MERGE_STATUS_INIT",
   FETCH_MERGE_STATUS_SUCCESS: "FETCH_MERGE_STATUS_SUCCESS",
   RESET_MERGE_STATUS: "RESET_MERGE_STATUS",
-
   MERGE_BRANCH_INIT: "MERGE_BRANCH_INIT",
   MERGE_BRANCH_SUCCESS: "MERGE_BRANCH_SUCCESS",
   FETCH_GIT_STATUS_INIT: "FETCH_GIT_STATUS_INIT",
@@ -637,6 +641,8 @@ export const ReduxActionTypes = {
   UPDATE_JS_ACTION_BODY_INIT: "UPDATE_JS_ACTION_BODY_INIT",
   UPDATE_JS_ACTION_BODY_SUCCESS: "UPDATE_JS_ACTION_BODY_SUCCESS",
   SEND_TEST_EMAIL: "SEND_TEST_EMAIL",
+  UPDATE_REPLAY_ENTITY: "UPDATE_REPLAY_ENTITY",
+  SET_USER_CURRENT_GEO_LOCATION: "SET_USER_CURRENT_GEO_LOCATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -917,7 +923,6 @@ export interface ApplicationPayload {
 export interface CurrentApplicationData extends ApplicationPayload {
   SSHKeyPair?: string;
   deployKeyDocUrl?: string;
-  tempRemoteUrl?: string; // for temperary git remote url
 }
 
 export type OrganizationDetails = {

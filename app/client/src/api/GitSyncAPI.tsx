@@ -139,6 +139,10 @@ class GitSyncAPI extends Api {
       `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
   }
+
+  static disconnectGit({ applicationId }: { applicationId: string }) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
+  }
 }
 
 export default GitSyncAPI;

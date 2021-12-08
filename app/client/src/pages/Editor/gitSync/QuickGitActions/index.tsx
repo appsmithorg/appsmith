@@ -8,8 +8,8 @@ import { ReactComponent as Plus } from "assets/icons/ads/plus.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 
 import {
-  COMMIT,
-  PULL,
+  COMMIT_CHANGES,
+  PULL_CHANGES,
   MERGE,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
   CONNECT_GIT,
@@ -28,7 +28,11 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
-import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import {
+  gitPullInit,
+  setIsGitSyncModalOpen,
+  showConnectGitModal,
+} from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
 import {
@@ -37,6 +41,7 @@ import {
   getPullInProgress,
   getIsFetchingGitStatus,
   getPullFailed,
+  getCountOfChangesToCommit,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inOnboarding } from "sagas/OnboardingSagas";
@@ -53,7 +58,7 @@ type QuickActionButtonProps = {
 const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   padding: ${(props) => props.theme.spaces[1]}px
     ${(props) => props.theme.spaces[2]}px;
-  margin-left: ${(props) => props.theme.spaces[2]}px;
+  margin: 0 ${(props) => props.theme.spaces[2]}px;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   &:hover {
     background-color: ${(props) =>
@@ -63,15 +68,15 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   overflow: visible;
   .count {
     position: absolute;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: ${Colors.WHITE};
     background-color: ${Colors.BLACK};
-    top: -3px;
-    left: 15px;
+    top: -8px;
+    left: 18px;
     border-radius: 50%;
     ${(props) => getTypographyByKey(props, "p3")};
     z-index: 1;
@@ -87,7 +92,7 @@ const SpinnerContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: 29px;
   height: 26px;
 `;
 
@@ -127,7 +132,7 @@ const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
   } else if (pullFailed) {
     message = createMessage(CONFLICTS_FOUND);
   } else if (behindCount > 0) {
-    message = createMessage(PULL);
+    message = createMessage(PULL_CHANGES);
   }
 
   return {
@@ -137,27 +142,33 @@ const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
 };
 
 const getQuickActionButtons = ({
+  changesToCommit,
   commit,
   gitStatus,
+  isFetchingGitStatus,
   merge,
   pull,
   pullDisabled,
   pullTooltipMessage,
   showPullLoadingState,
 }: {
+  changesToCommit: number;
   commit: () => void;
   pull: () => void;
   merge: () => void;
   gitStatus: any;
+  isFetchingGitStatus: boolean;
   pullDisabled: boolean;
   pullTooltipMessage: string;
   showPullLoadingState: boolean;
 }) => {
   return [
     {
+      count: changesToCommit,
       icon: <Plus />,
+      loading: isFetchingGitStatus,
       onClick: commit,
-      tooltipText: createMessage(COMMIT),
+      tooltipText: createMessage(COMMIT_CHANGES),
     },
     {
       count: gitStatus?.behindCount,
@@ -233,7 +244,7 @@ function ConnectGitPlaceholder() {
             <Button
               category={Category.tertiary}
               onClick={() => {
-                dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+                dispatch(showConnectGitModal());
               }}
               size={Size.small}
               text={createMessage(CONNECT_GIT)}
@@ -261,6 +272,7 @@ export default function QuickGitActions() {
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
+  const changesToCommit = useSelector(getCountOfChangesToCommit);
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
@@ -281,9 +293,11 @@ export default function QuickGitActions() {
       );
     },
     gitStatus,
+    isFetchingGitStatus,
     pullDisabled,
     pullTooltipMessage,
     showPullLoadingState,
+    changesToCommit,
   });
   return getFeatureFlags().GIT && isGitConnected ? (
     <Container>
