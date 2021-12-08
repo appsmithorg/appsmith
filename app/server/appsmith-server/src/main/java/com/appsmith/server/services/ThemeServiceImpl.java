@@ -12,13 +12,11 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -33,8 +31,7 @@ public class ThemeServiceImpl extends BaseService<ThemeRepository, Theme, String
 
     @Override
     public Flux<Theme> get(MultiValueMap<String, String> params) {
-        // user can get the list of themes under an application only
-        throw new UnsupportedOperationException();
+        return repository.getSystemThemes(); // return the list of system themes
     }
 
     @Override
@@ -56,45 +53,57 @@ public class ThemeServiceImpl extends BaseService<ThemeRepository, Theme, String
     }
 
     @Override
-    public Mono<List<Theme>> getApplicationThemes(String applicationId) {
+    public Mono<Theme> getApplicationTheme(String applicationId) {
         return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
-                .flatMap(application -> repository.getApplicationThemes(applicationId).collectList());
+                .flatMap(application -> {
+                    if(application.getAppTheme().isCustomized()) {
+                        return repository.getCustomizedTheme(applicationId);
+                    } else {
+                        return repository.findBySlug(application.getAppTheme().getCurrentTheme());
+                    }
+                });
     }
 
     @Override
-    public Mono<Theme> updateTheme(String themeId, String applicationId, Theme resource) {
-        // get the theme by id and application id
-        return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS).then(
-                // makes sure user has permission to edit application and an application exists by this applicationId
-                repository.findByIdAndApplicationId(themeId, applicationId)
-                        // create a new theme when not found e.g. system theme that have no applicationId
-                        .defaultIfEmpty(new Theme())
-                        .flatMap(theme -> {
-                            if(!StringUtils.isEmpty(resource.getName())) {
-                                theme.setName(resource.getName());
-                            }
-                            if(resource.getProperties() != null) {
-                                theme.setProperties(resource.getProperties());
-                            }
-                            theme.setApplicationId(applicationId);
-                            return repository.save(theme);
-                        })
-        );
-    }
-
-    @Override
-    public Mono<Theme> createTheme(String applicationId, Theme resource) {
+    public Mono<Theme> updateTheme(String applicationId, Theme resource) {
         return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
                 .flatMap(application -> {
                     // makes sure user has permission to edit application and an application exists by this applicationId
-                    Theme theme = new Theme();
-                    theme.setName(resource.getName());
-                    theme.setProperties(resource.getProperties());
-                    theme.setApplicationId(applicationId);
-                    return repository.save(theme);
+                    // check if this application has already a customized them
+                    Mono<Theme> saveThemeMono = repository.getCustomizedTheme(applicationId)
+                            .defaultIfEmpty(new Theme())
+                            .flatMap(theme -> {
+                                theme.setApplicationId(applicationId);
+                                theme.setSlug(application.getAppTheme().getCurrentTheme());
+                                if(resource.getConfig() != null) {
+                                    theme.setConfig(resource.getConfig());
+                                }
+                                if(resource.getStylesheet() != null) {
+                                    theme.setStylesheet(resource.getStylesheet());
+                                }
+                                if(resource.getProperties() != null) {
+                                    theme.setProperties(resource.getProperties());
+                                }
+                                theme.setName(resource.getName());
+                                return repository.save(theme);
+                            });
+
+                    return applicationRepository.setAppTheme(
+                            applicationId, application.getAppTheme().getCurrentTheme(), true, AclPermission.MANAGE_APPLICATIONS
+                    ).then(saveThemeMono);
                 });
+    }
+
+    @Override
+    public Mono<Theme> changeCurrentTheme(String themeId, String applicationId) {
+        return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+                .flatMap(application ->
+                    repository.findById(themeId)
+                            .flatMap(theme -> applicationRepository.setAppTheme(applicationId, theme.getSlug(), false, AclPermission.MANAGE_APPLICATIONS)
+                            .thenReturn(theme))
+                );
     }
 }

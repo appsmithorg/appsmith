@@ -25,18 +25,20 @@ public class CustomThemeRepositoryImpl extends BaseAppsmithRepositoryImpl<Theme>
      * @return Flux of themes
      */
     @Override
-    public Flux<Theme> getApplicationThemes(String applicationId) {
-        Criteria criteria = new Criteria().orOperator(
-                Criteria.where(fieldName(QTheme.theme.applicationId)).exists(false),
-                Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId)
-        );
+    public Mono<Theme> getCustomizedTheme(String applicationId) {
+        Criteria criteria = Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId);
+        return queryOne(List.of(criteria), null);
+    }
+
+    @Override
+    public Flux<Theme> getSystemThemes() {
+        Criteria criteria = Criteria.where(fieldName(QTheme.theme.applicationId)).exists(false);
         return queryAll(List.of(criteria), null);
     }
 
     @Override
-    public Mono<Theme> findByIdAndApplicationId(String themeId, String applicationId) {
-        Criteria criteria = Criteria.where(fieldName(QTheme.theme.id)).is(themeId)
-                .and(fieldName(QTheme.theme.applicationId)).is(applicationId);
+    public Mono<Theme> findBySlug(String themeSlug) {
+        Criteria criteria = Criteria.where(fieldName(QTheme.theme.slug)).is(themeSlug);
         return queryOne(List.of(criteria), null);
     }
 }

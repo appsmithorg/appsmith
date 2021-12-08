@@ -18,7 +18,6 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.BorderRadius;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Group;
@@ -3961,33 +3960,22 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "102", id = "create-system-themes", author = "")
-    public void createSystemThemes(MongockTemplate mongockTemplate) {
-        Theme.Colors defaultColors = new Theme.Colors("#50AF6C", "#E1E1E1");
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
 
-        Theme defaultTheme = new Theme();
-        defaultTheme.setName("Default");
-        defaultTheme.setProperties(new Theme.Properties(
-                defaultColors, BorderRadius.ROUNDED, null, "#E1E1E1"
-        ));
+        for (Theme theme : themes) {
+            mongockTemplate.save(theme);
+        }
 
-        Theme sharpTheme = new Theme();
-        sharpTheme.setName("Sharp");
-        sharpTheme.setProperties(new Theme.Properties(
-                defaultColors, BorderRadius.SHARP, null, "#E1E1E1"
-        ));
+        // migrate all applications and set classic theme to them
+        String fieldName = String.format("%s.%s",
+                fieldName(QApplication.application.appTheme), fieldName(QApplication.application.appTheme.currentTheme));
 
-        Theme roundedTheme = new Theme();
-        roundedTheme.setName("Rounded");
-        roundedTheme.setProperties(new Theme.Properties(
-                defaultColors, BorderRadius.SHARP, null, "#E1E1E1"
-        ));
-
-        mongockTemplate.save(defaultTheme);
-        mongockTemplate.save(roundedTheme);
-        Theme savedSharpTheme = mongockTemplate.save(sharpTheme);
-
-        // now set this theme to all applications
-        Update update = new Update().set(fieldName(QApplication.application.themeId), savedSharpTheme.getId());
+        Update update = new Update().set(fieldName, "classic");
         mongockTemplate.updateMulti(
                 new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
         );
