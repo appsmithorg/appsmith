@@ -134,7 +134,7 @@ export const JSToString = (js: string): string => {
     .join("");
 };
 
-const argsStringToArray = (funcArgs: string): string[] => {
+export const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;
