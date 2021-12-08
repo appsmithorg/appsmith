@@ -974,7 +974,7 @@ function CameraComponent(props: CameraComponentProps) {
           <Webcam
             audio={!isAudioMuted}
             audioConstraints={!isAudioMuted && audioConstraints}
-            mirrored={mirrored}
+            mirrored={mode === CameraModeTypes.VIDEO ? true : mirrored}
             muted
             onUserMedia={handleUserMedia}
             onUserMediaError={handleUserMediaErrors}
