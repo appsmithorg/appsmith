@@ -167,9 +167,12 @@ public class EmailEventHandler {
         templateParams.put("Commenter_Name", resolvedState.getAuthorName());
         templateParams.put("Application_Name", commentThread.getApplicationName());
         templateParams.put("Page_Name", pageName);
+
+        String pageId = commentThread.getDefaultResources() == null ? commentThread.getPageId() : commentThread.getDefaultResources().getPageId();
+
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                commentThread.getDefaultResources().getPageId(),
+                pageId,
                 commentThread.getId(),
                 receiverUserRole.getUsername(),
                 originHeader)
@@ -194,9 +197,12 @@ public class EmailEventHandler {
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Page_Name", pagename);
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
+
+        String pageId = comment.getDefaultResources() == null ? comment.getPageId() : comment.getDefaultResources().getPageId();
+
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                comment.getDefaultResources().getPageId(),
+                pageId,
                 comment.getThreadId(),
                 receiverUserRole.getUsername(),
                 originHeader)

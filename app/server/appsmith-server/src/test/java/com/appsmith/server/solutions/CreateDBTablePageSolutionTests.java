@@ -104,7 +104,7 @@ public class CreateDBTablePageSolutionTests {
 
     private static Plugin postgreSQLPlugin;
 
-    private DatasourceStructure structure = new DatasourceStructure();
+    private static DatasourceStructure structure = new DatasourceStructure();
 
     // Regex to break string in separate words
     final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
@@ -192,10 +192,9 @@ public class CreateDBTablePageSolutionTests {
             datasourceConfiguration.setUrl("http://test.com");
             testDatasource.setDatasourceConfiguration(datasourceConfiguration);
             datasourceService.create(testDatasource).block();
-
-            resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
-            resource.setDatasourceId(testDatasource.getId());
         }
+        resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
+        resource.setDatasourceId(testDatasource.getId());
     }
 
     Mono<List<NewAction>> getActions(String pageId) {
@@ -250,7 +249,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(", tableName and datasourceId must be present")))
+                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("tableName and datasourceId")))
             .verify();
     }
 
@@ -280,7 +279,7 @@ public class CreateDBTablePageSolutionTests {
             .assertNext(crudPage -> {
                 PageDTO page = crudPage.getPage();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).isEqualTo("SampleTable");
+                assertThat(page.getName()).contains("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -555,7 +554,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = tuple.getT1();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).isEqualTo("SampleTable");
+                assertThat(page.getName()).contains("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -663,7 +662,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = crudPage.getPage();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).isEqualTo("SampleTable");
+                assertThat(page.getName()).contains("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();

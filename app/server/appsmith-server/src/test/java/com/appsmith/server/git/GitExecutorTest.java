@@ -28,10 +28,8 @@ import reactor.test.StepVerifier;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Ref;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -273,9 +271,11 @@ public class GitExecutorTest {
     public void listBranches_LocalMode_Success() throws IOException {
         createFileInThePath("listBranch");
         commitToRepo();
-        String branchMono = gitExecutor.createAndCheckoutToBranch(path, "test1")
-                .flatMap(s -> gitExecutor.createAndCheckoutToBranch(path, "test2")).block();
-        Mono<List<GitBranchDTO>> gitBranchDTOMono = gitExecutor.listBranches(path, "remoteUrl", "publicKey", "privateKey", false);
+        Mono<String> branchMono = gitExecutor.createAndCheckoutToBranch(path, "test1")
+                .flatMap(s -> gitExecutor.createAndCheckoutToBranch(path, "test2"));
+        Mono<List<GitBranchDTO>> gitBranchDTOMono = branchMono
+                .then(gitExecutor.listBranches(path, "remoteUrl", "publicKey", "privateKey", false));
+
         StepVerifier
                 .create(gitBranchDTOMono)
                 .assertNext(gitBranchDTOS -> {
@@ -483,7 +483,7 @@ public class GitExecutorTest {
 
         StepVerifier
                 .create(deleteBranchMono)
-                .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.TRUE))
+                .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.FALSE))
                 .verifyComplete();
     }
 
@@ -493,11 +493,11 @@ public class GitExecutorTest {
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "test").block();
         gitExecutor.checkoutToBranch(path, "master").block();
-        Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "test2");
+        Mono<Boolean> deleteBranchMono = gitExecutor.deleteBranch(path, "**impossibleBranchName**");
 
         StepVerifier
                 .create(deleteBranchMono)
-                .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.TRUE))
+                .assertNext(deleteStatus -> assertThat(deleteStatus).isEqualTo(Boolean.FALSE))
                 .verifyComplete();
     }
 
@@ -545,24 +545,6 @@ public class GitExecutorTest {
                 .create(resetStatus)
                 .assertNext(status -> {
                     assertThat(status).isEqualTo(Boolean.TRUE);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void resetToLastCommit_WithStaged_CleanStateForRepo() throws GitAPIException, IOException {
-        createFileInThePath("testFile");
-        commitToRepo();
-        createFileInThePath("testFile2");
-        GitStatusDTO gitStatusDTO = gitExecutor.getStatus(path, "master").block();
-        Mono<Boolean> resetStatus = gitExecutor.resetToLastCommit(path, "master");
-
-        StepVerifier
-                .create(resetStatus)
-                .assertNext(status -> {
-                    GitStatusDTO gitStatusDTOAfter = gitExecutor.getStatus(path, "master").block();
-                    assertThat(status).isEqualTo(Boolean.TRUE);
-                    assertThat(gitStatusDTO.getModified().size()).isNotEqualTo(gitStatusDTOAfter.getModified().size());
                 })
                 .verifyComplete();
     }

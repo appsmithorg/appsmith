@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
+import static com.appsmith.server.constants.FieldName.DEFAULT;
 
 @Slf4j
 @Service
@@ -124,8 +125,8 @@ public class GitServiceImpl implements GitService {
                     Map<String, GitProfile> gitProfiles = new HashMap<>();
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (!CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
-                        gitProfiles.put(FieldName.DEFAULT, userData.getDefaultOrAppSpecificGitProfiles(FieldName.DEFAULT));
-                        gitProfiles.put(defaultApplicationId, userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId));
+                        gitProfiles.put(DEFAULT, userData.getGitProfileByKey(DEFAULT));
+                        gitProfiles.put(defaultApplicationId, userData.getGitProfileByKey(defaultApplicationId));
                     }
                     if (gitData == null) {
                         GitApplicationMetadata res = new GitApplicationMetadata();
@@ -142,36 +143,30 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, Boolean isDefault, String defaultApplicationId) {
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId) {
+
         if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
-            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name"));
+            return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Name"));
+        } else if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
+            return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Email"));
+        } else if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
+            return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
-        if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
-            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email"));
+
+        if (!Boolean.TRUE.equals(gitProfile.getUseDefaultProfile())) {
+            gitProfile.setUseDefaultProfile(Boolean.FALSE);
         }
+
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
-                            GitProfile userGitProfile = userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
-                            GitProfile defaultProfile = userData.getDefaultOrAppSpecificGitProfiles(FieldName.DEFAULT);
-                            /*
-                             *  GitProfiles will be null if the user has not created any git profile.
-                             *  If null or if the request is to save the profile as default then we need to create update
-                             *  this field for the currentUser and save the profile data
-                             *  Otherwise create a new entry or update existing entry
-                             * */
-
-                            if (gitProfile.equals(userGitProfile) || gitProfile.equals(defaultProfile)) {
-                                return Mono.just(userData.getGitProfiles());
-                            } else if (userGitProfile == null || Boolean.TRUE.equals(isDefault) || StringUtils.isEmptyOrNull(defaultApplicationId)) {
-                                // Assign the default config
-                                userData.setDefaultGitProfile(gitProfile);
-                            } else {
-                                userData.getGitProfiles().put(defaultApplicationId, gitProfile);
-                            }
-                            if (!CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                            // GitProfiles will be null if the user has not created any git profile.
+                            GitProfile savedProfile = userData.getGitProfileByKey(defaultApplicationId);
+                            if (savedProfile == null || !savedProfile.equals(gitProfile)) {
+                                userData.setGitProfiles(userData.setGitProfileByKey(defaultApplicationId, gitProfile));
+                                // Update userData here
                                 UserData requiredUpdates = new UserData();
                                 requiredUpdates.setGitProfiles(userData.getGitProfiles());
                                 return userDataService.updateForUser(user, requiredUpdates)
@@ -180,13 +175,18 @@ public class GitServiceImpl implements GitService {
                             return Mono.just(userData.getGitProfiles());
                         })
                         .filter(profiles -> !CollectionUtils.isNullOrEmpty(profiles))
-                        .switchIfEmpty(sessionUserService
-                                .getCurrentUser()
-                                .map(currentUser -> {
+                        .switchIfEmpty(Mono.defer(() -> {
+                                    // If profiles are empty use Appsmith's user details as git default profile
                                     GitProfile profile = new GitProfile();
-                                    profile.setAuthorName(currentUser.getName());
-                                    profile.setAuthorEmail(currentUser.getEmail());
-                                    return Map.of(FieldName.DEFAULT, gitProfile);
+                                    String authorName = StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName();
+
+                                    profile.setAuthorName(authorName);
+                                    profile.setAuthorEmail(user.getEmail());
+
+                                    UserData requiredUpdates = new UserData();
+                                    requiredUpdates.setGitProfiles(Map.of(DEFAULT, gitProfile));
+                                    return userDataService.updateForUser(user, requiredUpdates)
+                                            .map(UserData::getGitProfiles);
                                 })
                         )
                 );
@@ -194,30 +194,19 @@ public class GitServiceImpl implements GitService {
 
     @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile) {
-        return updateOrCreateGitProfileForCurrentUser(gitProfile, Boolean.TRUE, null);
+        return updateOrCreateGitProfileForCurrentUser(gitProfile, DEFAULT);
     }
 
     @Override
     public Mono<GitProfile> getGitProfileForUser() {
         // Get default git profile
-        return getGitProfileForUser(FieldName.DEFAULT);
+        return getGitProfileForUser(DEFAULT);
     }
 
     @Override
     public Mono<GitProfile> getGitProfileForUser(String defaultApplicationId) {
         return userDataService.getForCurrentUser()
-                .flatMap(userData -> {
-                    if (userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId) == null) {
-                        return sessionUserService.getCurrentUser()
-                                .map(currentUser -> {
-                                    GitProfile gitProfile = new GitProfile();
-                                    gitProfile.setAuthorName(currentUser.getName());
-                                    gitProfile.setAuthorEmail(currentUser.getEmail());
-                                    return gitProfile;
-                                });
-                    }
-                    return Mono.just(userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId));
-                });
+                .map(userData -> userData.getGitProfileByKey(defaultApplicationId));
     }
 
     /**
@@ -248,15 +237,18 @@ public class GitServiceImpl implements GitService {
 
         Mono<UserData> currentUserMono = userDataService.getForCurrentUser()
                 .flatMap(userData -> {
-                    if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                    if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles()) || userData.getGitProfileByKey(DEFAULT) == null) {
                         return sessionUserService
                                 .getCurrentUser()
                                 .flatMap(user -> {
                                     GitProfile gitProfile = new GitProfile();
                                     gitProfile.setAuthorName(StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName());
                                     gitProfile.setAuthorEmail(user.getEmail());
+                                    Map<String, GitProfile> updateProfiles = userData.getGitProfiles();
+                                    updateProfiles.put(DEFAULT, gitProfile);
+
                                     UserData update = new UserData();
-                                    update.setGitProfiles(Map.of(FieldName.DEFAULT, gitProfile));
+                                    update.setGitProfiles(updateProfiles);
                                     return userDataService.update(userData.getUserId(), update);
                                 });
                     }
@@ -312,10 +304,18 @@ public class GitServiceImpl implements GitService {
             })
             .flatMap(tuple -> {
                 Path baseRepoPath = tuple.getT1();
+                UserData currentUserData = tuple.getT2();
                 Application childApplication = tuple.getT3();
                 GitApplicationMetadata gitApplicationData = childApplication.getGitApplicationMetadata();
-                GitProfile authorProfile =
-                        tuple.getT2().getDefaultOrAppSpecificGitProfiles(gitApplicationData.getDefaultApplicationId());
+
+                GitProfile authorProfile = currentUserData.getGitProfileByKey(gitApplicationData.getDefaultApplicationId());
+
+                if (authorProfile == null || authorProfile.getUseDefaultProfile()) {
+                    // Use default author profile as the fallback value
+                    if (currentUserData.getGitProfileByKey(DEFAULT) != null) {
+                        authorProfile = currentUserData.getGitProfileByKey(DEFAULT);
+                    }
+                }
 
                 if (authorProfile == null) {
                     return Mono.error(new AppsmithException(
@@ -414,8 +414,7 @@ public class GitServiceImpl implements GitService {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 );
 
-        return updateOrCreateGitProfileForCurrentUser(
-                gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), defaultApplicationId)
+        return updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId)
                 .then(getApplicationById(defaultApplicationId))
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -506,9 +505,18 @@ public class GitServiceImpl implements GitService {
                                 .flatMap(tuple -> {
                                     UserData userData = tuple.getT2();
                                     // Commit and push application to check if the SSH key has the write access
-                                    // Commit with default setting as app specific profile is not available at this point in time
-                                    GitProfile profile = userData.getDefaultOrAppSpecificGitProfiles(FieldName.DEFAULT);
-                                    return gitExecutor.commitApplication(tuple.getT1(), DEFAULT_COMMIT_MESSAGE, profile.getAuthorName(), profile.getAuthorEmail(), false);
+                                    GitProfile profile = userData.getGitProfileByKey(defaultApplicationId);
+                                    if (profile == null) {
+                                        profile = userData.getGitProfileByKey(DEFAULT);
+                                    }
+
+                                    return gitExecutor.commitApplication(
+                                            tuple.getT1(),
+                                            DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW.getReason(),
+                                            profile.getAuthorName(),
+                                            profile.getAuthorEmail(),
+                                            false
+                                    );
                                 })
                                 .flatMap(ignore -> {
                                     Path baseRepoSuffix =
