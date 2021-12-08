@@ -78,6 +78,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     const {
       applicationId,
       datasource,
+      formData,
       match: {
         params: { datasourceId, pageId, pluginPackageName },
       },
@@ -132,6 +133,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         {datasource && (
           <DatasourceAuth
             datasource={datasource}
+            formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isInvalid={this.validate()}
             shouldRender={!viewMode}

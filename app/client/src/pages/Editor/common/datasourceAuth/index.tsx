@@ -5,6 +5,7 @@ import TestSaveDeleteAuth from "./TestSaveDeleteAuth";
 
 interface Props {
   datasource: Datasource;
+  formData: Datasource;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
   shouldRender: boolean;
@@ -12,13 +13,14 @@ interface Props {
 
 function DatasourceAuth({
   datasource,
+  formData,
   getSanitizedFormData,
   isInvalid,
   shouldRender,
 }: Props) {
   const authType =
-    datasource.datasourceConfiguration.authentication?.authenticationType ||
-    datasource.datasourceConfiguration.authentication?.authType;
+    formData &&
+    formData.datasourceConfiguration.authentication?.authenticationType;
 
   switch (authType) {
     case AuthType.OAUTH2:
