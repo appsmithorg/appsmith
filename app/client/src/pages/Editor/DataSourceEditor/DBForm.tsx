@@ -90,6 +90,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
   render() {
     const { formConfig } = this.props;
+
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }

@@ -1,7 +1,7 @@
 import { AuthType, Datasource } from "entities/Datasource";
 import React from "react";
 import OAuth from "./OAuth";
-import TestSaveDeleteAuth from "./TestSaveDeleteAuth";
+import DefaultAuth from "./DefaultAuth";
 
 interface Props {
   datasource: Datasource;
@@ -35,7 +35,7 @@ function DatasourceAuth({
 
     case AuthType.DBAUTH:
       return (
-        <TestSaveDeleteAuth
+        <DefaultAuth
           datasource={datasource}
           getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}
@@ -45,7 +45,7 @@ function DatasourceAuth({
 
     default:
       return (
-        <TestSaveDeleteAuth
+        <DefaultAuth
           datasource={datasource}
           getSanitizedFormData={getSanitizedFormData}
           isInvalid={isInvalid}

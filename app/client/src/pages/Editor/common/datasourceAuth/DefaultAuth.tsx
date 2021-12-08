@@ -34,7 +34,7 @@ const StyledButton = styled(EditButton)`
   }
 `;
 
-export default function TestSaveDelete({
+export default function DefaultAuth({
   datasource,
   getSanitizedFormData,
   isInvalid,

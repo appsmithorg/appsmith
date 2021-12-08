@@ -26,7 +26,6 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
-import TestSaveDelete from "../common/datasourceAuth/TestSaveDeleteAuth";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -86,7 +85,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
-
     return (
       <form
         onSubmit={(e) => {
