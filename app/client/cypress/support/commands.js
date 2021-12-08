@@ -1495,10 +1495,10 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     .then((ins) => {
       const input = ins[0].CodeMirror;
       input.focus();
-      cy.wait(100);
+      cy.wait(200);
       input.setValue(value);
       cy.wait(200); //time for value to set
-      input.focus();
+      //input.focus();
     });
 });
 
@@ -3420,12 +3420,27 @@ Cypress.Commands.add("renameWithInPane", (renameVal) => {
     .blur();
 });
 
+Cypress.Commands.add("getEntityName", () => {
+  let entityName = cy.get(apiwidget.ApiName).invoke("text")
+  return entityName;
+});
+
 Cypress.Commands.add("verifyCyclicDependencyError", () => {
   // Give this element 10 seconds to appear
   cy.xpath(commonlocators.cyclicDependencyError, { timeout: 10000 }).should(
     "not.exist",
   );
 });
+
+Cypress.Commands.add("setQueryTimeout", (timeout) => {
+  cy.get(queryLocators.settings).click();
+  cy.xpath(queryLocators.queryTimeout)
+    .clear()
+    .type(timeout);
+
+  cy.get(queryLocators.query).click();
+});
+
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;

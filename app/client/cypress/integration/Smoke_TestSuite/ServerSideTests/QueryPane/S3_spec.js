@@ -3,19 +3,19 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
 
-let datasourceName, queryName;
+let datasourceName;
 
-describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {
+describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  afterEach(() => {
-    if (queryName)
-      cy.deleteEntitybyName(queryName);
-  });
+  // afterEach(() => {
+  //   if (queryName)
+  //     cy.deleteEntitybyName(queryName);
+  // });
 
-  it("1. Creates a new Amazon S3 datasource", function() {
+  it("1. Creates a new Amazon S3 datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.AmazonS3)
       .click({ force: true })
@@ -32,9 +32,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("2. Validate List Files in bucket (all existing files) command, run and then delete the query", () => {
-    queryName = 'ListFilesQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
     cy.validateNSelectDropdown("Commands", "List files in bucket");
     cy.onlyQueryRun();
     cy.wait("@postExecute").should(({ response }) => {
@@ -53,13 +51,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       ]);
     });
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
-    cy.runQuery(); //exeute actions & 200 response is verified in this method
+    cy.runAndDeleteQuery();
   });
 
   it("3. Validate Create a new file in bucket command, Verify possible error msgs, run & delete the query", () => {
-    queryName = 'CreateFileQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
+    cy.setQueryTimeout(30000)
     cy.validateNSelectDropdown(
       "Commands",
       "List files in bucket",
@@ -131,12 +128,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+
   });
 
   it("4. Validate Read file command, Verify possible error msgs, run & delete the query", () => {
-    queryName = 'ReadFileQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
+    cy.setQueryTimeout(30000)
     cy.validateNSelectDropdown("Commands", "List files in bucket", "Read file");
 
     cy.onlyQueryRun();
@@ -187,7 +185,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.typeValueNValidate("AutoFile", "File Path");
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+
+    //Commenting below since below dropdown is removed from Read
+    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -205,12 +205,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "Hi, this is Automation script adding File!",
       );
     });
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
   it("5. Validate List Files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
-    queryName = 'ListFilesQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
+    cy.setQueryTimeout(30000)
     cy.validateNSelectDropdown("Commands", "List files in bucket");
 
     cy.onlyQueryRun();
@@ -256,12 +256,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.body[0].signedUrl).to.exist;
       expect(response.body.data.body[0].url).to.not.exist;
     });
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
   it("6. Validate Delete file command for new file, Verify possible error msgs, run & delete the query", () => {
-    queryName = 'DeleteFileQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
+    //cy.renameWithInPane(queryName);
+    cy.setQueryTimeout(30000)
     cy.validateNSelectDropdown(
       "Commands",
       "List files in bucket",
@@ -303,12 +304,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.status).to.eq("File deleted successfully");
     });
+    //cy.selectEntityByName("Query1");
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
   it("7. Validate List Files in bucket command after new file is deleted, Verify possible error msgs, run & delete the query", () => {
-    queryName = 'ListNewFileQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
     cy.validateNSelectDropdown("Commands", "List files in bucket");
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
     cy.typeValueNValidate("Auto", "Prefix");
@@ -317,12 +318,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.length).to.eq(0); //checking that body is empty array
     });
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
   it("8. Validate Create a new file in bucket for UI Operations, run & delete the query", () => {
-    queryName = 'UIOperationNewFileQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
     cy.validateNSelectDropdown(
       "Commands",
       "List files in bucket",
@@ -336,20 +336,16 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "Content",
     );
 
-    cy.get(queryLocators.settings).click();
-    cy.xpath(queryLocators.queryTimeout)
-      .clear()
-      .type(30000);
-    cy.get(queryLocators.query).click();
+    cy.setQueryTimeout(30000)
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
-  it("9. Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function() {
-    queryName = ''
+  it("9. Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function () {
     // cy.wrap(Cypress.automation('remote:debugger:protocol', {
     //   command: 'Browser.grantPermissions',
     //   params: {
@@ -414,17 +410,14 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     expect(
       cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
     ).to.exist; //verify Delete File dialog appears
-    cy.clickButton("Confirm").wait(1000); //wait for Dlete operation to be successfull, //Verifies 8684
-
+    cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-
-    cy.get("span:contains('CRUDNewPageFile')").should("not.exist"); //verify Deletion of file is success from UI also
+    cy.get("span:contains('CRUDNewPageFile')", { timeout: 10000 }).should("not.exist"); //verify Deletion of file is success from UI also
   });
 
   it("10. Validate Deletion of the Newly Created Page", () => {
-    queryName = 'Assets-test.appsmith.com'
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
@@ -438,11 +431,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("11. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
-    queryName = 'WidgetSuggestionQuery'
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
     cy.validateNSelectDropdown("Commands", "List files in bucket");
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
+    cy.getEntityName().then((entity) => {
+      cy.wrap(entity).as("entity");
+    });
     cy.runQuery();
     cy.xpath(queryLocators.suggestedWidgetDropdown)
       .click()
@@ -450,28 +444,37 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@updateLayout").then(({ response }) => {
       expect(response.body.data.dsl.children[0].type).to.eq("DROP_DOWN_WIDGET");
     });
-    cy.selectEntityByName("WidgetSuggestionQuery");
+    cy.get("@entity").then((entityN) =>
+      cy.selectEntityByName(entityN)
+    )
     cy.get(queryLocators.suggestedTableWidget)
       .click()
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       expect(response.body.data.dsl.children[1].type).to.eq("TABLE_WIDGET");
     });
-    cy.selectEntityByName("WidgetSuggestionQuery");
+    cy.get("@entity").then((entityN) =>
+      cy.selectEntityByName(entityN)
+    )
     cy.xpath(queryLocators.suggestedWidgetText)
       .click()
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       expect(response.body.data.dsl.children[2].type).to.eq("TEXT_WIDGET");
     });
-    cy.selectEntityByName("WidgetSuggestionQuery");
+
+    cy.get("@entity").then((entityN) =>
+      cy.selectEntityByName(entityN)
+    )
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
   it("12. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
-    queryName = 'SnippingQuery'
     cy.addDsl(dsl);
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.renameWithInPane(queryName);
+    cy.getEntityName().then((entity) => {
+      cy.wrap(entity).as("entity");
+    });
     cy.validateNSelectDropdown("Commands", "List files in bucket");
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
     cy.runQuery();
@@ -486,13 +489,15 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       //   "will be executed automatically on page load",
       // );
     });
-    cy.selectEntityByName("SnippingQuery");
+    cy.get("@entity").then((entityN) =>
+      cy.selectEntityByName(entityN)
+    )
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     cy.deleteEntitybyName("Table1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
 
   it("11. Deletes the datasource", () => {
-    queryName = ''
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
