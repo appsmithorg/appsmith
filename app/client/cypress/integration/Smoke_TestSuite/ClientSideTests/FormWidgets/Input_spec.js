@@ -157,17 +157,16 @@ describe("Input Widget Functionality", function() {
 
   it("Input Functionality To check currency input type", function() {
     cy.openPropertyPane("inputwidget");
-    cy.selectDropdownValue(commonlocators.dataType, "Currency");
-    cy.togglebar(commonlocators.allowCurrencyChange);
     cy.testJsontext("regex", "");
-    cy.selectDropdownValue(commonlocators.currencyType, "EUR - Euro");
+    cy.selectDropdownValue(commonlocators.dataType, "Currency");
     cy.selectDropdownValue(commonlocators.decimalType, "1");
-
-    cy.get(widgetsPage.innertext)
+    cy.get(".t--draggable-inputwidget input.bp3-input")
       .click()
       .clear()
       .type("13242.2")
       .blur();
+    cy.togglebar(commonlocators.allowCurrencyChange);
+    cy.selectDropdownValue(commonlocators.currencyType, "EUR - Euro");
 
     cy.get(commonlocators.inputCurrencyChangeType)
       .invoke("text")

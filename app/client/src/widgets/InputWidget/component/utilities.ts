@@ -16,17 +16,28 @@ export const countryToFlag = (isoCode: string) => {
   b) (1, 1234.456) will return 1,234.5
 */
 export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
+  if (value === "") return "";
+  let valueToFormat = value;
   const fractionDigits = decimalsInCurrency || 0;
   const currentIndexOfDecimal = value.indexOf(".");
-  const indexOfDecimal = value.length - fractionDigits - 1;
-  const isDecimal =
-    value.includes(".") && currentIndexOfDecimal <= indexOfDecimal;
+  const requiredDigitsAfterDecimal = value.length - fractionDigits;
+  const hasDecimal =
+    value.includes(".") && currentIndexOfDecimal <= requiredDigitsAfterDecimal;
+  const missingFractDigitsCount =
+    fractionDigits - (value.length - currentIndexOfDecimal - 1);
+  if (missingFractDigitsCount > 0) {
+    valueToFormat =
+      value +
+      Array(missingFractDigitsCount)
+        .fill("0")
+        .join("");
+  }
   const locale = navigator.languages?.[0] || "en-US";
   const formatter = new Intl.NumberFormat(locale, {
     style: "decimal",
-    minimumFractionDigits: isDecimal ? fractionDigits : 0,
+    maximumFractionDigits: hasDecimal ? fractionDigits : 0,
   });
-  return formatter.format(parseFloat(value));
+  return formatter.format(parseFloat(valueToFormat));
 };
 
 /*

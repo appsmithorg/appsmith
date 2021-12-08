@@ -6,8 +6,16 @@ describe("currency Number formating", () => {
     expect(response).toStrictEqual("1,234,560");
   });
   it("With Decimal", () => {
+    const response = formatCurrencyNumber(2, "1234560.90");
+    expect(response).toStrictEqual("1,234,560.9");
+  });
+  it("With Decimal", () => {
     const response = formatCurrencyNumber(2, "1234560.9");
     expect(response).toStrictEqual("1,234,560.9");
+  });
+  it("With Decimal", () => {
+    const response = formatCurrencyNumber(2, "1234560.981");
+    expect(response).toStrictEqual("1,234,560.98");
   });
 });
 

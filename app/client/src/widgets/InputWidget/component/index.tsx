@@ -475,7 +475,7 @@ class InputComponent extends React.Component<
   };
 
   onNumberInputFocus = () => {
-    const deFormattedValue = this.props.value.split(",").join("");
+    const deFormattedValue = ("" + this.props.value).split(",").join("");
     this.props.onValueChange(deFormattedValue);
     this.setFocusState(true);
   };
