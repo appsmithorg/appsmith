@@ -15,7 +15,7 @@ if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
 fi
 
 echo "Re-generating nginx config template"
-bash "$APP_TEMPLATE" "$APPSMITH_CUSTOM_DOMAIN" >"/etc/nginx/conf.d/nginx_app.conf.template"
+bash "$APP_TEMPLATE" "$APPSMITH_CUSTOM_DOMAIN" "$MONITORING_ENABLED" > "/etc/nginx/conf.d/nginx_app.conf.template"
 
 echo "Generating nginx configuration"
 cat /etc/nginx/conf.d/nginx_app.conf.template | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' >/etc/nginx/sites-available/default

@@ -4,6 +4,7 @@ set -o nounset
 
 MONGO_ROOT_USER="$1"
 MONGO_ROOT_PASSWORD="$2"
+MONGO_DATABASE="$3"
 
 cat <<EOF
 let error = false
@@ -21,6 +22,17 @@ let res = [
                 role: "root",
                 db: "admin"
             }, "readWrite"]
+        }
+    ),
+    db.createUser(
+        {
+            user: "netdata",
+            pwd: "$MONGO_ROOT_PASSWORD",
+            roles: [
+                {role: "read", db: "admin" },
+                {role: "clusterMonitor", db: "admin"},
+                {role: "read", db: "$MONGO_DATABASE" }
+            ]
         }
     )
 ]

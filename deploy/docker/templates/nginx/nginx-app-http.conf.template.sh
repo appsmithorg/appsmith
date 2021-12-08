@@ -3,9 +3,15 @@
 set -o nounset
 
 CUSTOM_DOMAIN="$1"
+MONITORING_ENABLED="$2"
+MONITORING_CMNT="#"
 
 if [ -z $CUSTOM_DOMAIN ]; then
   CUSTOM_DOMAIN=_
+fi
+
+if [[ "$MONITORING_ENABLED" = "true" ]]; then
+  MONITORING_CMNT=""
 fi
 
 cat <<EOF
@@ -31,6 +37,26 @@ server {
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$host;
+
+$MONITORING_CMNT  location = /monitoring {
+$MONITORING_CMNT    return 301 /monitoring/;
+$MONITORING_CMNT  }
+$MONITORING_CMNT
+$MONITORING_CMNT  location /monitoring/ {
+$MONITORING_CMNT    proxy_set_header X-Forwarded-Host \$http_host;
+$MONITORING_CMNT    proxy_set_header X-Forwarded-Server \$http_host;
+$MONITORING_CMNT    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+$MONITORING_CMNT    proxy_pass http://localhost:19999/;
+$MONITORING_CMNT    proxy_http_version 1.1;
+$MONITORING_CMNT    proxy_pass_request_headers on;
+$MONITORING_CMNT    proxy_set_header Connection "keep-alive";
+$MONITORING_CMNT    proxy_store off;
+$MONITORING_CMNT    auth_basic "Protected";
+$MONITORING_CMNT    auth_basic_user_file passwords;
+$MONITORING_CMNT    gzip on;
+$MONITORING_CMNT    gzip_proxied any;
+$MONITORING_CMNT    gzip_types *;		
+$MONITORING_CMNT  }
 
   location / {
     try_files \$uri /index.html =404;

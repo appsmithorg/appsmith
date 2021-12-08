@@ -33,7 +33,7 @@ init_mongodb() {
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
     echo "Waiting 10s for mongodb init"
     sleep 10
-    bash "/opt/appsmith/templates/mongo-init.js.sh" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" >"/appsmith-stacks/configuration/mongo-init.js"
+    bash "/opt/appsmith/templates/mongo-init.js.sh" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGO_INITDB_DATABASE" >"/appsmith-stacks/configuration/mongo-init.js"
     mongo "127.0.0.1/${MONGO_INITDB_DATABASE}" /appsmith-stacks/configuration/mongo-init.js
     echo "Seeding db done"
 
@@ -65,8 +65,11 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
-
+  
   # Disable services based on configuration
+  if [[ "$MONITORING_ENABLED" = "true" ]]; then
+    cp  "$SUPERVISORD_CONF_PATH/netdata.conf" /etc/supervisor/conf.d/
+  fi
   if [[ "$APPSMITH_MONGODB_URI" = "mongodb://appsmith:$MONGO_INITDB_ROOT_PASSWORD@localhost/appsmith" ]]; then
     cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
   fi
@@ -78,6 +81,31 @@ configure_supervisord() {
   if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
     cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
   fi
+}
+
+configure_netdata() {
+  echo "Configure netdata"
+  NETDATA_CONF_PATH="/etc/netdata"
+
+  echo "$APPSMITH_MAIL_ENABLED"
+
+  if [[ "$APPSMITH_MAIL_ENABLED" = "true" ]]; then
+    echo "Configure email"
+    bash "/opt/appsmith/templates/health_alarm_notify.conf.sh" "$APPSMITH_MAIL_FROM" "$APPSMITH_REPLY_TO" > "$NETDATA_CONF_PATH/health_alarm_notify.conf"
+    bash "/opt/appsmith/templates/msmtprc.sh" "$APPSMITH_MAIL_HOST" "$APPSMITH_MAIL_PORT" "$APPSMITH_MAIL_USERNAME" "$APPSMITH_MAIL_PASSWORD" > "/var/cache/netdata/.msmtprc"
+    chown netdata:netdata "/var/cache/netdata/.msmtprc"
+    chmod 600 "/var/cache/netdata/.msmtprc"
+  fi
+
+  if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
+    bash "/opt/appsmith/templates/x509check.conf.sh" "$APPSMITH_CUSTOM_DOMAIN" > "$NETDATA_CONF_PATH/go.d/x509check.conf"
+  fi
+
+  bash "/opt/appsmith/templates/redis.conf.sh" "$APPSMITH_REDIS_URL" > "$NETDATA_CONF_PATH/go.d/redis.conf"
+  bash "/opt/appsmith/templates/mongodb.conf.sh" "$APPSMITH_MONGODB_URI" > "$NETDATA_CONF_PATH/python.d/mongodb.conf"
+
+  echo "Remove default alarms"
+  rm -f "/usr/lib/netdata/conf.d/health.d/"*
 }
 
 echo 'Checking configuration file'
@@ -95,6 +123,10 @@ if ! [[ -e "$ENV_PATH" ]]; then
     echo ''
   )
   AUTO_GEN_ENCRYPTION_SALT=$(
+    tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+    echo ''
+  )
+  AUTO_GEN_AUTH_PASSWORD=$(
     tr -dc A-Za-z0-9 </dev/urandom | head -c 13
     echo ''
   )
@@ -135,10 +167,14 @@ if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECR
   unset APPSMITH_RECAPTCHA_ENABLED
 fi
 
+echo "Generating Basic Authentication file"
+printf "$APPSMITH_BASIC_AUTH_USER:$(openssl passwd -apr1 $APPSMITH_BASIC_AUTH_PASSWORD)" > /etc/nginx/passwords
+
 # Main Section
 init_mongodb
 mount_letsencrypt_directory
 configure_supervisord
+configure_netdata
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
