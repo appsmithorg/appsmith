@@ -265,6 +265,7 @@ ctx.addEventListener(
           evalTree,
           resolvedFunctions,
           undefined,
+          undefined,
           true,
         );
         return result;
@@ -274,7 +275,7 @@ ctx.addEventListener(
         const evalTree = dataTreeEvaluator?.evalTree;
         if (!evalTree) return {};
         return isTrigger
-          ? evaluate(expression, evalTree, {}, [], true)
+          ? evaluate(expression, evalTree, {}, undefined, [], true)
           : evaluate(expression, evalTree, {});
       case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
         const { entity, entityId, entityType } = requestData;
