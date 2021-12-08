@@ -684,7 +684,7 @@ public class GitServiceImpl implements GitService {
         3. Rehydrate the application from source application reference
          */
 
-        if (StringUtils.isEmptyOrNull(srcBranch)) {
+        if (StringUtils.isEmptyOrNull(srcBranch) || srcBranch.startsWith("origin/")) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
