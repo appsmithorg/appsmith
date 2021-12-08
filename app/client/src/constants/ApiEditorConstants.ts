@@ -1,6 +1,5 @@
 import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
-import { zipObject } from "lodash";
 
 // This constant lists all the support HTTP methods & their color in
 // the entity explorer
@@ -30,11 +29,6 @@ export enum API_EDITOR_TABS {
   SETTINGS = "SETTINGS",
   AUTHENTICATION = "AUTHENTICATION",
 }
-
-export const HTTP_METHOD_COLOR_MAP = zipObject(
-  HTTP_METHODS,
-  HTTP_METHOD_COLORS,
-);
 
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHODS).map(
   (method) => ({

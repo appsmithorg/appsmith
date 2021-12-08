@@ -6,10 +6,8 @@ import {
   InjectedFormProps,
   reduxForm,
 } from "redux-form";
-import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants";
 import {
   HTTP_METHOD_OPTIONS,
-  HTTP_METHODS,
   API_EDITOR_TABS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
