@@ -697,7 +697,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           <KeyValueInputControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.customTokenParameters"
-            label="Custom Client Credentials"
+            label="Custom Token Parameters"
           />
         </FormInputContainer>
         <FormInputContainer>
