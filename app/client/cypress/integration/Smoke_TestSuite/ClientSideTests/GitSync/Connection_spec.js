@@ -5,6 +5,9 @@ const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
 const invalidURLDetectedOnTheBackend = "test@";
 
+const invalidEmail = "test";
+const invalidEmailWithAmp = "test@hello";
+
 const GITHUB_API_BASE = "https://api.github.com";
 
 let repoName;
@@ -38,11 +41,15 @@ describe("Git sync modal: connect tab", function() {
 
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
-    cy.get(gitSyncLocators.generateDeployKeyBtn).should("be.disabled");
+    cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.exist");
 
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${invalidURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
-    cy.get(gitSyncLocators.generateDeployKeyBtn).should("be.disabled");
+    cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.exist");
+
+    // generate key button should be disappeared if empty repo
+    cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${""}`);
+    cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.exist");
 
     cy.get(gitSyncLocators.gitRepoInput).type(
       `{selectAll}git@github.com:${owner}/${repoName}.git`,
@@ -97,20 +104,75 @@ describe("Git sync modal: connect tab", function() {
   });
 
   it("validates git user config", function() {
-    cy.get(gitSyncLocators.gitConfigNameInput)
-      .invoke("val")
-      .should("not.be.empty");
-    cy.get(gitSyncLocators.gitConfigEmailInput)
-      .invoke("val")
-      .should("not.be.empty");
+    // name empty invalid
+    cy.get(gitSyncLocators.gitConfigNameInput).clear();
+    cy.get(gitSyncLocators.gitConfigEmailInput).clear();
+    cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.contains(Cypress.env("MESSAGES").AUTHOR_NAME_CANNOT_BE_EMPTY());
+    cy.contains(Cypress.env("MESSAGES").FORM_VALIDATION_INVALID_EMAIL());
 
-    // TODO: validate git user config cases (incomplete)
+    cy.get(gitSyncLocators.gitConfigNameInput).type(`{selectAll}${owner}`);
+    cy.get(gitSyncLocators.gitConfigEmailInput).clear();
+    cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.contains(Cypress.env("MESSAGES").FORM_VALIDATION_INVALID_EMAIL());
+
+    cy.get(gitSyncLocators.gitConfigEmailInput).type(
+      `{selectAll}${Cypress.env("USERNAME")}`,
+    );
+    cy.get(gitSyncLocators.gitConfigNameInput).clear();
+    cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.contains(Cypress.env("MESSAGES").AUTHOR_NAME_CANNOT_BE_EMPTY());
+
+    // validate email
+    cy.get(gitSyncLocators.gitConfigNameInput).type(`{selectAll}${owner}`);
+    cy.get(gitSyncLocators.gitConfigEmailInput).type(
+      `{selectAll}${invalidEmail}`,
+    );
+    cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.contains(Cypress.env("MESSAGES").FORM_VALIDATION_INVALID_EMAIL());
+
+    cy.get(gitSyncLocators.gitConfigEmailInput).type(
+      `{selectAll}${invalidEmailWithAmp}`,
+    );
+    cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.contains(Cypress.env("MESSAGES").FORM_VALIDATION_INVALID_EMAIL());
+
+    cy.get(gitSyncLocators.gitConfigEmailInput).type(
+      `{selectAll}${Cypress.env("USERNAME")}`,
+    );
+    cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.contains(Cypress.env("MESSAGES").AUTHOR_NAME_CANNOT_BE_EMPTY()).should(
+      "not.exist",
+    );
+    cy.contains(Cypress.env("MESSAGES").FORM_VALIDATION_INVALID_EMAIL()).should(
+      "not.exist",
+    );
+
+    // check git global config
+    cy.get(gitSyncLocators.useGlobalGitConfig).click();
+    cy.get(gitSyncLocators.gitConfigNameInput).should("be.disabled");
+    cy.get(gitSyncLocators.gitConfigEmailInput).should("be.disabled");
+
+    cy.window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const { authorEmail, authorName } = state.ui.gitSync.globalGitConfig;
+        cy.get(gitSyncLocators.gitConfigNameInput).should(
+          "have.value",
+          authorName,
+        );
+        cy.get(gitSyncLocators.gitConfigEmailInput).should(
+          "have.value",
+          authorEmail,
+        );
+      });
   });
 
   it("validates submit errors", function() {
-    cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}${invalidURLDetectedOnTheBackend}`,
-    );
+    cy.get(gitSyncLocators.gitRepoInput)
+      .click({ force: true })
+      .type(`{selectAll}${invalidURLDetectedOnTheBackend}`);
     cy.get(gitSyncLocators.connectSubmitBtn).click();
     cy.wait("@connectGitRepo");
     cy.contains("Remote URL is incorrect!");
@@ -122,6 +184,7 @@ describe("Git sync modal: connect tab", function() {
       },
     );
     cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitRepo");
 
     cy.contains("SSH Key is not configured properly");
@@ -151,6 +214,7 @@ describe("Git sync modal: connect tab", function() {
     });
 
     cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitRepo");
 
     cy.contains("SSH Key is not configured properly");

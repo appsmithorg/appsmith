@@ -184,6 +184,7 @@ function UserGitProfileSettings({
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
+            cypressSelector="t--use-global-config-checkbox"
             fill={false}
             isDefaultChecked={useGlobalConfig}
             label="Use Default Configuration"

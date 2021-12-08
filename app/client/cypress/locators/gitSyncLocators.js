@@ -19,4 +19,6 @@ export default {
   mergeCTA: ".t--merge",
   loaderQuickGitAction: ".t--loader-quick-git-action",
   copySshKey: ".t--copy-ssh-key",
+  connetStatusbar: ".t--connect-statusbar",
+  useGlobalGitConfig: "[data-cy=t--use-global-config-checkbox]",
 };

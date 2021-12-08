@@ -415,7 +415,7 @@ function GitConnection({ isImport }: Props) {
           />
           <ButtonContainer topMargin={0}>
             {isConnectingToGit && (
-              <StatusbarWrapper>
+              <StatusbarWrapper className="t--connect-statusbar">
                 <Statusbar
                   completed={!submitButtonIsLoading}
                   message={createMessage(CONNECTING_REPO)}
