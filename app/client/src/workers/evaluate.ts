@@ -151,7 +151,7 @@ export default function evaluate(
   const scriptType = getScriptType(evalArguments, isTriggerBased);
 
   // If nothing is present to evaluate, return back instead of evaluating
-  if (!(unescapedJS.length > 0)) {
+  if (!unescapedJS.length) {
     return {
       errors: [],
       result: undefined,
