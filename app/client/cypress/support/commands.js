@@ -2433,8 +2433,7 @@ Cypress.Commands.add("runQuery", () => {
 Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
-    .click({ force: true })
-  cy.wait(500);
+    .click({ force: true }).wait(500);
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
