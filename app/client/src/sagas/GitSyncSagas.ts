@@ -24,7 +24,6 @@ import {
   updateLocalGitConfigSuccess,
   fetchLocalGitConfigInit,
   switchGitBranchInit,
-  updateBranchLocally,
   gitPullSuccess,
   fetchMergeStatusSuccess,
   fetchMergeStatusFailure,
@@ -201,24 +200,27 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
   }
 }
 
+const trimRemotePrefix = (branch: string) => branch.replace(/^origin\//, "");
+
 function* switchBranch(action: ReduxAction<string>) {
   try {
     const branch = action.payload;
-    yield put(updateBranchLocally(branch));
     const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield GitSyncAPI.checkoutBranch(
       applicationId,
+      branch,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const updatedPath = addBranchParam(branch);
+      const trimmedBranch = trimRemotePrefix(branch);
+      const updatedPath = addBranchParam(trimmedBranch);
       history.push(updatedPath);
     }
   } catch (e) {
     yield put({
       type: ReduxActionErrorTypes.CHECKOUT_BRANCH_ERROR,
-      payload: { error: e, logToSentry: true },
+      payload: { error: e, logToSentry: false },
     });
   }
 }
