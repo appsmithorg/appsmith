@@ -44,6 +44,8 @@ import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import { DropdownOption } from "components/constants";
+import { selectRowIndex, selectRowIndices } from "./utilities";
+
 import {
   ColumnProperties,
   ReactTableColumnProps,
@@ -307,7 +309,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             );
           } else if (columnProperties.columnType === "menuButton") {
             const menuButtonProps: RenderMenuButtonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete?: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               isDisabled: cellProperties.isDisabled || false,
@@ -605,9 +607,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         const propertiesToAdd: Record<string, unknown> = {};
         columnIdsToAdd.forEach((id: string) => {
-          Object.entries(tableColumns[id]).forEach(([key, value]) => {
-            propertiesToAdd[`primaryColumns.${id}.${key}`] = value;
-          });
+          if (id) {
+            Object.entries(tableColumns[id]).forEach(([key, value]) => {
+              propertiesToAdd[`primaryColumns.${id}.${key}`] = value;
+            });
+          }
         });
 
         // If new columnOrders have different values from the original columnOrders
@@ -671,6 +675,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (!editedColumnDataExist) {
         this.updateSelectedRowIndex();
       }
+      this.updateMetaRowData(
+        prevProps.filteredTableData,
+        this.props.filteredTableData,
+      );
+      this.props.updateWidgetMetaProperty("triggeredRowIndex", undefined);
     }
 
     // If the user has changed the tableData OR
@@ -680,6 +689,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         // Set filter to default
         this.applyFilters(defaultFilter);
       }
+      this.props.updateWidgetMetaProperty("filters", defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
@@ -822,6 +832,34 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : [];
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
+  };
+
+  updateMetaRowData = (
+    oldTableData: Array<Record<string, unknown>>,
+    newTableData: Array<Record<string, unknown>>,
+  ) => {
+    if (!this.props.multiRowSelection) {
+      const selectedRowIndex = selectRowIndex(
+        oldTableData,
+        newTableData,
+        this.props.defaultSelectedRow,
+        this.props.selectedRowIndex,
+        this.props.primaryColumnId,
+      );
+      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+    } else {
+      const selectedRowIndices = selectRowIndices(
+        oldTableData,
+        newTableData,
+        this.props.defaultSelectedRow,
+        this.props.selectedRowIndices,
+        this.props.primaryColumnId,
+      );
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,

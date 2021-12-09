@@ -108,15 +108,15 @@ function validateArray(
   const _messages: string[] = [];
   const whiteList = config.params?.allowedValues;
   if (whiteList) {
-    value.forEach((entry) => {
+    for (const entry of value) {
       if (!whiteList.includes(entry)) {
         return {
           isValid: false,
-          parsed: value,
+          parsed: config.params?.default || [],
           messages: [`Disallowed value: ${entry}`],
         };
       }
-    });
+    }
   }
   // Check uniqueness of object elements in an array
   if (
@@ -346,7 +346,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {
           parsed: config.params?.default || "",
-          messages: ["Value is not allowed"],
+          messages: [`Disallowed value: ${parsed}`],
           isValid: false,
         };
       }
@@ -434,7 +434,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     // check for min and max limits
     let parsed: number = value as number;
     if (isString(value)) {
-      if (/^\d+\.?\d*$/.test(value)) {
+      if (/^-?\d+\.?\d*$/.test(value)) {
         parsed = Number(value);
       } else {
         return {
@@ -454,7 +454,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed < Number(config.params.min)) {
         return {
           isValid: false,
-          parsed: config.params.min || parsed || 0,
+          parsed: parsed || config.params.min || 0,
           messages: [`Minimum allowed value: ${config.params.min}`],
         };
       }
@@ -863,5 +863,59 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     } else {
       return invalidResponse;
     }
+  },
+
+  /**
+   *
+   * TABLE_PROPERTY can be used in scenarios where we wanted to validate
+   * using ValidationTypes.ARRAY or ValidationTypes.* at the same time.
+   * This is needed in case of properties inside Table widget where we use COMPUTE_VALUE
+   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
+   *
+   */
+  [ValidationTypes.TABLE_PROPERTY]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    if (!config.params?.type)
+      return {
+        isValid: false,
+        parsed: undefined,
+        messages: ["Invalid validation"],
+      };
+
+    // Validate when JS mode is disabled
+    const result = VALIDATORS[config.params.type as ValidationTypes](
+      config.params as ValidationConfig,
+      value,
+      props,
+    );
+    if (result.isValid) return result;
+
+    // Validate when JS mode is enabled
+    const resultValue = [];
+    if (_.isArray(value)) {
+      for (const item of value) {
+        const result = VALIDATORS[config.params.type](
+          config.params as ValidationConfig,
+          item,
+          props,
+        );
+        if (!result.isValid) return result;
+        resultValue.push(result.parsed);
+      }
+    } else {
+      return {
+        isValid: false,
+        parsed: config.params?.params?.default,
+        messages: result.messages,
+      };
+    }
+
+    return {
+      isValid: true,
+      parsed: resultValue,
+    };
   },
 };
