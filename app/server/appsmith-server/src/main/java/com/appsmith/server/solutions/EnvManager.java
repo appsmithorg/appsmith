@@ -98,6 +98,7 @@ public class EnvManager {
         APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET,
         APPSMITH_OAUTH2_GITHUB_CLIENT_ID,
         APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET,
+        APPSMITH_CUSTOM_DOMAIN,
     }
 
     private static final Set<String> VARIABLE_WHITELIST = Stream.of(Vars.values())
