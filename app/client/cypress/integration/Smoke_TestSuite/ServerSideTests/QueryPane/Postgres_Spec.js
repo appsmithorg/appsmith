@@ -17,12 +17,12 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.fillPostgresDatasourceForm();
 
-    cy.testSaveDatasource();
-
     cy.generateUUID().then((uid) => {
       datasourceName = `Postgres CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
     });
+
+    cy.testSaveDatasource();
 
     // cy.get("@createDatasource").then((httpResponse) => {
     //   datasourceName = httpResponse.response.body.data.name;

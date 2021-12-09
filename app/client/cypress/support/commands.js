@@ -2170,14 +2170,12 @@ Cypress.Commands.add("ClickGotIt", () => {
 
 Cypress.Commands.add("testDatasource", () => {
   cy.get(".t--test-datasource").click();
-  cy.wait("@testDatasource");
-  /*
-   .should(
-    "have.nested.property",
-    "response.body.data.success",
-    true,
-  );
-  */
+  cy.wait("@testDatasource")
+    .should(
+      "have.nested.property",
+      "response.body.data.success",
+      true,
+    );
 });
 
 Cypress.Commands.add("saveDatasource", () => {
@@ -2190,11 +2188,12 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
-  cy.saveDatasource();
-  cy.get(datasourceEditor.datasourceCard)
-    .last()
-    .click();
+  // cy.get(datasourceEditor.datasourceCard)
+  //   .last()
+  //   .click();
   cy.testDatasource();
+  cy.saveDatasource();
+
 });
 
 Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
@@ -2434,7 +2433,8 @@ Cypress.Commands.add("runQuery", () => {
 Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
-    .click({ force: true }).wait(500);
+    .click({ force: true })
+  cy.wait(500);
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -3425,11 +3425,10 @@ Cypress.Commands.add("getEntityName", () => {
   return entityName;
 });
 
-Cypress.Commands.add("verifyCyclicDependencyError", () => {
+Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
   // Give this element 10 seconds to appear
-  cy.xpath(commonlocators.cyclicDependencyError, { timeout: 10000 }).should(
-    "not.exist",
-  );
+  //cy.wait(1000)
+  cy.xpath("//div[@class='Toastify']//span[contains(text(),'" + errorMsgToVerifyAbsence + "')]", { timeout: 0 }).should('not.exist')
 });
 
 Cypress.Commands.add("setQueryTimeout", (timeout) => {

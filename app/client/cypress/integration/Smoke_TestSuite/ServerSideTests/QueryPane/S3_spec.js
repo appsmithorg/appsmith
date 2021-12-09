@@ -132,7 +132,58 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   });
 
-  it("4. Validate Read file command, Verify possible error msgs, run & delete the query", () => {
+  it("4. Validate List Files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.setQueryTimeout(30000)
+    cy.validateNSelectDropdown("Commands", "List files in bucket");
+
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").should(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(false);
+      expect(response.body.data.body).to.contains(
+        "Mandatory parameter 'Bucket Name' is missing.",
+      );
+    });
+    cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
+
+    cy.typeValueNValidate("Auto", "Prefix");
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body[0].fileName).to.contains("Auto");
+      expect(response.body.data.body[0].url).to.exist;
+    });
+
+    cy.typeValueNValidate("AutoFile", "Prefix");
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body[0].fileName).to.contains("Auto");
+      expect(response.body.data.body[0].url).to.exist;
+      expect(response.body.data.body[0].signedUrl).not.to.exist;
+    });
+
+    cy.validateNSelectDropdown("Generate Signed URL", "No", "Yes");
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body[0].fileName).to.contains("Auto");
+      expect(response.body.data.body[0].signedUrl).to.exist;
+      expect(response.body.data.body[0].url).to.exist;
+    });
+
+    cy.validateNSelectDropdown("Generate Un-signed URL", "Yes", "No");
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body[0].fileName).to.contains("Auto");
+      expect(response.body.data.body[0].signedUrl).to.exist;
+      expect(response.body.data.body[0].url).to.not.exist;
+    });
+    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+  });
+
+  it("5. Validate Read file command, Verify possible error msgs, run & delete the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.setQueryTimeout(30000)
     cy.validateNSelectDropdown("Commands", "List files in bucket", "Read file");
@@ -204,57 +255,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.body.fileData).to.eq(
         "Hi, this is Automation script adding File!",
       );
-    });
-    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
-  });
-
-  it("5. Validate List Files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.setQueryTimeout(30000)
-    cy.validateNSelectDropdown("Commands", "List files in bucket");
-
-    cy.onlyQueryRun();
-    cy.wait("@postExecute").should(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contains(
-        "Mandatory parameter 'Bucket Name' is missing.",
-      );
-    });
-    cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
-
-    cy.typeValueNValidate("Auto", "Prefix");
-    cy.onlyQueryRun();
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body[0].fileName).to.contains("Auto");
-      expect(response.body.data.body[0].url).to.exist;
-    });
-
-    cy.typeValueNValidate("AutoFile", "Prefix");
-    cy.onlyQueryRun();
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body[0].fileName).to.contains("Auto");
-      expect(response.body.data.body[0].url).to.exist;
-      expect(response.body.data.body[0].signedUrl).not.to.exist;
-    });
-
-    cy.validateNSelectDropdown("Generate Signed URL", "No", "Yes");
-    cy.onlyQueryRun();
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body[0].fileName).to.contains("Auto");
-      expect(response.body.data.body[0].signedUrl).to.exist;
-      expect(response.body.data.body[0].url).to.exist;
-    });
-
-    cy.validateNSelectDropdown("Generate Un-signed URL", "Yes", "No");
-    cy.onlyQueryRun();
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body[0].fileName).to.contains("Auto");
-      expect(response.body.data.body[0].signedUrl).to.exist;
-      expect(response.body.data.body[0].url).to.not.exist;
     });
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
@@ -381,7 +381,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       200,
     ); //This verifies the Select on the table, ie page is created fine
 
-    cy.verifyCyclicDependencyError();//Verifies 8686
+    cy.VerifyErrorMsgAbsence('Cyclic dependency found while evaluating')//Verifies 8686
 
     cy.ClickGotIt();
 
@@ -405,7 +405,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     //Verifying DeleteFile icon from UI
     cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
-    cy.verifyCyclicDependencyError();//Verifies 8686
+    cy.VerifyErrorMsgAbsence('Cyclic dependency found while evaluating')//Verifies 8686
 
     expect(
       cy.xpath("//span[text()='Are you sure you want to delete the file?']"),

@@ -129,7 +129,7 @@ describe("Rest Bugs tests", function () {
     });
     cy.WaitAutoSave();
     cy.onlyQueryRun();
-    cy.verifyCyclicDependencyError()
+    cy.VerifyErrorMsgAbsence('Cyclic dependency found while evaluating')
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.get(commonlocators.debugger)
       .should("be.visible")
