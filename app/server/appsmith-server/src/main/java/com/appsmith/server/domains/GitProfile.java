@@ -19,4 +19,6 @@ public class GitProfile {
 
     String authorEmail;
 
+    Boolean useDefaultProfile;
+
 }

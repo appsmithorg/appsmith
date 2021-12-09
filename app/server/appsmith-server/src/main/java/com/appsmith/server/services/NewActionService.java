@@ -35,6 +35,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
+    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName);
+
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
@@ -57,9 +59,13 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
+    Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName);
 
     Mono<ActionDTO> populateHintMessages(ActionDTO action);
 
@@ -80,4 +86,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
+
+    Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+
+    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 }
