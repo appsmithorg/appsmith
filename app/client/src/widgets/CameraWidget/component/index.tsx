@@ -4,7 +4,11 @@ import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import Webcam from "react-webcam";
 import { useStopwatch } from "react-timer-hook";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import {
+  FullScreen,
+  FullScreenHandle,
+  useFullScreenHandle,
+} from "react-full-screen";
 
 import { ThemeProp } from "components/ads/common";
 import {
@@ -34,7 +38,8 @@ import { ReactComponent as CameraIcon } from "assets/icons/widget/camera/camera.
 import { ReactComponent as CameraMutedIcon } from "assets/icons/widget/camera/camera-muted.svg";
 import { ReactComponent as MicrophoneIcon } from "assets/icons/widget/camera/microphone.svg";
 import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camera/microphone-muted.svg";
-import { ReactComponent as FullscreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
+import { ReactComponent as FullScreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
+import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera/exit-fullscreen.svg";
 
 export interface CameraContainerProps {
   disabled: boolean;
@@ -152,9 +157,9 @@ export interface ControlPanelProps {
   videoInputs: MediaDeviceInfo[];
   status: MediaCaptureStatus;
   appLayoutType?: SupportedLayouts;
+  fullScreenHandle: FullScreenHandle;
   onCaptureImage: () => void;
   onError: (errorMessage: string) => void;
-  onFullscreenEnter: () => Promise<void>;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
   onRecordingStart: () => void;
   onRecordingStop: () => void;
@@ -171,10 +176,10 @@ function ControlPanel(props: ControlPanelProps) {
     appLayoutType,
     audioInputs,
     audioMuted,
+    fullScreenHandle,
     mode,
     onCaptureImage,
     onError,
-    onFullscreenEnter,
     onMediaInputChange,
     onRecordingStart,
     onRecordingStop,
@@ -260,9 +265,6 @@ function ControlPanel(props: ControlPanelProps) {
         case MediaCaptureActionTypes.VIDEO_REFRESH:
           onResetMedia();
           onStatusChange(MediaCaptureStatusTypes.VIDEO_DEFAULT);
-          break;
-        case MediaCaptureActionTypes.ENTER_FULLSCREEN:
-          onFullscreenEnter();
           break;
         default:
           break;
@@ -673,16 +675,31 @@ function ControlPanel(props: ControlPanelProps) {
   };
 
   const renderFullscreenControl = () => {
-    return (
+    return fullScreenHandle.active ? (
       <TooltipComponent
-        content="Enter fullscreen"
+        content="Exit full screen"
         donotUsePortal
-        position={Position.TOP}
+        position={Position.TOP_RIGHT}
       >
         <StyledButton
           borderRadius={ButtonBorderRadiusTypes.SHARP}
-          icon={<Icon color="white" icon={<FullscreenIcon />} iconSize={20} />}
-          onClick={handleControlClick(MediaCaptureActionTypes.ENTER_FULLSCREEN)}
+          icon={
+            <Icon color="white" icon={<ExitFullScreenIcon />} iconSize={20} />
+          }
+          onClick={fullScreenHandle.exit}
+          variant={ButtonVariantTypes.TERTIARY}
+        />
+      </TooltipComponent>
+    ) : (
+      <TooltipComponent
+        content="Full screen"
+        donotUsePortal
+        position={Position.TOP_RIGHT}
+      >
+        <StyledButton
+          borderRadius={ButtonBorderRadiusTypes.SHARP}
+          icon={<Icon color="white" icon={<FullScreenIcon />} iconSize={20} />}
+          onClick={fullScreenHandle.enter}
           variant={ButtonVariantTypes.TERTIARY}
         />
       </TooltipComponent>
@@ -838,7 +855,7 @@ function CameraComponent(props: CameraComponentProps) {
   const { days, hours, minutes, pause, reset, seconds, start } = useStopwatch({
     autoStart: false,
   });
-  const handle = useFullScreenHandle();
+  const fullScreenHandle = useFullScreenHandle();
 
   useEffect(() => {
     navigator.mediaDevices
@@ -1113,10 +1130,10 @@ function CameraComponent(props: CameraComponentProps) {
           appLayoutType={appLayout?.type}
           audioInputs={audioInputs}
           audioMuted={isAudioMuted}
+          fullScreenHandle={fullScreenHandle}
           mode={mode}
           onCaptureImage={captureImage}
           onError={setError}
-          onFullscreenEnter={handle.enter}
           onMediaInputChange={handleMediaDeviceChange}
           onRecordingStart={handleRecordingStart}
           onRecordingStop={handleRecordingStop}
@@ -1138,7 +1155,7 @@ function CameraComponent(props: CameraComponentProps) {
 
   return (
     <CameraContainer disabled={!!error || disabled} scaleAxis={scaleAxis}>
-      <FullScreen handle={handle}>{renderComponent()}</FullScreen>
+      <FullScreen handle={fullScreenHandle}>{renderComponent()}</FullScreen>
     </CameraContainer>
   );
 }
