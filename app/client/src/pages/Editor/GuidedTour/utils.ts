@@ -41,8 +41,7 @@ export function highlightSection(
   const dimensionOffset = 40;
   const positionOffset = 20;
 
-  highlightBorder.style.left =
-    primaryReference.clientLeft - positionOffset + "px";
+  highlightBorder.style.left = coords.left - positionOffset + "px";
   highlightBorder.style.top = coords.top - positionOffset + "px";
   highlightBorder.style.width = !!widthReference
     ? widthReference.clientWidth + dimensionOffset + "px"
