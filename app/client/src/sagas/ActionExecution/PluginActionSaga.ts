@@ -298,7 +298,6 @@ export default function* executePluginActionTriggerSaga(
     },
     state: action.actionConfiguration,
   });
-  debugger;
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
     action.id,
@@ -441,7 +440,6 @@ function* runActionSaga(
   let isError = true;
   let error = "";
   try {
-    debugger;
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
       id,
@@ -600,7 +598,6 @@ function* executePageLoadAction(pageAction: PageAction) {
     let isError = true;
     const error = `The action "${pageAction.name}" has failed.`;
     try {
-      debugger;
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,
         pageAction,

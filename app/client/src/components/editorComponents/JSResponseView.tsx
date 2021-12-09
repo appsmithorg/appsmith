@@ -97,6 +97,9 @@ const ResponseTabAction = styled.li`
   .function-actions {
     margin-left: auto;
     order: 2;
+    svg {
+      display: inline-block;
+    }
   }
   .run-button {
     margin: 0 15px;
