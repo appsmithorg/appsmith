@@ -33,6 +33,7 @@ import {
   isQueryLimitUpdated,
   isTableWidgetSelected,
   loading,
+  nameInputSelector,
   showSuccessMessage,
   tableWidgetHasBinding,
 } from "selectors/onboardingSelectors";
@@ -42,6 +43,7 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Steps } from "./constants";
 import { highlightSection } from "./utils";
+import { setExplorerPinnedAction } from "actions/explorerActions";
 
 const GuideWrapper = styled.div`
   margin-bottom: 10px;
@@ -286,8 +288,8 @@ function InitialContent() {
 
 function useComputeCurrentStep(isExploring: boolean) {
   let step = 1;
-  const meta = {
-    completedSubSteps: [] as number[],
+  const meta: GuideBody["meta"] = {
+    completedSubSteps: [],
     hintCount: 0,
   };
   const dispatch = useDispatch();
@@ -304,6 +306,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   const isTableWidgetBound = useSelector(tableWidgetHasBinding);
   // 4
   const isContainerWidgetPreset = useSelector(containerWidgetAdded);
+  const nameInputWidgetId = useSelector(nameInputSelector);
   const isNameInputBound = useSelector(isNameInputBoundSelector);
   // 5
   const countryInputBound = useSelector(isCountryInputBound);
@@ -338,13 +341,13 @@ function useComputeCurrentStep(isExploring: boolean) {
   }
 
   if (step === 3) {
-    if (isTableWidgetBound && isContainerWidgetPreset && hadReachedStep > 3) {
+    if (!!isTableWidgetBound && isContainerWidgetPreset && hadReachedStep > 3) {
       step = 4;
     }
   }
 
   if (step === 4) {
-    if (isNameInputBound && hadReachedStep > 4) {
+    if (!!isNameInputBound && hadReachedStep > 4) {
       step = 5;
     }
   }
@@ -426,7 +429,8 @@ function useComputeCurrentStep(isExploring: boolean) {
       } else if (queryExecutedSuccessfully) {
         dispatch(setIndicatorLocation("NONE"));
         dispatch(markStepComplete());
-        highlightSection(Steps[1].elementSelector);
+        if (Steps[1].elementSelector)
+          highlightSection(Steps[1].elementSelector);
       } else {
         dispatch(setIndicatorLocation("RUN_QUERY"));
       }
@@ -441,15 +445,37 @@ function useComputeCurrentStep(isExploring: boolean) {
   }, [step, tableWidgetSelected]);
 
   useEffect(() => {
-    if (isTableWidgetBound && step === 3 && hadReachedStep <= 3) {
+    if (!!isTableWidgetBound && step === 3 && hadReachedStep <= 3) {
+      dispatch(setExplorerPinnedAction(false));
       dispatch(setIndicatorLocation("NONE"));
       dispatch(markStepComplete());
     }
   }, [isTableWidgetBound, step, hadReachedStep]);
 
   useEffect(() => {
-    if (isNameInputBound && step === 4 && hadReachedStep <= 4) {
-      dispatch(markStepComplete());
+    if (!!isTableWidgetBound && step === 4 && hadReachedStep <= 4) {
+      if (!!nameInputWidgetId) {
+        setTimeout(() => {
+          highlightSection(
+            "selected-row",
+            `appsmith_widget_${isTableWidgetBound}`,
+            "class",
+          );
+          highlightSection(
+            `appsmith_widget_${nameInputWidgetId}`,
+            undefined,
+            "class",
+          );
+        }, 1000);
+      }
+    }
+  }, [isTableWidgetBound, step, hadReachedStep, nameInputWidgetId]);
+
+  useEffect(() => {
+    if (step === 4 && hadReachedStep <= 4) {
+      if (!!isNameInputBound) {
+        dispatch(markStepComplete());
+      }
     }
   }, [isNameInputBound, step, hadReachedStep]);
 
@@ -668,7 +694,7 @@ function CompletionContent(props: CompletionContentProps) {
   }
 }
 
-type GuideBody = {
+export type GuideBody = {
   exploring: boolean;
   step: number;
   meta: {

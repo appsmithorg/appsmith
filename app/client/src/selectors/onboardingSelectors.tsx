@@ -186,10 +186,12 @@ export const tableWidgetHasBinding = createSelector(
   getQueryName,
   (tableWidget, queryName) => {
     if (tableWidget && queryName) {
-      return tableWidget.tableData === `{{${queryName}.data}}`;
+      if (tableWidget.tableData === `{{${queryName}.data}}`) {
+        return tableWidget.widgetId;
+      }
     }
 
-    return false;
+    return "";
   },
 );
 
@@ -224,6 +226,17 @@ export const isNameInputBoundSelector = createSelector(
     return false;
   },
 );
+
+export const nameInputSelector = createSelector(getWidgets, (widgets) => {
+  const widgetValues = Object.values(widgets);
+  const nameInput = widgetValues.find((widget) => {
+    if (widget.type === "INPUT_WIDGET") {
+      return widget.label === "Name";
+    }
+  });
+
+  return nameInput ? nameInput.widgetId : "";
+});
 
 export const isCountryInputBound = createSelector(
   getTableWidget,

@@ -11,45 +11,59 @@ function getCoords(elem: Element) {
   };
 }
 
-export function highlightSection(dataAttribute?: string) {
-  //   const elements = document.getElementsByClassName("selected-row");
-  //   const tableWidget = document.getElementsByClassName(
-  //     "appsmith_widget_rsrxzwk730",
-  //   );
+export function highlightSection(
+  selector: string,
+  widthSelector?: string,
+  type = "data-attribute",
+) {
+  let primaryReference: Element | null = null;
+  let widthReference: Element | null = null;
 
-  const element = document.querySelectorAll(
-    `[data-guided-tour-id='${dataAttribute}']`,
-  );
-  //   const element: any = elements[0];
+  if (type === "data-attribute") {
+    primaryReference = document.querySelector(
+      `[data-guided-tour-id='${selector}']`,
+    );
+  } else {
+    primaryReference = document.querySelector(`.${selector}`);
 
-  if (!element) return;
+    if (widthSelector) {
+      widthReference = document.querySelector(`.${widthSelector}`);
+    }
+  }
 
-  const message = document.createElement("div");
-  message.classList.add("guided-tour-border");
+  if (!primaryReference) return;
 
-  const coords = getCoords(element[0]);
+  const highlightBorder = document.createElement("div");
+  highlightBorder.classList.add("guided-tour-border");
 
-  message.style.left = coords.left - 20 + "px";
-  message.style.top = coords.top - 20 + "px";
-  //   message.style.width = tableWidget[0].clientWidth + 40 + "px";
-  message.style.width = coords.width + 40 + "px";
-  message.style.height = coords.height + 40 + "px";
+  const coords = getCoords(primaryReference);
 
-  document.body.append(message);
+  const dimensionOffset = 40;
+  const positionOffset = 20;
+
+  highlightBorder.style.left =
+    primaryReference.clientLeft - positionOffset + "px";
+  highlightBorder.style.top = coords.top - positionOffset + "px";
+  highlightBorder.style.width = !!widthReference
+    ? widthReference.clientWidth + dimensionOffset + "px"
+    : coords.width + dimensionOffset + "px";
+  highlightBorder.style.height = coords.height + 40 + "px";
+
+  document.body.append(highlightBorder);
 
   const showAnimationDelay = 0;
-  const hideAnimationDelay = showAnimationDelay + 6000;
+  const hideAnimationDelay = showAnimationDelay + 5000;
   const removeElementDelay = hideAnimationDelay + 1000;
 
   setTimeout(() => {
-    message.classList.add("show");
+    highlightBorder.classList.add("show");
   }, showAnimationDelay);
 
   setTimeout(() => {
-    message.classList.remove("show");
+    highlightBorder.classList.remove("show");
   }, hideAnimationDelay);
 
   setTimeout(() => {
-    message.remove();
+    highlightBorder.remove();
   }, removeElementDelay);
 }
