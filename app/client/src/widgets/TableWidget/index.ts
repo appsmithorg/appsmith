@@ -154,6 +154,7 @@ export const CONFIG = {
               );
               set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
               set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);
+              set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
             });
             const updatePropertyMap = [
               {

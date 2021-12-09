@@ -1,5 +1,4 @@
 import { get } from "lodash";
-import { Colors } from "constants/Colors";
 import { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -942,7 +941,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.WHITE,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,

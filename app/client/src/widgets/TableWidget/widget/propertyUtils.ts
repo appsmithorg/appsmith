@@ -252,6 +252,7 @@ export const updateDerivedColumnsHook = (
         // sets default value for some properties
         propertyValue.buttonColor = Colors.GREEN;
         propertyValue.menuColor = Colors.GREEN;
+        propertyValue.labelColor = Colors.WHITE;
 
         propertiesToUpdate = [
           {
