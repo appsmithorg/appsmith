@@ -15,9 +15,6 @@ import CodeEditorControl from "components/propertyControls/CodeEditorControl";
 import MultiSelectControl, {
   MultiSelectControlProps,
 } from "components/propertyControls/MultiSelectControl";
-import SingleSelectControl, {
-  SingleSelectControlProps,
-} from "components/propertyControls/SingleSelectControl";
 import DatePickerControl, {
   DatePickerControlProps,
 } from "components/propertyControls/DatePickerControl";
