@@ -29,7 +29,13 @@ export const changeQuery = (
   };
 };
 
-/* This action when executed updates the status of isSaving query to true for an actionId */
+/**
+ * This action when executed updates the status of isSaving query to true for an actionId.
+ * This function was created to add a sync to the text updated in the editor and shortcut command fired to execute the query.
+ *
+ * @param {ReduxAction} payload Contains object having id of the action.
+ */
+
 export const preparingForUpdateAction = (
   payload: ReduxAction<{ id: string }>,
 ) => ({
