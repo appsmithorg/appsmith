@@ -800,6 +800,24 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     .last()
     .click({ force: true });
 });
+
+Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
+  cy.get(commonlocators.entityExplorersearch)
+    .clear({ force: true })
+    .type(apiname1, { force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(500);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .parents(commonlocators.entityItem)
+    .first()
+    .children(commonlocators.entityCollapseToggle)
+    .last()
+    .click({ force: true });
+});
+
 Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   cy.get(commonlocators.entityExplorersearch)
     .clear({ force: true })
@@ -3139,9 +3157,20 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).click();
   cy.get(welcomePage.newsLetter).should("be.visible");
   cy.get(welcomePage.dataCollection).should("be.visible");
+  cy.get(welcomePage.dataCollection)
+    .trigger("mouseover")
+    .click();
+  cy.get(welcomePage.newsLetter)
+    .trigger("mouseover")
+    .click();
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click();
-  cy.wait("@createSuperUser");
+  cy.wait("@createSuperUser").then((interception) => {
+    expect(interception.request.body).not.contains(
+      "allowCollectingAnonymousData=true",
+    );
+    expect(interception.request.body).not.contains("signupForNewsletter=true");
+  });
   cy.LogOut();
   cy.wait(2000);
 });

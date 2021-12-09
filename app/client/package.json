@@ -83,7 +83,7 @@
     "moment-timezone": "^0.5.27",
     "nanoid": "^2.0.4",
     "node-forge": "^0.10.0",
-    "node-sass": "^6.0.1",
+    "node-sass": "^7.0.0",
     "normalizr": "^3.3.0",
     "path-to-regexp": "^6.2.0",
     "popper.js": "^1.15.0",
