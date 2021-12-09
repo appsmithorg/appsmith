@@ -687,7 +687,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             isSelected =
               (props.selected as DropdownOption).value === option.value;
           }
-          return isSelected && !option.isSectionHeader ? (
+          return !option.isSectionHeader ? (
             <OptionWrapper
               className="t--dropdown-option"
               key={index}

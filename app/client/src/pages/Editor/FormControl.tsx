@@ -11,6 +11,7 @@ import {
   FormInputAnchor,
   FormInputErrorText,
   FormInfoText,
+  FormSubtitleText,
   FormInputSwitchToJsonButton,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
@@ -126,7 +127,9 @@ function renderFormConfigTop(props: { config: ControlProps }) {
           {encrypted && (
             <>
               <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-              <FormInfoText>Encrypted</FormInfoText>
+              <FormSubtitleText config={props.config}>
+                Encrypted
+              </FormSubtitleText>
             </>
           )}
           {tooltipText && (

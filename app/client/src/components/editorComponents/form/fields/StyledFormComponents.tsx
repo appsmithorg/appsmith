@@ -19,6 +19,18 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
   margin-bottom: 8px;
 `;
 
+const FormSubtitleText = styled.span<{ config?: ControlProps }>`
+display: ${(props) =>
+  //SWITCH and CHECKBOX display label text and form input aligned side by side
+  props?.config?.controlType !== "SWITCH" &&
+  props?.config?.controlType !== "CHECKBOX"
+    ? "block;"
+    : "inline;"}
+font-weight: normal;
+color: ${Colors.DOVE_GRAY};
+font-size: 12px;
+`;
+
 //Styled help text, intended to be used with Form Fields
 const FormInputHelperText = styled.p`
   color: #858282;
@@ -52,6 +64,7 @@ const FormInputAnchor = styled.a`
   margin: 0 0 8px 0;
   text-transform: uppercase;
 `;
+
 const FormInputSwitchToJsonButton = styled.button`
   font-weight: 500;
   font-size: 12px;
@@ -95,10 +108,8 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   }
   .label-icon-wrapper {
     margin-bottom: 0px;
-  }
-  .label-icon-wrapper svg {
-    position: relative;
-    top: 3px;
+    display: flex;
+    align-items: center;
   }
   .label-icon-wrapper svg path {
     fill: #939090;
@@ -131,4 +142,5 @@ export {
   FormInputErrorText,
   FormInputHelperText,
   FormInfoText,
+  FormSubtitleText,
 };
