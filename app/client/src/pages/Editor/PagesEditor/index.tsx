@@ -116,6 +116,12 @@ function PagesEditor() {
     history.push(BUILDER_PAGE_URL({ applicationId, pageId: params.pageId }));
   }, []);
 
+  /**
+   * Draggable List Render item
+   *
+   *
+   * @return JSX.Element
+   */
   const draggableListRenderItem = useMemo(
     () =>
       function renderer({ item }: any) {
