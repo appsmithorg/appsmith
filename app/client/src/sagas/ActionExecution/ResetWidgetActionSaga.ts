@@ -5,27 +5,32 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ResetWidgetDescription } from "entities/DataTree/actionTriggers";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
+import {
+  ActionTriggerType,
+  ResetWidgetDescription,
+} from "entities/DataTree/actionTriggers";
+import {
+  ActionValidationError,
+  TriggerFailureError,
+} from "sagas/ActionExecution/errorUtils";
+import { getType, Types } from "utils/TypeHelpers";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],
-  triggerMeta: TriggerMeta,
 ) {
-  if (typeof payload.widgetName !== "string") {
-    throw new TriggerFailureError(
-      "widgetName needs to be a string",
-      triggerMeta,
+  const { widgetName } = payload;
+  if (getType(widgetName) !== Types.STRING) {
+    throw new ActionValidationError(
+      ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
+      "widgetName",
+      Types.STRING,
+      getType(widgetName),
     );
   }
 
-  const widget = yield select(getWidgetByName, payload.widgetName);
+  const widget = yield select(getWidgetByName, widgetName);
   if (!widget) {
-    throw new TriggerFailureError(
-      `widget ${payload.widgetName} not found`,
-      triggerMeta,
-    );
+    throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }
 
   yield put(resetWidgetMetaProperty(widget.widgetId));

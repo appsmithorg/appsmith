@@ -24,8 +24,9 @@ import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { Variable } from "entities/JSCollection";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
+import { Variable } from "entities/JSCollection";
+
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1

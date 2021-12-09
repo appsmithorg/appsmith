@@ -318,27 +318,7 @@ export function* handleExecuteJSFunctionSaga(
         throw new UserCancelledActionExecutionError();
       }
     }
-    const { result, triggers } = yield call(
-      executeFunction,
-      collectionName,
-      action,
-    );
-    if (triggers && triggers.length) {
-      yield all(
-        triggers.map((trigger: ActionDescription) =>
-          call(executeActionTriggers, trigger, EventType.ON_CLICK, {
-            source: {
-              id: actionId || "",
-              collectionId: action.collectionId,
-              name: data.payload.collectionName,
-              isJSAction: true,
-              actionId: actionId,
-            },
-          }),
-        ),
-      );
-    }
-
+    const result = yield call(executeFunction, collectionName, action);
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {

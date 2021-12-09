@@ -576,7 +576,7 @@ export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PULL = () => "PULL";
 export const COMMIT_AND_PUSH = () => "Commit & push";
-export const PULL_CHANGS = () => "PULL CHANGES";
+export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
@@ -628,6 +628,13 @@ export const CONFLICTS_FOUND = () =>
 export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
 export const NO_COMMITS_TO_PULL = () =>
   "No commits to pull. In sync with the remote repository";
+export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
+  "Conflicts found while pulling changes";
+export const NOT_LIVE_FOR_YOU_YET = () => "It's not live for you yet";
+export const COMING_SOON = () => "Coming Soon!";
+export const CONNECTING_TO_REPO_DISABLED = () =>
+  "Connecting to a git repo is disabled";
+export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -637,7 +644,13 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
-export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+export const TRIGGER_ACTION_VALIDATION_ERROR = (
+  functionName: string,
+  argumentName: string,
+  expectedType: string,
+  received: string,
+) =>
+  `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
 export const MORE_OPTIONS = () => "More Options";
@@ -791,7 +804,7 @@ export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
   "Don't share any data";
 export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
 export const WELCOME_FORM_NEWLETTER_LABEL = () =>
-  "Get updates about what we are cooking. We do not spam you.";
+  "Get updates about what we are cooking. We will not spam you.";
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
 
 //help tooltips
@@ -850,3 +863,10 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   "Are you sure you want to perform this action?";
+export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
+export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
+  `Select a widget to see it's properties`;
+export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
+
+export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
+  "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";

@@ -56,17 +56,20 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import evaluate, {
+import evaluateSync, {
   createGlobalData,
   EvalResult,
   EvaluationScriptType,
   getScriptToEval,
+  evaluateAsync,
+  isFunctionAsync,
 } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
-import { JSUpdate } from "utils/JSPaneUtils";
 import { error as logError } from "loglevel";
+import { extractIdentifiersFromCode } from "workers/ast";
+import { JSUpdate } from "utils/JSPaneUtils";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -92,9 +95,21 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
+  /**
+   * This method takes unEvalTree as input and does following
+   * 1. parseJSActions and updates JS
+   * 2. Creates dependencyMap, sorted dependencyMap
+   * 3. Generates inverseDependencyTree
+   * 4. Finally, evaluates the unEvalTree and returns that with JSUpdates
+   *
+   * @param {DataTree} unEvalTree
+   * @return {*}
+   * @memberof DataTreeEvaluator
+   */
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
-    let localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
+    // cloneDeep will make sure not to omit key which has value as undefined.
+    let localUnEvalTree = _.cloneDeep(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -129,7 +144,7 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = JSON.parse(JSON.stringify(localUnEvalTree));
+    this.oldUnEvalTree = _.cloneDeep(localUnEvalTree);
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -219,7 +234,7 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
-    //save parsed functions in resolveJSfunctions, update current state of js collection
+    //save parsed functions in resolveJSFunctions, update current state of js collection
     const parsedCollections = this.parseJSActions(
       localUnEvalTree,
       jsTranslatedDiffs,
@@ -436,9 +451,20 @@ export default class DataTreeEvaluator {
     });
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(path, this.allKeys),
-        ),
+        dependencyMap[key].map((path) => {
+          try {
+            return extractReferencesFromBinding(path, this.allKeys);
+          } catch (e) {
+            this.errors.push({
+              type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+              message: e.message,
+              context: {
+                script: path,
+              },
+            });
+            return [];
+          }
+        }),
       );
     });
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
@@ -450,21 +476,7 @@ export default class DataTreeEvaluator {
     entityName: string,
   ): DependencyMap {
     const dependencies: DependencyMap = {};
-    if (isAction(entity) || isWidget(entity)) {
-      const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
-      if (dynamicBindingPathList.length) {
-        dynamicBindingPathList.forEach((dynamicPath) => {
-          const propertyPath = dynamicPath.key;
-          const unevalPropValue = _.get(entity, propertyPath);
-          const { jsSnippets } = getDynamicBindings(unevalPropValue);
-          const existingDeps =
-            dependencies[`${entityName}.${propertyPath}`] || [];
-          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
-        });
-      }
-    }
+
     if (isWidget(entity)) {
       // Make property dependant on the default property as any time the default changes
       // the property needs to change
@@ -518,6 +530,23 @@ export default class DataTreeEvaluator {
         });
       }
     }
+
+    if (isAction(entity) || isWidget(entity)) {
+      const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+      if (dynamicBindingPathList.length) {
+        dynamicBindingPathList.forEach((dynamicPath) => {
+          const propertyPath = dynamicPath.key;
+          const unevalPropValue = _.get(entity, propertyPath);
+          const { jsSnippets } = getDynamicBindings(unevalPropValue);
+          const existingDeps =
+            dependencies[`${entityName}.${propertyPath}`] || [];
+          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
+            jsSnippets.filter((jsSnippet) => !!jsSnippet),
+          );
+        });
+      }
+    }
+
     return dependencies;
   }
 
@@ -563,8 +592,6 @@ export default class DataTreeEvaluator {
                 currentTree,
                 resolvedFunctions,
                 evaluationSubstitutionType,
-                false,
-                undefined,
                 fullPropertyPath,
               );
             } catch (e) {
@@ -713,24 +740,11 @@ export default class DataTreeEvaluator {
     });
   }
 
-  clearAllCaches() {
-    this.parsedValueCache.clear();
-    this.clearErrors();
-    this.dependencyMap = {};
-    this.allKeys = {};
-    this.inverseDependencyMap = {};
-    this.sortedDependencies = [];
-    this.evalTree = {};
-    this.oldUnEvalTree = {};
-  }
-
   getDynamicValue(
     dynamicBinding: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
-    returnTriggers: boolean,
-    callBackData?: Array<any>,
     fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
@@ -741,19 +755,11 @@ export default class DataTreeEvaluator {
       propertyPath = fullPropertyPath.split(".")[1];
       entity = data[entityName];
     }
+    // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(
       dynamicBinding,
       entity,
     );
-    if (returnTriggers) {
-      return this.evaluateDynamicBoundValue(
-        jsSnippets[0],
-        data,
-        resolvedFunctions,
-        callBackData,
-        returnTriggers,
-      );
-    }
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths
       const values = jsSnippets.map((jsSnippet, index) => {
@@ -766,8 +772,6 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
-            callBackData,
-            entity && isJSAction(entity),
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty(result.errors, data, fullPropertyPath);
@@ -815,27 +819,35 @@ export default class DataTreeEvaluator {
     return undefined;
   }
 
+  async evaluateTriggers(
+    userScript: string,
+    dataTree: DataTree,
+    requestId: string,
+    resolvedFunctions: Record<string, any>,
+    callbackData: Array<unknown>,
+  ) {
+    const { jsSnippets } = getDynamicBindings(userScript);
+    return evaluateAsync(
+      jsSnippets[0] || userScript,
+      dataTree,
+      requestId,
+      resolvedFunctions,
+      callbackData,
+    );
+  }
+
   // Paths are expected to have "{name}.{path}" signature
   // Also returns any action triggers found after evaluating value
   evaluateDynamicBoundValue(
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    callbackData?: Array<any>,
-    isTriggerBased = false,
   ): EvalResult {
     try {
-      return evaluate(
-        js,
-        data,
-        resolvedFunctions,
-        callbackData,
-        isTriggerBased,
-      );
+      return evaluateSync(js, data, resolvedFunctions);
     } catch (e) {
       return {
         result: undefined,
-        triggers: [],
         errors: [
           {
             errorType: PropertyEvaluationErrorType.PARSE,
@@ -858,24 +870,15 @@ export default class DataTreeEvaluator {
     isDefaultProperty: boolean,
   ): any {
     const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-    let valueToValidate = evalPropertyValue;
     if (isPathADynamicTrigger(widget, propertyPath)) {
-      const { triggers } = this.getDynamicValue(
-        unEvalPropertyValue,
-        currentTree,
-        resolvedFunctions,
-        EvaluationSubstitutionType.TEMPLATE,
-        true,
-        undefined,
-        fullPropertyPath,
-      );
-      valueToValidate = triggers;
+      // TODO find a way to validate triggers
+      return;
     }
     const validation = widget.validationPaths[propertyPath];
 
     const { isValid, messages, parsed, transformed } = validateWidgetProperty(
       validation,
-      valueToValidate,
+      evalPropertyValue,
       widget,
     );
 
@@ -949,7 +952,7 @@ export default class DataTreeEvaluator {
     if (correctFormat) {
       const body = entity.body.replace(/export default/g, "");
       try {
-        const { result } = evaluate(body, unEvalDataTree, {});
+        const { result } = evaluateSync(body, unEvalDataTree, {});
         delete this.resolvedFunctions[`${entityName}`];
         delete this.currentJSCollectionState[`${entityName}`];
         if (result) {
@@ -959,10 +962,12 @@ export default class DataTreeEvaluator {
             const unEvalValue = result[unEvalFunc];
             if (typeof unEvalValue === "function") {
               const params = getParams(unEvalValue);
+              const functionString = unEvalValue.toString();
               actions.push({
                 name: unEvalFunc,
-                body: unEvalValue.toString(),
+                body: functionString,
                 arguments: params,
+                isAsync: isFunctionAsync(unEvalValue, unEvalDataTree),
               });
               _.set(
                 this.resolvedFunctions,
@@ -972,7 +977,7 @@ export default class DataTreeEvaluator {
               _.set(
                 this.currentJSCollectionState,
                 `${entityName}.${unEvalFunc}`,
-                unEvalValue.toString(),
+                functionString,
               );
             } else {
               variables.push({
@@ -1306,9 +1311,20 @@ export default class DataTreeEvaluator {
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
-            this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(path, this.allKeys),
-            ),
+            this.dependencyMap[key].map((path) => {
+              try {
+                return extractReferencesFromBinding(path, this.allKeys);
+              } catch (e) {
+                this.errors.push({
+                  type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+                  message: e.message,
+                  context: {
+                    script: path,
+                  },
+                });
+                return [];
+              }
+            }),
           ),
         );
       });
@@ -1447,9 +1463,22 @@ export default class DataTreeEvaluator {
         Object.keys(entityPropertyBindings).forEach((path) => {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
-            propertyBindings.map((binding) =>
-              extractReferencesFromBinding(binding, this.allKeys),
-            ),
+            propertyBindings.map((binding) => {
+              {
+                try {
+                  return extractReferencesFromBinding(binding, this.allKeys);
+                } catch (e) {
+                  this.errors.push({
+                    type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+                    message: e.message,
+                    context: {
+                      script: binding,
+                    },
+                  });
+                  return [];
+                }
+              }
+            }),
           );
           references.forEach((value) => {
             if (isChildPropertyPath(propertyPath, value)) {
@@ -1477,7 +1506,6 @@ export default class DataTreeEvaluator {
         this.evalTree,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
-        false,
       );
     }
 
@@ -1497,7 +1525,6 @@ export default class DataTreeEvaluator {
         dataTreeWithExecutionParams,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
-        false,
       ),
     );
   }
@@ -1516,11 +1543,7 @@ export default class DataTreeEvaluator {
       jsSnippets[0],
       EvaluationScriptType.TRIGGERS,
     );
-    const GLOBAL_DATA = createGlobalData(
-      this.evalTree,
-      this.resolvedFunctions,
-      true,
-    );
+    const GLOBAL_DATA = createGlobalData(this.evalTree, this.resolvedFunctions);
     return getLintingErrors(
       script,
       GLOBAL_DATA,
@@ -1530,18 +1553,17 @@ export default class DataTreeEvaluator {
   }
 }
 
-const extractReferencesFromBinding = (
-  dependentPath: string,
-  all: Record<string, true>,
-): Array<string> => {
-  const subDeps: Array<string> = [];
-  const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
-    dependentPath,
-  ];
+export const extractReferencesFromBinding = (
+  script: string,
+  allPaths: Record<string, true>,
+): string[] => {
+  const references: Set<string> = new Set<string>();
+  const identifiers = extractIdentifiersFromCode(script);
+
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
-    if (all.hasOwnProperty(identifier)) {
-      subDeps.push(identifier);
+    if (allPaths.hasOwnProperty(identifier)) {
+      references.add(identifier);
       return;
     }
     const subpaths = _.toPath(identifier);
@@ -1553,14 +1575,14 @@ const extractReferencesFromBinding = (
     while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
-      if (all.hasOwnProperty(current)) {
-        subDeps.push(current);
+      if (allPaths.hasOwnProperty(current)) {
+        references.add(current);
         return;
       }
       subpaths.pop();
     }
   });
-  return _.uniq(subDeps);
+  return Array.from(references);
 };
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function

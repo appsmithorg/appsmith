@@ -73,11 +73,6 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        ${(props) => {
-          if (props.isEditMode)
-            return `transform: translate(${parseInt(props.theme.sidebarWidth) /
-              2}px) !important`;
-        }}
       }
     }
   }

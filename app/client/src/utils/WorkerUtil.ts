@@ -1,4 +1,4 @@
-import { cancelled, delay, put, take } from "redux-saga/effects";
+import { cancelled, delay, put, spawn, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
@@ -55,6 +55,9 @@ export class GracefulWorkerService {
     this.start = this.start.bind(this);
     this.request = this.request.bind(this);
     this._broker = this._broker.bind(this);
+    this.duplexRequest = this.duplexRequest.bind(this);
+    this.duplexRequestHandler = this.duplexRequestHandler.bind(this);
+    this.duplexResponseHandler = this.duplexResponseHandler.bind(this);
 
     // Do not buffer messages on this channel
     this._readyChan = channel(buffers.none());
@@ -159,8 +162,108 @@ export class GracefulWorkerService {
         log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
       }
       // Cleanup
-      yield ch.close();
+      ch.close();
       this._channels.delete(requestId);
+    }
+  }
+
+  /**
+   * When there needs to be a back and forth between both the threads,
+   * you can use duplex request to avoid closing a channel
+   * */
+  *duplexRequest(method: string, requestData = {}): any {
+    yield this.ready(false);
+    // Impossible case, but helps avoid `?` later in code and makes it clearer.
+    if (!this._evaluationWorker) return;
+
+    /**
+     * We create a unique channel to wait for a response of this specific request.
+     */
+    const workerRequestId = `${method}__${_.uniqueId()}`;
+    const workerChannel = channel();
+    const mainThreadRequestChannel = channel();
+    const mainThreadResponseChannel = channel();
+    this._channels.set(workerRequestId, workerChannel);
+
+    yield spawn(
+      this.duplexRequestHandler,
+      workerChannel,
+      mainThreadRequestChannel,
+      mainThreadResponseChannel,
+    );
+    yield spawn(
+      this.duplexResponseHandler,
+      workerRequestId,
+      workerChannel,
+      mainThreadResponseChannel,
+    );
+
+    this._evaluationWorker.postMessage({
+      method,
+      requestData,
+      requestId: workerRequestId,
+    });
+
+    return {
+      responseChannel: mainThreadResponseChannel,
+      requestChannel: mainThreadRequestChannel,
+    };
+  }
+
+  *duplexRequestHandler(
+    workerChannel: Channel<any>,
+    requestChannel: Channel<any>,
+    responseChannel: Channel<any>,
+  ) {
+    if (!this._evaluationWorker) return;
+    try {
+      let keepAlive = true;
+      while (keepAlive) {
+        const workerResponse = yield take(workerChannel);
+        const { responseData } = workerResponse;
+        // process request
+        requestChannel.put({ requestData: responseData });
+        if (responseData.finished) {
+          keepAlive = false;
+          responseChannel.put({
+            finished: true,
+          });
+        }
+      }
+    } catch (e) {
+      log.error(e);
+    } finally {
+      // Cleanup
+      requestChannel.close();
+    }
+  }
+
+  *duplexResponseHandler(
+    workerRequestId: string,
+    workerChannel: Channel<any>,
+    responseChannel: Channel<any>,
+  ) {
+    if (!this._evaluationWorker) return;
+    try {
+      let keepAlive = true;
+      while (keepAlive) {
+        const response = yield take(responseChannel);
+        if (response.finished) {
+          keepAlive = false;
+          continue;
+        }
+        // send response to worker
+        this._evaluationWorker.postMessage({
+          ...response,
+          requestId: workerRequestId,
+        });
+      }
+    } catch (e) {
+      log.error(e);
+    } finally {
+      responseChannel.close();
+      workerChannel.close();
+      this._channels.delete(workerRequestId);
     }
   }
 

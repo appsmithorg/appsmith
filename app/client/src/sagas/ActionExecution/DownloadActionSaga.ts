@@ -1,21 +1,23 @@
-import { createMessage, DOWNLOAD_FILE_NAME_ERROR } from "constants/messages";
 import { getType, isURL, Types } from "utils/TypeHelpers";
 import downloadjs from "downloadjs";
 import AppsmithConsole from "utils/AppsmithConsole";
 import Axios from "axios";
-import { DownloadActionDescription } from "entities/DataTree/actionTriggers";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
+import {
+  ActionTriggerType,
+  DownloadActionDescription,
+} from "entities/DataTree/actionTriggers";
+import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 
 export default async function downloadSaga(
   action: DownloadActionDescription["payload"],
-  triggerMeta: TriggerMeta,
 ) {
   const { data, name, type } = action;
   if (!name) {
-    throw new TriggerFailureError(
-      createMessage(DOWNLOAD_FILE_NAME_ERROR),
-      triggerMeta,
+    throw new ActionValidationError(
+      ActionTriggerType.DOWNLOAD,
+      "name",
+      Types.STRING,
+      getType(name),
     );
   }
   const dataType = getType(data);
