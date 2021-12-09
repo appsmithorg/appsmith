@@ -38,7 +38,7 @@ export function highlightSection(dataAttribute?: string) {
   document.body.append(message);
 
   const showAnimationDelay = 0;
-  const hideAnimationDelay = showAnimationDelay + 5000;
+  const hideAnimationDelay = showAnimationDelay + 6000;
   const removeElementDelay = hideAnimationDelay + 1000;
 
   setTimeout(() => {
