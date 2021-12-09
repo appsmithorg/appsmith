@@ -57,7 +57,7 @@ export default {
   getSelectedRows: (props, moment, _) => {
     const selectedRowIndices = Array.isArray(props.selectedRowIndices)
       ? props.selectedRowIndices
-      : [props.selectedRowIndices];
+      : [];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
@@ -264,6 +264,9 @@ export default {
     derivedTableData = derivedTableData.map((item, index) => ({
       ...item,
       __originalIndex__: index,
+      __primaryKey__: props.primaryColumnId
+        ? item[props.primaryColumnId]
+        : undefined,
     }));
     const columns = props.tableColumns;
     const sortedColumn = props.sortOrder.column;
