@@ -106,7 +106,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           {
             helpText: "Triggers an action when the video recording stops",
             propertyName: "onRecordingStop",
-            label: "onRecordingStop",
+            label: "OnRecordingStop",
             controlType: "ACTION_SELECTOR",
             hidden: (props: CameraWidgetProps) =>
               props.mode === CameraModeTypes.CAMERA,
