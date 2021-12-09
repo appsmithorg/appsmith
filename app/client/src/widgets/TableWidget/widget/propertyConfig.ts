@@ -1469,6 +1469,13 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        propertyName: "enableClientSideSearch",
+        label: "Enable client side search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
     ],
   },
   {
