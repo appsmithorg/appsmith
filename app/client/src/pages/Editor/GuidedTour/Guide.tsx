@@ -694,7 +694,7 @@ function CompletionContent(props: CompletionContentProps) {
   }
 }
 
-export type GuideBody = {
+type GuideBody = {
   exploring: boolean;
   step: number;
   meta: {
