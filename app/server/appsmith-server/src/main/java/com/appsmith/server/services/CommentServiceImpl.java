@@ -24,7 +24,7 @@ import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +81,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final PolicyUtils policyUtils;
     private final EmailEventHandler emailEventHandler;
     private final SequenceService sequenceService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     public CommentServiceImpl(
             Scheduler scheduler,
@@ -101,7 +101,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             EmailEventHandler emailEventHandler,
             UserDataRepository userDataRepository,
             SequenceService sequenceService,
-            SanitiseResponse sanitiseResponse) {
+            ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.userService = userService;
@@ -114,7 +114,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         this.emailEventHandler = emailEventHandler;
         this.userDataRepository = userDataRepository;
         this.sequenceService = sequenceService;
-        this.sanitiseResponse = sanitiseResponse;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -174,14 +174,14 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             .flatMap(commentThread -> updateThreadOnAddComment(commentThread, comment, user))
                             .flatMap(commentThread -> create(commentThread, user, comment, originHeader));
                 })
-                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     @Override
     public Mono<Comment> findByIdAndBranchName(String id, String branchName) {
         // Ignore branch name as comments are not shared across git branches
         return repository.findById(id, READ_COMMENT)
-                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     /**
@@ -412,7 +412,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     }
                     return createThread(commentThread, originHeader);
                 })
-                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
 
     }
 
@@ -423,7 +423,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         comment.setPageId(null);
         return repository.updateById(id, comment, AclPermission.MANAGE_COMMENT)
                 .flatMap(analyticsService::sendUpdateEvent)
-                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     @Override
@@ -485,7 +485,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             .flatMap(updatedThread -> {
                                 updatedThread.setIsViewed(true);
                                 // Update branched applicationId and pageId with default Ids
-                                sanitiseResponse.updatePageAndAppIdWithDefaultResourcesForComments(updatedThread);
+                                responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(updatedThread);
                                 // send email if comment thread is resolved
                                 CommentThread.CommentThreadState resolvedState = commentThread.getResolvedState();
                                 if (resolvedState != null && resolvedState.getActive()) {
@@ -513,7 +513,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         // Remove branch name as comments are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         return super.getWithPermission(params, READ_COMMENT)
-                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     private Mono<Boolean> triggerBotThreadResolved(CommentThread resolvedThread, User user) {
@@ -605,7 +605,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     return getThreadsByApplicationId(commentThreadFilterDTO);
                 })
                 .map(commentThreads -> {
-                    commentThreads.forEach(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                    commentThreads.forEach(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
                     return commentThreads;
                 });
     }
@@ -626,7 +626,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             .thenReturn(comment)
                 ))
                 .flatMap(analyticsService::sendDeleteEvent)
-                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     @Override
@@ -639,7 +639,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     ).collectList().thenReturn(commentThread)
                 )
                 .flatMap(analyticsService::sendDeleteEvent)
-                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+                .map(responseUtils::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     @Override

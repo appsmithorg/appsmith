@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,13 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 public class LayoutServiceImpl implements LayoutService {
 
     private final NewPageService newPageService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     @Autowired
     public LayoutServiceImpl(NewPageService newPageService,
-                             SanitiseResponse sanitiseResponse) {
+                             ResponseUtils responseUtils) {
         this.newPageService = newPageService;
-        this.sanitiseResponse = sanitiseResponse;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class LayoutServiceImpl implements LayoutService {
         }
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(branchedPage ->  createLayout(branchedPage.getId(), layout))
-                .map(sanitiseResponse::updateLayoutWithDefaultResources);
+                .map(responseUtils::updateLayoutWithDefaultResources);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class LayoutServiceImpl implements LayoutService {
         }
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(branchedPage ->  getLayout(branchedPage.getId(), layoutId, viewMode))
-                .map(sanitiseResponse::updateLayoutWithDefaultResources);
+                .map(responseUtils::updateLayoutWithDefaultResources);
     }
 
 }

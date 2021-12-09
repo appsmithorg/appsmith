@@ -15,7 +15,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -51,7 +51,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     private final NewActionService newActionService;
     private final PolicyGenerator policyGenerator;
     private final ApplicationService applicationService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     @Autowired
     public ActionCollectionServiceImpl(Scheduler scheduler,
@@ -63,12 +63,12 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                        NewActionService newActionService,
                                        PolicyGenerator policyGenerator,
                                        ApplicationService applicationService,
-                                       SanitiseResponse sanitiseResponse) {
+                                       ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
         this.policyGenerator = policyGenerator;
         this.applicationService = applicationService;
-        this.sanitiseResponse = sanitiseResponse;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -128,7 +128,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             updatedMap.add(FieldName.BRANCH_NAME, branchName);
         }
         return this.getPopulatedActionCollectionsByViewMode(updatedMap, viewMode)
-                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override
@@ -224,7 +224,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                 return actionCollectionViewDTO;
                             });
                     })
-                    .map(sanitiseResponse::updateActionCollectionViewDTOWithDefaultResources)
+                    .map(responseUtils::updateActionCollectionViewDTOWithDefaultResources)
                 );
     }
 
@@ -330,7 +330,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
         return branchedCollectionId
                 .flatMap(this::deleteUnpublishedActionCollection)
-                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override
@@ -413,7 +413,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         return branchedCollectionMono
                 .map(ActionCollection::getId)
                 .flatMap(this::delete)
-                .map(sanitiseResponse::updateActionCollectionWithDefaultResources);
+                .map(responseUtils::updateActionCollectionWithDefaultResources);
     }
 
     @Override

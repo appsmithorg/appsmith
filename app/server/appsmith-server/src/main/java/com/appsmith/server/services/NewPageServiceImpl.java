@@ -14,7 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -50,7 +50,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     @Autowired
     public NewPageServiceImpl(Scheduler scheduler,
@@ -61,11 +61,11 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                               AnalyticsService analyticsService,
                               ApplicationService applicationService,
                               UserDataService userDataService,
-                              SanitiseResponse sanitiseResponse) {
+                              ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
-        this.sanitiseResponse = sanitiseResponse;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -123,7 +123,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<NewPage> findByIdAndBranchName(String id, String branchName) {
         return this.findByBranchNameAndDefaultPageId(branchName, id, READ_PAGES)
-                .map(sanitiseResponse::updateNewPageWithDefaultResources);
+                .map(responseUtils::updateNewPageWithDefaultResources);
     }
 
     @Override
@@ -339,7 +339,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
             .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view))
-            .map(sanitiseResponse::updateApplicationPagesDTOWithDefaultResources);
+            .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 
     @Override
@@ -443,7 +443,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
         return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
-                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
     @Override

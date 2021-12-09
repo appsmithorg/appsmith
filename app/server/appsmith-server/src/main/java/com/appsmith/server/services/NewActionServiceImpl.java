@@ -41,7 +41,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,7 +111,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final ObjectMapper objectMapper;
     private final AuthenticationValidator authenticationValidator;
     private final ConfigService configService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -131,7 +131,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 PolicyUtils policyUtils,
                                 AuthenticationValidator authenticationValidator,
                                 ConfigService configService,
-                                SanitiseResponse sanitiseResponse) {
+                                ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -147,7 +147,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.authenticationValidator = authenticationValidator;
         this.configService = configService;
         this.objectMapper = new ObjectMapper();
-        this.sanitiseResponse = sanitiseResponse;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -188,7 +188,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
         return this.findByBranchNameAndDefaultActionId(branchName, id, READ_ACTIONS)
-                .map(sanitiseResponse::updateNewActionWithDefaultResources);
+                .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
     @Override
@@ -1019,7 +1019,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
                 .flatMapMany(this::getActionsForViewMode)
-                .map(sanitiseResponse::updateActionViewDTOWithDefaultResources);
+                .map(responseUtils::updateActionViewDTOWithDefaultResources);
     }
 
     @Override
@@ -1212,7 +1212,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
                     return getUnpublishedActions(updatedParams);
                 })
-                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
@@ -1420,7 +1420,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         return branchedActionMono
                 .flatMap(newAction -> this.delete(newAction.getId()))
-                .map(sanitiseResponse::updateNewActionWithDefaultResources);
+                .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
     @Override

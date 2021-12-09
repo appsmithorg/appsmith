@@ -22,7 +22,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
@@ -59,7 +59,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -72,13 +72,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
                                   SessionUserService sessionUserService,
-                                  SanitiseResponse sanitiseResponse) {
+                                  ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
-        this.sanitiseResponse = sanitiseResponse;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         }
         return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS))
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> findByIdAndBranchName(String id, String branchName) {
         return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS)
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> setUnreadCommentCount(Application application, User user) {
@@ -263,7 +263,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                               ApplicationAccessDTO applicationAccessDTO) {
         return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -276,7 +276,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return this.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
             .flatMap(this::getApplicationInViewMode)
-            .map(sanitiseResponse::updateApplicationWithDefaultResources);
+            .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override

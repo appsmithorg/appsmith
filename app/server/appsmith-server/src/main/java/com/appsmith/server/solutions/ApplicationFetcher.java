@@ -138,6 +138,11 @@ public class ApplicationFetcher {
                                         final List<Application> applicationList = new ArrayList<>();
                                         if (!CollectionUtils.isEmpty(applicationCollection)) {
                                             applicationList.addAll(applicationCollection);
+                                            long gitConnectedAppsCount = applicationCollection
+                                                    .stream()
+                                                    .filter(application -> application.getGitApplicationMetadata() != null)
+                                                    .count();
+                                            organization.setGitConnectedApplications(gitConnectedAppsCount);
                                         }
 
                                         OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();

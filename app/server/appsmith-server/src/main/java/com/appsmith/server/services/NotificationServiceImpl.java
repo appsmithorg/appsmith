@@ -14,7 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NumberUtils;
 import com.appsmith.server.repositories.NotificationRepository;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +41,7 @@ public class NotificationServiceImpl
         implements NotificationService {
 
     private final SessionUserService sessionUserService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     public NotificationServiceImpl(
             Scheduler scheduler,
@@ -51,10 +51,10 @@ public class NotificationServiceImpl
             NotificationRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            SanitiseResponse sanitiseResponse) {
+            ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
-        this.sanitiseResponse = sanitiseResponse;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -111,10 +111,10 @@ public class NotificationServiceImpl
                 .map(notification -> {
                     if (notification instanceof CommentNotification) {
                         CommentNotification commentNotification = (CommentNotification) notification;
-                        sanitiseResponse.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
                     } else if (notification instanceof CommentThreadNotification) {
                         CommentThreadNotification threadNotification = (CommentThreadNotification) notification;
-                        sanitiseResponse.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
                     }
                     return notification;
                 });
@@ -127,10 +127,10 @@ public class NotificationServiceImpl
                 .map(notification -> {
                     if (notification instanceof CommentNotification) {
                         CommentNotification commentNotification = (CommentNotification) notification;
-                        sanitiseResponse.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
                     } else if(notification instanceof CommentThreadNotification) {
                         CommentThreadNotification threadNotification = (CommentThreadNotification) notification;
-                        sanitiseResponse.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
                     }
                     return notification;
                 });

@@ -27,7 +27,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -73,7 +73,7 @@ public class GitServiceImpl implements GitService {
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
@@ -113,7 +113,7 @@ public class GitServiceImpl implements GitService {
                     return applicationService.save(application);
                 })
                 .flatMap(applicationService::setTransientFields)
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -541,7 +541,7 @@ public class GitServiceImpl implements GitService {
                                                 })
                                     );
                                 })
-                                .thenReturn(sanitiseResponse.updateApplicationWithDefaultResources(application));
+                                .thenReturn(responseUtils.updateApplicationWithDefaultResources(application));
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
@@ -681,7 +681,7 @@ public class GitServiceImpl implements GitService {
                                             .flatMap(applicationPageService::deleteApplicationByResource))
                             .then(Mono.just(application)));
                 })
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
@@ -774,7 +774,7 @@ public class GitServiceImpl implements GitService {
                                 .thenReturn(application);
                     });
                 })
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
@@ -803,7 +803,7 @@ public class GitServiceImpl implements GitService {
                     branchName, defaultApplicationId, READ_APPLICATIONS
                 );
             })
-            .map(sanitiseResponse::updateApplicationWithDefaultResources);
+            .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> checkoutRemoteBranch(String defaultApplicationId, String branchName) {
@@ -1008,7 +1008,7 @@ public class GitServiceImpl implements GitService {
 
     private GitPullDTO getPullDTO(Application application, MergeStatusDTO status) {
         GitPullDTO gitPullDTO = new GitPullDTO();
-        sanitiseResponse.updateApplicationWithDefaultResources(application);
+        responseUtils.updateApplicationWithDefaultResources(application);
         gitPullDTO.setMergeStatus(status);
         gitPullDTO.setApplication(application);
         return gitPullDTO;

@@ -17,7 +17,7 @@ import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -88,7 +88,7 @@ public class ActionCollectionServiceImplTest {
     ApplicationService applicationService;
 
     @MockBean
-    SanitiseResponse sanitiseResponse;
+    ResponseUtils responseUtils;
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
@@ -104,7 +104,7 @@ public class ActionCollectionServiceImplTest {
                 newActionService,
                 policyGenerator,
                 applicationService,
-                sanitiseResponse
+                responseUtils
         );
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
@@ -113,7 +113,7 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionService,
                 newActionService,
                 analyticsService,
-                sanitiseResponse
+                responseUtils
         );
 
         Mockito
@@ -428,7 +428,7 @@ public class ActionCollectionServiceImplTest {
                 });
 
         Mockito
-                .when(sanitiseResponse.updateCollectionDTOWithDefaultResources(Mockito.any()))
+                .when(responseUtils.updateCollectionDTOWithDefaultResources(Mockito.any()))
                 .thenReturn(modifiedActionCollectionDTO);
 
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
@@ -711,7 +711,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(layout));
 
         Mockito
-                .when(sanitiseResponse.updateLayoutDTOWithDefaultResources(Mockito.any()))
+                .when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
                 .thenReturn(layout);
 
         final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO, null);
@@ -789,7 +789,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(layout));
 
         Mockito
-                .when(sanitiseResponse.updateLayoutDTOWithDefaultResources(Mockito.any()))
+                .when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
                 .thenReturn(layout);
 
         final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO, null);

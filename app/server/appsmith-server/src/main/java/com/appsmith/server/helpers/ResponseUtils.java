@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.AbstractCommentDomain;
@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class SanitiseResponse {
+public class ResponseUtils {
 
     public PageDTO updatePageDTOWithDefaultResources(PageDTO page) {
         DefaultResources defaults = page.getDefaultResources();

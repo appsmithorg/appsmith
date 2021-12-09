@@ -30,7 +30,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +80,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     public static final Integer EVALUATION_VERSION = 2;
 
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -149,7 +149,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     page.setDefaultResources(defaultResources);
                     return createPage(page);
                 })
-                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
     /**
@@ -218,7 +218,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> getPage(newPage.getId(), viewMode))
-                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
     @Override
@@ -273,7 +273,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         // TODO remove the dependency of applicationId as pageId and branch can get the exact resource
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(branchedPage -> makePageDefault(branchedPage.getApplicationId(), branchedPage.getId()))
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -417,7 +417,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> clonePageByDefaultPageIdAndBranch(String defaultPageId, String branchName) {
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> clonePage(newPage.getId()))
-                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId,
@@ -715,7 +715,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
-                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources);
     }
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
@@ -836,7 +836,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(branchedApplicationId -> publish(branchedApplicationId, isPublishedManually))
-                .map(sanitiseResponse::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -894,7 +894,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .setPages(application.getId(), pages)
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE));
                 })
-                .map(sanitiseResponse::updateApplicationPagesDTOWithDefaultResources);
+                .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 
 }

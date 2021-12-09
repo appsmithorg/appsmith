@@ -18,7 +18,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -52,7 +52,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -234,7 +234,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     collection.setPageId(branchedPage.getId());
                     return createCollection(collection);
                 })
-                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override
@@ -307,7 +307,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                             .then(branchedPageIdMono)
                             .flatMap(branchedPageId -> layoutActionService.refactorName(branchedPageId, layoutId, oldName, newName));
                 })
-                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 
     @Override
@@ -415,7 +415,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     actionCollectionMoveDTO.setCollectionId(branchedCollectionId);
                     return this.moveCollection(actionCollectionMoveDTO);
                 })
-                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override
@@ -577,7 +577,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
-                .map(actionCollectionDTO1 -> sanitiseResponse.updateCollectionDTOWithDefaultResources(actionCollectionDTO1));
+                .map(actionCollectionDTO1 -> responseUtils.updateCollectionDTOWithDefaultResources(actionCollectionDTO1));
     }
 
     @Override
@@ -657,6 +657,6 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     }
                     return refactorAction(refactorActionNameInCollectionDTO);
                 })
-                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 }

@@ -25,6 +25,7 @@ import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -76,7 +77,7 @@ public class CreateDBTablePageSolution {
     private final PluginService pluginService;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
     
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -368,7 +369,7 @@ public class CreateDBTablePageSolution {
                             createSuccessMessageAndSetAsset(plugin, crudPage);
                             return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName())
                                     .map(res -> {
-                                        PageDTO sanitisedResponse = sanitiseResponse.updatePageDTOWithDefaultResources(res.getPage());
+                                        PageDTO sanitisedResponse = responseUtils.updatePageDTOWithDefaultResources(res.getPage());
                                         crudPage.setPage(sanitisedResponse);
                                         return crudPage;
                                     });

@@ -28,7 +28,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
-import com.appsmith.server.solutions.SanitiseResponse;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,7 +78,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final ActionCollectionService actionCollectionService;
     private final CollectionService collectionService;
     private final ApplicationService applicationService;
-    private final SanitiseResponse sanitiseResponse;
+    private final ResponseUtils responseUtils;
 
 
     /*
@@ -236,7 +236,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     actionMoveDTO.getAction().setId(branchedActionId);
                     return moveAction(actionMoveDTO);
                 })
-                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
@@ -265,7 +265,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     refactorNameDTO.setPageId(branchedPage.getId());
                     return refactorWidgetName(refactorNameDTO);
                 })
-                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 
     @Override
@@ -315,7 +315,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
                     return refactorActionName(refactorActionNameDTO);
                 })
-                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 
     /**
@@ -722,7 +722,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         action.setPageId(null);
         return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
-                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
@@ -748,7 +748,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
         return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
-                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     /**
@@ -768,7 +768,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
         return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
-                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     private Mono<String> updatePageLayoutsGivenAction(String pageId) {
@@ -935,7 +935,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(branchedPage -> updateLayout(branchedPage.getId(), layoutId, layout))
-                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 
     private LayoutDTO generateResponseDTO(Layout layout) {
@@ -1027,7 +1027,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     action.setDefaultResources(defaultResources);
                     return createSingleAction(action);
                 })
-                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
