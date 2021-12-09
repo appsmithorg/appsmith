@@ -3942,7 +3942,7 @@ public class DatabaseChangelog {
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://assets.appsmith.com/smtp-icon.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-smtp-plugin");
-        plugin.setDefaultInstall(false);
+        plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
@@ -3951,7 +3951,17 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "100", id = "add-google-sheets-plugin-name", author = "")
+    @ChangeSet(order = "100", id = "update-mockdb-endpoint", author = "")
+    public void updateMockdbEndpoint(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.endpoints.host").is("fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com")),
+                update("datasourceConfiguration.endpoints.$.host", "mockdb.internal.appsmith.com"),
+                Datasource.class
+        );
+    }
+
+
+    @ChangeSet(order = "101", id = "add-google-sheets-plugin-name", author = "")
     public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
         Plugin googleSheetsPlugin = mongockTemplate.findOne(
                 query(where("packageName").is("google-sheets-plugin")),
