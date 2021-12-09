@@ -248,6 +248,7 @@ function ConnectGitPlaceholder() {
           {isGitConnectionEnabled ? (
             <Button
               category={Category.tertiary}
+              className="t--connect-git-bottom-bar"
               onClick={() => {
                 dispatch(setIsGitSyncModalOpen({ isOpen: true }));
               }}

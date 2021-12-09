@@ -143,5 +143,9 @@
   "errorTab": "[data-cy=t--tab-ERROR]",
   "debugErrorMsg": ".t--debugger-message",
   "debuggerLabel": "span.debugger-label",
-  "cyclicDependencyError": "//div[@class='Toastify']//span[contains(text(),'Cyclic dependency found while evaluating')]"
+  "cyclicDependencyError": "//div[@class='Toastify']//span[contains(text(),'Cyclic dependency found while evaluating')]",
+  "appNameDeployMenu": ".t--app-name-menu-deploy-parent",
+  "appNameDeployMenuPublish": ".t--app-name-menu-deploy",
+  "appNameDeployMenuCurrentVersion": ".t--app-name-menu-deploy-current-version",
+  "appNameDeployMenuConnectToGit": ".t--app-name-menu-deploy-connect-to-git"
 }

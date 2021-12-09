@@ -101,6 +101,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy",
     },
     {
       text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
@@ -108,6 +109,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy-current-version",
     },
   ];
 
@@ -118,6 +120,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: false,
+      className: "t--app-name-menu-deploy-connect-to-git",
     });
   }
 
@@ -162,6 +165,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.PARENT,
       isVisible: true,
       children: deployOptions,
+      className: "t--app-name-menu-deploy-parent",
     },
     {
       text: "Help",

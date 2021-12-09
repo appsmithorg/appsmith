@@ -10,7 +10,6 @@ describe("Git sync connect to repo", function() {
     cy.generateUUID().then((uid) => {
       repoName = uid;
       cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo();
     });
   });
 
@@ -28,7 +27,7 @@ describe("Git sync connect to repo", function() {
       cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
     });
 
-    cy.connectToGitRepo();
+    cy.connectToGitRepo(repoName);
 
     cy.skipCommentsOnboarding();
     // wait for comment mode to be set
@@ -41,6 +40,32 @@ describe("Git sync connect to repo", function() {
     cy.get(commentsLocators.mentionsInput).type("{enter}");
     cy.switchGitBranch("master");
     cy.get(newCommentText1).should("not.exist");
+  });
+
+  it("post connection success", function() {
+    cy.get(homePage.applicationName).click();
+    cy.get(commonLocators.appNameDeployMenu).click();
+    cy.get(commonLocators.appNameDeployMenuConnectToGit).click();
+    cy.get(gitSyncLocators.gitSyncModal);
+    cy.contains("Deploy")
+      .parent()
+      .should("have.class", "react-tabs__tab--selected");
+
+    cy.window().then((window) => {
+      cy.stub(window, "open").callsFake((url) => {
+        expect(url.indexOf("branch=master")).to.be.at.least(0);
+        const viewerPathMatch = matchViewerPath(trimQueryString(url));
+        expect(!!viewerPathMatch).to.be.true;
+      });
+    });
+
+    cy.get(homePage.applicationName).click();
+    cy.get(commonLocators.appNameDeployMenu).click();
+    cy.get(commonLocators.appNameDeployMenuCurrentVersion).click();
+
+    cy.get(homePage.applicationName).click();
+    cy.get(commonLocators.appNameDeployMenu).click();
+    cy.get(commonLocators.appNameDeployMenuConnectToGit).should("not.exist");
   });
 
   after(() => {

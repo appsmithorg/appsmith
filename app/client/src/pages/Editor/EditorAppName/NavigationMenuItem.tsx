@@ -22,6 +22,7 @@ export interface MenuItemData {
   label?: string;
   onClick?: typeof noop;
   children?: MenuItemData[];
+  className?: string;
   type: MenuTypes;
   isVisible: boolean;
   confirmText?: string;
@@ -88,6 +89,7 @@ export function NavigationMenuItem({
   setIsPopoverOpen,
 }: NavigationMenuItemProps) {
   const {
+    className,
     confirmText,
     isOpensNewWindow,
     isVisible,
@@ -141,6 +143,7 @@ export function NavigationMenuItem({
     case MenuTypes.MENU:
       return (
         <StyledMenuItem
+          className={className}
           label={label}
           labelElement={labelElement}
           onClick={handleClick}
@@ -150,13 +153,19 @@ export function NavigationMenuItem({
       );
     case MenuTypes.PARENT:
       return (
-        <StyledMenuItem label={label} style={style} text={confirm.text}>
+        <StyledMenuItem
+          className={className}
+          label={label}
+          style={style}
+          text={confirm.text}
+        >
           {children}
         </StyledMenuItem>
       );
     case MenuTypes.RECONFIRM:
       return (
         <ReconfirmStyledItem
+          className={className}
           isConfirm={confirm.isConfirm}
           label={label}
           onClick={handleReconfirmClick}

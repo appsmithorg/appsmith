@@ -13,6 +13,7 @@ export default {
   branchSearchInput: ".t--branch-search-input",
   branchListItem: ".t--branch-item",
   closeGitSyncModal: ".t--close-git-sync-modal",
+  gitSyncModal: ".git-sync-modal",
   bottomBarMergeButton: ".t--bottom-bar-merge",
   bottomBarPullButton: ".t--bottom-bar-pull",
   mergeBranchDropdownDestination: ".t--merge-branch-dropdown-destination",
@@ -21,4 +22,5 @@ export default {
   copySshKey: ".t--copy-ssh-key",
   connetStatusbar: ".t--connect-statusbar",
   useGlobalGitConfig: "[data-cy=t--use-global-config-checkbox]",
+  connectGitBottomBar: ".t--connect-git-bottom-bar",
 };

@@ -1,5 +1,6 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 const homePage = require("../../../../locators/HomePage");
+const commonLocators = require("../../../../locators/commonlocators.json");
 
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
@@ -9,6 +10,9 @@ const invalidEmail = "test";
 const invalidEmailWithAmp = "test@hello";
 
 const GITHUB_API_BASE = "https://api.github.com";
+
+import { matchViewerPath } from "../../../../../src/constants/routes";
+import { trimQueryString } from "../../../../../src/utils/helpers";
 
 let repoName;
 let generatedKey;
@@ -218,10 +222,8 @@ describe("Git sync modal: connect tab", function() {
     cy.wait("@connectGitRepo");
 
     cy.contains("SSH Key is not configured properly");
-  });
 
-  it("validate connection success", function() {
-    // NOTE: connection success is validated in other git related specs
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
   after(() => {
