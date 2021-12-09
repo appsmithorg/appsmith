@@ -1109,15 +1109,15 @@ public class GitServiceImpl implements GitService {
      */
     public Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName) {
 
+        if (StringUtils.isEmptyOrNull(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
         final String finalBranchName = branchName.replaceFirst("origin/", "");
         /*
             1. Copy resources from DB to local repo
             2. Fetch the current status from local repo
          */
 
-        if (StringUtils.isEmptyOrNull(branchName)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
-        }
 
         return Mono.zip(
                 getGitApplicationMetadata(defaultApplicationId),

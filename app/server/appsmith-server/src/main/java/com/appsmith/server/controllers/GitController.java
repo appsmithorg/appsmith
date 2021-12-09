@@ -126,7 +126,7 @@ public class GitController {
 
     @GetMapping("/checkout-branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
-                                                         @RequestParam String branchName) {
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to checkout to branch {} application {} ", branchName, defaultApplicationId);
         return service.checkoutBranch(defaultApplicationId, branchName)
             .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
