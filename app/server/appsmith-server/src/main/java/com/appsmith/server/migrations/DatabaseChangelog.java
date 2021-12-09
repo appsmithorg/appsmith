@@ -3916,7 +3916,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "098", id = "add-google-sheets-plugin-name", author = "")
+    @ChangeSet(order = "099", id = "add-google-sheets-plugin-name", author = "")
     public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
         Plugin googleSheetsPlugin = mongockTemplate.findOne(
                 query(where("packageName").is("google-sheets-plugin")),
@@ -3929,7 +3929,7 @@ public class DatabaseChangelog {
         mongockTemplate.save(googleSheetsPlugin);
     }
 
-    @ChangeSet(order = "099", id = "add-smtp-plugin", author = "")
+    @ChangeSet(order = "100", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SMTP");
@@ -3949,7 +3949,7 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "100", id = "update-mockdb-endpoint", author = "")
+    @ChangeSet(order = "101", id = "update-mockdb-endpoint", author = "")
     public void updateMockdbEndpoint(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
                 query(where("datasourceConfiguration.endpoints.host").is("fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com")),
