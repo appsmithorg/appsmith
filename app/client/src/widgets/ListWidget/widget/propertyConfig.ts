@@ -52,7 +52,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: 0 } },
+        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
       },
       {
         helpText:

@@ -124,6 +124,7 @@ class ImageComponent extends React.Component<
     if (zoomActive) {
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
+    if (this.props.onClick) cursor = "pointer";
     return (
       <Wrapper
         borderRadius={this.props.borderRadius}
@@ -199,8 +200,9 @@ class ImageComponent extends React.Component<
                     }
                     this.isPanning = false;
                   }}
+                  // Checking if onClick event is associated, changing cursor to pointer.
                   style={{
-                    cursor,
+                    cursor: cursor,
                     transform: `rotate(${imageRotation}deg)`,
                   }}
                 >

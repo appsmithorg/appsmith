@@ -302,7 +302,7 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        parsed: 100,
+        parsed: 90,
         messages: ["Minimum allowed value: 100"],
       },
       {
@@ -349,16 +349,25 @@ describe("Validate Validators", () => {
     const config = {
       type: ValidationTypes.NUMBER,
       params: {
-        min: 100,
+        min: -8,
         max: 200,
         default: 150,
       },
     };
-    const inputs = [""];
+    const inputs = ["", "-120", "-8"];
     const expected = [
       {
         isValid: true,
         parsed: 150,
+      },
+      {
+        isValid: false,
+        parsed: -120,
+        messages: ["Minimum allowed value: -8"],
+      },
+      {
+        isValid: true,
+        parsed: -8,
       },
     ];
     inputs.forEach((input, index) => {

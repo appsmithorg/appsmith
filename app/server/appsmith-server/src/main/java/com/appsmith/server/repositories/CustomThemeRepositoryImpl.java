@@ -37,8 +37,14 @@ public class CustomThemeRepositoryImpl extends BaseAppsmithRepositoryImpl<Theme>
     }
 
     @Override
+<<<<<<< HEAD
     public Mono<Theme> findBySlug(String themeSlug) {
         Criteria criteria = Criteria.where(fieldName(QTheme.theme.slug)).is(themeSlug);
+=======
+    public Mono<Theme> findSystemThemeBySlug(String themeSlug) {
+        Criteria criteria = Criteria.where(fieldName(QTheme.theme.slug)).is(themeSlug)
+                .and(fieldName(QTheme.theme.applicationId)).exists(false);
+>>>>>>> 5c03a465d8f3dfb1530aa5afb4c1012074d425aa
         return queryOne(List.of(criteria), null);
     }
 }

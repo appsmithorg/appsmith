@@ -38,6 +38,7 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Theme;
@@ -83,6 +84,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.index.PartialIndexFilter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -3930,7 +3932,11 @@ public class DatabaseChangelog {
         mongockTemplate.save(googleSheetsPlugin);
     }
 
+<<<<<<< HEAD
     @ChangeSet(order = "100", id = "add-smtp-plugin", author = "")
+=======
+    @ChangeSet(order = "99", id = "add-smtp-plugin", author = "")
+>>>>>>> 5c03a465d8f3dfb1530aa5afb4c1012074d425aa
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SMTP");
@@ -3959,8 +3965,16 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "102", id = "create-system-themes", author = "")
+    @ChangeSet(order = "101", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        Index uniqueApplicationIdIndex = new Index()
+                .unique()
+                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+                .partial(PartialIndexFilter.of(Criteria.where(fieldName(QTheme.theme.applicationId)).exists(true)))
+                .named("unique_application_id_index");
+
+        ensureIndexes(mongockTemplate.getImpl(), Theme.class, uniqueApplicationIdIndex);
+
         final String themesJson = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
                 Charset.defaultCharset()
