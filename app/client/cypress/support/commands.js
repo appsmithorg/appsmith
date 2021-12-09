@@ -2188,12 +2188,11 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
-  // cy.get(datasourceEditor.datasourceCard)
-  //   .last()
-  //   .click();
-  cy.testDatasource();
   cy.saveDatasource();
-
+  cy.get(datasourceEditor.datasourceCard)
+    .last()
+    .click();
+  cy.testDatasource();
 });
 
 Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
