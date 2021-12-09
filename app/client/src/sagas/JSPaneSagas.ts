@@ -64,13 +64,8 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
-import {
-  executeActionTriggers,
-  getConfirmModalFlag,
-} from "sagas/ActionExecution/ActionExecutionSagas";
+import { getConfirmModalFlag } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { set } from "lodash";
 import { confirmRunActionSaga } from "sagas/ActionExecution/PluginActionSaga";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
