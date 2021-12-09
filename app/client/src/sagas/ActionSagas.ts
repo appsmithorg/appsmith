@@ -47,6 +47,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Action,
   ActionViewMode,
+  isAPIAction,
   PluginType,
   SlashCommand,
   SlashCommandPayload,
@@ -294,17 +295,19 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
+export function* updateActionSaga(
+  actionPayload: ReduxAction<{ id: string; action?: Action }>,
+) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action = yield select(getAction, actionPayload.payload.id);
+    let action = actionPayload.payload.action;
+    if (!action) action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
-    const isApi = action.pluginType === PluginType.API;
 
-    if (isApi) {
+    if (isAPIAction(action)) {
       action = transformRestAction(action);
     }
 
@@ -313,7 +316,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const pageName = yield select(
+      const pageName: string = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
       );
@@ -642,11 +645,11 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 export function* setActionPropertySaga(
   action: ReduxAction<SetActionPropertyPayload>,
 ) {
-  const { actionId, propertyName, value } = action.payload;
+  const { actionId, propertyName, skipSave, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
 
-  const actionObj = yield select(getAction, actionId);
+  const actionObj: Action = yield select(getAction, actionId);
   const fieldToBeUpdated = propertyName.replace(
     "actionConfiguration",
     "config",
@@ -689,7 +692,8 @@ export function* setActionPropertySaga(
     });
     return;
   }
-  yield put(updateAction({ id: actionId }));
+  //skipSave property is added to skip API calls when the updateAction needs to be called from the caller
+  if (!skipSave) yield put(updateAction({ id: actionId }));
 }
 
 function* toggleActionExecuteOnLoadSaga(
@@ -800,7 +804,10 @@ function* buildMetaForSnippets(
   return { refinements, fieldMeta };
 }
 
-function* getCurrentEntity(pageId: string, params: Record<string, string>) {
+export function* getCurrentEntity(
+  pageId: string,
+  params: Record<string, string>,
+) {
   let entityId = "",
     entityType = "";
   if (onApiEditor() || onQueryEditor()) {
