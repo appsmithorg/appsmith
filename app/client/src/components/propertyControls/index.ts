@@ -60,7 +60,6 @@ export const PropertyControls = {
   OptionControl,
   CodeEditorControl,
   MultiSelectControl,
-  SingleSelectControl,
   DatePickerControl,
   ActionSelectorControl,
   ColumnActionSelectorControl,
@@ -90,7 +89,6 @@ export type PropertyControlPropsType =
   | DropDownControlProps
   | SwitchControlProps
   | MultiSelectControlProps
-  | SingleSelectControlProps
   | DatePickerControlProps
   | MultiSwitchControlProps
   | IconTabControlProps
