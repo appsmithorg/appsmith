@@ -13,7 +13,11 @@ import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import { ButtonVariant, ButtonVariantTypes } from "components/constants";
+import {
+  ButtonPlacement,
+  ButtonVariant,
+  ButtonVariantTypes,
+} from "components/constants";
 import { ThemeProp } from "components/ads/common";
 import {
   getCustomBackgroundColor,

@@ -11,17 +11,20 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateSelectedThemeAction } from "actions/appThemingActions";
 import { AppTheme } from "entities/AppTheming";
 import ThemeFontControl from "./controls/ThemeFontControl";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
+  const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
 
   const updateSelectedTheme = useCallback(
     (theme: AppTheme) => {
-      dispatch(updateSelectedThemeAction({ applicationId: "", theme }));
+      dispatch(updateSelectedThemeAction({ applicationId, theme }));
     },
     [updateSelectedThemeAction],
   );
+
   return (
     <>
       <header className="px-3 space-y-2">

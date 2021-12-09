@@ -1,6 +1,5 @@
 import {
   FetchSelectedAppThemeAction,
-  FetchAppThemesAction,
   UpdateSelectedAppThemeAction,
   ChangeSelectedAppThemeAction,
 } from "actions/appThemingActions";
@@ -10,6 +9,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
+import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put } from "redux-saga/effects";
 
 const dummyThemes: AppTheme[] = [
@@ -25,26 +25,15 @@ const dummyThemes: AppTheme[] = [
       borderRadius: {
         appBorderRadius: {
           none: "0px",
-          DEFAULT: "0.25rem",
           md: "0.375rem",
-          lg: "0.5rem",
-          xl: "0.75rem",
-          "2xl": "1rem",
-          "3xl": "1.5rem",
+          lg: "1.5rem",
           full: "9999px",
-        },
-        buttonBorderRadius: {
-          none: "0px",
-          md: "0.375rem",
-          lg: "0.5rem",
         },
       },
       boxShadow: {
         appBoxShadow: {
           none: "none",
-          sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-          DEFAULT:
-            "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+          sm: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
           md:
             "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
           lg:
@@ -52,7 +41,7 @@ const dummyThemes: AppTheme[] = [
         },
       },
       fontFamily: {
-        appFont: ["Roboto", "Nunito Sans", "Poppins"],
+        appFont: ["System Default", "Nunito Sans", "Poppins"],
       },
     },
     stylesheet: {
@@ -202,7 +191,7 @@ const dummyThemes: AppTheme[] = [
         appBoxShadow: "none",
       },
       fontFamily: {
-        appFont: "Roboto",
+        appFont: "System Default",
       },
     },
   },
@@ -795,16 +784,13 @@ const dummyThemes: AppTheme[] = [
  *
  * @param action
  */
-export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
-  // eslint-disable-next-line
-  const { applicationId } = action.payload;
-
+export function* fetchAppThemes() {
   try {
-    // const response = yield ThemingApi.fetchThemes(applicationId);
+    const response = yield ThemingApi.fetchThemes();
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: dummyThemes,
+      payload: response.data,
     });
   } catch (error) {
     yield put({
@@ -822,10 +808,9 @@ export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
 export function* fetchAppSelectedTheme(
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
-  // eslint-disable-next-line
   const { applicationId } = action.payload;
   try {
-    // const response = yield ThemingApi.fetchThemes(applicationId);
+    const response = yield ThemingApi.fetchSelected(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
@@ -847,10 +832,10 @@ export function* fetchAppSelectedTheme(
 export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
-  const { theme } = action.payload;
+  const { applicationId, theme } = action.payload;
 
   try {
-    // const response = yield ThemingApi.updateTheme(applicationId, theme);
+    const response = yield ThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -872,10 +857,10 @@ export function* updateSelectedTheme(
 export function* changeSelectedTheme(
   action: ReduxAction<ChangeSelectedAppThemeAction>,
 ) {
-  const { theme } = action.payload;
+  const { applicationId, theme } = action.payload;
 
   try {
-    // const response = yield ThemingApi.updateTheme(applicationId, theme);
+    yield ThemingApi.changeTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,

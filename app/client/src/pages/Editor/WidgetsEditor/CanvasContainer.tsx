@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -34,6 +34,8 @@ const Container = styled.section`
   }
 `;
 
+const DEFAULT_FONT_NAME = "System Default";
+
 function CanvasContainer() {
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -62,12 +64,25 @@ function CanvasContainer() {
 
   // loads font for canvas based on theme
   useEffect(() => {
-    webfontloader.load({
-      google: {
-        families: [selectedTheme.properties.fontFamily.appFont],
-      },
-    });
+    if (selectedTheme.properties.fontFamily.appFont !== DEFAULT_FONT_NAME) {
+      webfontloader.load({
+        google: {
+          families: [selectedTheme.properties.fontFamily.appFont],
+        },
+      });
+    }
   }, [selectedTheme.properties.fontFamily.appFont]);
+
+  /**
+   * returns the font to be used for the canvas
+   */
+  const getAppFontFamily = useMemo(() => {
+    if (selectedTheme.properties.fontFamily.appFont === DEFAULT_FONT_NAME) {
+      return "inherit";
+    }
+
+    return selectedTheme.properties.fontFamily.appFont;
+  }, [selectedTheme.properties.fontFamily]);
 
   return (
     <Container
@@ -79,7 +94,7 @@ function CanvasContainer() {
       key={currentPageId}
       style={{
         height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
-        fontFamily: selectedTheme.properties.fontFamily.appFont,
+        fontFamily: getAppFontFamily,
         background:
           isThemeMode || isPreviewMode
             ? selectedTheme.properties.colors.backgroundColor

@@ -5,7 +5,12 @@ import { IconName } from "@blueprintjs/icons";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ButtonVariant, ButtonVariantTypes } from "components/constants";
+import {
+  ButtonVariant,
+  ButtonPlacementTypes,
+  ButtonPlacement,
+  ButtonVariantTypes,
+} from "components/constants";
 import ButtonGroupComponent from "../component";
 
 class ButtonGroupWidget extends BaseWidget<

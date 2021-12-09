@@ -8,10 +8,6 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
  * ----------------------------------------------------------------------------
  */
 
-export type FetchAppThemesAction = {
-  applicationId: string;
-};
-
 export type FetchSelectedAppThemeAction = {
   applicationId: string;
 };

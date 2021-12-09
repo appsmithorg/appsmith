@@ -15,6 +15,7 @@ import Button from "components/ads/Button";
 import { AppTheme } from "entities/AppTheming";
 import CheckmarkIcon from "remixicon-react/CheckLineIcon";
 import { getCustomTextColor2 } from "widgets/WidgetUtils";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface ThemeCard {
   theme: AppTheme;
@@ -26,6 +27,7 @@ export function ThemeCard(props: ThemeCard) {
   const { theme } = props;
   const dispatch = useDispatch();
   const themingMode = useSelector(getAppThemingMode);
+  const applicationId = useSelector(getCurrentApplicationId);
   const isThemeEditMode = themingMode === AppThemingMode.APP_THEME_EDIT;
   const isThemeSelectionMode =
     themingMode === AppThemingMode.APP_THEME_SELECTION;
@@ -58,7 +60,7 @@ export function ThemeCard(props: ThemeCard) {
    */
   const changeSelectedTheme = useCallback(() => {
     if (isThemeSelectionMode) {
-      dispatch(changeSelectedThemeAction({ applicationId: "", theme }));
+      dispatch(changeSelectedThemeAction({ applicationId, theme }));
     }
   }, [changeSelectedThemeAction]);
 
@@ -82,7 +84,7 @@ export function ThemeCard(props: ThemeCard) {
           )}]`} text-white flex p-3`}
         >
           <h3 className="flex-grow">{theme.name}</h3>
-          <aside>{theme.created_by}</aside>
+          <aside>@appsmith</aside>
         </hgroup>
         <section className="flex justify-between px-3 pt-3">
           <div

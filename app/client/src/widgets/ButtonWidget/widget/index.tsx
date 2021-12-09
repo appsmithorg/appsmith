@@ -7,7 +7,12 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { ButtonVariant, ButtonVariantTypes } from "components/constants";
+import {
+  ButtonVariant,
+  ButtonPlacementTypes,
+  ButtonPlacement,
+  ButtonVariantTypes,
+} from "components/constants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
