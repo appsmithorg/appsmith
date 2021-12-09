@@ -804,7 +804,7 @@ export default [
                 {
                   propertyName: "buttonVariant",
                   label: "Button Variant",
-                  controlType: "SINGLE_SELECT",
+                  controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   helpText: "Sets the variant of the icon button",
@@ -837,16 +837,17 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.ARRAY,
+                    type: ValidationTypes.TEXT,
                     params: {
-                      length: 1,
-                      isCustomJSControl: true,
-                      default: ButtonVariantTypes.PRIMARY,
-                      allowedValues: [
-                        ButtonVariantTypes.PRIMARY,
-                        ButtonVariantTypes.SECONDARY,
-                        ButtonVariantTypes.TERTIARY,
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        default: ButtonVariantTypes.PRIMARY,
+                        allowedValues: [
+                          ButtonVariantTypes.PRIMARY,
+                          ButtonVariantTypes.SECONDARY,
+                          ButtonVariantTypes.TERTIARY,
+                        ],
+                      },
                     },
                   },
                 },
