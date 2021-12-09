@@ -8,6 +8,8 @@ import DefaultText from "assets/gifs/default_text.gif";
 import { setCurrentStep, addOnboardingWidget } from "actions/onboardingActions";
 import { IconName } from "components/ads/Icon";
 import { highlightSection } from "./utils";
+import { setExplorerPinnedAction } from "actions/explorerActions";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 export const onboardingContainerBlueprint = {
   view: [
@@ -308,6 +310,11 @@ export const Steps: StepsType = {
         "Great work! All inputs are now connected to the  table’s selected row",
       onClick: (dispatch) => {
         dispatch(setCurrentStep(6));
+        dispatch(setExplorerPinnedAction(true));
+        dispatch(forceOpenWidgetPanel(true));
+        setTimeout(() => {
+          highlightSection("widget-card-buttonwidget");
+        }, 1000);
       },
     },
   },

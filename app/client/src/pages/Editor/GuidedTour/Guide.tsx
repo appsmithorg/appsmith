@@ -429,8 +429,9 @@ function useComputeCurrentStep(isExploring: boolean) {
       } else if (queryExecutedSuccessfully) {
         dispatch(setIndicatorLocation("NONE"));
         dispatch(markStepComplete());
-        if (Steps[1].elementSelector)
+        if (Steps[1].elementSelector) {
           highlightSection(Steps[1].elementSelector);
+        }
       } else {
         dispatch(setIndicatorLocation("RUN_QUERY"));
       }

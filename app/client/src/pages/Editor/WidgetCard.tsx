@@ -82,12 +82,18 @@ function WidgetCard(props: CardProps) {
       });
   };
 
-  const className = `t--widget-card-draggable-${props.details.type
+  const type = `${props.details.type
     .split("_")
     .join("")
     .toLowerCase()}`;
+  const className = `t--widget-card-draggable-${type}`;
   return (
-    <Wrapper className={className} draggable onDragStart={onDragStart}>
+    <Wrapper
+      className={className}
+      data-guided-tour-id={`widget-card-${type}`}
+      draggable
+      onDragStart={onDragStart}
+    >
       <div>
         <IconWrapper>
           <img className="w-6 h-6" src={props.details.icon} />
