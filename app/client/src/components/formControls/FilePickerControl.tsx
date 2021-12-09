@@ -15,6 +15,7 @@ import {
 } from "redux-form";
 import DialogComponent from "components/ads/DialogComponent";
 import { useEffect, useCallback } from "react";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -101,7 +102,10 @@ function RenderFilePicker(props: RenderFilePickerProps) {
 
   return (
     <>
-      <div style={{ flexDirection: "row", display: "flex", width: "50vh" }}>
+      <div
+        className={replayHighlightClass}
+        style={{ flexDirection: "row", display: "flex", width: "50vh" }}
+      >
         <StyledDiv>{props?.input?.value?.name}</StyledDiv>
         <SelectButton
           buttonStyle="PRIMARY"

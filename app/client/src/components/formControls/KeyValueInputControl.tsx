@@ -53,13 +53,19 @@ function KeyValueRow(props: KeyValueRowProps & WrappedFieldArrayProps) {
         <div>
           {props.fields.map((field: any, index: number) => (
             <FormRowWithLabel key={index} style={{ marginTop: index ? 13 : 0 }}>
-              <div style={{ width: "50vh" }}>
+              <div
+                data-replay-id={btoa(`${field}.key`)}
+                style={{ width: "50vh" }}
+              >
                 <TextField name={`${field}.key`} placeholder="Key" />
               </div>
 
               <div style={{ marginLeft: 16 }}>
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div style={{ marginRight: 14, width: "50vh" }}>
+                  <div
+                    data-replay-id={btoa(`${field}.value`)}
+                    style={{ marginRight: 14, width: "50vh" }}
+                  >
                     <TextField name={`${field}.value`} placeholder="Value" />
                   </div>
                   {index === props.fields.length - 1 ? (

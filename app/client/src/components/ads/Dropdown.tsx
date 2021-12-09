@@ -16,6 +16,7 @@ import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
 import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
 import { ReactComponent as Close } from "assets/icons/control/remove.svg";
+import { replayHighlightClass } from "globalStyles/portals";
 import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
@@ -907,7 +908,7 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
-      className={props.containerClassName}
+      className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
       height={getMinHeight(props.isMultiSelect)}
       tabIndex={0}

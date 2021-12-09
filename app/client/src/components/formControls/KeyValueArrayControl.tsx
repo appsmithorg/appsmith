@@ -109,7 +109,10 @@ function KeyValueRow(
             key={index}
             style={{ marginTop: index > 0 ? "16px" : "0px" }}
           >
-            <div style={{ width: "50vh" }}>
+            <div
+              data-replay-id={btoa(keyTextFieldName)}
+              style={{ width: "50vh" }}
+            >
               <Field
                 component={renderTextInput}
                 name={keyTextFieldName}
@@ -127,7 +130,10 @@ function KeyValueRow(
             </div>
             {!props.actionConfig && (
               <div style={{ marginLeft: "16px", width: "50vh" }}>
-                <div style={{ display: "flex", flexDirection: "row" }}>
+                <div
+                  data-replay-id={valueTextFieldName}
+                  style={{ display: "flex", flexDirection: "row" }}
+                >
                   <Field
                     component={renderTextInput}
                     name={valueTextFieldName}
