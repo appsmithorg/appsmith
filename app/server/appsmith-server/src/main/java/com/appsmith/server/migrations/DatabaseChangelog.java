@@ -3932,11 +3932,7 @@ public class DatabaseChangelog {
         mongockTemplate.save(googleSheetsPlugin);
     }
 
-<<<<<<< HEAD
-    @ChangeSet(order = "100", id = "add-smtp-plugin", author = "")
-=======
     @ChangeSet(order = "99", id = "add-smtp-plugin", author = "")
->>>>>>> 5c03a465d8f3dfb1530aa5afb4c1012074d425aa
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SMTP");
