@@ -15,7 +15,9 @@ import { useDispatch } from "react-redux";
 import { initPageLevelSocketConnection } from "actions/websocketActions";
 import { collabShareUserPointerEvent } from "actions/appCollabActions";
 import { getIsPageLevelSocketConnected } from "../../selectors/websocketSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 
 interface CanvasProps {
   dsl: DSLWidget;
@@ -31,6 +33,7 @@ const getPointerData = (
   e: any,
   pageId: string,
   isWebsocketConnected: boolean,
+  currentGitBranch?: string,
 ) => {
   if (store.getState().ui.appCollab.editors.length < 2 || !isWebsocketConnected)
     return;
@@ -41,7 +44,7 @@ const getPointerData = (
   const y = e.clientY - rect.top;
   return {
     data: { x, y },
-    pageId,
+    pageId: getPageLevelSocketRoomId(pageId, currentGitBranch),
   };
 };
 
@@ -64,6 +67,7 @@ const Canvas = memo((props: CanvasProps) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const shareMousePointer = useShareMousePointerEvent();
   const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
+  const currentGitBranch = useSelector(getCurrentGitBranch);
   const isMultiplayerEnabledForUser = useSelector(
     isMultiplayerEnabledForUserSelector,
   );
@@ -82,7 +86,12 @@ const Canvas = memo((props: CanvasProps) => {
         id="art-board"
         onMouseMove={(e) => {
           if (!isMultiplayerEnabledForUser) return;
-          const data = getPointerData(e, pageId, isWebsocketConnected);
+          const data = getPointerData(
+            e,
+            pageId,
+            isWebsocketConnected,
+            currentGitBranch,
+          );
           !!data && delayedShareMousePointer(data);
         }}
         style={{

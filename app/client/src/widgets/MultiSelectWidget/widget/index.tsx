@@ -172,6 +172,17 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            helpText:
+              "Controls the visibility of select all option in dropdown.",
+            propertyName: "allowSelectAll",
+            label: "Allow Select All",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
@@ -341,6 +352,7 @@ class MultiSelectWidget extends BaseWidget<
 
     return (
       <MultiSelectComponent
+        allowSelectAll={this.props.allowSelectAll}
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
@@ -433,6 +445,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  allowSelectAll?: boolean;
 }
 
 export default MultiSelectWidget;

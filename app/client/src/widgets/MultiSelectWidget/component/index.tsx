@@ -58,11 +58,13 @@ export interface MultiSelectProps
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  allowSelectAll?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
+  allowSelectAll,
   backgroundColor,
   borderRadius,
   boxShadow,
@@ -125,7 +127,7 @@ function MultiSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <div className={loading ? Classes.SKELETON : ""}>
-        {options.length ? (
+        {options.length && allowSelectAll ? (
           <SelectAllMenuItem primaryColor={primaryColor}>
             <StyledCheckbox
               alignIndicator="left"
@@ -140,7 +142,7 @@ function MultiSelectComponent({
         {menu}
       </div>
     ),
-    [isSelectAll, options, loading],
+    [isSelectAll, options, loading, allowSelectAll],
   );
 
   // Convert the values to string before searching.

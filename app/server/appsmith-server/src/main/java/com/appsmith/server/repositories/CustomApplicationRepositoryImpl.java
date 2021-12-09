@@ -158,4 +158,20 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
                 .map(BaseDomain::getId)
                 .collectList();
     }
+
+    @Override
+    public Mono<UpdateResult> setAppTheme(String applicationId, String themeSlug, boolean isCustomized, AclPermission aclPermission) {
+        Update updateObj = new Update();
+        String currentThemePath = String.format("%s.%s", fieldName(QApplication.application.appTheme),
+                fieldName(QApplication.application.appTheme.currentTheme)
+        );
+
+        String isCustomizedPath = String.format("%s.%s", fieldName(QApplication.application.appTheme),
+                fieldName(QApplication.application.appTheme.isCustomized)
+        );
+
+        updateObj.set(currentThemePath, themeSlug);
+        updateObj.set(isCustomizedPath, isCustomized);
+        return this.updateById(applicationId, updateObj, aclPermission);
+    }
 }

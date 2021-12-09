@@ -1,6 +1,12 @@
 import React from "react";
 import { sortBy } from "lodash";
-import { Alignment, Icon, Menu, MenuItem } from "@blueprintjs/core";
+import {
+  Alignment,
+  Icon,
+  Menu,
+  MenuItem,
+  Classes as CoreClass,
+} from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
@@ -10,6 +16,7 @@ import {
   ButtonStyleType,
   ButtonVariant,
   ButtonVariantTypes,
+  ButtonPlacement,
 } from "components/constants";
 import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
@@ -19,6 +26,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  getCustomJustifyContent,
 } from "widgets/WidgetUtils";
 
 interface WrapperStyleProps {
@@ -66,6 +74,7 @@ interface ButtonStyleProps {
   buttonVariant?: ButtonVariant; // solid | outline | ghost
   buttonColor?: string;
   iconAlign?: string;
+  placement?: ButtonPlacement;
   isDisabled?: boolean;
 }
 
@@ -73,8 +82,9 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   flex: 1 1 auto;
   display: flex;
   cursor: pointer;
-  justify-content: space-evenly;
+  justify-content: stretch;
   align-items: center;
+  padding: 0px 10px;
 
   ${({
     borderRadius,
@@ -162,11 +172,16 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   `}
 `;
 
-const StyledButtonContent = styled.div<{ iconAlign: string }>`
-  ${({ iconAlign }) =>
-    iconAlign === "right"
-      ? "& span { float: right }"
-      : "& span { float: left }"};
+const StyledButtonContent = styled.div<{
+  iconAlign: string;
+  placement?: ButtonPlacement;
+}>`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: ${({ placement }) => getCustomJustifyContent(placement)};
+  flex-direction: ${({ iconAlign }) =>
+    iconAlign === Alignment.RIGHT ? "row-reverse" : "row"};
   & .bp3-icon {
     ${({ iconAlign }) =>
       iconAlign === "right" ? "margin-left: 10px" : "margin-right: 10px"};
@@ -354,9 +369,16 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                     isHorizontal={isHorizontal}
                     style={{ height: "100%", width: "100%" }}
                   >
-                    <StyledButtonContent iconAlign={button.iconAlign || "left"}>
+                    <StyledButtonContent
+                      iconAlign={button.iconAlign || "left"}
+                      placement={button.placement}
+                    >
                       {button.iconName && <Icon icon={button.iconName} />}
-                      {!!button.label && <span>{button.label}</span>}
+                      {!!button.label && (
+                        <span className={CoreClass.BUTTON_TEXT}>
+                          {button.label}
+                        </span>
+                      )}
                     </StyledButtonContent>
                   </StyledButton>
                 </Popover2>
@@ -375,9 +397,14 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
               key={button.id}
               onClick={this.onButtonClick(button.onClick)}
             >
-              <StyledButtonContent iconAlign={button.iconAlign || "left"}>
+              <StyledButtonContent
+                iconAlign={button.iconAlign || "left"}
+                placement={button.placement}
+              >
                 {button.iconName && <Icon icon={button.iconName} />}
-                {!!button.label && <span>{button.label}</span>}
+                {!!button.label && (
+                  <span className={CoreClass.BUTTON_TEXT}>{button.label}</span>
+                )}
               </StyledButtonContent>
             </StyledButton>
           );
@@ -398,6 +425,7 @@ interface GroupButtonProps {
   buttonColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
   onClick?: string;
   menuItems: Record<
     string,

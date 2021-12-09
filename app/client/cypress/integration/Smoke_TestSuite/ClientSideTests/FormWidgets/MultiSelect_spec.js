@@ -57,6 +57,34 @@ describe("MultiSelect Widget Functionality", function() {
     );
     cy.get(publish.backToEditor).click();
   });
+  it("Dropdown Functionality To Check Allow select all option", function() {
+    // select all option is not enable
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-item-content")
+      .first()
+      .should("not.have.text", "Select all");
+    // enable select all option from property pane
+    cy.openPropertyPane("multiselectwidget");
+    cy.togglebar(commonlocators.allowSelectAllCheckbox);
+
+    // press select all option
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    cy.get(".multi-select-dropdown")
+      .contains("Select all")
+      .click({ force: true });
+    cy.wait(2000);
+    //Validating option inside multiselect widget
+    cy.get(".rc-select-selection-item-content")
+      .eq(0)
+      .should("have.text", "Option 1");
+    cy.get(".rc-select-selection-item-content")
+      .eq(1)
+      .should("have.text", "Option 2");
+  });
 });
 afterEach(() => {
   // put your clean up code if any
