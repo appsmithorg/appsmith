@@ -426,8 +426,6 @@ public class PageLoadActionsUtil {
                 .collect(Collectors.toSet());
 
         Set<ActionDependencyEdge> actionDataFromConfigurationEdges = new HashSet<>();
-        // All actions data paths actually depend on the action configuration paths. Add this implicit relationship in the
-        // graph as well
 
         Set<String> vertices = new HashSet<>(actionSchedulingGraph.vertexSet());
         edges.stream().forEach(edge -> {
@@ -436,6 +434,11 @@ public class PageLoadActionsUtil {
         });
 
 
+        // All actions data paths actually depend on the action configuration paths. Add this implicit relationship in the
+        // graph as well
+        // This also ensures that when an action.data vertex exists at two different levels in the graph, it gets a
+        // single level because of a common relationship getting added to connect all actioConfiguration dependencies
+        // to action.data
         vertices
             .stream()
             .forEach(vertex -> {

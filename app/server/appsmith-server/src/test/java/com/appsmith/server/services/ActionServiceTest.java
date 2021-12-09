@@ -2365,7 +2365,6 @@ public class ActionServiceTest {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
-                    // TODO: This is an incorrect expectation, it should be 8 actions in the first set
                     assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(1);
 
                     Set<String> firstSetPageLoadActions = Set.of(
