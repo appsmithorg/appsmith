@@ -40,7 +40,10 @@ const gitSyncReducer = createReducer(initialState, {
       ...state,
       isGitSyncModalOpen: action.payload.isOpen,
       activeGitSyncModalTab,
-      gitError: null,
+      connectError: null,
+      commitAndPushError: null,
+      pullError: null,
+      mergeError: null,
       // reset conflicts when the modal is opened
       pullFailed: false,
     };
@@ -56,13 +59,18 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isCommitting: false,
     isCommitSuccessful: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR]: (
     state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
   ) => ({
     ...state,
     isCommitting: false,
+    commitAndPushError: action.payload,
   }),
   [ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE]: (
     state: GitSyncReducerState,
@@ -74,16 +82,23 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isPushingToGit: true,
     isPushSuccessful: false,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.PUSH_TO_GIT_SUCCESS]: (state: GitSyncReducerState) => ({
     ...state,
     isPushingToGit: false,
     isPushSuccessful: true,
   }),
-  [ReduxActionErrorTypes.PUSH_TO_GIT_ERROR]: (state: GitSyncReducerState) => ({
+  [ReduxActionErrorTypes.PUSH_TO_GIT_ERROR]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
     ...state,
     isPushingToGit: false,
+    commitAndPushError: action.payload,
   }),
   [ReduxActionTypes.SHOW_ERROR_POPUP]: (
     state: GitSyncReducerState,
@@ -105,14 +120,20 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isFetchingGitConfig: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
     isFetchingGitConfig: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -145,7 +166,10 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_BRANCHES_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     fetchingBranches: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.FETCH_BRANCHES_SUCCESS]: (
     state: GitSyncReducerState,
@@ -166,14 +190,20 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isFetchingLocalGitConfig: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
     isFetchingLocalGitConfig: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -206,7 +236,10 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isFetchingGitStatus: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS]: (
     state: GitSyncReducerState,
@@ -228,17 +261,20 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isDisconnectingGit: false,
   }),
-  [ReduxActionErrorTypes.GIT_SYNC_ERROR]: (
+  [ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR]: (
     state: GitSyncReducerState,
     action: ReduxAction<unknown>,
   ) => ({
     ...state,
-    gitError: action.payload,
+    connectError: action.payload,
   }),
   [ReduxActionTypes.FETCH_MERGE_STATUS_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isFetchingMergeStatus: true,
-    gitError: null,
+    connectError: null,
+    commitAndPushError: null,
+    pullError: null,
+    mergeError: null,
   }),
   [ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS]: (
     state: GitSyncReducerState,
@@ -272,15 +308,44 @@ const gitSyncReducer = createReducer(initialState, {
     pullMergeStatus: null,
     pullInProgress: true,
   }),
-  [ReduxActionErrorTypes.GIT_PULL_ERROR]: (state: GitSyncReducerState) => ({
+  [ReduxActionErrorTypes.GIT_PULL_ERROR]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
     ...state,
     pullInProgress: false,
     pullFailed: true,
+    pullError: action.payload,
   }),
   [ReduxActionTypes.RESET_PULL_MERGE_STATUS]: (state: GitSyncReducerState) => ({
     ...state,
     pullFailed: false,
   }),
+  [ReduxActionTypes.MERGE_BRANCH_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isMerging: true,
+  }),
+  [ReduxActionTypes.MERGE_BRANCH_SUCCESS]: (state: GitSyncReducerState) => ({
+    ...state,
+    isMerging: false,
+  }),
+  [ReduxActionErrorTypes.MERGE_BRANCH_ERROR]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
+    ...state,
+    isMerging: false,
+    mergeError: action.payload,
+  }),
+  [ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      tempRemoteUrl: action.payload,
+    };
+  },
 });
 
 export type GitStatusData = {
@@ -294,10 +359,17 @@ export type GitStatusData = {
   remoteBranch: string;
 };
 
-export type GitErrorType = {
+type GitErrorPayloadType = {
   code: number;
   errorType?: string;
   message: string;
+};
+
+export type GitErrorType = {
+  error: GitErrorPayloadType;
+  show?: boolean;
+  crash?: boolean;
+  logToSentry?: boolean;
 };
 
 export type GitSyncReducerState = {
@@ -325,9 +397,15 @@ export type GitSyncReducerState = {
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
   mergeStatus?: MergeStatus;
-  gitError?: GitErrorType;
+  connectError?: GitErrorType;
+  commitAndPushError?: GitErrorType;
+  pullError?: GitErrorType;
+  mergeError?: GitErrorType;
   pullFailed?: boolean;
   pullInProgress?: boolean;
+
+  isMerging?: boolean;
+  tempRemoteUrl?: string;
 };
 
 export default gitSyncReducer;

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select, { SelectProps } from "rc-select";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
@@ -16,6 +17,8 @@ import {
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Classes } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import _ from "lodash";
 import { Colors } from "constants/Colors";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
@@ -34,20 +37,25 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  dropDownWidth: number;
+  width: number;
   labelText?: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
   isValid: boolean;
+  allowSelectAll?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
+  allowSelectAll,
   compactMode,
   disabled,
   dropdownStyle,
+  dropDownWidth,
   isValid,
   labelStyle,
   labelText,
@@ -60,6 +68,7 @@ function MultiSelectComponent({
   placeholder,
   serverSideFiltering,
   value,
+  width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
   const _menu = useRef<HTMLElement | null>(null);
@@ -101,7 +110,7 @@ function MultiSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <div className={loading ? Classes.SKELETON : ""}>
-        {options.length ? (
+        {options.length && allowSelectAll ? (
           <StyledCheckbox
             alignIndicator="left"
             checked={isSelectAll}
@@ -113,7 +122,7 @@ function MultiSelectComponent({
         {menu}
       </div>
     ),
-    [isSelectAll, options, loading],
+    [isSelectAll, options, loading, allowSelectAll],
   );
 
   // Convert the values to string before searching.
@@ -138,6 +147,8 @@ function MultiSelectComponent({
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
+  const id = _.uniqueId();
+  console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}
@@ -145,7 +156,11 @@ function MultiSelectComponent({
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
@@ -170,7 +185,7 @@ function MultiSelectComponent({
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
-        dropdownClassName="multi-select-dropdown"
+        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
