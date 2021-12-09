@@ -145,8 +145,8 @@ export default function evaluate(
   evalArguments?: Array<any>,
   isTriggerBased = false,
 ): EvalResult {
-  let script = "",
-    scriptToLint = "";
+  let script = "";
+  let scriptToLint = "";
   const unescapedJS = unEscapeScript(js);
   const scriptType = getScriptType(evalArguments, isTriggerBased);
 
