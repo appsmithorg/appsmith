@@ -8,7 +8,11 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import {
+  DATASOURCE_DB_FORM,
+  QUERY_EDITOR_FORM_NAME,
+  SAAS_EDITOR_FORM,
+} from "constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {
@@ -64,6 +68,8 @@ import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
+  // eslint-disable-next-line no-debugger
+  debugger;
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -118,7 +124,12 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const formInitialValues = merge(configInitialValues, action);
 
   // Set the initialValues in the state for redux-form lib
-  yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
+  // adding special case for saas actions
+  if (action.pluginType === PluginType.SAAS) {
+    yield put(initialize(SAAS_EDITOR_FORM, formInitialValues));
+  } else {
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
+  }
 
   if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
     // Once the initial values are set, we can run the evaluations based on them.
