@@ -1,7 +1,11 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeAction,
+  DataTreeAppsmith,
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { JSCollection } from "entities/JSCollection";
+import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 
 const isVisible = {
   "!type": "bool",
@@ -9,6 +13,31 @@ const isVisible = {
 };
 
 export const entityDefinitions: Record<string, unknown> = {
+  APPSMITH: (entity: DataTreeAppsmith) => {
+    const generatedTypeDef = generateTypeDef(
+      _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
+    );
+    if (
+      typeof generatedTypeDef === "object" &&
+      typeof generatedTypeDef.geolocation === "object"
+    ) {
+      return {
+        ...generatedTypeDef,
+        geolocation: {
+          ...generatedTypeDef.geolocation,
+          "!doc":
+            "The user's geo location information. Only available when requested",
+          "!url":
+            "https://docs.appsmith.com/v/v1.2.1/framework-reference/geolocation",
+          getCurrentPosition:
+            "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> void",
+          watchPosition: "fn(options: object) -> void",
+          clearWatch: "fn() -> void",
+        },
+      };
+    }
+    return generatedTypeDef;
+  },
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
     let data: Record<string, any> = {
@@ -392,6 +421,12 @@ export const entityDefinitions: Record<string, unknown> = {
     blobUrl: "string",
     dataURL: "string",
     rawBinary: "string",
+  },
+  SWITCH_GROUP_WIDGET: {
+    "!doc":
+      "Switch group widget allows users to create many switch components which can easily by used in a form",
+    "!url": "https://docs.appsmith.com/widget-reference/switch-group",
+    selectedValues: "[string]",
   },
 };
 

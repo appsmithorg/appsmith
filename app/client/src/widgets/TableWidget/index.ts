@@ -165,6 +165,7 @@ export const CONFIG = {
         },
       ],
     },
+    enableClientSideSearch: true,
     isVisibleSearch: true,
     isVisibleFilters: true,
     isVisibleDownload: true,

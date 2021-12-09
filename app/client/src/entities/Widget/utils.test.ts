@@ -125,6 +125,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: EvaluationSubstitutionType.TEMPLATE,
         isSortable: EvaluationSubstitutionType.TEMPLATE,
         animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
@@ -208,6 +209,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           params: {
             default: true,
           },
+        },
+        primaryColumnId: {
+          type: "TEXT",
         },
         tableData: {
           type: "OBJECT_ARRAY",
