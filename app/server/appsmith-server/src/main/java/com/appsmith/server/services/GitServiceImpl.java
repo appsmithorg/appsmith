@@ -660,9 +660,16 @@ public class GitServiceImpl implements GitService {
                     String repoName = gitApplicationMetadata.getRepoName();
                     Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
                     String defaultApplicationBranchName = gitApplicationMetadata.getBranchName();
+                    String remoteUrl = gitApplicationMetadata.getRemoteUrl();
+                    String privateKey = gitApplicationMetadata.getGitAuth().getPrivateKey();
+                    String publicKey = gitApplicationMetadata.getGitAuth().getPublicKey();
                     application.setGitApplicationMetadata(null);
                     return Mono.zip(
-                            listBranchForApplication(applicationId, false),
+                            gitExecutor.listBranches(repoPath,
+                                    remoteUrl,
+                                    privateKey,
+                                    publicKey,
+                                    false),
                             applicationService.save(application),
                             Mono.just(repoPath),
                             Mono.just(defaultApplicationBranchName));
