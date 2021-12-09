@@ -695,10 +695,16 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      - name: Installing performance tests dependencies
+        working-directory: app/perf
+        shell: bash
+        run: yarn install
+
       - name: Run performance tests
+        working-directory: app/perf
         shell: bash
         env:
           POSTGRES_PASSWORD: postgres
         run: |
-          ./perf/start-test.sh
+          ./start-test.sh
 
