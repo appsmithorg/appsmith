@@ -101,6 +101,8 @@ export interface PageAction {
   name: string;
   jsonPathKeys: string[];
   timeoutInMillisecond: number;
+  clientSideExecution?: boolean;
+  collectionId?: string;
 }
 
 export interface ExecuteErrorPayload extends ErrorActionPayload {

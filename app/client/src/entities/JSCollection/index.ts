@@ -26,4 +26,5 @@ export interface JSActionConfig {
 }
 export interface JSAction extends BaseAction {
   actionConfiguration: JSActionConfig;
+  clientSideExecution: boolean;
 }

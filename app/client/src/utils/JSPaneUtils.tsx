@@ -189,6 +189,7 @@ export const createDummyJSCollectionActions = (
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
+      clientSideExecution: true,
     },
     {
       name: "myFun2",
@@ -201,6 +202,7 @@ export const createDummyJSCollectionActions = (
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
+      clientSideExecution: true,
     },
   ];
   return {

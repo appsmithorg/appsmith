@@ -197,7 +197,10 @@ function* initiateActionTriggerExecution(
 }
 
 function* getActionSettings(dynamicString: string) {
-  const trimmedVal = dynamicString && dynamicString.replace(/(^{{)|(}}$)/g, "");
+  const trimmedVal =
+    dynamicString &&
+    dynamicString.replace(/(^{{)|(}}$)/g, "").replace(/(\r\n|\n|\r)/gm, "");
+
   const dataTree = yield select(getDataTree);
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(trimmedVal);
   const entity = entityName && dataTree[entityName];

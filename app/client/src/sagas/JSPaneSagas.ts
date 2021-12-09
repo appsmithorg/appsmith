@@ -294,7 +294,7 @@ function* handleJSObjectNameChangeSuccessSaga(
   }
 }
 
-function* handleExecuteJSFunctionSaga(
+export function* handleExecuteJSFunctionSaga(
   data: ReduxAction<{
     collectionName: string;
     action: JSAction;

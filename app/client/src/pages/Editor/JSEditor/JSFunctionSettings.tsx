@@ -2,8 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import Checkbox from "components/ads/Checkbox";
 import Dialog from "components/ads/DialogComponent";
-import TextInput from "components/ads/TextInput";
-import Text, { TextType } from "components/ads/Text";
 import { JSAction } from "entities/JSCollection";
 import { updateFunctionProperty } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
@@ -13,7 +11,6 @@ import {
   JS_SETTINGS_ONPAGELOAD_SUBTEXT,
   JS_SETTINGS_CONFIRM_EXECUTION,
   JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT,
-  JS_SETTINGS_EXECUTE_TIMEOUT,
 } from "constants/messages";
 
 const FormRow = styled.div`
@@ -47,10 +44,6 @@ function JSFunctionSettings(props: JSFunctionSettingsProps) {
     );
   };
 
-  const timeoutInMillisecond = action.actionConfiguration.timeoutInMillisecond
-    ? action.actionConfiguration.timeoutInMillisecond.toString()
-    : "";
-
   return (
     <Dialog
       canOutsideClickClose
@@ -77,21 +70,6 @@ function JSFunctionSettings(props: JSFunctionSettingsProps) {
           label={createMessage(JS_SETTINGS_CONFIRM_EXECUTION)}
           onCheckChange={(value: boolean) =>
             updateProperty(value, "confirmBeforeExecute")
-          }
-        />
-      </FormRow>
-      <FormRow className="flex">
-        <Text type={TextType.P1}>
-          {createMessage(JS_SETTINGS_EXECUTE_TIMEOUT)}
-        </Text>
-        <TextInput
-          dataType={"text"}
-          defaultValue={timeoutInMillisecond}
-          onChange={(value: string) =>
-            updateProperty(
-              Number(value),
-              "actionConfiguration.timeoutInMillisecond",
-            )
           }
         />
       </FormRow>
