@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -170,7 +169,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Triggering the actual REST API call
             return method.executePrerequisites(methodConfig, oauth2)
                     // This method call will populate the request with all the configurations it needs for a particular method
-                    .switchIfEmpty( Mono.defer(() -> handleEmptyRowObjects(methodConfig, method, oauth2, client)))
                     .flatMap(res -> {
                         return method.getClient(client, methodConfig)
                                 .headers(headers -> headers.set(
@@ -243,30 +241,19 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                     System.out.println(e.getMessage());
                                     return Mono.just(errorResult);
                                 });
-                    });
+                    })
+                    .switchIfEmpty(handleEmptyMono());
         }
 
-
-        public Mono<ResponseEntity> handleEmptyRowObjects(MethodConfig methodConfig, Method method, OAuth2 oauth2, WebClient client) {
-            return method.getClient(client, methodConfig)
-                    .headers(headers -> headers.set(
-                            "Authorization",
-                            "Bearer " + oauth2.getAuthenticationResponse().getToken()))
-                    .exchange()
-                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                    .map(stringResponseEntity -> {
-                        methodConfig.getBody();
-                        JsonNode emptyRowObjects = null;
-                        try {
-                            emptyRowObjects = objectMapper.readTree("{\"message\":\"No rows inserted\"}");
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
-
-                        return stringResponseEntity.ok()
-                                .header(stringResponseEntity.getHeaders().toString())
-                                .body(emptyRowObjects);
-                    });
+        /**
+         * Method to handle empty Mono
+         * @return Mono<ActionExecutionResult>
+         */
+        private Mono<ActionExecutionResult> handleEmptyMono() {
+            final ActionExecutionResult result = new ActionExecutionResult();
+            result.setIsExecutionSuccess(true);
+            result.setBody(objectMapper.valueToTree(Map.of("message", "No operation was performed")));
+            return Mono.just(result);
         }
 
         @Override
