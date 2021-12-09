@@ -150,6 +150,7 @@ export default function evaluate(
   const unescapedJS = unEscapeScript(js);
   const scriptType = getScriptType(evalArguments, isTriggerBased);
 
+  // If nothing is present to evaluate, return back instead of evaluating
   if (unescapedJS.length > 0) {
     script = getScriptToEval(unescapedJS, scriptType);
     // We are linting original js binding,
