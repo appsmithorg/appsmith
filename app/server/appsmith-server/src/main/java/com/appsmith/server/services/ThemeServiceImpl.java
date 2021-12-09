@@ -62,7 +62,7 @@ public class ThemeServiceImpl extends BaseService<ThemeRepository, Theme, String
                     if(application.getAppTheme().isCustomized()) {
                         return repository.getCustomizedTheme(applicationId);
                     } else {
-                        return repository.findBySlug(application.getAppTheme().getCurrentTheme());
+                        return repository.findSystemThemeBySlug(application.getAppTheme().getCurrentTheme());
                     }
                 });
     }
