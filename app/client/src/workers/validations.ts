@@ -434,7 +434,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     // check for min and max limits
     let parsed: number = value as number;
     if (isString(value)) {
-      if (/^\d+\.?\d*$/.test(value)) {
+      if (/^-?\d+\.?\d*$/.test(value)) {
         parsed = Number(value);
       } else {
         return {
@@ -454,7 +454,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed < Number(config.params.min)) {
         return {
           isValid: false,
-          parsed: config.params.min || parsed || 0,
+          parsed: parsed || config.params.min || 0,
           messages: [`Minimum allowed value: ${config.params.min}`],
         };
       }
