@@ -71,3 +71,10 @@ export enum RecaptchaTypes {
   V2 = "V2",
 }
 export type RecaptchaType = keyof typeof RecaptchaTypes;
+
+export enum ButtonPlacementTypes {
+  START = "START",
+  BETWEEN = "BETWEEN",
+  CENTER = "CENTER",
+}
+export type ButtonPlacement = keyof typeof ButtonPlacementTypes;

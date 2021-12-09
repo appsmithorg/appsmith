@@ -439,6 +439,56 @@ public class FilterDataServiceTest {
     }
 
     @Test
+    public void testFilterData_withTimestampClause_returnsCorrectValues() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"date\": \"2021-09-01 00:01:00\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"date\": \"2021-09-02 00:02:00\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"date\": \"2021-09-03 00:03:00\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
+                "  }\n" +
+                "]";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            List<Condition> conditionList = new ArrayList<>();
+
+            Condition condition = new Condition("date", "GTE", "2021-09-02 00:02:00");
+            conditionList.add(condition);
+
+            ArrayNode filteredData = filterDataService.filterData(items, conditionList);
+
+            assertEquals(2, filteredData.size());
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void generateLogicalOperatorTest() {
 
         String data = "[\n" +
@@ -980,7 +1030,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Michael Lawson\",\n" +
                 "    \"productName\": \"Chicken Sandwich\",\n" +
                 "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"id\": \"\",\n" +
@@ -988,7 +1039,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
                 "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"id\": \"\",\n" +
@@ -996,7 +1048,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Tobias Funke\",\n" +
                 "    \"productName\": \"Beef steak\",\n" +
                 "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  }\n" +
                 "]";
 
@@ -1235,6 +1288,64 @@ public class FilterDataServiceTest {
                 "        \"key\": \"date\",\n" +
                 "        \"condition\": \"GTE\",\n" +
                 "        \"value\": \"2021-09-02\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 2);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFilterDataNew_withTimestampClause_returnsCorrectValues() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"date\": \"2021-09-01 00:01:00\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"date\": \"2021-09-02 00:02:00\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"date\": \"2021-09-03 00:03:00\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"date\",\n" +
+                "        \"condition\": \"GTE\",\n" +
+                "        \"value\": \"2021-09-02 00:02:00\"\n" +
                 "      }\n" +
                 "    ],\n" +
                 "    \"condition\": \"AND\"\n" +

@@ -176,7 +176,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 
             return (
               <FormRowWithLabel key={index}>
-                <Flex size={1}>
+                <Flex data-replay-id={btoa(`${field}.key`)} size={1}>
                   {props.hasType ? (
                     <DynamicTextFieldWithDropdownWrapper>
                       <DynamicTextField
@@ -190,7 +190,9 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         theme={props.theme}
                       />
 
-                      <DynamicDropdownFieldWrapper>
+                      <DynamicDropdownFieldWrapper
+                        data-replay-id={btoa(`${field}.type`)}
+                      >
                         <DynamicDropdownField
                           height={DEFAULT_MULTI_PART_DROPDOWN_HEIGHT}
                           name={`${field}.type`}
@@ -215,7 +217,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                 </Flex>
 
                 {!props.actionConfig && (
-                  <Flex size={3}>
+                  <Flex data-replay-id={btoa(`${field}.value`)} size={3}>
                     <DynamicTextField
                       border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.value.${index}`}
@@ -230,7 +232,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                 )}
 
                 {props.actionConfig && props.actionConfig[index] && (
-                  <Flex size={3}>
+                  <Flex data-replay-id={btoa(`${field}.value`)} size={3}>
                     <DynamicTextField
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}

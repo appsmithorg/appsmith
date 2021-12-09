@@ -34,12 +34,15 @@ import {
   ButtonVariantTypes,
   RecaptchaType,
   RecaptchaTypes,
+  ButtonPlacement,
 } from "components/constants";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  getCustomJustifyContent,
+  getAlignText,
 } from "widgets/WidgetUtils";
 
 const RecaptchaWrapper = styled.div`
@@ -182,6 +185,16 @@ const StyledButton = styled((props) => (
       ? `-2px -2px 0px ${boxShadowColor ||
           theme.colors.button.boxShadow.default.variant5}`
       : "none"} !important;
+
+  ${({ placement }) =>
+    placement
+      ? `
+      justify-content: ${getCustomJustifyContent(placement)};
+      & > span.bp3-button-text {
+        flex: unset !important;
+      }
+    `
+      : ""}
 `;
 
 type ButtonStyleProps = {
@@ -192,6 +205,7 @@ type ButtonStyleProps = {
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 };
 
 // To be used in any other part of the app
@@ -209,35 +223,16 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     iconName,
     loading,
     onClick,
+    placement,
     rightIcon,
     text,
   } = props;
 
-  if (iconAlign === Alignment.RIGHT) {
-    return (
-      <StyledButton
-        alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        className={className}
-        data-test-variant={buttonVariant}
-        disabled={disabled}
-        fill
-        icon={icon}
-        loading={loading}
-        onClick={onClick}
-        rightIcon={iconName || rightIcon}
-        text={text}
-      />
-    );
-  }
+  const isRightAlign = iconAlign === Alignment.RIGHT;
 
   return (
     <StyledButton
-      alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
+      alignText={getAlignText(isRightAlign, iconName)}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
@@ -247,10 +242,11 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       data-test-variant={buttonVariant}
       disabled={disabled}
       fill
-      icon={iconName || icon}
+      icon={isRightAlign ? icon : iconName || icon}
       loading={loading}
       onClick={onClick}
-      rightIcon={rightIcon}
+      placement={placement}
+      rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
       text={text}
     />
   );
@@ -293,6 +289,7 @@ interface ButtonComponentProps extends ComponentProps {
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 }
 
 function RecaptchaV2Component(
@@ -445,6 +442,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           iconAlign={props.iconAlign}
           iconName={props.iconName}
           loading={props.isLoading}
+          placement={props.placement}
           rightIcon={props.rightIcon}
           text={props.text}
           type={props.type}
