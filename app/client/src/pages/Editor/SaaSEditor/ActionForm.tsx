@@ -13,6 +13,7 @@ import {
   getDatasourceByPluginId,
   getActionResponses,
   getPlugin,
+  getPlugins,
 } from "selectors/entitiesSelector";
 import { RouteComponentProps } from "react-router";
 import {
@@ -34,6 +35,17 @@ import { updateReplayEntity } from "actions/pageActions";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  getUIComponent,
+  getFormEvaluationState,
+} from "selectors/formSelectors";
+import { UIComponentTypes } from "api/PluginApi";
+import {
+  initFormEvaluations,
+  startFormEvaluations,
+} from "actions/evaluationActions";
+import { QueryActionConfig } from "entities/Action";
+import { changeQuery } from "actions/queryPaneActions";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -41,17 +53,35 @@ type StateAndRouteProps = EditorJSONtoFormProps & {
     pageId: string;
     pluginPackageName: string;
     apiId: string;
-  }>;
+  }> &
+  ReduxDispatchProps;
+
+type ReduxDispatchProps = {
+  changeQueryPage: (queryId: string) => void;
+  runFormEvaluation: (formId: string, formData: QueryActionConfig) => void;
+  initFormEvaluation: (
+    editorConfig: any,
+    settingConfig: any,
+    formId: string,
+  ) => void;
+};
 
 type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
 function ActionForm(props: Props) {
   const {
     actionName,
+    changeQueryPage,
+    editorConfig,
+    formData,
+    initFormEvaluation,
     match: {
       params: { apiId, pageId },
     },
     pluginId,
+    runFormEvaluation,
+    settingConfig,
+    uiComponent,
   } = props;
 
   const dispatch = useDispatch();
@@ -68,6 +98,29 @@ function ActionForm(props: Props) {
       ),
     );
   }, []);
+
+  useEffect(() => {
+    // run evaluations once the component has been mounted.
+    initFormEvaluation(editorConfig, settingConfig, apiId);
+
+    changeQueryPage(apiId);
+  }, []);
+
+  useEffect(() => {
+    // if the formData changes run form evaluations again, to capture the changes.
+    if (
+      uiComponent === UIComponentTypes.UQIDbEditorForm &&
+      formData &&
+      formData.id &&
+      formData.actionConfiguration
+    ) {
+      runFormEvaluation(formData.id, formData.actionConfiguration);
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    changeQueryPage(apiId);
+  }, [apiId, pluginId]);
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -159,6 +212,20 @@ const mapStateToProps = (state: AppState, props: any) => {
     image: pluginImages[dataSource.pluginId],
   }));
 
+  const allPlugins = getPlugins(state);
+  let uiComponent = UIComponentTypes.DbEditorForm;
+  if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
+
+  // formData is needed to run form evaluations on the action.
+  const formData = getFormValues(SAAS_EDITOR_FORM)(state) as SaaSAction;
+
+  // State to manage the evaluations for the form
+  let formEvaluationState = {};
+  // Fetching evaluations state only once the formData is populated
+  if (!!formData) {
+    formEvaluationState = getFormEvaluationState(state)[formData.id];
+  }
+
   const responses = getActionResponses(state);
   return {
     isRunning: state.ui.queryPane.isRunning[apiId],
@@ -170,7 +237,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId,
     plugin,
     responseType: responseTypes[pluginId],
-    formData: getFormValues(SAAS_EDITOR_FORM)(state) as SaaSAction,
+    formData,
+    formEvaluationState,
     documentationLink: documentationLinks[pluginId],
     initialValues,
     dataSources,
@@ -179,10 +247,31 @@ const mapStateToProps = (state: AppState, props: any) => {
     runErrorMessage: runErrorMessage[apiId],
     formName: SAAS_EDITOR_FORM,
     actionObjectDiff,
+    uiComponent,
   };
 };
 
-export default connect(mapStateToProps)(
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  // re using this logic for switching query pane
+  changeQueryPage: (apiId: string) => {
+    dispatch(changeQuery(apiId));
+  },
+  runFormEvaluation: (formId: string, formData: QueryActionConfig) => {
+    dispatch(startFormEvaluations(formId, formData));
+  },
+  initFormEvaluation: (
+    editorConfig: any,
+    settingsConfig: any,
+    formId: string,
+  ) => {
+    dispatch(initFormEvaluations(editorConfig, settingsConfig, formId));
+  },
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm<Action, StateAndRouteProps>({
     form: SAAS_EDITOR_FORM,
     enableReinitialize: true,
