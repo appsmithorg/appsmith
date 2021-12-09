@@ -127,6 +127,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         cellBackground: EvaluationSubstitutionType.TEMPLATE,
         textColor: EvaluationSubstitutionType.TEMPLATE,
         textSize: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
@@ -325,6 +326,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         "primaryColumns.status.isDisabled": {
           type: "BOOLEAN",
+        },
+        primaryColumnId: {
+          type: "TEXT",
         },
         tableData: {
           type: "OBJECT_ARRAY",
