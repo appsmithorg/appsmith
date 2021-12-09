@@ -495,6 +495,7 @@ export const getExistingWidgetNames = createSelector(
 export const getExistingActionNames = createSelector(
   (state: AppState) => state.entities.actions,
   getCurrentPageId,
+  // editingEntityName is actually an id and not a name per say and it points to the id of an action being edited through the explorer.
   (state: AppState) => state.ui.explorer.entity.editingEntityName,
   (actions, currentPageId, editingEntityId) => {
     // get the current action being edited
