@@ -253,7 +253,7 @@ const Selected = styled.div<{
         ? props.hasError
           ? Colors.FAIR_PINK
           : props.theme.colors.dropdown.hovered.bg
-        : "white"}
+        : Colors.WHITE}
 `;
 
 const DropdownSelect = styled.div``;
