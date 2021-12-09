@@ -23,7 +23,6 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
-import _ from "lodash";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
@@ -51,6 +50,7 @@ export interface TreeSelectProps
   compactMode: boolean;
   dropDownWidth: number;
   width: number;
+  widgetId: string;
   isValid: boolean;
   backgroundColor: string;
   borderRadius: string;
@@ -115,6 +115,7 @@ function MultiTreeSelectComponent({
   placeholder,
   primaryColor,
   value,
+  widgetId,
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
@@ -137,7 +138,6 @@ function MultiTreeSelectComponent({
   }, []);
 
   const onClear = useCallback(() => onChange([], []), []);
-  const id = _.uniqueId();
   return (
     <TreeSelectContainer
       allowClear={allowClear}
@@ -151,7 +151,7 @@ function MultiTreeSelectComponent({
       <DropdownStyles
         borderRadius={borderRadius}
         dropDownWidth={dropDownWidth}
-        id={id}
+        id={widgetId}
         parentWidth={width - WidgetContainerDiff}
         primaryColor={primaryColor}
       />
@@ -186,7 +186,7 @@ function MultiTreeSelectComponent({
           />
         }
         disabled={disabled}
-        dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${id}`}
+        dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${widgetId}`}
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
         inputIcon={

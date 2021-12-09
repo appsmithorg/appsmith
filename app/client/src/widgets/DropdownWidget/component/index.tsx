@@ -281,7 +281,6 @@ class DropDownComponent extends React.Component<
     this.setState({ activeItemIndex });
   };
   render() {
-    const id = _.uniqueId();
     const {
       compactMode,
       disabled,
@@ -290,6 +289,7 @@ class DropDownComponent extends React.Component<
       labelText,
       labelTextColor,
       labelTextSize,
+      widgetId,
     } = this.props;
     // active focused item
     const activeItem = !_.isEmpty(this.props.options)
@@ -311,7 +311,7 @@ class DropDownComponent extends React.Component<
         <DropdownStyles
           borderRadius={this.props.borderRadius}
           dropDownWidth={this.props.dropDownWidth}
-          id={id}
+          id={widgetId}
           parentWidth={this.props.width - WidgetContainerDiff}
           primaryColor={this.props.primaryColor}
         />
@@ -369,7 +369,7 @@ class DropDownComponent extends React.Component<
                   enabled: false,
                 },
               },
-              popoverClassName: `select-popover-wrapper select-popover-width-${id}`,
+              popoverClassName: `select-popover-wrapper select-popover-width-${widgetId}`,
             }}
             primaryColor={this.props.primaryColor}
           >

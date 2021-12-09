@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select, { SelectProps } from "rc-select";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
@@ -19,7 +18,6 @@ import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import _ from "lodash";
 import { Colors } from "constants/Colors";
 
 const menuItemSelectedIcon = (props: {
@@ -58,6 +56,7 @@ export interface MultiSelectProps
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  widgetId: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -83,6 +82,7 @@ function MultiSelectComponent({
   primaryColor,
   serverSideFiltering,
   value,
+  widgetId,
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -165,8 +165,6 @@ function MultiSelectComponent({
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
-  const id = _.uniqueId();
-  console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
       backgroundColor={backgroundColor}
@@ -181,7 +179,7 @@ function MultiSelectComponent({
       <DropdownStyles
         borderRadius={borderRadius}
         dropDownWidth={dropDownWidth}
-        id={id}
+        id={widgetId}
         parentWidth={width - WidgetContainerDiff}
         primaryColor={primaryColor}
       />
@@ -209,7 +207,7 @@ function MultiSelectComponent({
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
-        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
+        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
