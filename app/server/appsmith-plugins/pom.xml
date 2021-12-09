@@ -31,5 +31,6 @@
         <module>arangoDBPlugin</module>
         <module>jsPlugin</module>
         <module>saasPlugin</module>
+        <module>smtpPlugin</module>
     </modules>
 </project>

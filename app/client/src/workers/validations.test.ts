@@ -39,7 +39,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "abc",
-        messages: ["Value is not allowed"],
+        messages: ["Disallowed value: xyz"],
       },
       {
         isValid: false,
@@ -219,7 +219,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "abc",
-        messages: ["Value is not allowed"],
+        messages: ["Disallowed value: xyz"],
       },
       {
         isValid: false,
@@ -537,6 +537,117 @@ describe("Validate Validators", () => {
     });
   });
 
+  it("correctly validates array with allowed values", () => {
+    const inputs = [
+      ["a", "b", "c"],
+      ["m", "n", "b"],
+      ["p", "r", "q"],
+      ["p", "r", "q", "s"],
+      [],
+      {},
+    ];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        allowedValues: ["a", "b", "c", "n", "m", "p", "r"],
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: ["a", "b", "c"],
+        messages: [],
+      },
+      {
+        isValid: true,
+        parsed: ["m", "n", "b"],
+        messages: [],
+      },
+      {
+        isValid: false,
+        parsed: [],
+        messages: ["Disallowed value: q"],
+      },
+      {
+        isValid: false,
+        parsed: [],
+        messages: ["Disallowed value: q"],
+      },
+      {
+        isValid: true,
+        parsed: [],
+        messages: [],
+      },
+      {
+        isValid: false,
+        parsed: [],
+        messages: [
+          "This value does not evaluate to type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
+        ],
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates array with allowed values and default value", () => {
+    const inputs = [
+      ["a", "b", "c"],
+      ["m", "n", "b"],
+      ["p", "r", "q"],
+      ["p", "r", "q", "s"],
+      [],
+      {},
+    ];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        allowedValues: ["a", "b", "c", "n", "m", "p", "r"],
+        default: ["a"],
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: ["a", "b", "c"],
+        messages: [],
+      },
+      {
+        isValid: true,
+        parsed: ["m", "n", "b"],
+        messages: [],
+      },
+      {
+        isValid: false,
+        parsed: ["a"],
+        messages: ["Disallowed value: q"],
+      },
+      {
+        isValid: false,
+        parsed: ["a"],
+        messages: ["Disallowed value: q"],
+      },
+      {
+        isValid: true,
+        parsed: [],
+        messages: [],
+      },
+      {
+        isValid: false,
+        parsed: ["a"],
+        messages: [
+          "This value does not evaluate to type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
+        ],
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
   it("correctly validates array when required is true", () => {
     const inputs = [
       ["a", "b", "c"],
@@ -581,7 +692,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        messages: ["Invalid entry at index: 2. Value is not allowed"],
+        messages: ["Invalid entry at index: 2. Disallowed value: q"],
       },
       {
         isValid: true,
@@ -1093,81 +1204,53 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected);
     });
   });
-  it("correctly validates length of array when length is given for customJSControl", () => {
+
+  it("correctly validates TableProperty", () => {
     const inputs = [
-      [
-        ["PRIMARY", "SECONDARY", "TERTIARY"],
-        ["PRIMARY", "SECONDARY", "TERTIARY"],
-      ],
-      [
-        ["PRIMARY", "SECONDARY"],
-        ["PRIMARY", "SECONDARY"],
-      ],
+      "a",
+      ["a", "b"],
+      "x",
+      ["a", "b", "x"],
+      ["a", "b", "x", "y"],
     ];
     const config = {
-      type: ValidationTypes.ARRAY,
+      type: ValidationTypes.TABLE_PROPERTY,
       params: {
-        required: true,
-        length: 2,
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ["a", "b", "c"],
+          default: "a",
+        },
       },
     };
     const expected = [
       {
-        isValid: false,
-        parsed: [
-          ["PRIMARY", "SECONDARY", "TERTIARY"],
-          ["PRIMARY", "SECONDARY", "TERTIARY"],
-        ],
-        messages: ["Max Length Exceeded: 3 > 2"],
+        isValid: true,
+        parsed: "a",
       },
       {
         isValid: true,
-        parsed: [
-          ["PRIMARY", "SECONDARY"],
-          ["PRIMARY", "SECONDARY"],
-        ],
-        messages: [],
+        parsed: ["a", "b"],
       },
-    ];
-    inputs.forEach((input, ind) => {
-      const result = validate(config, input, DUMMY_WIDGET);
-      expect(result).toStrictEqual(expected[ind]);
-    });
-  });
-  it("correctly validates array for customJSControl", () => {
-    const inputs = [
-      ["PRIMARY", "PRIMARY"],
-      [
-        ["PRIMARY", "SECONDARY"],
-        ["PRIMARY", "SECONDARY"],
-      ],
-    ];
-    const config = {
-      type: ValidationTypes.ARRAY,
-      params: {
-        isCustomJSControl: true,
-        required: true,
-        length: 2,
-      },
-    };
-    const expected = [
       {
         isValid: false,
-        parsed: ["PRIMARY", "PRIMARY"],
-        messages: ["This value does not evaluate to type Array"],
+        parsed: "a",
+        messages: ["Disallowed value: x"],
       },
       {
-        isValid: true,
-        parsed: [
-          ["PRIMARY", "SECONDARY"],
-          ["PRIMARY", "SECONDARY"],
-        ],
-        messages: [],
+        isValid: false,
+        parsed: "a",
+        messages: ["Disallowed value: x"],
+      },
+      {
+        isValid: false,
+        parsed: "a",
+        messages: ["Disallowed value: x"],
       },
     ];
-    inputs.forEach((input, ind) => {
+    inputs.forEach((input, i) => {
       const result = validate(config, input, DUMMY_WIDGET);
-      expect(result).toStrictEqual(expected[ind]);
+      expect(result).toStrictEqual(expected[i]);
     });
   });
 });

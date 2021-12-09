@@ -24,6 +24,11 @@ import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "constants/messages";
+import { IconNames } from "@blueprintjs/icons";
+
+const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
 
 export default [
   {
@@ -697,12 +702,16 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultIconName: "add",
                   isJSConvertible: true,
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: "plus",
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ICON_NAMES,
+                        default: IconNames.ADD,
+                      },
                     },
                   },
                 },
@@ -1333,6 +1342,17 @@ export default [
         },
       },
       {
+        helpText:
+          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on value",
+        propertyName: "primaryColumnId",
+        dependencies: ["primaryColumns"],
+        label: "Primary key column",
+        controlType: "PRIMARY_COLUMNS_DROPDOWN",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
         propertyName: "defaultSearchText",
         label: "Default Search Text",
         controlType: "INPUT_TEXT",
@@ -1447,6 +1467,13 @@ export default [
       {
         propertyName: "multiRowSelection",
         label: "Enable multi row selection",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        propertyName: "enableClientSideSearch",
+        label: "Enable client side search",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
