@@ -12,6 +12,7 @@ import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import derivedProperties from "./parseDerivedProperties";
 
 export function selectedTabValidation(
   value: unknown,
@@ -184,15 +185,7 @@ class TabsWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedTab: `{{  this.selectedTabWidgetId
-        ? _.find(Object.values(this.tabsObj), {
-            widgetId: this.selectedTabWidgetId,
-          }).label
-        : Object.values(this.tabsObj).filter(
-            (tab) => tab.label === this.defaultTab,
-          ).length > 0
-        ? this.defaultTab
-        : Object.values(this.tabsObj)[0].label;}}`,
+      selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
     };
   }
 
