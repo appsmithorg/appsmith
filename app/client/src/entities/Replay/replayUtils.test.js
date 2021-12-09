@@ -1,12 +1,20 @@
-import { processDiff, TOASTS, FOCUSES, UPDATES, WIDGETS } from "./replayUtils";
+import ReplayCanvas from "./ReplayEntity/ReplayCanvas";
+import ReplayEditor from "./ReplayEntity/ReplayEditor";
+import {
+  TOASTS,
+  FOCUSES,
+  UPDATES,
+  WIDGETS,
+  findFieldInfo,
+} from "./replayUtils";
 
-describe("check processDiff from replayUtils for type of update", () => {
-  const dsl = {
+describe("check canvas diff from replayUtils for type of update", () => {
+  const canvasReplay = new ReplayCanvas({
     "0": {},
     abcde: {
       widgetName: "abcde",
     },
-  };
+  });
   describe("check diff of kind 'N' and 'D'", () => {
     it("should create toasts on creation of widgets on Undo", () => {
       const replay = {};
@@ -23,8 +31,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetName: "abcde",
         widgetId: "abcde",
       };
-
-      processDiff(dsl, createWidgetDiff, replay, true);
+      canvasReplay.processDiff(createWidgetDiff, replay, true);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(createWidgetToast);
@@ -46,7 +53,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetId: "abcde",
       };
 
-      processDiff(dsl, createWidgetDiff, replay, false);
+      canvasReplay.processDiff(createWidgetDiff, replay, false);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(createWidgetToast);
@@ -67,7 +74,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetId: "abcde",
       };
 
-      processDiff(dsl, deleteWidgetDiff, replay, true);
+      canvasReplay.processDiff(deleteWidgetDiff, replay, true);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(deleteWidgetToast);
@@ -89,7 +96,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetId: "abcde",
       };
 
-      processDiff(dsl, deleteWidgetDiff, replay, false);
+      canvasReplay.processDiff(deleteWidgetDiff, replay, false);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(deleteWidgetToast);
@@ -102,7 +109,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: path,
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
@@ -116,7 +123,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: path,
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
@@ -131,7 +138,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: ["abcde", "topRow"],
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
       expect(replay[WIDGETS].abcde[FOCUSES]).toBe(true);
@@ -144,11 +151,90 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: path,
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
       expect(replay[WIDGETS].abcde[UPDATES]).toEqual(path);
+    });
+  });
+  describe("Form field config from modified property path", () => {
+    it("should retrieve the right config and parent section name", () => {
+      const formConfig = [
+        {
+          sectionName: "Authentication",
+          children: [
+            {
+              label: "Database Name",
+              configProperty:
+                "datasourceConfiguration.authentication.databaseName",
+              controlType: "INPUT_TEXT",
+              placeholderText: "Database name",
+              initialValue: "admin",
+            },
+            {
+              sectionName: null,
+              children: [
+                {
+                  label: "Username",
+                  configProperty:
+                    "datasourceConfiguration.authentication.username",
+                  controlType: "INPUT_TEXT",
+                  placeholderText: "Username",
+                },
+                {
+                  label: "Password",
+                  configProperty:
+                    "datasourceConfiguration.authentication.password",
+                  dataType: "PASSWORD",
+                  controlType: "INPUT_TEXT",
+                  placeholderText: "Password",
+                  encrypted: true,
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      const property = "datasourceConfiguration.authentication.username";
+      const fieldConfig = {
+        label: "Username",
+        configProperty: "datasourceConfiguration.authentication.username",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Username",
+      };
+      const parentSection = "Authentication";
+
+      expect(findFieldInfo(formConfig, property)).toStrictEqual({
+        conf: fieldConfig,
+        parentSection,
+      });
+    });
+  });
+  describe("Checks process diff method for editor replays", () => {
+    it("should contain modified property, kind and the update attrubutes", () => {
+      const action = {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+        encodeParamsToggle: true,
+      };
+      const diff = {
+        kind: "E",
+        path: ["encodeParamsToggle"],
+        lhs: true,
+        rhs: false,
+      };
+      const replayEditor = new ReplayEditor(action);
+      const replay = {};
+      replayEditor.processDiff(diff, replay, false);
+
+      expect(replay.updates).toStrictEqual([
+        {
+          kind: "E",
+          modifiedProperty: "encodeParamsToggle",
+          update: false,
+        },
+      ]);
     });
   });
 });
