@@ -236,7 +236,7 @@ describe("Table Widget property pane feature validation", function() {
       });
     // update menu item background color
     cy.get(widgetsPage.backgroundcolorPickerNew)
-      .type()
+      .clear()
       .type("#3366FF", {
         force: true,
       });
