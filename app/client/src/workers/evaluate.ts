@@ -151,12 +151,19 @@ export default function evaluate(
   const scriptType = getScriptType(evalArguments, isTriggerBased);
 
   // If nothing is present to evaluate, return back instead of evaluating
-  if (unescapedJS.length > 0) {
-    script = getScriptToEval(unescapedJS, scriptType);
-    // We are linting original js binding,
-    // This will make sure that the character count is not messed up when we do unescapejs
-    scriptToLint = getScriptToEval(js, scriptType);
+  if (!(unescapedJS.length > 0)) {
+    return {
+      errors: [],
+      result: undefined,
+      triggers: [],
+    };
   }
+
+  script = getScriptToEval(unescapedJS, scriptType);
+  // We are linting original js binding,
+  // This will make sure that the character count is not messed up when we do unescapejs
+  scriptToLint = getScriptToEval(js, scriptType);
+
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
