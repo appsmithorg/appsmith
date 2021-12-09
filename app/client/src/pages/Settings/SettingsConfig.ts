@@ -399,4 +399,5 @@ SettingsFactory.register("APPSMITH_CUSTOM_DOMAIN", {
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Custom Domain",
+  subText: "Custom domain for your Appsmith instance",
 });
