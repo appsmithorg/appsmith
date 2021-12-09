@@ -837,7 +837,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
