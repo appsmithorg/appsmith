@@ -75,3 +75,9 @@ export enum CheckboxGroupAlignmentTypes {
   NONE = "unset",
 }
 export type CheckboxGroupAlignment = keyof typeof CheckboxGroupAlignmentTypes;
+export enum ButtonPlacementTypes {
+  START = "START",
+  BETWEEN = "BETWEEN",
+  CENTER = "CENTER",
+}
+export type ButtonPlacement = keyof typeof ButtonPlacementTypes;
