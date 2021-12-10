@@ -97,6 +97,7 @@ type ResizableProps = {
   componentWidth: number;
   componentHeight: number;
   children: ReactNode;
+  updateBottomRow: (bottomRow: number) => void;
   getResizedPositions: (
     size: { width: number; height: number },
     position: { x: number; y: number },
@@ -186,9 +187,10 @@ export function Resizable(props: ResizableProps) {
         let newRect = { ...rect };
 
         let canVerticalMove = true,
-          canHorizontalMove = true;
+          canHorizontalMove = true,
+          bottomMostRow = 0;
         if (resizedPositions)
-          ({ canHorizontalMove, canVerticalMove } = reflow(
+          ({ bottomMostRow, canHorizontalMove, canVerticalMove } = reflow(
             resizedPositions,
             props.originalPositions,
             direction,
@@ -211,6 +213,10 @@ export function Resizable(props: ResizableProps) {
             y: prevState.y,
             Y: prevState.Y,
           };
+        }
+
+        if (bottomMostRow) {
+          props.updateBottomRow(bottomMostRow);
         }
 
         return newRect;

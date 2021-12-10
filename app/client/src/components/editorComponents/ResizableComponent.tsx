@@ -44,6 +44,7 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
+import { DropTargetContext } from "./DropTargetComponent";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -255,6 +256,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectedWidgets &&
     selectedWidgets.length > 1 &&
     selectedWidgets.includes(props.widgetId);
+  const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
     parentColumnSpace: props.parentColumnSpace,
@@ -269,6 +271,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     top: props.topRow,
     bottom: props.bottomRow,
     right: props.rightColumn,
+  };
+  const updateBottomRow = (bottom: number) => {
+    if (props.parentId) {
+      updateDropTargetRows && updateDropTargetRows(props.parentId, bottom);
+    }
   };
 
   return (
@@ -285,6 +292,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       originalPositions={originalPositions}
       parentId={props.parentId}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      updateBottomRow={updateBottomRow}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
       zWidgetId={props.widgetId}
