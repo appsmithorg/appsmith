@@ -113,15 +113,6 @@ export interface RenderDropdownOptionType {
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
 }
 
-export const DropdownContainer = styled.div<{ width: string; height?: string }>`
-  width: ${(props) => props.width};
-  height: ${(props) => props.height || `38px`};
-  position: relative;
-  span.bp3-popover-target {
-    display: inline-block;
-  }
-`;
-
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
@@ -211,6 +202,19 @@ const Selected = styled.div<{
       props.hasError
         ? Colors.FAIR_PINK
         : props.theme.colors.dropdown.hovered.bg};
+  }
+`;
+
+export const DropdownContainer = styled.div<{ width: string; height?: string }>`
+  width: ${(props) => props.width};
+  height: ${(props) => props.height || `38px`};
+  position: relative;
+  span.bp3-popover-target {
+    display: inline-block;
+  }
+
+  &:focus-visible ${Selected} {
+    border: 1px solid #191919;
   }
 `;
 
