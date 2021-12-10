@@ -153,8 +153,10 @@ public class GitServiceImpl implements GitService {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        if (!Boolean.TRUE.equals(gitProfile.getUseDefaultProfile())) {
-            gitProfile.setUseDefaultProfile(Boolean.FALSE);
+        if (StringUtils.equalsIgnoreCase(DEFAULT, defaultApplicationId)) {
+            gitProfile.setUseGlobalProfile(Boolean.TRUE);
+        } else if (!Boolean.TRUE.equals(gitProfile.getUseGlobalProfile())) {
+            gitProfile.setUseGlobalProfile(Boolean.FALSE);
         }
 
         return sessionUserService.getCurrentUser()
@@ -194,6 +196,7 @@ public class GitServiceImpl implements GitService {
 
     @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile) {
+        gitProfile.setUseGlobalProfile(true);
         return updateOrCreateGitProfileForCurrentUser(gitProfile, DEFAULT);
     }
 
@@ -206,7 +209,13 @@ public class GitServiceImpl implements GitService {
     @Override
     public Mono<GitProfile> getGitProfileForUser(String defaultApplicationId) {
         return userDataService.getForCurrentUser()
-                .map(userData -> userData.getGitProfileByKey(defaultApplicationId));
+                .map(userData -> {
+                    GitProfile gitProfile = userData.getGitProfileByKey(defaultApplicationId);
+                    if (gitProfile != null && gitProfile.getUseGlobalProfile() == null) {
+                        gitProfile.setUseGlobalProfile(true);
+                    }
+                    return gitProfile;
+                });
     }
 
     /**
@@ -310,7 +319,7 @@ public class GitServiceImpl implements GitService {
 
                 GitProfile authorProfile = currentUserData.getGitProfileByKey(gitApplicationData.getDefaultApplicationId());
 
-                if (authorProfile == null || authorProfile.getUseDefaultProfile()) {
+                if (authorProfile == null || authorProfile.getUseGlobalProfile()) {
                     // Use default author profile as the fallback value
                     if (currentUserData.getGitProfileByKey(DEFAULT) != null) {
                         authorProfile = currentUserData.getGitProfileByKey(DEFAULT);
@@ -414,7 +423,14 @@ public class GitServiceImpl implements GitService {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 );
 
-        return updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId)
+        Mono<Map<String, GitProfile>> profileMono = Boolean.TRUE.equals(gitConnectDTO.getGitProfile().getUseGlobalProfile())
+                ? this.getGitProfileForUser().map(profile -> Map.of(DEFAULT, profile))
+                : updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId);
+
+        return profileMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
+                )
                 .then(getApplicationById(defaultApplicationId))
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
