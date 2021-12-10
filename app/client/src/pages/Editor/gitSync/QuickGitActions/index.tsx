@@ -28,7 +28,11 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
-import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import {
+  gitPullInit,
+  setIsGitSyncModalOpen,
+  showConnectGitModal,
+} from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
 import {
@@ -250,7 +254,7 @@ function ConnectGitPlaceholder() {
               category={Category.tertiary}
               className="t--connect-git-bottom-bar"
               onClick={() => {
-                dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+                dispatch(showConnectGitModal());
               }}
               size={Size.small}
               text={createMessage(CONNECT_GIT)}

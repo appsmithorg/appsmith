@@ -74,6 +74,7 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -813,7 +814,7 @@ export function EditorJSONtoForm(props: Props) {
               <TabComponent
                 tabs={[
                   {
-                    key: "query",
+                    key: EDITOR_TABS.QUERY,
                     title: "Query",
                     panelComponent: (
                       <SettingsWrapper>
@@ -855,7 +856,7 @@ export function EditorJSONtoForm(props: Props) {
                     ),
                   },
                   {
-                    key: "settings",
+                    key: EDITOR_TABS.SETTINGS,
                     title: "Settings",
                     panelComponent: (
                       <SettingsWrapper>

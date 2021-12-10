@@ -352,6 +352,7 @@ function Header({
             position={Position.TOP}
           >
             <Icon
+              className="t--sync-branches"
               fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
               hoverFillColor={Colors.BLACK}
               name="refresh"
@@ -362,6 +363,7 @@ function Header({
         </span>
       </div>
       <Icon
+        className="t--close-branch-list"
         fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
         hoverFillColor={Colors.BLACK}
         name="close-modal"

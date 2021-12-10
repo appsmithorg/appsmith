@@ -3442,6 +3442,24 @@ Cypress.Commands.add("deleteTestGithubRepo", (repo) => {
   });
 });
 
+Cypress.Commands.add(
+  "renameBranchViaGithubApi",
+  (repo, currentName, newName) => {
+    cy.request({
+      method: "POST",
+      url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+        "TEST_GITHUB_USER_NAME",
+      )}/${repo}/branches/${currentName}/rename`,
+      headers: {
+        Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+      },
+      body: {
+        new_name: newName,
+      },
+    });
+  },
+);
+
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
   cy.get(gitSyncLocators.commitButton).click();

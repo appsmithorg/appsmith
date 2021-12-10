@@ -15,13 +15,13 @@ describe("Git sync connect to repo", function() {
     cy.generateUUID().then((uid) => {
       repoName = uid;
       cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo();
+      cy.connectToGitRepo(repoName);
     });
   });
 
-  it("connects successfully", function() {
-    cy.connectToGitRepo();
-  });
+  // it("connects successfully", function() {
+  //   cy.connectToGitRepo();
+  // });
 
   it("creates a new branch", function() {
     cy.get(commonLocators.canvas).click({ force: true });
@@ -153,7 +153,31 @@ describe("Git sync connect to repo", function() {
     });
   });
 
+  it.only("test sync and prune branches", () => {
+    // uncomment once prune branch flow is complete
+    // const tempBranch = "featureA";
+    // const tempBranchRenamed = "newFeatureA";
+    // cy.goToEditFromPublish();
+    // cy.createGitBranch(tempBranch);
+    // cy.switchGitBranch("master");
+    // cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
+    // cy.get(gitSyncLocators.branchButton).click();
+    // cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
+    // const tempBranchRegex = new RegExp(`^${tempBranch}$`);
+    // const tempBranchRenamedRegex = new RegExp(`^${tempBranchRenamed}$`);
+    // cy.get(gitSyncLocators.branchListItem).contains(tempBranchRegex);
+    // cy.get(gitSyncLocators.syncBranches).click();
+    // cy.get(gitSyncLocators.branchListItem).contains(tempBranchRegex).should("not.exist");
+    // cy.get(gitSyncLocators.branchListItem).contains(tempBranchRenamedRegex).should("exist");
+    // cy.get(gitSyncLocators.closeBranchList).click();
+    // cy.switchGitBranch(`origin/${tempBranch}`, true);
+    // // cy.switchGitBranch("master");
+    // // cy.switchGitBranch(`origin/${tempBranchRenamed}`);
+    // // assert error toast
+    // cy.contains(`origin/${tempBranch} already exists`);
+  });
+
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    // cy.deleteTestGithubRepo(repoName);
   });
 });

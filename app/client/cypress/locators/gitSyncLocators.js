@@ -23,4 +23,6 @@ export default {
   connetStatusbar: ".t--connect-statusbar",
   useGlobalGitConfig: "[data-cy=t--use-global-config-checkbox]",
   connectGitBottomBar: ".t--connect-git-bottom-bar",
+  syncBranches: ".t--sync-branches",
+  closeBranchList: ".t--close-branch-list",
 };
