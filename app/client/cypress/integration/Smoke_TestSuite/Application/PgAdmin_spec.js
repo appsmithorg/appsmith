@@ -19,17 +19,6 @@ describe("PgAdmin Clone App", function() {
   });
 
   it("Add dsl and authenticate datasource", function() {
-    cy.NavigateToHome();
-    appname = localStorage.getItem("AppName");
-    cy.get(homePage.searchInput).type(appname);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appEditIcon)
-      .first()
-      .click({ force: true });
     // authenticating datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
@@ -133,7 +122,6 @@ describe("PgAdmin Clone App", function() {
           parseSpecialCharSequences: false,
         },
       );
-    cy.wait(3000);
     cy.WaitAutoSave();
     cy.runQuery();
     // clicking on chevron icon to go back to the datasources page
@@ -165,53 +153,51 @@ describe("PgAdmin Clone App", function() {
     cy.get(appPage.dropdownChevronLeft).click();
   });
 
-  // it("Add new table", function() {
-  //   const uuid = () => Cypress._.random(0, 1e6);
-  //   const id = uuid();
-  //   const Table = `table${id}`;
-  //   // clicking on chevron to go back to the application page
-  //   cy.get(appPage.dropdownChevronLeft).click();
-  //   // adding new table
-  //   cy.xpath(appPage.addNewtable).click();
-  //   cy.xpath(appPage.addTablename)
-  //     .clear()
-  //     .type(Table);
-  //   cy.wait(2000);
-  //   // adding column to the table
-  //   cy.xpath(appPage.addColumn).click();
-  //   cy.wait(2000);
-  //   cy.xpath(appPage.columnNamefield).should("be.visible");
-  //   cy.xpath(appPage.datatypefield).should("be.visible");
-  //   cy.xpath(appPage.addTablename).type("id");
-  //   cy.xpath(appPage.textField).click();
-  //   cy.xpath(appPage.selectDatatype).click();
-  //   // switching on the Primary Key toggle
-  //   cy.get(widgetsPage.switchWidgetInactive)
-  //     .first()
-  //     .click();
-  //   // switching on the Not Null toggle
-  //   cy.get(widgetsPage.switchWidgetInactive)
-  //     .last()
-  //     .click();
-  //   cy.xpath(appPage.submitButton).click();
-  //   cy.wait(2000);
-  //   cy.xpath(appPage.addColumn).should("be.visible");
-  //   cy.xpath(appPage.submitButton).click({ force: true });
-  //   cy.xpath(appPage.closeButton).click();
-  // });
+  it("Add new table", function() {
+    const uuid = () => Cypress._.random(0, 1e6);
+    const id = uuid();
+    const Table = `table${id}`;
+    // clicking on chevron to go back to the application page
+    cy.get(appPage.dropdownChevronLeft).click();
+    // adding new table
+    cy.xpath(appPage.addNewtable).click();
+    cy.xpath(appPage.addTablename)
+      .clear()
+      .type(Table);
+    // adding column to the table
+    cy.xpath(appPage.addColumn).click();
+    cy.xpath(appPage.columnNamefield).should("be.visible");
+    cy.xpath(appPage.datatypefield).should("be.visible");
+    cy.xpath(appPage.addTablename).type("id");
+    cy.get(appPage.dropdownChevronDown)
+      .last()
+      .click();
+    cy.xpath(appPage.selectDatatype).click();
+    // switching on the Primary Key toggle
+    cy.get(widgetsPage.switchWidgetInactive)
+      .first()
+      .click();
+    // switching on the Not Null toggle
+    cy.get(widgetsPage.switchWidgetInactive)
+      .last()
+      .click();
+    cy.xpath(appPage.submitButton).click();
+    cy.xpath(appPage.addColumn).should("be.visible");
+    cy.xpath(appPage.submitButton).click({ force: true });
+    cy.xpath(appPage.closeButton).click();
+  });
 
-  // it("View and Delete table", function() {
-  //   cy.xpath(appPage.addNewtable).should("be.visible");
-  //   // viewing the table's columns by clicking on view button
-  //   cy.xpath(appPage.viewButton)
-  //     .first()
-  //     .click({ force: true });
-  //   cy.wait(2000);
-  //   // deleting the table through modal
-  //   cy.xpath(appPage.deleteButton)
-  //     .last()
-  //     .click({ force: true });
-  //   cy.xpath(appPage.confirmButton).click();
-  //   cy.xpath(appPage.closeButton).click();
-  // });
+  it("View and Delete table", function() {
+    cy.xpath(appPage.addNewtable).should("be.visible");
+    // viewing the table's columns by clicking on view button
+    cy.xpath(appPage.viewButton)
+      .first()
+      .click({ force: true });
+    // deleting the table through modal
+    cy.xpath(appPage.deleteButton)
+      .last()
+      .click({ force: true });
+    cy.xpath(appPage.confirmButton).click();
+    cy.xpath(appPage.closeButton).click();
+  });
 });
