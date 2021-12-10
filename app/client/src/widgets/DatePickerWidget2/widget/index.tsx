@@ -125,6 +125,41 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             hideSubText: true,
           },
           {
+            propertyName: "timePrecision",
+            label: "Time precision",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the different time picker or hide.",
+            defaultValue: TimePrecision.MINUTE,
+            options: [
+              {
+                label: "None",
+                value: "None",
+              },
+              {
+                label: "Minute",
+                value: TimePrecision.MINUTE,
+              },
+              {
+                label: "Second",
+                value: TimePrecision.SECOND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "None",
+                  TimePrecision.MINUTE,
+                  TimePrecision.SECOND,
+                ],
+                default: TimePrecision.MINUTE,
+              },
+            },
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -195,41 +230,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
-          },
-          {
-            propertyName: "timePrecision",
-            label: "Time precision",
-            controlType: "DROP_DOWN",
-            helpText: "Sets the different time picker or hide.",
-            defaultValue: TimePrecision.MINUTE,
-            options: [
-              {
-                label: "None",
-                value: "None",
-              },
-              {
-                label: "Minute",
-                value: TimePrecision.MINUTE,
-              },
-              {
-                label: "Second",
-                value: TimePrecision.SECOND,
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "None",
-                  TimePrecision.MINUTE,
-                  TimePrecision.SECOND,
-                ],
-                default: TimePrecision.MINUTE,
-              },
-            },
           },
         ],
       },
