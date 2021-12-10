@@ -9,6 +9,7 @@ import {
   HORIZONTAL_RESIZE_LIMIT,
   MathComparators,
   ReflowDirection,
+  ReflowedSpace,
   ReflowedSpaceMap,
   SpaceAttributes,
   SpaceMovement,
@@ -28,15 +29,40 @@ export function getIsHorizontalMove(
   return false;
 }
 
+export function shouldReplaceOldMovement(
+  oldMovement: ReflowedSpace,
+  newMovement: ReflowedSpace,
+  direction: ReflowDirection,
+) {
+  if (!oldMovement) return true;
+
+  const { directionIndicator, isHorizontal } = getAccessor(direction);
+
+  const distanceKey = isHorizontal ? "X" : "Y";
+
+  if (
+    oldMovement[distanceKey] === undefined ||
+    newMovement[distanceKey] === undefined
+  )
+    return;
+
+  //eslint-disable-next-line
+  return compareNumbers(
+    oldMovement[distanceKey]!,
+    newMovement[distanceKey]!,
+    directionIndicator < 0,
+  );
+}
+
 export function getResizedDimensions(
   collisionTree: CollisionTree,
   distanceBeforeCollision: number,
-  whiteSpaces: number,
+  emptySpaces: number,
   { direction }: CollisionAccessors,
 ) {
   const reflowedPosition = { ...collisionTree, children: [] };
 
-  const newDimension = distanceBeforeCollision + whiteSpaces;
+  const newDimension = distanceBeforeCollision + emptySpaces;
   reflowedPosition[direction] -= newDimension;
 
   return reflowedPosition;
@@ -65,7 +91,7 @@ export function getDistanceComparator(
     const distanceB = Math.abs(
       newPositions[accessorB.direction] - spaceB[accessorB.oppositeDirection],
     );
-    return isAscending ? distanceB - distanceA : distanceA - distanceB;
+    return isAscending ? distanceA - distanceB : distanceB - distanceA;
   };
 }
 
