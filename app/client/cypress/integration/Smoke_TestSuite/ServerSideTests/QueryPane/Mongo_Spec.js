@@ -18,7 +18,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(datasource.MongoDB).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource();
+    cy.testSaveDatasource(false);
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
@@ -141,8 +141,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.wait("@postExecute").then(({ request, response }) => {
       // cy.log(request.method + ": is req.method")
       //expect(request.method).to.equal('POST')
-      expect(response.body.data.body[0].count).to.eq(
-        12,
+      expect(response.body.data.body[0].count).to.be.above(0,
         "Response is not as expected for Aggregate commmand",
       );
       // it is good practice to add message to the assertion
