@@ -51,7 +51,7 @@ export function highlightSection(
   document.body.append(highlightBorder);
 
   const showAnimationDelay = 0;
-  const hideAnimationDelay = showAnimationDelay + 5000;
+  const hideAnimationDelay = showAnimationDelay + 4000;
   const removeElementDelay = hideAnimationDelay + 1000;
 
   setTimeout(() => {

@@ -314,7 +314,7 @@ export const Steps: StepsType = {
         dispatch(forceOpenWidgetPanel(true));
         setTimeout(() => {
           highlightSection("widget-card-buttonwidget");
-        }, 1000);
+        }, 2000);
       },
     },
   },
@@ -334,6 +334,12 @@ export const Steps: StepsType = {
     success: {
       text: "Perfect! Your update button is ready to trigger an update query.",
       timed: true,
+      onClick: (dispatch) => {
+        dispatch(forceOpenWidgetPanel(false));
+        setTimeout(() => {
+          highlightSection("explorer-entity-updateCustomerInfo");
+        }, 1000);
+      },
     },
     info: {
       icon: "lightbulb-flash-line",

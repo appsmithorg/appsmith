@@ -254,6 +254,7 @@ export const Entity = forwardRef(
           className={`${props.highlight ? "highlighted" : ""} ${
             props.active ? "active" : ""
           } t--entity-item`}
+          data-guided-tour-id={`explorer-entity-${props.name}`}
           highlight={!!props.highlight}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
