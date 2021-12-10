@@ -185,10 +185,13 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       validationPaths: {
         cellBackground: {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         defaultSearchText: {
           type: "TEXT",
@@ -207,45 +210,60 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "FUNCTION",
         },
         "primaryColumns.createdAt.cellBackground": {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.createdAt.fontStyle": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            params: {
+              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.createdAt.horizontalAlignment": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: ["LEFT", "CENTER", "RIGHT"],
-            default: "LEFT",
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+              default: "LEFT",
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.createdAt.isCellVisible": {
           type: "BOOLEAN",
         },
         "primaryColumns.createdAt.textColor": {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.createdAt.textSize": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: [
-              "HEADING1",
-              "HEADING2",
-              "HEADING3",
-              "PARAGRAPH",
-              "PARAGRAPH2",
-            ],
-            default: "PARAGRAPH",
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+              default: "PARAGRAPH",
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         isVisible: {
           type: "BOOLEAN",
@@ -257,63 +275,87 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.createdAt.verticalAlignment": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.name.cellBackground": {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.name.fontStyle": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            params: {
+              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.name.horizontalAlignment": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: ["LEFT", "CENTER", "RIGHT"],
-            default: "LEFT",
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+              default: "LEFT",
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.name.isCellVisible": {
           type: "BOOLEAN",
         },
         "primaryColumns.name.textColor": {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.name.textSize": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: [
-              "HEADING1",
-              "HEADING2",
-              "HEADING3",
-              "PARAGRAPH",
-              "PARAGRAPH2",
-            ],
-            default: "PARAGRAPH",
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+              default: "PARAGRAPH",
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.name.verticalAlignment": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.status.buttonColor": {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.status.buttonLabelColor": {
           params: {
@@ -337,23 +379,29 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         textColor: {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         textSize: {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: [
-              "HEADING1",
-              "HEADING2",
-              "HEADING3",
-              "PARAGRAPH",
-              "PARAGRAPH2",
-            ],
-            default: "PARAGRAPH",
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+              default: "PARAGRAPH",
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
       },
     };

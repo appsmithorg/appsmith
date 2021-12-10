@@ -538,10 +538,13 @@ export default [
                     "columnOrder",
                   ],
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: "LEFT",
-                      allowedValues: ["LEFT", "CENTER", "RIGHT"],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        default: "LEFT",
+                        allowedValues: ["LEFT", "CENTER", "RIGHT"],
+                      },
                     },
                   },
                 },
@@ -589,16 +592,19 @@ export default [
                     "columnOrder",
                   ],
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: "PARAGRAPH",
-                      allowedValues: [
-                        "HEADING1",
-                        "HEADING2",
-                        "HEADING3",
-                        "PARAGRAPH",
-                        "PARAGRAPH2",
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        default: "PARAGRAPH",
+                        allowedValues: [
+                          "HEADING1",
+                          "HEADING2",
+                          "HEADING3",
+                          "PARAGRAPH",
+                          "PARAGRAPH2",
+                        ],
+                      },
                     },
                   },
                   isBindProperty: true,
@@ -634,9 +640,12 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+                      },
                     },
                   },
                 },
@@ -669,9 +678,12 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: ["TOP", "CENTER", "BOTTOM"],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["TOP", "CENTER", "BOTTOM"],
+                      },
                     },
                   },
                 },
@@ -690,9 +702,12 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      regex: /^(?![<|{{]).+/,
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
                     },
                   },
                 },
@@ -711,9 +726,12 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      regex: /^(?![<|{{]).+/,
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
                     },
                   },
                 },
@@ -786,9 +804,12 @@ export default [
                     "columnOrder",
                   ],
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: ["center", "left", "right"],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["center", "left", "right"],
+                      },
                     },
                   },
                 },
@@ -853,9 +874,12 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      regex: /^(?![<|{{]).+/,
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
                     },
                   },
                 },
@@ -890,7 +914,6 @@ export default [
                     },
                   ],
                   defaultValue: ButtonVariantTypes.PRIMARY,
-
                   isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
@@ -935,9 +958,12 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                      },
                     },
                   },
                 },
@@ -962,16 +988,19 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: [
-                        "NONE",
-                        "VARIANT1",
-                        "VARIANT2",
-                        "VARIANT3",
-                        "VARIANT4",
-                        "VARIANT5",
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: [
+                          "NONE",
+                          "VARIANT1",
+                          "VARIANT2",
+                          "VARIANT3",
+                          "VARIANT4",
+                          "VARIANT5",
+                        ],
+                      },
                     },
                   },
                 },
@@ -1073,7 +1102,6 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
@@ -1087,15 +1115,19 @@ export default [
                   },
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: ButtonVariantTypes.PRIMARY,
-                      allowedValues: [
-                        ButtonVariantTypes.PRIMARY,
-                        ButtonVariantTypes.SECONDARY,
-                        ButtonVariantTypes.TERTIARY,
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        default: ButtonVariantTypes.PRIMARY,
+                        allowedValues: [
+                          ButtonVariantTypes.PRIMARY,
+                          ButtonVariantTypes.SECONDARY,
+                          ButtonVariantTypes.TERTIARY,
+                        ],
+                      },
                     },
                   },
                 },
@@ -1662,9 +1694,12 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
-          type: ValidationTypes.TEXT,
+          type: ValidationTypes.TABLE_PROPERTY,
           params: {
-            regex: /^(?![<|{{]).+/,
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
           },
         },
       },
@@ -1678,9 +1713,12 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
-          type: ValidationTypes.TEXT,
+          type: ValidationTypes.TABLE_PROPERTY,
           params: {
-            regex: /^(?![<|{{]).+/,
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
           },
         },
       },
@@ -1723,16 +1761,19 @@ export default [
           },
         ],
         validation: {
-          type: ValidationTypes.TEXT,
+          type: ValidationTypes.TABLE_PROPERTY,
           params: {
-            default: "PARAGRAPH",
-            allowedValues: [
-              "HEADING1",
-              "HEADING2",
-              "HEADING3",
-              "PARAGRAPH",
-              "PARAGRAPH2",
-            ],
+            type: ValidationTypes.TEXT,
+            params: {
+              default: "PARAGRAPH",
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+            },
           },
         },
         isJSConvertible: true,
