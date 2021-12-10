@@ -42,6 +42,9 @@ describe("Organization Import Application", function() {
           cy.wait("@createOrg").then((createOrgInterception) => {
             newOrganizationName = createOrgInterception.response.body.data.name;
             cy.renameOrg(newOrganizationName, orgid);
+            cy.get(homePage.optionsIcon)
+              .last()
+              .click({ force: true });
             cy.get(homePage.orgImportAppOption).click({ force: true });
 
             cy.get(homePage.orgImportAppModal).should("be.visible");
