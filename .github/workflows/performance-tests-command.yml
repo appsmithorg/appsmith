@@ -257,7 +257,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+        job: [0, 1, 2]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -360,10 +360,10 @@ jobs:
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
           APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-          
+
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          
+
           APPSMITH_DISABLE_TELEMETRY: true
           POSTGRES_PASSWORD: postgres
         run: |
