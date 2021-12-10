@@ -99,6 +99,10 @@ public class CreateDBTablePageSolutionTests {
 
     private final String LIST_QUERY = "ListFiles";
 
+    private final String UPDATE_QUERY = "UpdateQuery";
+
+    private final String INSERT_QUERY = "InsertQuery";
+
     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
     private final Map<String, String> actionNameToBodyMap = Map.of(
@@ -129,7 +133,18 @@ public class CreateDBTablePageSolutionTests {
             "    \"field2\" = '{{update_col_3.text}}',\n" +
             "    \"field3\" = '{{update_col_4.text}}',\n" +
             "\t\t\"field4\" = '{{update_col_5.text}}'\n" +
-            "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};"
+            "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
+
+        "UpdateActionWithLessColumns", "UPDATE limitedColumnTable SET\n" +
+                "\t\t\"field1.something\" = '{{update_col_2.text}}'\n" +
+                "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
+
+        "InsertActionWithLessColumns", "INSERT INTO limitedColumnTable (\n" +
+                    "\t\"field1.something\" \n" +
+                    ")\n" +
+                    "VALUES (\n" +
+                    "\t\t\t\t{{insert_col_input2.text}} \n" +
+                    ");"
     );
 
     private final String dropdownOptions = "options -> [\n" +
@@ -154,6 +169,14 @@ public class CreateDBTablePageSolutionTests {
         testApplication.setOrganizationId(testOrg.getId());
         testApp = applicationPageService.createApplication(testApplication, testOrg.getId()).block();
 
+        // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where template table
+        // have more number of columns than the user provided table which leads to deleting the column names from action configuration
+
+        List<Column> limitedColumns = List.of(
+                new Column("primaryKey", "type1", null, true),
+                new Column("field1.something", "VARCHAR(23)", null, false)
+        );
+
         List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
         List<Column> columns = List.of(
             new Column("primaryKey", "type1", null, true),
@@ -162,7 +185,10 @@ public class CreateDBTablePageSolutionTests {
             new Column("field3", "type4", null, false),
             new Column("field4", "type5", null, false)
         );
-        List<Table> tables = List.of(new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()));
+        List<Table> tables = List.of(
+                new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
+                new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>())
+        );
         structure.setTables(tables);
         testDatasource.setPluginId(postgreSQLPlugin.getId());
         testDatasource.setOrganizationId(testOrg.getId());
@@ -304,6 +330,137 @@ public class CreateDBTablePageSolutionTests {
                 }
             })
             .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPageWithLessColumnsComparedToTemplateForPostgres() {
+
+        CRUDPageResourceDTO resourceDTO = new CRUDPageResourceDTO();
+        resourceDTO.setTableName(testDatasource.getStructure().getTables().get(1).getName());
+        resourceDTO.setDatasourceId(testDatasource.getId());
+        resourceDTO.setApplicationId(testApp.getId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(testApp.getId());
+        newPage.setName("crud-admin-page-postgres-with-less-columns");
+
+        Mono<CRUDPageResponseDTO> resultMono = applicationPageService.createPage(newPage)
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO));
+
+        StepVerifier
+                .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
+                .assertNext(tuple -> {
+                    CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
+                    PageDTO page = crudPageResponseDTO.getPage();
+                    List<NewAction> actions = tuple.getT2();
+                    Layout layout = page.getLayouts().get(0);
+                    assertThat(page.getName()).isEqualTo(newPage.getName());
+                    assertThat(page.getLayouts()).isNotEmpty();
+                    assertThat(layout.getDsl()).isNotEmpty();
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                    layout.getLayoutOnLoadActions().get(0).forEach(actionDTO -> {
+                        assertThat(actionDTO.getName()).isEqualTo(SELECT_QUERY);
+                    });
+                    assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
+
+                    assertThat(actions).hasSize(4);
+                    for (NewAction action : actions) {
+                        ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
+                        String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
+                        String actionName;
+                        if (StringUtils.equals(action.getUnpublishedAction().getName(), UPDATE_QUERY)) {
+                            actionName = "UpdateActionWithLessColumns";
+                        } else if (StringUtils.equals(action.getUnpublishedAction().getName(), INSERT_QUERY)) {
+                            actionName = "InsertActionWithLessColumns";
+                        } else {
+                            actionName = action.getUnpublishedAction().getName();
+                        }
+
+                        String templateActionBody =  actionNameToBodyMap
+                                .get(actionName)
+                                .replaceAll(specialCharactersRegex, "")
+                                .replace("like", "ilike")
+                                .replace(structure.getTables().get(0).getName(), structure.getTables().get(1).getName());;
+                        assertThat(actionBody).isEqualTo(templateActionBody);
+                    }
+                    assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase("TABLE");
+                    assertThat(crudPageResponseDTO.getSuccessImageUrl()).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPageWithLessColumnsComparedToTemplateForSql() {
+
+        CRUDPageResourceDTO resourceDTO = new CRUDPageResourceDTO();
+        resourceDTO.setTableName(testDatasource.getStructure().getTables().get(1).getName());
+        resourceDTO.setDatasourceId(testDatasource.getId());
+        resourceDTO.setApplicationId(testApp.getId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(testApp.getId());
+        newPage.setName("crud-admin-page-mysql");
+        StringBuilder pluginName = new StringBuilder();
+
+        Mono<Datasource> datasourceMono = pluginRepository.findByName("Mysql")
+                .flatMap(plugin -> {
+                    pluginName.append(plugin.getName());
+                    Datasource datasource = new Datasource();
+                    datasource.setPluginId(plugin.getId());
+                    datasource.setOrganizationId(testOrg.getId());
+                    datasource.setName("MySql-CRUD-Page-Table-With-Less-Columns-DS");
+                    datasource.setStructure(structure);
+                    datasource.setDatasourceConfiguration(datasourceConfiguration);
+                    return datasourceService.create(datasource);
+                });
+
+        Mono<CRUDPageResponseDTO> resultMono = datasourceMono
+                .flatMap(datasource1 -> {
+                    resourceDTO.setDatasourceId(datasource1.getId());
+                    return applicationPageService.createPage(newPage);
+                })
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO));
+
+        StepVerifier
+                .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
+                .assertNext(tuple -> {
+                    CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
+                    PageDTO page = crudPageResponseDTO.getPage();
+                    List<NewAction> actions = tuple.getT2();
+                    Layout layout = page.getLayouts().get(0);
+                    assertThat(page.getName()).isEqualTo(newPage.getName());
+                    assertThat(page.getLayouts()).isNotEmpty();
+                    assertThat(layout.getDsl()).isNotEmpty();
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                    layout.getLayoutOnLoadActions().get(0).forEach(actionDTO -> {
+                        assertThat(actionDTO.getName()).isEqualTo(SELECT_QUERY);
+                    });
+                    assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
+
+                    assertThat(actions).hasSize(4);
+                    for (NewAction action : actions) {
+                        ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
+                        String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
+                        String actionName;
+                        if (StringUtils.equals(action.getUnpublishedAction().getName(), UPDATE_QUERY)) {
+                            actionName = "UpdateActionWithLessColumns";
+                        } else if (StringUtils.equals(action.getUnpublishedAction().getName(), INSERT_QUERY)) {
+                            actionName = "InsertActionWithLessColumns";
+                        } else {
+                            actionName = action.getUnpublishedAction().getName();
+                        }
+
+                        String templateActionBody =  actionNameToBodyMap
+                                .get(actionName)
+                                .replaceAll(specialCharactersRegex, "")
+                                .replace(structure.getTables().get(0).getName(), structure.getTables().get(1).getName());;
+                        assertThat(actionBody).isEqualTo(templateActionBody);
+                    }
+                    assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase(pluginName);
+                    assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase("TABLE");
+                    assertThat(crudPageResponseDTO.getSuccessImageUrl()).isNotNull();
+                })
+                .verifyComplete();
     }
 
     @Test

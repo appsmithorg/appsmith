@@ -307,6 +307,45 @@
                 "bottomRow": 17,
                 "parentId": "kipfh779n5",
                 "widgetId": "zbzrlbiose"
+              },
+              {
+                "widgetName": "SwitchGroup1",
+                "isCanvas": false,
+                "displayName": "Switch Group",
+                "iconSVG": "/static/media/icon.086a7201.svg",
+                "topRow": 8,
+                "bottomRow": 14,
+                "parentRowSpace": 10,
+                "type": "SWITCH_GROUP_WIDGET",
+                "hideCard": false,
+                "parentColumnSpace": 6.6856445312499995,
+                "leftColumn": 2,
+                "options": [
+                    {
+                        "label": "Blue",
+                        "value": "BLUE"
+                    },
+                    {
+                        "label": "Green",
+                        "value": "GREEN"
+                    },
+                    {
+                        "label": "Red",
+                        "value": "RED"
+                    }
+                ],
+                "isDisabled": false,
+                "key": "vrhzyvir7s",
+                "isRequired": false,
+                "rightColumn": 20,
+                "defaultSelectedValues": "BLUE",
+                "widgetId": "egtjazr1wh",
+                "isVisible": true,
+                "version": 1,
+                "parentId": "xbbqrz2ncf",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "isInline": true
               }
             ],
             "widgetId": "e3tq9qwta6",
