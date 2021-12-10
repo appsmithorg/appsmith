@@ -2168,13 +2168,13 @@ Cypress.Commands.add("ClickGotIt", () => {
   cy.get("span:contains('GOT IT')").click();
 });
 
-Cypress.Commands.add("testDatasource", () => {
+Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click();
   cy.wait("@testDatasource")
     .should(
       "have.nested.property",
       "response.body.data.success",
-      true,
+      expectedRes,
     );
 });
 
@@ -2187,12 +2187,12 @@ Cypress.Commands.add("saveDatasource", () => {
     .should("have.nested.property", "response.body.responseMeta.status", 200);
 });
 
-Cypress.Commands.add("testSaveDatasource", () => {
+Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
   cy.saveDatasource();
   cy.get(datasourceEditor.datasourceCard)
     .last()
     .click();
-  cy.testDatasource();
+  cy.testDatasource(expectedRes);
 });
 
 Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
