@@ -171,6 +171,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/progressbar",
     searchKey: "Progress Bar",
   },
+  SWITCH_GROUP_WIDGET: {
+    path: "/widget-reference/switch-group",
+    searchKey: "Switch Group",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

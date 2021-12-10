@@ -93,7 +93,6 @@ import FilePickerWidgetV2, {
 import AudioWidget, {
   CONFIG as AUDIO_WIDGET_CONFIG,
 } from "widgets/AudioWidget";
-
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
@@ -103,8 +102,6 @@ import DocumentViewerWidget, {
 import ButtonGroupWidget, {
   CONFIG as BUTTON_GROUP_CONFIG,
 } from "widgets/ButtonGroupWidget";
-
-import log from "loglevel";
 import SingleSelectTreeWidget, {
   CONFIG as SINGLE_SELECT_TREE_WIDGET_CONFIG,
 } from "widgets/SingleSelectTreeWidget";
@@ -114,6 +111,11 @@ import MultiSelectTreeWidget, {
 import ProgressBarWidget, {
   CONFIG as PROGRESSBAR_WIDGET_CONFIG,
 } from "widgets/ProgressBarWidget";
+import SwitchGroupWidget, {
+  CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
+} from "widgets/SwitchGroupWidget";
+
+import log from "loglevel";
 
 export const registerWidgets = () => {
   const start = performance.now();
@@ -157,6 +159,7 @@ export const registerWidgets = () => {
   registerWidget(ButtonGroupWidget, BUTTON_GROUP_CONFIG);
   registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
+  registerWidget(SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG);
   registerWidget(AudioWidget, AUDIO_WIDGET_CONFIG);
   registerWidget(ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG);
 

@@ -8,16 +8,16 @@ describe("Create a query with a empty datasource, run, save the query", function
     cy.startRoutesForDatasource();
   });
 
-  it("Create a empty datasource", function() {
+  it("1. Create a empty datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.testSaveDatasource();
+    cy.testSaveDatasource(false);
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
 
-  it("Create a query for empty/incorrect datasource and validate", () => {
+  it("2. Create a query for empty/incorrect datasource and validate", () => {
     cy.NavigateToQueryEditor();
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)

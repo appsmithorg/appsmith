@@ -35,6 +35,7 @@ import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbo
 import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
 import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
 import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
+import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
@@ -229,6 +230,11 @@ export const WidgetIcons: {
   PROGRESSBAR_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <ProgressBarIcon />
+    </StyledIconWrapper>
+  ),
+  SWITCH_GROUP_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <SwitchGroupIcon />
     </StyledIconWrapper>
   ),
 };
