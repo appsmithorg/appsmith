@@ -96,3 +96,10 @@ export const showPostCompletionMessage = (payload: boolean) => {
     payload,
   };
 };
+
+export const forceShowContent = (payload: number) => {
+  return {
+    type: ReduxActionTypes.FORCE_SHOW_CONTENT,
+    payload,
+  };
+};

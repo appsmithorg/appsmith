@@ -58,6 +58,8 @@ export const showDeviatingDialogSelector = (state: AppState) =>
   state.ui.onBoarding.showDeviatingDialog;
 export const showPostCompletionMessage = (state: AppState) =>
   state.ui.onBoarding.showPostCompletionMessage;
+export const forceShowContentSelector = (state: AppState) =>
+  state.ui.onBoarding.forceShowContent;
 
 export const getQueryName = (state: AppState) => {
   const queryId = getGuidedTourQuery(state);

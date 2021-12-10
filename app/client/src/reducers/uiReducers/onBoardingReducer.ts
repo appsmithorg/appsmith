@@ -24,6 +24,7 @@ const initialState: OnboardingState = {
   showEndTourDialog: false,
   showDeviatingDialog: false,
   showPostCompletionMessage: false,
+  forceShowContent: 0,
 };
 
 export interface OnboardingState {
@@ -47,6 +48,7 @@ export interface OnboardingState {
   showEndTourDialog: boolean;
   showDeviatingDialog: boolean;
   showPostCompletionMessage: boolean;
+  forceShowContent: number;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -217,6 +219,15 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       showPostCompletionMessage: action.payload,
+    };
+  },
+  [ReduxActionTypes.FORCE_SHOW_CONTENT]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      forceShowContent: action.payload,
     };
   },
 });

@@ -5,7 +5,11 @@ import styled from "styled-components";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
-import { setCurrentStep, addOnboardingWidget } from "actions/onboardingActions";
+import {
+  setCurrentStep,
+  addOnboardingWidget,
+  forceShowContent,
+} from "actions/onboardingActions";
 import { IconName } from "components/ads/Icon";
 import { highlightSection } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
@@ -207,7 +211,12 @@ export const Steps: StepsType = {
     success: {
       text:
         "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.",
-      onClick: () => highlightSection("property-pane"),
+      onClick: (dispatch) => {
+        dispatch(forceShowContent(3));
+        setTimeout(() => {
+          highlightSection("property-pane");
+        }, 1000);
+      },
       timed: true,
     },
     info: {
