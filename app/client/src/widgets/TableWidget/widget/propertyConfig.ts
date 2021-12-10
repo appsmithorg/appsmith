@@ -1331,6 +1331,17 @@ export default [
         },
       },
       {
+        helpText:
+          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on value",
+        propertyName: "primaryColumnId",
+        dependencies: ["primaryColumns"],
+        label: "Primary key column",
+        controlType: "PRIMARY_COLUMNS_DROPDOWN",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
         propertyName: "defaultSearchText",
         label: "Default Search Text",
         controlType: "INPUT_TEXT",
