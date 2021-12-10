@@ -48,6 +48,6 @@ describe("Button", () => {
     const button = screen.queryAllByTestId("admin-settings-button");
     expect(buttonClickHandler).not.toHaveBeenCalled();
     button[0].click();
-    expect(buttonClickHandler).toHaveBeenCalledWith(dispatch);
+    expect(buttonClickHandler).toHaveBeenCalled();
   });
 });
