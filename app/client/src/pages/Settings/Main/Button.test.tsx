@@ -5,11 +5,13 @@ import ButtonComponent from "./Button";
 
 let container: any = null;
 const buttonClickHandler = jest.fn();
+const buttonIsDisabled = jest.fn();
 const setting = {
   text: "download",
   action: buttonClickHandler,
   category: "test",
   controlType: SettingTypes.BUTTON,
+  isDisabled: buttonIsDisabled,
 };
 const dispatch = jest.fn();
 jest.mock("react-redux", () => {
@@ -17,6 +19,15 @@ jest.mock("react-redux", () => {
   return {
     ...originalModule,
     useDispatch: () => dispatch,
+  };
+});
+
+const settings = {};
+jest.mock("store", () => {
+  const store = jest.requireActual("store").default;
+  return {
+    ...store,
+    useSelector: () => settings,
   };
 });
 
@@ -43,11 +54,27 @@ describe("Button", () => {
     expect(button[0].textContent).toBe(setting.text);
   });
 
+  it("is disabled when isDisabled is returning true", () => {
+    buttonIsDisabled.mockReturnValue(true);
+    renderComponent();
+    const button = screen.queryAllByTestId("admin-settings-button");
+    expect(buttonIsDisabled).toHaveBeenCalledWith(settings);
+    expect((button[0] as any).disabled).toBeTruthy();
+  });
+
+  it("is not disabled when isDisabled is returning false", () => {
+    buttonIsDisabled.mockReturnValue(false);
+    renderComponent();
+    const button = screen.queryAllByTestId("admin-settings-button");
+    expect(buttonIsDisabled).toHaveBeenCalledWith(settings);
+    expect((button[0] as any).disabled).toBeFalsy();
+  });
+
   it("is executing action of setting on click", () => {
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
     expect(buttonClickHandler).not.toHaveBeenCalled();
     button[0].click();
-    expect(buttonClickHandler).toHaveBeenCalled();
+    expect(buttonClickHandler).toHaveBeenCalledWith(dispatch, settings);
   });
 });
