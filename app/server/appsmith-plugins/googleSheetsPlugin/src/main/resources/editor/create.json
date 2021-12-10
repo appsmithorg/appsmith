@@ -22,7 +22,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.command === 'BULK_APPEND' && actionConfiguration.formData.smartSubstitution === true}}"
+            "show": "{{actionConfiguration.formData.command === 'CREATE' && actionConfiguration.formData.smartSubstitution === true}}"
           },
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
         },
@@ -32,7 +32,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.command === 'BULK_APPEND' && actionConfiguration.formData.smartSubstitution === false}}"
+            "show": "{{actionConfiguration.formData.command === 'CREATE' && actionConfiguration.formData.smartSubstitution === false}}"
           },
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
         }

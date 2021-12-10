@@ -136,7 +136,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             final Map<String, Object> properties = actionConfiguration.getFormData();
             final Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(GoogleSheets.METHOD), objectMapper);
+                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(GoogleSheets.COMMAND), objectMapper);
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(

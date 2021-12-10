@@ -36,6 +36,7 @@
       "children": [
         {
           "label": "Row Object",
+          "propertyName" : "updateRowObjectWithSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObject",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -46,6 +47,7 @@
         },
         {
           "label": "Row Object",
+          "propertyName" : "updateRowObjectWithoutSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObject",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",

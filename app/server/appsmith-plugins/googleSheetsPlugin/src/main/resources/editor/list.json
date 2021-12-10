@@ -3,5 +3,6 @@
   "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command === 'LIST'}}"
-  }
+  },
+  "children": []
 }

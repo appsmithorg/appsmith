@@ -36,6 +36,7 @@
       "children": [
         {
           "label": "Row Objects",
+          "propertyName" : "bulkAppendRowObjectWithSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -46,6 +47,7 @@
         },
         {
           "label": "Row Objects",
+          "propertyName" : "bulkAppendRowObjectWithoutSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",

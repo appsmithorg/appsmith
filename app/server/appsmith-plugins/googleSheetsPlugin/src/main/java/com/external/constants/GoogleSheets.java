@@ -7,7 +7,7 @@ public class GoogleSheets {
     public static final String SHEET = "SHEET";
     public static final String SPREADSHEET = "SPREADSHEET";
 
-    public static final String METHOD = "method";
+    public static final String COMMAND = "command";
     public static final String SHEET_URL = "sheetUrl";
     public static final String SPREADSHEET_NAME = "spreadsheetName";
     public static final String DELETE_FORMAT = "deleteFormat";

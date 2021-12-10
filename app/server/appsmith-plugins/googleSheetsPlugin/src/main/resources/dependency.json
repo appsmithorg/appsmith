@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "actionConfiguration.formData.rowObject": [
+      "actionConfiguration.formData.smartSubstitution"
+    ],
+    "actionConfiguration.formData.rowObjects": [
+      "actionConfiguration.formData.smartSubstitution"
+    ]
+  }
+}
