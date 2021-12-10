@@ -80,6 +80,8 @@ import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
+import EndTour from "pages/Editor/GuidedTour/EndTour";
+import Boxed from "pages/Editor/GuidedTour/Boxed";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -423,67 +425,71 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection className="space-x-3">
           <EditorSaveIndicator />
-          <RealtimeAppEditors applicationId={applicationId} />
-          <FormDialogComponent
-            Form={AppInviteUsersForm}
-            applicationId={applicationId}
-            canOutsideClickClose
-            headerIcon={{
-              name: "right-arrow",
-              bgColor: "transparent",
-            }}
-            isOpen={showAppInviteUsersDialog}
-            orgId={orgId}
-            title={
-              currentApplication ? currentApplication.name : "Share Application"
-            }
-            trigger={
-              <TooltipComponent
-                content={
-                  filteredSharedUserList.length
-                    ? createMessage(
-                        SHARE_BUTTON_TOOLTIP_WITH_USER(
-                          filteredSharedUserList.length,
-                        ),
-                      )
-                    : createMessage(SHARE_BUTTON_TOOLTIP)
-                }
-                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position={Position.BOTTOM}
-              >
-                <ShareButtonComponent />
-              </TooltipComponent>
-            }
-          />
-          <DeploySection>
-            <TooltipComponent
-              content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              position={Position.BOTTOM_RIGHT}
-            >
-              <StyledDeployButton
-                className="t--application-publish-btn"
-                isLoading={isPublishing}
-                onClick={handleClickDeploy}
-                size={Size.small}
-                text={"Deploy"}
-              />
-            </TooltipComponent>
-
-            <DeployLinkButtonDialog
-              link={getApplicationViewerPageURL({
-                applicationId: props.applicationId,
-                pageId,
-              })}
+          <Boxed alternative={<EndTour />}>
+            <RealtimeAppEditors applicationId={applicationId} />
+            <FormDialogComponent
+              Form={AppInviteUsersForm}
+              applicationId={applicationId}
+              canOutsideClickClose
+              headerIcon={{
+                name: "right-arrow",
+                bgColor: "transparent",
+              }}
+              isOpen={showAppInviteUsersDialog}
+              orgId={orgId}
+              title={
+                currentApplication
+                  ? currentApplication.name
+                  : "Share Application"
+              }
               trigger={
-                <StyledDeployIcon
-                  fillColor="#fff"
-                  name={"down-arrow"}
-                  size={IconSize.XXL}
-                />
+                <TooltipComponent
+                  content={
+                    filteredSharedUserList.length
+                      ? createMessage(
+                          SHARE_BUTTON_TOOLTIP_WITH_USER(
+                            filteredSharedUserList.length,
+                          ),
+                        )
+                      : createMessage(SHARE_BUTTON_TOOLTIP)
+                  }
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM}
+                >
+                  <ShareButtonComponent />
+                </TooltipComponent>
               }
             />
-          </DeploySection>
+            <DeploySection>
+              <TooltipComponent
+                content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.BOTTOM_RIGHT}
+              >
+                <StyledDeployButton
+                  className="t--application-publish-btn"
+                  isLoading={isPublishing}
+                  onClick={handleClickDeploy}
+                  size={Size.small}
+                  text={"Deploy"}
+                />
+              </TooltipComponent>
+
+              <DeployLinkButtonDialog
+                link={getApplicationViewerPageURL({
+                  applicationId: props.applicationId,
+                  pageId,
+                })}
+                trigger={
+                  <StyledDeployIcon
+                    fillColor="#fff"
+                    name={"down-arrow"}
+                    size={IconSize.XXL}
+                  />
+                }
+              />
+            </DeploySection>
+          </Boxed>
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
