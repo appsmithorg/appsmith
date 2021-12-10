@@ -46,9 +46,10 @@ export function shouldReplaceOldMovement(
   )
     return;
 
-  //eslint-disable-next-line
   return compareNumbers(
+    //eslint-disable-next-line
     oldMovement[distanceKey]!,
+    //eslint-disable-next-line
     newMovement[distanceKey]!,
     directionIndicator < 0,
   );
