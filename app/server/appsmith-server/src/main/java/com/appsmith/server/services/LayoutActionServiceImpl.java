@@ -169,7 +169,14 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         return destinationPageMono
                 .flatMap(destinationPage -> {
                     // 1. Update and save the action
-                    action.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
+                    if (action.getDefaultResources() == null) {
+                        log.debug("Default resource should not be empty for move action: {}", action.getId());
+                        DefaultResources defaultResources = new DefaultResources();
+                        defaultResources.setPageId(destinationPage.getDefaultResources().getPageId());
+                        action.setDefaultResources(defaultResources);
+                    } else {
+                        action.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
+                    }
                     return newActionService
                             .updateUnpublishedAction(action.getId(), action)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())));
@@ -213,27 +220,23 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     @Override
     public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO, String branchName) {
 
+        // As client only have default page Id it will be sent under action and not the action.defaultResources
         Mono<String> toPageMono = newPageService
                 .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
                 .map(NewPage::getId);
 
-        // As client only have default page Id it will be sent under action and not the action.defaultResources
-        Mono<String> fromPageMono = newPageService
-                .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getAction().getPageId(), MANAGE_PAGES)
-                .map(NewPage::getId);;
+        Mono<NewAction> branchedActionMono = newActionService
+                .findByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), MANAGE_ACTIONS);
 
-        Mono<String> branchedActionMono = newActionService
-                .findByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), MANAGE_ACTIONS)
-                .map(NewAction::getId);
-
-        return Mono.zip(toPageMono, fromPageMono, branchedActionMono)
+        return Mono.zip(toPageMono, branchedActionMono)
                 .flatMap(tuple -> {
                     String toPageId = tuple.getT1();
-                    String fromPageId = tuple.getT2();
-                    String branchedActionId = tuple.getT3();
+                    NewAction branchedAction = tuple.getT2();
+                    ActionDTO moveAction = actionMoveDTO.getAction();
                     actionMoveDTO.setDestinationPageId(toPageId);
-                    actionMoveDTO.getAction().setPageId(fromPageId);
-                    actionMoveDTO.getAction().setId(branchedActionId);
+                    moveAction.setPageId(branchedAction.getUnpublishedAction().getPageId());
+                    moveAction.setId(branchedAction.getId());
+                    moveAction.setDefaultResources(branchedAction.getUnpublishedAction().getDefaultResources());
                     return moveAction(actionMoveDTO);
                 })
                 .map(responseUtils::updateActionDTOWithDefaultResources);
