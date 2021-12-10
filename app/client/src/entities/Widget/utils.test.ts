@@ -204,15 +204,18 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "BOOLEAN",
         },
         "primaryColumns.status.buttonVariant": {
+          type: "TABLE_PROPERTY",
           params: {
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-            default: ButtonVariantTypes.PRIMARY,
+            params: {
+              allowedValues: [
+                ButtonVariantTypes.PRIMARY,
+                ButtonVariantTypes.SECONDARY,
+                ButtonVariantTypes.TERTIARY,
+              ],
+              default: ButtonVariantTypes.PRIMARY,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         isSortable: {
           type: "BOOLEAN",
