@@ -6,7 +6,36 @@ on:
     types: [ok-to-perf-test-command]
 
 jobs:
+  debuggeer-with-sudo:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client/perf
+        shell: bash
+
+    - name: Run performance tests
+        shell: bash
+        env:
+          POSTGRES_PASSWORD: postgres
+        run: |
+          sudo ./start-test.sh
+
+  debuggeer-without-sudo:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client/perf
+        shell: bash
+
+    - name: Run performance tests
+        shell: bash
+        env:
+          POSTGRES_PASSWORD: postgres
+        run: ./start-test.sh
+
   server-build:
+    needs: [debuggeer-with-sudo, debuggeer-without-sudo]
+
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'repository_dispatch' &&
