@@ -369,8 +369,11 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      - name: Change working directory
+        working-directory: app/client/perf
+
       - name: Change test script permissions
-        run: chmod +x ./perf/start-test.sh
+        run: chmod +x ./start-test.sh
 
       - name: Check node version
         run: node --version
@@ -386,5 +389,4 @@ jobs:
         shell: bash
         env:
           POSTGRES_PASSWORD: postgres
-        run: |
-          sudo ./perf/start-test.sh
+        run: ./start-test.sh
