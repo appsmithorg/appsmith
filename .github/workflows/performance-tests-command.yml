@@ -369,10 +369,9 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
-      - name: Change working directory
-        working-directory: app/client/perf
 
       - name: Change test script permissions
+        working-directory: app/client/perf
         run: chmod +x ./start-test.sh
 
       - name: Check node version
@@ -387,6 +386,5 @@ jobs:
         run: node --version         
       - name: Run performance tests
         shell: bash
-        env:
-          POSTGRES_PASSWORD: postgres
+         working-directory: app/client/perf       
         run: ./start-test.sh
