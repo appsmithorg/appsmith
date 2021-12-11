@@ -374,4 +374,4 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         run: |
-          ./perf/start-test.sh
+          sudo ./perf/start-test.sh
