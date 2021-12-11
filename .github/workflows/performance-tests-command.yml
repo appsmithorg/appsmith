@@ -13,6 +13,11 @@ jobs:
         working-directory: app/client
         shell: bash
     steps:
+      - name: Fork based /ok-to-test-perf checkout
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
       - name: Run performance tests
         shell: bash
         env:
@@ -27,6 +32,11 @@ jobs:
         working-directory: app/client
         shell: bash
     steps:
+      - name: Fork based /ok-to-test-perf checkout
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
       - name: Run performance tests
         shell: bash
         env:
