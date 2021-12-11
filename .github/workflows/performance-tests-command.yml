@@ -386,5 +386,5 @@ jobs:
         run: node --version         
       - name: Run performance tests
         shell: bash
-         working-directory: app/client/perf       
+        working-directory: app/client/perf       
         run: ./start-test.sh
