@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app/client/perf
+        working-directory: app/client
         shell: bash
     steps:
       - name: Run performance tests
@@ -18,20 +18,20 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         run: |
-          sudo ./start-test.sh
+          sudo ./perf/start-test.sh
 
   debuggeer-without-sudo:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app/client/perf
+        working-directory: app/client
         shell: bash
     steps:
       - name: Run performance tests
         shell: bash
         env:
           POSTGRES_PASSWORD: postgres
-        run: ./start-test.sh
+        run: ./perf/start-test.sh
 
   server-build:
     needs: [debuggeer-with-sudo, debuggeer-without-sudo]
