@@ -257,7 +257,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2]
+        job: [0, 1]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -372,6 +372,16 @@ jobs:
       - name: Change test script permissions
         run: chmod +x ./perf/start-test.sh
 
+      - name: Check node version
+        run: node --version
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      - name: Check node version again
+        run: node --version         
       - name: Run performance tests
         shell: bash
         env:
