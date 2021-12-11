@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
@@ -106,7 +107,7 @@ public class ExampleApplicationsAreMarked {
                             )
                             .thenReturn(organization.getId());
                 })
-                .flatMapMany(organizationId -> applicationService.findByOrganizationId(organizationId, READ_APPLICATIONS))
+                .flatMapMany(organizationId -> applicationService.findByOrganizationId(organizationId, (AclPermission) READ_APPLICATIONS))
                 .collectList();
 
         StepVerifier.create(resultMono)

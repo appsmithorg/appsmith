@@ -1,11 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
@@ -272,7 +273,7 @@ public class PageServiceTest {
         setupTestApplication();
         final String pageId = application.getPages().get(0).getId();
 
-        final PageDTO page = newPageService.findPageById(pageId, READ_PAGES, false).block();
+        final PageDTO page = newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false).block();
 
         ActionDTO action = new ActionDTO();
         action.setName("PageAction");
@@ -320,7 +321,7 @@ public class PageServiceTest {
                 pageMono
                         .flatMapMany(
                                 page1 -> newActionService
-                                        .findByPageId(page1.getId(), READ_ACTIONS))
+                                        .findByPageId(page1.getId(), (AclPermission) READ_ACTIONS))
                         .collectList();
 
         StepVerifier

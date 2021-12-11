@@ -112,7 +112,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 .flatMap(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getActionIds())
                         .mergeWith(Flux.fromIterable(actionCollectionDTO.getArchivedActionIds()))
                         .flatMap(actionId -> {
-                            return newActionService.findActionDTObyIdAndViewMode(actionId, viewMode, READ_ACTIONS);
+                            return newActionService.findActionDTObyIdAndViewMode(actionId, viewMode, (AclPermission) READ_ACTIONS);
                         })
                         .collectList()
                         .flatMap(actionsList -> splitValidActionsByViewMode(actionCollectionDTO, actionsList, viewMode)));
@@ -159,7 +159,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         }
 
         return repository
-                .findByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS)
+                .findByApplicationIdAndViewMode(applicationId, true, (AclPermission) EXECUTE_ACTIONS)
                 // Filter out all the action collections which haven't been published
                 .flatMap(actionCollection -> {
                     if (actionCollection.getPublishedCollection() == null) {
@@ -178,7 +178,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     actionCollectionViewDTO.setBody(publishedCollection.getBody());
                     return Flux.fromIterable(publishedCollection.getActionIds())
                             .flatMap(actionId -> {
-                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
+                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, (AclPermission) EXECUTE_ACTIONS);
                             })
                             .collectList()
                             .map(actionDTOList -> {
@@ -197,9 +197,9 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), (AclPermission) READ_APPLICATIONS)
                 .flatMapMany(childApplicationId ->
-                    repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, READ_ACTIONS)
+                    repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, (AclPermission) READ_ACTIONS)
                 )
                 .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
         }
@@ -217,7 +217,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
-        return repository.findAllActionCollectionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, READ_ACTIONS, sort)
+        return repository.findAllActionCollectionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, (AclPermission) READ_ACTIONS, sort)
                 .flatMap(actionCollection ->
                         generateActionCollectionByViewMode(actionCollection, viewMode));
     }
@@ -228,7 +228,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, (AclPermission) MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
 
@@ -246,7 +246,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, (AclPermission) MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono
                 .flatMap(toDelete -> {

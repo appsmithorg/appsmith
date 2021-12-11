@@ -25,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -137,7 +138,7 @@ public class ApplicationPageServiceTest {
                 .flatMap(pageDTO -> {
                     Application application = new Application();
                     application.setLastEditedAt(Instant.now().minus(10, ChronoUnit.DAYS));
-                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, AclPermission.MANAGE_APPLICATIONS)
+                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, (AclPermission) MANAGE_APPLICATIONS)
                             .then(applicationPageService.deleteUnpublishedPage(pageDTO.getId()))
                             .then(applicationRepository.findById(pageDTO.getApplicationId()));
                 });

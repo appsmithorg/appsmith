@@ -84,7 +84,7 @@ public class GitServiceImpl implements GitService {
 
         // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
         // @Encrypted annotation used for private SSH keys
-        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+        return applicationService.findById(applicationId, (AclPermission) MANAGE_APPLICATIONS)
                 .flatMap(application -> {
                     application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.save(application);
@@ -211,7 +211,7 @@ public class GitServiceImpl implements GitService {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 );
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, (AclPermission) MANAGE_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName)))
             .flatMap(childApplication -> publishAndOrGetApplication(childApplication.getId(), commitDTO.getDoPush()))
             .flatMap(childApplication -> {
@@ -309,7 +309,7 @@ public class GitServiceImpl implements GitService {
 
         String branchName = params.getFirst(FieldName.BRANCH_NAME);
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, (AclPermission) READ_APPLICATIONS)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData == null || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
@@ -470,7 +470,7 @@ public class GitServiceImpl implements GitService {
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
-        return applicationService.getChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.getChildApplicationId(branchName, defaultApplicationId, (AclPermission) MANAGE_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(
                 AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, "for " + defaultApplicationId
             )))
@@ -571,7 +571,7 @@ public class GitServiceImpl implements GitService {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.getApplicationByBranchNameAndDefaultApplication(srcBranch, defaultApplicationId, (AclPermission) MANAGE_APPLICATIONS)
                 .zipWhen(srcApplication -> {
                     GitApplicationMetadata gitData = srcApplication.getGitApplicationMetadata();
                     if (gitData.getDefaultApplicationId().equals(srcApplication.getId())) {
@@ -648,7 +648,7 @@ public class GitServiceImpl implements GitService {
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if(Boolean.TRUE.equals(gitCheckoutBranchDTO.getIsRemote())) {
-            return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, READ_APPLICATIONS)
+            return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, (AclPermission) READ_APPLICATIONS)
                     .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, branchName));
 
         }
@@ -659,7 +659,7 @@ public class GitServiceImpl implements GitService {
                     throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
                 }
                 return applicationService.getApplicationByBranchNameAndDefaultApplication(
-                    branchName, defaultApplicationId, READ_APPLICATIONS
+                    branchName, defaultApplicationId, (AclPermission) READ_APPLICATIONS
                 );
             });
     }
@@ -725,7 +725,7 @@ public class GitServiceImpl implements GitService {
     }
 
     Mono<Application> getApplicationById(String applicationId) {
-        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+        return applicationService.findById(applicationId, (AclPermission) MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
@@ -758,7 +758,7 @@ public class GitServiceImpl implements GitService {
                                 Mono.just(application.getGitApplicationMetadata())
                         );
                     } else {
-                        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, (AclPermission) MANAGE_APPLICATIONS)
                                 .flatMap(application1 -> Mono.zip(
                                         Mono.just(application1),
                                         importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
@@ -892,7 +892,7 @@ public class GitServiceImpl implements GitService {
 
         return Mono.zip(
                 getGitApplicationMetadata(defaultApplicationId),
-                applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, (AclPermission) MANAGE_APPLICATIONS)
                         .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
@@ -1019,7 +1019,7 @@ public class GitServiceImpl implements GitService {
     }
 
     private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String sourceBranch, String destinationBranch, Path repoPath) {
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(destinationBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.getApplicationByBranchNameAndDefaultApplication(destinationBranch, defaultApplicationId, (AclPermission) MANAGE_APPLICATIONS)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
                 .flatMap(applicationJson -> {
                     try {

@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -85,7 +86,7 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_invalidDatasourceWithNullAuthentication() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         String orgId = testOrg == null ? "" : testOrg.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -122,7 +123,7 @@ public class AuthenticationServiceTest {
 
         MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").headers(mockHeaders).build();
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         String orgId = testOrg == null ? "" : testOrg.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 

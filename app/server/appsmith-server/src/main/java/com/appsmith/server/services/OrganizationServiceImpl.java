@@ -44,6 +44,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 
 @Slf4j
 @Service
@@ -203,19 +204,19 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     @Override
     public Mono<Organization> create(Organization organization) {
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userRepository.findByEmail(user.getUsername(), READ_USERS))
+                .flatMap(user -> userRepository.findByEmail(user.getUsername(), (AclPermission) READ_USERS))
                 .flatMap(user -> create(organization, user));
     }
 
     @Override
     public Mono<Organization> update(String id, Organization resource) {
-        return repository.updateById(id, resource, MANAGE_ORGANIZATIONS)
+        return repository.updateById(id, resource, (AclPermission) MANAGE_ORGANIZATIONS)
                 .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
     public Mono<Organization> getById(String id) {
-        return findById(id, AclPermission.READ_ORGANIZATIONS);
+        return findById(id, (AclPermission) READ_ORGANIZATIONS);
     }
 
     @Override
@@ -246,7 +247,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
-        Mono<Organization> organizationMono = repository.findById(orgId, ORGANIZATION_INVITE_USERS);
+        Mono<Organization> organizationMono = repository.findById(orgId, (AclPermission) ORGANIZATION_INVITE_USERS);
         Mono<String> usernameMono = sessionUserService
                 .getCurrentUser()
                 .map(User::getUsername);
@@ -285,7 +286,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     @Override
     public Mono<List<UserRole>> getOrganizationMembers(String orgId) {
         return repository
-                .findById(orgId, ORGANIZATION_INVITE_USERS)
+                .findById(orgId, (AclPermission) ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
                 .map(organization -> {
                     final List<UserRole> userRoles = organization.getUserRoles();
@@ -295,7 +296,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> uploadLogo(String organizationId, Part filePart) {
-        final Mono<Organization> findOrganizationMono = repository.findById(organizationId, MANAGE_ORGANIZATIONS)
+        final Mono<Organization> findOrganizationMono = repository.findById(organizationId, (AclPermission) MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
 
         // We don't execute the upload Mono if we don't find the organization.
@@ -323,7 +324,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     @Override
     public Mono<Organization> deleteLogo(String organizationId) {
         return repository
-                .findById(organizationId, MANAGE_ORGANIZATIONS)
+                .findById(organizationId, (AclPermission) MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
                 .flatMap(organization -> {
                     final String prevAssetId = organization.getLogoAssetId();

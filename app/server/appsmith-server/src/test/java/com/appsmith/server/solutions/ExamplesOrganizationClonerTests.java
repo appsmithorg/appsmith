@@ -13,6 +13,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -154,10 +155,10 @@ public class ExamplesOrganizationClonerTests {
         return Mono
                 .when(
                         applicationService
-                                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                                .findByOrganizationId(organization.getId(), (AclPermission) READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByOrganizationId(organization.getId(), READ_DATASOURCES)
+                                .findAllByOrganizationId(organization.getId(), (AclPermission) READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInOrganization(organization)
                                 .map(data.actions::add),
@@ -717,7 +718,7 @@ public class ExamplesOrganizationClonerTests {
                     return applicationPageService.addPageToApplication(app, page, false)
                             .then(layoutActionService.createSingleAction(newPageAction))
                             .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
-                            .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
+                            .then(newPageService.findPageById(page.getId(), (AclPermission) READ_PAGES, false));
                 })
                 .map(tuple2 -> {
                     log.info("Created action and added page to app {}", tuple2);
@@ -1021,18 +1022,18 @@ public class ExamplesOrganizationClonerTests {
 
     private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
         return applicationService
-                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                .findByOrganizationId(organization.getId(), (AclPermission) READ_APPLICATIONS)
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), (AclPermission) READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 
     private Flux<ActionCollectionDTO> getActionCollectionsInOrganization(Organization organization) {
         return applicationService
-                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                .findByOrganizationId(organization.getId(), (AclPermission) READ_APPLICATIONS)
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), (AclPermission) READ_PAGES, false))
                 .flatMap(page -> actionCollectionService.getActionCollectionsByViewMode(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), false));
     }

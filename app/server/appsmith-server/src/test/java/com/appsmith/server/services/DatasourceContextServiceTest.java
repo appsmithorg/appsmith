@@ -24,6 +24,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
@@ -49,7 +51,7 @@ public class DatasourceContextServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
     }
 

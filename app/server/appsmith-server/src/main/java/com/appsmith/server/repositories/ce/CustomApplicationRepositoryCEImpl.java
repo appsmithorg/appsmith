@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_APPLICATIONS;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -140,7 +141,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
-        return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
+        return queryAll(List.of(applicationIdCriteria, deletionCriteria), (AclPermission) MANAGE_APPLICATIONS);
     }
 
     /**

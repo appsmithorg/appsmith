@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.COMMENT_ON_THREAD;
+import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_THREAD;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_THREAD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -46,7 +49,7 @@ public class PolicyUtilsTest {
         CommentThread commentThread = new CommentThread();
         commentThread.setApplicationId(testApplicationId);
         Map<String, Policy> commentThreadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD), "api_user"
+                Set.of((AclPermission) MANAGE_THREAD, (AclPermission) COMMENT_ON_THREAD), "api_user"
         );
         commentThread.setPolicies(Set.copyOf(commentThreadPolicies.values()));
         Mono<CommentThread> saveThreadMono = commentThreadRepository.save(commentThread);
@@ -54,7 +57,7 @@ public class PolicyUtilsTest {
         // add a new user and update the policies of the new user
         String newUserName = "new_test_user";
         Map<String, Policy> commentThreadPoliciesForNewUser = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD), newUserName
+                Set.of((AclPermission) COMMENT_ON_THREAD), newUserName
         );
         Flux<CommentThread> updateCommentThreads = policyUtils.updateCommentThreadPermissions(
                 testApplicationId, commentThreadPoliciesForNewUser, newUserName, true
@@ -64,7 +67,7 @@ public class PolicyUtilsTest {
         Mono<List<CommentThread>> applicationCommentList = saveThreadMono
                 .thenMany(updateCommentThreads)
                 .collectList()
-                .thenMany(commentThreadRepository.findByApplicationId(testApplicationId, AclPermission.READ_THREAD))
+                .thenMany(commentThreadRepository.findByApplicationId(testApplicationId, (AclPermission) READ_THREAD))
                 .collectList();
 
         StepVerifier.create(applicationCommentList)
@@ -72,12 +75,12 @@ public class PolicyUtilsTest {
                     assertThat(commentThreads.size()).isEqualTo(1);
                     CommentThread commentThread1 = commentThreads.get(0);
                     Set<Policy> policies = commentThread1.getPolicies();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.MANAGE_THREAD.getValue(), "api_user")).isTrue();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.MANAGE_THREAD.getValue(), newUserName)).isFalse();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.READ_THREAD.getValue(), "api_user")).isTrue();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.READ_THREAD.getValue(), newUserName)).isTrue();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.COMMENT_ON_THREAD.getValue(), "api_user")).isTrue();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.COMMENT_ON_THREAD.getValue(), newUserName)).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, MANAGE_THREAD.getValue(), "api_user")).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, MANAGE_THREAD.getValue(), newUserName)).isFalse();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, READ_THREAD.getValue(), "api_user")).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, READ_THREAD.getValue(), newUserName)).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, COMMENT_ON_THREAD.getValue(), "api_user")).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, COMMENT_ON_THREAD.getValue(), newUserName)).isTrue();
                 })
                 .verifyComplete();
     }
@@ -100,7 +103,7 @@ public class PolicyUtilsTest {
         user2.setEmail(newUserName);
 
         Map<String, Policy> commentThreadPolicies = policyUtils.generatePolicyFromPermissionForMultipleUsers(
-                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD), List.of(user1, user2)
+                Set.of((AclPermission) MANAGE_THREAD, (AclPermission) COMMENT_ON_THREAD), List.of(user1, user2)
         );
 
         commentThread.setPolicies(Set.copyOf(commentThreadPolicies.values()));
@@ -108,7 +111,7 @@ public class PolicyUtilsTest {
 
         // remove an user and update the policies of the user
         Map<String, Policy> commentThreadPoliciesForNewUser = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD), newUserName
+                Set.of((AclPermission) MANAGE_THREAD, (AclPermission) COMMENT_ON_THREAD), newUserName
         );
         Flux<CommentThread> updateCommentThreads = policyUtils.updateCommentThreadPermissions(
                 testApplicationId, commentThreadPoliciesForNewUser, newUserName, false
@@ -118,7 +121,7 @@ public class PolicyUtilsTest {
         Mono<List<CommentThread>> applicationCommentList = saveThreadMono
                 .thenMany(updateCommentThreads)
                 .collectList()
-                .thenMany(commentThreadRepository.findByApplicationId(testApplicationId, AclPermission.READ_THREAD))
+                .thenMany(commentThreadRepository.findByApplicationId(testApplicationId, (AclPermission) READ_THREAD))
                 .collectList();
 
         StepVerifier.create(applicationCommentList)
@@ -126,12 +129,12 @@ public class PolicyUtilsTest {
                     assertThat(commentThreads.size()).isEqualTo(1);
                     CommentThread commentThread1 = commentThreads.get(0);
                     Set<Policy> policies = commentThread1.getPolicies();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.MANAGE_THREAD.getValue(), "api_user")).isTrue();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.MANAGE_THREAD.getValue(), newUserName)).isFalse();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.READ_THREAD.getValue(), "api_user")).isTrue();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.READ_THREAD.getValue(), newUserName)).isFalse();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.COMMENT_ON_THREAD.getValue(), "api_user")).isTrue();
-                    assertThat(policyUtils.isPermissionPresentForUser(policies, AclPermission.COMMENT_ON_THREAD.getValue(), newUserName)).isFalse();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, MANAGE_THREAD.getValue(), "api_user")).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, MANAGE_THREAD.getValue(), newUserName)).isFalse();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, READ_THREAD.getValue(), "api_user")).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, READ_THREAD.getValue(), newUserName)).isFalse();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, COMMENT_ON_THREAD.getValue(), "api_user")).isTrue();
+                    assertThat(policyUtils.isPermissionPresentForUser(policies, COMMENT_ON_THREAD.getValue(), newUserName)).isFalse();
                 })
                 .verifyComplete();
     }

@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
@@ -97,7 +98,7 @@ public class ApplicationFetcherUnitTest {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(testUser));
         Mockito.when(userService.findByEmail(testUser.getEmail())).thenReturn(Mono.just(testUser));
-        Mockito.when(organizationService.findByIdsIn(testUser.getOrganizationIds(), READ_ORGANIZATIONS))
+        Mockito.when(organizationService.findByIdsIn(testUser.getOrganizationIds(), (AclPermission) READ_ORGANIZATIONS))
                 .thenReturn(Flux.fromIterable(createDummyOrganizations()));
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");
@@ -113,7 +114,7 @@ public class ApplicationFetcherUnitTest {
 
         // mock the list of applications
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
-                testUser.getOrganizationIds(), READ_APPLICATIONS)
+                testUser.getOrganizationIds(), (AclPermission) READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(createDummyApplications(4,4)));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
@@ -137,7 +138,7 @@ public class ApplicationFetcherUnitTest {
 
         // mock the list of applications
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
-                testUser.getOrganizationIds(), READ_APPLICATIONS)
+                testUser.getOrganizationIds(), (AclPermission) READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(createDummyApplications(4,4)));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
@@ -178,7 +179,7 @@ public class ApplicationFetcherUnitTest {
 
         // mock the list of applications
         Mockito.when(applicationRepository.findByMultipleOrganizationIds(
-                testUser.getOrganizationIds(), READ_APPLICATIONS)
+                testUser.getOrganizationIds(), (AclPermission) READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(createDummyApplications(3,3)));
 
         StepVerifier.create(applicationFetcher.getAllApplications())

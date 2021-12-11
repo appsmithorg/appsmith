@@ -1,10 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -70,7 +71,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         Mono<Datasource> datasourceMono;
 
         if (datasource.getId() != null) {
-            datasourceMono = datasourceService.findById(datasourceId, EXECUTE_DATASOURCES);
+            datasourceMono = datasourceService.findById(datasourceId, (AclPermission) EXECUTE_DATASOURCES);
         } else {
             datasourceMono = Mono.just(datasource);
         }
@@ -164,7 +165,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         }
 
         return datasourceService
-                .findById(datasourceId, EXECUTE_DATASOURCES)
+                .findById(datasourceId, (AclPermission) EXECUTE_DATASOURCES)
                 .zipWhen(datasource1 ->
                         pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId()))
                 )

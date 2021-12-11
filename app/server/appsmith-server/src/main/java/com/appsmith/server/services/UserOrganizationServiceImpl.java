@@ -126,7 +126,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
 
     @Override
     public Mono<Organization> addUserRoleToOrganization(String orgId, UserRole userRole) {
-        Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS)
+        Mono<Organization> organizationMono = organizationRepository.findById(orgId, (AclPermission) MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER)));
@@ -374,7 +374,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         }
 
         Mono<Organization> organizationMono = organizationRepository
-                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .findById(orgId, (AclPermission) MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
                         "Change role of a member")));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername());

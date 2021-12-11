@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
@@ -64,7 +65,7 @@ public class OrganizationServiceUnitTest {
         testOrg.setId("test-org-id");
 
         // mock repository methods so that they return the objects we've created
-        Mockito.when(organizationRepository.findById("test-org-id", ORGANIZATION_INVITE_USERS))
+        Mockito.when(organizationRepository.findById("test-org-id", (AclPermission) ORGANIZATION_INVITE_USERS))
                 .thenReturn(Mono.just(testOrg));
 
         Mono<List<UserRole>> organizationMembers = organizationService.getOrganizationMembers(testOrg.getId());
@@ -80,7 +81,7 @@ public class OrganizationServiceUnitTest {
     public void getOrganizationMembers_WhenNoOrgFound_ThrowsException() {
         String sampleOrgId = "test-org-id";
         // mock repository methods so that they return the objects we've created
-        Mockito.when(organizationRepository.findById(sampleOrgId, ORGANIZATION_INVITE_USERS))
+        Mockito.when(organizationRepository.findById(sampleOrgId, (AclPermission) ORGANIZATION_INVITE_USERS))
                 .thenReturn(Mono.empty());
 
         Mono<List<UserRole>> organizationMembers = organizationService.getOrganizationMembers(sampleOrgId);

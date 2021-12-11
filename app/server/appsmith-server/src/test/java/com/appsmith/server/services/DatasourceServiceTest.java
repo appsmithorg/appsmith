@@ -48,6 +48,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -88,7 +89,7 @@ public class DatasourceServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         orgId = testOrg == null ? "" : testOrg.getId();
     }
 
@@ -519,7 +520,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        organizationRepository.findByName("Spring Test Organization", (AclPermission) READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
@@ -585,7 +586,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        organizationRepository.findByName("Spring Test Organization", (AclPermission) READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {

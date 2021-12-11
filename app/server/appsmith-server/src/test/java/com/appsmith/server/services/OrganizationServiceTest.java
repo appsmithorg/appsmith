@@ -367,7 +367,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addExistingUserToOrganizationAsAdmin() {
-        Mono<Organization> seedOrganization = organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
+        Mono<Organization> seedOrganization = organizationRepository.findByName("Spring Test Organization", (AclPermission) READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
         Mono<List<User>> usersAddedToOrgMono = seedOrganization
@@ -426,7 +426,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addNewUserToOrganizationAsAdmin() {
-        Mono<Organization> seedOrganization = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
+        Mono<Organization> seedOrganization = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
         Mono<List<User>> userAddedToOrgMono = seedOrganization
@@ -601,14 +601,14 @@ public class OrganizationServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
-                AclPermission.READ_APPLICATIONS)
+                        (AclPermission) READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Admin Test Organization")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
         Mono<Datasource> readDatasourceByNameMono = organizationMono.flatMap(organization1 ->
-                datasourceRepository.findByNameAndOrganizationId("test datasource", organization1.getId(),READ_DATASOURCES)
+                datasourceRepository.findByNameAndOrganizationId("test datasource", organization1.getId(),(AclPermission) READ_DATASOURCES)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
         );
 
@@ -695,7 +695,7 @@ public class OrganizationServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
-                AclPermission.READ_APPLICATIONS)
+                        (AclPermission) READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Viewer Test Organization")
@@ -763,7 +763,7 @@ public class OrganizationServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Test Application",
-                AclPermission.READ_APPLICATIONS)
+                        (AclPermission) READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<UserRole> userRoleChangeMono = organizationMono
@@ -831,7 +831,7 @@ public class OrganizationServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Delete Test Application",
-                AclPermission.READ_APPLICATIONS)
+                        (AclPermission) READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Delete Test Organization")

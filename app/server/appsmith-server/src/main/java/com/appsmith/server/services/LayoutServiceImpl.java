@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_PAGES;
 
 @Slf4j
 @Service
@@ -36,7 +37,7 @@ public class LayoutServiceImpl implements LayoutService {
 
         // fetch the unpublished page
         Mono<PageDTO> pageMono = newPageService
-                .findPageById(pageId, AclPermission.MANAGE_PAGES, false)
+                .findPageById(pageId, (AclPermission) MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 
         return pageMono
@@ -59,7 +60,7 @@ public class LayoutServiceImpl implements LayoutService {
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return newPageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES, viewMode)
+        return newPageService.findByIdAndLayoutsId(pageId, layoutId, (AclPermission) READ_PAGES, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();

@@ -58,6 +58,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -131,7 +132,7 @@ public class ActionCollectionServiceTest {
             assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false).block();
 
             assert testPage != null;
             Layout layout = testPage.getLayouts().get(0);
@@ -156,7 +157,7 @@ public class ActionCollectionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         assert testOrg != null;
         orgId = testOrg.getId();
         datasource = new Datasource();
@@ -196,7 +197,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
 
         Mono<ActionCollection> actionCollectionMono = layoutCollectionService.createCollection(actionCollectionDTO)
-                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
+                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), (AclPermission) READ_ACTIONS));
 
         StepVerifier
                 .create(actionCollectionMono)
@@ -231,7 +232,7 @@ public class ActionCollectionServiceTest {
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =
-                actionCollectionService.findById(actionCollection.getId(), READ_ACTIONS)
+                actionCollectionService.findById(actionCollection.getId(), (AclPermission) READ_ACTIONS)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "ActionCollection", actionCollection.getId())));
 
         StepVerifier

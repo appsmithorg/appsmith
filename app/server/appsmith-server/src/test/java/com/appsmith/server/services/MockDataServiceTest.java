@@ -41,6 +41,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -88,7 +89,7 @@ public class MockDataServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         orgId = testOrg == null ? "" : testOrg.getId();
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
@@ -100,7 +101,7 @@ public class MockDataServiceTest {
             application.setName(UUID.randomUUID().toString());
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
             final String pageId = testApp.getPages().get(0).getId();
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false).block();
         }
     }
     @Test

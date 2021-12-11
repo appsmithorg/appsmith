@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
@@ -60,7 +61,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
 
         final String pageId = collection.getPageId();
         Mono<NewPage> pageMono = newPageService
-                .findById(pageId, MANAGE_PAGES)
+                .findById(pageId, (AclPermission) MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .cache();
@@ -172,7 +173,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     // If the name is allowed, return list of actionDTOs for further processing
                     if (Boolean.TRUE.equals(isNameAllowed)) {
                         return actionCollectionService
-                                .findActionCollectionDTObyIdAndViewMode(actionCollectionId, false, MANAGE_ACTIONS);
+                                .findActionCollectionDTObyIdAndViewMode(actionCollectionId, false, (AclPermission) MANAGE_ACTIONS);
                     }
                     // Throw an error since the new action collection's name matches an existing action, widget or collection name.
                     return Mono.error(new AppsmithException(
@@ -191,7 +192,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
 
                     Flux<ActionDTO> actionUpdatesFlux = Flux
                             .fromIterable(actionIds)
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS))
+                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, (AclPermission) MANAGE_ACTIONS))
                             .flatMap(actionDTO -> {
                                 actionDTO.setFullyQualifiedName(newName + "." + actionDTO.getName());
                                 return newActionService
@@ -219,7 +220,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
         final String destinationPageId = actionCollectionMoveDTO.getDestinationPageId();
 
         return actionCollectionService
-                .findActionCollectionDTObyIdAndViewMode(collectionId, false, MANAGE_ACTIONS)
+                .findActionCollectionDTObyIdAndViewMode(collectionId, false, (AclPermission) MANAGE_ACTIONS)
                 .flatMap(actionCollection -> {
                     final Set<String> actionIds = new HashSet<>();
                     if (actionCollection.getActionIds() != null) {
@@ -230,7 +231,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     }
 
                     final Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds)
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS))
+                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, (AclPermission) MANAGE_ACTIONS))
                             .flatMap(actionDTO -> {
                                 actionDTO.setPageId(destinationPageId);
                                 return newActionService.updateUnpublishedAction(actionDTO.getId(), actionDTO)
@@ -254,7 +255,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     final String oldPageId = tuple.getT2();
 
                     return newPageService
-                            .findPageById(oldPageId, MANAGE_PAGES, false)
+                            .findPageById(oldPageId, (AclPermission) MANAGE_PAGES, false)
                             .flatMap(page -> {
                                 if (page.getLayouts() == null) {
                                     return Mono.empty();
@@ -269,7 +270,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                                         .collect(toSet());
                             })
                             // fetch the unpublished destination page
-                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
+                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), (AclPermission) MANAGE_PAGES, false))
                             .flatMap(page -> {
                                 if (page.getLayouts() == null) {
                                     return Mono.empty();
@@ -299,7 +300,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(id, MANAGE_ACTIONS)
+        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(id, (AclPermission) MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
 
@@ -426,7 +427,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                 .cache();
 
         final ActionCollectionDTO actionCollectionDTO = refactorActionNameInCollectionDTO.getActionCollection();
-        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(actionCollectionDTO.getId(), MANAGE_ACTIONS)
+        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(actionCollectionDTO.getId(), (AclPermission) MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, actionCollectionDTO.getId())));
 
         return layoutDTOMono

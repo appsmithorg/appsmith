@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.COMMENT_ON_THREAD;
+import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_THREAD;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_THREAD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -40,7 +43,7 @@ public class CustomCommentThreadRepositoryImplTest {
         User user = new User();
         user.setEmail(userEmail);
 
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_THREAD), user);
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of((AclPermission) READ_THREAD), user);
         thread.setPolicies(Set.copyOf(policyMap.values()));
         return thread;
     }
@@ -54,7 +57,7 @@ public class CustomCommentThreadRepositoryImplTest {
         user.setEmail(userEmail);
 
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD), user);
+                Set.of((AclPermission) MANAGE_THREAD, (AclPermission) COMMENT_ON_THREAD), user);
         HashSet<Policy> policySet = new HashSet<>();
 
         // not using Set.of here because the caller function may need to add more policies
@@ -167,7 +170,7 @@ public class CustomCommentThreadRepositoryImplTest {
                     CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
                     filterDTO.setApplicationId("sample-application-id-1");
                     filterDTO.setResolved(false);
-                    return commentThreadRepository.find(filterDTO, AclPermission.READ_THREAD).collectList();
+                    return commentThreadRepository.find(filterDTO, (AclPermission) READ_THREAD).collectList();
                 });
 
         StepVerifier.create(listMono).assertNext(
@@ -255,7 +258,7 @@ public class CustomCommentThreadRepositoryImplTest {
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.saveAll(threads)
                 .collectList()
                 .then(commentThreadRepository.archiveByPageId(pageOneId, CommentMode.EDIT))
-                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, (AclPermission) READ_THREAD))
                 .collectMultimap(CommentThread::getPageId);
 
         StepVerifier.create(pageIdThreadMono)
@@ -282,7 +285,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
         // add api_user to thread policy with read thread permission
         for(Policy policy: thread.getPolicies()) {
-            if(policy.getPermission().equals(AclPermission.READ_THREAD.getValue())) {
+            if(policy.getPermission().equals(READ_THREAD.getValue())) {
                 Set<String> users = new HashSet<>();
                 users.addAll(policy.getUsers());
                 users.add("api_user");
@@ -292,7 +295,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
                 .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT)) // this will do nothing
-                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, (AclPermission) READ_THREAD))
                 .collectMultimap(CommentThread::getPageId);
 
         StepVerifier.create(pageIdThreadMono)

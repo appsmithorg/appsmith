@@ -22,13 +22,11 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import io.sentry.protocol.App;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_APPLICATIONS;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -86,7 +86,7 @@ public class GitServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
     }
 
@@ -949,7 +949,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(new Application()));
 
         Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote", gitCheckoutBranchDTO)
-                .flatMap(application1 -> applicationService.getApplicationByBranchNameAndDefaultApplication("testRemote", application.getId(), AclPermission.READ_APPLICATIONS));
+                .flatMap(application1 -> applicationService.getApplicationByBranchNameAndDefaultApplication("testRemote", application.getId(), (AclPermission) READ_APPLICATIONS));
 
         StepVerifier
                 .create(applicationMono)

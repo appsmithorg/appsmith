@@ -1,11 +1,12 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
@@ -150,7 +151,7 @@ public class ShareOrganizationPermissionTests {
                 .build();
 
         Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
-        Mono<Organization> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
+        Mono<Organization> organizationMono = organizationService.findById(organizationId, (AclPermission) READ_ORGANIZATIONS);
 
         StepVerifier.create(Mono.zip(applicationMono, organizationMono))
                 .assertNext(tuple -> {
@@ -186,7 +187,7 @@ public class ShareOrganizationPermissionTests {
                 .users(Set.of("admin@solutiontest.com", "developer@solutiontest.com"))
                 .build();
 
-        Mono<Organization> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
+        Mono<Organization> organizationMono = organizationService.findById(organizationId, (AclPermission) READ_ORGANIZATIONS);
 
         StepVerifier.create(organizationMono)
                 .assertNext(organization -> {
@@ -293,7 +294,7 @@ public class ShareOrganizationPermissionTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return organizationService.findById(orgId, READ_ORGANIZATIONS);
+                    return organizationService.findById(orgId, (AclPermission) READ_ORGANIZATIONS);
                 })
                 .cache();
 
@@ -304,13 +305,13 @@ public class ShareOrganizationPermissionTests {
 
         Mono<List<NewAction>> actionsMono = fetchApplicationFromDbMono
                 .flatMap(appFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(appFromDb.getId(), false, READ_ACTIONS, null)
+                        .findAllByApplicationIdAndViewMode(appFromDb.getId(), false, (AclPermission) READ_ACTIONS, null)
                         .collectList()
                 );
 
         Mono<List<PageDTO>> pagesMono = fetchApplicationFromDbMono
                 .flatMapMany(appFromDb -> Flux.fromIterable(appFromDb.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), (AclPermission) READ_PAGES, false))
                 .collectList();
 
         StepVerifier

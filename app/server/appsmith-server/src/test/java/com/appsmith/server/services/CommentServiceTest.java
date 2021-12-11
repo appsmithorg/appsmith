@@ -40,6 +40,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.ce.AclPermissionCE.COMMENT_ON_APPLICATIONS;
+import static com.appsmith.server.acl.ce.AclPermissionCE.COMMENT_ON_THREAD;
+import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_APPLICATIONS;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_THREAD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -102,7 +107,7 @@ public class CommentServiceTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = applicationService
-                .findByName("TestApplications", AclPermission.READ_APPLICATIONS)
+                .findByName("TestApplications", (AclPermission) READ_APPLICATIONS)
                 .flatMap(application -> {
                     final CommentThread thread = new CommentThread();
                     thread.setApplicationId(application.getId());
@@ -125,9 +130,9 @@ public class CommentServiceTest {
                     assertThat(thread.getId()).isNotEmpty();
                     //assertThat(thread.getResolved()).isNull();
                     assertThat(thread.getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.READ_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(READ_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
                             Policy.builder().permission(AclPermission.MANAGE_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.COMMENT_ON_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            Policy.builder().permission(COMMENT_ON_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
                     assertThat(thread.getComments()).hasSize(2);  // one comment is from bot
                     assertThat(thread.getComments().get(0).getBody()).isEqualTo(makePlainTextComment("comment one").getBody());
@@ -309,7 +314,7 @@ public class CommentServiceTest {
         User user = new User();
         user.setEmail("api_user");
         Map<String, Policy> stringPolicyMap = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.READ_THREAD),
+                Set.of((AclPermission) READ_THREAD),
                 user
         );
         Set<Policy> policies = Set.copyOf(stringPolicyMap.values());
@@ -353,7 +358,7 @@ public class CommentServiceTest {
     public void create_WhenThreadIsResolvedAndAlreadyViewed_ThreadIsUnresolvedAndUnread() {
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of((AclPermission) COMMENT_ON_THREAD),
                 "api_user"
         ).values();
 
@@ -407,7 +412,7 @@ public class CommentServiceTest {
     public void createThread_WhenFirstCommentFromUser_CreatesBotThreadAndComment() {
         Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
-                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
+                Set.of((AclPermission) MANAGE_APPLICATIONS, (AclPermission) COMMENT_ON_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
@@ -425,7 +430,7 @@ public class CommentServiceTest {
 
         Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
-                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
+                Set.of((AclPermission) MANAGE_APPLICATIONS, (AclPermission) COMMENT_ON_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
@@ -439,7 +444,7 @@ public class CommentServiceTest {
     public void createThread_WhenFirstCommentFromViewer_BotThreadNotCreated() {
         Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
-                Set.of(AclPermission.READ_APPLICATIONS), comment
+                Set.of((AclPermission) READ_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
@@ -456,7 +461,7 @@ public class CommentServiceTest {
 
         Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
-                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
+                Set.of((AclPermission) MANAGE_APPLICATIONS, (AclPermission) COMMENT_ON_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
@@ -470,7 +475,7 @@ public class CommentServiceTest {
         Comment comment = makePlainTextComment("test comment here");
         mentionUser(comment, "sample-user@example.com");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
-                Set.of(AclPermission.READ_APPLICATIONS), comment
+                Set.of((AclPermission) READ_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
@@ -571,7 +576,7 @@ public class CommentServiceTest {
 
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of((AclPermission) COMMENT_ON_THREAD),
                 "api_user"
         ).values();
         CommentThread commentThread = new CommentThread();

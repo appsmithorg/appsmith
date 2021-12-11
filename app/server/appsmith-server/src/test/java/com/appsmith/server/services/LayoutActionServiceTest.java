@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -136,7 +137,7 @@ public class LayoutActionServiceTest {
 
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false).block();
 
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject();
@@ -167,10 +168,10 @@ public class LayoutActionServiceTest {
             layout.setPublishedDsl(dsl);
             layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false).block();
         }
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
@@ -224,7 +225,7 @@ public class LayoutActionServiceTest {
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 .flatMap(savedAction -> layoutActionService.deleteUnpublishedAction(savedAction.getId())) // Delete action
-                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false)); // Get page info
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), (AclPermission) READ_PAGES, false)); // Get page info
 
         StepVerifier
                 .create(resultMono)
@@ -306,7 +307,7 @@ public class LayoutActionServiceTest {
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 // fetch the unpublished page
-                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), (AclPermission) READ_PAGES, false));
 
         StepVerifier
                 .create(resultMono)
@@ -364,7 +365,7 @@ public class LayoutActionServiceTest {
 
         LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), (AclPermission) READ_ACTIONS);
 
         StepVerifier
                 .create(postNameChangeActionMono)
@@ -421,7 +422,7 @@ public class LayoutActionServiceTest {
 
         layoutActionService.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), (AclPermission) READ_ACTIONS);
 
         StepVerifier
                 .create(postNameChangeActionMono)
@@ -637,7 +638,7 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).cache();
 
-        Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+        Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), (AclPermission) READ_PAGES, false));
 
         StepVerifier
                 .create(Mono.zip(updateLayoutMono, pageFromRepoMono))
@@ -714,7 +715,7 @@ public class LayoutActionServiceTest {
 
         LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(firstAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(firstAction.getId(), (AclPermission) READ_ACTIONS);
 
         StepVerifier
                 .create(postNameChangeActionMono)
@@ -789,7 +790,7 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
 
-        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), (AclPermission) READ_PAGES, false));
 
         StepVerifier
                 .create(Mono.zip(widgetRenameMono, pageFromRepoMono))
@@ -830,7 +831,7 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
 
-        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), (AclPermission) READ_PAGES, false));
 
         StepVerifier
                 .create(Mono.zip(widgetRenameMono, pageFromRepoMono))

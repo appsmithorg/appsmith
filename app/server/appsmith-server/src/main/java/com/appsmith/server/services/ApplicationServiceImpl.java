@@ -79,7 +79,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
-        return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS));
+        return setTransientFields(super.getWithPermission(params, (AclPermission) READ_APPLICATIONS));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById(id, READ_APPLICATIONS)
+        return repository.findById(id, (AclPermission) READ_APPLICATIONS)
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .zipWith(sessionUserService.getCurrentUser())
@@ -173,7 +173,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
-        return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
+        return repository.updateById(id, application, (AclPermission) MANAGE_APPLICATIONS)
             .onErrorResume(error -> {
                 if (error instanceof DuplicateKeyException) {
                     // Error message : E11000 duplicate key error collection: appsmith.application index:
@@ -199,7 +199,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
         Mono<Application> updateApplicationMono = repository
-                .findById(id, MAKE_PUBLIC_APPLICATIONS)
+                .findById(id, (AclPermission) MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
 
@@ -217,7 +217,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
-        //  subscriber has cancelled its subscription, the create method will still generates its event.
+        //  subscriber has cancelled its subscription, the create method will still generate its event.
         return Mono.create(sink -> updateApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
@@ -230,7 +230,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> getApplicationInViewMode(String applicationId) {
-        return repository.findById(applicationId, READ_APPLICATIONS)
+        return repository.findById(applicationId, (AclPermission) READ_APPLICATIONS)
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
@@ -250,10 +250,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         user.setEmail(FieldName.ANONYMOUS_USER);
         user.setIsAnonymous(true);
 
-        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(READ_APPLICATIONS), user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of((AclPermission) READ_APPLICATIONS), user);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of((AclPermission) EXECUTE_DATASOURCES), user);
 
         final Flux<NewPage> updatedPagesFlux = policyUtils
                 .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
@@ -330,7 +330,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     /**
      * Generate SSH private and public keys required to communicate with remote. Keys will be stored only in the
      * default/root application only and not the child branched application. This decision is taken because the combined
-     * size of keys is close to 4kB
+     * size of keys is close to 4 kB
      * @param applicationId application for which the SSH key needs to be generated
      * @return public key which will be used by user to copy to relevant platform
      */
@@ -357,7 +357,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         gitAuth.setGeneratedAt(Instant.now());
         gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
 
-        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+        return repository.findById(applicationId, (AclPermission) MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
                 ))
@@ -385,7 +385,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                             "Unable to find root application, please connect your application to remote repo to resolve this issue.");
                     }
-                    return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
+                    return repository.findById(gitData.getDefaultApplicationId(), (AclPermission) MANAGE_APPLICATIONS)
                         .flatMap(defaultApplication -> {
                             GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                             gitApplicationMetadata.setDefaultApplicationId(defaultApplication.getId());
@@ -404,7 +404,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      */
     @Override
     public Mono<GitAuth> getSshKey(String applicationId) {
-        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+        return repository.findById(applicationId, (AclPermission) MANAGE_APPLICATIONS)
             .switchIfEmpty(
                 Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
             )
@@ -427,7 +427,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         "Can't find root application. Please configure the application with git"
                     );
                 }
-                return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
+                return repository.findById(gitData.getDefaultApplicationId(), (AclPermission) MANAGE_APPLICATIONS)
                     .map(rootApplication -> {
                         GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
                         gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
@@ -466,7 +466,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
          */
-        return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
+        return repository.updateById(applicationId, application, (AclPermission) MANAGE_APPLICATIONS); // it'll do a set operation
     }
 
     public Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {

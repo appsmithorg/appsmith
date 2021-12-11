@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
@@ -165,7 +166,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .flatMap(savedAction ->
                         // fetch the unpublished source page
                         newPageService
-                                .findPageById(oldPageId, MANAGE_PAGES, false)
+                                .findPageById(oldPageId, (AclPermission) MANAGE_PAGES, false)
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
@@ -180,7 +181,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                             .collect(toSet());
                                 })
                                 // fetch the unpublished destination page
-                                .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
+                                .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), (AclPermission) MANAGE_PAGES, false))
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
@@ -238,7 +239,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
                     }
                     return newActionService
-                            .findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS);
+                            .findActionDTObyIdAndViewMode(actionId, false, (AclPermission) MANAGE_ACTIONS);
                 })
                 .flatMap(action -> {
                     action.setName(newName);
@@ -268,7 +269,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Mono<PageDTO> updatePageMono = newPageService
                 // fetch the unpublished page
-                .findPageById(pageId, MANAGE_PAGES, false)
+                .findPageById(pageId, (AclPermission) MANAGE_PAGES, false)
                 .flatMap(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
@@ -296,7 +297,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Set<String> updatableCollectionIds = new HashSet<>();
 
         Mono<Set<String>> updateActionsMono = newActionService
-                .findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
+                .findByPageIdAndViewMode(pageId, false, (AclPermission) MANAGE_ACTIONS)
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
                  * to look for replacement pattern.
@@ -346,7 +347,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .flatMap(updatedActions -> {
                     // If these actions belonged to collections, update the collection body
                     return Flux.fromIterable(updatableCollectionIds)
-                            .flatMap(collectionId -> actionCollectionService.findById(collectionId, MANAGE_ACTIONS))
+                            .flatMap(collectionId -> actionCollectionService.findById(collectionId, (AclPermission) MANAGE_ACTIONS))
                             .flatMap(actionCollection -> {
                                 final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                                 Matcher matcher = oldNamePattern.matcher(unpublishedCollection.getBody());
@@ -580,7 +581,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         if (!isFQN) {
             widgetNamesMono = newPageService
                     // fetch the unpublished page
-                    .findPageById(pageId, MANAGE_PAGES, false)
+                    .findPageById(pageId, (AclPermission) MANAGE_PAGES, false)
                     .flatMap(page -> {
                         List<Layout> layouts = page.getLayouts();
                         for (Layout layout : layouts) {
@@ -650,7 +651,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
-        return newActionService.findById(id, MANAGE_ACTIONS)
+        return newActionService.findById(id, (AclPermission) MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
@@ -684,7 +685,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private Mono<String> updatePageLayoutsGivenAction(String pageId) {
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
-                .flatMap(id -> newPageService.findPageById(id, MANAGE_PAGES, false))
+                .flatMap(id -> newPageService.findPageById(id, (AclPermission) MANAGE_PAGES, false))
                 .flatMapMany(page -> {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
@@ -783,7 +784,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             .updateActionsExecuteOnLoad(flatmapPageLoadActions, pageId, actionUpdates, messages)
                             .thenReturn(allOnLoadActions);
                 })
-                .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
+                .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, (AclPermission) MANAGE_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
                 // Now update the page layout with the page load actions and the graph.
@@ -931,7 +932,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         newAction.getPublishedAction().setDatasource(new Datasource());
 
         Mono<NewPage> pageMono = newPageService
-                .findById(action.getPageId(), READ_PAGES)
+                .findById(action.getPageId(), (AclPermission) READ_PAGES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();

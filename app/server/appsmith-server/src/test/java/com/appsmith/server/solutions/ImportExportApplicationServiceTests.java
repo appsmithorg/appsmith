@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -145,7 +146,7 @@ public class ImportExportApplicationServiceTests {
     private Flux<ActionDTO> getActionsInApplication(Application application) {
         return newPageService
                 // fetch the unpublished pages
-                .findByApplicationId(application.getId(), READ_PAGES, false)
+                .findByApplicationId(application.getId(), (AclPermission) READ_PAGES, false)
                 .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
@@ -328,7 +329,7 @@ public class ImportExportApplicationServiceTests {
                             datasourceService.create(ds1),
                             datasourceService.create(ds2),
                             Mono.just(testApp),
-                            newPageService.findPageById(pageId, READ_PAGES, false)
+                            newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false)
                     );
                 })
                 .flatMap(tuple -> {
@@ -383,7 +384,7 @@ public class ImportExportApplicationServiceTests {
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action))
-                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), (AclPermission) READ_ACTIONS))
                             .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId()));
                 });
@@ -480,7 +481,7 @@ public class ImportExportApplicationServiceTests {
                 return Mono.zip(
                     datasourceService.create(ds1),
                     Mono.just(testApp),
-                    newPageService.findPageById(pageId, READ_PAGES, false)
+                    newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false)
                 );
             })
             .flatMap(tuple -> {
@@ -504,7 +505,7 @@ public class ImportExportApplicationServiceTests {
                 action.setDatasource(ds1);
 
                 return layoutActionService.createAction(action)
-                    .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                    .flatMap(createdAction -> newActionService.findById(createdAction.getId(), (AclPermission) READ_ACTIONS))
                     .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                     .then(importExportApplicationService.exportApplicationById(testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
             });
@@ -644,10 +645,10 @@ public class ImportExportApplicationServiceTests {
             .create(resultMono
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
-                        datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                        datasourceService.findAllByOrganizationId(application.getOrganizationId(), (AclPermission) MANAGE_DATASOURCES).collectList(),
                         getActionsInApplication(application).collectList(),
-                        newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                        newPageService.findByApplicationId(application.getId(), (AclPermission) MANAGE_PAGES, false).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, (AclPermission) MANAGE_ACTIONS, null).collectList()
                 )))
             .assertNext(tuple -> {
                 final Application application = tuple.getT1();
@@ -732,11 +733,11 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), (AclPermission) MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(application).collectList(),
-                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                newPageService.findByApplicationId(application.getId(), (AclPermission) MANAGE_PAGES, false).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false
-                                        , MANAGE_ACTIONS, null).collectList()
+                                        , (AclPermission) MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();

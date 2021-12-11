@@ -78,6 +78,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.ce.AclPermissionCE.READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -157,7 +158,7 @@ public class ActionServiceTest {
 
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false).block();
 
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
@@ -181,7 +182,7 @@ public class ActionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", (AclPermission) READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
@@ -222,7 +223,7 @@ public class ActionServiceTest {
         action.setDatasource(datasource);
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), (AclPermission) READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
@@ -1187,7 +1188,7 @@ public class ActionServiceTest {
         action.setDatasource(datasource);
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), (AclPermission) READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
@@ -1220,7 +1221,7 @@ public class ActionServiceTest {
         action.setDatasource(datasource);
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), (AclPermission) READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier

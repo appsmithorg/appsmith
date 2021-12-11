@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -168,10 +169,10 @@ public class ApplicationForkingServiceTests {
         return Mono
                 .when(
                         applicationService
-                                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                                .findByOrganizationId(organization.getId(), (AclPermission) READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByOrganizationId(organization.getId(), READ_DATASOURCES)
+                                .findAllByOrganizationId(organization.getId(), (AclPermission) READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInOrganization(organization)
                                 .map(data.actions::add)
@@ -235,9 +236,9 @@ public class ApplicationForkingServiceTests {
 
     private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
         return applicationService
-                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                .findByOrganizationId(organization.getId(), (AclPermission) READ_APPLICATIONS)
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), (AclPermission) READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
