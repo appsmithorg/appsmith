@@ -27,6 +27,11 @@ const initialState: GitSyncReducerState = {
 
   showRepoLimitError: false,
   showRepoLimitErrorModal: false,
+  isGitRevokeModalOpen: false,
+  gitRevokingApp: {
+    id: "",
+    name: "",
+  },
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -363,6 +368,20 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     showRepoLimitErrorModal: action.payload,
   }),
+  [ReduxActionTypes.SET_SHOULD_SHOW_REVOKE_MODAL]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    isGitRevokeModalOpen: action.payload,
+  }),
+  [ReduxActionTypes.SET_REVOKING_GIT_APPLICATION]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
+    ...state,
+    gitRevokingApp: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -426,6 +445,11 @@ export type GitSyncReducerState = {
 
   showRepoLimitError?: boolean;
   showRepoLimitErrorModal: boolean;
+  isGitRevokeModalOpen: boolean;
+  gitRevokingApp: {
+    id: string;
+    name: string;
+  };
 };
 
 export default gitSyncReducer;
