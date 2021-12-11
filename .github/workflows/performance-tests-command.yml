@@ -6,44 +6,7 @@ on:
     types: [ok-to-perf-test-command]
 
 jobs:
-  debuggeer-with-sudo:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/client
-        shell: bash
-    steps:
-      - name: Fork based /ok-to-test-perf checkout
-        uses: actions/checkout@v2
-        with:
-          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
-      - name: Change wrapper permissions
-        run: chmod +x ./perf/start-test.sh
-      - name: Run performance tests
-        shell: bash
-        run: |
-          sudo ./perf/start-test.sh
-
-  debuggeer-without-sudo:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/client
-        shell: bash
-    steps:
-      - name: Fork based /ok-to-test-perf checkout
-        uses: actions/checkout@v2
-        with:
-          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
-      - name: Change wrapper permissions
-        run: chmod +x ./perf/start-test.sh
-      - name: Run performance tests
-        shell: bash
-        run: ./perf/start-test.sh
-
   server-build:
-    needs: [debuggeer-with-sudo, debuggeer-without-sudo]
-
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'repository_dispatch' &&
@@ -127,7 +90,6 @@ jobs:
           path: app/server/dist/
 
   build:
-    needs: [debuggeer-with-sudo, debuggeer-without-sudo]
     runs-on: ubuntu-latest
     if: github.event_name == 'repository_dispatch' &&
       github.event.client_payload.slash_command.sha != '' &&
@@ -406,6 +368,9 @@ jobs:
           POSTGRES_PASSWORD: postgres
         run: |
           ./cypress/setup-test.sh
+
+      - name: Change test script permissions
+        run: chmod +x ./perf/start-test.sh
 
       - name: Run performance tests
         shell: bash
