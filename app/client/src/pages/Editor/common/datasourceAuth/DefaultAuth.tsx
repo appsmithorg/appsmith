@@ -71,7 +71,9 @@ export default function DefaultAuth({
     dispatch(
       updateDatasource(
         getSanitizedFormData(),
-        redirectToNewIntegrations(applicationId, pageId, getQueryParams()),
+        dispatch(
+          redirectToNewIntegrations(applicationId, pageId, getQueryParams()),
+        ),
       ),
     );
   };

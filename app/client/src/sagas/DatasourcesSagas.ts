@@ -230,7 +230,7 @@ export function* deleteDatasourceSaga(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id),
       );
 
-      const sassPathWithoutQuery = trimQueryString(
+      const saasPathWithoutQuery = trimQueryString(
         SAAS_EDITOR_DATASOURCE_ID_URL(
           applicationId,
           pageId,
@@ -241,7 +241,7 @@ export function* deleteDatasourceSaga(
 
       if (
         window.location.pathname === datasourcePathWithoutQuery ||
-        window.location.pathname === sassPathWithoutQuery
+        window.location.pathname === saasPathWithoutQuery
       ) {
         history.push(
           INTEGRATION_EDITOR_URL(
