@@ -20,6 +20,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 interface Props {
   datasource: Datasource;
@@ -64,6 +65,7 @@ export default function DefaultAuth({
   };
 
   const handleDatasourceSave = () => {
+    const isGeneratePageInitiator = getIsGeneratePageInitiator();
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
@@ -71,9 +73,15 @@ export default function DefaultAuth({
     dispatch(
       updateDatasource(
         getSanitizedFormData(),
-        dispatch(
-          redirectToNewIntegrations(applicationId, pageId, getQueryParams()),
-        ),
+        !isGeneratePageInitiator
+          ? dispatch(
+              redirectToNewIntegrations(
+                applicationId,
+                pageId,
+                getQueryParams(),
+              ),
+            )
+          : undefined,
       ),
     );
   };
