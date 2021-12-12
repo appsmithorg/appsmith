@@ -44,7 +44,6 @@ import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullPrope
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_DATASOURCES;
 
 @Slf4j
 @Service
@@ -120,10 +119,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(datasource.getOrganizationId(),
-                                    (AclPermission) ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                    FieldName.ORGANIZATION, datasource.getOrganizationId())));
+                    Mono<Organization> orgMono = organizationService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource.getOrganizationId())));
 
                     return orgMono.map(org -> {
                         Set<Policy> policySet = org.getPolicies().stream()
@@ -132,8 +129,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                                 policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
                                 ).collect(Collectors.toSet());
 
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class,
-                                Datasource.class);
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
                         datasource.setPolicies(documentPolicies);
                         return datasource;
                     });
@@ -363,7 +359,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
          * Note : Currently this API is ONLY used to fetch datasources for an organization.
          */
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), (AclPermission) READ_DATASOURCES);
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
@@ -387,7 +383,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> delete(String id) {
         return repository
-                .findById(id, (AclPermission) MANAGE_DATASOURCES)
+                .findById(id, MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {

@@ -40,8 +40,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_PAGES;
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_APPLICATIONS;
 
 @Service
 @Slf4j
@@ -116,7 +114,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
 
-        return findById(page.getId(), (AclPermission) MANAGE_PAGES)
+        return findById(page.getId(), AclPermission.MANAGE_PAGES)
                 .flatMap(newPage -> {
                     newPage.setUnpublishedPage(page);
                     // gitSyncId will be used to sync resource across instances
@@ -175,7 +173,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, Boolean view) {
-        Mono<Application> applicationMono = applicationService.findById(applicationId, (AclPermission) READ_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 // Throw a 404 error if the application has never been published
                 .flatMap(application -> {
@@ -224,7 +222,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     }
                     return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
-                .flatMapMany(pageIds -> repository.findAllByIds(pageIds, (AclPermission) READ_PAGES))
+                .flatMapMany(pageIds -> repository.findAllByIds(pageIds, READ_PAGES))
                 .collectList()
                 .flatMap( pagesFromDb -> Mono.zip(
                         Mono.just(pagesFromDb),
@@ -301,7 +299,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
-        Mono<Application> applicationMono = applicationService.findByName(applicationName, (AclPermission) READ_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findByName(applicationName, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
                 .cache();
 
@@ -329,7 +327,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
             pages = application.getPages();
         }
 
-        return findByApplicationId(application.getId(), (AclPermission) READ_PAGES, viewMode)
+        return findByApplicationId(application.getId(), READ_PAGES, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application id", application.getId())))
                 .map(page -> {
                     PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
@@ -383,7 +381,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Mono<PageDTO> updatePage(String id, PageDTO page) {
-        return repository.findById(id, (AclPermission) MANAGE_PAGES)
+        return repository.findById(id, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(dbPage -> {
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());

@@ -58,7 +58,6 @@ import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
 import static com.appsmith.external.constants.Authentication.SUCCESS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_DATASOURCES;
 
 
 @Service
@@ -90,7 +89,7 @@ public class AuthenticationService {
     public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService.findById(datasourceId, (AclPermission) MANAGE_DATASOURCES)
+        return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
@@ -293,7 +292,7 @@ public class AuthenticationService {
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, (AclPermission) MANAGE_DATASOURCES)
+                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
@@ -362,7 +361,7 @@ public class AuthenticationService {
         // Update datasource as being authorized
         // Return control to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, (AclPermission) MANAGE_DATASOURCES)
+                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .cache();
 
         return datasourceMono

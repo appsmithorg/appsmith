@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +64,7 @@ public class BaseServiceTest {
                 .build();
 
         Mono<Application> addPolicyMono = applicationService
-                .findByName("TestApplications", (AclPermission) MANAGE_APPLICATIONS)
+                .findByName("TestApplications", MANAGE_APPLICATIONS)
                 .flatMap(application -> applicationService
                         .addPolicies(application.getId(), Set.of(manageAppPolicy, readAppPolicy))
                 )

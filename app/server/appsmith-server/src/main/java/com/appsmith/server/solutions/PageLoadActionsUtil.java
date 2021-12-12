@@ -2,7 +2,6 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionDTO;
@@ -112,8 +111,7 @@ public class PageLoadActionsUtil {
         // Create a global set of bindings found in ALL the widgets.
         widgetDynamicBindingsMap.values().forEach(bindings -> bindingsInWidgets.addAll(bindings));
 
-        Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false,
-                        (AclPermission) MANAGE_ACTIONS)
+        Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .flatMap(action -> {
                     // filter actions which have been turned off by the user to run on page load and reduce the action world

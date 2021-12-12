@@ -29,8 +29,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_DATASOURCES;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -148,7 +146,7 @@ public class DatasourceStructureSolution {
             2. Check plugin is present
             3. Execute DB query from the information provided present in pluginSpecifiedTemplates
          */
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, (AclPermission) MANAGE_DATASOURCES)
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId
                 )))

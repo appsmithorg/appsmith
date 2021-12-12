@@ -35,10 +35,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.ce.AclPermissionCE.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_APPLICATIONS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_PAGES;
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_THREAD;
 
 @Component
 @AllArgsConstructor
@@ -161,7 +157,7 @@ public class PolicyUtils {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByOrganizationId(orgId, (AclPermission) EXECUTE_DATASOURCES)
+                .findAllByOrganizationId(orgId, AclPermission.EXECUTE_DATASOURCES)
                 // In case we have come across a datasource for this organization that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
@@ -178,7 +174,7 @@ public class PolicyUtils {
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
 
         return datasourceRepository
-                .findAllByIds(ids, (AclPermission) MANAGE_DATASOURCES)
+                .findAllByIds(ids, MANAGE_DATASOURCES)
                 // In case we have come across a datasource the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .flatMap(datasource -> {
@@ -199,7 +195,7 @@ public class PolicyUtils {
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
-                .findByOrganizationId(orgId, (AclPermission) READ_APPLICATIONS)
+                .findByOrganizationId(orgId, AclPermission.READ_APPLICATIONS)
                 // In case we have come across an application for this organization that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {
@@ -221,7 +217,7 @@ public class PolicyUtils {
         // during deployment of the application to handle edge cases.
         return newPageRepository
                 // fetch pages with read permissions so that app viewers can invite other app viewers
-                .findByApplicationId(applicationId, (AclPermission) READ_PAGES)
+                .findByApplicationId(applicationId, AclPermission.READ_PAGES)
                 .switchIfEmpty(Mono.empty())
                 .map(page -> {
                     if (addPolicyToObject) {
@@ -240,7 +236,7 @@ public class PolicyUtils {
 
         return
                 // fetch comment threads with read permissions
-                commentThreadRepository.findByApplicationId(applicationId, (AclPermission) READ_THREAD)
+                commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
                 .switchIfEmpty(Mono.empty())
                 .map(thread -> {
                     if(!Boolean.TRUE.equals(thread.getIsPrivate())) {

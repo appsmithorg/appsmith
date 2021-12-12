@@ -45,8 +45,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -172,7 +170,7 @@ public class LayoutServiceTest {
 
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
         return newPageService
-                .findByNameAndViewMode(page.getName(), (AclPermission) READ_PAGES, false)
+                .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
                 .switchIfEmpty(applicationPageService.createApplication(app, orgId)
                         .map(application -> {
                             page.setApplicationId(application.getId());
@@ -549,8 +547,8 @@ public class LayoutServiceTest {
                 .verifyComplete();
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), (AclPermission) MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId("aPostAction", page.getId(), (AclPermission) MANAGE_ACTIONS));
+            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("aPostAction", page.getId(), AclPermission.MANAGE_ACTIONS));
         });
 
         StepVerifier

@@ -12,6 +12,7 @@ import org.jgrapht.graph.DirectedMultigraph;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -65,11 +66,13 @@ public class PolicyGeneratorCE {
 
     @PostConstruct
     public void createPolicyGraph() {
+
         // Initialization of the hierarchical and lateral graphs by adding all the vertices
-        for (AclPermission permission : AclPermission.values()) {
-            hierarchyGraph.addVertex(permission);
-            lateralGraph.addVertex(permission);
-        }
+        EnumSet.allOf(AclPermission.class)
+                .forEach(permission -> {
+                    hierarchyGraph.addVertex(permission);
+                    lateralGraph.addVertex(permission);
+                });
 
         createUserPolicyGraph();
         createOrganizationPolicyGraph();
@@ -84,66 +87,66 @@ public class PolicyGeneratorCE {
      * In this, we add permissions for a user to interact with organizations and other users inside the said organizations
      */
     private void createUserPolicyGraph() {
-        hierarchyGraph.addEdge((AclPermission) USER_MANAGE_ORGANIZATIONS, (AclPermission) MANAGE_ORGANIZATIONS);
-        hierarchyGraph.addEdge((AclPermission) USER_READ_ORGANIZATIONS, (AclPermission) READ_ORGANIZATIONS);
+        hierarchyGraph.addEdge(USER_MANAGE_ORGANIZATIONS, MANAGE_ORGANIZATIONS);
+        hierarchyGraph.addEdge(USER_READ_ORGANIZATIONS, READ_ORGANIZATIONS);
 
         // If user is given manageOrg permission, they must also be able to read organizations
-        lateralGraph.addEdge((AclPermission) USER_MANAGE_ORGANIZATIONS, (AclPermission) USER_READ_ORGANIZATIONS);
-        lateralGraph.addEdge((AclPermission) MANAGE_USERS, (AclPermission) READ_USERS);
+        lateralGraph.addEdge(USER_MANAGE_ORGANIZATIONS, USER_READ_ORGANIZATIONS);
+        lateralGraph.addEdge(MANAGE_USERS, READ_USERS);
     }
 
     private void createOrganizationPolicyGraph() {
-        lateralGraph.addEdge((AclPermission) MANAGE_ORGANIZATIONS, (AclPermission) READ_ORGANIZATIONS);
-        lateralGraph.addEdge((AclPermission) MANAGE_ORGANIZATIONS, (AclPermission) ORGANIZATION_MANAGE_APPLICATIONS);
-        lateralGraph.addEdge((AclPermission) MANAGE_ORGANIZATIONS, (AclPermission) ORGANIZATION_READ_APPLICATIONS);
-        lateralGraph.addEdge((AclPermission) MANAGE_ORGANIZATIONS, (AclPermission) ORGANIZATION_PUBLISH_APPLICATIONS);
+        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, READ_ORGANIZATIONS);
+        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS);
+        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS);
+        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_PUBLISH_APPLICATIONS);
     }
 
     private void createDatasourcePolicyGraph() {
-        hierarchyGraph.addEdge((AclPermission) ORGANIZATION_MANAGE_APPLICATIONS, (AclPermission) MANAGE_DATASOURCES);
-        hierarchyGraph.addEdge((AclPermission) ORGANIZATION_READ_APPLICATIONS, (AclPermission) READ_DATASOURCES);
+        hierarchyGraph.addEdge(ORGANIZATION_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
+        hierarchyGraph.addEdge(ORGANIZATION_READ_APPLICATIONS, READ_DATASOURCES);
 
-        lateralGraph.addEdge((AclPermission) MANAGE_DATASOURCES, (AclPermission) READ_DATASOURCES);
-        lateralGraph.addEdge((AclPermission) MANAGE_DATASOURCES, (AclPermission) EXECUTE_DATASOURCES);
-        lateralGraph.addEdge((AclPermission) READ_DATASOURCES, (AclPermission) EXECUTE_DATASOURCES);
+        lateralGraph.addEdge(MANAGE_DATASOURCES, READ_DATASOURCES);
+        lateralGraph.addEdge(MANAGE_DATASOURCES, EXECUTE_DATASOURCES);
+        lateralGraph.addEdge(READ_DATASOURCES, EXECUTE_DATASOURCES);
     }
 
     private void createApplicationPolicyGraph() {
-        hierarchyGraph.addEdge((AclPermission) ORGANIZATION_MANAGE_APPLICATIONS, (AclPermission) MANAGE_APPLICATIONS);
-        hierarchyGraph.addEdge((AclPermission) ORGANIZATION_READ_APPLICATIONS, (AclPermission) READ_APPLICATIONS);
-        hierarchyGraph.addEdge((AclPermission) ORGANIZATION_PUBLISH_APPLICATIONS, (AclPermission) PUBLISH_APPLICATIONS);
-        hierarchyGraph.addEdge((AclPermission) MANAGE_ORGANIZATIONS, (AclPermission) MAKE_PUBLIC_APPLICATIONS);
-        hierarchyGraph.addEdge((AclPermission) ORGANIZATION_EXPORT_APPLICATIONS, (AclPermission) EXPORT_APPLICATIONS);
+        hierarchyGraph.addEdge(ORGANIZATION_MANAGE_APPLICATIONS, MANAGE_APPLICATIONS);
+        hierarchyGraph.addEdge(ORGANIZATION_READ_APPLICATIONS, READ_APPLICATIONS);
+        hierarchyGraph.addEdge(ORGANIZATION_PUBLISH_APPLICATIONS, PUBLISH_APPLICATIONS);
+        hierarchyGraph.addEdge(MANAGE_ORGANIZATIONS, MAKE_PUBLIC_APPLICATIONS);
+        hierarchyGraph.addEdge(ORGANIZATION_EXPORT_APPLICATIONS, EXPORT_APPLICATIONS);
 
         // If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION perm
-        lateralGraph.addEdge((AclPermission) MANAGE_APPLICATIONS, (AclPermission) READ_APPLICATIONS);
+        lateralGraph.addEdge(MANAGE_APPLICATIONS, READ_APPLICATIONS);
 
         // If the user can read an application, the should be able to comment on it.
-        lateralGraph.addEdge((AclPermission) READ_APPLICATIONS, (AclPermission) COMMENT_ON_APPLICATIONS);
+        lateralGraph.addEdge(READ_APPLICATIONS, COMMENT_ON_APPLICATIONS);
     }
 
     private void createActionPolicyGraph() {
-        hierarchyGraph.addEdge((AclPermission) MANAGE_PAGES, (AclPermission) MANAGE_ACTIONS);
-        hierarchyGraph.addEdge((AclPermission) READ_PAGES, (AclPermission) EXECUTE_ACTIONS);
+        hierarchyGraph.addEdge(MANAGE_PAGES, MANAGE_ACTIONS);
+        hierarchyGraph.addEdge(READ_PAGES, EXECUTE_ACTIONS);
 
-        lateralGraph.addEdge((AclPermission) MANAGE_ACTIONS, (AclPermission) READ_ACTIONS);
-        lateralGraph.addEdge((AclPermission) MANAGE_ACTIONS, (AclPermission) EXECUTE_ACTIONS);
-        lateralGraph.addEdge((AclPermission) READ_ACTIONS, (AclPermission) EXECUTE_ACTIONS);
+        lateralGraph.addEdge(MANAGE_ACTIONS, READ_ACTIONS);
+        lateralGraph.addEdge(MANAGE_ACTIONS, EXECUTE_ACTIONS);
+        lateralGraph.addEdge(READ_ACTIONS, EXECUTE_ACTIONS);
     }
 
     private void createPagePolicyGraph() {
-        hierarchyGraph.addEdge((AclPermission) MANAGE_APPLICATIONS, (AclPermission) MANAGE_PAGES);
-        hierarchyGraph.addEdge((AclPermission) READ_APPLICATIONS, (AclPermission) READ_PAGES);
+        hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_PAGES);
+        hierarchyGraph.addEdge(READ_APPLICATIONS, READ_PAGES);
 
-        lateralGraph.addEdge((AclPermission) MANAGE_PAGES, (AclPermission) READ_PAGES);
+        lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }
 
     private void createCommentPolicyGraph() {
-        hierarchyGraph.addEdge((AclPermission) COMMENT_ON_APPLICATIONS, (AclPermission) COMMENT_ON_THREAD);
+        hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREAD);
 
-        lateralGraph.addEdge((AclPermission) COMMENT_ON_THREAD, (AclPermission) READ_THREAD);
+        lateralGraph.addEdge(COMMENT_ON_THREAD, READ_THREAD);
 
-        hierarchyGraph.addEdge((AclPermission) COMMENT_ON_THREAD, (AclPermission) READ_COMMENT);
+        hierarchyGraph.addEdge(COMMENT_ON_THREAD, READ_COMMENT);
     }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class<? extends BaseDomain> destinationEntity) {

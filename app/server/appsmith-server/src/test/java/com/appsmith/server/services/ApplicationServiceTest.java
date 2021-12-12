@@ -197,7 +197,7 @@ public class ApplicationServiceTest {
         Flux<PageDTO> pagesFlux = applicationPageService
                 .createApplication(testApplication, orgId)
                 // Fetch the unpublished pages by applicationId
-                .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), (AclPermission) READ_PAGES, false));
+                .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of("api_user"))
@@ -488,7 +488,7 @@ public class ApplicationServiceTest {
         Mono<PageDTO> pageMono = publicAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false);
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
         StepVerifier
@@ -543,7 +543,7 @@ public class ApplicationServiceTest {
         Mono<PageDTO> pageMono = privateAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return newPageService.findPageById(pageId, (AclPermission) READ_PAGES, false);
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
         StepVerifier
@@ -641,7 +641,7 @@ public class ApplicationServiceTest {
                 .then(newActionService.findById(savedAction.getId()));
 
         final Mono<ActionCollection> actionCollectionMono = publicAppMono
-                .then(actionCollectionService.findById(savedActionCollection.getId(), (AclPermission) READ_ACTIONS));
+                .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
 
         StepVerifier
                 .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono))
@@ -685,7 +685,7 @@ public class ApplicationServiceTest {
 
         Mono<List<PageDTO>> pageListMono = applicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), (AclPermission) READ_PAGES, false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
@@ -781,13 +781,13 @@ public class ApplicationServiceTest {
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
-                .then(applicationService.findByName(appName, (AclPermission) MANAGE_APPLICATIONS))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
                 .map(application -> application.getPages())
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), (AclPermission) READ_PAGES))
+                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
 
         StepVerifier
@@ -832,12 +832,12 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, (AclPermission) MANAGE_APPLICATIONS))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
-                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), (AclPermission) READ_PAGES, false)
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
                         .flatMap(page -> applicationPageService.deleteUnpublishedPage(page.getId()))).block();
 
@@ -846,7 +846,7 @@ public class ApplicationServiceTest {
         applicationPage.setIsDefault(false);
 
         StepVerifier
-                .create(applicationService.findById(newPage.getApplicationId(), (AclPermission) MANAGE_APPLICATIONS))
+                .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
                 .assertNext(editedApplication -> {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
@@ -878,12 +878,12 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, (AclPermission) MANAGE_APPLICATIONS))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
-                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), (AclPermission) READ_PAGES, false)
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "unpublishedEditedPage")))).block();
 
         Mono<Application> updatedDefaultPageApplicationMono = applicationMono
@@ -942,12 +942,12 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, (AclPermission) MANAGE_APPLICATIONS))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
-                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), (AclPermission) READ_PAGES, false)
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
                         .flatMap(page -> applicationPageService.deleteUnpublishedPage(page.getId()))).block();
 
@@ -1044,13 +1044,13 @@ public class ApplicationServiceTest {
 
         Mono<List<NewAction>> actionsMono = clonedAppFromDbMono
                 .flatMap(clonedAppFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, (AclPermission) READ_ACTIONS, null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                         .collectList()
                 );
 
         Mono<List<PageDTO>> pagesMono = clonedAppFromDbMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), (AclPermission) READ_PAGES, false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         StepVerifier
@@ -1216,23 +1216,23 @@ public class ApplicationServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findById(originalApplication.getId(), (AclPermission) READ_APPLICATIONS);
+                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS);
                 })
                 .cache();
 
         Mono<List<NewAction>> actionsMono = applicationFromDbPostViewChange
                 .flatMap(clonedAppFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, (AclPermission) READ_ACTIONS, null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                         .collectList()
                 );
 
         Mono<List<PageDTO>> pagesMono = applicationFromDbPostViewChange
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), (AclPermission) READ_PAGES, false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
-                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), (AclPermission) READ_DATASOURCES));
+                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
 
         StepVerifier
                 .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono))
@@ -1315,14 +1315,14 @@ public class ApplicationServiceTest {
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
         unsavedApplication.setOrganizationId(orgId);
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of((AclPermission) MANAGE_APPLICATIONS), "api_user");
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
         unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
 
         Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
                 .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId())
                         .thenReturn(savedApplication.getId())
-                ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, (AclPermission) MANAGE_APPLICATIONS));
+                ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
 
         StepVerifier.create(applicationMono)
                 .assertNext(testApplication -> {
@@ -1338,7 +1338,7 @@ public class ApplicationServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdSet_DefaultApplicationUpdated() {
-        AclPermission perm = (AclPermission) MANAGE_APPLICATIONS;
+        AclPermission perm = MANAGE_APPLICATIONS;
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(perm), "api_user");
         Set<Policy> policies = Set.copyOf(policyMap.values());
 
@@ -1432,7 +1432,7 @@ public class ApplicationServiceTest {
 
                     return layoutActionService.createSingleAction(action)
                             .flatMap(action1 -> {
-                                return applicationService.findById(page.getApplicationId(), (AclPermission) MANAGE_APPLICATIONS)
+                                return applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS)
                                         .flatMap(application -> applicationPageService.deleteApplication(application.getId()))
                                         .flatMap(ignored -> newActionService.findById(action1.getId()));
                             });

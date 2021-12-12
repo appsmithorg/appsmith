@@ -387,7 +387,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // Get the application details to which the user is being invited to. The current user must have MANAGE_APPLICATION
         // permission on this app
         Mono<Application> applicationMono = applicationRepository
-                .findById(applicationId, (AclPermission) MANAGE_APPLICATIONS)
+                .findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
                         "Invite users to this application")));
 
@@ -438,7 +438,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     private Set<Policy> crudUserPolicy(User user) {
 
-        Set<AclPermission> aclPermissions = Set.of((AclPermission) MANAGE_USERS, (AclPermission) USER_MANAGE_ORGANIZATIONS);
+        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_ORGANIZATIONS);
 
         Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
 
@@ -587,7 +587,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        Mono<User> userFromRepository = repository.findById(id, (AclPermission) MANAGE_USERS)
+        Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         if (userUpdate.getPassword() != null) {
@@ -641,7 +641,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has invite permissions
-        Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), (AclPermission) ORGANIZATION_INVITE_USERS)
+        Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, inviteUsersDTO.getOrgId())))
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_THREAD;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -59,13 +58,13 @@ public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryI
                 where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId),
                 where(fieldName(QCommentThread.commentThread.isPrivate)).is(TRUE)
         );
-        return queryOne(criteria, (AclPermission) READ_THREAD);
+        return queryOne(criteria, AclPermission.READ_THREAD);
     }
 
     @Override
     public Mono<UpdateResult> removeSubscriber(String threadId, String username) {
         Update update = new Update().pull(fieldName(QCommentThread.commentThread.subscribers), username);
-        return this.updateById(threadId, update, (AclPermission) READ_THREAD);
+        return this.updateById(threadId, update, AclPermission.READ_THREAD);
     }
 
     @Override
@@ -93,7 +92,7 @@ public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryI
                 where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId),
                 where(resolvedActiveFieldKey).is(false)
         );
-        return count(criteriaList, (AclPermission) READ_THREAD);
+        return count(criteriaList, AclPermission.READ_THREAD);
     }
 
     @Override

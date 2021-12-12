@@ -30,7 +30,6 @@ import reactor.test.StepVerifier;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -116,7 +115,7 @@ public class CurlImporterServiceTest {
 
         Application application = applicationPageService.createApplication(app, orgId).block();
         assert application != null;
-        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), (AclPermission) MANAGE_PAGES, false).block();
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
 
         assert page != null;
         Mono<ActionDTO> action = curlImporterService.importAction("'", page.getId(), "actionName", orgId);
@@ -141,7 +140,7 @@ public class CurlImporterServiceTest {
 
         Application application = applicationPageService.createApplication(app, orgId).block();
         assert application != null;
-        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), (AclPermission) MANAGE_PAGES, false).block();
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
 
         String command = "curl -X GET http://localhost:8080/api/v1/actions?name=something -H 'Accept: */*' -H 'Accept-Encoding: gzip, deflate' -H 'Authorization: Basic YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw==' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/json' -H 'Cookie: SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5,SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5; SESSION=' -H 'Host: localhost:8080' -H 'Postman-Token: 16e4b6bc-2c7a-4ab1-a127-bca382dfc0f0,a6655daa-db07-4c5e-aca3-3fd505bd230d' -H 'User-Agent: PostmanRuntime/7.20.1' -H 'cache-control: no-cache' -d '{someJson}'";
         assert page != null;

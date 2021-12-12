@@ -269,7 +269,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         .flatMap(datasourceService::validateDatasource);
             } else {
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId(), (AclPermission) MANAGE_DATASOURCES)
+                datasourceMono = datasourceService.findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
@@ -437,7 +437,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // the update doesn't lead to resetting of this field.
         action.setUserSetOnLoad(null);
 
-        Mono<NewAction> updatedActionMono = repository.findById(id, (AclPermission) MANAGE_ACTIONS)
+        Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
@@ -479,7 +479,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Initialize the name to be empty value
         actionName.set("");
         // 2. Fetch the action from the DB and check if it can be executed
-        Mono<NewAction> actionMono = repository.findById(actionId, (AclPermission) EXECUTE_ACTIONS)
+        Mono<NewAction> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
                 .cache();
 
@@ -521,7 +521,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(action -> {
                     // Global datasource requires us to fetch the datasource from DB.
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId(), (AclPermission) EXECUTE_DATASOURCES)
+                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
                                         FieldName.DATASOURCE,
                                         action.getDatasource().getId())));
@@ -906,7 +906,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
-                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, (AclPermission) MANAGE_ACTIONS);
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
     }
 
     /**
@@ -919,7 +919,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
         return repository
-                .findUnpublishedActionsByNameInAndPageId(names, pageId, (AclPermission) MANAGE_ACTIONS);
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
     }
 
     @Override
@@ -969,7 +969,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         // fetch the published actions by applicationId
         // No need to sort the results
-        return findAllByApplicationIdAndViewMode(applicationId, true, (AclPermission) EXECUTE_ACTIONS, null)
+        return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, null)
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
@@ -992,7 +992,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        Mono<NewAction> actionMono = repository.findById(id, (AclPermission) MANAGE_ACTIONS)
+        Mono<NewAction> actionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> {
@@ -1106,14 +1106,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID),
-                        (AclPermission) READ_APPLICATIONS)
-                .flatMapMany(applicationId -> repository.findByApplicationIdAndViewMode(applicationId, false,
-                        (AclPermission) READ_ACTIONS))
+                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .flatMapMany(applicationId -> repository.findByApplicationIdAndViewMode(applicationId, false, READ_ACTIONS))
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
-        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, (AclPermission) READ_ACTIONS, sort)
+        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -1365,7 +1363,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 return Mono.just(datasource);
             }
             // Add the permission to datasource
-            AclPermission datasourcePermission = (AclPermission) EXECUTE_DATASOURCES;
+            AclPermission datasourcePermission = EXECUTE_DATASOURCES;
 
             User user = new User();
             user.setName(FieldName.ANONYMOUS_USER);

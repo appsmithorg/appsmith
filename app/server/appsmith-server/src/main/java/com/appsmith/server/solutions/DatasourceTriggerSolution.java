@@ -7,7 +7,6 @@ import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerRequestType;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -46,7 +45,7 @@ public class DatasourceTriggerSolution {
 
     public Mono<TriggerResultDTO> trigger(String datasourceId, MultiValueMap<String, Object> params) {
 
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, (AclPermission) READ_DATASOURCES)
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, READ_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "datasourceId")))
                 .cache();
 

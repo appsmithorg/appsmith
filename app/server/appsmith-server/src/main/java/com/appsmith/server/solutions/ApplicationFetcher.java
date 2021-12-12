@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
@@ -81,7 +80,7 @@ public class ApplicationFetcher {
                     userHomepageDTO.setUser(user);
 
                     Set<String> orgIds = user.getOrganizationIds();
-                    if (CollectionUtils.isEmpty(orgIds)) {
+                    if(CollectionUtils.isEmpty(orgIds)) {
                         userHomepageDTO.setOrganizationApplications(new ArrayList<>());
                         return Mono.just(userHomepageDTO);
                     }
@@ -89,7 +88,7 @@ public class ApplicationFetcher {
                     // create a set of org id where recently used ones will be at the beginning
                     List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
                     Set<String> orgIdSortedSet = new LinkedHashSet<>();
-                    if (recentlyUsedOrgIds != null && recentlyUsedOrgIds.size() > 0) {
+                    if(recentlyUsedOrgIds != null && recentlyUsedOrgIds.size() > 0) {
                         // user has a recently used list, add them to the beginning
                         orgIdSortedSet.addAll(recentlyUsedOrgIds);
                     }
@@ -97,13 +96,13 @@ public class ApplicationFetcher {
 
                     // Collect all the applications as a map with organization id as a key
                     Flux<Application> applicationFlux = applicationRepository
-                            .findByMultipleOrganizationIds(orgIds, (AclPermission) READ_APPLICATIONS)
+                            .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             // TODO only fetch the latest application branch instead of default one
                             .filter(application -> application.getGitApplicationMetadata() == null
                                     || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId())));
 
                     // sort the list of applications if user has recent applications
-                    if (!CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())) {
+                    if(!CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())) {
                         // creating a map of applicationId and corresponding index to reduce sorting time
                         Map<String, Integer> idToIndexMap = IntStream.range(0, userData.getRecentlyUsedAppIds().size())
                                 .boxed()
@@ -113,7 +112,7 @@ public class ApplicationFetcher {
                             String o1Id = o1.getId(), o2Id = o2.getId();
                             Integer idx1 = idToIndexMap.get(o1Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o1Id);
                             Integer idx2 = idToIndexMap.get(o2Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o2Id);
-                            return (idx1 - idx2);
+                            return (idx1-idx2);
                         });
                     }
 
@@ -122,7 +121,7 @@ public class ApplicationFetcher {
                     );
 
                     return organizationService
-                            .findByIdsIn(orgIds, (AclPermission) READ_ORGANIZATIONS)
+                            .findByIdsIn(orgIds, READ_ORGANIZATIONS)
                             .collectMap(Organization::getId, v -> v)
                             .zipWith(applicationsMapMono)
                             .map(tuple -> {
@@ -132,9 +131,9 @@ public class ApplicationFetcher {
 
                                 List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
 
-                                for (String orgId : orgIdSortedSet) {
+                                for(String orgId : orgIdSortedSet) {
                                     Organization organization = organizations.get(orgId);
-                                    if (organization != null) {
+                                    if(organization != null) {
                                         Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(organization.getId());
 
                                         final List<Application> applicationList = new ArrayList<>();

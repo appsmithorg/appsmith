@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
@@ -141,13 +140,13 @@ public class UserServiceWithDisabledSignupTest {
         inviteUser.setEmail("inviteUserToApplication@test.com");
         inviteUser.setRole((AppsmithRole) APPLICATION_ADMIN);
 
-        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", (AclPermission) MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new Exception("No such app")));
 
         Mono<User> userMono = applicationMono.flatMap(application -> userService
                 .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
 
-        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", (AclPermission) MANAGE_APPLICATIONS));
+        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", MANAGE_APPLICATIONS));
 
         StepVerifier.create(Mono.zip(updatedApplication, userMono))
                 .assertNext(tuple -> {
@@ -183,13 +182,13 @@ public class UserServiceWithDisabledSignupTest {
         inviteUser.setEmail("inviteUserToApplication@test.com");
         inviteUser.setRole((AppsmithRole) APPLICATION_VIEWER);
 
-        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", (AclPermission) READ_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new Exception("No such app")));
 
         Mono<User> userMono = applicationMono.flatMap(application -> userService
                 .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
 
-        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", (AclPermission) READ_APPLICATIONS));
+        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS));
 
 
         StepVerifier.create(Mono.zip(updatedApplication, userMono))

@@ -21,9 +21,6 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.appsmith.server.acl.ce.AclPermissionCE.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.READ_APPLICATIONS;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,10 +34,10 @@ public class ApplicationForkingService {
     private final AnalyticsService analyticsService;
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
-        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, (AclPermission) READ_APPLICATIONS)
+        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "application", srcApplicationId)));
 
-        final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, (AclPermission) ORGANIZATION_MANAGE_APPLICATIONS)
+        final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "organization", targetOrganizationId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
@@ -79,7 +76,7 @@ public class ApplicationForkingService {
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String orgId, Application application) {
-        return applicationService.findById(applicationId, (AclPermission) READ_APPLICATIONS)
+        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .flatMap(sourceApplication -> {
 
                     final Map<String, Object> data = Map.of(

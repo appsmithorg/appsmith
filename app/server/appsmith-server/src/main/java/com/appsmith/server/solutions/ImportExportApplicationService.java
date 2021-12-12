@@ -62,13 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.ce.AclPermissionCE.EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.ce.AclPermissionCE.MANAGE_PAGES;
-import static com.appsmith.server.acl.ce.AclPermissionCE.ORGANIZATION_MANAGE_APPLICATIONS;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -121,7 +114,7 @@ public class ImportExportApplicationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        Mono<Application> applicationMono = applicationService.findById(applicationId, (AclPermission) EXPORT_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.EXPORT_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
@@ -172,7 +165,7 @@ public class ImportExportApplicationService {
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
 
-                    return newPageRepository.findByApplicationId(applicationId, (AclPermission) MANAGE_PAGES)
+                    return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
                             .collectList()
                             .flatMap(newPageList -> {
                                 // Extract mongoEscapedWidgets from pages and save it to applicationJson object as this
@@ -228,7 +221,7 @@ public class ImportExportApplicationService {
                                 applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
                                 applicationJson.setUnpublishedLayoutmongoEscapedWidgets(unpublishedMongoEscapedWidgetsNames);
                                 return datasourceRepository
-                                        .findAllByOrganizationId(organizationId, (AclPermission) MANAGE_DATASOURCES)
+                                        .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
                                         .collectList();
                             })
                             .flatMapMany(datasourceList -> {
@@ -237,7 +230,7 @@ public class ImportExportApplicationService {
 
                                 applicationJson.setDatasourceList(datasourceList);
                                 return newActionRepository
-                                        .findByApplicationId(applicationId, (AclPermission) MANAGE_ACTIONS, null);
+                                        .findByApplicationId(applicationId, AclPermission.MANAGE_ACTIONS, null);
                             })
                             .collectList()
                             .flatMapMany(newActionList -> {
@@ -294,7 +287,7 @@ public class ImportExportApplicationService {
                                     applicationJson.setDecryptedFields(decryptedFields);
                                 }
                                 return actionCollectionRepository
-                                        .findByApplicationId(applicationId, (AclPermission) MANAGE_ACTIONS, null);
+                                        .findByApplicationId(applicationId, AclPermission.MANAGE_ACTIONS, null);
                             })
                             .map(actionCollection -> {
                                 // Remove references to ids since the serialized version does not have this information
@@ -422,7 +415,7 @@ public class ImportExportApplicationService {
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByOrganizationId(organizationId, (AclPermission) MANAGE_DATASOURCES)
+                .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
                 .cache();
 
         String errorField = "";
@@ -445,7 +438,7 @@ public class ImportExportApplicationService {
                     pluginMap.put(plugin.getPackageName(), plugin.getId());
                     return plugin;
                 })
-                .then(organizationService.findById(organizationId, (AclPermission) ORGANIZATION_MANAGE_APPLICATIONS))
+                .then(organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
                 )
@@ -519,7 +512,7 @@ public class ImportExportApplicationService {
                                 .flatMap(application -> {
                                     // Application Id will be present for GIT sync
                                     if (applicationId != null) {
-                                        return applicationService.findById(applicationId, (AclPermission) MANAGE_APPLICATIONS)
+                                        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
                                                 .switchIfEmpty(Mono.error(
                                                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                                                 )
@@ -536,7 +529,7 @@ public class ImportExportApplicationService {
                                                 });
                                     }
                                     return applicationService
-                                            .findByOrganizationId(organizationId, (AclPermission) MANAGE_APPLICATIONS)
+                                            .findByOrganizationId(organizationId, AclPermission.MANAGE_APPLICATIONS)
                                             .collectList()
                                             .flatMap(applicationList -> {
 
@@ -738,7 +731,7 @@ public class ImportExportApplicationService {
                                             actionIds.addAll(publishedActionIdToCollectionIdMap.keySet());
                                             return Flux.fromIterable(actionIds);
                                         })
-                                        .flatMap(actionId -> newActionRepository.findById(actionId, (AclPermission) MANAGE_ACTIONS))
+                                        .flatMap(actionId -> newActionRepository.findById(actionId, AclPermission.MANAGE_ACTIONS))
                                         .map(newAction -> {
                                             newAction.getUnpublishedAction().setCollectionId(
                                                     unpublishedActionIdToCollectionIdMap.getOrDefault(newAction.getId(), null));
@@ -797,7 +790,7 @@ public class ImportExportApplicationService {
                                              Map<String, Set<String>> unpublishedMongoEscapedWidget) {
 
         Mono<List<NewPage>> existingPages = newPageService
-                .findNewPagesByApplicationId(application.getId(), (AclPermission) MANAGE_PAGES)
+                .findNewPagesByApplicationId(application.getId(), AclPermission.MANAGE_PAGES)
                 .collectList();
 
         pages.forEach(newPage -> {
@@ -946,7 +939,7 @@ public class ImportExportApplicationService {
                     }
                     // No matching existing datasource found, so create a new one.
                     return datasourceService
-                            .findByNameAndOrganizationId(datasource.getName(), organizationId, (AclPermission) MANAGE_DATASOURCES)
+                            .findByNameAndOrganizationId(datasource.getName(), organizationId, AclPermission.MANAGE_DATASOURCES)
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, organizationId)
                             )
