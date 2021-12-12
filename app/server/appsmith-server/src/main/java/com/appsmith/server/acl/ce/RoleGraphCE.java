@@ -8,6 +8,7 @@ import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
 import javax.annotation.PostConstruct;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -28,14 +29,14 @@ public class RoleGraphCE {
     public void createPolicyGraph() {
 
         // Initialization of the hierarchical and lateral graphs by adding all the vertices
-        for (AppsmithRole role : AppsmithRole.values()) {
-            hierarchyGraph.addVertex(role);
-        }
+        EnumSet.allOf(AppsmithRole.class)
+                .forEach(role -> {
+                    hierarchyGraph.addVertex(role);
+                });
 
-        // Now add the hierarchy edges between super role and inheriting roles.
-        hierarchyGraph.addEdge((AppsmithRole) ORGANIZATION_ADMIN, (AppsmithRole) ORGANIZATION_DEVELOPER);
-        hierarchyGraph.addEdge((AppsmithRole) ORGANIZATION_DEVELOPER, (AppsmithRole) ORGANIZATION_VIEWER);
-        hierarchyGraph.addEdge((AppsmithRole) APPLICATION_ADMIN, (AppsmithRole) APPLICATION_VIEWER);
+        hierarchyGraph.addEdge(ORGANIZATION_ADMIN, ORGANIZATION_DEVELOPER);
+        hierarchyGraph.addEdge(ORGANIZATION_DEVELOPER, ORGANIZATION_VIEWER);
+        hierarchyGraph.addEdge(APPLICATION_ADMIN, APPLICATION_VIEWER);
     }
 
     public Set<AppsmithRole> generateHierarchicalRoles(String roleName) {

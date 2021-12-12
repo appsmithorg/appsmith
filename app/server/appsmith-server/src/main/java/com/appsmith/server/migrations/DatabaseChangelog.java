@@ -115,7 +115,6 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.ce.AppsmithRoleCE.ORGANIZATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -1668,14 +1667,14 @@ public class DatabaseChangelog {
     public void addAppViewerInvitePolicy(MongoTemplate mongoTemplate) {
         final List<Organization> organizations = mongoTemplate.find(
                 query(new Criteria().andOperator(
-                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(ORGANIZATION_VIEWER.getName())
+                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.ORGANIZATION_VIEWER.name())
                 )),
                 Organization.class
         );
 
         for (final Organization org : organizations) {
             final Set<String> viewers = org.getUserRoles().stream()
-                    .filter(role -> ORGANIZATION_VIEWER == role.getRole())
+                    .filter(role -> AppsmithRole.ORGANIZATION_VIEWER == role.getRole())
                     .map(UserRole::getUsername)
                     .collect(Collectors.toSet());
             mongoTemplate.updateFirst(

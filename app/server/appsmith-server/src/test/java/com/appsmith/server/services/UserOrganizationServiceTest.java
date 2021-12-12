@@ -142,7 +142,7 @@ class UserOrganizationServiceTest {
             return userDataService.updateForUser(currentUser, userData);
         });
 
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), (AppsmithRole) ORGANIZATION_DEVELOPER);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_DEVELOPER);
 
         Mono<User> userMono = userOrganizationService
                 .addUserToOrganizationGivenUserObject(this.organization, currentUser, userRole)
@@ -185,7 +185,7 @@ class UserOrganizationServiceTest {
     public void updateRoleForMember_WhenAdminRoleRemovedWithNoOtherAdmin_ThrowsExceptions() {
         // add the current user as an admin to the organization first
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), (AppsmithRole) ORGANIZATION_ADMIN);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
 
         userOrganizationService.addUserToOrganizationGivenUserObject(organization, currentUser, userRole).block();
 
@@ -203,13 +203,13 @@ class UserOrganizationServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateRoleForMember_WhenAdminRoleRemovedButOtherAdminExists_MemberRemoved() {
         // add another admin role to the organization
-        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", (AppsmithRole) ORGANIZATION_ADMIN);
+        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", ORGANIZATION_ADMIN);
         this.organization.getUserRoles().add(adminRole);
         this.organization = organizationRepository.save(this.organization).block();
 
         // add the current user as an admin to the organization
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), (AppsmithRole) ORGANIZATION_ADMIN);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
         userOrganizationService.addUserToOrganizationGivenUserObject(organization, currentUser, userRole).block();
 
         // try to remove the user from org
@@ -232,8 +232,8 @@ class UserOrganizationServiceTest {
                 .switchIfEmpty(userRepository.save(devUser))
                 .block();
 
-        UserRole adminRole = createUserRole("api_user", "api_user", (AppsmithRole) ORGANIZATION_ADMIN);
-        UserRole devRole = createUserRole("test_developer", "test_developer", (AppsmithRole) ORGANIZATION_DEVELOPER);
+        UserRole adminRole = createUserRole("api_user", "api_user", ORGANIZATION_ADMIN);
+        UserRole devRole = createUserRole("test_developer", "test_developer", ORGANIZATION_DEVELOPER);
 
         List<UserRole> userRoles = new ArrayList<>(2);
         userRoles.add(adminRole);
@@ -266,7 +266,7 @@ class UserOrganizationServiceTest {
                     return commentThreadRepository.save(commentThread);
                 }).flatMap(commentThread -> {
                     // update an user's role
-                    UserRole updatedRole = createUserRole("test_developer", "test_developer", (AppsmithRole) ORGANIZATION_VIEWER);
+                    UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
                     return userOrganizationService.updateRoleForMember(
                             organization.getId(), updatedRole, null
                     ).thenReturn(commentThread);

@@ -2,6 +2,8 @@ package com.appsmith.server.acl;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -42,7 +44,8 @@ public enum AppsmithRole {
     }
 
     public static AppsmithRole generateAppsmithRoleFromName(String name) {
-        for (AppsmithRole role : AppsmithRole.values()) {
+        List<AppsmithRole> appsmithRoles = Arrays.asList(AppsmithRole.values());
+        for (AppsmithRole role : appsmithRoles) {
             if (role.getName().equals(name)) {
                 return role;
             }
