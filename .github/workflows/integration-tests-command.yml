@@ -577,7 +577,7 @@ jobs:
         shell: bash
     strategy:
       fail-fast: false
-      matrix: job:[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+      matrix: job:[0, 1]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -696,12 +696,16 @@ jobs:
           ./cypress/setup-test.sh
 
       - name: Installing performance tests dependencies
-        working-directory: app/perf
+        working-directory: app/client/perf
         shell: bash
         run: yarn install
 
+      - name: Change test script permissions
+        working-directory: app/client/perf
+        run: chmod +x ./start-test.sh
+
       - name: Run performance tests
-        working-directory: app/perf
+        working-directory: app/client/perf
         shell: bash
         env:
           POSTGRES_PASSWORD: postgres
