@@ -113,7 +113,11 @@ interface CurrencyDropdownProps {
 export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const selectedCurrency = getSelectedCurrency(props.selected.value).id;
   if (!props.allowCurrencyChange) {
-    return <CurrencyIconWrapper>{selectedCurrency}</CurrencyIconWrapper>;
+    return (
+      <CurrencyIconWrapper className="currency-type-trigger">
+        {selectedCurrency}
+      </CurrencyIconWrapper>
+    );
   }
   const dropdownTriggerIcon = (
     <DropdownTriggerIconWrapper className="t--input-currency-change">

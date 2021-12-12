@@ -73,7 +73,6 @@ const InputComponentWrapper = styled((props) => (
     .country-type-filter {
       width: fit-content;
       height: 36px;
-      position: absolute;
       display: inline-block;
       left: 0;
       z-index: 16;
@@ -227,7 +226,10 @@ const InputComponentWrapper = styled((props) => (
             input:not(:first-child) {
               padding-left: 5px;
             }
-            .country-type-filter, .country-type-trigger {
+            .currency-type-filter,
+            .currency-type-trigger,
+            .country-type-filter,
+            .country-type-trigger {
               position: static;
               background: rgb(255, 255, 255);
               border-width: 1.2px 0px 1.2px 1.2px;
