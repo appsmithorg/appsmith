@@ -12,9 +12,9 @@ import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
@@ -52,22 +52,8 @@ public class UserSignupTest {
     @MockBean
     private CommonConfig commonConfig;
 
+    @Autowired
     private UserSignup userSignup;
-
-    @Before
-    public void setUp() {
-        userSignup = new UserSignup(
-                userService,
-                userDataService,
-                captchaService,
-                authenticationSuccessHandler,
-                configService,
-                analyticsService,
-                policyUtils,
-                envManager,
-                commonConfig
-        );
-    }
 
     private String createRandomString(int length) {
         StringBuilder builder = new StringBuilder();

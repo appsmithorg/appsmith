@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -56,7 +57,9 @@ public class EmailEventHandlerTest {
     @MockBean
     private PolicyUtils policyUtils;
 
+    @Autowired
     EmailEventHandler emailEventHandler;
+
     private Application application;
     private Organization organization;
 
@@ -68,15 +71,7 @@ public class EmailEventHandlerTest {
 
     @Before
     public void setUp() {
-        emailEventHandler = new EmailEventHandler(
-                applicationEventPublisher,
-                emailSender,
-                organizationRepository,
-                applicationRepository,
-                newPageRepository,
-                policyUtils,
-                emailConfig
-        );
+
         application = new Application();
         application.setName("Test application for comment");
         application.setOrganizationId(organizationId);
