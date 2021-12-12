@@ -51,7 +51,7 @@ public class RestApiImportControllerCE {
 
         switch (type) {
             case CURL:
-                service = curlImporterService;
+                service = (ApiImporter) curlImporterService;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + type);
