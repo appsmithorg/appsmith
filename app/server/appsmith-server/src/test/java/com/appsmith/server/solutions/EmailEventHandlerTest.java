@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.ce.AppsmithRoleCE.ORGANIZATION_ADMIN;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -85,7 +86,7 @@ public class EmailEventHandlerTest {
         // add a role with email receiver username
         UserRole userRole = new UserRole();
         userRole.setUsername(emailReceiverUsername);
-        userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
+        userRole.setRole((AppsmithRole) ORGANIZATION_ADMIN);
         organization.setUserRoles(List.of(userRole));
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));

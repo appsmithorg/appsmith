@@ -32,6 +32,8 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.ce.AppsmithRoleCE.APPLICATION_ADMIN;
+import static com.appsmith.server.acl.ce.AppsmithRoleCE.APPLICATION_VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -137,7 +139,7 @@ public class UserServiceWithDisabledSignupTest {
     public void inviteUserToApplicationValidAsAdmin() {
         InviteUser inviteUser = new InviteUser();
         inviteUser.setEmail("inviteUserToApplication@test.com");
-        inviteUser.setRole(AppsmithRole.APPLICATION_ADMIN);
+        inviteUser.setRole((AppsmithRole) APPLICATION_ADMIN);
 
         Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", (AclPermission) MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new Exception("No such app")));
@@ -179,7 +181,7 @@ public class UserServiceWithDisabledSignupTest {
     public void inviteUserToApplicationValidAsViewer() {
         InviteUser inviteUser = new InviteUser();
         inviteUser.setEmail("inviteUserToApplication@test.com");
-        inviteUser.setRole(AppsmithRole.APPLICATION_VIEWER);
+        inviteUser.setRole((AppsmithRole) APPLICATION_VIEWER);
 
         Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", (AclPermission) READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new Exception("No such app")));

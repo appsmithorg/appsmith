@@ -60,6 +60,7 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.ce.AppsmithRoleCE.ORGANIZATION_ADMIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -354,8 +355,8 @@ public class OrganizationServiceTest {
                     assertThat(users).isNotNull();
                     UserRole userRole = users.get(0);
                     assertThat(userRole.getName()).isEqualTo("api_user");
-                    assertThat(userRole.getRole()).isEqualByComparingTo(AppsmithRole.ORGANIZATION_ADMIN);
-                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    assertThat(userRole.getRole().getName()).isEqualTo(ORGANIZATION_ADMIN.getName());
+                    assertThat(userRole.getRoleName()).isEqualTo(ORGANIZATION_ADMIN.getName());
                 })
                 .verifyComplete();
     }
@@ -378,7 +379,7 @@ public class OrganizationServiceTest {
                     users.add("usertest@usertest.com");
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setOrgId(organization1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    inviteUsersDTO.setRoleName(ORGANIZATION_ADMIN.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -437,7 +438,7 @@ public class OrganizationServiceTest {
                     users.add("newEmailWhichShouldntExist@usertest.com");
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setOrgId(organization1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    inviteUsersDTO.setRoleName(ORGANIZATION_ADMIN.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -591,7 +592,7 @@ public class OrganizationServiceTest {
                 .flatMap(organization1 -> {
                     // Add user to organization
                     UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    userRole.setRoleName(ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
                 })
@@ -757,7 +758,7 @@ public class OrganizationServiceTest {
                 .flatMap(organization1 -> {
                     // Add user to organization
                     UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    userRole.setRoleName(ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
                 });
@@ -825,7 +826,7 @@ public class OrganizationServiceTest {
                 .flatMap(organization1 -> {
                     // Add user to organization
                     UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    userRole.setRoleName(ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
                 });

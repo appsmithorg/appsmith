@@ -1,53 +1,45 @@
 package com.appsmith.server.acl;
 
+import com.appsmith.external.helpers.BaseAppsmithEnum;
+import com.appsmith.server.acl.ce.AppsmithRoleCE;
 import lombok.Getter;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_PUBLISH_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import java.util.stream.Collectors;
 
 @Getter
-public enum AppsmithRole {
-    APPLICATION_ADMIN("Application Administrator", "", Set.of( (AclPermission) MANAGE_APPLICATIONS)),
-    APPLICATION_VIEWER("Application Viewer", "",  Set.of( (AclPermission) READ_APPLICATIONS)),
-    ORGANIZATION_ADMIN("Administrator", "Can modify all organization settings including editing applications, " +
-        "inviting other users to the organization and exporting applications from the organization",
-        Set.of( (AclPermission) MANAGE_ORGANIZATIONS, (AclPermission) ORGANIZATION_INVITE_USERS,
-                (AclPermission) ORGANIZATION_EXPORT_APPLICATIONS)),
-    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the organization",
-        Set.of( (AclPermission) READ_ORGANIZATIONS, (AclPermission) ORGANIZATION_MANAGE_APPLICATIONS,
-                (AclPermission) ORGANIZATION_READ_APPLICATIONS, (AclPermission) ORGANIZATION_PUBLISH_APPLICATIONS,
-                (AclPermission) ORGANIZATION_INVITE_USERS)),
-    ORGANIZATION_VIEWER(
-            "App Viewer",
-            "Can view applications and invite other users to view applications",
-            Set.of( (AclPermission) READ_ORGANIZATIONS, (AclPermission) ORGANIZATION_READ_APPLICATIONS,
-                    (AclPermission) ORGANIZATION_INVITE_USERS)
-    ),
-    ;
+public class AppsmithRole extends AppsmithRoleCE implements BaseAppsmithEnum<AppsmithRole> {
 
     private Set<AclPermission> permissions;
     private String name;
     private String description;
 
-    AppsmithRole(String name, String description, Set<AclPermission> permissions) {
+    public AppsmithRole(String name, String description, Set<AclPermission> permissions) {
+        super(name, description, permissions);
         this.name = name;
         this.description = description;
         this.permissions = permissions;
     }
 
+    public static List<AppsmithRole> values() {
+
+        return Arrays.stream(AppsmithRole.class.getDeclaredFields())
+                .filter(field -> Modifier.isStatic(field.getModifiers()))
+                .map(field -> {
+                    try {
+                        return (AppsmithRole) field.get(AppsmithRole.class);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
     public static AppsmithRole generateAppsmithRoleFromName(String name) {
-        List<AppsmithRole> appsmithRoles = Arrays.asList(AppsmithRole.values());
+        List<AppsmithRole> appsmithRoles = AppsmithRole.values();
         for (AppsmithRole role : appsmithRoles) {
             if (role.getName().equals(name)) {
                 return role;
