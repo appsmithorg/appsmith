@@ -2,7 +2,7 @@ package com.appsmith.external.helpers;
 
 public interface BaseAppsmithEnum<T> {
 
-//    public static List<T> values() {
+//    default List<T> values() {
 //        Class<T> clazz = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
 //                .getActualTypeArguments()[0];
 //
