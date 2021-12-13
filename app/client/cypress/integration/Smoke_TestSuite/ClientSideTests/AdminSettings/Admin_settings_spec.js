@@ -1,6 +1,15 @@
 const AdminsSettingsLocators = require("../../../../locators/AdminsSettingsLocators.json");
 
 describe("Admin settings page", function() {
+  beforeEach(() => {
+    cy.intercept("GET", "/api/v1/admin/env", {
+      body: { responseMeta: { status: 200, success: true }, data: {} },
+    }).as("getEnvVariables");
+    cy.intercept("PUT", "/api/v1/admin/env", {
+      body: { responseMeta: { status: 200, success: true }, data: {} },
+    }).as("postEnvVariables");
+  });
+
   it("should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
@@ -85,7 +94,9 @@ describe("Admin settings page", function() {
     cy.visit("/settings/general");
     cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
     cy.get(AdminsSettingsLocators.instanceName).should("be.visible");
+    let instanceName;
     cy.generateUUID().then((uuid) => {
+      instanceName = uuid;
       cy.get(AdminsSettingsLocators.instanceName)
         .clear()
         .type(uuid);
@@ -96,6 +107,11 @@ describe("Admin settings page", function() {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
     cy.get(AdminsSettingsLocators.saveButton).click();
+    cy.wait("@postEnvVariables").then((interception) => {
+      expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
+        instanceName,
+      );
+    });
     cy.get(AdminsSettingsLocators.restartNotice).should("be.visible");
     cy.wait(3000);
     cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
@@ -106,7 +122,9 @@ describe("Admin settings page", function() {
     cy.visit("/settings/general");
     cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
     cy.get(AdminsSettingsLocators.instanceName).should("be.visible");
+    let instanceName;
     cy.generateUUID().then((uuid) => {
+      instanceName = uuid;
       cy.get(AdminsSettingsLocators.instanceName)
         .clear()
         .type(uuid);
@@ -117,7 +135,9 @@ describe("Admin settings page", function() {
     cy.get(AdminsSettingsLocators.saveButton).should("be.visible");
     cy.get(AdminsSettingsLocators.saveButton).should("not.be.disabled");
     cy.get(AdminsSettingsLocators.fromAddress).should("be.visible");
+    let fromAddress;
     cy.generateUUID().then((uuid) => {
+      fromAddress = uuid;
       cy.get(AdminsSettingsLocators.fromAddress)
         .clear()
         .type(`${uuid}@appsmith.com`);
@@ -126,6 +146,14 @@ describe("Admin settings page", function() {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
     cy.get(AdminsSettingsLocators.saveButton).click();
+    cy.wait("@postEnvVariables").then((interception) => {
+      expect(interception.request.body.APPSMITH_INSTANCE_NAME).to.equal(
+        instanceName,
+      );
+      expect(interception.request.body.APPSMITH_MAIL_FROM).to.equal(
+        `${fromAddress}@appsmith.com`,
+      );
+    });
     cy.get(AdminsSettingsLocators.restartNotice).should("be.visible");
     cy.wait(3000);
     cy.get(AdminsSettingsLocators.restartNotice).should("not.exist");
