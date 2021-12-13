@@ -61,6 +61,7 @@ import Link from "../components/Link";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -212,6 +213,7 @@ function GitConnection({ isImport }: Props) {
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
     }
+    AnalyticsUtil.logEvent("COPY_SSH_KEY_BUTTON_CLICK");
   };
 
   useEffect(() => {
@@ -245,6 +247,7 @@ function GitConnection({ isImport }: Props) {
   const onSubmit = useCallback(() => {
     if (isConnectingToGit) return;
     setTriedSubmit(true);
+    AnalyticsUtil.logEvent("CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
 
     if (
       authorInfo.authorName &&
@@ -288,6 +291,9 @@ function GitConnection({ isImport }: Props) {
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
+    AnalyticsUtil.logEvent("REPO_URL_EDIT", {
+      repoUrl: value,
+    });
   };
 
   const submitButtonDisabled = useMemo(() => {
@@ -335,6 +341,9 @@ function GitConnection({ isImport }: Props) {
 
   const toggleHandler = useCallback(() => {
     setUseGlobalConfig(!useGlobalConfig);
+    AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED", {
+      value: !useGlobalConfig,
+    });
   }, [setUseGlobalConfig, useGlobalConfig]);
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();

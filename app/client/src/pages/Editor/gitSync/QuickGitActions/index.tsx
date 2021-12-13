@@ -43,6 +43,7 @@ import {
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inOnboarding } from "sagas/OnboardingSagas";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -249,6 +250,9 @@ function ConnectGitPlaceholder() {
             <Button
               category={Category.tertiary}
               onClick={() => {
+                AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+                  source: "Buttom bar connect to git button",
+                });
                 dispatch(showConnectGitModal());
               }}
               size={Size.small}
@@ -295,6 +299,9 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.GIT_CONNECTION,
         }),
       );
+      AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+        source: "Buttom bar connect to git button(from setting menu)",
+      });
     },
     pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
     merge: () => {
