@@ -18,9 +18,9 @@ export const setIsGitSyncModalOpen = (payload: {
   };
 };
 
-export const setIsGitRevokeModalOpen = (payload: boolean) => {
+export const setIsDisconnectGitModalOpen = (payload: boolean) => {
   return {
-    type: ReduxActionTypes.SET_SHOULD_SHOW_REVOKE_MODAL,
+    type: ReduxActionTypes.SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL,
     payload,
   };
 };
@@ -261,10 +261,10 @@ export const disconnectGit = () => ({
   type: ReduxActionTypes.DISCONNECT_GIT,
 });
 
-export const revokingGitApplication = (payload: {
+export const setDisconnectingGitApplication = (payload: {
   id: string;
   name: string;
 }) => ({
-  type: ReduxActionTypes.SET_REVOKING_GIT_APPLICATION,
+  type: ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION,
   payload,
 });

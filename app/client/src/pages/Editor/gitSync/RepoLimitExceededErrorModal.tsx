@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
 import { getShowRepoLimitErrorModal } from "selectors/gitSyncSelectors";
 import {
-  revokingGitApplication,
-  setIsGitRevokeModalOpen,
+  setDisconnectingGitApplication,
+  setIsDisconnectGitModalOpen,
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
 import Button, { Category, Size } from "components/ads/Button";
@@ -99,16 +99,19 @@ function RepoLimitExceededErrorModal() {
     }
   }, [userOrgs]);
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
-  const onRevoke = useCallback((applicationId: string, name: string) => {
-    dispatch(setShowRepoLimitErrorModal(false));
-    dispatch(
-      revokingGitApplication({
-        id: applicationId,
-        name: name,
-      }),
-    );
-    dispatch(setIsGitRevokeModalOpen(true));
-  }, []);
+  const openDisconnectGitModal = useCallback(
+    (applicationId: string, name: string) => {
+      dispatch(setShowRepoLimitErrorModal(false));
+      dispatch(
+        setDisconnectingGitApplication({
+          id: applicationId,
+          name: name,
+        }),
+      );
+      dispatch(setIsDisconnectGitModalOpen(true));
+    },
+    [],
+  );
   const theme = useTheme() as Theme;
 
   useEffect(() => {
@@ -181,7 +184,9 @@ function RepoLimitExceededErrorModal() {
                   color={Colors.CRIMSON}
                   hasIcon
                   link=""
-                  onClick={() => onRevoke(application.id, application.name)}
+                  onClick={() =>
+                    openDisconnectGitModal(application.id, application.name)
+                  }
                   text={createMessage(REVOKE_ACCESS)}
                 />
               </ApplicationWrapper>

@@ -31,7 +31,7 @@ import { handlePathUpdated } from "actions/recentEntityActions";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import GitRevokeModal from "pages/Editor/gitSync/GitRevokeModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
@@ -222,7 +222,7 @@ class Editor extends Component<Props> {
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
-              <GitRevokeModal />
+              <DisconnectGitModal />
               <ConcurrentPageEditorToast />
               <RepoLimitExceededErrorModal />
             </GlobalHotKeys>

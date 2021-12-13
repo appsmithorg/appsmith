@@ -13,8 +13,8 @@ export const getGitSyncState = (state: AppState): GitSyncReducerState =>
 export const getIsGitSyncModalOpen = (state: AppState) =>
   state.ui.gitSync.isGitSyncModalOpen;
 
-export const getIsGitRevokeModalOpen = (state: AppState) =>
-  state.ui.gitSync.isGitRevokeModalOpen;
+export const getIsDisconnectGitModalOpen = (state: AppState) =>
+  state.ui.gitSync.isDisconnectGitModalOpen;
 
 export const getIsGitRepoSetup = (state: AppState) => {
   const gitMetadata = getCurrentAppGitMetaData(state);
@@ -140,5 +140,5 @@ export const getShouldShowRepoLimitError = (state: AppState) =>
 export const getShowRepoLimitErrorModal = (state: AppState) =>
   state.ui.gitSync.showRepoLimitErrorModal;
 
-export const getGitRevokingApplication = (state: AppState) =>
-  state.ui.gitSync.gitRevokingApp;
+export const getDisconnectingGitApplication = (state: AppState) =>
+  state.ui.gitSync.disconnectingGitApp;

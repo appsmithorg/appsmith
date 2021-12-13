@@ -34,8 +34,8 @@ import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
   remoteUrlInputValue,
-  revokingGitApplication,
-  setIsGitRevokeModalOpen,
+  setDisconnectingGitApplication,
+  setIsDisconnectGitModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -351,14 +351,14 @@ function GitConnection({ isImport }: Props) {
     }
   }, [scrollWrapperRef]);
 
-  const openGitRevokeModal = useCallback(() => {
+  const openDisconnectGitModal = useCallback(() => {
     dispatch(
-      revokingGitApplication({
+      setDisconnectingGitApplication({
         id: curApplication?.id || "",
         name: curApplication?.name || "",
       }),
     );
-    dispatch(setIsGitRevokeModalOpen(true));
+    dispatch(setIsDisconnectGitModalOpen(true));
   }, []);
 
   return (
@@ -407,7 +407,7 @@ function GitConnection({ isImport }: Props) {
                     fillColor={Colors.DARK_GRAY}
                     hoverFillColor={Colors.ERROR_RED}
                     name="delete"
-                    onClick={openGitRevokeModal}
+                    onClick={openDisconnectGitModal}
                     size={IconSize.XXXXL}
                   />
                 </TooltipComponent>

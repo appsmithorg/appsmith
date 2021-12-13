@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
-  getGitRevokingApplication,
-  getIsGitRevokeModalOpen,
+  getDisconnectingGitApplication,
+  getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
-import { disconnectGit, setIsGitRevokeModalOpen } from "actions/gitSyncActions";
+import {
+  disconnectGit,
+  setIsDisconnectGitModalOpen,
+} from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
 import Icon, { IconSize } from "components/ads/Icon";
 
@@ -67,18 +70,18 @@ const ButtonContainer = styled.div`
   margin-top: ${(props) => `${props.theme.spaces[15]}px`};
 `;
 
-function GitRevokeModal() {
+function DisconnectGitModal() {
   const dispatch = useDispatch();
-  const isModalOpen = useSelector(getIsGitRevokeModalOpen);
-  const revokingApplication = useSelector(getGitRevokingApplication);
+  const isModalOpen = useSelector(getIsDisconnectGitModalOpen);
+  const disconnectingApp = useSelector(getDisconnectingGitApplication);
 
   const [appName, setAppName] = useState("");
 
   const handleClose = useCallback(() => {
-    dispatch(setIsGitRevokeModalOpen(false));
-  }, [dispatch, setIsGitRevokeModalOpen]);
+    dispatch(setIsDisconnectGitModalOpen(false));
+  }, [dispatch, setIsDisconnectGitModalOpen]);
 
-  const onRevoke = useCallback(() => {
+  const onDisconnectGit = useCallback(() => {
     dispatch(disconnectGit());
   }, [dispatch, disconnectGit]);
 
@@ -87,7 +90,7 @@ function GitRevokeModal() {
     <Dialog
       canEscapeKeyClose
       canOutsideClickClose
-      className={Classes.GIT_REVOKE_MODAL}
+      className={Classes.DISCONNECT_GIT_MODAL}
       isOpen={isModalOpen}
       maxWidth={"900px"}
       onClose={handleClose}
@@ -102,14 +105,14 @@ function GitRevokeModal() {
         <BodyContainer>
           <Text color={Colors.GREY_10} type={TextType.H4} weight="bold">
             {`${createMessage(REVOKE_ACCESS_TO_PROMO_CODE)} 
-              ${revokingApplication.name}`}
+              ${disconnectingApp.name}`}
           </Text>
           <Text
             color={Colors.OXFORD_BLUE}
             style={{ marginTop: theme.spaces[3] }}
             type={TextType.P3}
           >
-            {createMessage(TYPE_PROMO_CODE, revokingApplication.name)}
+            {createMessage(TYPE_PROMO_CODE, disconnectingApp.name)}
           </Text>
           <InfoWrapper isError style={{ margin: `${theme.spaces[11]}px 0px` }}>
             <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
@@ -143,10 +146,9 @@ function GitRevokeModal() {
               category={Category.primary}
               className="t--git-revoke-button"
               disabled={
-                revokingApplication.id === "" ||
-                appName !== revokingApplication.name
+                disconnectingApp.id === "" || appName !== disconnectingApp.name
               }
-              onClick={onRevoke}
+              onClick={onDisconnectGit}
               size={Size.large}
               tag="button"
               text={createMessage(REVOKE)}
@@ -165,4 +167,4 @@ function GitRevokeModal() {
   );
 }
 
-export default GitRevokeModal;
+export default DisconnectGitModal;
