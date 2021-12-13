@@ -423,17 +423,22 @@ export default {
       },
     };
 
-    const searchKey =
-      props.searchText && !props.onSearchTextChanged
-        ? props.searchText.toLowerCase()
-        : "";
+    const getSearchKey = () => {
+      if (
+        props.searchText &&
+        (!props.onSearchTextChanged || props.enableClientSideSearch)
+      ) {
+        return props.searchText.toLowerCase();
+      }
+      return "";
+    };
 
     const finalTableData = sortedTableData.filter((item) => {
-      const searchFound = searchKey
+      const searchFound = getSearchKey()
         ? Object.values(item)
             .join(", ")
             .toLowerCase()
-            .includes(searchKey)
+            .includes(getSearchKey())
         : true;
       if (!searchFound) return false;
       if (!props.filters || props.filters.length === 0) return true;
