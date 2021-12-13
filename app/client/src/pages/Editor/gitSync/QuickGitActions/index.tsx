@@ -3,10 +3,6 @@ import styled from "styled-components";
 
 import BranchButton from "./BranchButton";
 
-import { ReactComponent as DownArrow } from "assets/icons/ads/down-arrow.svg";
-import { ReactComponent as Plus } from "assets/icons/ads/plus.svg";
-import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
-
 import {
   COMMIT_CHANGES,
   PULL_CHANGES,
@@ -20,6 +16,7 @@ import {
   CONNECTING_TO_REPO_DISABLED,
   DURING_ONBOARDING_TOUR,
   createMessage,
+  GIT_SETTINGS,
 } from "constants/messages";
 
 import Tooltip from "components/ads/Tooltip";
@@ -45,11 +42,12 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inOnboarding } from "sagas/OnboardingSagas";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 
 type QuickActionButtonProps = {
   count?: number;
   disabled?: boolean;
-  icon: React.ReactNode;
+  icon: IconName;
   loading?: boolean;
   onClick: () => void;
   tooltipText: string;
@@ -112,7 +110,7 @@ function QuickActionButton({
         </SpinnerContainer>
       ) : (
         <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
-          {icon}
+          <Icon name={icon} size={IconSize.XL} />
           {count > 0 && (
             <span className="count">{count > 9 ? `${9}+` : count}</span>
           )}
@@ -144,6 +142,7 @@ const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
 const getQuickActionButtons = ({
   changesToCommit,
   commit,
+  connect,
   gitStatus,
   isFetchingGitStatus,
   merge,
@@ -154,6 +153,7 @@ const getQuickActionButtons = ({
 }: {
   changesToCommit: number;
   commit: () => void;
+  connect: () => void;
   pull: () => void;
   merge: () => void;
   gitStatus: any;
@@ -165,23 +165,28 @@ const getQuickActionButtons = ({
   return [
     {
       count: changesToCommit,
-      icon: <Plus />,
+      icon: "plus" as IconName,
       loading: isFetchingGitStatus,
       onClick: commit,
       tooltipText: createMessage(COMMIT_CHANGES),
     },
     {
       count: gitStatus?.behindCount,
-      icon: <DownArrow />,
+      icon: "down-arrow-2" as IconName,
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
       disabled: pullDisabled,
       loading: showPullLoadingState,
     },
     {
-      icon: <GitBranch />,
+      icon: "fork" as IconName,
       onClick: merge,
       tooltipText: createMessage(MERGE),
+    },
+    {
+      icon: "settings-2-line" as IconName,
+      onClick: connect,
+      tooltipText: createMessage(GIT_SETTINGS),
     },
   ];
 };
@@ -280,6 +285,14 @@ export default function QuickGitActions() {
         setIsGitSyncModalOpen({
           isOpen: true,
           tab: GitSyncModalTab.DEPLOY,
+        }),
+      );
+    },
+    connect: () => {
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.GIT_CONNECTION,
         }),
       );
     },
