@@ -408,7 +408,7 @@ type QueryFormProps = {
   settingConfig: any;
   formData: SaaSAction | QueryAction;
   responseDisplayFormat: { title: string; value: string };
-  responseDataTypes: any[];
+  responseDataTypes: { key: string; title: string }[];
   updateActionResponseDisplayFormat: ({
     field,
     id,
