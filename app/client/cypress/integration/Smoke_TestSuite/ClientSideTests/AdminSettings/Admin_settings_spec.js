@@ -29,11 +29,14 @@ describe("Admin settings page", function() {
 
   it("should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.wait(3000);
     cy.visit("/settings");
     cy.url().should("contain", "/settings/general");
   });
 
   it("should test that settings page tab redirects", () => {
+    cy.visit("/settings");
+    cy.wait(3000);
     cy.get(AdminsSettingsLocators.generalTab).click();
     cy.url().should("contain", "/settings/general");
     cy.get(AdminsSettingsLocators.advancedTab).click();
