@@ -10,7 +10,8 @@
     "reportDir": "results",
     "overwrite": false,
     "html": true,
-    "json": false
+    "json": false,
+    "quiet": true
   },
    "ignoreTestFiles": [
     "**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
