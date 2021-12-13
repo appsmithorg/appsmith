@@ -68,7 +68,17 @@ export const getIsFetchingLocalGitConfig = (state: AppState) =>
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
-export const getGitError = (state: AppState) => state.ui.gitSync.gitError;
+export const getGitConnectError = (state: AppState) =>
+  state.ui.gitSync.connectError?.error;
+
+export const getGitPullError = (state: AppState) =>
+  state.ui.gitSync.pullError?.error;
+
+export const getGitMergeError = (state: AppState) =>
+  state.ui.gitSync.mergeError?.error;
+
+export const getGitCommitAndPushError = (state: AppState) =>
+  state.ui.gitSync.commitAndPushError?.error;
 
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
@@ -109,3 +119,14 @@ export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
 
 export const getPullInProgress = (state: AppState) =>
   state.ui.gitSync.pullInProgress;
+
+export const getIsMergeInProgress = (state: AppState) =>
+  state.ui.gitSync.isMerging;
+export const getTempRemoteUrl = (state: AppState) =>
+  state.ui.gitSync.tempRemoteUrl;
+
+export const getCountOfChangesToCommit = (state: AppState) => {
+  const gitStatus = getGitStatus(state);
+  const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};
+  return modifiedPages + modifiedQueries;
+};
