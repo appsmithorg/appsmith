@@ -17,6 +17,7 @@ function ThemeList(props: ThemeListProps) {
         <ThemeCard
           isSelected={selectedTheme.name === theme.name}
           key={index}
+          selectable
           theme={theme}
         />
       ))}

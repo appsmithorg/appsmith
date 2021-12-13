@@ -4,13 +4,14 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-  getAppThemingMode,
+  getAppThemingStack,
   AppThemingMode,
 } from "selectors/appThemingSelectors";
 import {
   changeSelectedThemeAction,
-  setAppThemingModeAction,
+  setAppThemingModeStack,
 } from "actions/appThemingActions";
+import { last } from "lodash";
 import Button from "components/ads/Button";
 import { AppTheme } from "entities/AppTheming";
 import CheckmarkIcon from "remixicon-react/CheckLineIcon";
@@ -21,14 +22,16 @@ interface ThemeCard {
   theme: AppTheme;
   isSelected?: boolean;
   className?: string;
+  selectable?: boolean;
+  editable?: boolean;
 }
 
 export function ThemeCard(props: ThemeCard) {
-  const { theme } = props;
+  const { editable, selectable, theme } = props;
   const dispatch = useDispatch();
-  const themingMode = useSelector(getAppThemingMode);
+  const themingStack = useSelector(getAppThemingStack);
   const applicationId = useSelector(getCurrentApplicationId);
-  const isThemeEditMode = themingMode === AppThemingMode.APP_THEME_EDIT;
+  const themingMode = last(themingStack);
   const isThemeSelectionMode =
     themingMode === AppThemingMode.APP_THEME_SELECTION;
 
@@ -36,8 +39,22 @@ export function ThemeCard(props: ThemeCard) {
    * sets the mode to THEME_EDIT
    */
   const onClickChangeThemeButton = useCallback(() => {
-    dispatch(setAppThemingModeAction(AppThemingMode.APP_THEME_SELECTION));
-  }, [setAppThemingModeAction]);
+    dispatch(
+      setAppThemingModeStack([
+        ...themingStack,
+        AppThemingMode.APP_THEME_SELECTION,
+      ]),
+    );
+  }, [setAppThemingModeStack]);
+
+  /**
+   * sets the mode to THEME_SELECTION
+   */
+  const onClickEditThemeButton = useCallback(() => {
+    dispatch(
+      setAppThemingModeStack([...themingStack, AppThemingMode.APP_THEME_EDIT]),
+    );
+  }, [changeSelectedThemeAction]);
 
   // colors
   const userDefinedColors = theme.properties.colors;
@@ -69,13 +86,13 @@ export function ThemeCard(props: ThemeCard) {
       className={`ring-1 p-0.5 ${
         props.isSelected ? "ring-primary-500 ring-2" : "ring-gray-200"
       } ${props.className} ${
-        isThemeEditMode ? "overflow-hidden" : ""
+        !selectable ? "overflow-hidden" : ""
       }  relative group hover:shadow-xl transition-all cursor-pointer`}
       onClick={changeSelectedTheme}
     >
       <main
         className={`${tw`bg-[${backgroundColor}]`} ${
-          isThemeEditMode ? "group-hover:blur-md filter" : ""
+          !selectable ? "group-hover:blur-md filter" : ""
         }`}
       >
         <hgroup
@@ -131,11 +148,14 @@ export function ThemeCard(props: ThemeCard) {
       </main>
       <aside
         className={`absolute top-0 bottom-0 left-0 right-0 items-center justify-center hidden bg-black bg-opacity-25 ${
-          isThemeEditMode ? "group-hover:flex" : ""
+          !selectable ? "group-hover:flex" : ""
         }`}
       >
         <div className="space-y-2">
           <Button onClick={onClickChangeThemeButton} text="Change Theme" />
+          {editable && (
+            <Button onClick={onClickEditThemeButton} text="Edit Theme" />
+          )}
         </div>
       </aside>
       {props.isSelected && (

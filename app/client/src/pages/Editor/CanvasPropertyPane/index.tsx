@@ -1,16 +1,30 @@
 import * as Sentry from "@sentry/react";
 import React from "react";
+import { useSelector } from "react-redux";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
+import { ThemeCard } from "../ThemePropertyPane/ThemeCard";
 
 export function CanvasPropertyPane() {
-  return (
-    <div className="relative space-y-3">
-      <div className="px-3 py-3">
-        <h3 className="text-sm font-medium uppercase">Properties</h3>
-      </div>
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const paneStack: any = [];
 
-      <MainContainerLayoutControl />
+  return (
+    <div className="relative ">
+      <h3 className="px-3 py-3 text-sm font-medium uppercase">Properties</h3>
+
+      <div className="space-y-4">
+        <div className="px-3 space-y-2">
+          <p className="text-sm text-gray-700">Canvas Size</p>
+          <MainContainerLayoutControl />
+        </div>
+
+        <div className="px-3 space-y-2">
+          <p className="text-sm text-gray-700">Theme</p>
+          <ThemeCard editable theme={selectedTheme} />
+        </div>
+      </div>
     </div>
   );
 }

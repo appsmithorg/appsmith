@@ -68,7 +68,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isThemeMode = useSelector(themeModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -325,8 +324,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isCommentMode &&
     !isSnipingMode &&
-    !isPreviewMode &&
-    !isThemeMode;
+    !isPreviewMode;
   const isMultiSelectedWidget =
     selectedWidgets &&
     selectedWidgets.length > 1 &&

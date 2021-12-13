@@ -11,8 +11,8 @@ export enum AppThemingMode {
  * @param state
  * @returns
  */
-export const getAppThemingMode = (state: AppState) => {
-  return state.ui.appTheming.mode;
+export const getAppThemingStack = (state: AppState) => {
+  return state.ui.appTheming.stack;
 };
 
 /**

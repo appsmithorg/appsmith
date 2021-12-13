@@ -34,9 +34,9 @@ export type ChangeSelectedAppThemeAction = {
  * @param mode
  * @returns
  */
-export const setAppThemingModeAction = (mode: AppThemingMode) => ({
-  type: ReduxActionTypes.SET_APP_THEMING_MODE,
-  payload: mode,
+export const setAppThemingModeStack = (stack: AppThemingMode[]) => ({
+  type: ReduxActionTypes.SET_APP_THEMING_STACK,
+  payload: stack,
 });
 
 /**

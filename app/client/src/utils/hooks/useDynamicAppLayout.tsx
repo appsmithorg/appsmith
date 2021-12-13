@@ -16,7 +16,6 @@ import {
   getCurrentApplicationLayout,
   getCurrentPageId,
   previewModeSelector,
-  themeModeSelector,
 } from "selectors/editorSelectors";
 import { APP_MODE } from "entities/App";
 import { scrollbarWidth } from "utils/helpers";
@@ -41,7 +40,6 @@ export const useDynamicAppLayout = () => {
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const canvasWidgets = useSelector(getWidgets);
-  const isThemeMode = useSelector(themeModeSelector);
   const appLayout = useSelector(getCurrentApplicationLayout);
 
   /**
@@ -100,7 +98,7 @@ export const useDynamicAppLayout = () => {
     }
 
     // if explorer is closed or its preview mode, we don't need to subtract the EE width
-    if (isExplorerPinned === true && !(isPreviewMode || isThemeMode)) {
+    if (isExplorerPinned === true && !isPreviewMode) {
       const explorerWidth = domEntityExplorer?.clientWidth || 0;
 
       calculatedWidth -= explorerWidth;
@@ -114,7 +112,7 @@ export const useDynamicAppLayout = () => {
         // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
-          (appMode === APP_MODE.EDIT && !isPreviewMode && !isThemeMode
+          (appMode === APP_MODE.EDIT && !isPreviewMode
             ? totalWidthToSubtract
             : 0)
         );
@@ -187,7 +185,6 @@ export const useDynamicAppLayout = () => {
     explorerWidth,
     isExplorerPinned,
     initialized,
-    isThemeMode,
   ]);
 
   /**

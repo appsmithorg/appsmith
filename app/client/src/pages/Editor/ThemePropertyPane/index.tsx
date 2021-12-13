@@ -1,16 +1,20 @@
 import React, { useMemo } from "react";
 import * as Sentry from "@sentry/react";
+import { last } from "lodash";
 
 import ThemeEditor from "./ThemeEditor";
 import ThemeSelector from "./ThemeSelector";
 import {
-  getAppThemingMode,
   AppThemingMode,
+  getAppThemingStack,
 } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export function ThemePropertyPane() {
-  const themingMode = useSelector(getAppThemingMode);
+  const themingStack = useSelector(getAppThemingStack);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const themingMode = last(themingStack);
 
   /**
    * renders the theming property pane:

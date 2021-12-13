@@ -6,7 +6,6 @@ import {
   getCanvasWidgetDsl,
   getViewModePageList,
   previewModeSelector,
-  themeModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import webfontloader from "webfontloader";
@@ -42,11 +41,9 @@ function CanvasContainer() {
   const widgets = useSelector(getCanvasWidgetDsl);
   const pages = useSelector(getViewModePageList);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isThemeMode = useSelector(themeModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const shouldHaveTopMargin =
-    (!isPreviewMode || pages.length > 1) && !isThemeMode;
+  const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
 
   const pageLoading = (
     <Centered>
@@ -95,10 +92,9 @@ function CanvasContainer() {
       style={{
         height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
         fontFamily: getAppFontFamily,
-        background:
-          isThemeMode || isPreviewMode
-            ? selectedTheme.properties.colors.backgroundColor
-            : "initial",
+        background: isPreviewMode
+          ? selectedTheme.properties.colors.backgroundColor
+          : "initial",
       }}
     >
       {node}

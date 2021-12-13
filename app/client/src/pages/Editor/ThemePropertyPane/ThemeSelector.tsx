@@ -2,19 +2,23 @@ import React, { useCallback } from "react";
 import ThemeList from "./ThemeList";
 import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 import { useDispatch, useSelector } from "react-redux";
-import { setAppThemingModeAction } from "actions/appThemingActions";
-import { getAppThemes, AppThemingMode } from "selectors/appThemingSelectors";
+import { setAppThemingModeStack } from "actions/appThemingActions";
+import {
+  getAppThemes,
+  getAppThemingStack,
+} from "selectors/appThemingSelectors";
 
 function ThemeSelector() {
   const dispatch = useDispatch();
   const themes = useSelector(getAppThemes);
+  const themingStack = useSelector(getAppThemingStack);
 
   /**
    * sets the mode to THEME_EDIT
    */
   const onClickBack = useCallback(() => {
-    dispatch(setAppThemingModeAction(AppThemingMode.APP_THEME_EDIT));
-  }, [setAppThemingModeAction]);
+    dispatch(setAppThemingModeStack(themingStack.slice(0, -1)));
+  }, [setAppThemingModeStack]);
 
   return (
     <div className="space-y-2">

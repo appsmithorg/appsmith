@@ -4,14 +4,14 @@ import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export type AppThemingState = {
-  mode: AppThemingMode;
+  stack: AppThemingMode[];
   selectedTheme: AppTheme;
   themes: AppTheme[];
   isLoading: boolean;
 };
 
 const initialState: AppThemingState = {
-  mode: AppThemingMode.APP_THEME_EDIT,
+  stack: [],
   themes: [],
   isLoading: true,
   selectedTheme: {
@@ -43,11 +43,11 @@ const initialState: AppThemingState = {
 };
 
 const themeReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_APP_THEMING_MODE]: (
+  [ReduxActionTypes.SET_APP_THEMING_STACK]: (
     state: AppThemingState,
-    action: ReduxAction<AppThemingMode>,
+    action: ReduxAction<AppThemingMode[]>,
   ) => {
-    state.mode = action.payload;
+    state.stack = action.payload;
   },
   [ReduxActionTypes.FETCH_APP_THEMES_INIT]: (state: AppThemingState) => {
     state.isLoading = true;

@@ -6,13 +6,11 @@ import {
   getIsFetchingPage,
   getCurrentPageId,
   getCurrentPageName,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import PageTabs from "./PageTabs";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import Toolbar from "./Toolbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
 import { flashElementsById } from "utils/helpers";
@@ -40,7 +38,6 @@ function WidgetsEditor() {
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
   const isFetchingPage = useSelector(getIsFetchingPage);
-  const isPreviewMode = useSelector(previewModeSelector);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -123,7 +120,6 @@ function WidgetsEditor() {
           onDragStart={onDragStart}
         >
           <PageTabs />
-          {isPreviewMode === false && <Toolbar />}
           <CanvasContainer />
           <CrudInfoModal />
           <Debugger />

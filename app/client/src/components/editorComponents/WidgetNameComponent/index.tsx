@@ -61,7 +61,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isThemeMode = useSelector(themeModeSelector);
   const showTableFilterPane = useShowTableFilterPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -136,7 +135,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     return (
       !isCommentMode &&
       !isPreviewMode &&
-      !isThemeMode &&
       !isMultiSelectedWidget &&
       (isSnipingMode
         ? focusedWidget === props.widgetId

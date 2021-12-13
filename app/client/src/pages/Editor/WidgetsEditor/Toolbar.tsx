@@ -8,7 +8,7 @@ import { themeModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import PaintBrushIcon from "remixicon-react/PaintBrushLineIcon";
 import { setExplorerActiveAction } from "actions/explorerActions";
-import { setAppThemingModeAction } from "actions/appThemingActions";
+// import { setAppThemingModeAction } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
 
 function Toolbar() {
@@ -20,14 +20,14 @@ function Toolbar() {
    * on hovering the menu, make the explorer active
    */
   const onMenuHover = useCallback(() => {
-    dispatch(setExplorerActiveAction(true));
+    // dispatch(setExplorerActiveAction(true));
   }, [setExplorerActiveAction]);
 
   /**
    * on hovering the menu, make the explorer active
    */
   const onThemeButtonClick = useCallback(() => {
-    dispatch(setThemeModeAction(true));
+    // dispatch(setThemeModeAction(true));
   }, [setThemeModeAction]);
 
   /**
@@ -35,7 +35,7 @@ function Toolbar() {
    */
   const onBackToCanvasButtonClick = useCallback(() => {
     dispatch(setThemeModeAction(false));
-    dispatch(setAppThemingModeAction(AppThemingMode.APP_THEME_EDIT));
+    // dispatch(setAppThemingModeAction(AppThemingMode.APP_THEME_EDIT));
   }, [setThemeModeAction]);
 
   return (

@@ -90,39 +90,36 @@ export function MainContainerLayoutControl() {
   );
 
   return (
-    <div className="px-3 space-y-2 t--layout-control-wrapper">
-      <p className="text-sm text-gray-700">Canvas Size</p>
-      <div className="flex justify-around">
-        {AppsmithLayouts.map((layoutOption: any, index: number) => {
-          return (
-            <TooltipComponent
-              className="flex-grow"
-              content={layoutOption.name}
-              key={layoutOption.name}
-              position={
-                index === AppsmithLayouts.length - 1 ? "bottom-right" : "bottom"
-              }
+    <div className="flex justify-around t--layout-control-wrapper">
+      {AppsmithLayouts.map((layoutOption: any, index: number) => {
+        return (
+          <TooltipComponent
+            className="flex-grow"
+            content={layoutOption.name}
+            key={layoutOption.name}
+            position={
+              index === AppsmithLayouts.length - 1 ? "bottom-right" : "bottom"
+            }
+          >
+            <button
+              className={classNames({
+                "border-transparent border flex items-center justify-center p-2 flex-grow": true,
+                "bg-white border-gray-300":
+                  selectedLayout?.name === layoutOption.name,
+                "bg-gray-100 hover:bg-gray-200":
+                  selectedLayout?.name !== layoutOption.name,
+              })}
+              onClick={() => updateAppLayout(layoutOption)}
             >
-              <button
-                className={classNames({
-                  "border-transparent border flex items-center justify-center p-2 flex-grow": true,
-                  "bg-white border-gray-300":
-                    selectedLayout?.name === layoutOption.name,
-                  "bg-gray-100 hover:bg-gray-200":
-                    selectedLayout?.name !== layoutOption.name,
-                })}
-                onClick={() => updateAppLayout(layoutOption)}
-              >
-                <Icon
-                  fillColor={Colors.BLACK}
-                  name={layoutOption.icon}
-                  size={layoutOption.iconSize || IconSize.MEDIUM}
-                />
-              </button>
-            </TooltipComponent>
-          );
-        })}
-      </div>
+              <Icon
+                fillColor={Colors.BLACK}
+                name={layoutOption.icon}
+                size={layoutOption.iconSize || IconSize.MEDIUM}
+              />
+            </button>
+          </TooltipComponent>
+        );
+      })}
     </div>
   );
 }

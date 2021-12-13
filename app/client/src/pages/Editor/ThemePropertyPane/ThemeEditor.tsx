@@ -7,16 +7,32 @@ import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
 import { useDispatch, useSelector } from "react-redux";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { updateSelectedThemeAction } from "actions/appThemingActions";
+import {
+  AppThemingMode,
+  getAppThemingStack,
+  getSelectedAppTheme,
+} from "selectors/appThemingSelectors";
+import {
+  setAppThemingModeStack,
+  updateSelectedThemeAction,
+} from "actions/appThemingActions";
 import { AppTheme } from "entities/AppTheming";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
+  const themingStack = useSelector(getAppThemingStack);
+
+  /**
+   * sets the mode to THEME_EDIT
+   */
+  const onClickBack = useCallback(() => {
+    dispatch(setAppThemingModeStack(themingStack.slice(0, -1)));
+  }, [setAppThemingModeStack]);
 
   const updateSelectedTheme = useCallback(
     (theme: AppTheme) => {
@@ -27,6 +43,14 @@ function ThemeEditor() {
 
   return (
     <>
+      <button
+        className="inline-flex items-center px-3 space-x-1 text-gray-500 cursor-pointer "
+        onClick={onClickBack}
+        type="button"
+      >
+        <ArrowLeft className="w-4 h-4 transition-all transform" />
+        <h3 className="text-xs font-medium uppercase">Back</h3>
+      </button>
       <header className="px-3 space-y-2">
         <h3 className="text-sm font-medium uppercase">Current Theme</h3>
         <ThemeCard theme={selectedTheme} />
