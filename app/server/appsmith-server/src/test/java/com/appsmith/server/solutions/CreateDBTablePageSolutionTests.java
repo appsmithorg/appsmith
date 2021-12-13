@@ -740,6 +740,11 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
                     assertThat(actionConfiguration.getFormData().get("bucket"))
                         .isEqualTo(resource.getTableName());
+                    if (action.getUnpublishedAction().getName().equals(LIST_QUERY)) {
+                        Map<String, Object> listObject = (Map<String, Object>) actionConfiguration.getFormData().get("list");
+                        assertThat(((Map<String, Object>) listObject.get("where")).get("condition"))
+                                .isEqualTo("AND");
+                    }
                 }
 
                 assertThat(crudPage.getSuccessMessage()).containsIgnoringCase(pluginName);

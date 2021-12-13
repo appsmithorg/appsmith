@@ -143,5 +143,6 @@
   "errorTab": "[data-cy=t--tab-ERROR]",
   "debugErrorMsg": ".t--debugger-message",
   "debuggerLabel": "span.debugger-label",
+  "selectInner": ".t--draggable-dropdownwidget span.t--widget-name, Select1",
   "toastifyError": "//div[@class='Toastify']//span]"
 }
