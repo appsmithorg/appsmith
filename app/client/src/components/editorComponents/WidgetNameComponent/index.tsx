@@ -18,7 +18,6 @@ const WidgetTypes = WidgetFactory.widgetTypes;
 import {
   previewModeSelector,
   snipingModeSelector,
-  themeModeSelector,
 } from "selectors/editorSelectors";
 import { bindDataToWidget } from "../../../actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";

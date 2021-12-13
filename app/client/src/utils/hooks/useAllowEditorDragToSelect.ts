@@ -3,7 +3,6 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
-  themeModeSelector,
 } from "selectors/editorSelectors";
 import { useSelector } from "store";
 

@@ -9,11 +9,9 @@ import {
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export function ThemePropertyPane() {
   const themingStack = useSelector(getAppThemingStack);
-  const applicationId = useSelector(getCurrentApplicationId);
   const themingMode = last(themingStack);
 
   /**

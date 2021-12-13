@@ -10,10 +10,7 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import {
-  previewModeSelector,
-  themeModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { commentModeSelector } from "selectors/commentsSelectors";
@@ -43,7 +40,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     true,
   );
   const canvasWidgets = useSelector(getWidgets);
-  const isThemeMode = useSelector(themeModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const themingStack = useSelector(getAppThemingStack);
@@ -61,8 +57,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
-
-  console.log({ themingStack });
 
   /**
    * renders the property pane:

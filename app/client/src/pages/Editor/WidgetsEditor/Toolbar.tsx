@@ -8,8 +8,6 @@ import { themeModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import PaintBrushIcon from "remixicon-react/PaintBrushLineIcon";
 import { setExplorerActiveAction } from "actions/explorerActions";
-// import { setAppThemingModeAction } from "actions/appThemingActions";
-import { AppThemingMode } from "selectors/appThemingSelectors";
 
 function Toolbar() {
   const dispatch = useDispatch();

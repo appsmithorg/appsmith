@@ -8,7 +8,6 @@ import { ThemeCard } from "../ThemePropertyPane/ThemeCard";
 
 export function CanvasPropertyPane() {
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const paneStack: any = [];
 
   return (
     <div className="relative ">

@@ -12,6 +12,7 @@ import { AppTheme } from "entities/AppTheming";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put } from "redux-saga/effects";
 
+// eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
   {
     name: "Classic",
@@ -835,7 +836,7 @@ export function* updateSelectedTheme(
   const { applicationId, theme } = action.payload;
 
   try {
-    const response = yield ThemingApi.updateTheme(applicationId, theme);
+    yield ThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,

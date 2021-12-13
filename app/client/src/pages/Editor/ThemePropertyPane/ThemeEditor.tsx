@@ -8,7 +8,6 @@ import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  AppThemingMode,
   getAppThemingStack,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";

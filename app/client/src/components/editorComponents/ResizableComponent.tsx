@@ -41,7 +41,6 @@ import { getNearestParentCanvas } from "utils/generators";
 import {
   getOccupiedSpaces,
   previewModeSelector,
-  themeModeSelector,
 } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
