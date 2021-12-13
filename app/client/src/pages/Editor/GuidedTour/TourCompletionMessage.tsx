@@ -10,6 +10,8 @@ import {
 import { getQueryParams } from "utils/AppsmithUtils";
 import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
+import { useSelector } from "store";
+import { getEditorURL } from "selectors/appViewSelectors";
 
 const Container = styled.div`
   background-color: #ffffff;
@@ -62,6 +64,7 @@ function CongratulationsView() {
   const [ratingComplete, setRatingComplete] = useState(false);
   const [show, setShow] = useState(false);
   const dispatch = useDispatch();
+  const editorUrl = useSelector(getEditorURL);
 
   const onValueChanged = () => {
     setRatingComplete(true);
@@ -139,6 +142,7 @@ function CongratulationsView() {
           </div>
           <Button
             height="38"
+            href={editorUrl}
             onClick={hideMessage}
             size={Size.large}
             text="START BUILDING AN APP"
