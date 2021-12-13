@@ -13,7 +13,7 @@ const main = async (userServer, ipServer) => {
     process.kill(process.pid);
   }
 
-  shell.echo('**************************** WANING ****************************');
+  shell.echo('**************************** WARNING ****************************');
   shell.echo('  This process will stop application. Do you want to continue?  ');
   const answerConfirm = readlineSync.question('Type "y" if you agree, type "c" to cancel: ');
 
@@ -21,12 +21,12 @@ const main = async (userServer, ipServer) => {
     const folderSsh = `/opt/appsmith/.ssh`;
     const isCreatedKey = await generationKey(folderSsh);
     if (isCreatedKey) {
-      shell.echo('****** Using command below to add public key to new server *******\n');
+      shell.echo('****** Run below command on the new server to add key for migration *******\n');
       shell.echo(`echo "${shell.cat(`${folderSsh}/id_rsa.pub`).stdout.replace(' \n', '')}" >> ~/.ssh/authorized_keys`);
       shell.echo();
     }
 
-    const answerKey = readlineSync.question('Type "y" if you added public key to new server, type "c" to cancel: ');
+    const answerKey = readlineSync.question('Type "y" if you have added public key to new server, type "c" to cancel: ');
 
 
     if (answerKey.toLowerCase() === 'y') {
@@ -35,7 +35,7 @@ const main = async (userServer, ipServer) => {
       );
 
       if (status.code === 0) {
-        shell.echo('Connect successful via ssh');
+        shell.echo('Connect successfully via ssh');
 
         const installDir = readlineSync.question('Choose Installation Directory [appsmith]: ');
 
@@ -75,14 +75,14 @@ const main = async (userServer, ipServer) => {
         shell.exec(`ssh -i ${folderSsh}/id_rsa ${userServer}@${ipServer} 'bash -s ${installAbsoluteDir}' < /opt/appsmith/start_app.sh`);
         shell.rm('-rf', folderSsh);
 
-        shell.echo('***************** Migrated application successful ***************');
+        shell.echo('***************** Migrated application successfully ***************');
         shell.echo();
-        shell.echo('**************************** WANING ****************************');
+        shell.echo('**************************** WARNING ****************************');
         shell.echo('You should remove authorized key on new server');
 
         process.kill(process.pid);
       } else {
-        shell.echo('Connect unsuccessful via ssh');
+        shell.echo('Connect unsuccessfully via ssh');
         process.kill(process.pid);
       }
     } else if (answerKey.toLowerCase() === 'c') {

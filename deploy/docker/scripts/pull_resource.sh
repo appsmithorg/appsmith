@@ -4,8 +4,7 @@ install_dir="$1"
 
 echo "Installing Appsmith to '$install_dir'"
 
-if [ -d "$install_dir" ];
-then
+if [[ -d "$install_dir" && -n "$(ls -A "$install_dir")" ]]; then
     echo "***************** ERROR *****************"
     echo "Directory "$install_dir" exists"
     exit 1
