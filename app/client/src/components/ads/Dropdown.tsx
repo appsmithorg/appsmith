@@ -707,6 +707,10 @@ export default function Dropdown(props: DropdownProps) {
       switch (e.key) {
         case "Escape":
           if (isOpen) {
+            setSelected((prevSelected) => {
+              if (prevSelected != props.selected) return props.selected;
+              return prevSelected;
+            });
             setIsOpen(false);
             e.nativeEvent.stopImmediatePropagation();
           }
@@ -750,7 +754,7 @@ export default function Dropdown(props: DropdownProps) {
           break;
       }
     },
-    [isOpen, props.options, selected],
+    [isOpen, props.options, props.selected, selected],
   );
 
   const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
