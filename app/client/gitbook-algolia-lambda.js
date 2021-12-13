@@ -57,17 +57,27 @@ function getPage(pageId) {
 }
 
 async function getPageRetry(pageId, retries) {
+  let page = null;
+
   while (retries-- > 0) {
     try {
-      return await getPage(pageId);
+      console.log("Retries left", pageId, retries);
+      page = await getPage(pageId);
+      break;
     } catch (error) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
       continue;
     }
   }
-  throw new Error("Tried getting page " + retries + " times, but failed.");
+
+  if (page == null) {
+    throw new Error("Tried getting page " + retries + " times, but failed.");
+  }
+
+  return page;
 }
 
-const pages = [];
+const pages = {};
 
 
 function pushChildPages(masterPage) {
@@ -76,7 +86,7 @@ function pushChildPages(masterPage) {
       page.path = (masterPage.path || masterPage.ref) + "/" + page.path;
       pushChildPages(page);
       page.pages = undefined;
-      pages.push(page);
+      pages[page.uid] = page;
     });
   }
 }
@@ -85,6 +95,14 @@ function swap(arr, index1, index2) {
     let x = arr[index1];
     arr[index1] = arr[index2];
     arr[index2] = x;
+}
+
+async function getAllPages(pageIds) {
+  const allPages = [];
+  for (const pageId of pageIds) {
+    allPages.push(await getPageRetry(pageId, 3));
+  }
+  return allPages;
 }
 
 exports.handler = async (event, context, callback) => {
@@ -109,14 +127,12 @@ exports.handler = async (event, context, callback) => {
           pushChildPages(masterPage);
           delete masterPage.pages;
 
-          pages.push(masterPage);
+          pages[masterPage.uid] = masterPage;
 
-          let promises = pages.map(page => page.uid).map(pageId => getPageRetry(pageId, 3));
-
-          Promise.all(promises).then(updatedPages => {
+          getAllPages(Object.keys(pages)).then(updatedPages => {
 
             updatedPages.forEach((page, index) => {
-              page.path = pages[index].path;
+              page.path = pages[page.uid].path;
               delete page.pages;
               page.objectID = page.uid;
               delete page.uid;
@@ -144,7 +160,7 @@ exports.handler = async (event, context, callback) => {
               page.document = page.document.substr(0, page.document.length - (JSON.stringify(page).length - 9900));
             });//*/
 
-            console.log("Pages:", updatedPages.map(page => ({objectID: page.objectID, size: JSON.stringify(page).length, title: page.title, path: page.path})));
+            console.log("Pages (" + updatedPages.length + "):", updatedPages.map(page => ({objectID: page.objectID, size: JSON.stringify(page).length, title: page.title, path: page.path})));
 
             // resolve({
             //   statusCode: 200,
