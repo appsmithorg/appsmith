@@ -178,6 +178,15 @@ public class FilterDataService {
         // Add projection columns condition otherwise use `select *`
         addProjectionCondition(sb, projectionColumns, tableName);
 
+        /**
+         * Moving this from a LinkedHashMap to an ArrayList of objects because with LinkedHashMap we were using
+         * the data value as key. Hence, if two identical data values existed then they would overwrite each other. E.g.
+         * if there was where clause like `Name == John` Or `Name != John, (which is a perfectly valid query) then
+         * the prepared statement substitution would fail because instead of two values to substitute it would only
+         * fine one i.e. {"John" -> DataType.String} is the only entry it would find whereas two entries are
+         * actually required {"John" -> DataType.String, "John" -> DataType.String} - one for each condition in the
+         * where clause. JUnit TC `testProjectionSortingAndPaginationTogether` takes care of this case as well.
+         */
         List<Map<String, Object>> values = new ArrayList<>();
 
         if (condition != null) {
