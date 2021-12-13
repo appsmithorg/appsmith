@@ -1,5 +1,6 @@
 import { tw, css } from "twind/css";
 import * as Sentry from "@sentry/react";
+import styled from "styled-components";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -12,11 +13,11 @@ import {
   setAppThemingModeStack,
 } from "actions/appThemingActions";
 import { last } from "lodash";
-import Button from "components/ads/Button";
+import Button, { Category } from "components/ads/Button";
 import { AppTheme } from "entities/AppTheming";
-import CheckmarkIcon from "remixicon-react/CheckLineIcon";
 import { getCustomTextColor2 } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
 
 interface ThemeCard {
   theme: AppTheme;
@@ -24,10 +25,23 @@ interface ThemeCard {
   className?: string;
   selectable?: boolean;
   editable?: boolean;
+  changeable?: boolean;
 }
 
+const BlackButton = styled(Button)`
+  border: 2px solid ${Colors.BLACK};
+  background-color: ${Colors.BLACK};
+  color: ${Colors.WHITE};
+
+  &:hover {
+    border: 2px solid ${Colors.BLACK};
+    background-color: ${Colors.MINE_SHAFT};
+    color: ${Colors.WHITE};
+  }
+`;
+
 export function ThemeCard(props: ThemeCard) {
-  const { editable, selectable, theme } = props;
+  const { changeable, editable, selectable, theme } = props;
   const dispatch = useDispatch();
   const themingStack = useSelector(getAppThemingStack);
   const applicationId = useSelector(getCurrentApplicationId);
@@ -83,16 +97,16 @@ export function ThemeCard(props: ThemeCard) {
 
   return (
     <div
-      className={`ring-1 p-0.5 ${
-        props.isSelected ? "ring-primary-500 ring-2" : "ring-gray-200"
-      } ${props.className} ${
-        !selectable ? "overflow-hidden" : ""
-      }  relative group hover:shadow-xl transition-all cursor-pointer`}
+      className={`p-0.5 ${
+        props.className
+      } ring-gray-200 ring-1 overflow-hidden relative group  transition-all cursor-pointer ${
+        changeable || editable ? "hover:shadow-xl" : ""
+      }`}
       onClick={changeSelectedTheme}
     >
       <main
         className={`${tw`bg-[${backgroundColor}]`} ${
-          !selectable ? "group-hover:blur-md filter" : ""
+          changeable || editable ? "group-hover:blur-md filter" : ""
         }`}
       >
         <hgroup
@@ -148,19 +162,32 @@ export function ThemeCard(props: ThemeCard) {
       </main>
       <aside
         className={`absolute top-0 bottom-0 left-0 right-0 items-center justify-center hidden bg-black bg-opacity-25 ${
-          !selectable ? "group-hover:flex" : ""
+          changeable || editable ? "group-hover:flex" : ""
         }`}
       >
         <div className="space-y-2">
-          <Button onClick={onClickChangeThemeButton} text="Change Theme" />
+          {changeable && (
+            <Button onClick={onClickChangeThemeButton} text="Change Theme" />
+          )}
           {editable && (
-            <Button onClick={onClickEditThemeButton} text="Edit Theme" />
+            <BlackButton
+              category={Category.tertiary}
+              fill
+              onClick={onClickEditThemeButton}
+              text="Edit Theme"
+            />
           )}
         </div>
       </aside>
-      {props.isSelected && (
-        <CheckmarkIcon className="absolute w-6 h-6 text-white border-2 border-white rounded-full -right-2 -top-2 bg-primary-500" />
-      )}
+      <aside
+        className={`absolute bottom-0 left-0 right-0 items-center justify-center hidden  bg-gray-900 bg-opacity-80 ${
+          selectable ? "group-hover:flex" : ""
+        }`}
+      >
+        <div className="py-1 text-xs tracking-wide text-white uppercase">
+          Apply this theme
+        </div>
+      </aside>
     </div>
   );
 }

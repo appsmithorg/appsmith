@@ -9,8 +9,10 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
-import ThemingApi from "api/AppThemingApi";
+// import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put } from "redux-saga/effects";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
@@ -787,11 +789,12 @@ const dummyThemes: AppTheme[] = [
  */
 export function* fetchAppThemes() {
   try {
-    const response = yield ThemingApi.fetchThemes();
+    // eslint-disable-next-line
+    // const response = yield ThemingApi.fetchThemes();
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes,
     });
   } catch (error) {
     yield put({
@@ -809,13 +812,14 @@ export function* fetchAppThemes() {
 export function* fetchAppSelectedTheme(
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
+  // eslint-disable-next-line
   const { applicationId } = action.payload;
   try {
-    const response = yield ThemingApi.fetchSelected(applicationId);
+    // const response = yield ThemingApi.fetchSelected(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes[0],
     });
   } catch (error) {
     yield put({
@@ -833,10 +837,11 @@ export function* fetchAppSelectedTheme(
 export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
+  // eslint-disable-next-line
   const { applicationId, theme } = action.payload;
 
   try {
-    yield ThemingApi.updateTheme(applicationId, theme);
+    // yield ThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -858,14 +863,20 @@ export function* updateSelectedTheme(
 export function* changeSelectedTheme(
   action: ReduxAction<ChangeSelectedAppThemeAction>,
 ) {
+  // eslint-disable-next-line
   const { applicationId, theme } = action.payload;
 
   try {
-    yield ThemingApi.changeTheme(applicationId, theme);
+    // yield ThemingApi.changeTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
       payload: theme,
+    });
+
+    Toaster.show({
+      text: `Theme ${theme.name} Applied`,
+      variant: Variant.success,
     });
   } catch (error) {
     yield put({

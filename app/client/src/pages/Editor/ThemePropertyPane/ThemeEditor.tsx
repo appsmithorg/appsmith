@@ -52,7 +52,7 @@ function ThemeEditor() {
       </button>
       <header className="px-3 space-y-2">
         <h3 className="text-sm font-medium uppercase">Current Theme</h3>
-        <ThemeCard theme={selectedTheme} />
+        <ThemeCard changeable theme={selectedTheme} />
       </header>
       <main>
         {/* COLORS */}
