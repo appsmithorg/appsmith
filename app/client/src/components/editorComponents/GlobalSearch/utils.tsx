@@ -21,6 +21,7 @@ import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -72,7 +73,11 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
   [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + K</>,
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
-  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: <>{modText()} + N</>,
+  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
+    <>
+      {modText()} + <span>&#8682;</span> + N
+    </>
+  ),
 };
 
 export type Snippet = {
@@ -336,3 +341,12 @@ export const actionOperations = [
     action: (pageId: string) => createNewJSCollection(pageId),
   },
 ];
+
+export const isMatching = (text = "", query = "") => {
+  if (typeof text === "string" && typeof query === "string") {
+    return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
+  }
+  return false;
+};
+
+export const AddDatasourceIcon = <NewPlus />;

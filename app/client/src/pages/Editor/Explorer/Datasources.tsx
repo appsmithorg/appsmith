@@ -14,6 +14,7 @@ import Entity from "./Entity";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import EntityPlaceholder from "./Entity/Placeholder";
+import { createMessage, CREATE_DATASOURCE_TOOLTIP } from "constants/messages";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -22,7 +23,7 @@ const emptyNode = (
 );
 
 export function Datasources() {
-  const { appWideDS = [] } = useAppWideAndOtherDatasource();
+  const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
   const pages = useSelector(getPageList);
   const pageId = useSelector(getCurrentPageId) || pages[0].pageId;
@@ -51,7 +52,7 @@ export function Datasources() {
 
   return (
     <Entity
-      addButtonHelptext={""}
+      addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"datasources"}
       entityId={pageId + "_datasources"}
       icon={null}

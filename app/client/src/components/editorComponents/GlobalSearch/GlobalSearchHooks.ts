@@ -1,8 +1,9 @@
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   getCurrentApplicationId,
   getPageList,
@@ -16,31 +17,37 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import { EventLocation } from "utils/AnalyticsUtil";
 import history from "utils/history";
-import { actionOperations, attachKind, SEARCH_ITEM_TYPES } from "./utils";
+import {
+  actionOperations,
+  AddDatasourceIcon,
+  attachKind,
+  isMatching,
+  SEARCH_ITEM_TYPES,
+} from "./utils";
 
-const isMatching = (text = "", query = "") => {
-  if (typeof text === "string" && typeof query === "string") {
-    return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
-  }
-  return false;
-};
-
-export const useFilteredFileOperations = (query: string) => {
+export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
   const currentUser = useSelector(getCurrentUser);
   return useMemo(() => {
-    let fileOperations: any = actionOperations.filter((op) =>
-      op.title.toLowerCase().includes(query.toLowerCase()),
+    let fileOperations: any =
+      actionOperations.filter((op) =>
+        op.title.toLowerCase().includes(query.toLowerCase()),
+      ) || [];
+    const filteredAppWideDS = appWideDS.filter((ds: Datasource) =>
+      ds.name.toLowerCase().includes(query.toLowerCase()),
     );
-    if (appWideDS.length > 0) {
+    const otherFilteredDS = otherDS.filter((ds: Datasource) =>
+      ds.name.toLowerCase().includes(query.toLowerCase()),
+    );
+    if (filteredAppWideDS.length > 0) {
       fileOperations = [
         ...fileOperations,
         {
           title: "DATASOURCES FROM THIS APP",
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
-        ...appWideDS.map((ds: any) => ({
+        ...filteredAppWideDS.map((ds: any) => ({
           title: ds.name,
           desc: `Create a query in ${ds.name}`,
           pluginId: ds.pluginId,
@@ -49,7 +56,7 @@ export const useFilteredFileOperations = (query: string) => {
         })),
       ];
     }
-    if (otherDS.length > 0) {
+    if (otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
         {
@@ -69,7 +76,7 @@ export const useFilteredFileOperations = (query: string) => {
       ...fileOperations,
       {
         title: "Connect to a New Datasource",
-        icon: null,
+        icon: AddDatasourceIcon,
         redirect: (pageId: string) => {
           history.push(
             INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),

@@ -80,16 +80,17 @@ export const useAppWideAndOtherDatasource = () => {
     }
     return acc;
   }, new Set());
-  return allDatasources.reduce((acc: any, ds) => {
-    if (appWideDatasourcesIds.has(ds.id)) {
-      acc.appWideDS = acc.appWideDS || [];
-      acc.appWideDS = acc.appWideDS.concat(ds);
-    } else {
-      acc.otherDS = acc.otherDS || [];
-      acc.otherDS = acc.otherDS.concat(ds);
-    }
-    return acc;
-  }, {});
+  return allDatasources.reduce(
+    (acc: any, ds) => {
+      if (appWideDatasourcesIds.has(ds.id)) {
+        acc.appWideDS = acc.appWideDS.concat(ds);
+      } else {
+        acc.otherDS = acc.otherDS.concat(ds);
+      }
+      return acc;
+    },
+    { appWideDS: [], otherDS: [] },
+  );
 };
 
 export const useFilteredDatasources = (searchKeyword?: string) => {

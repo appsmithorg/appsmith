@@ -48,6 +48,7 @@ import {
   SelectEvent,
   getOptionalFilters,
   isActionOperation,
+  isMatching,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -82,9 +83,15 @@ import {
   useFilteredWidgets,
 } from "./GlobalSearchHooks";
 
-const StyledContainer = styled.div<{ category: SearchCategory }>`
-  width: 785px;
+const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
+  width: ${({ category, query }) =>
+    isSnippet(category) ||
+    isDocumentation(category) ||
+    (isMenu(category) && query)
+      ? "785px"
+      : "500px"};
   max-height: 530px;
+  transition: 0.1s all ease;
   height: ${(props) =>
     isMenu(props.category) || isActionOperation(props.category)
       ? "auto"
@@ -117,13 +124,6 @@ const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
-
-const isMatching = (text = "", query = "") => {
-  if (typeof text === "string" && typeof query === "string") {
-    return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
-  }
-  return false;
-};
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   if (item.kind === SEARCH_ITEM_TYPES.document) {
@@ -547,7 +547,7 @@ function GlobalSearch() {
               refinements={refinements}
               setRefinement={setRefinements}
             >
-              <StyledContainer category={category}>
+              <StyledContainer category={category} query={query}>
                 <SearchBox
                   category={category}
                   query={query}
