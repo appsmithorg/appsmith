@@ -22,7 +22,7 @@ const emptyNode = (
 );
 
 export function Datasources() {
-  const { appWideDS } = useAppWideAndOtherDatasource();
+  const { appWideDS = [] } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
   const pages = useSelector(getPageList);
   const pageId = useSelector(getCurrentPageId) || pages[0].pageId;
@@ -53,7 +53,6 @@ export function Datasources() {
     <Entity
       addButtonHelptext={""}
       className={"datasources"}
-      disabled={!appWideDS.length}
       entityId={pageId + "_datasources"}
       icon={null}
       isDefaultExpanded={false}
