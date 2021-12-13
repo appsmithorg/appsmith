@@ -1,6 +1,7 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 let datasourceName;
 
 describe("Validate CRUD queries for Postgres along with UI flow verifications", function() {
@@ -16,12 +17,12 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.fillPostgresDatasourceForm();
 
-    cy.testSaveDatasource();
-
     cy.generateUUID().then((uid) => {
       datasourceName = `Postgres CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
     });
+
+    cy.testSaveDatasource();
 
     // cy.get("@createDatasource").then((httpResponse) => {
     //   datasourceName = httpResponse.response.body.data.name;
@@ -243,15 +244,38 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.runAndDeleteQuery();
   });
 
+  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate("select * from public.users limit 10");
+    cy.runQuery();
+    cy.typeValueNValidate("select * from users_crud limit 10");
+    cy.onlyQueryRun();
+    cy.get(commonlocators.debugger)
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(commonlocators.errorTab)
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(commonlocators.debuggerLabel)
+      .invoke("text")
+      .then(($text) => {
+        expect($text).to.eq("Execution failed with status 5005");
+      });
+  });
+
   it("11. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click({ force: true });
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // cy.wait("@deleteDatasource").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+    cy.wait("@deleteDatasource").should((response) => {
+      expect(response.status).to.be.oneOf([200, 409]);
+    });
   });
 });
