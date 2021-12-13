@@ -193,6 +193,7 @@ ctx.addEventListener(
           resolvedFunctions,
           EvaluationSubstitutionType.TEMPLATE,
           true,
+          undefined,
           callbackData,
           fullPropertyPath,
         );
