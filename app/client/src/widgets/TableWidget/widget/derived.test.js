@@ -1209,8 +1209,8 @@ describe("Validates Derived Properties", () => {
         Dec: "mon",
         demo: "3",
         demo_1: "1",
-        "test_one": "1",
-        "test_3_4_9": "4",
+        test_one: "1",
+        test_3_4_9: "4",
         rowIndex: "0",
       },
       {
@@ -1220,8 +1220,8 @@ describe("Validates Derived Properties", () => {
         Dec: "mon2",
         demo: "2",
         demo_1: "1",
-        "test_one": "2",
-        "test_3_4_9": "3",
+        test_one: "2",
+        test_3_4_9: "3",
         rowIndex: "1",
       },
     ];
