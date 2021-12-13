@@ -11,12 +11,9 @@ const invalidEmailWithAmp = "test@hello";
 
 const GITHUB_API_BASE = "https://api.github.com";
 
-import { matchViewerPath } from "../../../../../src/constants/routes";
-import { trimQueryString } from "../../../../../src/utils/helpers";
-
 let repoName;
 let generatedKey;
-let githubDeployKeyId;
+let windowOpenSpy;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 describe("Git sync modal: connect tab", function() {
   before(() => {
@@ -61,11 +58,21 @@ describe("Git sync modal: connect tab", function() {
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
       "not.exist",
     );
+
     cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.be.disabled");
 
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       "generateKey",
     );
+
+    // Stubbing window.open
+    cy.window().then((window) => {
+      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
+        expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
+        windowOpenSpy.restore();
+      });
+    });
+    cy.get(gitSyncLocators.learnMoreSshUrl).click();
 
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
 
