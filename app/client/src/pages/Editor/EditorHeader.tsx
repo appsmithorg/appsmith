@@ -425,7 +425,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection className="space-x-3">
           <EditorSaveIndicator />
-          <Boxed alternative={<EndTour />}>
+          <Boxed alternative={<EndTour />} step={8}>
             <RealtimeAppEditors applicationId={applicationId} />
             <FormDialogComponent
               Form={AppInviteUsersForm}

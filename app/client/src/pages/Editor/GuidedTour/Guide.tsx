@@ -40,7 +40,7 @@ const Title = styled.span`
   font-weight: 600;
   font-size: 18px;
   letter-spacing: -0.24px;
-  line-height: 20px;
+  line-height: 24px;
   color: #000000;
 `;
 
@@ -177,6 +177,11 @@ const SuccessMessageWrapper = styled.div`
   .info-wrapper {
     padding: 26px 36px;
     align-items: center;
+
+    svg {
+      height: 40px;
+      width: 40px;
+    }
   }
 
   .lottie-wrapper {
@@ -195,6 +200,7 @@ const SuccessMessageWrapper = styled.div`
     padding-right: 65px;
     margin-top: 0px;
     line-height: 24px;
+    font-size: 18px;
   }
 `;
 
