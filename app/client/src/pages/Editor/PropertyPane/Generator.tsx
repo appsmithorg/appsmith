@@ -63,7 +63,7 @@ export const generatePropertyControl = (
               offset: {
                 enabled: true,
                 options: {
-                  offset: [-5, -40],
+                  offset: [-15, -50],
                 },
               },
             }}

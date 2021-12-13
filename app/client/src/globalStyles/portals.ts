@@ -30,6 +30,10 @@ export const PortalStyles = createGlobalStyle`
     z-index: ${Layers.appComments};
   }
 
+  .bp3-portal.guided-tour-indicator-portal {
+    pointer-events: none;
+  }
+
   .flash .${replayHighlightClass} {
     border-color: ${Colors.WARNING_SOLID} !important;
     box-shadow: 0px 0px 4px 0.5px rgba(254, 184, 17, 0.7) !important;

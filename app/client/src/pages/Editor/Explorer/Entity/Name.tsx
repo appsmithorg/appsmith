@@ -239,7 +239,7 @@ export const EntityName = forwardRef(
                 offset: {
                   enabled: true,
                   options: {
-                    offset: [-10, -30],
+                    offset: [-20, -40],
                   },
                 },
               }}

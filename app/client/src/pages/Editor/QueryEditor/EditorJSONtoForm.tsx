@@ -776,7 +776,7 @@ export function EditorJSONtoForm(props: Props) {
                 offset: {
                   enabled: true,
                   options: {
-                    offset: [0, -20],
+                    offset: [0, -30],
                   },
                 },
               }}

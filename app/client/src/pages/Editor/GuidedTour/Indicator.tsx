@@ -12,8 +12,8 @@ import indicator from "assets/lottie/guided-tour-indicator.json";
 import { PopoverPosition } from "@blueprintjs/core";
 
 const IndicatorWrapper = styled.div`
-  height: 60px;
-  width: 80px;
+  height: 87px;
+  width: 116px;
 `;
 
 export type IndicatorLocation =
@@ -94,6 +94,7 @@ function Indicator(props: IndicatorProps): JSX.Element | null {
         minimal
         modifiers={props.modifiers}
         popoverClassName={`guided-tour-indicator`}
+        portalClassName="guided-tour-indicator-portal"
         position={props.position}
         ref={(ref) => (popoverRef = ref)}
         targetTagName={props.targetTagName}

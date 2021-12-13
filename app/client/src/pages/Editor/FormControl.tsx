@@ -27,7 +27,7 @@ function FormControl(props: FormControlProps) {
         offset: {
           enabled: true,
           options: {
-            offset: [0, -20],
+            offset: [0, -30],
           },
         },
       }}
