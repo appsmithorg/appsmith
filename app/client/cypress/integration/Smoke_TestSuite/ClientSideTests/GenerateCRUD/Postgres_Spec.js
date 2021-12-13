@@ -3,7 +3,7 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 import homePage from "../../../../locators/HomePage.json";
 import datasource from "../../../../locators/DatasourcesEditor.json";
 
-describe("Generate New CRUD Page Inside from entity explorer", function () {
+describe("Generate New CRUD Page Inside from entity explorer", function() {
   let datasourceName;
 
   beforeEach(() => {
@@ -14,7 +14,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     // 2. Add 2 supported datasource and 1 not supported datasource with a fixed name to search.
   });
 
-  it("Add new Page and generate CRUD template using existing supported datasource & Verification of Bug 9334", function () {
+  it("Add new Page and generate CRUD template using existing supported datasource & Verification of Bug 9334", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click({ force: true });
     cy.fillPostgresDatasourceForm();
@@ -76,7 +76,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
       "response.body.responseMeta.status",
       201,
     );
-    
+
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click({ force: true });
     cy.fillPostgresDatasourceForm();
@@ -191,7 +191,6 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     // cy.wait(2000)
     // cy.selectEntityByName("Page3"); //Back to 3
     // cy.VerifyErrorMsgAbsence('The action "SelectQuery" has failed.')
-
   });
 
   it("Create new app and Generate CRUD page using a new datasource", () => {
@@ -298,7 +297,5 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     );
 
     cy.get("span:contains('GOT IT')").click();
-
   });
-  
 });
