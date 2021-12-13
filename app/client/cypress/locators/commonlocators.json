@@ -148,5 +148,7 @@
   "appNameDeployMenu": ".t--app-name-menu-deploy-parent",
   "appNameDeployMenuPublish": ".t--app-name-menu-deploy",
   "appNameDeployMenuCurrentVersion": ".t--app-name-menu-deploy-current-version",
-  "appNameDeployMenuConnectToGit": ".t--app-name-menu-deploy-connect-to-git"
+  "appNameDeployMenuConnectToGit": ".t--app-name-menu-deploy-connect-to-git",
+  "selectInner": ".t--draggable-dropdownwidget span.t--widget-name, Select1",
+  "toastifyError": "//div[@class='Toastify']//span]"
 }

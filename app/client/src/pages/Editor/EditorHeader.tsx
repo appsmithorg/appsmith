@@ -294,13 +294,21 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  const handleClickDeploy = useCallback(() => {
-    if (getFeatureFlags().GIT && isGitConnected) {
-      dispatch(showConnectGitModal());
-    } else {
-      handlePublish();
-    }
-  }, [getFeatureFlags().GIT, dispatch, handlePublish]);
+  const handleClickDeploy = useCallback(
+    (fromDeploy?: boolean) => {
+      if (getFeatureFlags().GIT && isGitConnected) {
+        dispatch(showConnectGitModal());
+        AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+          source: fromDeploy
+            ? "Deploy button"
+            : "Application name menu (top left)",
+        });
+      } else {
+        handlePublish();
+      }
+    },
+    [getFeatureFlags().GIT, dispatch, handlePublish],
+  );
 
   /**
    * on hovering the menu, make the explorer active
@@ -391,7 +399,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
                 }
                 defaultValue={currentApplication?.name || ""}
-                deploy={handleClickDeploy}
+                deploy={() => handleClickDeploy(false)}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 fill
                 isError={isErroredSavingName}
@@ -480,7 +488,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   <StyledDeployButton
                     className="t--application-publish-btn"
                     isLoading={isPublishing}
-                    onClick={handleClickDeploy}
+                    onClick={() => handleClickDeploy(true)}
                     size={Size.small}
                     text={"Deploy"}
                   />

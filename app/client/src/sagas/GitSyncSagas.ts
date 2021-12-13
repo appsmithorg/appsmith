@@ -61,6 +61,7 @@ import {
 } from "../actions/gitSyncActions";
 import {
   getCurrentGitBranch,
+  getDisconnectingGitApplication,
   getShouldShowRepoLimitError,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -479,9 +480,12 @@ function* showConnectGitModal() {
 
 function* disconnectGitSaga() {
   try {
-    const applicationId: string = yield select(getCurrentApplicationId);
+    const application: {
+      id: string;
+      name: string;
+    } = yield select(getDisconnectingGitApplication);
     const response: ApiResponse = yield GitSyncAPI.disconnectGit({
-      applicationId,
+      applicationId: application.id,
     });
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -489,6 +493,10 @@ function* disconnectGitSaga() {
       const url = new URL(window.location.href);
       url.searchParams.delete(GIT_BRANCH_QUERY_KEY);
       history.push(url.toString().slice(url.origin.length));
+      yield put({
+        type: ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION,
+        payload: { id: "", name: "" },
+      });
     }
   } catch (e) {
     yield put({

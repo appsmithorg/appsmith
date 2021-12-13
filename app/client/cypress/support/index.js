@@ -36,6 +36,7 @@ Cypress.on("fail", (error, runnable) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
+  //console.warn = () => {};
   initLocalstorage();
   cy.startServerAndRoutes();
   // Clear indexedDB
@@ -66,6 +67,7 @@ before(function() {
 });
 
 before(function() {
+  //console.warn = () => {};
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");

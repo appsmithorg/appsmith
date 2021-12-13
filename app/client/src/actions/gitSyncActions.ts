@@ -18,6 +18,13 @@ export const setIsGitSyncModalOpen = (payload: {
   };
 };
 
+export const setIsDisconnectGitModalOpen = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL,
+    payload,
+  };
+};
+
 export const commitToRepoInit = (payload: {
   commitMessage: string;
   doPush: boolean;
@@ -252,4 +259,12 @@ export const showConnectGitModal = () => ({
 
 export const disconnectGit = () => ({
   type: ReduxActionTypes.DISCONNECT_GIT,
+});
+
+export const setDisconnectingGitApplication = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION,
+  payload,
 });

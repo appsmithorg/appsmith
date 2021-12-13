@@ -27,6 +27,11 @@ const initialState: GitSyncReducerState = {
 
   showRepoLimitError: false,
   showRepoLimitErrorModal: false,
+  isDisconnectGitModalOpen: false,
+  disconnectingGitApp: {
+    id: "",
+    name: "",
+  },
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -363,6 +368,20 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     showRepoLimitErrorModal: action.payload,
   }),
+  [ReduxActionTypes.SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    isDisconnectGitModalOpen: action.payload,
+  }),
+  [ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
+    ...state,
+    disconnectingGitApp: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -426,6 +445,11 @@ export type GitSyncReducerState = {
 
   showRepoLimitError?: boolean;
   showRepoLimitErrorModal: boolean;
+  isDisconnectGitModalOpen: boolean;
+  disconnectingGitApp: {
+    id: string;
+    name: string;
+  };
 };
 
 export default gitSyncReducer;
