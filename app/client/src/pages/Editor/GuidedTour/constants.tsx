@@ -335,7 +335,7 @@ export const Steps: StepsType = {
           <>
             Switch to the widget pane and then <b>Drag {"&"} Drop</b> a{" "}
             <b>Button</b> widget into the left bottom of container, below the
-            image. Update the label of the button to <i>Update info</i>
+            image.
           </>
         ),
       },

@@ -4,6 +4,7 @@ import {
   markStepComplete,
   tableWidgetWasSelected,
   enableGuidedTour,
+  updateButtonWidgetText,
 } from "actions/onboardingActions";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -219,6 +220,7 @@ function useComputeCurrentStep(isExploring: boolean) {
     }
   }, [isTableWidgetBound, step, hadReachedStep, nameInputWidgetId]);
 
+  // 4
   useEffect(() => {
     if (step === 4 && hadReachedStep <= 4) {
       if (!!isNameInputBound) {
@@ -227,6 +229,7 @@ function useComputeCurrentStep(isExploring: boolean) {
     }
   }, [isNameInputBound, step, hadReachedStep]);
 
+  // 5
   useEffect(() => {
     if (
       step === 5 &&
@@ -237,13 +240,13 @@ function useComputeCurrentStep(isExploring: boolean) {
     }
   }, [step, meta.completedSubSteps.length, hadReachedStep]);
 
+  // 6
   useEffect(() => {
     if (step === 6 && hadReachedStep <= 6) {
       if (buttonWidgetPresent) {
         dispatch(setIndicatorLocation("NONE"));
-        if (buttonWidgetHasText) {
-          dispatch(markStepComplete());
-        }
+        dispatch(updateButtonWidgetText());
+        dispatch(markStepComplete());
       }
     }
   }, [step, buttonWidgetPresent, buttonWidgetHasText]);

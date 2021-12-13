@@ -103,3 +103,9 @@ export const forceShowContent = (payload: number) => {
     payload,
   };
 };
+
+export const updateButtonWidgetText = () => {
+  return {
+    type: ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
+  };
+};

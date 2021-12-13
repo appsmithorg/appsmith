@@ -177,6 +177,30 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
   }
 }
 
+// Update button widget text
+function* updateWidgetTextSaga() {
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const buttonWidget = Object.values(widgets).find(
+    (widget) => widget.type === "BUTTON_WIDGET",
+  );
+  if (buttonWidget) {
+    yield put(
+      batchUpdateMultipleWidgetProperties([
+        {
+          widgetId: buttonWidget.widgetId,
+          updates: {
+            modify: {
+              label: "Update Info",
+            },
+          },
+        },
+      ]),
+    );
+  }
+}
+
 // Signposting sagas
 function* setEnableFirstTimeUserOnboarding(action: ReduxAction<boolean>) {
   yield storeEnableFirstTimeUserOnboarding(action.payload);
@@ -257,6 +281,10 @@ export default function* onboardingActionSagas() {
     ),
     takeLatest(ReduxActionTypes.SET_UP_TOUR_APP, setUpTourAppSaga),
     takeLatest(ReduxActionTypes.GUIDED_TOUR_ADD_WIDGET, addOnboardingWidget),
+    takeLatest(
+      ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
+      updateWidgetTextSaga,
+    ),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,
