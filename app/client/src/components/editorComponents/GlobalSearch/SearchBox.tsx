@@ -13,7 +13,7 @@ import {
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "constants/messages";
-import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
+import { isMenu, SearchCategory, SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 
@@ -88,7 +88,7 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 type SearchBoxProps = SearchBoxProvided & {
   query: string;
   setQuery: (query: string) => void;
-  category: any;
+  category: SearchCategory;
   setCategory: (category: any) => void;
 };
 
@@ -113,7 +113,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
 
   const updateSearchQuery = useCallback(
     (query) => {
-      // to prevent key combo to open modal from trigging query update
+      // to prevent key combo to open modal from triggering query update
       if (!listenToChange) return;
       setQuery(query);
       (document.querySelector("#global-search") as HTMLInputElement)?.focus();

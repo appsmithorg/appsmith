@@ -19,11 +19,6 @@ import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
 import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
-import {
-  getActions,
-  getAllPageWidgets,
-  getJSCollections,
-} from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   toggleShowGlobalSearchModal,
@@ -41,7 +36,6 @@ import {
   DocSearchItem,
   SearchItem,
   algoliaHighlightTag,
-  attachKind,
   SEARCH_CATEGORY_ID,
   getEntityId,
   filterCategories,
@@ -53,6 +47,7 @@ import {
   isDocumentation,
   SelectEvent,
   getOptionalFilters,
+  isActionOperation,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -64,12 +59,9 @@ import {
 } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  getCurrentApplicationId,
-  getPageList,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
-import { get, keyBy, noop } from "lodash";
+import { get, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
@@ -82,11 +74,21 @@ import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import {
+  useFilteredActions,
+  useFilteredFileOperations,
+  useFilteredJSCollections,
+  useFilteredPages,
+  useFilteredWidgets,
+} from "./GlobalSearchHooks";
 
 const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
   max-height: 530px;
-  height: ${(props) => (isMenu(props.category) ? "auto" : "530px")};
+  height: ${(props) =>
+    isMenu(props.category) || isActionOperation(props.category)
+      ? "auto"
+      : "530px"};
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
   padding: ${(props) => props.theme.spaces[5]}px;
@@ -168,6 +170,8 @@ const getSortedResults = (
   );
 };
 
+const filterCategoryList = getFilterCategoryList();
+
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
@@ -183,7 +187,6 @@ function GlobalSearch() {
   const optionalFilterMeta = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.fieldMeta,
   );
-  const filterCategoryList = getFilterCategoryList();
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
@@ -240,21 +243,6 @@ function GlobalSearch() {
     setActiveItemIndex(0);
   }, [refinements]);
 
-  const allWidgets = useSelector(getAllPageWidgets);
-
-  const searchableWidgets = useMemo(
-    () =>
-      allWidgets.filter(
-        (widget: any) =>
-          ["CANVAS_WIDGET", "ICON_WIDGET"].indexOf(widget.type) === -1,
-      ),
-    [allWidgets],
-  );
-  const actions = useSelector(getActions);
-  const jsActions = useSelector(getJSCollections);
-  const pages = useSelector(getPageList) || [];
-  const pageMap = keyBy(pages, "pageId");
-
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
@@ -302,54 +290,18 @@ function GlobalSearch() {
     if (query) setActiveItemIndex(0);
   }, [query]);
 
-  const filteredWidgets = useMemo(() => {
-    if (!query) return searchableWidgets;
-
-    return searchableWidgets.filter((widget: any) => {
-      const page = pageMap[widget.pageId];
-      const isPageNameMatching = isMatching(page?.pageName, query);
-      const isWidgetNameMatching = isMatching(widget?.widgetName, query);
-
-      return isWidgetNameMatching || isPageNameMatching;
-    });
-  }, [allWidgets, query]);
-  const filteredActions = useMemo(() => {
-    if (!query) return actions;
-
-    return actions.filter((action: any) => {
-      const page = pageMap[action?.config?.pageId];
-      const isPageNameMatching = isMatching(page?.pageName, query);
-      const isActionNameMatching = isMatching(action?.config?.name, query);
-
-      return isActionNameMatching || isPageNameMatching;
-    });
-  }, [actions, query]);
-  const filteredJSCollections = useMemo(() => {
-    if (!query) return jsActions;
-
-    return jsActions.filter((action: any) => {
-      const page = pageMap[action?.config?.pageId];
-      const isPageNameMatching = isMatching(page?.pageName, query);
-      const isActionNameMatching = isMatching(action?.config?.name, query);
-
-      return isActionNameMatching || isPageNameMatching;
-    });
-  }, [jsActions, query]);
-  const filteredPages = useMemo(() => {
-    if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
-
-    return attachKind(
-      pages.filter(
-        (page: any) =>
-          page.pageName.toLowerCase().indexOf(query?.toLowerCase()) > -1,
-      ),
-      SEARCH_ITEM_TYPES.page,
-    );
-  }, [pages, query]);
+  const filteredWidgets = useFilteredWidgets(query);
+  const filteredActions = useFilteredActions(query);
+  const filteredJSCollections = useFilteredJSCollections(query);
+  const filteredPages = useFilteredPages(query);
+  const filteredFileOperations = useFilteredFileOperations(query);
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
       return filterCategoryList.filter((cat: SearchCategory) => !isMenu(cat));
+    }
+    if (isActionOperation(category)) {
+      return filteredFileOperations;
     }
     if (isSnippet(category)) {
       return snippets;
@@ -532,6 +484,11 @@ function GlobalSearch() {
       setCategory(item),
     [SEARCH_ITEM_TYPES.snippet]: (e: SelectEvent, item: any) =>
       handleSnippetClick(e, item),
+    [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
+      if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
+      else if (item.redirect) item.redirect(currentPageId);
+      dispatch(toggleShowGlobalSearchModal());
+    },
   };
 
   const handleItemLinkClick = (

@@ -16,6 +16,7 @@ import {
   SearchCategory,
   isMenu,
   comboHelpText,
+  isActionOperation,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -332,7 +333,7 @@ const StyledSectionTitleContainer = styled.div`
 function SectionTitle({ item }: { item: SearchItem }) {
   return (
     <StyledSectionTitleContainer>
-      <img className="section-title__icon" src={item.icon} />
+      {item.icon && <img className="section-title__icon" src={item.icon} />}
       <span className="section-title__text">{item.title}</span>
     </StyledSectionTitleContainer>
   );
@@ -422,6 +423,40 @@ function SnippetItem({ item: { body } }: any) {
   );
 }
 
+const ActionOperation = styled.div<{ isActive: boolean }>`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  .operation-title {
+    padding: 0 10px;
+  }
+  .operation-desc {
+    color: gray;
+    font-size: 12px;
+    opacity: ${(props) => (props.isActive ? 1 : 0)};
+  }
+  &&&:hover {
+    .operation-desc {
+      opacity: 1;
+    }
+  }
+`;
+
+function ActionOperationItem({ isActiveItem, item }: any) {
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const icon = item.pluginId && getPluginIcon(pluginGroups[item.pluginId]);
+  return (
+    <ActionOperation isActive={isActiveItem}>
+      {item.icon || icon}
+      <span className="operation-title">{item.title}</span>
+      {item.desc && <span className="operation-desc"> ~ {item.desc}</span>}
+    </ActionOperation>
+  );
+}
+
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
@@ -433,6 +468,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.jsAction]: JSCollectionItem,
   [SEARCH_ITEM_TYPES.category]: CategoryItem,
   [SEARCH_ITEM_TYPES.snippet]: SnippetItem,
+  [SEARCH_ITEM_TYPES.actionOperation]: ActionOperationItem,
 };
 
 type ItemProps = {
@@ -488,7 +524,10 @@ const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
     overflow: auto;
     height: 100%;
     width: 100%;
-    padding-bottom: ${(props) => (isMenu(props.category) ? "0" : "50px")};
+    padding-bottom: ${(props) =>
+      isMenu(props.category) || isActionOperation(props.category)
+        ? "0"
+        : "50px"};
   }
 `;
 

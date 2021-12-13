@@ -35,6 +35,7 @@ import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Datasources } from "./Datasources";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -172,6 +173,7 @@ function EntityExplorer(props: IPanelProps) {
         />
       )}
       <StyledDivider />
+      <Datasources />
       <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
