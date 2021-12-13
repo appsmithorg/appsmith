@@ -80,7 +80,6 @@ import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 
-
 const QueryFormContainer = styled.form`
   flex: 1;
   display: flex;
