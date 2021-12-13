@@ -903,7 +903,9 @@ export function EditorJSONtoForm(props: Props) {
               <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
             </TabbedViewContainer>
           </SecondaryWrapper>
-          <SidebarWrapper show={hasDependencies || !!output}>
+          <SidebarWrapper
+            show={(hasDependencies || !!output) && !guidedTourEnabled}
+          >
             <ActionRightPane
               actionName={actionName}
               entityDependencies={entityDependencies}
