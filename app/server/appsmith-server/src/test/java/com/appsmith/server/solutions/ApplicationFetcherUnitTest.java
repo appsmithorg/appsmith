@@ -10,10 +10,10 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
@@ -49,11 +49,20 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     ReleaseNotesService releaseNotesService;
 
-    @Autowired
     ApplicationFetcher applicationFetcher;
 
     User testUser;
 
+
+    @Before
+    public void setup() {
+        applicationFetcher = new ApplicationFetcherImpl(sessionUserService,
+                userService,
+                userDataService,
+                organizationService,
+                applicationRepository,
+                releaseNotesService);
+    }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {
         List<Application> applicationList = new ArrayList<>(orgCount * appCount);

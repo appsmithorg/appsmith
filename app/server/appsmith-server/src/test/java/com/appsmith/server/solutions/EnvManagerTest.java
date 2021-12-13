@@ -13,10 +13,10 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -56,8 +56,20 @@ public class EnvManagerTest {
     @MockBean
     private FileUtils fileUtils;
 
-    @Autowired
     EnvManager envManager;
+
+    @Before
+    public void setup() {
+        envManager = new EnvManagerImpl(sessionUserService,
+                userService,
+                policyUtils,
+                emailSender,
+                commonConfig,
+                emailConfig,
+                javaMailSender,
+                googleRecaptchaConfig,
+                fileUtils);
+    }
 
     @Test
     public void simpleSample() {

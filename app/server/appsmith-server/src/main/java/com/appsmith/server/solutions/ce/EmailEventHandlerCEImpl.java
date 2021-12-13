@@ -15,9 +15,9 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -36,7 +36,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 
 
-@RequiredArgsConstructor
 @Slf4j
 public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
@@ -47,7 +46,27 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     private final ApplicationRepository applicationRepository;
     private final NewPageRepository newPageRepository;
     private final PolicyUtils policyUtils;
+
+    @Autowired
     private final EmailConfig emailConfig;
+
+    @Autowired
+    public EmailEventHandlerCEImpl(ApplicationEventPublisher applicationEventPublisher,
+                                   EmailSender emailSender,
+                                   OrganizationRepository organizationRepository,
+                                   ApplicationRepository applicationRepository,
+                                   NewPageRepository newPageRepository,
+                                   PolicyUtils policyUtils,
+                                   EmailConfig emailConfig) {
+
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.emailSender = emailSender;
+        this.organizationRepository = organizationRepository;
+        this.applicationRepository = applicationRepository;
+        this.newPageRepository = newPageRepository;
+        this.policyUtils = policyUtils;
+        this.emailConfig = emailConfig;
+    }
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
         if (CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
