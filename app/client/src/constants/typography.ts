@@ -135,6 +135,12 @@ export const typography = {
     fontWeight: "bold",
     fontSize: 13,
   },
+  u2: {
+    fontSize: 10,
+    fontStyle: "normal",
+    fontWeight: 600,
+    lineHeight: 12,
+  },
 };
 
 export type TypographyKeys = keyof typeof typography;
