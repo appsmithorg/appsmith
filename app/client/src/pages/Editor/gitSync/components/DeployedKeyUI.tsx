@@ -112,7 +112,9 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
       <Space size={7} />
       <Text color={Colors.GREY_9} type={TextType.P3}>
         {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-        <LintText onClick={clickHandler}>{createMessage(LEARN_MORE)}</LintText>
+        <LintText className="t--learn-more-deploy-key" onClick={clickHandler}>
+          {createMessage(LEARN_MORE)}
+        </LintText>
       </Text>
       <FlexRow>
         <DeployedKeyContainer $marginTop={4}>

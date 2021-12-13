@@ -389,6 +389,7 @@ function GitConnection({ isImport }: Props) {
             </Text>
             <Space horizontal size={1} />
             <Link
+              className="t--learn-more-ssh-url"
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
               link={DOCS_BASE_URL}

@@ -25,4 +25,6 @@ export default {
   connectGitBottomBar: ".t--connect-git-bottom-bar",
   syncBranches: ".t--sync-branches",
   closeBranchList: ".t--close-branch-list",
+  learnMoreDeployKey: ".t--learn-more-deploy-key",
+  learnMoreSshUrl: ".t--learn-more-ssh-url",
 };

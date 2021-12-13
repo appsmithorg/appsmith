@@ -38,7 +38,7 @@ describe("Git sync modal: connect tab", function() {
     );
   });
 
-  it("validates repo URL", function() {
+  it.only("validates repo URL", function() {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click();
