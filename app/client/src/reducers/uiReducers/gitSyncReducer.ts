@@ -25,6 +25,9 @@ const initialState: GitSyncReducerState = {
   isFetchingLocalGitConfig: false,
   isFetchingGitConfig: false,
 
+  isMerging: false,
+  tempRemoteUrl: "",
+
   showRepoLimitError: false,
   showRepoLimitErrorModal: false,
   isDisconnectGitModalOpen: false,

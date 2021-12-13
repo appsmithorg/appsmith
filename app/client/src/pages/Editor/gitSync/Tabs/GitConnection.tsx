@@ -392,6 +392,10 @@ function GitConnection({ isImport }: Props) {
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
               link={DOCS_BASE_URL}
+              onClick={() => {
+                AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_REMOTEURL_CLICK");
+                window.open(DOCS_BASE_URL, "_blank");
+              }}
               text={createMessage(LEARN_MORE)}
             />
           </RemoteUrlInfoWrapper>
