@@ -2,7 +2,13 @@ import React from "react";
 
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { modText, flashElementsById, isMac } from "./helpers";
+import {
+  modText,
+  flashElementsById,
+  isMac,
+  flashElement,
+  hasClass,
+} from "./helpers";
 import localStorage from "./localStorage";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -58,7 +64,6 @@ export const processUndoRedoToasts = (
       undoRedoToasts.map((toast) => toast.widgetId),
       100,
       1000,
-      "#E0DEDE",
     );
   showUndoRedoToast(widgetName, isMultipleToasts, isCreated, !isUndo);
 };
@@ -129,5 +134,45 @@ export function shouldDisallowToast(shouldUndo: boolean): boolean {
     return false;
   }
 
+  return true;
+}
+
+export function highlightReplayElement(configProperties: Array<string> = []) {
+  const elements = configProperties
+    .map((configProperty: string) => {
+      const replayId = btoa(configProperty);
+      return document.querySelector(
+        `[data-replay-id="${replayId}"]`,
+      ) as HTMLElement;
+    })
+    .filter((el) => Boolean(el));
+  if (elements.length === 1) {
+    elements[0].scrollIntoView({ behavior: "smooth" });
+  }
+  elements.forEach((element) => flashElement(element));
+}
+
+export function switchTab(replayId: string): boolean {
+  if (!replayId) return false;
+  const element = document.querySelector(
+    `[data-replay-id="${replayId}"]`,
+  ) as HTMLElement;
+  if (!element) return false;
+  if (hasClass(element, "react-tabs__tab--selected")) return false;
+  element?.click();
+  return true;
+}
+
+export function expandAccordion(replayId: string): boolean {
+  if (!replayId) return false;
+  const element = document.querySelector(
+    `[data-replay-id="section-${replayId}"]`,
+  );
+  if (!element) return false;
+  const accordion = element.querySelector(
+    ".bp3-icon-chevron-down",
+  ) as HTMLElement;
+  if (!accordion) return false;
+  accordion.click();
   return true;
 }

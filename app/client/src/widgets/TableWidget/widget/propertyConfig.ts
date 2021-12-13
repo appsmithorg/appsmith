@@ -18,7 +18,17 @@ import {
   updateIconAlignment,
   getBasePropertyPath,
   hideByColumnType,
+  uniqueColumnNameValidation,
 } from "./propertyUtils";
+import {
+  createMessage,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+} from "constants/messages";
+import { IconNames } from "@blueprintjs/icons";
+
+const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
 
 export default [
   {
@@ -51,6 +61,17 @@ export default [
         dependencies: ["derivedColumns", "columnOrder"],
         isBindProperty: false,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: uniqueColumnNameValidation,
+            expected: {
+              type: "Unique Column Names",
+              example: "abc",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
@@ -681,12 +702,16 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultIconName: "add",
                   isJSConvertible: true,
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: "plus",
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ICON_NAMES,
+                        default: IconNames.ADD,
+                      },
                     },
                   },
                 },
@@ -807,17 +832,22 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
+                  defaultValue: ButtonVariantTypes.PRIMARY,
+
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: ButtonVariantTypes.PRIMARY,
-                      allowedValues: [
-                        ButtonVariantTypes.PRIMARY,
-                        ButtonVariantTypes.SECONDARY,
-                        ButtonVariantTypes.TERTIARY,
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        default: ButtonVariantTypes.PRIMARY,
+                        allowedValues: [
+                          ButtonVariantTypes.PRIMARY,
+                          ButtonVariantTypes.SECONDARY,
+                          ButtonVariantTypes.TERTIARY,
+                        ],
+                      },
                     },
                   },
                 },
@@ -937,6 +967,7 @@ export default [
                   controlType: "COLOR_PICKER",
                   isBindProperty: false,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
                   defaultColor: Colors.GREEN,
@@ -1284,7 +1315,7 @@ export default [
                         ],
                       },
                       {
-                        sectionName: "Actions",
+                        sectionName: "Events",
                         children: [
                           {
                             helpText:
@@ -1310,6 +1341,17 @@ export default [
             },
           ],
         },
+      },
+      {
+        helpText:
+          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on value",
+        propertyName: "primaryColumnId",
+        dependencies: ["primaryColumns"],
+        label: "Primary key column",
+        controlType: "PRIMARY_COLUMNS_DROPDOWN",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "defaultSearchText",
@@ -1374,8 +1416,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText:
-          "Bind the Table.pageSize and Table.pageNo property in your API and call it onPageChange. Without this the Table widget cannot calculate the number of pages and disable page buttons.",
+        helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
         propertyName: "totalRecordsCount",
         label: "Total Record Count",
         controlType: "INPUT_TEXT",
@@ -1431,10 +1472,17 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        propertyName: "enableClientSideSearch",
+        label: "Enable client side search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a table row is selected",

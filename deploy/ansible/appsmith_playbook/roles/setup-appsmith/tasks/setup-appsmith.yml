@@ -1,0 +1,16 @@
+---
+- name: Create installation folder
+  file:
+    path: '{{ install_dir }}'
+    state: directory
+
+- name: Download docker-compose.yml
+  get_url:
+    url: https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/docker-compose.yml
+    dest: '{{ install_dir }}'
+    mode: 0440
+
+- name: Start Appsmith
+  shell: docker-compose up -d
+  args:
+    chdir: '{{ install_dir }}'
