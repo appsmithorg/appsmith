@@ -2,6 +2,7 @@ package com.appsmith.external.services;
 
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.SortType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,6 +25,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -40,11 +43,18 @@ import static com.appsmith.external.models.Condition.addValueDataType;
 @Slf4j
 public class FilterDataService {
 
+    public static final String SORT_BY_COLUMN_NAME_KEY = "columnName";
+    public static final String SORT_BY_TYPE_KEY = "type";
+    public static final String DATA_INFO_VALUE_KEY = "value";
+    public static final String DATA_INFO_TYPE_KEY = "type";
+    public static final String PAGINATE_LIMIT_KEY = "limit";
+    public static final String PAGINATE_OFFSET_KEY = "offset";
+
     private static FilterDataService instance = null;
     private ObjectMapper objectMapper;
     private Connection connection;
 
-    private static final String URL = "jdbc:h2:mem:filterDb";
+    private static final String URL = "jdbc:h2:mem:filterDb;DATABASE_TO_UPPER=FALSE";
 
     private static final Map<DataType, String> SQL_DATATYPE_MAP = Map.of(
             DataType.INTEGER, "INT",
@@ -120,13 +130,18 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
+    public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
+        return filterDataNew(items, condition, null, null, null);
+    }
+
     /**
      * This filter method is using the new UQI format of
      * @param items
      * @param condition
      * @return
      */
-    public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
+    public ArrayNode filterDataNew(ArrayNode items, Condition condition, List<String> projectionColumns,
+                                   List<Map<String, Object>> sortBy, Map<String, String> paginateBy) {
 
         if (items == null || items.size() == 0) {
             return items;
@@ -142,7 +157,8 @@ public class FilterDataService {
         insertAllData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, updatedCondition, schema);
+        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, updatedCondition, schema,
+                projectionColumns, sortBy, paginateBy);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -152,12 +168,17 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
-    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Condition condition, Map<String, DataType> schema) {
+    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Condition condition, Map<String,
+            DataType> schema, List<String> projectionColumns, List<Map<String, Object>> sortBy,
+                                                            Map<String, String> paginateBy) {
         Connection conn = checkAndGetConnection();
 
-        StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
+        StringBuilder sb = new StringBuilder();
 
-        LinkedHashMap<String, DataType> values = new LinkedHashMap<>();
+        // Add projection columns condition otherwise use `select *`
+        addProjectionCondition(sb, projectionColumns, tableName);
+
+        List<Map<String, Object>> values = new ArrayList<>();
 
         if (condition != null) {
             ConditionalOperator operator = condition.getOperator();
@@ -171,6 +192,12 @@ public class FilterDataService {
             }
         }
 
+        // Add `order by` condition
+        addSortCondition(sb, sortBy);
+
+        // Add `limit <num> offset <num>` condition
+        addPaginationCondition(sb, paginateBy, values);
+
         sb.append(";");
 
         List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -180,12 +207,11 @@ public class FilterDataService {
 
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
-            Set<Map.Entry<String, DataType>> valueEntries = values.entrySet();
-            Iterator<Map.Entry<String, DataType>> iterator = valueEntries.iterator();
+            Iterator<Map<String, Object>> iterator = values.iterator();
             for (int i = 0; iterator.hasNext(); i++) {
-                Map.Entry<String, DataType> valueEntry = iterator.next();
-                String value = valueEntry.getKey();
-                DataType dataType = valueEntry.getValue();
+                Map<String, Object> dataInfo = iterator.next();
+                String value = (String) dataInfo.get("value");
+                DataType dataType = (DataType) dataInfo.get("type");
                 setValueInStatement(preparedStatement, i + 1, value, dataType);
             }
 
@@ -214,6 +240,94 @@ public class FilterDataService {
         }
 
         return rowsList;
+    }
+
+    /**
+     * This method adds the following clause to the SQL query: `LIMIT <num> OFFSET <num>`
+     *
+     * @param sb - SQL query builder
+     * @param paginateBy - values for limit and offset
+     * @param values - list to hold values to be substituted in prepared statement
+     */
+    private void addPaginationCondition(StringBuilder sb, Map<String, String> paginateBy,
+                                        List<Map<String, Object>> values) {
+        if (CollectionUtils.isEmpty(paginateBy)) {
+            return;
+        }
+
+        sb.append(" LIMIT ? OFFSET ?");
+
+        // Set limit value and data type for prepared statement substitution
+        String limit = paginateBy.get(PAGINATE_LIMIT_KEY);
+        Map limitDataInfo = new HashMap();
+        limitDataInfo.put(DATA_INFO_VALUE_KEY, limit);
+        limitDataInfo.put(DATA_INFO_TYPE_KEY, DataType.INTEGER);
+        values.add(limitDataInfo);
+
+        // Set offset value and data type for prepared statement substitution
+        String offset = paginateBy.get(PAGINATE_OFFSET_KEY);
+        Map offsetDataInfo = new HashMap();
+        offsetDataInfo.put(DATA_INFO_VALUE_KEY, offset);
+        offsetDataInfo.put(DATA_INFO_TYPE_KEY, DataType.INTEGER);
+        values.add(offsetDataInfo);
+    }
+
+    /**
+     * Display only those columns that the user has chosen to display.
+     * E.g. if the projectionColumns is a list that contains ["ID, Name"], then this method will add the following
+     * SQL line: `SELECT ID, Name from tableName`, otherwise it will add: `SELECT * FROM tableName`
+     *
+     * @param sb - SQL query builder
+     * @param projectionColumns - list of columns that need to be displayed
+     * @param tableName - table name in database
+     */
+    private void addProjectionCondition(StringBuilder sb, List<String> projectionColumns, String tableName) {
+        if (!CollectionUtils.isEmpty(projectionColumns)) {
+            sb.append("SELECT");
+            projectionColumns.stream()
+                    .forEach(columnName -> sb.append(" " + columnName + ","));
+
+            sb.setLength(sb.length() - 1);
+            sb.append(" FROM " + tableName);
+        }
+        else {
+            sb.append("SELECT * FROM " + tableName);
+        }
+    }
+
+    /**
+     * This method adds `ORDER BY` clause to the SQL query. E.g. if the sortBy list is
+     * [
+     *   {"columnName": "ID", "type": "ASCENDING"},
+     *   {"columnName": "Name", "type": "DESCENDING"}
+     * ]
+     * then this method will add the following line to the SQL query: `ORDER BY ID ASC, Name DESC`
+     *
+     * @param sb - SQL query builder
+     * @param sortBy - list of columns to sort by and sort type (ascending / descending)
+     * @throws AppsmithPluginException
+     */
+    private void addSortCondition(StringBuilder sb, List<Map<String, Object>> sortBy) throws AppsmithPluginException {
+        if (CollectionUtils.isEmpty(sortBy)) {
+            return;
+        }
+
+        sb.append(" ORDER BY");
+        sortBy.stream()
+                .forEach(sortCondition -> {
+                    String columnName = (String) sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
+                    SortType sortType;
+                    try {
+                        sortType = SortType.valueOf((String) sortCondition.get(SORT_BY_TYPE_KEY));
+                    } catch (IllegalArgumentException e) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Appsmith server failed " +
+                                "to parse the type of sort condition. Please reach out to Appsmith customer support " +
+                                "to resolve this.");
+                    }
+                    sb.append(" " + columnName + " " + sortType + ",");
+                });
+
+        sb.setLength(sb.length() - 1);
     }
 
     public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
@@ -692,7 +806,8 @@ public class FilterDataService {
         return true;
     }
 
-    public String generateLogicalExpression(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema, ConditionalOperator logicOp) {
+    public String generateLogicalExpression(List<Condition> conditions, List<Map<String, Object>> values,
+                                            Map<String, DataType> schema, ConditionalOperator logicOp) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -740,7 +855,10 @@ public class FilterDataService {
                             List<String> updatedStringValues = arrayValues
                                     .stream()
                                     .map(fieldValue -> {
-                                        values.put(String.valueOf(fieldValue), schema.get(path));
+                                        Map dataInfo = new HashMap();
+                                        dataInfo.put(DATA_INFO_VALUE_KEY, String.valueOf(fieldValue));
+                                        dataInfo.put(DATA_INFO_TYPE_KEY, schema.get(path));
+                                        values.add(dataInfo);
                                         return "?";
                                     })
                                     .collect(Collectors.toList());
@@ -758,7 +876,10 @@ public class FilterDataService {
                     } else {
                         // Not an array. Simply add a placeholder
                         sb.append("?");
-                        values.put(value, schema.get(path));
+                        Map dataInfo = new HashMap();
+                        dataInfo.put(DATA_INFO_VALUE_KEY, value);
+                        dataInfo.put(DATA_INFO_TYPE_KEY, schema.get(path));
+                        values.add(dataInfo);
                     }
 
                     sb.append(" ) ");
