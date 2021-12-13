@@ -461,6 +461,51 @@ class BaseInputComponent extends React.Component<
       ? this.numericInputComponent()
       : this.textInputComponent(isTextArea);
 
+  onStepIncrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    this.props.onStep && this.props.onStep(1);
+  };
+
+  onStepDecrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    this.props.onStep && this.props.onStep(-1);
+  };
+
+  componentDidMount() {
+    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
+      const element: any = document.querySelector(
+        `#${this.props.widgetId} .bp3-button-group`,
+      );
+
+      if (element !== null) {
+        element.childNodes[0].addEventListener("click", this.onStepIncrement);
+        element.childNodes[1].addEventListener(
+          "click",
+          () => this.onStepDecrement,
+        );
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
+      const element: any = document.querySelectorAll(
+        `#${this.props.widgetId} .bp3-button`,
+      );
+
+      if (element !== null) {
+        element.childNodes[0].removeEventListener(
+          "click",
+          this.onStepIncrement,
+        );
+        element.childNodes[1].removeEventListener(
+          "click",
+          () => this.onStepDecrement,
+        );
+      }
+    }
+  }
+
   render() {
     const {
       label,
@@ -578,6 +623,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   ) => void;
   maxChars?: number;
   widgetId: string;
+  onStep?: (direction: number) => void;
 }
 
 export default BaseInputComponent;

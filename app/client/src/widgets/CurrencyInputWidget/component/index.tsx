@@ -42,17 +42,6 @@ class CurrencyInputComponent extends React.Component<
     }
   };
 
-  getStepSize() {
-    switch (this.props.decimals) {
-      case 0:
-        return 1;
-      case 1:
-        return 0.1;
-      case 2:
-        return 0.01;
-    }
-  }
-
   componentDidMount() {
     if (this.props.countryCode) {
       this.props.onCurrencyTypeChange(this.props.countryCode);
@@ -84,10 +73,11 @@ class CurrencyInputComponent extends React.Component<
         multiline={false}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.onKeyDown}
+        onStep={this.props.onStep}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
         showError={this.props.showError}
-        stepSize={this.getStepSize()}
+        stepSize={1}
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
@@ -102,6 +92,7 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
   allowCurrencyChange?: boolean;
   decimals?: number;
   onCurrencyTypeChange: (code?: string) => void;
+  onStep: (direction: number) => void;
 }
 
 export default CurrencyInputComponent;

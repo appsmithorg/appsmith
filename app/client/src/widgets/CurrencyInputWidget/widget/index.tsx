@@ -289,6 +289,10 @@ class CurrencyInputWidget extends BaseInputWidget<
     }
   };
 
+  onStep = (direction: number) => {
+    direction;
+  };
+
   getPageView() {
     const value = this.props.text ?? "";
     const isInvalid =
@@ -324,6 +328,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
+        onStep={this.onStep}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
