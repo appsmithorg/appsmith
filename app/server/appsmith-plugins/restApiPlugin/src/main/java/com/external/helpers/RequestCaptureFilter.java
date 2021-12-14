@@ -119,18 +119,26 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType.get())) {
             final List<Property> bodyFormData = actionConfiguration.getBodyFormData();
             Map<String, Object> bodyDataMap = new HashMap<>();
-            bodyFormData.forEach(property -> bodyDataMap.put(property.getKey(), property.getValue()));
+            bodyFormData
+                    // Disregard keys that are null
+                    .stream()
+                    .filter(property -> property.getKey() != null)
+                    .forEach(property -> bodyDataMap.put(property.getKey(), property.getValue()));
             actionExecutionRequest.setBody(bodyDataMap);
         } else if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType.get())) {
             final List<Property> bodyFormData = actionConfiguration.getBodyFormData();
             Map<String, Object> bodyDataMap = new HashMap<>();
-            bodyFormData.forEach(property -> {
-                if ("FILE".equalsIgnoreCase(property.getType())) {
-                    bodyDataMap.put(property.getKey(), "<file>");
-                } else {
-                    bodyDataMap.put(property.getKey(), property.getValue());
-                }
-            });
+            bodyFormData
+                    // Disregard keys that are null
+                    .stream()
+                    .filter(property -> property.getKey() != null)
+                    .forEach(property -> {
+                        if ("FILE".equalsIgnoreCase(property.getType())) {
+                            bodyDataMap.put(property.getKey(), "<file>");
+                        } else {
+                            bodyDataMap.put(property.getKey(), property.getValue());
+                        }
+                    });
             actionExecutionRequest.setBody(bodyDataMap);
         }
 
