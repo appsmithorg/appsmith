@@ -19,10 +19,12 @@ import {
   getActions,
   getDatasourceIdToNameMap,
   getDatasources,
-  getJSCollections,
+  getActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
 } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import getFeatureFlags from "utils/featureFlags";
+import { ExplorerFileEntity } from "./helpers";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -315,36 +317,44 @@ export const useEntityEditState = (entityId: string) => {
 };
 
 export const useFilesForExplorer = (sort = "name") => {
-  const actions = useSelector(getActions);
-  const jsActions = useSelector(getJSCollections);
+  const actions = useSelector(getActionsForCurrentPage);
+  const jsActions = useSelector(getJSCollectionsForCurrentPage);
+  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
   const datasourceIdToNameMap = useSelector(getDatasourceIdToNameMap);
 
   const files = useMemo(
     () =>
-      [...actions, ...jsActions].reduce((acc, file) => {
-        let group = "";
-        if (file.config.pluginType === PluginType.JS) {
-          group = "JS Objects";
-        } else if (file.config.pluginType === PluginType.API) {
-          group = "API";
-        } else {
-          group = datasourceIdToNameMap[file.config.datasource.id];
-        }
-        acc = acc.concat({
-          type: file.config.pluginType,
-          entity: file,
-          group,
-        });
-        return acc;
-      }, [] as Array<{ type: string; group?: string; entity: ActionData | JSCollectionData }>),
+      [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
+        (acc, file) => {
+          let group = "";
+          if (file.config.pluginType === PluginType.JS) {
+            group = "JS Objects";
+          } else if (file.config.pluginType === PluginType.API) {
+            group = "APIs";
+          } else {
+            group = datasourceIdToNameMap[file.config.datasource.id];
+          }
+          acc = acc.concat({
+            type: file.config.pluginType,
+            entity: file,
+            group,
+          });
+          return acc;
+        },
+        [] as Array<ExplorerFileEntity>,
+      ),
     [actions, jsActions, datasourceIdToNameMap],
   );
 
   return useMemo(() => {
     if (sort === "name") {
-      return sortBy(files, "entity.name");
+      return sortBy(files, "entity.config.name");
     } else if (sort === "type") {
-      const filesSortedByGroupName = sortBy(files, "group", "entity.name");
+      const filesSortedByGroupName = sortBy(
+        files,
+        "group",
+        "entity.config.name",
+      );
       const groupedFiles = filesSortedByGroupName.reduce(
         (acc, file) => {
           if (acc.group !== file.group) {
