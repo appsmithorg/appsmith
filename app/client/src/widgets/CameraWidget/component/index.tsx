@@ -71,6 +71,12 @@ const CameraContainer = styled.div<CameraContainerProps>`
     max-width: none;
     ${({ scaleAxis }) => (scaleAxis === "x" ? `width: 100%` : `height: 100%`)};
   }
+
+  .fullscreen-enabled {
+    video {
+      height: 100%;
+    }
+  }
 `;
 
 const PhotoViewer = styled.img``;
