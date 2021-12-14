@@ -113,6 +113,6 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     //Check the values not allowed error message
     cy.updateCodeInput(".t--property-control-textsize", "HEADING10");
 
-    cy.evaluateErrorMessage("Value is not allowed");
+    cy.evaluateErrorMessage("Disallowed value: HEADING10");
   });
 });

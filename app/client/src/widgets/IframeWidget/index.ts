@@ -15,6 +15,7 @@ export const CONFIG = {
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Iframe",
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
