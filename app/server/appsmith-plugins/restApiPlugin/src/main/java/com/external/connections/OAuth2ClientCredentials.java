@@ -2,7 +2,10 @@ package com.external.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.UpdatableConnection;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,9 +29,7 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Setter
 @Getter
