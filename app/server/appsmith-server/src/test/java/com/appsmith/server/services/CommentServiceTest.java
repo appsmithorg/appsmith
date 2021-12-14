@@ -350,7 +350,7 @@ public class CommentServiceTest {
         Mono<Long> unreadCountMono = commentThreadRepository
                 .saveAll(List.of(c1, c2, c3)) // save all the threads
                 .collectList()
-                .then(commentService.getUnreadCount("test-application-1")); // count unread in first app
+                .then(commentService.getUnreadCount("test-application-1", null)); // count unread in first app
 
         StepVerifier.create(unreadCountMono).assertNext(aLong -> {
             assertThat(aLong).isEqualTo(1);
@@ -377,7 +377,7 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 })
                 .flatMap(savedComment ->
                         commentThreadRepository.findById(savedComment.getThreadId())
@@ -590,7 +590,7 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 });
 
         StepVerifier.create(commentMono).assertNext(comment -> {
