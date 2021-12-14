@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
-import { GitSyncModalTab, GitConfig } from "entities/GitSync";
+import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import { ReduxActionErrorTypes } from "../constants/ReduxActionConstants";
@@ -74,16 +74,6 @@ export const connectToGitSuccess = (payload: ConnectToGitResponse) => ({
   payload,
 });
 
-export const disconnectToGitInit = () => ({
-  type: ReduxActionTypes.DISCONNECT_TO_GIT_INIT,
-  payload: null,
-});
-
-export const disconnectToGitSuccess = (payload: unknown) => ({
-  type: ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS,
-  payload,
-});
-
 export const switchGitBranchInit = (branch: string) => ({
   type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
   payload: branch,
@@ -140,8 +130,9 @@ export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   payload,
 });
 
-export const fetchBranchesInit = () => ({
+export const fetchBranchesInit = (payload?: { pruneBranches: boolean }) => ({
   type: ReduxActionTypes.FETCH_BRANCHES_INIT,
+  payload,
 });
 
 export const fetchBranchesSuccess = (payload: any) => ({
@@ -204,11 +195,40 @@ export const fetchMergeStatusInit = (payload: MergeBranchPayload) => ({
   payload,
 });
 
-export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
+export const fetchMergeStatusSuccess = (payload: MergeStatus) => ({
   type: ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS,
   payload,
 });
 
-export const fetchMergeStatusFailure = () => ({
+export const fetchMergeStatusFailure = (payload: {
+  error: string;
+  show: boolean;
+}) => ({
   type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
+  payload,
+});
+
+export const resetMergeStatus = () => ({
+  type: ReduxActionTypes.RESET_MERGE_STATUS,
+});
+
+export const gitPullInit = (payload?: {
+  triggeredFromBottomBar?: boolean;
+}) => ({
+  type: ReduxActionTypes.GIT_PULL_INIT,
+  payload,
+});
+
+export const gitPullSuccess = (mergeStatus: MergeStatus) => ({
+  type: ReduxActionTypes.GIT_PULL_SUCCESS,
+  payload: mergeStatus,
+});
+
+export const resetPullMergeStatus = () => ({
+  type: ReduxActionTypes.RESET_PULL_MERGE_STATUS,
+});
+
+export const remoteUrlInputValue = (payload?: { tempRemoteUrl?: string }) => ({
+  type: ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE,
+  payload,
 });

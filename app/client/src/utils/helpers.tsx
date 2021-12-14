@@ -144,6 +144,20 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
+export function hasClass(ele: HTMLElement, cls: string) {
+  return ele.classList.contains(cls);
+}
+
+function addClass(ele: HTMLElement, cls: string) {
+  if (!hasClass(ele, cls)) ele.classList.add(cls);
+}
+
+function removeClass(ele: HTMLElement, cls: string) {
+  if (hasClass(ele, cls)) {
+    ele.classList.remove(cls);
+  }
+}
+
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
@@ -155,12 +169,12 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 export const flashElement = (
   el: HTMLElement,
   flashTimeout = 1000,
-  flashColor = "#FFCB33",
+  flashClass = "flash",
 ) => {
-  el.style.backgroundColor = flashColor;
-
+  if (!el) return;
+  addClass(el, flashClass);
   setTimeout(() => {
-    el.style.backgroundColor = "transparent";
+    removeClass(el, flashClass);
   }, flashTimeout);
 };
 
@@ -176,7 +190,7 @@ export const flashElementsById = (
   id: string | string[],
   timeout = 0,
   flashTimeout?: number,
-  flashColor?: string,
+  flashClass?: string,
 ) => {
   let ids: string[] = [];
 
@@ -196,7 +210,7 @@ export const flashElementsById = (
         inline: "center",
       });
 
-      if (el) flashElement(el, flashTimeout, flashColor);
+      if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
 };
@@ -549,6 +563,17 @@ export const truncateString = (
  */
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
 
+export const undoShortCut = () => <span>{modText()}+Z</span>;
+
+export const redoShortCut = () =>
+  isMac() ? (
+    <span>
+      {modText()}+<span>&#8682;</span>+Z
+    </span>
+  ) : (
+    <span>{modText()}+Y</span>
+  );
+
 /**
  * @returns the original string after trimming the string past `?`
  */
@@ -587,3 +612,20 @@ export const getQueryParamsObject = () => {
     return {};
   }
 };
+
+/*
+ * unfocus all window selection
+ *
+ * @param document
+ * @param window
+ */
+export function unFocus(document: Document, window: Window) {
+  if (document.getSelection()) {
+    document.getSelection()?.empty();
+  } else {
+    try {
+      window.getSelection()?.removeAllRanges();
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
+  }
+}

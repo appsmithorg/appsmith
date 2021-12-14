@@ -87,7 +87,6 @@ import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import {
   PluginTriggerFailureError,
   PluginActionExecutionError,
@@ -244,7 +243,6 @@ function* confirmRunActionSaga() {
 export default function* executePluginActionTriggerSaga(
   pluginAction: RunPluginActionDescription["payload"],
   eventType: EventType,
-  triggerMeta: TriggerMeta,
 ) {
   const { actionId, params } = pluginAction;
   PerformanceTracker.startAsyncTracking(
@@ -311,7 +309,6 @@ export default function* executePluginActionTriggerSaga(
     throw new PluginTriggerFailureError(
       createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
       [payload.body, params],
-      triggerMeta,
     );
   } else {
     AppsmithConsole.info({

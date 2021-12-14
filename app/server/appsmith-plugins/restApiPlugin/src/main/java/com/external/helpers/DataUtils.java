@@ -1,9 +1,9 @@
 package com.external.helpers;
 
+import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -177,17 +177,24 @@ public class DataUtils {
         final Object fileValue = property.getValue();
         final String key = property.getKey();
         List<MultipartFormDataDTO> multipartFormDataDTOs = new ArrayList<>();
-        try {
+
+
+        if (String.valueOf(fileValue).startsWith("{")) {
+            // Check whether the JSON string is an object
+            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(String.valueOf(fileValue),
+                    MultipartFormDataDTO.class);
+            multipartFormDataDTOs.add(multipartFormDataDTO);
+        } else if (String.valueOf(fileValue).startsWith("[")) {
+            // Check whether the JSON string is an array
             multipartFormDataDTOs = Arrays.asList(
                     objectMapper.readValue(
                             String.valueOf(fileValue),
                             MultipartFormDataDTO[].class));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(String.valueOf(fileValue),
-                    MultipartFormDataDTO.class);
-            multipartFormDataDTOs.add(multipartFormDataDTO);
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    "Unable to parse content. Expected to receive an array or object of multipart data");
         }
+
         multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
             final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
             Flux<DataBuffer> data = DataBufferUtils.readInputStream(
