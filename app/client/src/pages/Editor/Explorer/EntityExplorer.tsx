@@ -161,7 +161,7 @@ function EntityExplorer(props: IPanelProps) {
         plugins={plugins}
         searchKeyword={searchKeyword}
         showWidgetsSidebar={showWidgetsSidebar}
-        step={0}
+        step={-3}
         widgets={widgets}
       />
       {noResults && (

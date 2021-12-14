@@ -1,30 +1,12 @@
-import React, { memo, useCallback } from "react";
-import Entity from "../Entity";
-import { pageGroupIcon, settingsIcon } from "../ExplorerIcons";
-import { useDispatch, useSelector } from "react-redux";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { createPage } from "actions/pageActions";
-import { useParams, useHistory } from "react-router";
-import { ExplorerURLParams } from "../helpers";
-import { Page } from "constants/ReduxActionConstants";
+import React, { memo } from "react";
 import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import {
-  ADD_PAGE_TOOLTIP,
-  createMessage,
-  PAGE_PROPERTIES_TOOLTIP,
-} from "constants/messages";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { useSelector } from "react-redux";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -50,44 +32,22 @@ const pageGroupEqualityCheck = (
   );
 };
 
-const settingsIconWithTooltip = (
-  <TooltipComponent
-    boundary="viewport"
-    content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
-    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-    position={Position.BOTTOM}
-  >
-    {settingsIcon}
-  </TooltipComponent>
-);
-
 export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
-  const history = useHistory();
-  const dispatch = useDispatch();
-  const params = useParams<ExplorerURLParams>();
-  const applicationId = useSelector(getCurrentApplicationId);
+  const currentSelectedPageId = useSelector(getCurrentPageId);
 
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
-  const createPageCallback = useCallback(() => {
-    const name = getNextEntityName(
-      "Page",
-      pages.map((page: Page) => page.pageName),
-    );
-    // Default layout is extracted by adding dynamically computed properties like min-height.
-    const defaultPageLayouts = [
-      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
-    ];
-    dispatch(createPage(applicationId, name, defaultPageLayouts));
-  }, [dispatch, pages, applicationId]);
 
   const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
     const pageActions = props.actions[page.pageId] || [];
     const pageJSActions = props.jsActions[page.pageId] || [];
     const datasources = props.datasources[page.pageId] || [];
-    if (!pageWidgets && pageActions.length === 0 && datasources.length === 0)
+    if (
+      (!pageWidgets && pageActions.length === 0 && datasources.length === 0) ||
+      currentSelectedPageId !== page.pageId
+    )
       return null;
     return (
       <ExplorerPageEntity
@@ -107,30 +67,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
 
   if (pageEntities.filter(Boolean).length === 0) return null;
 
-  return (
-    <Entity
-      action={() =>
-        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId))
-      }
-      addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
-      alwaysShowRightIcon
-      className="group pages"
-      disabled
-      entityId="Pages"
-      icon={pageGroupIcon}
-      isDefaultExpanded
-      name="Pages"
-      onClickRightIcon={() => {
-        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
-      }}
-      onCreate={createPageCallback}
-      rightIcon={settingsIconWithTooltip}
-      searchKeyword={props.searchKeyword}
-      step={props.step}
-    >
-      {pageEntities}
-    </Entity>
-  );
+  return <div>{pageEntities}</div>;
 }, pageGroupEqualityCheck);
 
 ExplorerPageGroup.displayName = "ExplorerPageGroup";

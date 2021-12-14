@@ -35,6 +35,7 @@ export enum EntityClassNames {
 
 const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+  margin: 4px 0;
 `;
 
 export const entityTooltipCSS = css`
@@ -167,6 +168,8 @@ export type EntityProps = {
   onClickRightIcon?: () => void;
   addButtonHelptext?: string;
   isBeta?: boolean;
+  preRightIcon?: string;
+  onClickPreRightIcon?: () => void;
 };
 
 export const Entity = forwardRef(
@@ -275,6 +278,14 @@ export const Entity = forwardRef(
             searchKeyword={props.searchKeyword}
             updateEntityName={updateNameCallback}
           />
+          {props.preRightIcon && (
+            <IconWrapper
+              className={EntityClassNames.RIGHT_ICON}
+              onClick={props.onClickPreRightIcon}
+            >
+              {props.preRightIcon}
+            </IconWrapper>
+          )}
           <IconWrapper
             className={EntityClassNames.RIGHT_ICON}
             onClick={props.onClickRightIcon}

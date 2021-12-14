@@ -46,6 +46,7 @@ import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.sv
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 import { createMessage, ENTITY_EXPLORER_TITLE } from "constants/messages";
+import PageChooser from "pages/Editor/Explorer/Pages/PageChooser";
 
 type Props = {
   width: number;
@@ -254,6 +255,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
             </TooltipComponent>
           </div>
         </div>
+        {/* PageChooser */}
+        <PageChooser />
         {/* SWITCHER */}
         <div className="px-3 mt-1 mb-3">
           <Switcher activeObj={activeSwitch} switches={switches} />

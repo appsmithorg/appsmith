@@ -2,7 +2,6 @@ import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
-import { widgetIcon } from "../ExplorerIcons";
 import WidgetEntity from "./WidgetEntity";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
@@ -68,14 +67,14 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!props.widgets && !!props.searchKeyword}
       entityId={props.pageId + "_widgets"}
-      icon={widgetIcon}
+      icon={""}
       isDefaultExpanded={
         !!props.searchKeyword ||
         (params.pageId === props.pageId &&
           !!(selectedWidgets && selectedWidgets.length))
       }
       key={props.pageId + "_widgets"}
-      name="Widgets"
+      name="WIDGETS"
       onCreate={props.addWidgetsFn}
       searchKeyword={props.searchKeyword}
       step={props.step}
