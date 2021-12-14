@@ -1,13 +1,9 @@
 import React, { useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
-import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
-import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
-import getFeatureFlags from "utils/featureFlags";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import Files from "../Files";
 
@@ -24,8 +20,6 @@ type ExplorerPageEntityProps = {
 };
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
-  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
-
   const addWidgetsFn = useCallback(
     () => props.showWidgetsSidebar(props.page.pageId),
     [props.page.pageId],
@@ -42,24 +36,6 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
       />
 
       <Files />
-
-      {/* {getPluginGroups(
-        props.page,
-        props.step + 1,
-        props.actions as DataTreeAction[],
-        props.datasources,
-        props.plugins,
-        props.searchKeyword,
-      )}
-
-      {isJSEditorEnabled && (
-        <ExplorerJSCollectionGroup
-          jsActions={props.jsActions}
-          pageId={props.page.pageId}
-          searchKeyword={props.searchKeyword}
-          step={props.step + 1}
-        />
-      )} */}
     </div>
   );
 }

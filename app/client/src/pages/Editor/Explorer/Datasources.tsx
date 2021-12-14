@@ -1,5 +1,5 @@
 import React from "react";
-import { useAppWideAndOtherDatasource, useFilesForExplorer } from "./hooks";
+import { useAppWideAndOtherDatasource } from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "store";
@@ -44,8 +44,6 @@ export function Datasources() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages = useSelector(getPageList);
   const pageId = useSelector(getCurrentPageId) || pages[0].pageId;
-
-  const files = useFilesForExplorer("name");
 
   const plugins = useSelector(getPlugins);
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);

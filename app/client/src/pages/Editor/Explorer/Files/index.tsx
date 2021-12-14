@@ -15,6 +15,7 @@ import { getActionConfig } from "../Actions/helpers";
 import { PluginType } from "entities/Action";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { jsFileIcon } from "../ExplorerIcons";
+import { Colors } from "constants/Colors";
 import {
   filterCategories,
   SEARCH_CATEGORY_ID,
@@ -52,7 +53,11 @@ function Files() {
     >
       {files.map(({ entity, type }: any) => {
         if (type === "group") {
-          return <div>{entity.name}</div>;
+          return (
+            <div className={`text-xs text-[${Colors.CODE_GRAY}] px-8 my-2`}>
+              {entity.name}
+            </div>
+          );
         } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
@@ -61,7 +66,7 @@ function Files() {
               key={entity.config.id}
               pageId={currentPageId as string}
               searchKeyword={""}
-              step={0}
+              step={2}
             />
           );
         } else {
@@ -90,7 +95,7 @@ function Files() {
               key={entity.config.id}
               pageId={currentPageId as string}
               searchKeyword={""}
-              step={0}
+              step={2}
               url={url || ""}
             />
           );

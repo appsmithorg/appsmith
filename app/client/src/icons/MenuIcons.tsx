@@ -3,7 +3,7 @@ import { IconProps, IconWrapper } from "constants/IconConstants";
 import WidgetsIcon from "remixicon-react/FunctionLineIcon";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
 import { ReactComponent as OrgIcon } from "assets/icons/menu/org.svg";
-import PageIcon from "remixicon-react/File3LineIcon";
+import PageIcon from "remixicon-react/PagesLineIcon";
 import { ReactComponent as DataSourcesIcon } from "assets/icons/menu/data-sources.svg";
 import { ReactComponent as QueriesIcon } from "assets/icons/menu/queries.svg";
 import { ReactComponent as HomepageIcon } from "assets/icons/menu/homepage.svg";
@@ -23,6 +23,7 @@ import { ReactComponent as DataSourcesIconV2 } from "assets/icons/menu/datasourc
 import { ReactComponent as JSIconV2 } from "assets/icons/menu/js-icon.svg";
 import { ReactComponent as QueryMain } from "assets/icons/menu/query-main.svg";
 import DefaultHomeIcon from "remixicon-react/Home4LineIcon";
+import CurrentPageIcon from "remixicon-react/CheckLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
@@ -180,6 +181,11 @@ export const MenuIcons: {
   QUERY_MAIN: (props: IconProps) => (
     <IconWrapper {...props}>
       <StyledQueryMain />
+    </IconWrapper>
+  ),
+  CURRENT_PAGE_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CurrentPageIcon />
     </IconWrapper>
   ),
 };

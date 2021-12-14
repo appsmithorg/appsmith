@@ -10,7 +10,7 @@ const Wrapper = styled(EntityTogglesWrapper)`
     & svg {
       cursor: ${(props) => (props.onClick ? "pointer" : "initial")};
       path {
-        fill: ${Colors.GRAY};
+        fill: ${Colors.CODE_GRAY};
       }
     }
   }
