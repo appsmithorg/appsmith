@@ -17,6 +17,8 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 public class DslActionDTO {
     String id;
     String name;
+    String collectionId;
+    Boolean clientSideExecution;
     PluginType pluginType;
     Set<String> jsonPathKeys;
     Integer timeoutInMillisecond = DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;

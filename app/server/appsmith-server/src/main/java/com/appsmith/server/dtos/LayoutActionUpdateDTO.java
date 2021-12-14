@@ -12,5 +12,6 @@ import lombok.Setter;
 public class LayoutActionUpdateDTO {
     String id;
     String name;
+    String collectionId;
     Boolean executeOnLoad;
 }
