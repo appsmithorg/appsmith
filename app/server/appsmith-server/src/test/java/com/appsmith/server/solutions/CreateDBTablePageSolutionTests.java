@@ -188,16 +188,15 @@ public class CreateDBTablePageSolutionTests {
             testApp = applicationPageService.createApplication(testApplication, testOrg.getId()).block();
         }
 
+        if (StringUtils.isEmpty(testDatasource.getId())) {
+            postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
         // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where template table
         // have more number of columns than the user provided table which leads to deleting the column names from action configuration
 
-
-        if (StringUtils.isEmpty(testDatasource.getId())) {
-            postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
-            List<Column> limitedColumns = List.of(
-                    new Column("primaryKey", "type1", null, true),
-                    new Column("field1.something", "VARCHAR(23)", null, false)
-            );
+        List<Column> limitedColumns = List.of(
+                new Column("primaryKey", "type1", null, true),
+                new Column("field1.something", "VARCHAR(23)", null, false)
+        );
             List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
             List<Column> columns = List.of(
                 new Column("primaryKey", "type1", null, true),
@@ -206,10 +205,10 @@ public class CreateDBTablePageSolutionTests {
                 new Column("field3", "type4", null, false),
                 new Column("field4", "type5", null, false)
             );
-            List<Table> tables = List.of(
-                    new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
-                    new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>())
-            );
+        List<Table> tables = List.of(
+                new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
+                new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>())
+        );
             structure.setTables(tables);
             testDatasource.setPluginId(postgreSQLPlugin.getId());
             testDatasource.setOrganizationId(testOrg.getId());
@@ -834,6 +833,11 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
                     assertThat(actionConfiguration.getFormData().get("bucket"))
                         .isEqualTo(resource.getTableName());
+                    if (action.getUnpublishedAction().getName().equals(LIST_QUERY)) {
+                        Map<String, Object> listObject = (Map<String, Object>) actionConfiguration.getFormData().get("list");
+                        assertThat(((Map<String, Object>) listObject.get("where")).get("condition"))
+                                .isEqualTo("AND");
+                    }
                 }
 
                 assertThat(crudPage.getSuccessMessage()).containsIgnoringCase(pluginName);

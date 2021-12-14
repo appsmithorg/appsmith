@@ -34,9 +34,12 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(String applicationId,
                                                                                    String branchName,
-                                                                                   Boolean view);
+                                                                                   Boolean view,
+                                                                                   boolean markApplicationAsRecentlyAccessed);
 
-    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view);
+    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(
+            String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed
+    );
 
     Layout createDefaultLayout();
 
