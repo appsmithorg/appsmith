@@ -7,6 +7,16 @@ export type OccupiedSpace = {
   parentId?: string;
 };
 
+export type WidgetSpace = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  id: string;
+  type: string;
+  parentId?: string;
+};
+
 export const zIndexLayers = {
   PROPERTY_PANE: "z-3",
   ENTITY_EXPLORER: "z-3",

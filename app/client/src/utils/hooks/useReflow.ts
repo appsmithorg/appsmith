@@ -1,19 +1,28 @@
 import { reflowMove, stopReflow } from "actions/reflowActions";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
+import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { getShouldResize } from "selectors/widgetReflowSelectors";
 import { reflow } from "reflow";
 import {
-  CollidingSpaceMap,
+  CollidingSpace,
   GridProps,
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { getLimitedMovementMap } from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+
+type WidgetCollidingSpace = CollidingSpace & {
+  type: string;
+};
+
+type WidgetCollidingSpaceMap = {
+  [key: string]: WidgetCollidingSpace;
+};
 
 export const useReflow = (
   widgetId: string,
@@ -27,18 +36,17 @@ export const useReflow = (
   const isReflowing = useRef<boolean>(false);
 
   const shouldResize = useSelector(getShouldResize);
-  const occupiedSpacesSelector = getOccupiedSpacesSelectorForContainer(
-    parentId,
-  );
-  const occupiedSpaces: OccupiedSpace[] =
-    useSelector(occupiedSpacesSelector) || [];
+  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
+  const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
-  const originalSpacePosition = occupiedSpaces?.find(
+  const originalSpacePosition = widgetSpaces?.find(
     (space) => space.id === widgetId,
   );
 
-  const prevPositions = useRef(originalSpacePosition);
-  const prevCollidingSpaces = useRef<CollidingSpaceMap>();
+  const prevPositions = useRef<OccupiedSpace | undefined>(
+    originalSpacePosition,
+  );
+  const prevCollidingSpaces = useRef<WidgetCollidingSpaceMap>();
   const prevMovementMap = useRef<ReflowedSpaceMap>({});
 
   return function reflowSpaces(
@@ -46,22 +54,25 @@ export const useReflow = (
     OGPositions: OccupiedSpace,
     direction: ReflowDirection,
     stopMoveAfterLimit = false,
+    shouldSkipContainerReflow = false,
+    forceDirection = false,
   ) {
     //eslint-disable-next-line
     console.log("reflow New Positions", newPositions, direction);
     const { collidingSpaceMap, movementLimit, movementMap } = reflow(
       newPositions,
       OGPositions,
-      occupiedSpaces,
+      widgetSpaces,
       direction,
       gridProps,
+      forceDirection,
       shouldResize,
       prevPositions.current,
       prevCollidingSpaces.current,
     );
 
     prevPositions.current = newPositions;
-    prevCollidingSpaces.current = collidingSpaceMap;
+    prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
 
     let correctedMovementMap = movementMap || {};
 
@@ -71,6 +82,17 @@ export const useReflow = (
         prevMovementMap.current,
         movementLimit,
       );
+
+    if (shouldSkipContainerReflow) {
+      const collidingSpaces = Object.values(
+        (collidingSpaceMap as WidgetCollidingSpaceMap) || {},
+      );
+      for (const collidingSpace of collidingSpaces) {
+        if (checkIsDropTarget(collidingSpace.type)) {
+          correctedMovementMap = {};
+        }
+      }
+    }
 
     prevMovementMap.current = correctedMovementMap;
 
@@ -86,7 +108,7 @@ export const useReflow = (
     const bottomMostRow = getBottomRowAfterReflow(
       movementMap,
       newPositions.bottom,
-      occupiedSpaces,
+      widgetSpaces,
       gridProps,
     );
 

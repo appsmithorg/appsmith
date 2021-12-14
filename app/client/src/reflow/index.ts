@@ -15,6 +15,7 @@ export function reflow(
   occupiedSpaces: OccupiedSpace[],
   direction: ReflowDirection,
   gridProps: GridProps,
+  forceDirection = false,
   shouldResize = false,
   prevPositions?: OccupiedSpace,
   prevCollidingSpaces?: CollidingSpaceMap,
@@ -32,6 +33,7 @@ export function reflow(
     isHorizontalMove,
     prevPositions,
     prevCollidingSpaces,
+    forceDirection,
   );
 
   if (!isColliding || !OGPositions || direction === ReflowDirection.UNSET) {

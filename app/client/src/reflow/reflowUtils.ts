@@ -175,6 +175,7 @@ export function getCollidingSpaces(
   isHorizontalMove?: boolean,
   prevPositions?: OccupiedSpace,
   prevCollidingSpaces?: CollidingSpaceMap,
+  forceDirection = false,
 ) {
   let isColliding = false;
   const collidingSpaceMap: CollidingSpaceMap = {};
@@ -192,6 +193,7 @@ export function getCollidingSpaces(
         occupiedSpace,
         prevPositions,
         direction,
+        forceDirection,
         isHorizontalMove,
         prevCollidingSpaces,
       );
@@ -286,9 +288,12 @@ function getCorrectedDirection(
   collidingSpace: OccupiedSpace,
   prevPositions: OccupiedSpace | undefined,
   direction: ReflowDirection,
+  forceDirection = false,
   isHorizontalMove?: boolean,
   prevCollidingSpaces?: CollidingSpaceMap,
 ): ReflowDirection {
+  if (forceDirection) return direction;
+
   if (prevCollidingSpaces && prevCollidingSpaces[collidingSpace.id])
     return prevCollidingSpaces[collidingSpace.id].direction;
 

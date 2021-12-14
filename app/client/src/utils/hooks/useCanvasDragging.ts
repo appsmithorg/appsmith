@@ -370,9 +370,7 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const canReflow =
-                currentRectanglesToDraw.length === 1 &&
-                canReflowBasedOnMouseSpeed;
+              const canReflow = currentRectanglesToDraw.length === 1;
               const currentBlock = currentRectanglesToDraw[0];
               const [leftColumn, topRow] = getDropZoneOffsets(
                 snapColumnSpace,
@@ -416,6 +414,8 @@ export const useCanvasDragging = (
                     resizedPositions,
                     originalPositions,
                     currentDirection.current,
+                    false,
+                    !canReflowBasedOnMouseSpeed,
                   );
                 }
 
