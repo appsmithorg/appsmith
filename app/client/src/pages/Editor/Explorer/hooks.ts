@@ -7,16 +7,22 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { compact, get, groupBy } from "lodash";
+import { compact, get, groupBy, sortBy } from "lodash";
 import { Datasource } from "entities/Datasource";
-import { isStoredDatasource } from "entities/Action";
+import { isStoredDatasource, PluginType } from "entities/Action";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getActions, getDatasources } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getDatasourceIdToNameMap,
+  getDatasources,
+  getJSCollections,
+} from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -306,4 +312,59 @@ export const useEntityEditState = (entityId: string) => {
     (state: AppState) =>
       get(state, "ui.explorer.entity.editingEntityName") === entityId,
   );
+};
+
+export const useFilesForExplorer = (sort = "name") => {
+  const actions = useSelector(getActions);
+  const jsActions = useSelector(getJSCollections);
+  const datasourceIdToNameMap = useSelector(getDatasourceIdToNameMap);
+
+  const files = useMemo(
+    () =>
+      [...actions, ...jsActions].reduce((acc, file) => {
+        let group = "";
+        if (file.config.pluginType === PluginType.JS) {
+          group = "JS Objects";
+        } else if (file.config.pluginType === PluginType.API) {
+          group = "API";
+        } else {
+          group = datasourceIdToNameMap[file.config.datasource.id];
+        }
+        acc = acc.concat({
+          fileType: file.config.pluginType,
+          entity: file,
+          group,
+        });
+        return acc;
+      }, [] as Array<{ fileType: string; group?: string; entity: ActionData | JSCollectionData }>),
+    [actions, jsActions, datasourceIdToNameMap],
+  );
+
+  return useMemo(() => {
+    if (sort === "name") {
+      return sortBy(files, "entity.name");
+    } else if (sort === "type") {
+      const filesSortedByGroupName = sortBy(files, "group", "entity.name");
+      const groupedFiles = filesSortedByGroupName.reduce(
+        (acc, file) => {
+          if (acc.group !== file.group) {
+            acc.files = acc.files.concat({
+              type: "Group",
+              entity: {
+                name: file.group,
+              },
+            });
+            acc.group = file.group;
+          }
+          acc.files = acc.files.concat(file);
+          return acc;
+        },
+        {
+          group: "" as any,
+          files: [] as any,
+        },
+      );
+      return groupedFiles.files;
+    }
+  }, [sort, actions, jsActions]);
 };

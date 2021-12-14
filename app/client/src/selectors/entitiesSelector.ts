@@ -524,3 +524,13 @@ export const getPageActions = (pageId = "") => {
     });
   };
 };
+
+export const getDatasourceIdToNameMap = createSelector(
+  getDatasources,
+  (datasources) => {
+    return datasources.reduce((acc, datasource) => {
+      acc[datasource.id] = datasource.name;
+      return acc;
+    }, {} as Record<string, string>);
+  },
+);
