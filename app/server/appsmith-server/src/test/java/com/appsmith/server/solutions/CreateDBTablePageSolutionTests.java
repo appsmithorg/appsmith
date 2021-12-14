@@ -439,7 +439,7 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page-postgres-with-less-columns");
 
         Mono<CRUDPageResponseDTO> resultMono = applicationPageService.createPage(newPage)
-                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO));
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO, null));
 
         StepVerifier
                 .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
@@ -513,7 +513,7 @@ public class CreateDBTablePageSolutionTests {
                     resourceDTO.setDatasourceId(datasource1.getId());
                     return applicationPageService.createPage(newPage);
                 })
-                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO));
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO, null));
 
         StepVerifier
                 .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
