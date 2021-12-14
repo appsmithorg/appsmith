@@ -1,6 +1,6 @@
 import { Datasource } from "entities/Datasource";
 import React from "react";
-import { map, get } from "lodash";
+import { map, get, isEmpty } from "lodash";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { isHidden } from "components/formControls/utils";
@@ -50,7 +50,7 @@ export const renderDatasourceSection = (
               const configPropertyInfo = configProperty.split("[*].");
               const values = get(datasource, configPropertyInfo[0], null);
 
-              if (values) {
+              if (values && !isEmpty(values)) {
                 const keyValuePair = values[0];
                 value = keyValuePair[configPropertyInfo[1]];
               } else {

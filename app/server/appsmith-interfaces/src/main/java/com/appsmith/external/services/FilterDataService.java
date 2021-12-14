@@ -53,7 +53,8 @@ public class FilterDataService {
             DataType.DOUBLE, "DOUBLE",
             DataType.BOOLEAN, "BOOLEAN",
             DataType.STRING, "VARCHAR",
-            DataType.DATE, "DATE"
+            DataType.DATE, "DATE",
+            DataType.TIMESTAMP, "TIMESTAMP"
     );
 
     private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
@@ -119,6 +120,12 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
+    /**
+     * This filter method is using the new UQI format of
+     * @param items
+     * @param condition
+     * @return
+     */
     public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
 
         if (items == null || items.size() == 0) {

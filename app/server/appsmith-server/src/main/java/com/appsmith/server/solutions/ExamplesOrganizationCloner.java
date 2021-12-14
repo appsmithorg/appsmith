@@ -272,7 +272,7 @@ public class ExamplesOrganizationCloner {
                                         })
                                         // This call to `collectMap` will wait for all actions in all pages to have been processed, and so the
                                         // `clonedPages` list will also contain all pages cloned.
-                                        .collect(HashMap<String, String>::new, (map, tuple3) -> map.put(tuple3.getT2(), tuple3.getT1()))
+                                        .collect(HashMap<String, String>::new, (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
                                         .flatMap(actionIdsMap -> {
                                             // Pick all action collections
                                             return actionCollectionService
@@ -301,7 +301,7 @@ public class ExamplesOrganizationCloner {
                                                                     return Flux.fromIterable(newActionIds)
                                                                             .flatMap(newActionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
-                                                                                newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedAction.getId());
+                                                                                newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
                                                                                 return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                                                                             })
                                                                             .collectList();
