@@ -387,7 +387,6 @@ class InputComponent extends React.Component<
     valueAsString: string,
     inputElement: HTMLInputElement,
   ) => {
-    console.log(valueAsNum, valueAsString, inputElement);
     if (this.props.inputType === InputTypes.CURRENCY) {
       //handle this only when input is focussed
       if (inputElement.className.includes("focus-visible")) {
