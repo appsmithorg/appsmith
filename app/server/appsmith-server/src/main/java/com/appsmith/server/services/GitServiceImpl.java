@@ -460,11 +460,14 @@ public class GitServiceImpl implements GitService {
                 //Check the limit for number of private repo
                 .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
                         .flatMap(limitCount -> {
-                            //get git connected apps from db
-                            if(true) {
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR));
-                            }
-                            return Mono.just(application);
+                            //get git connected apps count from db
+                            return applicationService.findGitConnectedApplication(application.getOrganizationId())
+                                    .flatMap(count -> {
+                                        if(limitCount <= count) {
+                                            return Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR));
+                                        }
+                                        return Mono.just(application);
+                                    });
                         }))
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -527,8 +530,6 @@ public class GitServiceImpl implements GitService {
                                             gitApplicationMetadata.setIsRepoPrivate(true);
                                             log.debug("Error while checking if the repo is private: ", e);
                                         }
-
-                                        // TODO check if we can attach this app to git by requesting to CS
 
                                         // Set branchName for each application resource
                                         return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)

@@ -54,4 +54,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId);
+
+    Mono<Long> findGitConnectedApplication(String organizationId);
 }
