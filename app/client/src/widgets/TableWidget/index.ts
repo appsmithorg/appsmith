@@ -6,6 +6,7 @@ import {
   BlueprintOperationTypes,
   GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
+import { Colors } from "constants/Colors";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -151,6 +152,9 @@ export const CONFIG = {
                 `${columnId}.computedValue`,
                 `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
               );
+              set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
+              set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);
+              set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
             });
             const updatePropertyMap = [
               {
