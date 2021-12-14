@@ -11,6 +11,9 @@ import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { PluginType } from "entities/Action";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -29,6 +32,12 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 
 export type ExplorerURLParams = {
   pageId: string;
+};
+
+export type ExplorerFileEntity = {
+  type: PluginType | "group";
+  group?: string;
+  entity: ActionData | JSCollectionData;
 };
 
 export const getActionIdFromURL = () => {

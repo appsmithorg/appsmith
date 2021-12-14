@@ -1,5 +1,5 @@
 import React from "react";
-import { useAppWideAndOtherDatasource, useFilesForExplorer } from "./hooks";
+import { useAppWideAndOtherDatasource } from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "store";
@@ -26,7 +26,7 @@ const emptyNode = (
 );
 
 const ShowAll = styled.div`
-  padding: 0 20px;
+  padding: 0.25rem 1rem;
   font-weight: 500;
   font-size: 12px;
   color: ${Colors.DOVE_GRAY2};
@@ -44,8 +44,6 @@ export function Datasources() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages = useSelector(getPageList);
   const pageId = useSelector(getCurrentPageId) || pages[0].pageId;
-
-  const files = useFilesForExplorer("name");
 
   const plugins = useSelector(getPlugins);
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -83,10 +81,10 @@ export function Datasources() {
       icon={null}
       isDefaultExpanded={false}
       key={pageId + "_datasources"}
-      name="Datasources"
+      name="DATASOURCES"
       onCreate={addDatasource}
       searchKeyword={""}
-      step={-3}
+      step={0}
     >
       {appWideDS.length ? datasourceElements : emptyNode}
       {otherDS.length ? (
