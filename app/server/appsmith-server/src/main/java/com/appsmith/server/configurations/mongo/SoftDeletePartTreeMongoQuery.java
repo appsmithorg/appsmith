@@ -7,8 +7,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.ConvertingParameterAccessor;
 import org.springframework.data.mongodb.repository.query.ReactiveMongoQueryMethod;
 import org.springframework.data.mongodb.repository.query.ReactivePartTreeMongoQuery;
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
+import org.springframework.data.repository.query.ReactiveQueryMethodEvaluationContextProvider;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 
@@ -22,7 +23,7 @@ public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
     SoftDeletePartTreeMongoQuery(Method method, ReactivePartTreeMongoQuery reactivePartTreeMongoQuery,
                                  ReactiveMongoOperations mongoOperations,
                                  SpelExpressionParser expressionParser,
-                                 QueryMethodEvaluationContextProvider evaluationContextProvider) {
+                                 ReactiveQueryMethodEvaluationContextProvider evaluationContextProvider) {
         super((ReactiveMongoQueryMethod) reactivePartTreeMongoQuery.getQueryMethod(),
                 mongoOperations, expressionParser, evaluationContextProvider);
         this.reactivePartTreeQuery = reactivePartTreeMongoQuery;
@@ -30,19 +31,22 @@ public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
     }
 
     @Override
-    protected Query createQuery(ConvertingParameterAccessor accessor) {
-        Query query = super.createQuery(accessor);
-        return withNotDeleted(query);
+    protected Mono<Query> createQuery(ConvertingParameterAccessor accessor) {
+        Mono<Query> queryMono = super.createQuery(accessor);
+        return withNotDeleted(queryMono);
     }
 
     @Override
-    protected Query createCountQuery(ConvertingParameterAccessor accessor) {
-        Query query = super.createCountQuery(accessor);
-        return withNotDeleted(query);
+    protected Mono<Query> createCountQuery(ConvertingParameterAccessor accessor) {
+        Mono<Query> queryMono = super.createCountQuery(accessor);
+        return withNotDeleted(queryMono);
     }
 
-    private Query withNotDeleted(Query query) {
-        return query.addCriteria(notDeleted());
+    private Mono<Query> withNotDeleted(Mono<Query> queryMono) {
+        return queryMono.map(query -> {
+            query.addCriteria(notDeleted());
+            return query;
+        });
     }
 
     private Criteria notDeleted() {
