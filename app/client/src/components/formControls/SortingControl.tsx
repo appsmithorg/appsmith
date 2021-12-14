@@ -7,7 +7,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 
-// Form config for the condition field
+// Form config for the column field
 const columnFieldConfig: any = {
   key: "column",
   controlType: "DROP_DOWN",
@@ -16,7 +16,7 @@ const columnFieldConfig: any = {
   placeholderText: "Select Column",
 };
 
-// Form config for the condition field
+// Form config for the order field
 const orderFieldConfig: any = {
   key: "order",
   controlType: "DROP_DOWN",
@@ -33,16 +33,7 @@ const orderFieldConfig: any = {
   ],
 };
 
-// // Form config for the operator field
-// const logicalFieldConfig: any = {
-//   label: "Condition",
-//   key: "condition",
-//   controlType: "DROP_DOWN",
-//   initialValue: "EQ",
-//   options: [],
-//   customStyles: { width: "10vh", height: "30px" },
-// };
-
+// main container for the fsorting component
 const SortingContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -50,6 +41,7 @@ const SortingContainer = styled.div`
   justify-content: space-between;
 `;
 
+// container for the two sorting dropdown
 const SortingDropdownContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -57,11 +49,13 @@ const SortingDropdownContainer = styled.div`
   justify-content: space-between;
 `;
 
+// container for the column dropdown section
 const ColumnDropdownContainer = styled.div`
   width: 30vw;
   margin-right: 1rem;
 `;
 
+// container for the order dropdown section
 const OrderDropdownContainer = styled.div`
   width: 15vw;
 `;
@@ -84,12 +78,17 @@ const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
     `}
 `;
 
+// container for the bottom label section
 const StyledBottomLabelContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   color: ${Colors.GREY_7};
   cursor: pointer;
+  width: max-content;
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
 export const StyledBottomLabel = styled(FormLabel)`
@@ -106,9 +105,6 @@ function SortingComponent(props: any) {
     width: `100%`,
     height: "30px",
   };
-
-  // eslint-disable-next-line no-console
-  console.log(props, "hereeeeeeee");
 
   const onDeletePressed = (index: number) => {
     props.fields.remove(index);
@@ -138,7 +134,6 @@ function SortingComponent(props: any) {
                   label: "",
                   customStyles,
                   configProperty: `${field}.column`,
-                  options: props.options,
                   // initialValue: props.comparisonTypes[0].value,
                 }}
                 formName={props.formName}
@@ -161,7 +156,7 @@ function SortingComponent(props: any) {
                 name="cross"
                 onClick={(e) => {
                   e.stopPropagation();
-                  props.onDeletePressed(index);
+                  onDeletePressed(index);
                 }}
                 size={IconSize.SMALL}
               />
@@ -188,7 +183,6 @@ export default function SortingControl(props: SortingControlProps) {
   const {
     configProperty, // JSON path for the where clause data
     formName, // Name of the form, used by redux-form lib to store the data in redux store
-    options, // set of options for column property.
   } = props;
 
   return (
@@ -199,7 +193,6 @@ export default function SortingControl(props: SortingControlProps) {
       props={{
         configProperty,
         formName,
-        options,
       }}
       rerenderOnEveryChange={false}
     />

@@ -67,7 +67,6 @@ export interface ControlData {
   comparisonTypes?: string[];
   nestedLevels?: number;
   customStyles?: any;
-  options?: any;
 }
 
 export interface ControlFunctions {
