@@ -3,13 +3,12 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
-import { TimePrecision } from "@blueprintjs/datetime";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import moment from "moment";
-import { DatePickerType } from "../constants";
+import { DatePickerType, TimePrecision } from "../constants";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -133,7 +132,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             options: [
               {
                 label: "None",
-                value: "None",
+                value: TimePrecision.NONE,
               },
               {
                 label: "Minute",
@@ -151,7 +150,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
               type: ValidationTypes.TEXT,
               params: {
                 allowedValues: [
-                  "None",
+                  TimePrecision.NONE,
                   TimePrecision.MINUTE,
                   TimePrecision.SECOND,
                 ],
@@ -319,7 +318,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
-  timePrecision: TimePrecision | "None";
+  timePrecision: TimePrecision;
 }
 
 export default DatePickerWidget;
