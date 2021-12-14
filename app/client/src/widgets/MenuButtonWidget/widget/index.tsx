@@ -10,6 +10,8 @@ import {
   ButtonBoxShadow,
   ButtonVariant,
   ButtonVariantTypes,
+  ButtonPlacementTypes,
+  ButtonPlacement,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { MinimumPopupRows } from "widgets/constants";
@@ -42,6 +44,7 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 }
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
@@ -335,6 +338,41 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             },
             validation: {
               type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "placement",
+            label: "Placement",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the space between items",
+            options: [
+              {
+                label: "Start",
+                value: ButtonPlacementTypes.START,
+              },
+              {
+                label: "Between",
+                value: ButtonPlacementTypes.BETWEEN,
+              },
+              {
+                label: "Center",
+                value: ButtonPlacementTypes.CENTER,
+              },
+            ],
+            defaultValue: ButtonPlacementTypes.CENTER,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonPlacementTypes.START,
+                  ButtonPlacementTypes.BETWEEN,
+                  ButtonPlacementTypes.CENTER,
+                ],
+                default: ButtonPlacementTypes.CENTER,
+              },
             },
           },
           {
