@@ -11,11 +11,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 
 @Getter
 @Setter
@@ -38,7 +39,7 @@ public class MethodConfig {
     String rowObject;
     String rowObjects;
     Object body;
-    List<Condition> whereConditions = new ArrayList<>();
+    Condition whereConditions;
     Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
 
     public MethodConfig(Map<String, Object> properties) {
@@ -67,17 +68,8 @@ public class MethodConfig {
         this.rowObjects = (String) properties.getOrDefault(GoogleSheets.ROW_OBJECTS, null);
 
         if (properties.containsKey(GoogleSheets.WHERE)) {
-            Object whereValue = properties.getOrDefault(GoogleSheets.WHERE, null);
-            if (whereValue instanceof List) {
-                // Check if all values in the where condition are null.
-                boolean allValuesNull = ((List) whereValue).stream()
-                        .allMatch(valueMap -> valueMap == null ||
-                                ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
-
-                if (!allValuesNull) {
-                    this.whereConditions = Condition.generateFromConfiguration((List<Object>) whereValue);
-                }
-            }
+            Map<String, Object> whereForm = (Map<String, Object>) properties.getOrDefault(GoogleSheets.WHERE, Map.of());
+            this.whereConditions = parseWhereClause(whereForm);
         }
     }
 
@@ -85,10 +77,10 @@ public class MethodConfig {
         propertyList.stream().parallel().forEach(property -> {
             Object value = property.getValue();
             if (value != null) {
-                String propertyValue = String.valueOf(value).trim();
+
                 switch (property.getKey()) {
                     case "sheetUrl":
-                        this.spreadsheetUrl = propertyValue;
+                        this.spreadsheetUrl = String.valueOf(value).trim();
                         if (this.spreadsheetUrl != null && !this.spreadsheetUrl.isBlank()) {
                             final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
                             if (matcher.find()) {
@@ -99,49 +91,41 @@ public class MethodConfig {
                         }
                         break;
                     case "range":
-                        this.spreadsheetRange = propertyValue;
+                        this.spreadsheetRange = String.valueOf(value).trim();
                         break;
                     case "spreadsheetName":
-                        this.spreadsheetName = propertyValue;
+                        this.spreadsheetName = String.valueOf(value).trim();
                         break;
                     case "tableHeaderIndex":
-                        this.tableHeaderIndex = propertyValue;
+                        this.tableHeaderIndex = String.valueOf(value).trim();
                         break;
                     case "queryFormat":
-                        this.queryFormat = propertyValue;
+                        this.queryFormat = String.valueOf(value).trim();
                         break;
                     case "rowLimit":
-                        this.rowLimit = propertyValue;
+                        this.rowLimit = String.valueOf(value).trim();
                         break;
                     case "rowOffset":
-                        this.rowOffset = propertyValue;
+                        this.rowOffset = String.valueOf(value).trim();
                         break;
                     case "rowIndex":
-                        this.rowIndex = propertyValue;
+                        this.rowIndex = String.valueOf(value).trim();
                         break;
                     case "sheetName":
-                        this.sheetName = propertyValue;
+                        this.sheetName = String.valueOf(value).trim();
                         break;
                     case "deleteFormat":
-                        this.deleteFormat = propertyValue;
+                        this.deleteFormat = String.valueOf(value).trim();
                         break;
                     case "rowObject":
-                        this.rowObject = propertyValue;
+                        this.rowObject = String.valueOf(value).trim();
                         break;
                     case "rowObjects":
-                        this.rowObjects = propertyValue;
+                        this.rowObjects = String.valueOf(value).trim();
                         break;
                     case "where":
-                        if (value instanceof List) {
-                            // Check if all values in the where condition are null.
-                            boolean allValuesNull = ((List) value).stream()
-                                    .allMatch(valueMap -> valueMap == null ||
-                                            ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
-
-                            if (!allValuesNull) {
-                                this.whereConditions = Condition.generateFromConfiguration((List<Object>) value);
-                            }
-                        }
+                        Map<String, Object> whereForm = (Map<String, Object>) value;
+                        this.whereConditions = parseWhereClause(whereForm);
                         break;
                 }
             }

@@ -12,12 +12,14 @@
       "children": [
         {
           "label": "Spreadsheet Name",
+          "propertyName": "create_spreadsheetName",
           "configProperty": "actionConfiguration.formData.spreadsheetName",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         },
         {
           "label": "Row Objects",
+          "propertyName": "bulkUpdate_rowObjectWithSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -28,6 +30,7 @@
         },
         {
           "label": "Row Objects",
+          "propertyName": "create_rowObjectWithoutSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",

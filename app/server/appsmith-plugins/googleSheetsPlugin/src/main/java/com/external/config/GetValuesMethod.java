@@ -208,7 +208,7 @@ public class GetValuesMethod implements Method {
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions());
+            return filterDataService.filterDataNew(preFilteringResponse, methodConfig.getWhereConditions());
         }
 
         return preFilteringResponse;
@@ -244,14 +244,9 @@ public class GetValuesMethod implements Method {
     }
 
     private Boolean isWhereConditionConfigured(MethodConfig methodConfig) {
-        List<Condition> whereConditions = methodConfig.getWhereConditions();
-
-        if (whereConditions == null || whereConditions.size() == 0) {
-            return false;
-        }
+        Condition whereConditions = methodConfig.getWhereConditions();
 
         // At least 1 condition exists
-        return true;
-
+        return whereConditions != null;
     }
 }

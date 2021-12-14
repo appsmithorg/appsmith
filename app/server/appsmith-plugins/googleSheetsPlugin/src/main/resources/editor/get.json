@@ -11,18 +11,21 @@
       "children": [
         {
           "label": "Spreadsheet URL",
+          "propertyName" : "get_spreadsheetUrl",
           "configProperty": "actionConfiguration.formData.sheetUrl",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
         },
         {
           "label": "Sheet Name",
+          "propertyName" : "get_sheetName",
           "configProperty": "actionConfiguration.formData.sheetName",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "Sheet1"
         },
         {
           "label": "Table Heading Row Index",
+          "propertyName" : "get_tableHeadingRowIndex",
           "configProperty": "actionConfiguration.formData.tableHeaderIndex",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "1"
@@ -36,6 +39,7 @@
       "children": [
         {
           "label": "Query Format",
+          "propertyName" : "get_queryFormat",
           "configProperty": "actionConfiguration.formData.queryFormat",
           "controlType": "DROP_DOWN",
           "initialValue": "ROWS",
@@ -52,6 +56,7 @@
         },
         {
           "label": "Cell Range",
+          "propertyName" : "get_cellRange",
           "configProperty": "actionConfiguration.formData.range",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "conditionals": {
@@ -62,6 +67,7 @@
         },
         {
           "label": "Row Offset",
+          "propertyName" : "get_rowOffset",
           "configProperty": "actionConfiguration.formData.rowOffset",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "conditionals": {
@@ -72,6 +78,7 @@
         },
         {
           "label": "Row Limit",
+          "propertyName" : "get_rowLimit",
           "configProperty": "actionConfiguration.formData.rowLimit",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "conditionals": {
@@ -81,58 +88,49 @@
           "placeholderText": "10"
         },
         {
-          "label": "Where Conditions",
+          "label": "Where",
+          "propertyName" : "get_rowSheetName",
           "configProperty": "actionConfiguration.formData.where",
-          "controlType": "ARRAY_FIELD",
-          "initialValue": [],
-          "schema": [
+          "nestedLevels": 3,
+          "controlType": "WHERE_CLAUSE",
+          "logicalTypes": [
             {
-              "label": "Column Name",
-              "key": "path",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "placeholderText": "name"
+              "label": "AND",
+              "value": "AND"
             },
             {
-              "label": "Operator",
-              "key": "operator",
-              "controlType": "DROP_DOWN",
-              "initialValue": "EQ",
-              "options": [
-                {
-                  "label": "<",
-                  "value": "LT"
-                },
-                {
-                  "label": "<=",
-                  "value": "LTE"
-                },
-                {
-                  "label": "==",
-                  "value": "EQ"
-                },
-                {
-                  "label": ">=",
-                  "value": "GTE"
-                },
-                {
-                  "label": ">",
-                  "value": "GT"
-                },
-                {
-                  "label": "in",
-                  "value": "IN"
-                },
-                {
-                  "label": "not in",
-                  "value": "NOT_IN"
-                }
-              ]
+              "label": "OR",
+              "value": "OR"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "<",
+              "value": "LT"
             },
             {
-              "label": "Value",
-              "key": "value",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "placeholderText": "Tobias"
+              "label": "<=",
+              "value": "LTE"
+            },
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": ">=",
+              "value": "GTE"
+            },
+            {
+              "label": ">",
+              "value": "GT"
+            },
+            {
+              "label": "in",
+              "value": "IN"
+            },
+            {
+              "label": "not in",
+              "value": "NOT_IN"
             }
           ]
         }

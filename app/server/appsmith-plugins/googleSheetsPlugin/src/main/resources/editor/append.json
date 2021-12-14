@@ -11,18 +11,21 @@
       "children": [
         {
           "label": "Spreadsheet URL",
+          "propertyName" : "append_spreadsheetUrl",
           "configProperty": "actionConfiguration.formData.sheetUrl",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
         },
         {
           "label": "Sheet Name",
+          "propertyName" : "append_sheetName",
           "configProperty": "actionConfiguration.formData.sheetName",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "Sheet1"
         },
         {
           "label": "Table Heading Row Index",
+          "propertyName" : "append_tableHeadingRowIndex",
           "configProperty": "actionConfiguration.formData.tableHeaderIndex",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "1"
@@ -36,7 +39,7 @@
       "children": [
         {
           "label": "Row Object",
-          "propertyName" : "appendRowObjectWithSmartSubstitute",
+          "propertyName" : "append_rowObjectWithSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObject",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -47,7 +50,7 @@
         },
         {
           "label": "Row Object",
-          "propertyName" : "appendRowObjectWithoutSmartSubstitute",
+          "propertyName" : "append_rowObjectWithoutSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObject",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",

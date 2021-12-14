@@ -3956,4 +3956,163 @@ public class DatabaseChangelog {
         );
     }
 
+    private final static Map<Integer, List<String>> googleSheetsUQIMigrationMap = Map.ofEntries(
+            Map.entry(0, List.of("command")),
+            Map.entry(1, List.of("sheetUrl")),
+            Map.entry(2, List.of("range")),
+            Map.entry(3, List.of("spreadsheetName")),
+            Map.entry(4, List.of("tableHeaderIndex")),
+            Map.entry(5, List.of("queryFormat")),
+            Map.entry(6, List.of("rowLimit")),
+            Map.entry(7, List.of("sheetName")),
+            Map.entry(8, List.of("rowOffset")),
+            Map.entry(9, List.of("rowObject")),
+            Map.entry(10, List.of("rowObjects")),
+            Map.entry(11, List.of("rowIndex")),
+            Map.entry(12, List.of("deleteFormat")),
+            Map.entry(13, List.of("smartSubstitution")),
+            Map.entry(14, List.of("where"))
+    );
+
+    private Map<String, Object> updateWhereClauseFormat(Object oldWhereClauseArray) {
+        final Map<String, Object> newWhereClause = new HashMap<>();
+        newWhereClause.put("condition", "AND");
+        final List<Object> convertedConditionArray = new ArrayList<>();
+        newWhereClause.put("children", convertedConditionArray);
+
+        ((ArrayList) oldWhereClauseArray)
+                .stream()
+                .forEach(oldWhereClauseCondition -> {
+                    JSONObject newWhereClauseCondition = new JSONObject();
+                    final Map clauseCondition = (Map) oldWhereClauseCondition;
+                    newWhereClauseCondition.put("key", clauseCondition.get("path"));
+                    newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
+                    newWhereClauseCondition.put("value", clauseCondition.get("value"));
+                    convertedConditionArray.add(newWhereClauseCondition);
+                });
+
+        return newWhereClause;
+    }
+
+    @ChangeSet(order = "101", id = "migrate-gsheets-to-uqi", author = "")
+    public void migrateGoogleSheetsPluginToUqi(MongockTemplate mongockTemplate) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        // First update the UI component for the Google sheets plugin to UQI
+        Plugin googleSheetsPlugin = mongockTemplate.findOne(
+                query(where("packageName").is("google-sheets-plugin")),
+                Plugin.class
+        );
+        googleSheetsPlugin.setUiComponent("UQIDbEditorForm");
+
+
+        // Now migrate all the existing actions to the new UQI structure.
+        List<NewAction> googleSheetsActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(googleSheetsPlugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction googleSheetAction : googleSheetsActions) {
+            // First migrate the plugin specified templates to form data
+            ActionDTO unpublishedAction = googleSheetAction.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+
+            final Map<String, Object> unpublishedFormData = iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, googleSheetsUQIMigrationMap);
+
+            if (unpublishedFormData.get("where") != null) {
+                unpublishedFormData.put("where", updateWhereClauseFormat(unpublishedFormData.get("where")));
+            }
+            unpublishedAction.getActionConfiguration().setFormData(unpublishedFormData);
+            unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+
+            ActionDTO publishedAction = googleSheetAction.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
+                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
+                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                final Map<String, Object> publishedFormData = iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, googleSheetsUQIMigrationMap);
+                if (publishedFormData.get("where") != null) {
+                    publishedFormData.put("where", updateWhereClauseFormat(publishedFormData.get("where")));
+                }
+                publishedAction.getActionConfiguration().setFormData(publishedFormData);
+
+                publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+            }
+
+            // Now migrate the dynamic binding pathlist
+            List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
+
+            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
+                List<Property> newDynamicBindingPathList = new ArrayList<>();
+                for (Property path : dynamicBindingPathList) {
+                    String pathKey = path.getKey();
+                    if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                        // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                        Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                        Matcher matcher = pattern.matcher(pathKey);
+
+                        while (matcher.find()) {
+                            int index = Integer.parseInt(matcher.group());
+                            List<String> partialPaths = googleSheetsUQIMigrationMap.get(index);
+                            for (String partialPath : partialPaths) {
+                                Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                                newDynamicBindingPathList.add(dynamicBindingPath);
+                            }
+                        }
+                    } else {
+                        // this dynamic binding is for body. Add as is
+                        newDynamicBindingPathList.add(path);
+                    }
+
+                    // We may have an invalid dynamic binding. Trim the same
+                    List<String> dynamicBindingPathNames = newDynamicBindingPathList
+                            .stream()
+                            .map(property -> property.getKey())
+                            .collect(Collectors.toList());
+
+                    Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, googleSheetAction, dynamicBindingPathNames);
+
+                    // We have found at least 1 invalid dynamic binding path.
+                    if (!pathsToRemove.isEmpty()) {
+                        // First remove the invalid paths from the set of paths
+                        dynamicBindingPathNames.removeAll(pathsToRemove);
+
+                        // Transform the set of paths to Property as it is stored in the db.
+                        List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
+                                .stream()
+                                .map(dynamicBindingPath -> {
+                                    Property property = new Property();
+                                    property.setKey(dynamicBindingPath);
+                                    return property;
+                                })
+                                .collect(Collectors.toList());
+
+                        // Reset the path list to only contain valid binding paths.
+                        newDynamicBindingPathList = updatedDynamicBindingPathList;
+                    }
+                }
+
+                unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
+            }
+
+            actionsToSave.add(googleSheetAction);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction action : actionsToSave) {
+            mongockTemplate.save(action);
+        }
+        // Now that the actions have completed the migrations, update the plugin to use the new UI form.
+        mongockTemplate.save(googleSheetsPlugin);
+    }
+
 }

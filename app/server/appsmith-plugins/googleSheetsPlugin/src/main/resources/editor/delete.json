@@ -11,6 +11,7 @@
       "children": [
         {
           "label": "Spreadsheet URL",
+          "propertyName": "delete_spreadsheetUrl",
           "configProperty": "actionConfiguration.formData.sheetUrl",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
@@ -24,6 +25,7 @@
       "children": [
         {
           "label": "Select Entity",
+          "propertyName": "delete_selectEntity",
           "configProperty": "actionConfiguration.formData.deleteFormat",
           "controlType": "DROP_DOWN",
           "initialValue": "SHEET",
@@ -40,6 +42,7 @@
         },
         {
           "label": "Sheet Name",
+          "propertyName": "delete_sheetName",
           "configProperty": "actionConfiguration.formData.sheetName",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "conditionals": {

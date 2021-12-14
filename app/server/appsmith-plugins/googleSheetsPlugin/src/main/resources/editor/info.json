@@ -11,6 +11,7 @@
       "children": [
         {
           "label": "Spreadsheet URL",
+          "propertyName": "info_spreadsheetUrl",
           "configProperty": "actionConfiguration.formData.sheetUrl",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
