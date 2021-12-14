@@ -51,13 +51,6 @@ public class BulkAppendMethodTest {
         List properties = new ArrayList<Property>();
         MethodConfig methodConfig = new MethodConfig(properties);
 
-        methodConfig.setSpreadsheetUrl("https://docs.google.com/spreadsheets/d/test123$$/edit#gid=0");
-        methodConfig.setSpreadsheetId("https://docs.google.com/spreadsheets/d");
-        methodConfig.setTableHeaderIndex("1");
-        methodConfig.setSheetName("Sheet1");
-        methodConfig.setQueryFormat("Rows");
-        methodConfig.setRowOffset("1");
-        methodConfig.setRowLimit("1");
         methodConfig.setRowObjects(rowObject);
 
         return methodConfig;
