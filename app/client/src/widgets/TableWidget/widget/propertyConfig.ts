@@ -199,7 +199,10 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.BOOLEAN,
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
                   },
                 },
                 {
@@ -218,7 +221,10 @@ export default [
                     "columnOrder",
                   ],
                   validation: {
-                    type: ValidationTypes.BOOLEAN,
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
                   },
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -244,7 +250,10 @@ export default [
                     "columnOrder",
                   ],
                   validation: {
-                    type: ValidationTypes.BOOLEAN,
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
                   },
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -1024,9 +1033,12 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      regex: /^(?![<|{{]).+/,
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
                     },
                   },
                 },
@@ -1051,9 +1063,12 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      regex: /^(?![<|{{]).+/,
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
                     },
                   },
                 },

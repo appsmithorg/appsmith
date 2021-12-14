@@ -238,7 +238,10 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.createdAt.isCellVisible": {
-          type: "BOOLEAN",
+          type: "TABLE_PROPERTY",
+          params: {
+            type: "BOOLEAN",
+          },
         },
         "primaryColumns.createdAt.textColor": {
           type: "TABLE_PROPERTY",
@@ -312,7 +315,10 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.name.isCellVisible": {
-          type: "BOOLEAN",
+          type: "TABLE_PROPERTY",
+          params: {
+            type: "BOOLEAN",
+          },
         },
         "primaryColumns.name.textColor": {
           type: "TABLE_PROPERTY",
@@ -358,16 +364,25 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.status.buttonLabelColor": {
+          type: "TABLE_PROPERTY",
           params: {
-            regex: /^(?![<|{{]).+/,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+            type: "TEXT",
           },
-          type: "TEXT",
         },
         "primaryColumns.status.isCellVisible": {
-          type: "BOOLEAN",
+          type: "TABLE_PROPERTY",
+          params: {
+            type: "BOOLEAN",
+          },
         },
         "primaryColumns.status.isDisabled": {
-          type: "BOOLEAN",
+          type: "TABLE_PROPERTY",
+          params: {
+            type: "BOOLEAN",
+          },
         },
         primaryColumnId: {
           type: "TEXT",
