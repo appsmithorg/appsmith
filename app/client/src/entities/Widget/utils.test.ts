@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -124,6 +124,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
         isSortable: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
@@ -180,6 +182,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
+        animateLoading: {
+          type: "BOOLEAN",
+        },
         defaultSearchText: {
           type: "TEXT",
         },
@@ -205,6 +210,9 @@ describe("getAllPathsFromPropertyConfig", () => {
             default: true,
           },
         },
+        primaryColumnId: {
+          type: "TEXT",
+        },
         tableData: {
           type: "OBJECT_ARRAY",
           params: {
@@ -217,6 +225,7 @@ describe("getAllPathsFromPropertyConfig", () => {
     const result = getAllPathsFromPropertyConfig(widget, config, {
       selectedRow: true,
       selectedRows: true,
+      tableData: true,
     });
 
     // Note: Removing until we figure out how functions are represented here.
@@ -269,6 +278,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
         setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
@@ -326,6 +336,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: {
           type: "BOOLEAN",
         },
+        animateLoading: {
+          type: "BOOLEAN",
+        },
         setAdaptiveYMin: {
           type: "BOOLEAN",
         },
@@ -338,7 +351,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config, {});
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      "chartData.random-id.data": true,
+    });
 
     expect(result).toStrictEqual(expected);
   });

@@ -120,7 +120,7 @@ public class AuthenticationService {
     }
 
     private Mono<Datasource> validateRequiredFieldsForGenericOAuth2(Datasource datasource) {
-        // Since validation takes take of checking for fields that are present
+        // Since validation takes care of checking for fields that are present
         // We just need to make sure that the datasource has the right authentication type
         if (datasource.getDatasourceConfiguration() == null || !(datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
@@ -172,7 +172,7 @@ public class AuthenticationService {
                     map.add(GRANT_TYPE, AUTHORIZATION_CODE);
                     map.add(CODE, code);
                     map.add(REDIRECT_URI, state.split(",")[2] + Url.DATASOURCE_URL + "/authorize");
-                    // We us the returned scope instead because users may have authorized fewer scopes than requested
+                    // We use the returned scope instead because users may have authorized fewer scopes than requested
                     if (scope != null && !scope.isBlank()) {
                         map.add(SCOPE, scope);
                     }
@@ -304,13 +304,16 @@ public class AuthenticationService {
                         newPageService.getById(pageId)
                                 .map(page -> List.of(pageId, page.getApplicationId())),
                         configService.getInstanceId(),
-                        pluginService.getPluginName(Mono.just(datasource)))
+                        pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
                             IntegrationDTO integrationDTO = new IntegrationDTO();
                             integrationDTO.setPageId(tuple.getT1().get(0));
                             integrationDTO.setApplicationId(tuple.getT1().get(1));
                             integrationDTO.setInstallationKey(tuple.getT2());
-                            integrationDTO.setPluginName(tuple.getT3());
+                            final Plugin plugin = tuple.getT3();
+                            integrationDTO.setPluginName(plugin.getPluginName());
+                            integrationDTO.setPluginVersion(plugin.getVersion());
+                            // TODO add authenticationDTO
                             integrationDTO.setDatasourceId(datasourceId);
                             integrationDTO.setScope(((OAuth2) datasource.getDatasourceConfiguration().getAuthentication()).getScope());
                             integrationDTO.setRedirectionDomain(redirectUri);
@@ -414,7 +417,7 @@ public class AuthenticationService {
                 datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
         OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
         return pluginService.findById(datasource.getPluginId())
-                .filter(plugin -> PluginType.SAAS.equals(plugin.getType()))
+                .filter(plugin -> PluginType.SAAS.equals(plugin.getType()) || PluginType.REMOTE.equals(plugin.getType()))
                 .zipWith(configService.getInstanceId())
                 .flatMap(tuple -> {
                     Plugin plugin = tuple.getT1();

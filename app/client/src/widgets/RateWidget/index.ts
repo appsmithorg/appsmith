@@ -11,10 +11,11 @@ export const CONFIG = {
   defaults: {
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 2.5 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     maxCount: 5,
     defaultRate: 3,
     activeColor: Colors.RATE_ACTIVE,
-    inactiveColor: Colors.RATE_INACTIVE,
+    inactiveColor: Colors.ALTO_3,
     size: "LARGE",
     isRequired: false,
     isAllowHalf: false,

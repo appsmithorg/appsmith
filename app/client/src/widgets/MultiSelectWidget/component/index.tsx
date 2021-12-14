@@ -1,18 +1,25 @@
+/* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select, { SelectProps } from "rc-select";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import {
   DropdownStyles,
-  inputIcon,
   MultiSelectContainer,
   StyledCheckbox,
+  TextLabelWrapper,
+  StyledLabel,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
   MODAL_PORTAL_CLASSNAME,
+  TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
+import Icon from "components/ads/Icon";
 import { Classes } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import _ from "lodash";
+import { Colors } from "constants/Colors";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -30,13 +37,30 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  dropDownWidth: number;
+  width: number;
+  labelText?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  compactMode: boolean;
+  isValid: boolean;
+  allowSelectAll?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
+  allowSelectAll,
+  compactMode,
   disabled,
   dropdownStyle,
+  dropDownWidth,
+  isValid,
+  labelStyle,
+  labelText,
+  labelTextColor,
+  labelTextSize,
   loading,
   onChange,
   onFilterChange,
@@ -44,6 +68,7 @@ function MultiSelectComponent({
   placeholder,
   serverSideFiltering,
   value,
+  width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
   const _menu = useRef<HTMLElement | null>(null);
@@ -85,10 +110,11 @@ function MultiSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <div className={loading ? Classes.SKELETON : ""}>
-        {options.length ? (
+        {options.length && allowSelectAll ? (
           <StyledCheckbox
             alignIndicator="left"
             checked={isSelectAll}
+            className={`all-options ${isSelectAll ? "selected" : ""}`}
             label="Select all"
             onChange={handleSelectAll}
           />
@@ -96,7 +122,7 @@ function MultiSelectComponent({
         {menu}
       </div>
     ),
-    [isSelectAll, options, loading],
+    [isSelectAll, options, loading, allowSelectAll],
   );
 
   // Convert the values to string before searching.
@@ -121,12 +147,37 @@ function MultiSelectComponent({
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
+  const id = _.uniqueId();
+  console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}
+      compactMode={compactMode}
+      isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
+      {labelText && (
+        <TextLabelWrapper compactMode={compactMode}>
+          <StyledLabel
+            $compactMode={compactMode}
+            $disabled={disabled}
+            $labelStyle={labelStyle}
+            $labelText={labelText}
+            $labelTextColor={labelTextColor}
+            $labelTextSize={labelTextSize}
+            className={`tree-multiselect-label ${
+              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+            }`}
+          >
+            {labelText}
+          </StyledLabel>
+        </TextLabelWrapper>
+      )}
       <Select
         animation="slide-up"
         // TODO: Make Autofocus a variable in the property pane
@@ -134,12 +185,18 @@ function MultiSelectComponent({
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
-        dropdownClassName="multi-select-dropdown"
+        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
         getPopupContainer={getDropdownPosition}
-        inputIcon={inputIcon}
+        inputIcon={
+          <Icon
+            className="dropdown-icon"
+            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+            name="dropdown"
+          />
+        }
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
@@ -151,6 +208,13 @@ function MultiSelectComponent({
         onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}
+        removeIcon={
+          <Icon
+            className="remove-icon"
+            fillColor={Colors.GREY_10}
+            name="close-x"
+          />
+        }
         showArrow
         value={value}
       />

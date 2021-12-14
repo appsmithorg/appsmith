@@ -5,12 +5,11 @@ import {
   USER_PROFILE_SETTINGS_TITLE,
   AUTHOR_NAME,
   AUTHOR_EMAIL,
+  FORM_VALIDATION_INVALID_EMAIL,
+  AUTHOR_NAME_CANNOT_BE_EMPTY,
 } from "constants/messages";
 import styled from "styled-components";
-import TextInput, {
-  emailValidator,
-  notEmptyValidator,
-} from "components/ads/TextInput";
+import TextInput, { emailValidator } from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
@@ -29,9 +28,17 @@ const LabelContainer = styled.div`
   margin-bottom: 8px;
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled.div<{ isValid: boolean }>`
   display: flex;
   align-items: center;
+  margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 7 : 12]}px;
+  & > div {
+    ${(props) =>
+      !props.isValid ? `border: 1px solid ${Colors.ERROR_RED};` : ""}
+    input {
+      ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
+    }
+  }
 `;
 
 const TitleWrapper = styled.div`
@@ -69,7 +76,7 @@ const IconWrapper = styled.div`
 const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
-  margin-top: ${(props) => props.theme.spaces[2]}px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -119,6 +126,7 @@ type UserGitProfileSettingsProps = {
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
   isLocalConfigDefined: boolean;
   isGlobalConfigDefined: boolean;
+  triedSubmit: boolean;
 };
 
 const goToGitProfile = () => {
@@ -128,9 +136,10 @@ const goToGitProfile = () => {
 function UserGitProfileSettings({
   authorInfo,
   isGlobalConfigDefined,
-  isLocalConfigDefined,
+  // isLocalConfigDefined,
   setAuthorInfo,
   toggleUseDefaultConfig,
+  triedSubmit,
   useGlobalConfig,
 }: UserGitProfileSettingsProps) {
   //
@@ -161,9 +170,10 @@ function UserGitProfileSettings({
   const isFetchingConfig =
     isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
 
-  const showDefaultConfig =
-    !isFetchingConfig && !isLocalConfigDefined && isGlobalConfigDefined;
-
+  const showDefaultConfig = !isFetchingConfig && isGlobalConfigDefined;
+  const nameInvalid =
+    !authorInfo.authorName && !nameInputFocused && triedSubmit;
+  const emailInvalid = !isValidEmail && !emailInputFocused && triedSubmit;
   return (
     <MainContainer>
       <TitleWrapper>
@@ -195,38 +205,31 @@ function UserGitProfileSettings({
           <span className="label">{createMessage(AUTHOR_NAME)}</span>
         </LabelContainer>
 
-        <InputContainer>
+        <InputContainer isValid={!nameInvalid}>
           <TextInput
             dataType="text"
             defaultValue={authorInfo.authorName}
             disabled={disableInput}
             errorMsg={
-              !authorInfo.authorName && !nameInputFocused
-                ? "Author name cannot be empty"
-                : ""
+              nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
             }
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
             onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
             onFocus={() => setNameInputFocused(true)}
-            validator={notEmptyValidator}
+            trimValue={false}
           />
         </InputContainer>
-
-        <Space size={7} />
-
         <LabelContainer>
           <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
         </LabelContainer>
-        <InputContainer>
+        <InputContainer isValid={!emailInvalid}>
           <TextInput
             dataType="email"
             disabled={disableInput}
             errorMsg={
-              !isValidEmail && !emailInputFocused
-                ? "Please enter a valid email"
-                : ""
+              emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
             }
             fill
             isLoading={isFetchingConfig}
