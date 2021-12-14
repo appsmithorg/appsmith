@@ -24,6 +24,8 @@ public class IntegrationDTO {
 
     String pluginName;
 
+    String pluginVersion;
+
     // TODO start using this in the future
     Type authenticationType;
 

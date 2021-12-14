@@ -14,6 +14,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -44,6 +45,9 @@ type TreeDropdownProps = {
 };
 
 const StyledMenu = styled(Menu)`
+  max-height: ${(props) =>
+    `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
+  overflow: auto;
   min-width: 220px;
   padding: 0px;
   border-radius: 0px;
@@ -212,7 +216,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     <DropdownTarget>
       <Button
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
-          selectedLabelModifier ? "code-highlight" : ""
+          selectedLabelModifier
+            ? "code-highlight " + replayHighlightClass
+            : replayHighlightClass
         }`}
         rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={
