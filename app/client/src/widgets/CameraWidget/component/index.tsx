@@ -867,6 +867,12 @@ function CameraComponent(props: CameraComponentProps) {
   }, []);
 
   useEffect(() => {
+    if (webcamRef.current && webcamRef.current.stream) {
+      updateMediaTracksEnabled(webcamRef.current.stream);
+    }
+  }, [isAudioMuted, isVideoMuted]);
+
+  useEffect(() => {
     // setVideoConstraints({ ...videoConstraints, height, width });
     if (width > height) {
       setScaleAxis("x");
@@ -919,6 +925,7 @@ function CameraComponent(props: CameraComponentProps) {
   }, [video]);
 
   useEffect(() => {
+    // Set the flags for previewing the captured photo and video
     const photoReadyStates: MediaCaptureStatus[] = [
       MediaCaptureStatusTypes.IMAGE_CAPTURED,
       MediaCaptureStatusTypes.IMAGE_SAVED,
@@ -962,6 +969,11 @@ function CameraComponent(props: CameraComponentProps) {
     },
     [],
   );
+
+  const updateMediaTracksEnabled = (stream: MediaStream) => {
+    stream.getAudioTracks()[0].enabled = !isAudioMuted;
+    stream.getVideoTracks()[0].enabled = !isVideoMuted;
+  };
 
   const captureImage = useCallback(() => {
     if (webcamRef.current) {
@@ -1051,8 +1063,8 @@ function CameraComponent(props: CameraComponentProps) {
     }
   };
 
-  const handleUserMedia = () => {
-    setError("");
+  const handleUserMedia = (stream: MediaStream) => {
+    updateMediaTracksEnabled(stream);
   };
 
   const handleUserMediaErrors = useCallback((error: string | DOMException) => {
@@ -1111,14 +1123,14 @@ function CameraComponent(props: CameraComponentProps) {
           (isAudioMuted && isVideoMuted)
         ) && (
           <Webcam
-            audio={!isAudioMuted}
-            audioConstraints={!isAudioMuted && audioConstraints}
+            audio
+            audioConstraints={audioConstraints}
             mirrored={mode === CameraModeTypes.VIDEO ? true : mirrored}
             muted
             onUserMedia={handleUserMedia}
             onUserMediaError={handleUserMediaErrors}
             ref={webcamRef}
-            videoConstraints={!isVideoMuted && videoConstraints}
+            videoConstraints={videoConstraints}
           />
         )}
 
