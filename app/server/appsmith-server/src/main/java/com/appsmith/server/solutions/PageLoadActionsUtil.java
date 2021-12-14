@@ -971,6 +971,9 @@ public class PageLoadActionsUtil {
         dslActionDTO.setName(actionDTO.getValidName());
         dslActionDTO.setCollectionId(actionDTO.getCollectionId());
         dslActionDTO.setClientSideExecution(actionDTO.getClientSideExecution());
+        if (actionDTO.getDefaultResources() != null) {
+            dslActionDTO.setDefaultActionId(actionDTO.getDefaultResources().getActionId());
+        }
 
         if (actionDTO.getActionConfiguration() != null) {
             dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());

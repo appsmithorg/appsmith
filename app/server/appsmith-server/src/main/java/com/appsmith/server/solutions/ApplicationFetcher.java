@@ -97,7 +97,6 @@ public class ApplicationFetcher {
                     // Collect all the applications as a map with organization id as a key
                     Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
-                            // TODO only fetch the latest application branch instead of default one
                             .filter(application -> application.getGitApplicationMetadata() == null
                                     || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId())));
 
@@ -139,6 +138,11 @@ public class ApplicationFetcher {
                                         final List<Application> applicationList = new ArrayList<>();
                                         if (!CollectionUtils.isEmpty(applicationCollection)) {
                                             applicationList.addAll(applicationCollection);
+                                            long gitConnectedAppsCount = applicationCollection
+                                                    .stream()
+                                                    .filter(application -> application.getGitApplicationMetadata() != null)
+                                                    .count();
+                                            organization.setGitConnectedApplications(gitConnectedAppsCount);
                                         }
 
                                         OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();

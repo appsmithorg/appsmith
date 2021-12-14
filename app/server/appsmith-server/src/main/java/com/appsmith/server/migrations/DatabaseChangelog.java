@@ -7,6 +7,7 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QDatasource;
@@ -17,14 +18,20 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
+import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentNotification;
+import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Page;
@@ -32,10 +39,16 @@ import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QComment;
+import com.appsmith.server.domains.QCommentNotification;
+import com.appsmith.server.domains.QCommentThread;
+import com.appsmith.server.domains.QCommentThreadNotification;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Role;
@@ -43,6 +56,7 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -113,6 +127,7 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -3914,19 +3929,6 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "098", id = "add-google-sheets-plugin-name", author = "")
-    public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
-        Plugin googleSheetsPlugin = mongockTemplate.findOne(
-                query(where("packageName").is("google-sheets-plugin")),
-                Plugin.class
-        );
-
-        assert googleSheetsPlugin != null;
-        googleSheetsPlugin.setPluginName("google-sheets-plugin");
-
-        mongockTemplate.save(googleSheetsPlugin);
-    }
-
     @ChangeSet(order = "099", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
@@ -3956,4 +3958,366 @@ public class DatabaseChangelog {
         );
     }
 
+
+    @ChangeSet(order = "101", id = "add-google-sheets-plugin-name", author = "")
+    public void addPluginNameForGoogleSheets(MongockTemplate mongockTemplate) {
+        Plugin googleSheetsPlugin = mongockTemplate.findOne(
+                query(where("packageName").is("google-sheets-plugin")),
+                Plugin.class
+        );
+
+        assert googleSheetsPlugin != null;
+        googleSheetsPlugin.setPluginName("google-sheets-plugin");
+
+        mongockTemplate.save(googleSheetsPlugin);
+    }
+
+    @ChangeSet(order = "101", id = "insert-default-resources", author = "")
+    public void insertDefaultResources(MongockTemplate mongockTemplate) {
+
+        // Update datasources
+        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true));
+
+        datasourceQuery.fields()
+                .include(fieldName(QDatasource.datasource.id))
+                .include(fieldName(QDatasource.datasource.organizationId));
+
+        List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
+        for(Datasource datasource: datasources) {
+            final Update update = new Update();
+            final String gitSyncId = datasource.getOrganizationId() + "_" + new ObjectId();
+            update.set(fieldName(QDatasource.datasource.gitSyncId), gitSyncId);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update,
+                    Datasource.class
+            );
+        }
+
+        // Update default page Ids in pages and publishedPages for all existing applications
+        final Query applicationQuery = query(where(fieldName(QApplication.application.deleted)).ne(true))
+                .addCriteria(where(fieldName(QApplication.application.pages)).exists(true));
+        List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
+
+        for(Application application: applications) {
+            application.getPages().forEach(page -> {
+                page.setDefaultPageId(page.getId());
+            });
+
+            if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
+                application.getPublishedPages().forEach(page -> {
+                    page.setDefaultPageId(page.getId());
+                });
+            }
+            mongockTemplate.save(application);
+        }
+
+        // Update pages for defaultIds (applicationId, pageId) along-with the defaultActionIds for onPageLoadActions
+        final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
+        pageQuery.fields()
+                .include(fieldName(QNewPage.newPage.applicationId))
+                .include(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts")
+                .include(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts");
+
+        List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
+
+        for (NewPage page : pages) {
+            String applicationId = page.getApplicationId();
+            final Update defaultResourceUpdates = new Update();
+            DefaultResources defaults = new DefaultResources();
+            defaults.setPageId(page.getId());
+            defaults.setApplicationId(applicationId);
+
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.defaultResources), defaults);
+
+            // Update gitSyncId
+            final String gitSyncId = applicationId + "_" + new ObjectId();
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.gitSyncId), gitSyncId);
+
+            if (!CollectionUtils.isEmpty(page.getUnpublishedPage().getLayouts())) {
+                page.getUnpublishedPage()
+                        .getLayouts()
+                        .stream()
+                        .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                        .forEach(layout -> layout.getLayoutOnLoadActions()
+                                .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+            }
+
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts", page.getUnpublishedPage().getLayouts());
+
+            if (page.getPublishedPage() != null && !CollectionUtils.isEmpty(page.getPublishedPage().getLayouts())) {
+                page.getPublishedPage()
+                        .getLayouts()
+                        .stream()
+                        .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                        .forEach(layout -> layout.getLayoutOnLoadActions()
+                                .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+
+                defaultResourceUpdates.set(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts", page.getPublishedPage().getLayouts());
+            }
+
+            if (!StringUtils.isEmpty(applicationId) ) {
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
+                        defaultResourceUpdates,
+                        NewPage.class
+                );
+            }
+        }
+
+        // Update actions
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true))
+                .addCriteria(where(fieldName(QNewAction.newAction.applicationId)).exists(true));
+
+        actionQuery.fields()
+                .include(fieldName(QNewAction.newAction.applicationId))
+                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId))
+                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.collectionId))
+                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId))
+                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.collectionId));
+
+        List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
+
+        for (NewAction action : actions) {
+            String applicationId = action.getApplicationId();
+            if (StringUtils.isEmpty(applicationId)) {
+                continue;
+            }
+            final Update defaultResourceUpdates = new Update();
+
+            DefaultResources defaults = new DefaultResources();
+            defaults.setActionId(action.getId());
+            defaults.setApplicationId(applicationId);
+            defaultResourceUpdates.set(fieldName(QNewAction.newAction.defaultResources), defaults);
+
+            ActionDTO unpublishedAction = action.getUnpublishedAction();
+            if (unpublishedAction != null) {
+                DefaultResources unpublishedActionDTODefaults = new DefaultResources();
+                unpublishedActionDTODefaults.setPageId(unpublishedAction.getPageId());
+                unpublishedActionDTODefaults.setCollectionId(unpublishedAction.getCollectionId());
+                defaultResourceUpdates.set(
+                                fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
+                                unpublishedActionDTODefaults
+                        );
+            }
+
+            ActionDTO publishedAction = action.getPublishedAction();
+            if (publishedAction != null) {
+                DefaultResources publishedActionDTODefaults = new DefaultResources();
+                publishedActionDTODefaults.setPageId(publishedAction.getPageId());
+                publishedActionDTODefaults.setCollectionId(publishedAction.getCollectionId());
+                defaultResourceUpdates.set(
+                        fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.defaultResources),
+                        publishedActionDTODefaults
+                );
+            }
+
+            // Update gitSyncId
+            final String gitSyncId = applicationId + "_" + new ObjectId();
+            defaultResourceUpdates.set(fieldName(QNewAction.newAction.gitSyncId), gitSyncId);
+
+
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
+                    defaultResourceUpdates,
+                    NewAction.class
+            );
+        }
+
+        // Update JS collection
+        final Query actionCollectionQuery = query(where(fieldName(QActionCollection.actionCollection.deleted)).ne(true))
+                .addCriteria(where(fieldName(QActionCollection.actionCollection.applicationId)).exists(true));
+
+        actionCollectionQuery.fields()
+                .include(fieldName(QActionCollection.actionCollection.applicationId))
+                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
+                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId))
+                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.actionIds))
+                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.archivedActionIds))
+                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.actionIds))
+                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.archivedActionIds));
+
+
+        List<ActionCollection> collections = mongockTemplate.find(actionCollectionQuery, ActionCollection.class);
+
+        for (ActionCollection collection : collections) {
+
+            final Update defaultResourceUpdates = new Update();
+
+            String applicationId = collection.getApplicationId();
+            DefaultResources defaults = new DefaultResources();
+            defaults.setCollectionId(collection.getId());
+            defaults.setApplicationId(applicationId);
+
+            defaultResourceUpdates.set(fieldName(QActionCollection.actionCollection.defaultResources), defaults);
+
+            ActionCollectionDTO unpublishedCollection = collection.getUnpublishedCollection();
+            if (unpublishedCollection != null) {
+                if (!CollectionUtils.isEmpty(unpublishedCollection.getActionIds())) {
+                    Map<String, String> defaultIdMap = new HashMap<>();
+                    unpublishedCollection.getActionIds().forEach(actionId -> defaultIdMap.put(actionId, actionId));
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultToBranchedActionIdsMap),
+                            defaultIdMap
+                    );
+                    // Remove actionIds from set as this will now be deprecated
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.actionIds),
+                            null
+                    );
+                }
+                if (!CollectionUtils.isEmpty(unpublishedCollection.getArchivedActionIds())) {
+                    Map<String, String> defaultArchiveIdMap = new HashMap<>();
+                    unpublishedCollection.getArchivedActionIds().forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultToBranchedArchivedActionIdsMap),
+                            defaultArchiveIdMap
+                    );
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.archivedActionIds),
+                            null
+                    );
+                }
+
+                DefaultResources unpubDefaults = new DefaultResources();
+                unpubDefaults.setPageId(unpublishedCollection.getPageId());
+                defaultResourceUpdates.set(
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + FieldName.DEFAULT_RESOURCES,
+                        unpubDefaults
+                );
+            }
+
+            ActionCollectionDTO publishedCollection = collection.getPublishedCollection();
+            if (publishedCollection != null) {
+                if (!CollectionUtils.isEmpty(publishedCollection.getActionIds())) {
+                    Map<String, String> defaultIdMap = new HashMap<>();
+                    publishedCollection.getActionIds().forEach(actionId -> defaultIdMap.put(actionId, actionId));
+                    publishedCollection.setDefaultToBranchedActionIdsMap(defaultIdMap);
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.defaultToBranchedActionIdsMap),
+                            defaultIdMap
+                    );
+
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.actionIds),
+                            null
+                    );
+                }
+                if (!CollectionUtils.isEmpty(publishedCollection.getArchivedActions())) {
+                    Map<String, String> defaultArchiveIdMap = new HashMap<>();
+                    publishedCollection.getArchivedActionIds().forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
+                    publishedCollection.setDefaultToBranchedArchivedActionIdsMap(defaultArchiveIdMap);
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.defaultToBranchedArchivedActionIdsMap),
+                            defaultArchiveIdMap
+                    );
+
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.archivedActionIds),
+                            null
+                    );
+                }
+
+                DefaultResources pubDefaults = new DefaultResources();
+                pubDefaults.setPageId(publishedCollection.getPageId());
+                defaultResourceUpdates.set(
+                        fieldName(QActionCollection.actionCollection.publishedCollection) + "." + FieldName.DEFAULT_RESOURCES,
+                        pubDefaults
+                );
+            }
+
+            // Update gitSyncId
+            final String gitSyncId = applicationId + "_" + new ObjectId();
+            defaultResourceUpdates.set(fieldName(QActionCollection.actionCollection.gitSyncId), gitSyncId);
+
+            if (!StringUtils.isEmpty(applicationId)) {
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QActionCollection.actionCollection.id)).is(collection.getId())),
+                        defaultResourceUpdates,
+                        ActionCollection.class
+                );
+            }
+        }
+
+        // Update comment threads
+        final Query threadQuery = query(where(fieldName(QCommentThread.commentThread.deleted)).ne(true));
+        threadQuery.fields()
+                .include(fieldName(QCommentThread.commentThread.applicationId))
+                .include(fieldName((QCommentThread.commentThread.pageId)));
+
+        List<CommentThread> threads = mongockTemplate.find(threadQuery, CommentThread.class);
+
+        for (CommentThread thread : threads) {
+            DefaultResources defaults = new DefaultResources();
+            defaults.setPageId(thread.getPageId());
+            defaults.setApplicationId(thread.getApplicationId());
+
+            final Update defaultResourceUpdates = new Update();
+
+            defaultResourceUpdates.set(fieldName(QCommentThread.commentThread.defaultResources), defaults);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QCommentThread.commentThread.id)).is(thread.getId())),
+                    defaultResourceUpdates,
+                    CommentThread.class
+            );
+        }
+
+        // Update comment
+        final Query commentQuery = query(where(fieldName(QComment.comment.deleted)).ne(true));
+        commentQuery.fields()
+                .include(fieldName(QComment.comment.applicationId))
+                .include(fieldName((QComment.comment.pageId)));
+
+        List<Comment> comments = mongockTemplate.find(commentQuery, Comment.class);
+
+        for (Comment comment : comments) {
+            DefaultResources defaults = new DefaultResources();
+            defaults.setPageId(comment.getPageId());
+            defaults.setApplicationId(comment.getApplicationId());
+
+            final Update defaultResourceUpdates = new Update();
+
+            defaultResourceUpdates.set(fieldName(QComment.comment.defaultResources), defaults);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QComment.comment.id)).is(comment.getId())),
+                    defaultResourceUpdates,
+                    Comment.class
+            );
+        }
+
+        // Update notification
+        final Query notificationQuery = query(where(fieldName(QNotification.notification.deleted)).ne(true));
+
+        List<? extends Notification> notifications = mongockTemplate.find(notificationQuery, Notification.class);
+
+        notifications.forEach(notification -> {
+            final Update defaultResourceUpdates = new Update();
+            DefaultResources defaults = new DefaultResources();
+            if (notification instanceof CommentNotification) {
+                Comment comment = ((CommentNotification) notification).getComment();
+                defaults.setPageId(comment.getPageId());
+                defaults.setApplicationId(comment.getApplicationId());
+
+                defaultResourceUpdates.set(
+                        fieldName(QCommentNotification.commentNotification.comment) + "." + DEFAULT_RESOURCES,
+                        defaults
+                );
+            } else if (notification instanceof CommentThreadNotification) {
+                CommentThread thread = ((CommentThreadNotification) notification).getCommentThread();
+                defaults.setPageId(thread.getPageId());
+                defaults.setApplicationId(thread.getApplicationId());
+
+                defaultResourceUpdates.set(
+                        fieldName(QCommentThreadNotification.commentThreadNotification.commentThread) + "." + DEFAULT_RESOURCES,
+                        defaults
+                );
+            }
+
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QNotification.notification.id)).is(notification.getId())),
+                    defaultResourceUpdates,
+                    Notification.class
+            );
+        });
+    }
 }
