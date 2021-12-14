@@ -52,6 +52,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
               });
             }}
             color={userDefinedColors[selectedColor]}
+            showThemeColors
           />
         </div>
       )}

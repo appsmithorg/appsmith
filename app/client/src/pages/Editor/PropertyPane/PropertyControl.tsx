@@ -432,7 +432,7 @@ const PropertyControl = memo((props: Props) => {
                 theme={props.theme}
                 tooltip={props.helpText}
               />
-              {isConvertible && (
+              {isConvertible && !isThemeBound && (
                 <JSToggleButton
                   active={isDynamic}
                   className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}

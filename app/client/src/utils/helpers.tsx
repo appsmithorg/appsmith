@@ -629,3 +629,19 @@ export function unFocus(document: Document, window: Window) {
     } catch (e) {}
   }
 }
+
+const RGBRegex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/gi;
+
+const hexRegex = /#[0-9a-fA-F]{6}/gi;
+
+const blackListedColors = ["#ffffff"];
+
+export function extractColors(text: string) {
+  const colors = new Set();
+  [...(text.match(RGBRegex) || []), ...(text.match(hexRegex) || [])]
+    .filter((d) => blackListedColors.indexOf(d.toLowerCase()) === -1)
+    .forEach((color) => {
+      colors.add(color.toLowerCase());
+    });
+  return Array.from(colors) as Array<string>;
+}
