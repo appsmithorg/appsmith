@@ -15,16 +15,21 @@ import {
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import ReplayEntity from "entities/Replay";
 import evaluate, {
   evaluateAsync,
   setupEvaluationEnvironment,
-} from "./evaluate";
-import ReplayDSL from "workers/ReplayDSL";
+} from "workers/evaluate";
+import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
+import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
+
+const CANVAS = "canvas";
 
 const ctx: Worker = self as any;
 
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
-let replayDSL: ReplayDSL | undefined;
+
+let replayMap: Record<string, ReplayEntity<any>>;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
@@ -93,7 +98,8 @@ ctx.addEventListener(
         let jsUpdates: Record<string, any> = {};
         try {
           if (!dataTreeEvaluator) {
-            replayDSL = new ReplayDSL(widgets);
+            replayMap = replayMap || {};
+            replayMap[CANVAS] = new ReplayCanvas(widgets);
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
@@ -106,7 +112,9 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
-            shouldReplay && replayDSL?.update(widgets);
+            if (shouldReplay) {
+              replayMap[CANVAS]?.update(widgets);
+            }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
@@ -117,8 +125,9 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
-          if (replayDSL?.logs) logs = logs.concat(replayDSL?.logs);
-          replayDSL?.clearLogs();
+          if (replayMap[CANVAS]?.logs)
+            logs = logs.concat(replayMap[CANVAS]?.logs);
+          replayMap[CANVAS]?.clearLogs();
           dataTreeEvaluator.clearLogs();
         } catch (e) {
           if (dataTreeEvaluator !== undefined) {
@@ -214,17 +223,17 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
-        if (!replayDSL) return;
-
-        const replayResult = replayDSL.replay("UNDO");
-        replayDSL.clearLogs();
+        const { entityId } = requestData;
+        if (!replayMap[entityId || CANVAS]) return;
+        const replayResult = replayMap[entityId || CANVAS].replay("UNDO");
+        replayMap[entityId || CANVAS].clearLogs();
         return replayResult;
       }
       case EVAL_WORKER_ACTIONS.REDO: {
-        if (!replayDSL) return;
-
-        const replayResult = replayDSL.replay("REDO");
-        replayDSL.clearLogs();
+        const { entityId } = requestData;
+        if (!replayMap[entityId ?? CANVAS]) return;
+        const replayResult = replayMap[entityId ?? CANVAS].replay("REDO");
+        replayMap[entityId ?? CANVAS].clearLogs();
         return replayResult;
       }
       case EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS: {
@@ -251,6 +260,15 @@ ctx.addEventListener(
         return isTrigger
           ? evaluateAsync(expression, evalTree, "SNIPPET", {})
           : evaluate(expression, evalTree, {});
+      case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
+        const { entity, entityId, entityType } = requestData;
+        const replayObject = replayMap[entityId];
+        if (replayObject) {
+          replayObject.update(entity);
+        } else {
+          replayMap[entityId] = new ReplayEditor(entity, entityType);
+        }
+        break;
       case EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION:
         const { version } = requestData;
         self.evaluationVersion = version || 1;

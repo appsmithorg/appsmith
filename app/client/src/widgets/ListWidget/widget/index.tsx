@@ -317,6 +317,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
+  getGridGap = () =>
+    this.props.gridGap && this.props.gridGap >= -8 ? this.props.gridGap : 0;
+
   /**
    * here we are updating the position of each items and disabled resizing for
    * all items except template ( first item )
@@ -324,9 +327,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * @param children
    */
   updatePosition = (children: DSLWidget[]): DSLWidget[] => {
-    const gridGap = this.props.gridGap || 0;
     return children.map((child: DSLWidget, index) => {
-      const gap = gridGap;
+      const gap = this.getGridGap();
 
       return {
         ...child,
@@ -654,6 +656,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
+      const gridGap = this.getGridGap();
       try {
         // Passing template instead of deriving from canvasChildren becuase lesser items to compare
         // in memoize
@@ -663,7 +666,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           this.props.template,
           canvasChildren,
           page,
-          this.props.gridGap,
+          gridGap,
           this.props.itemBackgroundColor,
         );
       } catch (e) {
@@ -721,7 +724,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * can data be paginated
    */
   shouldPaginate = () => {
-    let { gridGap } = this.props;
+    let gridGap = this.getGridGap();
     const { children, listData, serverSidePaginationEnabled } = this.props;
 
     if (serverSidePaginationEnabled) {

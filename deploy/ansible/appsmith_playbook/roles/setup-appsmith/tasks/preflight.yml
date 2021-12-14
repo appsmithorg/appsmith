@@ -1,0 +1,35 @@
+---
+- name: Check folder installation exist and empty
+  find:
+    paths: '{{ install_dir }}'
+  register: filesFound
+
+- fail:
+    msg: 'The {{ install_dir }} folder is existed and not empty'
+  when: filesFound.matched > 0
+
+- name: Check port 80 is listening
+  wait_for:
+    port: 80
+    delay: 2
+    timeout: 5
+    msg: 'Timeout waiting for 80 to respond'
+  register: port_80
+  ignore_errors: yes
+
+- fail:
+    msg: 'Port 80 is running'
+  when: port_80.failed == false
+
+- name: Check port 443 is listening
+  wait_for:
+    port: 443
+    delay: 2
+    timeout: 5
+    msg: 'Timeout waiting for 443 to respond'
+  register: port_443
+  ignore_errors: yes
+
+- fail:
+    msg: 'Port 443 is running'
+  when: port_443.failed == false

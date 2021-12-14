@@ -34,12 +34,12 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = ${ScriptTemplate}
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    const result = userFunction.apply(self, ARGUMENTS);
+    const result = userFunction.apply(THIS_CONTEXT, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
@@ -49,7 +49,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = await ${ScriptTemplate};
     return result;
   }
-  closedFunction();
+  closedFunction.call(THIS_CONTEXT);
   `,
 };
 
@@ -96,11 +96,24 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export const createGlobalData = (
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) => {
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
+  //// Adding contextual data not part of data tree
+  GLOBAL_DATA.THIS_CONTEXT = {};
+  if (context) {
+    if (context.thisContext) {
+      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
+    }
+    if (context.globalContext) {
+      Object.entries(context.globalContext).forEach(([key, value]) => {
+        GLOBAL_DATA[key] = value;
+      });
+    }
+  }
   //// Add internal functions to dataTree;
   const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
   ///// Adding Data tree with functions
@@ -121,7 +134,7 @@ export const createGlobalData = (
   return GLOBAL_DATA;
 };
 
-export function unEscapeScript(js: string) {
+export function sanitizeScript(js: string) {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
@@ -129,13 +142,22 @@ export function unEscapeScript(js: string) {
   return self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
 }
 
+/** Define a context just for this script
+ * thisContext will define it on the `this`
+ * globalContext will define it globally
+ */
+export type EvaluateContext = {
+  thisContext?: Record<string, any>;
+  globalContext?: Record<string, any>;
+};
+
 export const getUserScriptToEvaluate = (
   userScript: string,
   GLOBAL_DATA: Record<string, unknown>,
   isTriggerBased: boolean,
   evalArguments?: Array<any>,
 ) => {
-  const unescapedJS = unEscapeScript(userScript);
+  const unescapedJS = sanitizeScript(userScript);
   const scriptType = getScriptType(!!evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
@@ -154,6 +176,7 @@ export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
@@ -163,11 +186,10 @@ export default function evaluateSync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      context,
       evalArguments,
     );
-
     GLOBAL_DATA.ALLOW_ASYNC = false;
-
     const { lintErrors, script } = getUserScriptToEvaluate(
       userScript,
       GLOBAL_DATA,
@@ -207,6 +229,7 @@ export async function evaluateAsync(
   dataTree: DataTree,
   requestId: string,
   resolvedFunctions: Record<string, any>,
+  context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
   return (async function() {
@@ -216,6 +239,7 @@ export async function evaluateAsync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      context,
       evalArguments,
     );
     const { script } = getUserScriptToEvaluate(

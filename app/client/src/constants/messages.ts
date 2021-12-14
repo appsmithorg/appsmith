@@ -404,6 +404,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
+export const GET_GEO_LOCATION = () => `Get Geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
@@ -524,6 +527,7 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
+export const CONNECTED_TO_GIT = () => "Connected to git";
 
 export const GIT_DISCONNECT_POPUP_TITLE = () =>
   `This will disconnect the git repository from this application`;
@@ -537,16 +541,16 @@ export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, Make commits, add deploy your application";
+  "Checkout branches, make commits, add deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
-  `Create an empty git repository and paste the remote URL`;
-"Checkout branches, make commits, add deploy your application";
+  `Create an empty git repository and paste the remote URL here.`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
 export const AUTHOR_NAME = () => "Author name";
+export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
 
 export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
@@ -562,10 +566,8 @@ export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
-export const COMMIT = () => "COMMIT";
+export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
-export const PUSH = () => "PUSH";
-export const PULL = () => "PULL";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
@@ -573,8 +575,9 @@ export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
   "COMMITTING AND PUSHING CHANGES...";
+export const IS_MERGING = () => "MERGING CHANGES...";
 
-export const MERGE_CHANGES = () => "Merge Changes";
+export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const RETRY = () => "RETRY";
@@ -598,10 +601,15 @@ export const NO_MERGE_CONFLICT = () =>
 export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
 export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
 export const GIT_UPSTREAM_CHANGES = () =>
-  "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
+  "Looks like there are pending upstream changes. We will pull the changes and push them to your repo.";
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the conflicts manually on your repository.";
+export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
+  "You have uncommitted changes. Please commit before pulling the remote changes";
+export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
+  "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
+export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";

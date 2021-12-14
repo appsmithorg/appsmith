@@ -3,4 +3,5 @@ export interface MarkerProps {
   long: number;
   title?: string;
   description?: string;
+  color?: string;
 }
