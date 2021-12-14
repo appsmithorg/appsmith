@@ -21,7 +21,6 @@ import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -348,5 +347,3 @@ export const isMatching = (text = "", query = "") => {
   }
   return false;
 };
-
-export const AddDatasourceIcon = <NewPlus />;
