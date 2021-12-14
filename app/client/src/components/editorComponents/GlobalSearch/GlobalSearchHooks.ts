@@ -3,7 +3,7 @@ import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
   getCurrentApplicationId,
   getPageList,

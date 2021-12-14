@@ -47,7 +47,7 @@ const Wrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin: 0 4px;
+  margin: 0 4px 0 0;
   padding: 9px 0;
   line-height: 13px;
   position: relative;
