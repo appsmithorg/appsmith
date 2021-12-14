@@ -244,7 +244,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.runAndDeleteQuery();
   });
 
-  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
+  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate("select * from public.users limit 10");
