@@ -2190,12 +2190,11 @@ Cypress.Commands.add("ClickGotIt", () => {
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click();
-  cy.wait("@testDatasource")
-    .should(
-      "have.nested.property",
-      "response.body.data.success",
-      expectedRes,
-    );
+  cy.wait("@testDatasource").should(
+    "have.nested.property",
+    "response.body.data.success",
+    expectedRes,
+  );
 });
 
 Cypress.Commands.add("saveDatasource", () => {
@@ -3451,14 +3450,19 @@ Cypress.Commands.add("renameWithInPane", (renameVal) => {
 });
 
 Cypress.Commands.add("getEntityName", () => {
-  let entityName = cy.get(apiwidget.ApiName).invoke("text")
+  let entityName = cy.get(apiwidget.ApiName).invoke("text");
   return entityName;
 });
 
 Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
   // Give this element 10 seconds to appear
   //cy.wait(1000)
-  cy.xpath("//div[@class='Toastify']//span[contains(text(),'" + errorMsgToVerifyAbsence + "')]", { timeout: 0 }).should('not.exist')
+  cy.xpath(
+    "//div[@class='Toastify']//span[contains(text(),'" +
+      errorMsgToVerifyAbsence +
+      "')]",
+    { timeout: 0 },
+  ).should("not.exist");
 });
 
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
@@ -3469,7 +3473,6 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
 
   cy.get(queryLocators.query).click();
 });
-
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
