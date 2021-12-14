@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class InfoMethodTest {
@@ -29,7 +30,7 @@ public class InfoMethodTest {
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Assert.assertNotNull(jsonNode);
 
-        MethodConfig methodConfig = new MethodConfig(new ArrayList<>());
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
         JsonNode sheetNode = objectMapper.readTree("");
         methodConfig.setBody(sheetNode);
 
@@ -50,7 +51,7 @@ public class InfoMethodTest {
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Assert.assertNotNull(jsonNode);
 
-        MethodConfig methodConfig = new MethodConfig(new ArrayList<>());
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
         methodConfig.setBody(new ArrayList<>());
 
         InfoMethod infoMethod = new InfoMethod(objectMapper);
@@ -71,7 +72,7 @@ public class InfoMethodTest {
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Assert.assertNotNull(jsonNode);
 
-        MethodConfig methodConfig = new MethodConfig(new ArrayList<>());
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
         JsonNode sheetNode = objectMapper.readTree(sheetMetadataString);
         methodConfig.setBody(List.of(sheetNode));
 

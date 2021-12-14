@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Map;
 
 public class GetValuesMethodTest {
 
@@ -100,7 +100,7 @@ public class GetValuesMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray() && result.size() == 8);
@@ -127,7 +127,7 @@ public class GetValuesMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -155,7 +155,7 @@ public class GetValuesMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
