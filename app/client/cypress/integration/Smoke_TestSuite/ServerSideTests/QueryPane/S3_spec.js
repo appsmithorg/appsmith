@@ -305,6 +305,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     //cy.selectEntityByName("Query1");
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+
   });
 
   it("7. Validate List Files in bucket command after new file is deleted, Verify possible error msgs, run & delete the query", () => {
@@ -459,7 +460,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@updateLayout").then(({ response }) => {
       expect(response.body.data.dsl.children[2].type).to.eq("TEXT_WIDGET");
     });
-
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });

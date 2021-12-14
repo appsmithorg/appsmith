@@ -4,7 +4,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let datasourceName, queryName;
 
-describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
+describe("Create a query with a mongo datasource, run, save and then delete the query", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -25,7 +25,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
   });
 
-  it("2. Validate Raw query command, run and then delete the query", function() {
+  it("2. Validate Raw query command, run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     queryName = "RawQuery";
     cy.renameWithInPane(queryName);
@@ -52,9 +52,10 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.runQuery(); //exeute actions & 200 response is verified in this method
   });
 
-  it("3. Validate Find documents command & Run and then delete the query", function() {
+  it("3. Validate Find documents command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     queryName = "FindQuery";
+
     cy.renameWithInPane(queryName);
 
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
@@ -99,7 +100,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath(queryLocators.countText).should("have.text", "5 Records");
   });
 
-  it("4. Validate Count command & Run and then delete the query", function() {
+  it("4. Validate Count command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     queryName = "CountQuery";
     cy.renameWithInPane(queryName);
@@ -110,7 +111,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.runQuery(); //exeute actions - 200 response is verified in this method
   });
 
-  it("5. Validate Distinct command & Run and then delete the query", function() {
+  it("5. Validate Distinct command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     queryName = "DistinctQuery";
     cy.renameWithInPane(queryName);
@@ -127,7 +128,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
   });
 
-  it("6. Validate Aggregate command & Run and then delete the query", function() {
+  it("6. Validate Aggregate command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     queryName = "AggregateQuery";
     cy.renameWithInPane(queryName);
