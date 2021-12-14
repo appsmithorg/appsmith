@@ -44,7 +44,11 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
-import { formatCurrencyNumber, limitDecimalValue } from "./utilities";
+import {
+  formatCurrencyNumber,
+  limitDecimalValue,
+  getSeparators,
+} from "./utilities";
 
 /**
  * All design system component specific logic goes here.
@@ -310,9 +314,14 @@ class InputComponent extends React.Component<
   InputComponentProps,
   InputComponentState
 > {
+  groupSeparator: string;
+  decimalSeparator: string;
   constructor(props: InputComponentProps) {
     super(props);
     this.state = { showPassword: false };
+    const separators = getSeparators();
+    this.groupSeparator = separators.groupSeparator || ",";
+    this.decimalSeparator = separators.decimalSeparator || ".";
   }
 
   componentDidMount() {
@@ -320,24 +329,46 @@ class InputComponent extends React.Component<
       const element: any = document.querySelectorAll(
         `#${this.props.widgetId} .bp3-button`,
       );
-
       if (element !== null) {
-        element[0].addEventListener("click", () => this.onButtonClick(1));
-        element[1].addEventListener("click", () => this.onButtonClick(-1));
+        element[0].addEventListener("click", this.onIncrementButtonClick);
+        element[1].addEventListener("click", this.onDecrementButtonClick);
       }
     }
   }
 
   componentWillUnmount() {
-    const element: any = document.querySelectorAll(
-      `#${this.props.widgetId} .bp3-button`,
-    );
-
-    if (element !== null) {
-      element[0].removeEventListener("click", () => this.onButtonClick(1));
-      element[1].removeEventListener("click", () => this.onButtonClick(-1));
+    if (this.props.inputType === InputTypes.CURRENCY) {
+      const element: any = document.querySelectorAll(
+        `#${this.props.widgetId} .bp3-button`,
+      );
+      if (element !== null) {
+        element[0].removeEventListener("click", this.onIncrementButtonClick);
+        element[1].removeEventListener("click", this.onDecrementButtonClick);
+      }
     }
   }
+
+  updateValueOnButtonClick = (type: number) => {
+    let deFormattedValue: string | number = this.props.value
+      .split(this.groupSeparator)
+      .join("");
+    const stepSize = this.props.stepSize || 1;
+    deFormattedValue = +deFormattedValue + stepSize * type;
+    const formattedValue = formatCurrencyNumber(
+      this.props.decimalsInCurrency,
+      "" + deFormattedValue,
+      this.decimalSeparator,
+    );
+    this.props.onValueChange(formattedValue);
+  };
+
+  onIncrementButtonClick = () => {
+    this.updateValueOnButtonClick(1);
+  };
+
+  onDecrementButtonClick = () => {
+    this.updateValueOnButtonClick(-1);
+  };
 
   setFocusState = (isFocused: boolean) => {
     this.props.onFocusChange(isFocused);
@@ -351,36 +382,29 @@ class InputComponent extends React.Component<
     this.props.onValueChange(event.target.value);
   };
 
-  onButtonClick = (type: number) => {
-    let deFormattedValue: string | number = this.props.value
-      .split(",")
-      .join("");
-    const stepSize = this.props.stepSize || 1;
-    deFormattedValue = +deFormattedValue + stepSize * type;
-    const formattedValue = formatCurrencyNumber(
-      this.props.decimalsInCurrency,
-      "" + deFormattedValue,
-    );
-    this.props.onValueChange(formattedValue);
-  };
-
   onNumberChange = (
     valueAsNum: number,
     valueAsString: string,
     inputElement: HTMLInputElement,
   ) => {
+    console.log(valueAsNum, valueAsString, inputElement);
     if (this.props.inputType === InputTypes.CURRENCY) {
+      //handle this only when input is focussed
       if (inputElement.className.includes("focus-visible")) {
         const fractionDigits = this.props.decimalsInCurrency || 0;
-        const currentIndexOfDecimal = valueAsString.indexOf(".");
+        const currentIndexOfDecimal = valueAsString.indexOf(
+          this.decimalSeparator,
+        );
         const indexOfDecimal = valueAsString.length - fractionDigits - 1;
         if (
-          valueAsString.includes(".") &&
+          valueAsString.includes(this.decimalSeparator) &&
           currentIndexOfDecimal <= indexOfDecimal
         ) {
           const value = limitDecimalValue(
             this.props.decimalsInCurrency,
             valueAsString,
+            this.decimalSeparator,
+            this.groupSeparator,
           );
           this.props.onValueChange(value);
         } else {
@@ -467,6 +491,7 @@ class InputComponent extends React.Component<
       const formattedValue = formatCurrencyNumber(
         this.props.decimalsInCurrency,
         this.props.value,
+        this.decimalSeparator,
       );
       this.props.onValueChange(formattedValue);
     }
@@ -475,8 +500,12 @@ class InputComponent extends React.Component<
   };
 
   onNumberInputFocus = () => {
-    const deFormattedValue = ("" + this.props.value).split(",").join("");
-    this.props.onValueChange(deFormattedValue);
+    if (this.props.value) {
+      const deFormattedValue = ("" + this.props.value)
+        .split(this.groupSeparator)
+        .join("");
+      this.props.onValueChange(deFormattedValue);
+    }
     this.setFocusState(true);
   };
 
