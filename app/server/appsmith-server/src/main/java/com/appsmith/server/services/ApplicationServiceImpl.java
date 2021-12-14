@@ -3,8 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -22,6 +22,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
@@ -58,6 +59,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
+    private final ResponseUtils responseUtils;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -69,17 +71,24 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
-                                  SessionUserService sessionUserService) {
+                                  SessionUserService sessionUserService,
+                                  ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
+        this.responseUtils = responseUtils;
     }
 
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
-        return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS));
+        if (!StringUtils.isEmpty(params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME))) {
+            params.add("gitApplicationMetadata.branchName", params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME));
+            params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
+        }
+        return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS))
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -97,6 +106,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     User user = objects.getT2();
                     return setUnreadCommentCount(application, user);
                 });
+    }
+
+    @Override
+    public Mono<Application> findByIdAndBranchName(String id, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS)
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> setUnreadCommentCount(Application application, User user) {
@@ -173,22 +188,41 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
-        return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
-            .onErrorResume(error -> {
-                if (error instanceof DuplicateKeyException) {
-                    // Error message : E11000 duplicate key error collection: appsmith.application index:
-                    // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
-                    // { organizationId: "******", name: "AppName", deletedAt: null }
-                    if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
-                        return Mono.error(
-                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
-                        );
-                    }
-                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, error.getCause().getMessage()));
-                }
-                return Mono.error(error);
-            })
-            .flatMap(analyticsService::sendUpdateEvent);
+        Mono<String> applicationIdMono;
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+            applicationIdMono = this.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
+                    .map(Application::getId);
+        } else {
+            applicationIdMono = Mono.just(id);
+        }
+        return applicationIdMono
+                .flatMap(appId -> repository.updateById(appId, application, AclPermission.MANAGE_APPLICATIONS)
+                    .onErrorResume(error -> {
+                        if (error instanceof DuplicateKeyException) {
+                            // Error message : E11000 duplicate key error collection: appsmith.application index:
+                            // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
+                            // { organizationId: "******", name: "AppName", deletedAt: null }
+                            if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
+                                return Mono.error(
+                                    new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
+                                );
+                            }
+                            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, error.getCause().getMessage()));
+                        }
+                        return Mono.error(error);
+                    })
+                    .flatMap(analyticsService::sendUpdateEvent)
+                );
+    }
+
+    public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .flatMap(branchedApplication -> {
+                    application.setPages(null);
+                    application.setGitApplicationMetadata(null);
+                    return this.update(branchedApplication.getId(), application);
+                });
     }
 
     @Override
@@ -224,8 +258,25 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Mono<Application> changeViewAccess(String defaultApplicationId,
+                                              String branchName,
+                                              ApplicationAccessDTO applicationAccessDTO) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
+                .map(responseUtils::updateApplicationWithDefaultResources);
+    }
+
+    @Override
     public Flux<Application> findAllApplicationsByOrganizationId(String organizationId) {
         return repository.findByOrganizationId(organizationId);
+    }
+
+    @Override
+    public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
+
+        return this.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+            .flatMap(this::getApplicationInViewMode)
+            .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -355,7 +406,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         gitAuth.setPublicKey(publicKeyOutput.toString());
         gitAuth.setPrivateKey(privateKeyOutput.toString());
         gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
@@ -418,7 +469,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 }
                 // Check if the application is root application
                 if (applicationId.equals(gitData.getDefaultApplicationId())) {
-                    gitData.getGitAuth().setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+                    gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                     return Mono.just(gitData.getGitAuth());
                 }
                 if (gitData.getDefaultApplicationId() == null) {
@@ -430,16 +481,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
                     .map(rootApplication -> {
                         GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
-                        gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+                        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                         return gitAuth;
                     });
             });
     }
 
     @Override
-    public Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
-                                                                             String defaultApplicationId,
-                                                                             AclPermission aclPermission){
+    public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
+                                                                     String defaultApplicationId,
+                                                                     AclPermission aclPermission){
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
@@ -448,9 +499,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
             .switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
             );
     }
+
     /**
      * Sets the updatedAt and modifiedBy fields of the Application
      * @param applicationId Application ID
@@ -469,13 +521,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
     }
 
-    public Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
+    public Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
         if (StringUtils.isEmpty(branchName)) {
+            if (StringUtils.isEmpty(defaultApplicationId)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
+            }
             return Mono.just(defaultApplicationId);
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
             .switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
             )
             .map(Application::getId);
     }
@@ -489,7 +544,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      * @return Application flux which match the condition
      */
     @Override
-    public Flux<Application> findAllApplicationsByGitDefaultApplicationId(String defaultApplicationId) {
+    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId) {
         return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
     }
 }
