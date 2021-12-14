@@ -15,10 +15,14 @@ type FieldProps = {
   defaultValue: any;
 };
 
-const WRAPPER_MARGIN_BOTTOM = 14;
+const WRAPPER_MARGIN_BOTTOM = 16;
 
 const StyledWrapper = styled.div`
   margin-bottom: ${WRAPPER_MARGIN_BOTTOM}px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const StyledControllerWrapper = styled.div`

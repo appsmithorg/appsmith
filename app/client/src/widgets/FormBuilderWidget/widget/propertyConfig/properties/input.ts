@@ -211,7 +211,7 @@ const PROPERTIES = {
       inputType: "TEXT",
       isBindProperty: true,
       isTriggerProperty: false,
-      validation: { type: ValidationTypes.BOOLEAN },
+      validation: { type: ValidationTypes.BOOLEAN, params: { default: true } },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
       dependencies: ["schema", "sourceData"],

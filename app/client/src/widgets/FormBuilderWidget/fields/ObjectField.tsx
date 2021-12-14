@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { ControllerRenderProps } from "react-hook-form";
 
+import Accordion from "../component/Accordion";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
@@ -12,10 +13,15 @@ type ObjectComponentProps = FieldComponentBaseProps;
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
+  hideLabel?: boolean;
+  isRootField?: boolean;
   name: string;
   propertyPath: string;
   schemaItem: SchemaItem & ObjectComponentProps;
-  hideLabel?: boolean;
+};
+
+type StyledWrapperProps = {
+  padded: boolean;
 };
 
 const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
@@ -27,14 +33,14 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
 const WRAPPER_PADDING_X = 15;
 const WRAPPER_PADDING_Y = 10;
 
-const StyledWrapper = styled.div`
-  padding: ${WRAPPER_PADDING_Y}px ${WRAPPER_PADDING_X}px;
+const StyledWrapper = styled.div<StyledWrapperProps>`
   padding-top: 0;
   width: 100%;
 `;
 
 function ObjectField({
   hideLabel,
+  isRootField = false,
   name,
   propertyPath,
   schemaItem,
@@ -60,10 +66,14 @@ function ObjectField({
     });
   };
 
+  const field = (
+    <StyledWrapper padded={isRootField}>{renderFields()}</StyledWrapper>
+  );
+
   return (
     <Disabler isDisabled={isDisabled}>
       {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
-      <StyledWrapper>{renderFields()}</StyledWrapper>
+      {isRootField ? field : <Accordion collapsible={false}>{field}</Accordion>}
     </Disabler>
   );
 }

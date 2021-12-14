@@ -77,6 +77,7 @@ function FormBuilderComponent<TValues>({
 
     return (
       <RootField
+        isRootField
         name=""
         propertyPath={propertyPath}
         schemaItem={rootSchemaItem}
