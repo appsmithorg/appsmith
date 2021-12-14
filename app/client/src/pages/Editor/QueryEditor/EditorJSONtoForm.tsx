@@ -737,6 +737,12 @@ export function EditorJSONtoForm(props: Props) {
     props.actionName,
   );
 
+  // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
+  // the initialized prop below comes from redux-form.
+  if (!props.initialized) {
+    return null;
+  }
+
   return (
     <>
       <CloseEditor />

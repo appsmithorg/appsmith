@@ -1293,11 +1293,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         return pageActions
                 .stream()
-                .filter(pageAction -> actionNames.contains(pageAction.getName()))
+                .filter(pageAction -> actionNames.contains(pageAction.getValidName()))
                 .map(pageAction -> {
                     LayoutActionUpdateDTO layoutActionUpdateDTO = new LayoutActionUpdateDTO();
                     layoutActionUpdateDTO.setId(pageAction.getId());
-                    layoutActionUpdateDTO.setName(pageAction.getName());
+                    layoutActionUpdateDTO.setName(pageAction.getValidName());
+                    layoutActionUpdateDTO.setCollectionId(pageAction.getCollectionId());
                     layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
                     return layoutActionUpdateDTO;
                 })

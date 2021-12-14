@@ -245,6 +245,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setPluginId("testPluginId");
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
+        action.setClientSideExecution(true);
         actionCollectionDTO.setActions(List.of(action));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -301,6 +302,7 @@ public class ActionCollectionServiceImplTest {
                     Assert.assertEquals("testAction", actionDTO.getName());
                     Assert.assertEquals("testActionId", actionDTO.getId());
                     Assert.assertEquals("testCollection.testAction", actionDTO.getFullyQualifiedName());
+                    Assert.assertTrue(actionDTO.getClientSideExecution());
                 })
                 .verifyComplete();
     }

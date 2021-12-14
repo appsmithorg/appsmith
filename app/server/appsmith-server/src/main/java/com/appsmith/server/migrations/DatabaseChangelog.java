@@ -52,9 +52,8 @@ import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
-import com.github.cloudyrock.mongock.decorator.impl.MongockTemplate;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
-import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -78,7 +77,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
@@ -160,17 +158,17 @@ public class DatabaseChangelog {
     }
 
     /**
-     * Given a MongoTemplate, a domain class and a bunch of Index definitions, this pure utility function will ensure
-     * those indexes on the database behind the MongoTemplate instance.
+     * Given a MongockTemplate, a domain class and a bunch of Index definitions, this pure utility function will ensure
+     * those indexes on the database behind the MongockTemplate instance.
      */
-    private static void ensureIndexes(MongoTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
+    private static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
         IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
             indexOps.ensureIndex(index);
         }
     }
 
-    private static void dropIndexIfExists(MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
+    private static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
         } catch (UncategorizedMongoDbException ignored) {
@@ -216,7 +214,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "001", id = "initial-plugins", author = "")
-    public void initialPlugins(MongoTemplate mongoTemplate) {
+    public void initialPlugins(MongockTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
         plugin1.setName("PostgresDbPlugin");
         plugin1.setType(PluginType.DB);
@@ -267,12 +265,12 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "002", id = "remove-org-name-index", author = "")
-    public void removeOrgNameIndex(MongoTemplate mongoTemplate) {
+    public void removeOrgNameIndex(MongockTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Organization.class, "name");
     }
 
     @ChangeSet(order = "003", id = "add-org-slugs", author = "")
-    public void addOrgSlugs(MongoTemplate mongoTemplate, OrganizationService organizationService) {
+    public void addOrgSlugs(MongockTemplate mongoTemplate, OrganizationService organizationService) {
         // For all existing organizations, add a slug field, which should be unique.
         // We are blocking here for adding a slug to each existing organization. This is bad and slow. Do NOT copy this
         // code fragment into the services' control flow. This is a single migration code and is expected to run once in
@@ -295,7 +293,7 @@ public class DatabaseChangelog {
      * the `Action.datasource` field.
      */
     @ChangeSet(order = "004", id = "initial-indexes", author = "")
-    public void addInitialIndexes(MongoTemplate mongoTemplate) {
+    public void addInitialIndexes(MongockTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
         ensureIndexes(mongoTemplate, Action.class,
@@ -364,7 +362,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "005", id = "application-deleted-at", author = "")
-    public void addApplicationDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
+    public void addApplicationDeletedAtFieldAndIndex(MongockTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
 
         ensureIndexes(mongoTemplate, Application.class,
@@ -381,7 +379,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "006", id = "hide-rapidapi-plugin", author = "")
-    public void hideRapidApiPluginFromCreateDatasource(MongoTemplate mongoTemplate) {
+    public void hideRapidApiPluginFromCreateDatasource(MongockTemplate mongoTemplate) {
         final Plugin rapidApiPlugin = mongoTemplate.findOne(
                 query(where("packageName").is("rapidapi-plugin")),
                 Plugin.class
@@ -398,7 +396,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "007", id = "datasource-deleted-at", author = "")
-    public void addDatasourceDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
+    public void addDatasourceDeletedAtFieldAndIndex(MongockTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_compound_index");
 
         ensureIndexes(mongoTemplate, Datasource.class,
@@ -415,7 +413,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "008", id = "page-deleted-at", author = "")
-    public void addPageDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
+    public void addPageDeletedAtFieldAndIndex(MongockTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Page.class, "application_page_compound_index");
 
         ensureIndexes(mongoTemplate, Page.class,
@@ -432,7 +430,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "009", id = "friendly-plugin-names", author = "")
-    public void setFriendlyPluginNames(MongoTemplate mongoTemplate) {
+    public void setFriendlyPluginNames(MongockTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setName("PostgreSQL");
@@ -448,7 +446,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "010", id = "add-delete-datasource-perm-existing-groups", author = "")
-    public void addDeleteDatasourcePermToExistingGroups(MongoTemplate mongoTemplate) {
+    public void addDeleteDatasourcePermToExistingGroups(MongockTemplate mongoTemplate) {
         for (Group group : mongoTemplate.findAll(Group.class)) {
             if (CollectionUtils.isEmpty(group.getPermissions())) {
                 group.setPermissions(new HashSet<>());
@@ -459,7 +457,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "011", id = "install-default-plugins-to-all-organizations", author = "")
-    public void installDefaultPluginsToAllOrganizations(MongoTemplate mongoTemplate) {
+    public void installDefaultPluginsToAllOrganizations(MongockTemplate mongoTemplate) {
         final List<Plugin> defaultPlugins = mongoTemplate.find(
                 query(where("defaultInstall").is(true)),
                 Plugin.class
@@ -487,7 +485,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "012", id = "ensure-datasource-created-and-updated-at-fields", author = "")
-    public void ensureDatasourceCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
+    public void ensureDatasourceCreatedAndUpdatedAt(MongockTemplate mongoTemplate) {
         final List<Datasource> missingCreatedAt = mongoTemplate.find(
                 query(where("createdAt").exists(false)),
                 Datasource.class
@@ -510,14 +508,14 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "013", id = "add-index-for-sequence-name", author = "")
-    public void addIndexForSequenceName(MongoTemplate mongoTemplate) {
+    public void addIndexForSequenceName(MongockTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, Sequence.class,
                 makeIndex(FieldName.NAME).unique()
         );
     }
 
     @ChangeSet(order = "014", id = "set-initial-sequence-for-datasource", author = "")
-    public void setInitialSequenceForDatasource(MongoTemplate mongoTemplate) {
+    public void setInitialSequenceForDatasource(MongockTemplate mongoTemplate) {
         final Long maxUntitledDatasourceNumber = mongoTemplate.find(
                         query(where(FieldName.NAME).regex("^" + Datasource.DEFAULT_NAME_PREFIX + " \\d+$")),
                         Datasource.class
@@ -535,7 +533,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "015", id = "set-plugin-image-and-docs-link", author = "")
-    public void setPluginImageAndDocsLink(MongoTemplate mongoTemplate) {
+    public void setPluginImageAndDocsLink(MongockTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Postgress.png");
@@ -560,7 +558,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "016", id = "fix-double-escapes", author = "")
-    public void fixDoubleEscapes(MongoTemplate mongoTemplate) {
+    public void fixDoubleEscapes(MongockTemplate mongoTemplate) {
         final List<Action> actions = mongoTemplate.find(
                 query(where("jsonPathKeys").exists(true)),
                 Action.class
@@ -593,7 +591,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "017", id = "encrypt-password", author = "")
-    public void encryptPassword(MongoTemplate mongoTemplate, EncryptionService encryptionService) {
+    public void encryptPassword(MongockTemplate mongoTemplate, EncryptionService encryptionService) {
         final List<Datasource> datasources = mongoTemplate.find(
                 query(where("datasourceConfiguration.authentication.password").exists(true)),
                 Datasource.class
@@ -626,7 +624,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
-    public void updateDatabaseDocumentationLinks(MongoTemplate mongoTemplate) {
+    public void updateDatabaseDocumentationLinks(MongockTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
@@ -646,7 +644,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "020", id = "execute-action-for-read-action", author = "")
-    public void giveExecutePermissionToReadActionUsers(MongoTemplate mongoTemplate) {
+    public void giveExecutePermissionToReadActionUsers(MongockTemplate mongoTemplate) {
         final List<Action> actions = mongoTemplate.find(
                 query(where("policies").exists(true)),
                 Action.class
@@ -676,7 +674,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "021", id = "invite-and-public-permissions", author = "")
-    public void giveInvitePermissionToOrganizationsAndPublicPermissionsToApplications(MongoTemplate mongoTemplate) {
+    public void giveInvitePermissionToOrganizationsAndPublicPermissionsToApplications(MongockTemplate mongoTemplate) {
         final List<Organization> organizations = mongoTemplate.find(
                 query(where("userRoles").exists(true)),
                 Organization.class
@@ -748,7 +746,7 @@ public class DatabaseChangelog {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @ChangeSet(order = "022", id = "examples-organization", author = "")
-    public void examplesOrganization(MongoTemplate mongoTemplate, EncryptionService encryptionService) throws IOException {
+    public void examplesOrganization(MongockTemplate mongoTemplate, EncryptionService encryptionService) throws IOException {
         final Map<String, String> plugins = new HashMap<>();
 
         final List<Map<String, Object>> organizationPlugins = mongoTemplate
@@ -876,7 +874,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "023", id = "set-example-apps-in-config", author = "")
-    public void setExampleAppsInConfig(MongoTemplate mongoTemplate) {
+    public void setExampleAppsInConfig(MongockTemplate mongoTemplate) {
         final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
 
         final Config config = mongoTemplate.findOne(
@@ -909,7 +907,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "024", id = "update-erroneous-action-ids", author = "")
-    public void updateErroneousActionIdsInPage(MongoTemplate mongoTemplate) {
+    public void updateErroneousActionIdsInPage(MongockTemplate mongoTemplate) {
         final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
 
         final Config config = mongoTemplate.findOne(
@@ -995,7 +993,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "025", id = "generate-unique-id-for-instance", author = "")
-    public void generateUniqueIdForInstance(MongoTemplate mongoTemplate) {
+    public void generateUniqueIdForInstance(MongockTemplate mongoTemplate) {
         mongoTemplate.insert(new Config(
                 new JSONObject(Map.of("value", new ObjectId().toHexString())),
                 "instance-id"
@@ -1003,7 +1001,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "026", id = "fix-password-reset-token-expiration", author = "")
-    public void fixTokenExpiration(MongoTemplate mongoTemplate) {
+    public void fixTokenExpiration(MongockTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.CREATED_AT);
         dropIndexIfExists(mongoTemplate, PasswordResetToken.class, FieldName.EMAIL);
 
@@ -1055,7 +1053,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "029", id = "use-png-logos", author = "")
-    public void usePngLogos(MongoTemplate mongoTemplate) {
+    public void usePngLogos(MongockTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
                 update(fieldName(QPlugin.plugin.iconLocation),
@@ -1105,7 +1103,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
-    public void addNewPageIndexAfterDroppingNewPage(MongoTemplate mongoTemplate) {
+    public void addNewPageIndexAfterDroppingNewPage(MongockTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
         // Drop existing NewPage class
@@ -1118,7 +1116,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "")
-    public void addNewActionIndexAfterDroppingNewAction(MongoTemplate mongoTemplate) {
+    public void addNewActionIndexAfterDroppingNewAction(MongockTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
 
         // Drop existing NewAction class
@@ -1131,7 +1129,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "039", id = "migrate-page-and-actions", author = "")
-    public void migratePage(MongoTemplate mongoTemplate) {
+    public void migratePage(MongockTemplate mongoTemplate) {
         final List<Page> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
                 Page.class
@@ -1242,7 +1240,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "040", id = "new-page-new-action-add-indexes", author = "")
-    public void addNewPageAndNewActionNewIndexes(MongoTemplate mongoTemplate) {
+    public void addNewPageAndNewActionNewIndexes(MongockTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "createdAt");
 
@@ -1261,7 +1259,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "041", id = "new-action-add-index-pageId", author = "")
-    public void addNewActionIndexForPageId(MongoTemplate mongoTemplate) {
+    public void addNewActionIndexForPageId(MongockTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_createdAt_compound_index");
 
@@ -1272,7 +1270,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
-    public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
+    public void updateActionIndexToSingleMultipleIndices(MongockTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
 
@@ -1313,7 +1311,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "044", id = "ensure-app-icons-and-colors", author = "")
-    public void ensureAppIconsAndColors(MongoTemplate mongoTemplate) {
+    public void ensureAppIconsAndColors(MongockTemplate mongoTemplate) {
         final String iconFieldName = fieldName(QApplication.application.icon);
         final String colorFieldName = fieldName(QApplication.application.color);
 
@@ -1453,7 +1451,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "045", id = "update-authentication-type", author = "")
-    public void updateAuthenticationTypes(MongoTemplate mongoTemplate) {
+    public void updateAuthenticationTypes(MongockTemplate mongoTemplate) {
         mongoTemplate.execute("datasource", new CollectionCallback<String>() {
             @Override
             public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
@@ -1534,7 +1532,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "047", id = "add-isSendSessionEnabled-key-for-datasources", author = "")
-    public void addIsSendSessionEnabledPropertyInDatasources(MongoTemplate mongoTemplate) {
+    public void addIsSendSessionEnabledPropertyInDatasources(MongockTemplate mongoTemplate) {
 
         String keyName = "isSendSessionEnabled";
 
@@ -1600,12 +1598,12 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
-    public void clearUserDataCollection(MongoTemplate mongoTemplate) {
+    public void clearUserDataCollection(MongockTemplate mongoTemplate) {
         mongoTemplate.dropCollection(UserData.class);
     }
 
     @ChangeSet(order = "050", id = "update-database-documentation-links-v1-2-1", author = "")
-    public void updateDatabaseDocumentationLinks_v1_2_1(MongoTemplate mongoTemplate) {
+    public void updateDatabaseDocumentationLinks_v1_2_1(MongockTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             switch (plugin.getPackageName()) {
                 case "postgres-plugin":
@@ -1664,7 +1662,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
-    public void addAppViewerInvitePolicy(MongoTemplate mongoTemplate) {
+    public void addAppViewerInvitePolicy(MongockTemplate mongoTemplate) {
         final List<Organization> organizations = mongoTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.ORGANIZATION_VIEWER.name())
@@ -1690,7 +1688,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
-    public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
+    public void updatePluginDatasourceFormComponents(MongockTemplate mongoTemplate) {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             switch (plugin.getPackageName()) {
                 case "postgres-plugin":
@@ -1717,7 +1715,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "054", id = "update-database-encode-params-toggle", author = "")
-    public void updateEncodeParamsToggle(MongoTemplate mongoTemplate) {
+    public void updateEncodeParamsToggle(MongockTemplate mongoTemplate) {
 
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
             if (action.getPluginType() != null && action.getPluginType().equals("API")) {
@@ -1736,7 +1734,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "055", id = "update-postgres-plugin-preparedStatement-config", author = "")
-    public void updatePostgresActionsSetPreparedStatementConfiguration(MongoTemplate mongoTemplate) {
+    public void updatePostgresActionsSetPreparedStatementConfiguration(MongockTemplate mongoTemplate) {
 
         List<Plugin> plugins = mongoTemplate.find(
                 query(new Criteria().andOperator(
@@ -1776,7 +1774,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
-    public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
+    public void fixDynamicBindingPathListForExistingActions(MongockTemplate mongoTemplate) {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -1887,7 +1885,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "057", id = "update-database-action-configuration-timeout", author = "")
-    public void updateActionConfigurationTimeout(MongoTemplate mongoTemplate) {
+    public void updateActionConfigurationTimeout(MongockTemplate mongoTemplate) {
 
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
             boolean updateTimeout = false;
@@ -1915,7 +1913,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
-    public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
+    public void updateS3DatasourceConfigurationAndLabel(MongockTemplate mongoTemplate) {
         Plugin s3Plugin = mongoTemplate
                 .find(query(where("name").is("Amazon S3")), Plugin.class).get(0);
         s3Plugin.setName("S3");
@@ -1937,7 +1935,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "059", id = "change-applayout-type-definition", author = "")
-    public void changeAppLayoutTypeDefinition(MongoOperations mongoOperations, MongoClient mongoClient) {
+    public void changeAppLayoutTypeDefinition(MongoOperations mongoOperations) {
         // Unset an old version of this field, that is no longer used.
         mongoOperations.updateMulti(
                 query(where("appLayout").exists(true)),
@@ -2010,7 +2008,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "060", id = "clear-example-apps", author = "")
-    public void clearExampleApps(MongoTemplate mongoTemplate) {
+    public void clearExampleApps(MongockTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
                 query(where(fieldName(QConfig.config1.name)).is("template-organization")),
                 update("config.applicationIds", Collections.emptyList()).set("config.organizationId", null),
@@ -2019,7 +2017,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "061", id = "update-mysql-postgres-mongo-ssl-mode", author = "")
-    public void updateMysqlPostgresMongoSslMode(MongoTemplate mongoTemplate) {
+    public void updateMysqlPostgresMongoSslMode(MongockTemplate mongoTemplate) {
         Plugin mysqlPlugin = mongoTemplate
                 .findOne(query(where("packageName").is("mysql-plugin")), Plugin.class);
 
@@ -2094,7 +2092,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "062", id = "add-commenting-permissions", author = "")
-    public void addCommentingPermissions(MongoTemplate mongoTemplate) {
+    public void addCommentingPermissions(MongockTemplate mongoTemplate) {
         final List<Application> applications = mongoTemplate.findAll(Application.class);
 
         for (final Application application : applications) {
@@ -2103,10 +2101,11 @@ public class DatabaseChangelog {
                     .filter(policy -> AclPermission.READ_APPLICATIONS.getValue().equals(policy.getPermission()))
                     .findFirst()
                     .ifPresent(readAppPolicy -> {
-                        final Policy.PolicyBuilder newPolicy = Policy.builder()
+                        final Policy newPolicy = Policy.builder()
                                 .permission(AclPermission.COMMENT_ON_APPLICATIONS.getValue())
                                 .users(readAppPolicy.getUsers())
-                                .groups(readAppPolicy.getGroups());
+                                .groups(readAppPolicy.getGroups())
+                                .build();
                         mongoTemplate.updateFirst(
                                 query(where(fieldName(QApplication.application.id)).is(application.getId())),
                                 new Update().push(fieldName(QApplication.application.policies), newPolicy),
@@ -2138,7 +2137,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "063", id = "mark-instance-unregistered", author = "")
-    public void markInstanceAsUnregistered(MongoTemplate mongoTemplate) {
+    public void markInstanceAsUnregistered(MongockTemplate mongoTemplate) {
         mongoTemplate.insert(new Config(
                 new JSONObject(Map.of("value", false)),
                 Appsmith.APPSMITH_REGISTERED
@@ -2146,7 +2145,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "065", id = "create-entry-in-sequence-per-organization-for-datasource", author = "")
-    public void createEntryInSequencePerOrganizationForDatasource(MongoTemplate mongoTemplate) {
+    public void createEntryInSequencePerOrganizationForDatasource(MongockTemplate mongoTemplate) {
 
         Map<String, Long> maxDatasourceCount = new HashMap<>();
         mongoTemplate
@@ -2173,7 +2172,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "066", id = "migrate-smartSubstitution-dataType", author = "")
-    public void migrateSmartSubstitutionDataTypeBoolean(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+    public void migrateSmartSubstitutionDataTypeBoolean(MongockTemplate mongoTemplate, MongoOperations mongoOperations) {
         Set<String> smartSubTurnedOn = new HashSet<>();
         Set<String> smartSubTurnedOff = new HashSet<>();
         Set<String> noSmartSubConfig = new HashSet<>();
@@ -2253,7 +2252,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "067", id = "update-mongo-import-from-srv-field", author = "")
-    public void updateMongoImportFromSrvField(MongoTemplate mongoTemplate) {
+    public void updateMongoImportFromSrvField(MongockTemplate mongoTemplate) {
         Plugin mongoPlugin = mongoTemplate
                 .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
@@ -2269,7 +2268,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "068", id = "delete-mongo-datasource-structures", author = "")
-    public void deleteMongoDatasourceStructures(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+    public void deleteMongoDatasourceStructures(MongockTemplate mongoTemplate, MongoOperations mongoOperations) {
 
         // Mongo Form requires the query templates to change as well. To ensure this, mongo datasources
         // must re-compute the structure. The following deletes all such structures. Whenever getStructure API call is
@@ -2329,7 +2328,7 @@ public class DatabaseChangelog {
      * - [... path, operator, value, ...] --> [... [ {"path":path, "operator":operator, "value":value} ] ...]
      */
     @ChangeSet(order = "070", id = "update-firestore-where-conditions-data", author = "")
-    public void updateFirestoreWhereConditionsData(MongoTemplate mongoTemplate) {
+    public void updateFirestoreWhereConditionsData(MongockTemplate mongoTemplate) {
         Plugin firestorePlugin = mongoTemplate
                 .findOne(query(where("packageName").is("firestore-plugin")), Plugin.class);
 
@@ -2417,7 +2416,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "071", id = "add-application-export-permissions", author = "")
-    public void addApplicationExportPermissions(MongoTemplate mongoTemplate) {
+    public void addApplicationExportPermissions(MongockTemplate mongoTemplate) {
         final List<Organization> organizations = mongoTemplate.find(
                 query(where("userRoles").exists(true)),
                 Organization.class
@@ -2606,7 +2605,7 @@ public class DatabaseChangelog {
 
 
     @ChangeSet(order = "074", id = "ensure-user-created-and-updated-at-fields", author = "")
-    public void ensureUserCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
+    public void ensureUserCreatedAndUpdatedAt(MongockTemplate mongoTemplate) {
         final List<User> missingCreatedAt = mongoTemplate.find(
                 query(where("createdAt").exists(false)),
                 User.class
@@ -2637,7 +2636,7 @@ public class DatabaseChangelog {
      * - []
      */
     @ChangeSet(order = "075", id = "add-and-update-order-for-all-pages", author = "")
-    public void addOrderToAllPagesOfApplication(MongoTemplate mongoTemplate) {
+    public void addOrderToAllPagesOfApplication(MongockTemplate mongoTemplate) {
         for (Application application : mongoTemplate.findAll(Application.class)) {
             //Commenting out this piece code as we have decided to remove the order field from ApplicationPages
             /*if(application.getPages() != null) {
@@ -2985,8 +2984,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "083", id = "application-git-metadata", author = "")
-    public void addApplicationGitMetadataFieldAndIndex(MongockTemplate mongockTemplate) {
-        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+    public void addApplicationGitMetadataFieldAndIndex(MongockTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
 
@@ -3017,7 +3015,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "085", id = "update-google-sheet-plugin-smartSubstitution-config", author = "")
-    public void updateGoogleSheetActionsSetSmartSubstitutionConfiguration(MongoTemplate mongoTemplate) {
+    public void updateGoogleSheetActionsSetSmartSubstitutionConfiguration(MongockTemplate mongoTemplate) {
 
         Plugin googleSheetPlugin = mongoTemplate.findOne(
                 query(new Criteria().andOperator(
@@ -3164,7 +3162,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "087", id = "migrate-mongo-to-uqi", author = "")
-    public void migrateMongoPluginToUqi(MongoTemplate mongoTemplate) {
+    public void migrateMongoPluginToUqi(MongockTemplate mongoTemplate) {
 
         // First update the UI component for the mongo plugin to UQI
         Plugin mongoPlugin = mongoTemplate.findOne(
@@ -3210,7 +3208,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "088", id = "migrate-mongo-uqi-dynamicBindingPathList", author = "")
-    public void migrateMongoPluginDynamicBindingListUqi(MongoTemplate mongoTemplate) {
+    public void migrateMongoPluginDynamicBindingListUqi(MongockTemplate mongoTemplate) {
 
         Plugin mongoPlugin = mongoTemplate.findOne(
                 query(where("packageName").is("mongo-plugin")),
@@ -3263,8 +3261,8 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
-    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongockTemplate mongockTemplate) {
-        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongockTemplate mongoTemplate) {
+//        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
         dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
 
         ensureIndexes(mongoTemplate, Plugin.class,
@@ -3432,8 +3430,8 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "093", id = "application-git-metadata-index", author = "")
-    public void updateGitApplicationMetadataIndex(MongockTemplate mongockTemplate) {
-        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+    public void updateGitApplicationMetadataIndex(MongockTemplate mongoTemplate) {
+        // MongoTemplate mongoTemplate = mongockTemplate.getImpl();
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitRepo_gitBranch_compound_index");
