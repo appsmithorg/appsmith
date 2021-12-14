@@ -60,7 +60,6 @@ const Title = styled.div`
   & .t--help-icon {
     svg {
       position: relative;
-      top: 4px;
     }
   }
 `;

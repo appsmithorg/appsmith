@@ -11,7 +11,8 @@ export type EventLocation =
   | "API_PANE"
   | "QUERY_PANE"
   | "QUERY_TEMPLATE"
-  | "QUICK_COMMANDS";
+  | "QUICK_COMMANDS"
+  | "OMNIBAR";
 
 export type EventName =
   | "LOGIN_CLICK"

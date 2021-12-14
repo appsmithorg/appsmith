@@ -642,6 +642,8 @@ export const DOC_DESCRIPTION = () =>
   `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
+export const ACTION_OPERATION_DESCRIPTION = () =>
+  `Create a new Query, API or JSObject`;
 
 export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 
@@ -863,3 +865,4 @@ export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";

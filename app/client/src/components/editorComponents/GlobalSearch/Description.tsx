@@ -210,6 +210,7 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
   [SEARCH_ITEM_TYPES.category]: () => null,
+  [SEARCH_ITEM_TYPES.actionOperation]: () => null,
   [SEARCH_ITEM_TYPES.snippet]: LazySnippetDescription,
 };
 

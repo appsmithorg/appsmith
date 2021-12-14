@@ -38,27 +38,15 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import {
-  createNewApiName,
-  getNextEntityName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
+import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import {
-  getAction,
-  getActions,
-  getPlugins,
-  getDatasources,
-  getPlugin,
-} from "selectors/entitiesSelector";
+import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
-import { Plugin } from "api/PluginApi";
-import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { Action, ApiAction, PluginType } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
@@ -69,8 +57,6 @@ import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
-import { checkCurrentStep } from "./OnboardingSagas";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import {
   getIndextoUpdate,
   parseUrlForQueryParams,
@@ -473,66 +459,6 @@ function* handleCreateNewApiActionSaga(
   }
 }
 
-function* handleCreateNewQueryActionSaga(
-  action: ReduxAction<{ pageId: string; from: EventLocation }>,
-) {
-  const { pageId } = action.payload;
-  const applicationId = yield select(getCurrentApplicationId);
-  const actions = yield select(getActions);
-  const dataSources = yield select(getDatasources);
-  const plugins = yield select(getPlugins);
-  const pluginIds = plugins
-    .filter((plugin: Plugin) => PLUGIN_PACKAGE_DBS.includes(plugin.packageName))
-    .map((plugin: Plugin) => plugin.id);
-  const validDataSources: Array<Datasource> = [];
-  dataSources.forEach((dataSource: Datasource) => {
-    if (pluginIds?.includes(dataSource.pluginId)) {
-      validDataSources.push(dataSource);
-    }
-  });
-  if (validDataSources.length) {
-    const pageApiNames = actions
-      .filter((a: ActionData) => a.config.pageId === pageId)
-      .map((a: ActionData) => a.config.name);
-    const newQueryName = getNextEntityName("Query", pageApiNames);
-    const dataSourceId = validDataSources[0].id;
-    let createActionPayload = {
-      name: newQueryName,
-      pageId,
-      datasource: {
-        id: dataSourceId,
-      },
-      eventData: {
-        actionType: "Query",
-        from: action.payload.from,
-        dataSource: validDataSources[0].name,
-      },
-      actionConfiguration: {},
-    };
-
-    //For onboarding
-    const updateActionPayload = yield select(
-      checkCurrentStep,
-      OnboardingStep.ADD_INPUT_WIDGET,
-    );
-    if (updateActionPayload) {
-      createActionPayload = {
-        ...createActionPayload,
-        name: "add_standup_updates",
-        actionConfiguration: {
-          body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
-        },
-      };
-    }
-
-    yield put(createActionRequest(createActionPayload));
-  } else {
-    history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
-    );
-  }
-}
-
 function* handleApiNameChangeSaga(
   action: ReduxAction<{ id: string; name: string }>,
 ) {
@@ -598,10 +524,6 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.CREATE_NEW_API_ACTION,
       handleCreateNewApiActionSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-      handleCreateNewQueryActionSaga,
     ),
     takeEvery(
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,

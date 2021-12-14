@@ -1,6 +1,7 @@
 import React from "react";
 import {
   createMessage,
+  ACTION_OPERATION_DESCRIPTION,
   DOC_DESCRIPTION,
   NAV_DESCRIPTION,
   SNIPPET_DESCRIPTION,
@@ -16,6 +17,11 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import WidgetFactory from "utils/WidgetFactory";
+import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { createNewApiAction } from "actions/apiPaneActions";
+import { createNewJSCollection } from "actions/jsPaneActions";
+import { EventLocation } from "utils/AnalyticsUtil";
+import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -34,6 +40,7 @@ export enum SEARCH_CATEGORY_ID {
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
   INIT = "INIT",
+  ACTION_OPERATION = "Create New",
 }
 
 export enum SEARCH_ITEM_TYPES {
@@ -47,6 +54,7 @@ export enum SEARCH_ITEM_TYPES {
   jsAction = "jsAction",
   category = "category",
   snippet = "snippet",
+  actionOperation = "actionOperation",
 }
 
 export type DocSearchItem = {
@@ -65,6 +73,11 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
   [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + K</>,
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
+  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
+    <>
+      {modText()} + <span>&#8682;</span> + N
+    </>
+  ),
 };
 
 export type Snippet = {
@@ -135,6 +148,12 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     id: SEARCH_CATEGORY_ID.NAVIGATION,
     desc: createMessage(NAV_DESCRIPTION),
   },
+  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: {
+    title: "Create New",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORY_ID.ACTION_OPERATION,
+    desc: createMessage(ACTION_OPERATION_DESCRIPTION),
+  },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
     title: "Use Snippets",
     kind: SEARCH_ITEM_TYPES.category,
@@ -160,6 +179,8 @@ export const isSnippet = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.SNIPPETS;
 export const isMenu = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.INIT;
+export const isActionOperation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.ACTION_OPERATION;
 
 export const getFilterCategoryList = () =>
   Object.values(filterCategories).filter((cat: SearchCategory) => {
@@ -184,7 +205,8 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else if (item.body?.snippet) type = SEARCH_ITEM_TYPES.snippet;
-  else type = SEARCH_ITEM_TYPES.datasource;
+  else if (item.datasourceConfiguration) type = SEARCH_ITEM_TYPES.datasource;
+  else type = SEARCH_ITEM_TYPES.actionOperation;
 
   return type;
 };
@@ -207,6 +229,8 @@ export const getItemTitle = (item: SearchItem): string => {
     case SEARCH_ITEM_TYPES.document:
       return item?.title;
     case SEARCH_ITEM_TYPES.snippet:
+      return item.title;
+    case SEARCH_ITEM_TYPES.actionOperation:
       return item.title;
     default:
       return "";
@@ -301,3 +325,28 @@ export const getEntityId = (entity: any) => {
       return entity.config?.id;
   }
 };
+
+export const actionOperations = [
+  {
+    title: "Blank API",
+    desc: "Create a new API",
+    icon: apiIcon,
+    action: (pageId: string, location: EventLocation) =>
+      createNewApiAction(pageId, location),
+  },
+  {
+    title: "JS Object",
+    desc: "Create a new JS Object",
+    icon: jsIcon,
+    action: (pageId: string) => createNewJSCollection(pageId),
+  },
+];
+
+export const isMatching = (text = "", query = "") => {
+  if (typeof text === "string" && typeof query === "string") {
+    return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
+  }
+  return false;
+};
+
+export const AddDatasourceIcon = <NewPlus />;
