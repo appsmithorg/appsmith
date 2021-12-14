@@ -79,7 +79,6 @@ import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
@@ -130,6 +129,14 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 public class DatabaseChangelog {
 
     public static ObjectMapper objectMapper = new ObjectMapper();
+    public static final String FIRESTORE_PLUGIN_NAME = "firestore-plugin";
+    public static final String CONDITION_KEY = "condition";
+    public static final String CHILDREN_KEY = "children";
+    public static final String OPERATOR_KEY = "operator";
+    public static final String VALUE_KEY = "value";
+    public static final String PATH_KEY = "path";
+    public static final String AND = "AND";
+    public static final String KEY = "key";
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -3459,40 +3466,67 @@ public class DatabaseChangelog {
             Map.entry(8, List.of("list.unSignedUrl"))
     );
 
+    /**
+     * This class is meant to hold any method that is required to transform data before migrating the data to UQI
+     * schema. Usage of a class makes the data transformation process modular e.g. someone could create
+     * another class extending this class and override the `transformData` method.
+     */
     public class UQIMigrationDataTransformer {
+
+        /**
+         * This method holds the steps to transform data before it is migrated to UQI schema.
+         * Each transformation is uniquely identified by the combination of plugin name and the transformation name.
+         *
+         * @param pluginName - name of the plugin for which the transformation is intended
+         * @param transformationName - name of the transformation relative to the plugin
+         * @param value - value that needs to be transformed
+         * @return - transformed value
+         */
         public Object transformData(String pluginName, String transformationName, Object value) {
 
+            if (value == null) {
+                return value;
+            }
+
             switch (pluginName) {
-                case "firestore-plugin":
-                        switch (transformationName) {
-                            case "where-clause-migration":
-                                HashMap<String, Object> uqiWhereMap = new HashMap<>();
-                                uqiWhereMap.put("condition", "AND");
-                                uqiWhereMap.put("children", new ArrayList<>());
-                                List<Map<String, Object>> oldListOfConditions = (List<Map<String, Object>>) value;
-                                oldListOfConditions.stream()
-                                        .forEachOrdered(oldCondition -> {
-                                            if (StringUtils.isNotBlank((String) oldCondition.get("path"))
-                                                    || StringUtils.isNotBlank((String) oldCondition.get("value"))) {
-                                                Map<String, Object> uqiCondition = new HashMap<>();
-                                                uqiCondition.put("condition", oldCondition.get("operator"));
-                                                uqiCondition.put("key", oldCondition.get("path"));
-                                                uqiCondition.put("value", oldCondition.get("value"));
-                                                ((List) uqiWhereMap.get("children")).add(uqiCondition);
-                                            }
-                                        });
+                /* Data transformations for Firestore plugin are defined in this case. */
+                case FIRESTORE_PLUGIN_NAME:
+                    /**
+                     * This case takes care of transforming Firestore's where clause data to UQI's where
+                     * clause schema.
+                     */
+                    if ("where-clause-migration".equals(transformationName)) {
+                        /* This map will hold the transformed data as per UQI's where clause schema */
+                        HashMap<String, Object> uqiWhereMap = new HashMap<>();
+                        uqiWhereMap.put(CONDITION_KEY, AND);
+                        uqiWhereMap.put(CHILDREN_KEY, new ArrayList<>());
 
-                                return uqiWhereMap;
-                            default:
-                                /* Throw error since no handler could be found for the pluginName and
-                                transformationName combination. */
-                                String transformationKeyNotFoundErrorMessage = "Data transformer failed to find any " +
-                                        "matching case for plugin: " + pluginName + " and key: " + transformationName + ". Please " +
-                                        "contact Appsmith customer support to resolve this.";
-                                assert false : transformationKeyNotFoundErrorMessage;
-                        }
+                        List<Map<String, Object>> oldListOfConditions = (List<Map<String, Object>>) value;
+                        oldListOfConditions.stream()
+                                .forEachOrdered(oldCondition -> {
+                                    /* Map old values to keys in the new UQI format. */
+                                    Map<String, Object> uqiCondition = new HashMap<>();
+                                    uqiCondition.put(CONDITION_KEY, oldCondition.get(OPERATOR_KEY));
+                                    uqiCondition.put(KEY, oldCondition.get(PATH_KEY));
+                                    uqiCondition.put(VALUE_KEY, oldCondition.get(VALUE_KEY));
 
-                        break;
+                                    /* Add condition to the UQI where clause. */
+                                    ((List) uqiWhereMap.get(CHILDREN_KEY)).add(uqiCondition);
+                                });
+
+                        return uqiWhereMap;
+                    }
+
+                    /**
+                     * Throw error since no handler could be found for the pluginName and transformationName
+                     * combination.
+                     */
+                    String transformationKeyNotFoundErrorMessage = "Data transformer failed to find any " +
+                            "matching case for plugin: " + pluginName + " and key: " + transformationName + ". Please " +
+                            "contact Appsmith customer support to resolve this.";
+                    assert false : transformationKeyNotFoundErrorMessage;
+
+                    break;
                 default:
                     /* Throw error since no handler could be found for the plugin matching pluginName */
                     String noPluginHandlerFoundErrorMessage = "Data transformer failed to find any matching case for " +
@@ -4030,6 +4064,14 @@ public class DatabaseChangelog {
             Map.entry(9, List.of("deleteKeyPath"))
     );
 
+    /**
+     * This map indicates which fields in pluginSpecifiedTemplates require a transformation before their data can be
+     * migrated to the UQI schema.
+     * The key contains the index of the data that needs transformation and the value indicates the which kind of
+     * transformation is required. e.g. (3, "where-clause-migration") indicates that the value against index 3 in
+     * pluginSpecifiedTemplates needs to be migrated by the rules identified by the string "where-clause-migration".
+     * The rules are defined in the class UQIMigrationDataTransformer. 
+     */
     public static final Map<Integer, String> firestoreUQIDataTransformationMap = Map.ofEntries(
             Map.entry(3, "where-clause-migration")
     );
@@ -4037,7 +4079,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "099", id = "migrate-firestore-to-uqi", author = "")
     public void migrateFirestorePluginToUqi(MongockTemplate mongockTemplate) {
 
-        // First update the UI component for the Firestore plugin to UQI
+        // Update Firestore plugin to indicate use of UQI schema
         Plugin firestorePlugin = mongockTemplate.findOne(
                 query(where("packageName").is("firestore-plugin")),
                 Plugin.class
@@ -4045,7 +4087,7 @@ public class DatabaseChangelog {
         firestorePlugin.setUiComponent("UQIDbEditorForm");
 
 
-        // Now migrate all the existing actions to the new UQI structure.
+        // Find all Firestore actions
         List<NewAction> firestoreActions = mongockTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId()))),
@@ -4055,24 +4097,33 @@ public class DatabaseChangelog {
         List<NewAction> actionsToSave = new ArrayList<>();
 
         for (NewAction firestoreAction : firestoreActions) {
-            // First migrate the plugin specified templates to form data
             ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
 
+            /* No migrations required if action configuration does not exist. */
             if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
-                // No migrations required
                 continue;
             }
 
             List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
             UQIMigrationDataTransformer uqiMigrationDataTransformer = new UQIMigrationDataTransformer();
 
+            /**
+             * Migrate unpublished action configuration data.
+             * Create `formData` used in UQI schema from the `pluginSpecifiedTemplates` used earlier.
+             */
             unpublishedAction.getActionConfiguration().setFormData(
                     iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
                             firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer,
                             "firestore-plugin")
             );
+
+            /* `pluginSpecifiedTemplates` is no longer required since `formData` will be used in UQI schema. */
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
+            /**
+             * Migrate published action configuration data.
+             * Create `formData` used in UQI schema from the `pluginSpecifiedTemplates` used earlier.
+             */
             ActionDTO publishedAction = firestoreAction.getPublishedAction();
             if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
                     publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
@@ -4082,14 +4133,16 @@ public class DatabaseChangelog {
                                 firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer
                                 , "firestore-plugin")
                 );
+
+                /* `pluginSpecifiedTemplates` is no longer required since `formData` will be used in UQI schema. */
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
             /**
              * Migrate the dynamic binding path list for unpublished action.
              * Please note that there is no requirement to migrate the dynamic binding path list for published actions
-             * since the `on page load` actions do not get computed for published actions. They are only computed for
-             * un-published actions and copied over for the view mode.
+             * since the `on page load` actions do not get computed on published actions data. They are only computed
+             * on unpublished actions data and copied over for the view mode.
              */
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
             List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
@@ -4099,11 +4152,11 @@ public class DatabaseChangelog {
             actionsToSave.add(firestoreAction);
         }
 
-        // Now save the actions which have been migrated.
+        // Save the actions which have been migrated.
         for (NewAction firestoreAction : actionsToSave) {
             mongockTemplate.save(firestoreAction);
         }
-        // Now that the actions have completed the migrations, update the plugin to use the new UI form.
+        // Update plugin data.
         mongockTemplate.save(firestorePlugin);
     }
 }

@@ -138,6 +138,8 @@ public class FirestorePlugin extends BasePlugin {
 
             final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();
 
+            Set<String> hintMessages = new HashSet<>();
+
             return Mono
                     .justOrEmpty(actionConfiguration.getBody())
                     .defaultIfEmpty("")
@@ -228,7 +230,7 @@ public class FirestorePlugin extends BasePlugin {
                             return handleDocumentLevelMethod(connection, path, method, mapBody, query, requestParams);
                         } else {
                             return handleCollectionLevelMethod(connection, path, method, formData, mapBody,
-                                    paginationField, query, requestParams);
+                                    paginationField, query, requestParams, hintMessages);
                         }
                     })
                     .onErrorResume(error  -> {
@@ -244,6 +246,7 @@ public class FirestorePlugin extends BasePlugin {
                         request.setQuery(query);
                         request.setRequestParams(requestParams);
                         result.setRequest(request);
+                        result.setMessages(hintMessages);
                         return result;
                     })
                     .subscribeOn(scheduler);
@@ -513,12 +516,13 @@ public class FirestorePlugin extends BasePlugin {
                 Map<String, Object> mapBody,
                 PaginationField paginationField,
                 String query,
-                List<RequestParamDTO> requestParams) {
+                List<RequestParamDTO> requestParams,
+                Set<String> hintMessages) {
 
             final CollectionReference collection = connection.collection(path);
 
             if (method == Method.GET_COLLECTION) {
-                return methodGetCollection(collection, formData, paginationField, requestParams);
+                return methodGetCollection(collection, formData, paginationField, requestParams, hintMessages);
 
             } else if (method == Method.ADD_TO_COLLECTION) {
                 requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null, null, null));
@@ -534,7 +538,7 @@ public class FirestorePlugin extends BasePlugin {
 
         private Mono<ActionExecutionResult> methodGetCollection(CollectionReference query, Map<String, Object> formData,
                                                                 PaginationField paginationField,
-                                                                List<RequestParamDTO> requestParams) {
+                                                                List<RequestParamDTO> requestParams, Set<String> hintMessages) {
             final String limitString = getValueSafelyFromFormData(formData, LIMIT_DOCUMENTS, String.class);
             final int limit = StringUtils.isEmpty(limitString) ? 10 : Integer.parseInt(limitString);
             final String orderByString = getValueSafelyFromFormData(formData, ORDER_BY, String.class, "");
@@ -623,19 +627,12 @@ public class FirestorePlugin extends BasePlugin {
                             String operatorString = ((Map<String, String>)condition).get("condition");
                             String value = ((Map<String, String>)condition).get("value");
 
-                            /**
-                             * - If all values in all where condition tuples are null, then isWhereMethodUsed(...)
-                             *  function will indicate that where conditions are not used effectively and program
-                             *  execution would return without reaching here.
-                             */
                             if (StringUtils.isEmpty(path) || StringUtils.isEmpty(operatorString) || StringUtils.isEmpty(value)) {
-                                return Mono.error(
-                                        new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                                "One of the where condition fields has been found empty. Please fill " +
-                                                        "all the where condition fields and try again."
-                                        )
-                                );
+                                String emptyConditionMessage = "At least one of the conditions in the 'where' clause " +
+                                        "has missing operator or operand(s). These conditions were ignored during the" +
+                                        " execution of the query.";
+                                hintMessages.add(emptyConditionMessage);
+                                continue;
                             }
 
                             try {
