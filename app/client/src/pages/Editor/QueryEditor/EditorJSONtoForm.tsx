@@ -74,6 +74,7 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -736,6 +737,12 @@ export function EditorJSONtoForm(props: Props) {
     props.actionName,
   );
 
+  // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
+  // the initialized prop below comes from redux-form.
+  if (!props.initialized) {
+    return null;
+  }
+
   return (
     <>
       <CloseEditor />
@@ -813,7 +820,7 @@ export function EditorJSONtoForm(props: Props) {
               <TabComponent
                 tabs={[
                   {
-                    key: "query",
+                    key: EDITOR_TABS.QUERY,
                     title: "Query",
                     panelComponent: (
                       <SettingsWrapper>
@@ -855,7 +862,7 @@ export function EditorJSONtoForm(props: Props) {
                     ),
                   },
                   {
-                    key: "settings",
+                    key: EDITOR_TABS.SETTINGS,
                     title: "Settings",
                     panelComponent: (
                       <SettingsWrapper>

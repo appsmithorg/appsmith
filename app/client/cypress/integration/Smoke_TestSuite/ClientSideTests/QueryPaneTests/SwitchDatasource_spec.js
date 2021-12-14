@@ -10,7 +10,7 @@ describe("Switch datasource", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create postgres datasource", function() {
+  it("1. Create postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.generateUUID().then((uid) => {
@@ -32,7 +32,7 @@ describe("Switch datasource", function() {
     cy.testSaveDatasource();
   });
 
-  it("Create mongo datasource", function() {
+  it("2. Create mongo datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
     cy.generateUUID().then((uid) => {
@@ -52,10 +52,10 @@ describe("Switch datasource", function() {
     );
 
     cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource();
+    cy.testSaveDatasource(false);
   });
 
-  it("By switching datasources execute a query with both the datasources", function() {
+  it("3. By switching datasources execute a query with both the datasources", function() {
     cy.NavigateToQueryEditor();
 
     cy.contains(".t--datasource-name", postgresDatasourceName)
@@ -82,7 +82,7 @@ describe("Switch datasource", function() {
     cy.runQuery();
   });
 
-  it("Delete the query and datasources", function() {
+  it("4. Delete the query and datasources", function() {
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
