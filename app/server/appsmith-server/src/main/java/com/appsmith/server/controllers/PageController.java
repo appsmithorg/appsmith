@@ -83,14 +83,14 @@ public class PageController {
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId,
                                                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newPageService.findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, false)
+        return newPageService.findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, false, true)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/view/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId,
                                                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newPageService.findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, true)
+        return newPageService.findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, true, true)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

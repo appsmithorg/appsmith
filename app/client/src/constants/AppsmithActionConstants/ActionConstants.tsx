@@ -113,7 +113,7 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
 export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
-export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
+export const THIS_DOT_PARAMS_KEY = "params";
 
 export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export const API_REQUEST_HEADERS: APIHeaders = {
