@@ -91,7 +91,7 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
       ? "785px"
       : "500px"};
   max-height: 530px;
-  transition: 0.1s all ease;
+  transition: height 0.1s ease, width 0.1s ease;
   height: ${(props) =>
     isMenu(props.category) || isActionOperation(props.category)
       ? "auto"

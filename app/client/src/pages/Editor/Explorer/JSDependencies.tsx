@@ -108,7 +108,7 @@ export function JSDependencies() {
           isVisible={!!dependencyList}
           onClick={toggleDependencies}
         />
-        <span className="text-gray-900">Dependencies</span>
+        <span className="text-gray-900 ml-1">Dependencies</span>
         <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
           <Icon
             className="t--help-icon"

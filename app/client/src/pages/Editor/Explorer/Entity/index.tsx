@@ -142,6 +142,7 @@ const IconWrapper = styled.span`
     width: 16px;
     height: 16px;
   }
+  margin-right: 4px;
 `;
 
 export type EntityProps = {
