@@ -1231,7 +1231,10 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(layoutDTO -> {
-                    Assert.assertFalse(layoutDTO.getValidOnPageLoadActions());
+                    final JSONObject dsl = layoutDTO.getDsl();
+                    final Object fieldValue = ((JSONObject) ((ArrayList) dsl.get("children")).get(0)).getAsString("testField");
+                    // Make sure the DSL got updated
+                    Assert.assertEquals("{{ firstWidget.testField }}", fieldValue);
                 })
                 .verifyComplete();
     }
