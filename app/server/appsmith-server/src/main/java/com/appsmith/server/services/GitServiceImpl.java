@@ -7,6 +7,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -20,6 +21,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitConnectionLimitDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -74,6 +76,8 @@ public class GitServiceImpl implements GitService {
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
+    private final CommonConfig commonConfig;
+    private final ConfigService configService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -453,6 +457,15 @@ public class GitServiceImpl implements GitService {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 )
                 .then(getApplicationById(defaultApplicationId))
+                //Check the limit for number of private repo
+                .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
+                        .flatMap(limitCount -> {
+                            //get git connected apps from db
+                            if(true) {
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR));
+                            }
+                            return Mono.just(application);
+                        }))
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
@@ -599,6 +612,20 @@ public class GitServiceImpl implements GitService {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                 });
+    }
+
+    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId) {
+        return configService.getInstanceId().map(s -> {
+            GitConnectionLimitDTO gitConnectionLimitDTO = new GitConnectionLimitDTO();
+            gitConnectionLimitDTO.setInstanceId(s);
+            if (commonConfig.isCloudHosting()) {
+                gitConnectionLimitDTO.setOrgId(orgId);
+            }
+            return gitConnectionLimitDTO;
+        }).flatMap(gitConnectionLimitDTO -> {
+            //Call the cloud service API
+            return Mono.just(3);
+        });
     }
 
     @Override
