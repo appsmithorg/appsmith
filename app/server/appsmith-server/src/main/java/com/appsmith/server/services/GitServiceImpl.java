@@ -26,8 +26,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
-import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -50,8 +51,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -264,8 +263,30 @@ public class GitServiceImpl implements GitService {
                     return Mono.just(userData);
                 });
 
-        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName)))
+        return this.getApplicationById(defaultApplicationId)
+            .flatMap(defaultApplication -> {
+                GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
+                Boolean repoVisibilityStatus = defaultGitMetadata.getIsRepoPrivate();
+                if (!Boolean.TRUE.equals(repoVisibilityStatus)) {
+                    if (StringUtils.isEmptyOrNull(defaultGitMetadata.getBrowserSupportedRemoteUrl())) {
+                        defaultGitMetadata.setBrowserSupportedRemoteUrl(
+                                GitUtils.convertSshUrlToHttpsCurlSupportedUrl(defaultGitMetadata.getRemoteUrl())
+                        );
+                    }
+                    try {
+                        Boolean currentRepoVisibilityStatus = GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl());
+                        if (!currentRepoVisibilityStatus.equals(repoVisibilityStatus)) {
+                            defaultGitMetadata.setIsRepoPrivate(currentRepoVisibilityStatus);
+                            // TODO check if the commit application will be allowed if the repo is made private
+                            return applicationService.save(defaultApplication);
+                        }
+                    } catch (IOException e) {
+                        log.debug("Error while checking if the repo is private: ", e);
+                    }
+                }
+                return Mono.just(defaultApplication);
+            })
+            .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS))
             .flatMap(branchedApplication -> publishAndOrGetApplication(branchedApplication.getId(), commitDTO.getDoPush()))
             .flatMap(branchedApplication -> {
                 GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
@@ -437,7 +458,7 @@ public class GitServiceImpl implements GitService {
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     } else {
-                        String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                        String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
                         Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
                                 repoPath,
@@ -481,6 +502,21 @@ public class GitServiceImpl implements GitService {
                                         gitApplicationMetadata.setDefaultBranchName(defaultBranch);
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
+                                        gitApplicationMetadata.setBrowserSupportedRemoteUrl(
+                                                GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl())
+                                        );
+
+                                        try {
+                                            gitApplicationMetadata.setIsRepoPrivate(
+                                                    GitUtils.isRepoPrivate(gitApplicationMetadata.getBrowserSupportedRemoteUrl())
+                                            );
+                                        } catch (IOException e) {
+                                            gitApplicationMetadata.setIsRepoPrivate(true);
+                                            log.debug("Error while checking if the repo is private: ", e);
+                                        }
+
+                                        // TODO check if we can attach this app to git by requesting to CS
+
                                         // Set branchName for each application resource
                                         return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                                                 .flatMap(applicationJson -> {
@@ -496,7 +532,7 @@ public class GitServiceImpl implements GitService {
                     }
                 })
                 .flatMap(application -> {
-                    String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                    String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                     String defaultPageId = "";
                     if(!application.getPages().isEmpty()) {
                         defaultPageId = application.getPages()
@@ -549,11 +585,11 @@ public class GitServiceImpl implements GitService {
                                     .onErrorResume(error ->
                                         // If the push fails remove all the cloned files from local repo
                                         fileUtils.detachRemote(baseRepoSuffix)
-                                                .map(isDeleted -> {
+                                                .flatMap(isDeleted -> {
                                                     if(error instanceof TransportException) {
-                                                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                                                     }
-                                                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage());
+                                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                                                 })
                                     );
                                 })
@@ -563,24 +599,6 @@ public class GitServiceImpl implements GitService {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                 });
-    }
-
-    /**
-     * Special chars are transformed to "-" : https://github.com/desktop/desktop/issues/3090
-     * Sample repo urls :
-     * git@github.com:username/reponame.git
-     * ssh://git@bitbucket.org/<workspace_ID>/<repo_name>.git
-     * @param remoteUrl ssh url of repo
-     * @return repo name extracted from repo url
-     */
-    private String getRepoName(String remoteUrl) {
-        // Pattern to match all words in the text
-        final Matcher matcher = Pattern.compile("([^/]*).git$").matcher(remoteUrl);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect! Can you " +
-                "please provide as per standard format => git@github.com:username/reponame.git");
     }
 
     @Override
@@ -765,6 +783,7 @@ public class GitServiceImpl implements GitService {
                             .flatMap(branchName -> {
                                 final String srcApplicationId = srcApplication.getId();
                                 srcBranchGitData.setBranchName(branchName);
+                                srcBranchGitData.setIsRepoPrivate(null);
                                 // Save a new application in DB and update from the parent branch application
                                 srcBranchGitData.setGitAuth(null);
                                 srcApplication.setId(null);
@@ -855,6 +874,7 @@ public class GitServiceImpl implements GitService {
                     srcBranchGitData.setDefaultApplicationId(defaultApplicationId);
                     // Save a new application in DB and update from the parent branch application
                     srcBranchGitData.setGitAuth(null);
+                    srcBranchGitData.setIsRepoPrivate(null);
                     srcApplication.setId(null);
                     srcApplication.setPages(null);
                     srcApplication.setPublishedPages(null);
