@@ -74,7 +74,6 @@ describe("<DropdownWidget />", () => {
       selectedOptionLabel: "mock-label-1",
       serverSideFiltering: false,
       onFilterUpdate: "mock-update",
-      updateWidgetMetaProperty: jest.fn(),
     };
     renderDropdownWidget(mockDataWithEmptyOptions);
 

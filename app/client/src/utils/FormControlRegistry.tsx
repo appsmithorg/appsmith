@@ -36,6 +36,9 @@ import FieldArrayControl, {
 import WhereClauseControl, {
   WhereClauseControlProps,
 } from "components/formControls/WhereClauseControl";
+import PaginationControl, {
+  PaginationControlProps,
+} from "components/formControls/PaginationControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -114,6 +117,11 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("WHERE_CLAUSE", {
       buildPropertyControl(controlProps: WhereClauseControlProps): JSX.Element {
         return <WhereClauseControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("PAGINATION", {
+      buildPropertyControl(controlProps: PaginationControlProps): JSX.Element {
+        return <PaginationControl {...controlProps} />;
       },
     });
   }
