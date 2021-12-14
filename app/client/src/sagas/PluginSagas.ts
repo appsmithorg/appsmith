@@ -33,6 +33,7 @@ import {
   FormSettingsConfigs,
   FormDependencyConfigs,
 } from "utils/DynamicBindingUtils";
+import axios from "axios";
 
 function* fetchPluginsSaga() {
   try {
@@ -90,6 +91,8 @@ function* fetchPluginFormConfigsSaga() {
     const settingConfigs: FormSettingsConfigs = {};
     const dependencies: FormDependencyConfigs = {};
 
+    const customPluginId = "5ec3bccdd4b5eaa50ba6f583";
+
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
       if (plugin && plugin.type === PluginType.JS) {
@@ -101,13 +104,43 @@ function* fetchPluginFormConfigsSaga() {
         // Datasource form always use server's copy
         formConfigs[pluginId] = pluginFormData[index].form;
         // Action editor form if not available use default
-        if (plugin && !pluginFormData[index].editor) {
+        if (pluginId === customPluginId) {
+          // THIS IS TEST CODE TO CHECK IF THE FORM CONFIGS ARE BEING MADE RIGHT!
+          axios
+            .get("https://dev.appsmith.com/sample-jsons/mongo-editor.json")
+            .then((res) => {
+              console.log("Ayush Loaded test form");
+              editorConfigs[pluginId] = res.data.editor;
+            })
+            .catch((err) => {
+              console.log(
+                "Ayush test form load failed, rolling back to server form editor",
+                err,
+              );
+              editorConfigs[pluginId] = pluginFormData[index].editor;
+            });
+        } else if (plugin && !pluginFormData[index].editor) {
           editorConfigs[pluginId] = defaultActionEditorConfigs[plugin.type];
         } else {
           editorConfigs[pluginId] = pluginFormData[index].editor;
         }
         // Action settings form if not available use default
-        if (plugin && !pluginFormData[index].setting) {
+        if (pluginId === customPluginId) {
+          // THIS IS TEST CODE TO CHECK IF THE FORM CONFIGS ARE BEING MADE RIGHT!
+          axios
+            .get("https://dev.appsmith.com/sample-jsons/mongo-settings.json")
+            .then((res) => {
+              console.log("Ayush Loaded test form", res.data.setting);
+              settingConfigs[pluginId] = res.data.setting;
+            })
+            .catch((err) => {
+              console.log(
+                "Ayush test form load failed, rolling back to server form settings",
+                err,
+              );
+              settingConfigs[pluginId] = pluginFormData[index].setting;
+            });
+        } else if (plugin && !pluginFormData[index].setting) {
           settingConfigs[pluginId] = defaultActionSettings[plugin.type];
         } else {
           settingConfigs[pluginId] = pluginFormData[index].setting;
@@ -115,6 +148,33 @@ function* fetchPluginFormConfigsSaga() {
         // Action dependencies config if not available use default
         if (plugin && !pluginFormData[index].dependencies) {
           dependencies[pluginId] = defaultActionDependenciesConfig[plugin.type];
+        } else if (pluginId === customPluginId) {
+          // THIS IS TEST CODE TO CHECK IF THE FORM CONFIGS ARE BEING MADE RIGHT!
+          axios
+            .get("https://dev.appsmith.com/sample-jsons/mongo-editor.json")
+            .then((res) => {
+              console.log("Ayush Loaded test form");
+              editorConfigs[pluginId] = res.data.editor;
+            })
+            .catch((err) => {
+              console.log(
+                "Ayush test form load failed, rolling back to server form editor",
+                err,
+              );
+            });
+          axios
+            .get("https://dev.appsmith.com/sample-jsons/mongo-dependency.json")
+            .then((res) => {
+              console.log("Ayush Loaded test form", res.data.dependencies);
+              dependencies[pluginId] = res.data.dependencies;
+            })
+            .catch((err) => {
+              console.log(
+                "Ayush test form load failed, rolling back to server form dependencies",
+                err,
+              );
+              dependencies[pluginId] = pluginFormData[index].dependencies;
+            });
         } else {
           dependencies[pluginId] = pluginFormData[index].dependencies;
         }
