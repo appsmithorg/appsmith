@@ -461,7 +461,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return sourcePageMono
                 .flatMap(page -> {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
-                            .findApplicationPagesByApplicationIdViewMode(page.getApplicationId(), false);
+                            .findApplicationPagesByApplicationIdViewMode(page.getApplicationId(), false, false);
 
                     Mono<Application> destinationApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
@@ -935,7 +935,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return applicationRepository
                             .setPages(application.getId(), pages)
-                            .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE));
+                            .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }

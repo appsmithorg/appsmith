@@ -203,7 +203,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     }
 
     @Override
-    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view) {
+    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 // Throw a 404 error if the application has never been published
@@ -218,9 +218,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     }
                     return Mono.just(application);
                 }).flatMap(application -> {
-                    // add this organization id to the recently used organization id of User Data
-                    return userDataService.updateLastUsedAppAndOrgList(application)
-                            .thenReturn(application);
+                    if(markApplicationAsRecentlyAccessed) {
+                        // add this application and organization id to the recently used list in UserData
+                        return userDataService.updateLastUsedAppAndOrgList(application)
+                                .thenReturn(application);
+                    } else {
+                        return Mono.just(application);
+                    }
                 })
                 .cache();
 
@@ -335,10 +339,11 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(String defaultApplicationId,
                                                                                           String branchName,
-                                                                                          Boolean view) {
+                                                                                          Boolean view,
+                                                                                          boolean markApplicationAsRecentlyAccessed) {
 
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
-            .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view))
+            .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view, markApplicationAsRecentlyAccessed))
             .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 

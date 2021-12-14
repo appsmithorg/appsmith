@@ -1618,7 +1618,7 @@ public class ApplicationServiceTest {
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = createApplicationMono
                 .map(application -> application.getId())
-                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdViewMode(applicationId, false));
+                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdViewMode(applicationId, false, false));
 
         StepVerifier
                 .create(applicationPagesDTOMono)
