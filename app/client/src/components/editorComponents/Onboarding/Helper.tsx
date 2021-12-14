@@ -331,6 +331,7 @@ function Helper() {
         <ActionButtonWrapper>
           {helperConfig.skipLabel && (
             <SkipButton
+              className="t--onboarding-skip-action"
               onClick={() => {
                 dispatch(endOnboarding());
 

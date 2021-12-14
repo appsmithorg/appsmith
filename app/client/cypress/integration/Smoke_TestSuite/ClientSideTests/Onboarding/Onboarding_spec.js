@@ -2,14 +2,20 @@
 // const explorer = require("../../../../locators/explorerlocators.json");
 import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
+const gitSyncLocators = require("../../../../locators/gitSyncLocators");
 
 describe("Onboarding", function() {
-  it("Onboarding flow - manual without using do it for me option", function() {
+  it.only("Onboarding flow - manual without using do it for me option", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
 
+    // cy.get(gitSyncLocators.connectGitBottomBar).should("exist");
     cy.get(".t--welcome-tour").click();
     cy.get(".t--onboarding-action").click();
     cy.get(".t--close--button").should("not.exist");
+
+    // should git connection disabled
+    cy.get(gitSyncLocators.connectGitBottomBar).should("not.exist");
+    cy.get(gitSyncLocators.disabledConnectGitBottomBar).should("not.exist");
 
     cy.wait("@createNewApplication").should(
       "have.nested.property",
@@ -38,6 +44,12 @@ describe("Onboarding", function() {
         cy.get(".t--start-building")
           .should("be.visible")
           .click({ force: true });
+
+        // should git connection disabled
+        cy.get(gitSyncLocators.connectGitBottomBar).should("not.exist");
+        cy.get(gitSyncLocators.disabledConnectGitBottomBar).should("exist");
+        cy.get(gitSyncLocators.disabledConnectGitBottomBar).click();
+        cy.get(".git-sync-modal").should("not.exist");
 
         // Create and run query
         // Using the cheat option to create the action with 30 sec timeout
@@ -86,6 +98,23 @@ describe("Onboarding", function() {
           "Deploy the Standup Dashboard",
         );
         cy.get(".t--close--button").should("not.exist");
+
+        // should git connection disabled
+        cy.get(gitSyncLocators.connectGitBottomBar).should("not.exist");
+        cy.get(gitSyncLocators.disabledConnectGitBottomBar).should("exist");
+        cy.get(gitSyncLocators.disabledConnectGitBottomBar).click();
+        cy.get(".git-sync-modal").should("not.exist");
+
+        // should git connection enabled after skip onboarding
+        cy.get(".t--onboarding-skip-action")
+          .should("exist")
+          .click({ force: true });
+        cy.get(".onboarding-step-indicator").should("not.exist");
+        cy.get(gitSyncLocators.connectGitBottomBar).should("exist");
+        cy.get(gitSyncLocators.disabledConnectGitBottomBar).should("not.exist");
+        cy.get(gitSyncLocators.connectGitBottomBar).click();
+        cy.get(".git-sync-modal").should("exist");
+        cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
   });
 

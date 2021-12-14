@@ -269,7 +269,9 @@ function ConnectGitPlaceholder() {
               text={createMessage(CONNECT_GIT)}
             />
           ) : (
-            <PlaceholderButton>{createMessage(CONNECT_GIT)}</PlaceholderButton>
+            <PlaceholderButton className="t--disabled-connect-git-bottom-bar">
+              {createMessage(CONNECT_GIT)}
+            </PlaceholderButton>
           )}
         </Container>
       </Tooltip>
