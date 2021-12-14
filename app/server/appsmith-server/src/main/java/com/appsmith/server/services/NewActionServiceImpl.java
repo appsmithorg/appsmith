@@ -240,6 +240,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getName()));
         }
 
+        // Remove default appId, branchName and actionId to avoid duplication these resources will be present in
+        // NewAction level default resource
+        action.getDefaultResources().setActionId(null);
+        action.getDefaultResources().setBranchName(null);
+        action.getDefaultResources().setApplicationId(null);
+
         // Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
 

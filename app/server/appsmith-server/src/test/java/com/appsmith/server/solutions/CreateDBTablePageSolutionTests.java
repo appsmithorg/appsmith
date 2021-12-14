@@ -197,7 +197,6 @@ public class CreateDBTablePageSolutionTests {
                 new Column("primaryKey", "type1", null, true),
                 new Column("field1.something", "VARCHAR(23)", null, false)
         );
-
             List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
             List<Column> columns = List.of(
                 new Column("primaryKey", "type1", null, true),
@@ -439,7 +438,7 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page-postgres-with-less-columns");
 
         Mono<CRUDPageResponseDTO> resultMono = applicationPageService.createPage(newPage)
-                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO, null));
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO, ""));
 
         StepVerifier
                 .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
