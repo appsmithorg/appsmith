@@ -22,7 +22,7 @@ import { RenderOptionWrapper } from "./TableStyledWrappers";
 
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
-import { TimePrecision } from "@blueprintjs/datetime";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const StyledRemoveIcon = styled(
   ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
