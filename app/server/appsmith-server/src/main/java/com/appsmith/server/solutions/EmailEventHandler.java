@@ -5,6 +5,7 @@ import com.appsmith.server.constants.CommentConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.events.CommentAddedEvent;
@@ -131,12 +132,24 @@ public class EmailEventHandler {
             urlPostfix = "";
         }
 
+        String branchName = null;
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        if (application.getGitApplicationMetadata() != null) {
+            application.setId(gitData.getDefaultApplicationId());
+            branchName = gitData.getBranchName();
+        }
+
         String baseUrl = originHeader;
         if(StringUtils.isEmpty(originHeader)) {
             baseUrl = DEFAULT_ORIGIN_HEADER;
         }
-        return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
-                baseUrl, application.getId(), pageId, urlPostfix, threadId
+        if (StringUtils.isEmpty(branchName)) {
+            return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
+                    baseUrl, application.getId(), pageId, urlPostfix, threadId
+            );
+        }
+        return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true&branch=%s",
+                baseUrl, application.getId(), pageId, urlPostfix, threadId, branchName
         );
     }
 
@@ -154,9 +167,12 @@ public class EmailEventHandler {
         templateParams.put("Commenter_Name", resolvedState.getAuthorName());
         templateParams.put("Application_Name", commentThread.getApplicationName());
         templateParams.put("Page_Name", pageName);
+
+        String pageId = commentThread.getDefaultResources() == null ? commentThread.getPageId() : commentThread.getDefaultResources().getPageId();
+
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                commentThread.getPageId(),
+                pageId,
                 commentThread.getId(),
                 receiverUserRole.getUsername(),
                 originHeader)
@@ -181,9 +197,12 @@ public class EmailEventHandler {
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Page_Name", pagename);
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
+
+        String pageId = comment.getDefaultResources() == null ? comment.getPageId() : comment.getDefaultResources().getPageId();
+
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                comment.getPageId(),
+                pageId,
                 comment.getThreadId(),
                 receiverUserRole.getUsername(),
                 originHeader)
@@ -215,7 +234,7 @@ public class EmailEventHandler {
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                comment.getPageId(),
+                comment.getDefaultResources().getPageId(),
                 comment.getThreadId(),
                 CommentConstants.APPSMITH_BOT_USERNAME,
                 originHeader)
