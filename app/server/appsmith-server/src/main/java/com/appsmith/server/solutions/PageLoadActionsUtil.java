@@ -155,6 +155,20 @@ public class PageLoadActionsUtil {
                 .map(tuple -> {
                     Set<String> allActions = tuple.getT1();
                     Set<ActionDependencyEdge> updatedEdges = tuple.getT2();
+
+                    // Edges here are assumed to be non-null
+                    // If an edge comprises vertices that depend on itself (caused by self-referencing),
+                    // We want to throw an error before attempting to create the DAG
+                    // Example: Text1.text has the value {{ Text1.text }}
+                    final List<ActionDependencyEdge> selfReferencingVertices = updatedEdges
+                            .stream()
+                            .filter(edge -> edge.getSource().equals(edge.getTarget()))
+                            .collect(Collectors.toList());
+                    if (!selfReferencingVertices.isEmpty()) {
+                        // Return with the first such occurrence as an error
+                        throw new AppsmithException(AppsmithError.CYCLICAL_DEPENDENCY_ERROR, selfReferencingVertices.get(0).toString());
+                    }
+
                     return constructDAG(allActions, widgetNames, updatedEdges, actionsFoundDuringWalk, actionBindingsInDsl);
                 })
                 .cache();
