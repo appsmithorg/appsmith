@@ -84,6 +84,8 @@ function useComputeCurrentStep(isExploring: boolean) {
   if (step === 2) {
     if (tableWidgetSelected) {
       step = 3;
+      // Reset back the hintcount set in previous step
+      meta.hintCount = 0;
     }
   }
 

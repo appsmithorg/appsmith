@@ -262,8 +262,9 @@ export const Steps: StepsType = {
             <br /> This will let us see the data before we update it.
           </>
         ),
-        // Get gif from url
-        image: DefaultText,
+        button: {
+          text: "PROCEED",
+        },
       },
       {
         text: (
@@ -273,6 +274,8 @@ export const Steps: StepsType = {
             binding to the <b>Default Text</b> property
           </>
         ),
+        // Get gif from url
+        image: DefaultText,
       },
     ],
     success: {

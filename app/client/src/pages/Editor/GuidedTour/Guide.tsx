@@ -313,6 +313,13 @@ function GuideStepsContent(props: {
           <HintTextWrapper>
             <div>{currentHint.text}</div>
             {currentHint.image && <img src={currentHint.image} />}
+            {currentHint.button && (
+              <GuideButton
+                onClick={hintButtonOnClick}
+                tag="button"
+                text={"PROCEED"}
+              />
+            )}
           </HintTextWrapper>
           {isArray(hintSteps) &&
             hintSteps.length &&
@@ -331,14 +338,6 @@ function GuideStepsContent(props: {
                 </div>
               );
             })}
-          {currentHint.button && (
-            <GuideButton
-              className="hint-button"
-              onClick={hintButtonOnClick}
-              tag="button"
-              text={currentHint.button?.text}
-            />
-          )}
         </div>
       </Hint>
     </div>
