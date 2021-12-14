@@ -30,6 +30,7 @@
   "typeWidgetName": ".bp3-editable-text-editing>input",
   "requiredCheckbox": ".t--property-control-required input[type='checkbox']",
   "visibleCheckbox": ".t--property-control-visible input[type='checkbox']",
+  "allowSelectAllCheckbox": ".t--property-control-allowselectall input[type='checkbox']",
   "disableCheckbox": ".t--property-control-disabled input[type='checkbox']",
   "hideToolbarCheckbox": ".t--property-control-hidetoolbar input[type='checkbox'",
   "labelTextStyle": ".bp3-ui-text span",
@@ -142,5 +143,6 @@
   "errorTab": "[data-cy=t--tab-ERROR]",
   "debugErrorMsg": ".t--debugger-message",
   "debuggerLabel": "span.debugger-label",
-  "cyclicDependencyError": "//div[@class='Toastify']//span[contains(text(),'Cyclic dependency found while evaluating')]"
+  "selectInner": ".t--draggable-dropdownwidget span.t--widget-name, Select1",
+  "toastifyError": "//div[@class='Toastify']//span]"
 }

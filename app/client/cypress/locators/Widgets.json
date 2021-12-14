@@ -154,5 +154,7 @@
     "filterCloseBtn":".t--close-filter-btn",
     "header":"#header-root",
     "explorerSwitchId": "#switcher--explorer",
-    "widgetSwitchId":"#switcher--widgets"
+    "widgetSwitchId":"#switcher--widgets",
+    "selectDropDownWidget": ".t--draggable-dropdownwidget",
+    "selectWidgetDisabled": ".t--property-control-disabled input"
 }
