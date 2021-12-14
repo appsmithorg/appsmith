@@ -1590,6 +1590,7 @@ export default class DataTreeEvaluator {
       this.resolvedFunctions,
       true,
     );
+
     return getLintingErrors(
       script,
       GLOBAL_DATA,
