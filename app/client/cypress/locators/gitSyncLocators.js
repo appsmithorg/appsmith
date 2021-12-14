@@ -27,4 +27,5 @@ export default {
   closeBranchList: ".t--close-branch-list",
   learnMoreDeployKey: ".t--learn-more-deploy-key",
   learnMoreSshUrl: ".t--learn-more-ssh-url",
+  readDocument: ".t--read-document",
 };

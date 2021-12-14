@@ -14,6 +14,7 @@ const GITHUB_API_BASE = "https://api.github.com";
 let repoName;
 let generatedKey;
 let windowOpenSpy;
+let githubDeployKeyId;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 describe("Git sync modal: connect tab", function() {
   before(() => {
@@ -35,7 +36,7 @@ describe("Git sync modal: connect tab", function() {
     );
   });
 
-  it.only("validates repo URL", function() {
+  it("validates repo URL", function() {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click();
@@ -79,6 +80,19 @@ describe("Git sync modal: connect tab", function() {
     cy.wait("@generateKey").then((result) => {
       generatedKey = result.response.body.data.publicKey;
     });
+
+    // generate key learn more
+    cy.window().then((window) => {
+      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
+        expect(
+          url.startsWith(
+            "https://docs.github.com/en/developers/overview/managing-deploy-keys",
+          ),
+        ).to.be.true;
+        windowOpenSpy.restore();
+      });
+    });
+    cy.get(gitSyncLocators.learnMoreDeployKey).click();
   });
 
   it("validates copy key", function() {
@@ -230,6 +244,15 @@ describe("Git sync modal: connect tab", function() {
 
     cy.contains("SSH Key is not configured properly");
 
+    // read document clicking test
+    cy.get(gitSyncLocators.readDocument).should("exist");
+    cy.window().then((window) => {
+      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
+        expect(url.startsWith("https://docs.github.com")).to.be.true;
+        windowOpenSpy.restore();
+      });
+    });
+    cy.get(gitSyncLocators.readDocument).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
