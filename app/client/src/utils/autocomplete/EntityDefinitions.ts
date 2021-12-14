@@ -422,6 +422,12 @@ export const entityDefinitions: Record<string, unknown> = {
     dataURL: "string",
     rawBinary: "string",
   },
+  SWITCH_GROUP_WIDGET: {
+    "!doc":
+      "Switch group widget allows users to create many switch components which can easily by used in a form",
+    "!url": "https://docs.appsmith.com/widget-reference/switch-group",
+    selectedValues: "[string]",
+  },
 };
 
 export const GLOBAL_DEFS = {

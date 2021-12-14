@@ -680,9 +680,6 @@ const Icon = forwardRef(
       case "setting":
         returnIcon = <SettingIcon />;
         break;
-      case "support":
-        returnIcon = <SupportIcon />;
-        break;
       case "workspace":
         returnIcon = <WorkspaceIcon />;
         break;

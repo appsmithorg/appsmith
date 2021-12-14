@@ -6,7 +6,7 @@ import homePage from "../../../../locators/HomePage.json";
 describe("Generate New CRUD Page Inside from entity explorer", function() {
   let datasourceName;
 
-  this.beforeEach(() => {
+  beforeEach(() => {
     cy.startRoutesForDatasource();
     cy.startInterceptRoutesForS3();
   });

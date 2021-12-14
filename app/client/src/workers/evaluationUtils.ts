@@ -629,7 +629,11 @@ export const updateJSCollectionInDataTree = (
       const existedVar = varList.indexOf(newVar.name);
       if (existedVar > -1) {
         const existedVarVal = jsCollection[newVar.name];
-        if (existedVarVal.toString() !== newVar.value.toString()) {
+        if (
+          (!!existedVarVal && existedVarVal.toString()) !==
+            (newVar.value && newVar.value.toString()) ||
+          (!existedVarVal && !!newVar)
+        ) {
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${newVar.name}`,

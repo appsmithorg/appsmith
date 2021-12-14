@@ -14,6 +14,7 @@ export const CONFIG = {
     url: "https://assets.appsmith.com/widgets/birds_chirping.mp3",
     autoPlay: false,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
