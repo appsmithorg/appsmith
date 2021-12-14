@@ -127,6 +127,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         cellBackground: EvaluationSubstitutionType.TEMPLATE,
         textColor: EvaluationSubstitutionType.TEMPLATE,
         textSize: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
         primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
@@ -192,6 +193,9 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
             type: "TEXT",
           },
+        },
+        animateLoading: {
+          type: "BOOLEAN",
         },
         defaultSearchText: {
           type: "TEXT",
@@ -477,6 +481,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
         setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
@@ -532,6 +537,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "TEXT",
         },
         isVisible: {
+          type: "BOOLEAN",
+        },
+        animateLoading: {
           type: "BOOLEAN",
         },
         setAdaptiveYMin: {
