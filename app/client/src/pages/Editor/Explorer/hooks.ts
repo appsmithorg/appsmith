@@ -331,12 +331,12 @@ export const useFilesForExplorer = (sort = "name") => {
           group = datasourceIdToNameMap[file.config.datasource.id];
         }
         acc = acc.concat({
-          fileType: file.config.pluginType,
+          type: file.config.pluginType,
           entity: file,
           group,
         });
         return acc;
-      }, [] as Array<{ fileType: string; group?: string; entity: ActionData | JSCollectionData }>),
+      }, [] as Array<{ type: string; group?: string; entity: ActionData | JSCollectionData }>),
     [actions, jsActions, datasourceIdToNameMap],
   );
 
@@ -349,7 +349,7 @@ export const useFilesForExplorer = (sort = "name") => {
         (acc, file) => {
           if (acc.group !== file.group) {
             acc.files = acc.files.concat({
-              type: "Group",
+              type: "group",
               entity: {
                 name: file.group,
               },

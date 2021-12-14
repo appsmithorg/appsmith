@@ -9,6 +9,7 @@ import { Plugin } from "api/PluginApi";
 import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
 import getFeatureFlags from "utils/featureFlags";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import Files from "../Files";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -40,7 +41,9 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
         widgets={props.widgets}
       />
 
-      {getPluginGroups(
+      <Files />
+
+      {/* {getPluginGroups(
         props.page,
         props.step + 1,
         props.actions as DataTreeAction[],
@@ -56,7 +59,7 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
           searchKeyword={props.searchKeyword}
           step={props.step + 1}
         />
-      )}
+      )} */}
     </div>
   );
 }

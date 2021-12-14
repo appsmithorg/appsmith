@@ -45,7 +45,7 @@ export function Datasources() {
   const pages = useSelector(getPageList);
   const pageId = useSelector(getCurrentPageId) || pages[0].pageId;
 
-  const files = useFilesForExplorer("type");
+  const files = useFilesForExplorer("name");
 
   const plugins = useSelector(getPlugins);
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
