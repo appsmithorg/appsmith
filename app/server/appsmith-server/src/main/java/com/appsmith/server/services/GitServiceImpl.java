@@ -580,7 +580,7 @@ public class GitServiceImpl implements GitService {
             return matcher.group(1);
         }
         throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect! Can you " +
-                "please provide one as per standard format => git@github.com:username/reponame.git");
+                "please provide as per standard format => git@github.com:username/reponame.git");
     }
 
     @Override
