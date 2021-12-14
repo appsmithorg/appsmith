@@ -847,7 +847,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
         layoutDTO.setUserPermissions(layout.getUserPermissions());
-        layoutDTO.setValidOnPageLoadActions(layout.getValidOnPageLoadActions());
 
         return layoutDTO;
     }

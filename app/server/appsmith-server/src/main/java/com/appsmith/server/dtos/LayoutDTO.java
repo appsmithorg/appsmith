@@ -28,6 +28,4 @@ public class LayoutDTO {
     List<String> messages;
 
     public Set<String> userPermissions = new HashSet<>();
-
-    Boolean validOnPageLoadActions;
 }
