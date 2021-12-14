@@ -101,8 +101,17 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void setup() {
-        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = applicationService
-                .findByName("TestApplications", AclPermission.READ_APPLICATIONS)
+        String randomId = UUID.randomUUID().toString();
+        Organization organization = new Organization();
+        organization.setName(randomId + "-test-org");
+
+        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = organizationService
+                .create(organization).flatMap(organization1 -> {
+                    Application application = new Application();
+                    application.setName(randomId + "-test-app");
+                    application.setOrganizationId(organization1.getId());
+                    return applicationPageService.createApplication(application);
+                })
                 .flatMap(application -> {
                     final CommentThread thread = new CommentThread();
                     thread.setApplicationId(application.getId());

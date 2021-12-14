@@ -904,8 +904,62 @@ public class CreateDBTablePageSolution {
         }
 
         // When the connected datasource have less number of columns than template datasource, delete the unwanted fields
-        // \n"DELETE_FIELD" : '{{Widget.property}}',\n => "" : As mapping is not present
-        final String regex = "[\"\n{].*" + DELETE_FIELD + ".*[,\n}]";
+        /*
+        Example 1: SQL
+            UPDATE PUBLIC.USER SET
+                    NAME = '{{update_col_2.text}}',
+                    delete = '{{update_col_4.text}}',
+                    delete = '{{update_col_6.text}}',
+                    NAME2 = '{{update_col_7.text}}',
+                    delete = '{{update_col_8.text}}'
+            WHERE AGE = {{Table1.selectedRow.AGE}};
+
+            UPDATE PUBLIC.USER SET
+                    NAME = '{{update_col_2.text}}',
+                    NAME2 = '{{update_col_7.text}}'
+            WHERE AGE = {{Table1.selectedRow.AGE}};
+
+            Example 2:
+            INSERT INTO tableName (
+                col1,
+                delete,
+                col2,
+                delete,
+                delete,
+                delete
+            )
+            VALUES (
+                {{insert_col_input1.text}},
+                {{insert_col_input3.text}},
+                {{insert_col_input2.text}},
+                {{insert_col_input4.text}},
+                {{insert_col_input5.text}},
+                {{insert_col_input6.text}}
+            );
+
+            INSERT INTO tableName (
+                col1,
+                col2
+            )
+            VALUES (
+                {{insert_col_input1.text}},
+                {{insert_col_input2.text}}
+            );
+
+            Example 3: (Postgres)
+            UPDATE public."tableName" SET
+                "col1" = '{{update_col_3.text}}',
+                "delete" = '{{update_col_5.text}}'
+                "col2" = '{{update_col_4.text}}',
+                "delete" = '{{update_col_5.text}}'
+              WHERE "id" = {{Table1.selectedRow.id}};
+
+            UPDATE public."tableName" SET
+                "col1" = '{{update_col_3.text}}',
+                "col2" = '{{update_col_4.text}}'
+              WHERE "id" = {{Table1.selectedRow.id}};
+         */
+        final String regex = "[\"\n{\t ].*" + DELETE_FIELD + ".*[,\n}]";
         if (actionConfiguration.getBody() != null) {
             actionConfiguration.setBody(actionConfiguration.getBody().replaceAll(regex, "\n"));
             // This will remove the unwanted comma after fields deletion if present at the end of body
