@@ -70,6 +70,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -945,6 +946,46 @@ public class LayoutActionServiceTest {
 
                     String widgetName = (String) updatedLayout.getDsl().get("widgetName");
                     assertThat(widgetName).isEqualTo("NewNameTable1");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRefactorWidgetName_forDefaultWidgetsInList_updatesBothWidgetsAndTemplateReferences() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "List1");
+        dsl.put("type", "LIST_WIDGET");
+        JSONObject template = new JSONObject();
+        template.put("oldWidgetName", "irrelevantContent");
+        dsl.put("template", template);
+        final JSONArray children = new JSONArray();
+        final JSONObject defaultWidget = new JSONObject();
+        defaultWidget.put("widgetName", "oldWidgetName");
+        defaultWidget.put("type", "TEXT_WIDGET");
+        children.add(defaultWidget);
+        dsl.put("children", children);
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("oldWidgetName");
+        refactorNameDTO.setNewName("newWidgetName");
+
+        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
+
+        StepVerifier
+                .create(widgetRenameMono)
+                .assertNext(updatedLayout -> {
+                    assertTrue(((Map) updatedLayout.getDsl().get("template")).containsKey("newWidgetName"));
+                    assertEquals("newWidgetName",
+                            ((Map)(((List)updatedLayout.getDsl().get("children")).get(0))).get("widgetName"));
                 })
                 .verifyComplete();
     }
