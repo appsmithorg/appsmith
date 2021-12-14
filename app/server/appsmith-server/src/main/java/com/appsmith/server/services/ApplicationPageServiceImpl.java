@@ -44,6 +44,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -386,7 +388,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         })
                 );
 
+        final Flux<ActionCollection> sourceActionCollectionsFlux = actionCollectionService.findByPageId(pageId);
+
         Flux<NewAction> sourceActionFlux = newActionService.findByPageId(pageId, MANAGE_ACTIONS)
+                // Set collection reference in actions to null to reset to the new application's collections later
+                .map(newAction -> {
+                    if (newAction.getUnpublishedAction() != null) {
+                        newAction.getUnpublishedAction().setCollectionId(null);
+                    }
+                    return newAction;
+                })
                 // In case there are no actions in the page being cloned, return empty
                 .switchIfEmpty(Flux.empty());
 
@@ -426,6 +437,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     String newPageId = clonedPage.getId();
                     return sourceActionFlux
                             .flatMap(action -> {
+                                String originalActionId = action.getId();
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
 
@@ -436,15 +448,46 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                  *   being set to off by default.
                                  */
                                 AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
-                                return layoutActionService.createAction(
-                                        action.getUnpublishedAction(),
-                                        eventContext
+                                return Mono.zip(layoutActionService.createAction(
+                                                        action.getUnpublishedAction(),
+                                                        eventContext)
+                                                .map(ActionDTO::getId),
+                                        Mono.justOrEmpty(originalActionId)
                                 );
                             })
-                            .collectList()
+                            .collect(HashMap<String, String>::new, (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
+                            .flatMap(actionIdsMap -> {
+                                // Pick all action collections
+                                return sourceActionCollectionsFlux
+                                        .flatMap(actionCollection -> {
+                                            final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+                                            unpublishedCollection.setPageId(newPageId);
+                                            actionCollection.setApplicationId(clonedPage.getApplicationId());
+
+                                            // Replace all action Ids from map
+                                            final HashSet<String> newActionIds = new HashSet<>();
+                                            unpublishedCollection
+                                                    .getActionIds()
+                                                    .stream()
+                                                    .forEach(oldActionId -> newActionIds.add(actionIdsMap.get(oldActionId)));
+                                            unpublishedCollection.setActionIds(newActionIds);
+
+                                            return actionCollectionService.create(actionCollection)
+                                                    .flatMap(newlyCreatedActionCollection -> {
+                                                        return Flux.fromIterable(newActionIds)
+                                                                .flatMap(newActionService::findById)
+                                                                .flatMap(newlyCreatedAction -> {
+                                                                    newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
+                                                                    return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
+                                                                })
+                                                                .collectList();
+                                                    });
+                                        })
+                                        .collectList();
+                            })
                             .thenReturn(clonedPage);
                 })
-                // Calculate the onload actions for this page now that the page and actions have been created
+                // Calculate the on load actions for this page now that the page and actions have been created
                 .flatMap(savedPage -> {
                     List<Layout> layouts = savedPage.getLayouts();
 
