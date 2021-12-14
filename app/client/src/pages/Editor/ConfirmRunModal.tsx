@@ -43,8 +43,7 @@ class ConfirmRunModal extends React.Component<Props> {
   };
 
   onKeyUp = (event: KeyboardEvent) => {
-    const { isModalOpen } = this.props;
-    if (event.keyCode === Keys.ENTER && isModalOpen) {
+    if (event.keyCode === Keys.ENTER) {
       this.onConfirm();
     }
   };
