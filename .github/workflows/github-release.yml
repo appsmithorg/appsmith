@@ -262,7 +262,7 @@ jobs:
         working-directory: app/server
         run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee${{needs.prelude.outputs.tag}}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
