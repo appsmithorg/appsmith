@@ -15,7 +15,7 @@ const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
     z-index: ${(props) => props.zIndexOnHover} !important;
   }
-  transition: transform 100ms ease-in-out;
+  transition: transform 100ms linear;
 `;
 export type PositionedContainerProps = {
   style: BaseStyle;
@@ -84,10 +84,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
       backgroundColor: "inherit",
       ...transformStyles,
     };
-    // if (reflowedPosition) {
-    //   styles.padding = "0px";
-    //   styles.border = "4px solid cadetblue";
-    // }
     return styles;
   }, [
     props.style,

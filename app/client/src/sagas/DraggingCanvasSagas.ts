@@ -19,7 +19,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { collisionCheckPostReflow } from "utils/reflowUtil";
+import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { getUpdateDslAfterCreatingChild } from "./WidgetAdditionSagas";
 
 export type WidgetMoveParams = {

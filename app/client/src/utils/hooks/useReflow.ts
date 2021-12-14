@@ -1,6 +1,6 @@
 import { reflowMove, stopReflow } from "actions/reflowActions";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { isEmpty } from "lodash";
+import { isEmpty, throttle } from "lodash";
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
@@ -10,10 +10,10 @@ import {
   CollidingSpaceMap,
   GridProps,
   ReflowDirection,
-  ReflowedSpace,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { getLimitedMovementMap } from "reflow/reflowUtils";
+import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 
 export const useReflow = (
   widgetId: string,
@@ -21,6 +21,8 @@ export const useReflow = (
   gridProps: GridProps,
 ) => {
   const dispatch = useDispatch();
+
+  const throttledDispatch = throttle(dispatch, 50);
 
   const isReflowing = useRef<boolean>(false);
 
@@ -45,6 +47,8 @@ export const useReflow = (
     direction: ReflowDirection,
     stopMoveAfterLimit = false,
   ) {
+    //eslint-disable-next-line
+    console.log("reflow New Positions", newPositions, direction);
     const { collidingSpaceMap, movementLimit, movementMap } = reflow(
       newPositions,
       OGPositions,
@@ -59,8 +63,6 @@ export const useReflow = (
     prevPositions.current = newPositions;
     prevCollidingSpaces.current = collidingSpaceMap;
 
-    const shouldReflow = !isEmpty(movementMap);
-
     let correctedMovementMap = movementMap || {};
 
     if (stopMoveAfterLimit)
@@ -72,42 +74,26 @@ export const useReflow = (
 
     prevMovementMap.current = correctedMovementMap;
 
-    if (shouldReflow) {
+    if (!isEmpty(correctedMovementMap)) {
       isReflowing.current = true;
-      dispatch(reflowMove(correctedMovementMap));
+      throttledDispatch(reflowMove(correctedMovementMap));
     } else if (isReflowing.current) {
       isReflowing.current = false;
+      throttledDispatch.cancel();
       dispatch(stopReflow());
     }
-    const reflowedWidgets: [string, ReflowedSpace][] = Object.entries(
-      movementMap || {},
-    );
-    const bottomReflowedWidgets = reflowedWidgets.filter((each) => !!each[1].Y);
 
-    const reflowedWidgetsBottomMostRow = bottomReflowedWidgets.reduce(
-      (bottomMostRow, each) => {
-        const [id, reflowedParams] = each;
-        const widget = occupiedSpaces.find((eachSpace) => eachSpace.id === id);
-        if (widget) {
-          const bottomMovement =
-            (reflowedParams.Y || 0) / gridProps.parentRowSpace;
-          const bottomRow = widget.bottom + bottomMovement;
-          if (bottomRow > bottomMostRow) {
-            return bottomRow;
-          }
-        }
-        return bottomMostRow;
-      },
-      0,
+    const bottomMostRow = getBottomRowAfterReflow(
+      movementMap,
+      newPositions.bottom,
+      occupiedSpaces,
+      gridProps,
     );
 
     return {
       ...movementLimit,
       movementMap: correctedMovementMap,
-      bottomMostRow: Math.max(
-        reflowedWidgetsBottomMostRow,
-        newPositions.bottom,
-      ),
+      bottomMostRow,
     };
   };
 };

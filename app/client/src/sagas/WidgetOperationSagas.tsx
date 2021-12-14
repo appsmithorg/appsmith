@@ -104,7 +104,7 @@ import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
 import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
 import { stopReflow } from "actions/reflowActions";
-import { collisionCheckPostReflow } from "utils/reflowUtil";
+import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {

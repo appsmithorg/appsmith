@@ -42,7 +42,7 @@ export type CollisionAccessors = {
   parallelMax: SpaceAttributes;
   parallelMin: SpaceAttributes;
   mathComparator: MathComparators;
-  directionIndicator: number;
+  directionIndicator: 1 | -1;
   isHorizontal: boolean;
 };
 
@@ -67,12 +67,14 @@ export type CollisionTree = OccupiedSpace & {
 
 export type SpaceMovement = {
   id?: string;
-  maxX?: number;
-  mathXComparator?: string;
-  directionXIndicator?: number;
-  maxY?: number;
-  mathYComparator?: string;
-  directionYIndicator?: number;
+  directionalMovements: DirectionalMovement[];
+};
+
+export type DirectionalMovement = {
+  maxMovement: number;
+  directionalIndicator: 1 | -1;
+  coordinateKey: "X" | "Y";
+  isHorizontal: boolean;
 };
 
 export type ReflowedSpace = {

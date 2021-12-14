@@ -98,7 +98,7 @@ export function getDistanceComparator(
 
 export function getShouldResize(
   newPositions: SpaceMovement | undefined,
-  { X, Y } = { X: 0, Y: 0 },
+  delta = { X: 0, Y: 0 },
   beforeLimit = false,
 ): { canVerticalMove: boolean; canHorizontalMove: boolean } {
   if (!newPositions)
@@ -109,22 +109,26 @@ export function getShouldResize(
 
   let canHorizontalMove = true,
     canVerticalMove = true;
-  const { directionXIndicator, directionYIndicator, maxX, maxY } = newPositions;
-  if (directionXIndicator && maxX !== undefined) {
-    canHorizontalMove = compareNumbers(
-      X,
-      maxX,
-      directionXIndicator < 0,
+  const { directionalMovements } = newPositions;
+  for (const movementLimit of directionalMovements) {
+    const {
+      coordinateKey,
+      directionalIndicator,
+      isHorizontal,
+      maxMovement,
+    } = movementLimit;
+
+    const canMove = compareNumbers(
+      delta[coordinateKey],
+      maxMovement,
+      directionalIndicator < 0,
       beforeLimit,
     );
-  }
-  if (directionYIndicator && maxY !== undefined) {
-    canVerticalMove = compareNumbers(
-      Y,
-      maxY,
-      directionYIndicator < 0,
-      beforeLimit,
-    );
+
+    if (!canMove) {
+      if (isHorizontal) canHorizontalMove = false;
+      else canVerticalMove = false;
+    }
   }
 
   return {
@@ -384,7 +388,7 @@ export function compareNumbers(
   return numberA < numberB;
 }
 
-export function getAccessor(direction: ReflowDirection) {
+export function getAccessor(direction: ReflowDirection): CollisionAccessors {
   switch (direction) {
     case ReflowDirection.LEFT:
       return {

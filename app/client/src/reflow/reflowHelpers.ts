@@ -7,11 +7,11 @@ import {
   CollisionAccessors,
   CollisionTree,
   Delta,
+  DirectionalMovement,
   GridProps,
   HORIZONTAL_RESIZE_LIMIT,
   ReflowDirection,
   ReflowedSpaceMap,
-  SpaceMovement,
   VERTICAL_RESIZE_LIMIT,
 } from "./reflowTypes";
 import {
@@ -50,12 +50,9 @@ export function getMovementMap(
 
   const childrenKeys = Object.keys(collisionTree.children);
 
-  let horizontalStaticDepth = 0,
-    verticalStaticDepth = 0;
-  let horizontalOccupiedSpace = 0,
-    verticalOccupiedSpace = 0;
-  let horizontalAccessors, verticalAccessors;
-  let horizontalDirection, verticalDirection;
+  const directionalVariables: {
+    [direction: string]: [number, number, CollisionAccessors, ReflowDirection];
+  } = {};
 
   for (const childKey of childrenKeys) {
     const childNode = collisionTree.children[childKey];
@@ -79,68 +76,57 @@ export function getMovementMap(
       shouldResize,
     );
 
-    if (directionalAccessors.isHorizontal) {
-      horizontalStaticDepth = Math.max(horizontalStaticDepth, depth);
-      horizontalOccupiedSpace = Math.max(
-        horizontalOccupiedSpace,
-        occupiedSpace,
-      );
-      horizontalAccessors = directionalAccessors;
-      horizontalDirection = childDirection;
-    } else {
-      verticalStaticDepth = Math.max(verticalStaticDepth, depth);
-      verticalOccupiedSpace = Math.max(verticalOccupiedSpace, occupiedSpace);
-      verticalAccessors = directionalAccessors;
-      verticalDirection = childDirection;
-    }
+    let staticDepth = 0,
+      maxOccupiedSpace = 0;
+    if (directionalVariables[childDirection])
+      [staticDepth, maxOccupiedSpace] = directionalVariables[childDirection];
+    staticDepth = Math.max(staticDepth, depth);
+    maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace);
+    directionalVariables[childDirection] = [
+      staticDepth,
+      maxOccupiedSpace,
+      directionalAccessors,
+      childDirection,
+    ];
   }
 
-  let horizontalStaticWidget = {},
-    verticalStaticWidget = {};
-  let newPositionsMovement: SpaceMovement = {
+  const directionalKeys = Object.keys(directionalVariables);
+
+  const directionalMovements: DirectionalMovement[] = [];
+
+  for (const directionKey of directionalKeys) {
+    const [
+      staticDepth,
+      maxOccupiedSpace,
+      accessors,
+      reflowDirection,
+    ] = directionalVariables[directionKey];
+    const maxMethod = accessors.isHorizontal ? getMaxX : getMaxY;
+    const gridDistance = accessors.isHorizontal
+      ? gridProps.parentColumnSpace
+      : gridProps.parentRowSpace;
+    const coordinateKey = accessors.isHorizontal ? "X" : "Y";
+    const maxMovement =
+      maxMethod(
+        collisionTree,
+        gridProps,
+        reflowDirection,
+        staticDepth,
+        maxOccupiedSpace,
+        shouldResize,
+      ) +
+      delta[coordinateKey] +
+      accessors.directionIndicator * gridDistance;
+    directionalMovements.push({
+      maxMovement,
+      directionalIndicator: accessors.directionIndicator,
+      coordinateKey,
+      isHorizontal: accessors.isHorizontal,
+    });
+  }
+  const newPositionsMovement = {
     id: collisionTree.id,
-  };
-
-  if (horizontalAccessors && horizontalDirection) {
-    const maxX = getMaxX(
-      collisionTree,
-      gridProps,
-      horizontalDirection,
-      horizontalStaticDepth,
-      horizontalOccupiedSpace,
-      shouldResize,
-    );
-    horizontalStaticWidget = {
-      maxX:
-        delta.X +
-        maxX +
-        horizontalAccessors.directionIndicator * gridProps.parentColumnSpace,
-      mathXComparator: horizontalAccessors.mathComparator,
-      directionXIndicator: horizontalAccessors.directionIndicator,
-    };
-  }
-
-  if (verticalAccessors && verticalDirection) {
-    const maxY = getMaxY(
-      collisionTree,
-      gridProps,
-      verticalDirection,
-      verticalStaticDepth,
-      verticalOccupiedSpace,
-      shouldResize,
-    );
-    verticalStaticWidget = {
-      maxY:
-        verticalDirection === ReflowDirection.BOTTOM
-          ? Infinity
-          : delta.Y + maxY - gridProps.parentRowSpace,
-      mathYComparator: verticalAccessors.mathComparator,
-      directionYIndicator: verticalAccessors.directionIndicator,
-    };
-  }
-  newPositionsMovement = {
-    ...horizontalStaticWidget,
-    ...verticalStaticWidget,
+    directionalMovements,
   };
 
   //eslint-disable-next-line
