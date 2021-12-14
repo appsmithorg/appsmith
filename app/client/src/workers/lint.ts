@@ -6,7 +6,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { last, keys, isEmpty } from "lodash";
+import { isEmpty, keys, last } from "lodash";
 import {
   EvaluationScripts,
   EvaluationScriptType,
@@ -27,21 +27,20 @@ export const getPositionInEvaluationScript = (
   return { line: lines.length, ch: lastLine.length };
 };
 
-const EvalutionScriptPositions: Record<string, Position> = {};
+const EvaluationScriptPositions: Record<string, Position> = {};
 
 function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
-  if (isEmpty(EvalutionScriptPositions)) {
+  if (isEmpty(EvaluationScriptPositions)) {
     // We are computing position of <<script>> in our templates.
     // This will be used to get the exact location of error in linting
     keys(EvaluationScripts).forEach((type) => {
-      const location = getPositionInEvaluationScript(
+      EvaluationScriptPositions[type] = getPositionInEvaluationScript(
         type as EvaluationScriptType,
       );
-      EvalutionScriptPositions[type] = location;
     });
   }
 
-  return EvalutionScriptPositions[scriptType];
+  return EvaluationScriptPositions[scriptType];
 }
 
 export const getLintingErrors = (
