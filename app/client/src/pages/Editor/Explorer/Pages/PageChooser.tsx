@@ -14,7 +14,7 @@ import {
   pageIcon,
   defaultPageIcon,
   settingsIcon,
-  currentPageIcon,
+  // currentPageIcon,
 } from "../ExplorerIcons";
 import {
   createMessage,
@@ -30,6 +30,11 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
+import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
+import classNames from "classnames";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { setExplorerPinnedAction } from "actions/explorerActions";
+import { Colors } from "constants/Colors";
 
 const StyledEntity = styled(Entity)`
   &.pages {
@@ -40,12 +45,38 @@ const StyledEntity = styled(Entity)`
   }
 `;
 
+const PinButtonWrapper = styled.div`
+  & {
+    svg {
+      path {
+        fill: ${Colors.CODE_GRAY};
+      }
+    }
+  }
+  &:hover {
+    background-color: ${Colors.SHARK2};
+    svg {
+      path {
+        fill: ${Colors.WHITE};
+      }
+    }
+  }
+`;
+
+const StyledPinIcon = styled(PinIcon)`
+  && {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
 function PageChooser() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
   const currentPageId = useSelector(getCurrentPageId);
+  const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
 
   const switchPage = useCallback(
@@ -80,6 +111,32 @@ function PageChooser() {
     </TooltipComponent>
   );
 
+  /**
+   * toggles the pinned state of sidebar
+   */
+  const onPin = useCallback(() => {
+    dispatch(setExplorerPinnedAction(!pinned));
+  }, [pinned, dispatch, setExplorerPinnedAction]);
+
+  const sidebarCloseIcon = (
+    <PinButtonWrapper
+      className={classNames({
+        "h-full items-center transition-all duration-300 transform px-2 flex justify-center": true,
+      })}
+    >
+      <TooltipComponent
+        content={
+          <div className="flex items-center justify-between">
+            <span>Close sidebar</span>
+            <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+          </div>
+        }
+      >
+        <StyledPinIcon />
+      </TooltipComponent>
+    </PinButtonWrapper>
+  );
+
   return (
     <StyledEntity
       action={() =>
@@ -93,10 +150,12 @@ function PageChooser() {
       icon={""}
       isDefaultExpanded
       name="PAGES"
+      onClickPreRightIcon={onPin}
       onClickRightIcon={() => {
         history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId));
       }}
       onCreate={createPageCallback}
+      preRightIcon={sidebarCloseIcon}
       rightIcon={settingsIconWithTooltip}
       searchKeyword={""}
       step={0}

@@ -60,11 +60,14 @@ export const EntityItem = styled.div<{
   user-select: none;
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
   background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
-  height: 30px;
+  height: 34px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: ${(props) =>
-    props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
+    props.spaced
+      ? "20px auto 1fr auto auto auto"
+      : "8px auto 1fr auto auto auto"};
+  grid-auto-flow: column dense;
   border-radius: 0;
   color: ${Colors.CODE_GRAY};
   cursor: pointer;
@@ -144,6 +147,11 @@ const IconWrapper = styled.span`
     height: 16px;
   }
   margin-right: 4px;
+`;
+
+const ContextMenuWrapper = styled.div`
+  width: 30px;
+  height: 100%;
 `;
 
 export type EntityProps = {
@@ -282,7 +290,7 @@ export const Entity = forwardRef(
           />
           {props.preRightIcon && (
             <IconWrapper
-              className={EntityClassNames.PRE_RIGHT_ICON}
+              className={`${EntityClassNames.PRE_RIGHT_ICON} w-full h-full`}
               onClick={props.onClickPreRightIcon}
             >
               {props.preRightIcon}
@@ -313,7 +321,9 @@ export const Entity = forwardRef(
               onClick={props.onCreate}
             />
           )}
-          {props.contextMenu}
+          {props.contextMenu && (
+            <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
+          )}
           <Loader isVisible={isUpdating} />
         </EntityItem>
         <Collapse active={props.active} isOpen={isOpen} step={props.step}>
