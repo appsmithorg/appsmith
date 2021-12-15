@@ -20,6 +20,14 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import EntityPlaceholder from "../Entity/Placeholder";
+
+const emptyNode = (
+  <EntityPlaceholder step={0}>
+    Click the <strong>+</strong> icon above to create a new query, API or JS
+    Object
+  </EntityPlaceholder>
+);
 
 function Files({ pageId }: any) {
   const files = useFilesForExplorer("type");
@@ -36,21 +44,9 @@ function Files({ pageId }: any) {
     );
   }, [dispatch]);
 
-  return (
-    <Entity
-      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
-      className={`group`}
-      disabled={false}
-      entityId={pageId + "_widgets"}
-      icon={""}
-      isDefaultExpanded
-      key={pageId + "_widgets"}
-      name="QUERIES/JS"
-      onCreate={onCreate}
-      searchKeyword={""}
-      step={0}
-    >
-      {files.map(({ entity, type }: any) => {
+  const fileEntities = useMemo(
+    () =>
+      files.map(({ entity, type }: any) => {
         if (type === "group") {
           return (
             <div className={`text-xs text-[${Colors.CODE_GRAY}] px-8 my-2`}>
@@ -99,7 +95,25 @@ function Files({ pageId }: any) {
             />
           );
         }
-      })}
+      }),
+    [files],
+  );
+
+  return (
+    <Entity
+      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
+      className={`group`}
+      disabled={false}
+      entityId={pageId + "_widgets"}
+      icon={""}
+      isDefaultExpanded
+      key={pageId + "_widgets"}
+      name="QUERIES/JS"
+      onCreate={onCreate}
+      searchKeyword={""}
+      step={0}
+    >
+      {fileEntities.length ? fileEntities : emptyNode}
     </Entity>
   );
 }

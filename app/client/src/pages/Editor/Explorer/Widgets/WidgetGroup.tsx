@@ -39,8 +39,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const applicationId = useSelector(getCurrentApplicationId);
 
   const childNode = (
-    <EntityPlaceholder step={props.step + 1}>
-      Please{" "}
+    <EntityPlaceholder step={props.step}>
       {params.pageId !== pageId ? (
         <>
           <StyledLink
@@ -56,7 +55,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       ) : (
         "  "
       )}
-      click the <strong>+</strong> icon above to add widgets
+      Click the <strong>+</strong> icon above to add widgets
     </EntityPlaceholder>
   );
 
