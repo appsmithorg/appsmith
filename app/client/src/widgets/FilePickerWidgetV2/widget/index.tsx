@@ -206,9 +206,9 @@ class FilePickerWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
+            propertyName: "buttonColor",
             helpText: "Sets the background color of the widget",
-            label: "Background color",
+            label: "Background",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -492,9 +492,9 @@ class FilePickerWidget extends BaseWidget<
   getPageView() {
     return (
       <FilePickerComponent
-        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        buttonColor={this.props.buttonColor}
         files={this.props.selectedFiles || []}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}

@@ -12,8 +12,15 @@ import { debounce, get } from "lodash";
 import { Colors } from "constants/Colors";
 import * as colors from "twind/colors";
 import { tw } from "twind";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { useSelector } from "react-redux";
+import { useSelector } from "store";
+import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
+import {
+  colorsPropertyName,
+  getThemePropertyBinding,
+} from "constants/ThemeContants";
+import TooltipComponent from "./Tooltip";
+import { getWidgets } from "sagas/selectors";
+import { extractColors } from "utils/helpers";
 
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
@@ -57,14 +64,27 @@ const StyledInputGroup = styled(InputGroup)`
   }
 `;
 
+function useThemeColors() {
+  const theme = useSelector(getSelectedAppThemeProperties);
+  return theme[colorsPropertyName];
+}
+
+function useApplicationColors() {
+  const widgets = useSelector(getWidgets);
+
+  return extractColors(JSON.stringify(widgets));
+}
+
 interface ColorPickerProps {
   color: string;
   changeColor: (color: string) => void;
+  showThemeColors?: boolean;
+  showApplicationColors?: boolean;
+  evaluatedColorValue?: string;
 }
 
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<any>();
-  const theme = useSelector(getSelectedAppTheme);
   const [color, setColor] = React.useState(props.color);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
@@ -75,7 +95,6 @@ function ColorPickerComponent(props: ColorPickerProps) {
     debouncedOnChange(value);
     setColor(value);
   };
-  const userDefinedColors = theme.properties.colors;
 
   // if props.color changes and state color is different,
   // sets the state color to props color
@@ -117,6 +136,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
     return filteredColors;
   }, []);
 
+  const themeColors = useThemeColors();
+  const applicationColors = useApplicationColors();
+
   return (
     <Popover
       enforceFocus={false}
@@ -128,7 +150,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
       <StyledInputGroup
         leftIcon={
           color ? (
-            <ColorIcon color={color} />
+            <ColorIcon color={props.evaluatedColorValue || color || ""} />
           ) : (
             <ColorPickerIconContainer>
               <ColorPickerIcon />
@@ -138,29 +160,53 @@ function ColorPickerComponent(props: ColorPickerProps) {
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
         ref={inputRef}
-        value={color || ""}
+        value={props.evaluatedColorValue || color || ""}
       />
-      <div
-        className="p-3 space-y-2 w-72"
-        key={`color-picker-v2-${props.color}`}
-      >
-        <div className="space-y-2">
-          <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
-          <section className="space-y-2">
-            <h3 className="text-xs">Application Colors</h3>
-            <div className="flex space-x-1">
-              {Object.keys(userDefinedColors).map((colorKey, index) => (
-                <div
-                  className={`${tw`bg-[${userDefinedColors[colorKey] ||
-                    userDefinedColors[
-                      colorKey
-                    ]}]`} border rounded-full h-6 w-6`}
-                  key={index}
-                />
-              ))}
-            </div>
-          </section>
-        </div>
+      <div className="p-3 space-y-2 w-72">
+        {props.showThemeColors && (
+          <div className="space-y-2">
+            <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
+            <section className="space-y-2">
+              <h3 className="text-xs">Theme Colors</h3>
+              <div className="flex space-x-1">
+                {Object.keys(themeColors).map((colorKey) => (
+                  <div
+                    className={`w-6 h-6 transform border rounded-full ${tw`bg-[${themeColors[colorKey]}]`}`}
+                    key={`color-picker-v2-${colorKey}`}
+                    onClick={() => {
+                      setColor(themeColors[colorKey]);
+                      props.changeColor(
+                        getThemePropertyBinding(
+                          `${colorsPropertyName}.${colorKey}`,
+                        ),
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+        {props.showApplicationColors && (
+          <div className="space-y-2">
+            <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
+            <section className="space-y-2">
+              <h3 className="text-xs">Application Colors</h3>
+              <div className="flex space-x-1">
+                {Object.values(applicationColors).map((colorCode: string) => (
+                  <div
+                    className={`w-6 h-6 transform border rounded-full ${tw`bg-[${colorCode}]`}`}
+                    key={colorCode}
+                    onClick={() => {
+                      setColor(colorCode);
+                      props.changeColor(colorCode);
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
         <div className="space-y-2">
           <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
           <section className="space-y-2">
@@ -170,7 +216,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
                 {Object.keys(get(tailwindColors, `${colorKey}`)).map(
                   (singleColorKey) => (
                     <div
-                      className={`h-6 w-6 rounded-full transform ${tw` bg-${colorKey}-${singleColorKey}`} }`}
+                      className={`h-6 w-6 rounded-full transform ${tw` bg-${colorKey}-${singleColorKey}`}`}
                       key={`a-${colorKey}`}
                       onClick={() => {
                         setColor(tailwindColors[colorKey][singleColorKey]);

@@ -30,6 +30,16 @@ const ErrorContainer = styled.div`
   height: 100%;
 `;
 
+const VideoWrapper = styled.div<{
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: string;
+}>`
+  & video {
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  }
+`;
+
 const Error = styled.span``;
 
 export default function VideoComponent(props: VideoComponentProps) {
@@ -48,24 +58,26 @@ export default function VideoComponent(props: VideoComponentProps) {
     url,
   } = props;
   return url ? (
-    <ReactPlayer
-      controls={controls || true}
-      height="100%"
-      muted={autoplay}
-      onEnded={onEnded}
-      onError={onError}
-      onPause={onPause}
-      onPlay={onPlay}
-      onProgress={onProgress}
-      onReady={onReady}
-      onSeek={onSeek}
-      onStart={onStart}
-      pip={false}
-      playing={autoplay}
-      ref={player}
-      url={url}
-      width="100%"
-    />
+    <VideoWrapper borderRadius={props.borderRadius} boxShadow={props.boxShadow}>
+      <ReactPlayer
+        controls={controls || true}
+        height="100%"
+        muted={autoplay}
+        onEnded={onEnded}
+        onError={onError}
+        onPause={onPause}
+        onPlay={onPlay}
+        onProgress={onProgress}
+        onReady={onReady}
+        onSeek={onSeek}
+        onStart={onStart}
+        pip={false}
+        playing={autoplay}
+        ref={player}
+        url={url}
+        width="100%"
+      />
+    </VideoWrapper>
   ) : (
     <ErrorContainer>
       <Error>{createMessage(ENTER_VIDEO_URL)}</Error>

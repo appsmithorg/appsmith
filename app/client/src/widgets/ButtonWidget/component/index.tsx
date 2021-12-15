@@ -245,7 +245,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
 }
 
 BaseButton.defaultProps = {
-  buttonColor: Colors.GREEN,
   buttonVariant: ButtonVariantTypes.PRIMARY,
   disabled: false,
   text: "Button Text",

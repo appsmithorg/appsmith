@@ -6,6 +6,12 @@ import {
   ControlData,
 } from "components/propertyControls/BaseControl";
 
+const THEME_BOUND_CONTROLS = [
+  "COLOR_PICKER",
+  "BOX_SHADOW_OPTIONS",
+  "BORDER_RADIUS_OPTIONS",
+];
+
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
 
@@ -24,10 +30,17 @@ class PropertyControlFactory {
     additionalAutoComplete?: Record<string, Record<string, unknown>>,
     hideEvaluatedValue?: boolean,
   ): JSX.Element {
-    let controlBuilder = this.controlMap.get(controlData.controlType);
-    if (preferEditor) {
-      if (customEditor) controlBuilder = this.controlMap.get(customEditor);
-      else controlBuilder = this.controlMap.get("CODE_EDITOR");
+    let controlBuilder;
+    const isThemeBoundControl = THEME_BOUND_CONTROLS.indexOf(
+      controlData.controlType,
+    );
+
+    if (preferEditor && !isThemeBoundControl) {
+      controlBuilder = customEditor
+        ? this.controlMap.get(customEditor)
+        : this.controlMap.get("CODE_EDITOR");
+    } else {
+      controlBuilder = this.controlMap.get(controlData.controlType);
     }
 
     if (controlBuilder) {

@@ -85,7 +85,7 @@ const InputComponentWrapper = styled((props) => (
     .currency-type-filter,
     .country-type-filter {
       width: fit-content;
-      height: 36px;
+      height: 100%;
       position: absolute;
       display: inline-block;
       left: 0;
@@ -94,9 +94,6 @@ const InputComponentWrapper = styled((props) => (
         path {
           fill: ${(props) => props.theme.colors.icon?.hover};
         }
-      }
-      &:hover {
-        border: 1px solid ${Colors.GREY_5} !important;
       }
     }
     .${Classes.INPUT} {
@@ -114,16 +111,12 @@ const InputComponentWrapper = styled((props) => (
         props.inputType === InputTypes.PHONE_NUMBER &&
         `padding-left: 85px;
         `};
-      border: 1px solid;
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) => borderRadius};
-      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-      border-color: ${({ hasError }) =>
-        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
+      border-radius: 0px;
+      box-shadow: none !important;
       height: 100%;
       width: 100%;
-      min-height: 32px;
       ${(props) =>
         props.numeric &&
         `
@@ -135,7 +128,7 @@ const InputComponentWrapper = styled((props) => (
         props.inputType === "PASSWORD" &&
         `
         & + .bp3-input-action {
-          height: 36px;
+          height: 100%;
           width: 36px;
           cursor: pointer;
           padding: 1px;
@@ -160,30 +153,17 @@ const InputComponentWrapper = styled((props) => (
           hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
       }
       &:hover {
-        border-left: 1px solid ${Colors.GREY_5};
-        border-right: 1px solid ${Colors.GREY_5};
         border-color: ${Colors.GREY_5};
-      }
-      &:focus {
-        outline: 0;
-        border: 1px solid;
-        border-color: ${({ hasError, primaryColor }) =>
-          hasError ? Colors.DANGER_SOLID : primaryColor};
-        box-shadow: ${({ primaryColor }) =>
-          `0px 0px 0px 2px ${lightenColor(primaryColor)} !important;`}
       }
       &:disabled {
         background-color: ${Colors.GREY_1};
-        border: 1.2px solid ${Colors.GREY_3};
+        border: 1px solid ${Colors.GREY_3};
         & + .bp3-input-action {
           pointer-events: none;
         }
       }
     }
-    .${Classes.INPUT}:disabled {
-      background: ${Colors.GREY_1};
-      color: ${Colors.GREY_7};
-    }
+
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
@@ -191,12 +171,14 @@ const InputComponentWrapper = styled((props) => (
         background-color: transparent;
         color: #5c7080;
       }
+
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
         button {
           background: ${Colors.GREY_1};
         }
       }
     }
+
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
@@ -234,25 +216,17 @@ const StyledNumericInput = styled(NumericInput)`
         position: static;
         background: ${(props) =>
           props.disabled ? Colors.GREY_1 : Colors.WHITE};
-        border: 1.2px solid ${Colors.GREY_3};
         color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
         border-right: 0;
       }
       input:not(:first-child) {
         padding-left: 5px;
-        border-left: 1px solid transparent;
         z-index: 16;
         line-height: 16px;
-
-        &:hover:not(:focus):not(:disabled) {
-          border-left: 1px solid ${Colors.GREY_5};
-        }
       }
     }
   }
   &&&& .bp3-button-group.bp3-vertical {
-    border: 1.2px solid ${Colors.GREY_3};
-    border-left: none;
     button {
       background: ${Colors.WHITE};
       box-shadow: none;
@@ -264,10 +238,6 @@ const StyledNumericInput = styled(NumericInput)`
         span {
           color: ${Colors.GREY_10};
         }
-      }
-      &:focus {
-        border: 1px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
       }
       span {
         color: ${Colors.GREY_6};
@@ -298,11 +268,32 @@ const TextLableWrapper = styled.div<{
   display: flex;
 `;
 
-const TextInputWrapper = styled.div`
+const TextInputWrapper = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor: string;
+  hasError?: boolean;
+}>`
   width: 100%;
   display: flex;
   flex: 1;
   height: 100%;
+  border: 1px solid;
+  overflow: hidden;
+  border-color: ${({ hasError }) =>
+    hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
+  border-radius: ${({ borderRadius }) => borderRadius} !important;
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+
+  &:focus-within {
+    outline: 0;
+    border-color: ${({ hasError, primaryColor }) =>
+      hasError ? Colors.DANGER_SOLID : primaryColor};
+    box-shadow: ${({ hasError, primaryColor }) =>
+      `0px 0px 0px 2px ${lightenColor(
+        hasError ? Colors.DANGER_SOLID : primaryColor,
+      )} !important;`};
+  }
 `;
 
 export const isNumberInputType = (inputType: InputType) => {
@@ -607,7 +598,12 @@ class InputComponent extends React.Component<
             )}
           </TextLableWrapper>
         )}
-        <TextInputWrapper>
+        <TextInputWrapper
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          hasError={this.props.isInvalid}
+          primaryColor={this.props.primaryColor}
+        >
           <ErrorTooltip
             isOpen={this.props.isInvalid && this.props.showError}
             message={

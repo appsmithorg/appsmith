@@ -42,10 +42,7 @@ import {
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  getCurrentApplicationId,
-  themeModeSelector,
-} from "../../selectors/editorSelectors";
+import { getCurrentApplicationId } from "../../selectors/editorSelectors";
 import { getAppMode } from "../../selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
@@ -326,7 +323,6 @@ function ToggleCommentModeButton({
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isThemingMode = useSelector(themeModeSelector);
   const currentUser = useSelector(getCurrentUser);
   const appId = useSelector(getCurrentApplicationId) || "";
   const appMode = useSelector(getAppMode);
@@ -381,7 +377,7 @@ function ToggleCommentModeButton({
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
-            active={!isCommentMode && !isPreviewMode && !isThemingMode}
+            active={!isCommentMode && !isPreviewMode}
             className="t--switch-comment-mode-off"
             onClick={() => {
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {

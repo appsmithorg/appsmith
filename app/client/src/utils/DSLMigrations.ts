@@ -8,7 +8,7 @@ import {
 } from "constants/WidgetConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import { get, has, isEmpty, isString, omit, set, toNumber } from "lodash";
+import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
@@ -46,7 +46,6 @@ import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
-import BoxShadowOptionsControl from "components/propertyControls/BoxShadowOptionsControl";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 
 /**
@@ -1510,7 +1509,7 @@ export const migrateStylingPropertiesForTheming = (
         break;
 
       default:
-        child.borderRadius = "none";
+        child.boxShadow = "none";
     }
 
     // add primaryColor color to missing widgets

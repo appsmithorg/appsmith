@@ -4,7 +4,6 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
   JSToggleButton,
-  ThemeBound,
 } from "components/propertyControls/StyledControls";
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import ThemeList from "./ThemeList";
 import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,18 +6,12 @@ import { setAppThemingModeStack } from "actions/appThemingActions";
 import {
   getAppThemes,
   getAppThemingStack,
-  getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
-import { ThemeCard } from "./ThemeCard";
 
 function ThemeSelector() {
   const dispatch = useDispatch();
   const themes = useSelector(getAppThemes);
   const themingStack = useSelector(getAppThemingStack);
-  const selectedTheme = useSelector(getSelectedAppTheme);
-  const otherThemes = useMemo(() => {
-    return themes.filter((theme) => theme.name !== selectedTheme.name);
-  }, [selectedTheme]);
 
   /**
    * sets the mode to THEME_EDIT

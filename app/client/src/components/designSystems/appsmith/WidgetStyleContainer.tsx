@@ -27,9 +27,14 @@ export interface WidgetStyleContainerProps {
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   height: 100%;
   width: 100%;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow:  ${(props) => props.boxShadow} !important;
+  overflow: hidden;
+
   & > div {
     height: 100%;
     width: 100%;
+    overflow: hidden;
   }
 }`;
 
