@@ -28,6 +28,7 @@ import EyeOff from "remixicon-react/EyeOffLineIcon";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import SortIcon from "remixicon-react/ArrowUpDownLineIcon";
 /* eslint-disable react/display-name */
 
 const StyledDataSourcesIconV2 = styled(DataSourcesIconV2)`
@@ -186,6 +187,11 @@ export const MenuIcons: {
   CURRENT_PAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <CurrentPageIcon />
+    </IconWrapper>
+  ),
+  SORT_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <SortIcon />
     </IconWrapper>
   ),
 };

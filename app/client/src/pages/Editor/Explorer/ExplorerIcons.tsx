@@ -204,3 +204,12 @@ export const currentPageIcon = (
     width={ENTITY_ICON_SIZE}
   />
 );
+
+const SortIcon = MenuIcons.SORT_ICON;
+export const SortFileIcon = (
+  <SortIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);

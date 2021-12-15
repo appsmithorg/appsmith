@@ -1,7 +1,11 @@
 import React, { useCallback, useMemo } from "react";
 import { useFilesForExplorer } from "../hooks";
 import { Entity } from "../Entity/index";
-import { createMessage, ADD_WIDGET_TOOLTIP } from "constants/messages";
+import {
+  createMessage,
+  ADD_WIDGET_TOOLTIP,
+  ADD_QUERY_JS_TOOLTIP,
+} from "constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -14,7 +18,7 @@ import { getPlugins } from "selectors/entitiesSelector";
 import { getActionConfig } from "../Actions/helpers";
 import { PluginType } from "entities/Action";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { jsFileIcon } from "../ExplorerIcons";
+import { jsFileIcon, SortFileIcon } from "../ExplorerIcons";
 import { Colors } from "constants/Colors";
 import {
   filterCategories,
@@ -101,7 +105,8 @@ function Files({ pageId }: any) {
 
   return (
     <Entity
-      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
+      addButtonHelptext={createMessage(ADD_QUERY_JS_TOOLTIP)}
+      alwaysShowRightIcon
       className={`group`}
       disabled={false}
       entityId={pageId + "_widgets"}
@@ -109,7 +114,11 @@ function Files({ pageId }: any) {
       isDefaultExpanded
       key={pageId + "_widgets"}
       name="QUERIES/JS"
+      onClickRightIcon={() => {
+        const test = "";
+      }}
       onCreate={onCreate}
+      rightIcon={SortFileIcon}
       searchKeyword={""}
       step={0}
     >
