@@ -110,6 +110,7 @@
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype .bp3-popover-target",
+  "recaptchaVersion": ".t--property-control-googlerecaptchaversion .bp3-popover-target",
   "evaluateMsg": ".t--evaluatedPopup-error",
   "globalSearchModal": ".t--global-search-modal",
   "globalSearchInput": ".t--global-search-input",
