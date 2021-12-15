@@ -34,8 +34,8 @@ schedulerName: ""
 ## @param strategyType StrategyType for Appsmith&reg; statefulset
 ## It can be set to RollingUpdate or Recreate by default.
 ##
-strategyType: RollingUpdate 
-## Image 
+strategyType: RollingUpdate
+## Image
 ##
 image:
   registry: index.docker.io
@@ -43,6 +43,10 @@ image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
+## Namespace
+##
+namespace:
+  create: true
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
@@ -84,7 +88,7 @@ service:
   ## @param service.clusterIP Appsmith; service cluster IP
   ## e.g:
   ## clusterIP: None
-  ##  
+  ##
   clusterIP: ""
   ## @param service.loadBalancerIP loadBalancerIP for Appsmith&reg; Service
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
@@ -184,7 +188,7 @@ persistence:
   ## @param persistence.enabled - Enable data persistence using PVC
   ##
   enabled: true
-  ## @param persistence.storageClass PVC Storage Class 
+  ## @param persistence.storageClass PVC Storage Class
   ##
   storageClass: ""
   ## @param persistence.localStorage - Use local storage for PVC
@@ -195,13 +199,13 @@ persistence:
   storagePath: /tmp/hostpath_pv
   ## @param persistence.localCluster
   ##
-  localCluster: 
+  localCluster:
     - minikube
   ## @param persistence.accessModes PV Access Mode
   ##
   accessModes:
     - ReadWriteOnce
-  ## @param persistence.size PVC Storage Request 
+  ## @param persistence.size PVC Storage Request
   ##
   size: 10Gi
   ## Fine tuning for volumeClaimTemplates
@@ -223,11 +227,11 @@ persistence:
 # tags:
 #   install-ingress-nginx: true
 storageClass:
-  ## @param storageClass.enabled - Enable config storage class 
+  ## @param storageClass.enabled - Enable config storage class
   ##
   enabled: false
   ## @param storageClass.bindingMode - the binding mode for PVCs using this storage class
-  ## 
+  ##
   bindingMode: Immediate
   ## @param storageClass.defaultClass - boolean to set annotation designating this object as the default storage class
   ##
@@ -252,7 +256,7 @@ storageClass:
   parameters: {}
 
 autoupdate:
-  ## @param autoupdate.enabled - Enable config autoupdate 
+  ## @param autoupdate.enabled - Enable config autoupdate
   ##
   enabled: true
   ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
