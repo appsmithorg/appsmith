@@ -12,6 +12,7 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
@@ -40,18 +41,21 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -84,6 +88,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -106,6 +111,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final ObjectMapper objectMapper;
     private final AuthenticationValidator authenticationValidator;
     private final ConfigService configService;
+    private final ResponseUtils responseUtils;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -124,7 +130,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 SessionUserService sessionUserService,
                                 PolicyUtils policyUtils,
                                 AuthenticationValidator authenticationValidator,
-                                ConfigService configService) {
+                                ConfigService configService,
+                                ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -140,6 +147,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.authenticationValidator = authenticationValidator;
         this.configService = configService;
         this.objectMapper = new ObjectMapper();
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -178,6 +186,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
+    public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
+        return this.findByBranchNameAndDefaultActionId(branchName, id, READ_ACTIONS)
+                .map(responseUtils::updateNewActionWithDefaultResources);
+    }
+
+    @Override
     public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
         ActionDTO action = null;
 
@@ -197,6 +211,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Set the fields from NewAction into Action
         setCommonFieldsFromNewActionIntoAction(newAction, action);
 
+        // Update the default fields from newAction to actionDTO which includes defaultAppId and defaultActionId
+        DefaultResources defaultResources = newAction.getDefaultResources();
+        if (action.getDefaultResources() != null) {
+            action.getDefaultResources().setActionId(defaultResources.getActionId());
+            action.getDefaultResources().setApplicationId(defaultResources.getApplicationId());
+        }
+
         return Mono.just(action);
     }
 
@@ -210,13 +231,24 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
 
         if (newAction.getGitSyncId() == null) {
-            newAction.setGitSyncId(newAction.getApplicationId() + "_" + Instant.now().toString());
+            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
         }
 
         ActionDTO action = newAction.getUnpublishedAction();
 
-        //Default the validity to true and invalids to be an empty set.
+        if (action.getDefaultResources() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getName()));
+        }
+
+        // Remove default appId, branchName and actionId to avoid duplication these resources will be present in
+        // NewAction level default resource
+        action.getDefaultResources().setActionId(null);
+        action.getDefaultResources().setBranchName(null);
+        action.getDefaultResources().setApplicationId(null);
+
+        // Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
+
         action.setIsValid(true);
 
         if (action.getName() == null || action.getName().trim().isEmpty()) {
@@ -258,6 +290,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 invalids.add(AppsmithError.DATASOURCE_NOT_GIVEN.getMessage());
                 action.setInvalids(invalids);
                 return super.create(newAction)
+                        .flatMap(savedAction -> {
+                            // If the default action is not set then current action will be the default one
+                            if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
+                                savedAction.getDefaultResources().setActionId(savedAction.getId());
+                            }
+                            return repository.save(savedAction);
+                        })
                         .flatMap(savedAction -> generateActionByViewMode(savedAction, false));
             }
         }
@@ -309,7 +348,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setPluginType(plugin.getType());
                     newAction.setPluginId(plugin.getId());
                     return newAction;
-                }).map(act -> extractAndSetJsonPathKeys(act))
+                }).map(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -325,6 +364,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     return updatedAction;
                 })
                 .flatMap(repository::save)
+                .flatMap(savedAction -> {
+                    // If the default action is not set then current action will be the default one
+                    if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
+                        savedAction.getDefaultResources().setActionId(savedAction.getId());
+                    }
+                    return repository.save(savedAction);
+                })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
@@ -419,6 +465,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         return providerUpdateMono
                 .map(actionDTO -> {
+                    DefaultResources defaults = newAction.getDefaultResources();
+                    if (defaults == null) {
+                        throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", newAction.getId());
+                    }
+                    actionDTO.getDefaultResources().setActionId(defaults.getActionId());
+                    actionDTO.getDefaultResources().setApplicationId(defaults.getApplicationId());
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
@@ -713,6 +765,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
+    @Override
+    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName){
+
+        return this.findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
+                .flatMap(branchedAction -> {
+                    executeActionDTO.setActionId(branchedAction.getId());
+                    return executeAction(executeActionDTO);
+                });
+    }
     /*
      * - Get label for request params.
      * - Transform request params list: [""] to a map: {"label": {"value": ...}}
@@ -961,6 +1022,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
+    public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+                .flatMapMany(this::getActionsForViewMode)
+                .map(responseUtils::updateActionViewDTOWithDefaultResources);
+    }
+
+    @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
 
         if (applicationId == null || applicationId.isEmpty()) {
@@ -973,10 +1041,21 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
-                    actionViewDTO.setId(action.getId());
+                    actionViewDTO.setId(action.getDefaultResources().getActionId());
                     actionViewDTO.setName(action.getPublishedAction().getValidName());
                     actionViewDTO.setPageId(action.getPublishedAction().getPageId());
                     actionViewDTO.setConfirmBeforeExecute(action.getPublishedAction().getConfirmBeforeExecute());
+                    // Update defaultResources
+                    DefaultResources defaults = action.getDefaultResources();
+                    // Consider a situation when action is not published but user is viewing in deployed mode
+                    if (action.getPublishedAction().getDefaultResources() != null) {
+                        defaults.setPageId(action.getPublishedAction().getDefaultResources().getPageId());
+                        defaults.setCollectionId(action.getPublishedAction().getDefaultResources().getCollectionId());
+                    } else {
+                        defaults.setPageId(null);
+                        defaults.setCollectionId(null);
+                    }
+                    actionViewDTO.setDefaultResources(defaults);
                     if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
                         Set<String> jsonPathKeys;
                         jsonPathKeys = new HashSet<>();
@@ -1106,13 +1185,40 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
-                .flatMapMany(applicationId -> repository.findByApplicationIdAndViewMode(applicationId, false, READ_ACTIONS))
+                .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
+
+        MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
+        // Get branched applicationId and pageId
+        Mono<NewPage> branchedPageMono = StringUtils.isEmpty(params.getFirst(FieldName.PAGE_ID))
+                ? Mono.just(new NewPage())
+                : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), READ_PAGES);
+        Mono<Application> branchedApplicationMono = StringUtils.isEmpty(params.getFirst(FieldName.APPLICATION_ID))
+                ? Mono.just(new Application())
+                : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS);
+
+        return Mono.zip(branchedApplicationMono, branchedPageMono)
+                .flatMapMany(tuple -> {
+                    String applicationId = tuple.getT1().getId();
+                    String pageId = tuple.getT2().getId();
+                    if (!CollectionUtils.isEmpty(params.get(FieldName.PAGE_ID)) && !StringUtils.isEmpty(pageId)) {
+                        updatedParams.set(FieldName.PAGE_ID, pageId);
+                    }
+                    if (!CollectionUtils.isEmpty(params.get(FieldName.APPLICATION_ID)) && !StringUtils.isEmpty(applicationId)) {
+                        updatedParams.set(FieldName.APPLICATION_ID, applicationId);
+                    }
+                    return getUnpublishedActions(updatedParams);
+                })
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
@@ -1300,6 +1406,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     layoutActionUpdateDTO.setName(pageAction.getValidName());
                     layoutActionUpdateDTO.setCollectionId(pageAction.getCollectionId());
                     layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                    layoutActionUpdateDTO.setDefaultActionId(pageAction.getDefaultResources().getActionId());
                     return layoutActionUpdateDTO;
                 })
                 .collect(Collectors.toList());
@@ -1312,6 +1419,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return actionMono
                 .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<NewAction> deleteByIdAndBranchName(String id, String branchName) {
+        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, MANAGE_ACTIONS);
+
+        return branchedActionMono
+                .flatMap(newAction -> this.delete(newAction.getId()))
+                .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
     @Override
@@ -1379,6 +1495,30 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         return Mono.just(datasource);
+    }
+
+    public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
+        if (StringUtils.isEmpty(branchName)) {
+            return repository.findById(defaultActionId, permission)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
+                    );
+        }
+        return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
+                );
+    }
+
+    public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
+        if (StringUtils.isEmpty(branchName)) {
+            return Mono.just(defaultActionId);
+        }
+        return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
+                )
+                .map(NewAction::getId);
     }
 
 }
