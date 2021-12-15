@@ -27,7 +27,9 @@ import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
-import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
+import PrimaryColumnDropdownControl, {
+  PrimaryColumnDropdownControlProps,
+} from "components/propertyControls/PrimaryColumnDropdownControl";
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
@@ -50,6 +52,7 @@ import IconAlignControl from "./IconAlignControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
+import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
 import JSONFormComputeControl from "./JSONFormComputeControl";
 
 export const PropertyControls = {
@@ -69,6 +72,7 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
+  PrimaryColumnDropdownControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
@@ -95,7 +99,8 @@ export type PropertyControlPropsType =
   | ButtonTabControlProps
   | StepControlProps
   | ColorPickerControlProps
-  | ComputeTablePropertyControlProps;
+  | ComputeTablePropertyControlProps
+  | PrimaryColumnDropdownControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

@@ -127,7 +127,7 @@ describe("generateDataTreeWidget", () => {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             propertyName: "onTextChanged",

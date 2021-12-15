@@ -3,6 +3,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
+import { get } from "lodash";
 
 import React, {
   forwardRef,
@@ -17,6 +18,7 @@ import { Classes, Position } from "@blueprintjs/core";
 import { AppState } from "reducers";
 import {
   getExistingActionNames,
+  getExistingJSCollectionNames,
   getExistingPageNames,
   getExistingWidgetNames,
 } from "selectors/entitiesSelector";
@@ -130,7 +132,9 @@ export const EntityName = forwardRef(
     });
 
     const nameUpdateError = useSelector((state: AppState) => {
-      return state.ui.explorer.updateEntityError === props.entityId;
+      return (
+        get(state, "ui.explorer.entity.updateEntityError") === props.entityId
+      );
     });
     const targetRef = useRef<HTMLDivElement | null>(null);
 
@@ -147,10 +151,8 @@ export const EntityName = forwardRef(
 
     const existingActionNames: string[] = useSelector(getExistingActionNames);
 
-    const existingJSCollectionNames: string[] = useSelector((state: AppState) =>
-      state.entities.jsActions.map(
-        (action: { config: { name: string } }) => action.config.name,
-      ),
+    const existingJSCollectionNames: string[] = useSelector(
+      getExistingJSCollectionNames,
     );
 
     const hasNameConflict = useCallback(

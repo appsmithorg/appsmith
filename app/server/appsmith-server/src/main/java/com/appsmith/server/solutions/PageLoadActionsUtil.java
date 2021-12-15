@@ -66,23 +66,21 @@ public class PageLoadActionsUtil {
 
     /**
      * This function computes the sequenced on page load actions.
-     *
+     * <p>
      * !!!WARNING!!! : This function edits the parameters edges, actionsUsedInDSL and flatPageLoadActions
      * and the same are used by the caller function for further processing.
      *
-     * @param pageId : Argument used for fetching actions in this page
-     * @param widgetNames : Set of widget names which SHOULD have been populated before calling this function.
-     * @param edges : Set where this function adds all the relationships (dependencies) between actions
+     * @param pageId                   : Argument used for fetching actions in this page
+     * @param widgetNames              : Set of widget names which SHOULD have been populated before calling this function.
+     * @param edges                    : Set where this function adds all the relationships (dependencies) between actions
      * @param widgetDynamicBindingsMap : A map of widget path and the set of dynamic binding words in the mustache at the
      *                                 path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
-     *
-     *     Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
+     *                                 <p>
+     *                                 Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
      *                                 Map.entry("Table1.tableData", Set.of("Api1.data"))
-     *
-     * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
-     *                            would be called on page load)
-     * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
-     *
+     * @param flatPageLoadActions      : A flat list of on page load actions (Not in the sequence in which these actions
+     *                                 would be called on page load)
+     * @param actionsUsedInDSL         : Set where this function adds all the actions directly used in the DSL
      * @return : Returns page load actions which is a list of sets of actions. Inside a set, all actions can be executed
      * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
@@ -115,13 +113,6 @@ public class PageLoadActionsUtil {
 
         Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                .flatMap(action -> {
-                    // filter actions which have been turned off by the user to run on page load and reduce the action world
-                    if (hasUserSetActionToNotRunOnPageLoad(action)) {
-                        return Mono.empty();
-                    }
-                    return Mono.just(action);
-                })
                 .cache();
 
         Mono<Map<String, ActionDTO>> actionNameToActionMapMono = allActionsByPageIdMono
@@ -136,11 +127,13 @@ public class PageLoadActionsUtil {
                 .collect(Collectors.toSet())
                 .cache();
 
+        Set<String> actionBindingsInDsl = new HashSet<>();
         Mono<Set<ActionDependencyEdge>> directlyReferencedActionsAddedToGraphMono = addDirectlyReferencedActionsToGraph(pageId,
                 edges, actionsUsedInDSL, bindingsFromActions, actionsFoundDuringWalk, bindingsInWidgets,
-                actionNameToActionMapMono);
+                actionNameToActionMapMono, actionBindingsInDsl);
 
-        // This publisher traverses the actions and widgets to add all possible edges between entity paths
+        // This following `createAllEdgesForPageMono` publisher traverses the actions and widgets to add all possible
+        // edges between all possible entity paths
 
         // First find all the actions in the page whose name matches the possible entity names found in the bindings in the widget
         Mono<Set<ActionDependencyEdge>> createAllEdgesForPageMono = directlyReferencedActionsAddedToGraphMono
@@ -149,7 +142,12 @@ public class PageLoadActionsUtil {
                 // For all the actions found so far, recursively walk the dynamic bindings of the actions to find more relationships with other actions (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(pageId, updatedEdges, actionsFoundDuringWalk, bindingsFromActions))
                 // At last, add all the widget relationships to the graph as well.
-                .flatMap(updatedEdges -> addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap));
+                .zipWith(actionsInPageMono)
+                .flatMap(tuple -> {
+                    Set<ActionDependencyEdge> updatedEdges = tuple.getT1();
+                    Set<String> actionNames = tuple.getT2();
+                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, actionNames);
+                });
 
 
         // Create a graph given edges
@@ -157,18 +155,17 @@ public class PageLoadActionsUtil {
                 .map(tuple -> {
                     Set<String> allActions = tuple.getT1();
                     Set<ActionDependencyEdge> updatedEdges = tuple.getT2();
-                    return constructDAG(allActions, widgetNames, updatedEdges);
+                    return constructDAG(allActions, widgetNames, updatedEdges, actionsFoundDuringWalk, actionBindingsInDsl);
                 })
                 .cache();
 
         // Generate on page load schedule
-        Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
+        Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionsInPageMono, createGraphMono)
                 .map(tuple -> {
                     Set<String> actionNames = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
-                    Map<String, ActionDTO> actionNameToActionMap = tuple.getT3();
 
-                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames, actionNameToActionMap);
+                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
                     // Find all explicitly turned on actions which haven't found their way into the scheduling order
@@ -192,7 +189,7 @@ public class PageLoadActionsUtil {
                         onPageLoadActionsSchedulingOrder.get(0).addAll(explicitUserSetOnLoadActions);
                     }
 
-                    return ((List<Set<String>>) onPageLoadActionsSchedulingOrder);
+                    return onPageLoadActionsSchedulingOrder;
                 });
 
 
@@ -221,14 +218,15 @@ public class PageLoadActionsUtil {
 
     /**
      * This function takes the page load schedule consisting of only action names.
-     *
+     * <p>
      * First it trims the order to remove any unwanted actions which shouldn't be run.
      * Following actions are filtered out :
      * 1. Any JS Action since they are not supported to run on page load currently. TODO : Remove this check once the
-     *    client implements execution of JS functions.
+     * client implements execution of JS functions.
      * 2. Any action which has been marked to not run on page load by the user.
-     *
+     * <p>
      * Next it creates a new schedule order consisting of DslActionDTO instead of just action names.
+     *
      * @param onPageLoadActionSet
      * @param actionNameToActionMapMono
      * @param computeOnPageLoadScheduleNamesMono
@@ -250,12 +248,7 @@ public class PageLoadActionsUtil {
 
                         for (String name : names) {
                             ActionDTO action = actionMap.get(name);
-                            // TODO : Remove this check once JS actions on page load functionality has been
-                            //  implemented on the client side
-                            if (PluginType.JS.equals(action.getPluginType())) {
-                                // trim out the JS actions in the on page load schedule
-                                onPageLoadActionSet.remove(name);
-                            } else if (hasUserSetActionToNotRunOnPageLoad(action)) {
+                            if (hasUserSetActionToNotRunOnPageLoad(action)) {
                                 onPageLoadActionSet.remove(name);
                             } else {
                                 actionsInLevel.add(getDslAction(action));
@@ -273,7 +266,7 @@ public class PageLoadActionsUtil {
      * This function finds all the actions in the page whose name matches the possible entity names found in the
      * bindings in the widget. Caveat : It first removes all invalid bindings from the set of all bindings from the DSL
      * This today means only the usage of an async JS function as a call instead of referring to the `.data`.
-     *
+     * <p>
      * !!! WARNING !!! : This function updates actionsUsedInDSL set which is used to store all the directly referenced
      * actions in the DSL.
      *
@@ -292,7 +285,8 @@ public class PageLoadActionsUtil {
                                                                                 Set<String> bindingsFromActions,
                                                                                 Set<String> actionsFoundDuringWalk,
                                                                                 Set<String> bindingsInWidgets,
-                                                                                Mono<Map<String, ActionDTO>> actionNameToActionMapMono) {
+                                                                                Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                                Set<String> actionBindingsInDsl) {
         return actionNameToActionMapMono
                 .map(actionMap -> {
                     Map<String, Set<String>> bindingToPossibleParentMap = bindingsInWidgets
@@ -314,6 +308,7 @@ public class PageLoadActionsUtil {
                                 // if the binding is referring to the action, ensure that for ASYNC JS functions, it
                                 // shouldn't be a function call since that is not supported in dynamic bindings.
                                 if (isAction.isPresent()) {
+                                    actionBindingsInDsl.add(binding);
                                     ActionDTO action = actionMap.get(isAction.get());
                                     if (isAsyncJsFunctionCall(action, binding)) {
                                         invalidBindings.add(binding);
@@ -356,23 +351,33 @@ public class PageLoadActionsUtil {
      * 2. Add implicit relationship between property paths and their immediate parents. This is to ensure that in the
      * DAG, all the relationships are considered.
      * e.g following are the implicit relationships generated for property path `Dropdown1.options[1].value`:
-     *
+     * <p>
      * Dropdown1.options[1].value -> Dropdown1.options[1]
      * Dropdown1.options[1] -> Dropdown1.options
      * Dropdown1.options -> Dropdown1
-     *
+     * <p>
      * 3. Now create the DAG using the edges after the two steps.
+     *
      * @param actionNames
      * @param widgetNames
      * @param edges
+     * @param actionsFoundDuringWalk
+     * @param actionBindingsInDsl
      * @return
      */
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
                                                                    Set<String> widgetNames,
-                                                                   Set<ActionDependencyEdge> edges) {
+                                                                   Set<ActionDependencyEdge> edges,
+                                                                   Set<String> actionsFoundDuringWalk,
+                                                                   Set<String> actionBindingsInDsl) {
 
         DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
                 new DirectedAcyclicGraph<>(DefaultEdge.class);
+
+        // Add the vertices for all the actions found in the DSL
+        for (String actionBindingInDsl : actionBindingsInDsl) {
+            actionSchedulingGraph.addVertex(actionBindingInDsl);
+        }
 
         Set<ActionDependencyEdge> implicitParentChildEdges = new HashSet<>();
 
@@ -415,15 +420,62 @@ public class PageLoadActionsUtil {
                 })
                 .collect(Collectors.toSet());
 
+        Set<String> actionDataPaths = actionNames
+                .stream()
+                .map(actionName ->  actionName + ".data")
+                .collect(Collectors.toSet());
+
+        Set<ActionDependencyEdge> actionDataFromConfigurationEdges = new HashSet<>();
+
+        Set<String> vertices = new HashSet<>(actionSchedulingGraph.vertexSet());
+        edges.stream().forEach(edge -> {
+            vertices.add(edge.getSource());
+            vertices.add(edge.getTarget());
+        });
+
+
+        // All actions data paths actually depend on the action configuration paths. Add this implicit relationship in the
+        // graph as well
+        // This also ensures that when an action.data vertex exists at two different levels in the graph, it gets a
+        // single level because of a common relationship getting added to connect all actioConfiguration dependencies
+        // to action.data
+        vertices
+            .stream()
+            .forEach(vertex -> {
+                        Optional<String> validActionParent = getPossibleParents(vertex)
+                                .stream()
+                                .filter(parent -> {
+                                    if (!actionNames.contains(parent)) {
+                                        return false;
+                                    }
+                                    return true;
+                                }).findFirst();
+
+                        if (validActionParent.isPresent()) {
+                            String actionName = validActionParent.get();
+                            for (String actionDataPath : actionDataPaths) {
+                                if (vertex.contains(actionDataPath)) {
+                                    // This vertex is actually a path on top of action.data (or equal to action.data)
+                                    // Add a relationship from action.actionConfiguration to action.data
+                                    String source = actionName + ".actionConfiguration";
+                                    String destination = vertex;
+                                    actionDataFromConfigurationEdges.add(new ActionDependencyEdge(source, destination));
+                                }
+                            }
+                        }
+            });
+
+        edges.addAll(actionDataFromConfigurationEdges);
+
         // Now add the relationship aka when a child gets updated, the parent should get updated as well. Aka
         // parent depends on the child.
         for (ActionDependencyEdge edge : edges) {
             String source = edge.getSource();
             String target = edge.getTarget();
 
-            Set<String> vertices = Set.of(source, target);
+            Set<String> edgeVertices = Set.of(source, target);
 
-            vertices.stream().forEach(vertex -> implicitParentChildEdges.addAll(generateParentChildRelationships(vertex)));
+            edgeVertices.stream().forEach(vertex -> implicitParentChildEdges.addAll(generateParentChildRelationships(vertex)));
 
         }
 
@@ -457,16 +509,16 @@ public class PageLoadActionsUtil {
      * dependencies. The 0th index set contains actions which are executable immediately. The next index contains all
      * actions which depend on one or more of the actions which were executed from the 0th index set and so on.
      * Breadth First level by level traversal is used to compute each set of such independent actions.
-     * @param dag : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     *
+     * @param dag                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
      * @param onPageLoadActionSet
-     * @param actionNames : All the action names for the page
-     * @param actionNameToActionMap : Map indexed by the action name for all the actions in the page.
+     * @param actionNames           : All the action names for the page
      * @return
      */
     private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
-                                                                          Set<String> onPageLoadActionSet,
-                                                                          Set<String> actionNames,
-                                                                          Map<String, ActionDTO> actionNameToActionMap) {
+                                                                      Set<String> onPageLoadActionSet,
+                                                                      Set<String> actionNames) {
+        Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
 
         // Find all root nodes to start the BFS traversal from
@@ -486,14 +538,18 @@ public class PageLoadActionsUtil {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, actionNameToActionMap, vertex, onPageLoadActionSet);
+            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, vertex, pageLoadActionAndLevelMap, onPageLoadActions);
             onPageLoadActions.get(level).addAll(actionsFromBinding);
+            for (String action : actionsFromBinding) {
+                pageLoadActionAndLevelMap.put(action, level);
+            }
             onPageLoadActionSet.addAll(actionsFromBinding);
         }
 
         // Trim all empty sets from the list before returning.
         return onPageLoadActions.stream().filter(setOfActions -> !setOfActions.isEmpty()).collect(Collectors.toList());
     }
+
 
     /**
      * This function gets a set of binding names that come from other actions. It looks for actions in the page with
@@ -542,11 +598,11 @@ public class PageLoadActionsUtil {
     /**
      * This function finds all the actions which have been set to run on page load by the user and adds their
      * dependencies to the graph.
-     *
+     * <p>
      * Note : If such an action has no dependencies and no interesting entity depends on it,
      * this action would still not get added to the output of page load scheduler. This function only ensures that the
      * dependencies of user set on page load actions are accounted for.
-     *
+     * <p>
      * !!! WARNING !!! : This function updates the set `explicitUserSetOnLoadActions` and adds the names of all such
      * actions found in this function.
      *
@@ -581,7 +637,7 @@ public class PageLoadActionsUtil {
      * walking the action configuration and finding the paths and the mustache JS snippets found at the said path. Then
      * the relationship between the complete path and the property paths found in the mustache JS snippets are added to
      * the graph edges.
-     *
+     * <p>
      * !!! WARNING !!! : This function updates the set actionsFoundDuringWalk since this function is called from all
      * places to add the action dependencies. If the action has already been discovered, this function exits by checking
      * in the actionsFoundDuringWalk, else, it adds it to the set.
@@ -616,6 +672,8 @@ public class PageLoadActionsUtil {
         Set<String> allBindings = new HashSet<>();
         actionBindingMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
+        // TODO : Throw an error on action save when bindings from dynamic binding path list do not match the json path keys
+        // and get the client to recompute the dynamic bidning pathlist and try again.
         if (!allBindings.containsAll(action.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(action.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
@@ -632,6 +690,8 @@ public class PageLoadActionsUtil {
             for (String binding : dynamicBindings) {
                 Set<String> entityPaths = getWordsFromMustache(binding);
                 for (String source : entityPaths) {
+                    // TODO : Since its words from binding instead of possible parents Api1 would be recognized as
+                    //  source instead of Api1.data (since getWordsFromMustache would split Api1 and data from Api1.data)
                     ActionDependencyEdge edge = new ActionDependencyEdge(source, bindingPath);
                     edges.add(edge);
                 }
@@ -648,11 +708,13 @@ public class PageLoadActionsUtil {
      *
      * @param edges
      * @param widgetBindingMap
+     * @param allActionNames
      * @return
      */
     private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
-                                                                         Map<String, Set<String>> widgetBindingMap) {
-
+                                                                         Map<String, Set<String>> widgetBindingMap,
+                                                                         Set<String> allActionNames) {
+        // This part will ensure that we are discovering widget to widget relationships.
         return Mono.just(widgetBindingMap)
                 .map(widgetDynamicBindingsMap -> {
                     widgetDynamicBindingsMap.forEach((widgetPath, widgetDynamicBindings) -> {
@@ -661,8 +723,24 @@ public class PageLoadActionsUtil {
                         widgetDynamicBindings.stream().forEach(binding -> {
                             Set<String> entityPaths = getWordsFromMustache(binding);
                             for (String source : entityPaths) {
-                                ActionDependencyEdge edge = new ActionDependencyEdge(source, widgetPath);
-                                edges.add(edge);
+
+                                // Only add widget to widget relationships. Skip adding the action to widget relationship
+                                // since this has already been recognized in step 1 of addDirectlyReferencedActionsToGraph
+                                Set<String> possibleParents = getPossibleParents(source);
+
+                                Boolean interestingRelationship = TRUE;
+                                for (String entity : possibleParents) {
+
+                                    // if this generated entity name from the binding matches an action name, skip this
+                                    // entityPath entirely since this relationship has already been captured.
+                                    if (allActionNames.contains(entity)) {
+                                        interestingRelationship = FALSE;
+                                    }
+                                }
+                                if (interestingRelationship) {
+                                    ActionDependencyEdge edge = new ActionDependencyEdge(source, widgetPath);
+                                    edges.add(edge);
+                                }
                             }
                         });
 
@@ -701,6 +779,12 @@ public class PageLoadActionsUtil {
             // Each of these might have nested structures, so we iterate through them to find the leaf node for each
             for (Property x : dynamicBindingPathList) {
                 final String fieldPath = String.valueOf(x.getKey());
+
+                // Ignore pagination configuration since paginatio technically does not belong to dynamic binding list.
+                if (fieldPath.equals("prev") || fieldPath.equals("next")) {
+                    continue;
+                }
+
                 String[] fields = fieldPath.split("[].\\[]");
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = configurationObj;
@@ -769,9 +853,9 @@ public class PageLoadActionsUtil {
 
     /**
      * This function creates all `child -> parent` edges given a path.
-     *
+     * <p>
      * For example, given path `Dropdown1.options[1].value`, the following relationships are generated :
-     *
+     * <p>
      * Dropdown1.options[1].value -> Dropdown1.options[1]
      * Dropdown1.options[1] -> Dropdown1.options
      * Dropdown1.options -> Dropdown1
@@ -803,49 +887,51 @@ public class PageLoadActionsUtil {
     /**
      * Given a dynamic binding, this function checks if it is a candidate for on page load. This is done by checking for
      * the following two conditions :
-     *  - Is it an action name (which has been found in the page). If not, ignore.
-     *  - Has this action already been found for page load? If yes, ignore.
-     *  - If JS, following two conditions are checked for :
-     *      - If sync function, ignore. This is because client would execute the same during dynamic binding eval
-     *      - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
+     * - Is it an action name (which has been found in the page). If not, ignore.
+     * - Has this action already been found for page load? If yes, ignore.
+     * - If JS, following two conditions are checked for :
+     * - If sync function, ignore. This is because client would execute the same during dynamic binding eval
+     * - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
      *
      * @param allActionNames
-     * @param actionNameToActionMap
-     * @param dynamicBinding
-     * @param existingActionsInOnPageLoad
+     * @param vertex
+     * @param pageLoadActionsLevelMap
+     * @param existingPageLoadActions
      * @return
      */
     private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
-                                                               Map<String, ActionDTO> actionNameToActionMap,
-                                                               String dynamicBinding,
-                                                               Set<String> existingActionsInOnPageLoad) {
+                                                               String vertex,
+                                                               Map<String, Integer> pageLoadActionsLevelMap,
+                                                               List<Set<String>> existingPageLoadActions) {
 
         Set<String> onPageLoadCandidates = new HashSet<>();
 
-        Set<String> possibleParents = getPossibleParents(dynamicBinding);
+        Set<String> possibleParents = getPossibleParents(vertex);
 
         for (String entity : possibleParents) {
-            // if this generated entity name from the binding matches an action name which hasn't yet been added to the
-            // on page load list, check for its eligibility
-            if (allActionNames.contains(entity) && !existingActionsInOnPageLoad.contains(entity)) {
-                // This is definitely an action which hasn't yet been discovered for on page load.
-                ActionDTO action = actionNameToActionMap.get(entity);
+
+            // if this generated entity name from the binding matches an action name check for its eligibility
+            if (allActionNames.contains(entity)) {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
-                if (PluginType.JS.equals(action.getPluginType()) &&
-                        TRUE.equals(action.getActionConfiguration().getIsAsync())) {
+                // Only add it for page load if it is not a function call. Aka the data
+                // of this call is being referred to in the binding.
 
-                    // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
-                    // of this async call is being referred to in the binding.
-
-                    String validBinding = entity + "." + "data";
-                    if (!dynamicBinding.contains(validBinding)) {
-                        isCandidateForPageLoad = FALSE;
-                    }
+                String validBinding = entity + "." + "data";
+                if (!vertex.contains(validBinding)) {
+                    isCandidateForPageLoad = FALSE;
                 }
 
                 if (isCandidateForPageLoad) {
+
+                    // Check if this action has already been added to page load actions.
+                    if (pageLoadActionsLevelMap.containsKey(entity)) {
+                        // Remove this action from the existing level so that it can be added again at a deeper level.
+                        Integer level = pageLoadActionsLevelMap.get(entity);
+                        existingPageLoadActions.get(level).remove(entity);
+                    }
+
                     onPageLoadCandidates.add(entity);
                 }
             }
@@ -883,6 +969,11 @@ public class PageLoadActionsUtil {
         dslActionDTO.setPluginType(actionDTO.getPluginType());
         dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
         dslActionDTO.setName(actionDTO.getValidName());
+        dslActionDTO.setCollectionId(actionDTO.getCollectionId());
+        dslActionDTO.setClientSideExecution(actionDTO.getClientSideExecution());
+        if (actionDTO.getDefaultResources() != null) {
+            dslActionDTO.setDefaultActionId(actionDTO.getDefaultResources().getActionId());
+        }
 
         if (actionDTO.getActionConfiguration() != null) {
             dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());

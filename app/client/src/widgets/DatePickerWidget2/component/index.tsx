@@ -21,14 +21,7 @@ import {
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
 
-enum KEYS {
-  Tab = "Tab",
-  Escape = "Escape",
-}
-
-const StyledControlGroup = styled(ControlGroup)<{
-  isValid: boolean;
-}>`
+const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
@@ -94,11 +87,8 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
-      showPicker: false,
     };
   }
-
-  pickerRef: HTMLElement | null = null;
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
@@ -115,10 +105,6 @@ class DatePickerComponent extends React.Component<
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
-  };
-
-  handlePopoverRef = (ref: any) => {
-    this.pickerRef = ref as HTMLElement;
   };
 
   render() {
@@ -173,8 +159,6 @@ class DatePickerComponent extends React.Component<
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
               inputProps={{
-                onFocus: this.showPicker,
-                onKeyDown: this.handleKeyDown,
                 inputRef: this.props.inputRef,
               }}
               maxDate={maxDate}
@@ -184,9 +168,7 @@ class DatePickerComponent extends React.Component<
               placeholder={"Select Date"}
               popoverProps={{
                 usePortal: !this.props.withoutPortal,
-                isOpen: this.state.showPicker,
-                onClose: this.closePicker,
-                popoverRef: this.handlePopoverRef,
+                canEscapeKeyClose: true,
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -255,40 +237,12 @@ class DatePickerComponent extends React.Component<
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
     if (isUserChange) {
-      const { closeOnSelection, onDateSelected } = this.props;
-
+      const { onDateSelected } = this.props;
       const date = selectedDate ? selectedDate.toISOString() : "";
       this.setState({
         selectedDate: date,
-        // close picker while user changes in calender
-        // if closeOnSelection false, do not allow user to close picker
-        showPicker: !closeOnSelection,
       });
-
       onDateSelected(date);
-    }
-  };
-
-  showPicker = () => {
-    this.setState({ showPicker: true });
-  };
-
-  closePicker = (e: any) => {
-    const { closeOnSelection } = this.props;
-    try {
-      // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
-      const showPicker =
-        this.pickerRef && this.pickerRef.contains(e.target)
-          ? !closeOnSelection
-          : false;
-      this.setState({ showPicker });
-    } catch (error) {
-      this.setState({ showPicker: false });
-    }
-  };
-  handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
-      this.closePicker(e);
     }
   };
 }
@@ -312,7 +266,6 @@ export interface DatePickerComponentProps extends ComponentProps {
 
 interface DatePickerComponentState {
   selectedDate?: string;
-  showPicker?: boolean;
 }
 
 export default DatePickerComponent;
