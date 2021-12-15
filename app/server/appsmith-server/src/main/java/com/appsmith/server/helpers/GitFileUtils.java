@@ -161,14 +161,14 @@ public class GitFileUtils {
 
         return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
                 .map(applicationReference -> {
-                    ApplicationJson applicationJson = new ApplicationJson();
+
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
 
                     if (!isVersionCompatible(metadata)) {
                         migrateToLatestVersion(applicationReference);
                     }
-                    applicationJson = getApplicationJsonFromGitReference(applicationReference);
+                    ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
                     BeanCopyUtils.copyNestedNonNullProperties(metadata, applicationJson);
 
                     return applicationJson;
