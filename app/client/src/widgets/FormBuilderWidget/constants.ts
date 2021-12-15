@@ -186,8 +186,8 @@ export const FIELD_SUPPORTING_FOCUS_EVENTS = [
 ];
 
 export const getBindingTemplate = (widgetName: string) => {
-  const startTemplate = `{{((sourceData) => (`;
-  const endTemplate = `))(${widgetName}.sourceData)}}`;
+  const startTemplate = `{{((sourceData, data, fieldState) => (`;
+  const endTemplate = `))(${widgetName}.sourceData, ${widgetName}.data, ${widgetName}.fieldState)}}`;
 
   return { startTemplate, endTemplate };
 };

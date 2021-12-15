@@ -26,10 +26,11 @@ export const sourceDataValidationFn = (
       isValid: true,
       parsed: JSON.parse(value as string),
     };
-  } catch {
+  } catch (e) {
     return {
-      isValid: true,
+      isValid: false,
       parsed: {},
+      messages: [e.message],
     };
   }
 };
@@ -51,10 +52,9 @@ export default [
       {
         propertyName: "sourceData",
         helpText: "Input JSON sample for default form layout",
-        label: "Form Data",
+        label: "Source Data",
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter { "name": "John", "age": 24 }',
-        inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {

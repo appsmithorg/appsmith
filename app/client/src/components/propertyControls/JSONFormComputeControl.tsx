@@ -19,8 +19,14 @@ import {
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
 import { FormBuilderWidgetProps } from "widgets/FormBuilderWidget/widget";
-import { sourceDataValidationFn } from "widgets/FormBuilderWidget/widget/propertyConfig";
-import { getBindingTemplate } from "widgets/FormBuilderWidget/constants";
+import {
+  ARRAY_ITEM_KEY,
+  DataType,
+  FIELD_TYPE_TO_POTENTIAL_DATA,
+  getBindingTemplate,
+  Schema,
+  SchemaItem,
+} from "widgets/FormBuilderWidget/constants";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -33,6 +39,51 @@ const CurlyBraces = styled.span`
   margin: 0px 2px;
   font-size: 10px;
 `;
+
+function processObject(schema: Schema, defaultValue?: any) {
+  const struct: Record<string, any> = {};
+
+  Object.values(schema).forEach((schemaItem) => {
+    struct[schemaItem.name] = processSchemaItem(schemaItem, defaultValue);
+  });
+
+  return struct;
+}
+
+function processArray(schema: Schema, defaultValue?: any): any[] {
+  if (schema[ARRAY_ITEM_KEY]) {
+    return [processSchemaItem(schema[ARRAY_ITEM_KEY], defaultValue)];
+  }
+
+  return [];
+}
+
+function processSchemaItem(schemaItem: SchemaItem, defaultValue?: any) {
+  if (schemaItem.dataType === DataType.OBJECT) {
+    return processObject(schemaItem.children, defaultValue);
+  }
+
+  if (schemaItem.dataType === DataType.ARRAY) {
+    return processArray(schemaItem.children, defaultValue);
+  }
+
+  return defaultValue || FIELD_TYPE_TO_POTENTIAL_DATA[schemaItem.fieldType];
+}
+
+function generateAutoCompleteStructure(
+  schema: Schema,
+  defaultValue?: any,
+): any {
+  let struct;
+
+  if (schema) {
+    Object.values(schema).forEach((schemaItem) => {
+      struct = processSchemaItem(schemaItem, defaultValue);
+    });
+  }
+
+  return struct;
+}
 
 export function InputText(props: {
   label: string;
@@ -136,10 +187,17 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       widgetProperties,
     } = this.props;
 
-    const { parsed: sourceData } = sourceDataValidationFn(
-      widgetProperties.sourceData,
-      widgetProperties,
-      _,
+    const baseSchemaStructure = generateAutoCompleteStructure(
+      widgetProperties.schema,
+    );
+
+    const fieldStateStructure = generateAutoCompleteStructure(
+      widgetProperties.schema,
+      {
+        isVisible: true,
+        isDisabled: true,
+        isRequired: true,
+      },
     );
 
     const value = (() => {
@@ -157,7 +215,9 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
     return (
       <InputText
         additionalDynamicData={{
-          sourceData,
+          sourceData: baseSchemaStructure,
+          data: baseSchemaStructure,
+          fieldState: fieldStateStructure,
         }}
         dataTreePath={dataTreePath}
         expected={expected}

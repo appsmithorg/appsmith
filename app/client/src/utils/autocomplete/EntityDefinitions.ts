@@ -400,6 +400,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference",
     // TODO: Fix definition
     data: generateTypeDef(widget.data),
+    fieldState: generateTypeDef(widget.fieldState),
     backgroundColor: {
       "!type": "string",
       "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",

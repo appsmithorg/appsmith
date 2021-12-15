@@ -12,7 +12,7 @@ import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Schema } from "../constants";
+import { ARRAY_ITEM_KEY, DataType, Schema, SchemaItem } from "../constants";
 import { AppState } from "reducers";
 
 export interface FormBuilderWidgetProps extends WidgetProps {
@@ -47,6 +47,7 @@ class FormBuilderWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       data: {},
+      fieldState: {},
     };
   }
 
@@ -58,6 +59,7 @@ class FormBuilderWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: FormBuilderWidgetProps) {
     this.constructAndSaveSchemaIfRequired(prevProps);
+    this.parseAndSaveFieldState();
   }
 
   constructAndSaveSchemaIfRequired = (prevProps?: FormBuilderWidgetProps) => {
@@ -94,8 +96,49 @@ class FormBuilderWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("data", values);
   };
 
-  updateFormFieldValue = (name: string, value: any) => {
-    this.props.updateWidgetMetaProperty(`data.${name}`, value);
+  parseAndSaveFieldState = () => {
+    const processObject = (schema: Schema) => {
+      const struct: Record<string, any> = {};
+
+      Object.values(schema).forEach((schemaItem) => {
+        struct[schemaItem.name] = processSchemaItem(schemaItem);
+      });
+
+      return struct;
+    };
+
+    const processArray = (schema: Schema): any[] => {
+      if (schema[ARRAY_ITEM_KEY]) {
+        return [processSchemaItem(schema[ARRAY_ITEM_KEY])];
+      }
+
+      return [];
+    };
+
+    const processSchemaItem = (schemaItem: SchemaItem) => {
+      if (schemaItem.dataType === DataType.OBJECT) {
+        return processObject(schemaItem.children);
+      }
+
+      if (schemaItem.dataType === DataType.ARRAY) {
+        return processArray(schemaItem.children);
+      }
+
+      const { isDisabled, isRequired, isVisible } = schemaItem;
+      return { isDisabled, isVisible, isRequired };
+    };
+
+    let fieldState;
+
+    if (this.props.schema) {
+      Object.values(this.props.schema).forEach((schemaItem) => {
+        fieldState = processSchemaItem(schemaItem);
+      });
+    }
+
+    if (!equal(fieldState, this.props.fieldState)) {
+      this.props.updateWidgetMetaProperty("fieldState", fieldState);
+    }
   };
 
   onSubmit = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
