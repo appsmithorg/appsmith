@@ -1,38 +1,42 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
-const homePage = require("../../../../locators/HomePage");
-
-const httpsRepoURL = "https://github.com/test/test.git";
-const invalidURL = "test";
-const invalidURLDetectedOnTheBackend = "test@";
-
-const invalidEmail = "test";
-const invalidEmailWithAmp = "test@hello";
-
-const GITHUB_API_BASE = "https://api.github.com";
 
 let repoName;
-let generatedKey;
-let windowOpenSpy;
-let githubDeployKeyId;
-const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 describe("Git sync modal: connect tab", function() {
   before(() => {
     cy.generateUUID().then((uid) => {
       repoName = uid;
       cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName, false);
     });
   });
 
-  beforeEach(() => {
-    cy.intercept(
-      {
-        url: "api/v1/git/connect/*",
-        hostname: window.location.host,
-      },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
+  it.only("Validate commit comment inputbox and last deployed preview", function() {
+    // last deployed preview
+    // The deploy preview Link should be displayed only after the first commit done
+    cy.get(gitSyncLocators.deployPreview).should("not.exist");
+
+    // comment text input should not empty
+    cy.get(gitSyncLocators.commitCommentInput)
+      .invoke("val")
+      .should("not.be.empty");
+    cy.get(gitSyncLocators.commitCommentInput).clear();
+    cy.get(gitSyncLocators.commitButton).should("be.disabled");
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+
+    cy.get(gitSyncLocators.commitButton).click();
+    // check for commit success
+    cy.wait("@commit").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
     );
+
+    // last deployed preview
+    // it should be updated with the each commit and push
+    cy.get(gitSyncLocators.deployPreview).should("exist");
+    cy.get(gitSyncLocators.deployPreview).contains(`secs ago`);
+
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
   after(() => {

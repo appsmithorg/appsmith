@@ -33,6 +33,7 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import gitSyncLocators from "../locators/gitSyncLocators";
+import { howMuchTimeBeforeText } from "../../src/utils/helpers";
 
 let pageidcopy = " ";
 const GITHUB_API_BASE = "https://api.github.com";
@@ -3311,7 +3312,7 @@ Cypress.Commands.add("skipCommentsOnboarding", () => {
   cy.get("button[type='submit']").click();
 });
 
-Cypress.Commands.add("connectToGitRepo", (repo) => {
+Cypress.Commands.add("connectToGitRepo", (repo, shouldCommit = true) => {
   const testEmail = "test@test.com";
   const testUsername = "testusername";
   const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -3370,24 +3371,18 @@ Cypress.Commands.add("connectToGitRepo", (repo) => {
       200,
     );
 
-    // comment text input should not empty
-    cy.get(gitSyncLocators.commitCommentInput)
-      .invoke("val")
-      .should("not.be.empty");
-    cy.get(gitSyncLocators.commitCommentInput).clear();
-    cy.get(gitSyncLocators.commitButton).should("be.disabled");
-    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-
     // click commit button
-    cy.get(gitSyncLocators.commitButton).click();
-    // check for commit success
-    cy.wait("@commit").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    if (shouldCommit) {
+      cy.get(gitSyncLocators.commitButton).click();
+      // check for commit success
+      cy.wait("@commit").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
 
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
+    }
   });
 });
 
