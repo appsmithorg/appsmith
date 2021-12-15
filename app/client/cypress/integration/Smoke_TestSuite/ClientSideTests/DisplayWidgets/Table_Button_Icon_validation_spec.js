@@ -68,7 +68,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".bp3-overlay-backdrop").click({ force: true });
   });
 
-  it("Table widget validation of a field withotu js ", function() {
+  it("Table widget validation of a field without js ", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("email");
     cy.clearPropertyValue(0);
