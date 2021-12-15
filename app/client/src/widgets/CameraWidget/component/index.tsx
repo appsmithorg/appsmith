@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import Webcam from "react-webcam";
@@ -41,6 +41,16 @@ import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camer
 import { ReactComponent as FullScreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
 import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera/exit-fullscreen.svg";
 
+const overlayerMixin = css`
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 export interface CameraContainerProps {
   disabled: boolean;
   scaleAxis: "x" | "y";
@@ -52,7 +62,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};
+  ${({ disabled }) => disabled && `background: ${Colors.GREY_3}`};
 
   .fullscreen {
     display: flex;
@@ -79,9 +89,25 @@ const CameraContainer = styled.div<CameraContainerProps>`
   }
 `;
 
-const PhotoViewer = styled.img``;
+export interface DisabledOverlayerProps {
+  disabled: boolean;
+}
 
-const VideoPlayer = styled.video``;
+const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
+  ${overlayerMixin}
+  display: ${({ disabled }) => (disabled ? `flex` : `none`)};
+  height: 100%;
+  z-index: 2;
+  background: ${Colors.GREY_3};
+`;
+
+const PhotoViewer = styled.img`
+  ${overlayerMixin}
+`;
+
+const VideoPlayer = styled.video`
+  ${overlayerMixin}
+`;
 
 const ControlPanelContainer = styled.div`
   width: 100%;
@@ -1100,9 +1126,6 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   const renderComponent = () => {
-    if (disabled) {
-      return <CameraOfflineIcon />;
-    }
     if (error) {
       return (
         <>
@@ -1123,22 +1146,20 @@ function CameraComponent(props: CameraComponentProps) {
 
     return (
       <>
-        {!(
-          isPhotoViewerReady ||
-          isVideoPlayerReady ||
-          (isAudioMuted && isVideoMuted)
-        ) && (
-          <Webcam
-            audio
-            audioConstraints={audioConstraints}
-            mirrored={mode === CameraModeTypes.VIDEO ? true : mirrored}
-            muted
-            onUserMedia={handleUserMedia}
-            onUserMediaError={handleUserMediaErrors}
-            ref={webcamRef}
-            videoConstraints={videoConstraints}
-          />
-        )}
+        <DisabledOverlayer disabled={disabled}>
+          <CameraOfflineIcon />
+        </DisabledOverlayer>
+
+        <Webcam
+          audio
+          audioConstraints={audioConstraints}
+          mirrored={mode === CameraModeTypes.VIDEO ? true : mirrored}
+          muted
+          onUserMedia={handleUserMedia}
+          onUserMediaError={handleUserMediaErrors}
+          ref={webcamRef}
+          videoConstraints={videoConstraints}
+        />
 
         {isPhotoViewerReady && image && <PhotoViewer src={image} />}
 
