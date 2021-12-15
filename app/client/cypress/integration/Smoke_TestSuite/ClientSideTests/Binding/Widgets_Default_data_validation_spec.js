@@ -47,10 +47,9 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("validation of default data displayed in all widgets based on row selected", function() {
-    cy.isSelectRow(2);
-    cy.readTabledataPublish("2", "0").then((tabData) => {
+    cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
-      expect(tabValue).to.be.equal("6788734");
+      expect(tabValue).to.be.equal("2736212");
       cy.log("the value is" + tabValue);
 
       cy.get(publish.inputWidget + " " + "input")
@@ -59,9 +58,9 @@ describe("Binding the multiple widgets and validating default data", function() 
         .should("contain", tabValue);
     });
 
-    cy.readTabledataPublish("2", "1").then((tabData) => {
+    cy.readTabledataPublish("1", "1").then((tabData) => {
       const tabValue = tabData;
-      expect(tabValue).to.be.equal("tobias.funke@reqres.in");
+      expect(tabValue).to.be.equal("lindsay.ferguson@reqres.in");
       cy.log("the value is" + tabValue);
       cy.get(widgetsPage.defaultSingleSelectValue)
         .first()
