@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import { Keys } from "@blueprintjs/core";
 import {
   showRunActionConfirmModal,
   cancelRunActionConfirmModal,
@@ -33,19 +34,50 @@ const ModalFooter = styled.div`
 `;
 
 class ConfirmRunModal extends React.Component<Props> {
+  addEventListener = () => {
+    document.addEventListener("keydown", this.onKeyUp);
+  };
+
+  removeEventListener = () => {
+    document.removeEventListener("keydown", this.onKeyUp);
+  };
+
+  onKeyUp = (event: KeyboardEvent) => {
+    if (event.keyCode === Keys.ENTER) {
+      this.onConfirm();
+    }
+  };
+
+  onConfirm = () => {
+    const { dispatch } = this.props;
+    dispatch(acceptRunActionConfirmModal());
+    this.handleClose();
+  };
+
+  handleClose = () => {
+    const { dispatch } = this.props;
+    dispatch(showRunActionConfirmModal(false));
+    dispatch(cancelRunActionConfirmModal());
+  };
+
+  componentDidUpdate() {
+    const { isModalOpen } = this.props;
+    if (isModalOpen) {
+      this.addEventListener();
+    } else {
+      this.removeEventListener();
+    }
+  }
+
   render() {
     const { dispatch, isModalOpen } = this.props;
-    const handleClose = () => {
-      dispatch(showRunActionConfirmModal(false));
-
-      dispatch(cancelRunActionConfirmModal());
-    };
 
     return (
       <DialogComponent
+        canEscapeKeyClose
         isOpen={isModalOpen}
         maxHeight={"80vh"}
-        onClose={handleClose}
+        onClose={this.handleClose}
         title="Confirm Action"
         width={"580px"}
       >
@@ -55,7 +87,7 @@ class ConfirmRunModal extends React.Component<Props> {
             category={Category.tertiary}
             onClick={() => {
               dispatch(cancelRunActionConfirmModal());
-              handleClose();
+              this.handleClose();
             }}
             size={Size.medium}
             tag="button"
@@ -64,10 +96,7 @@ class ConfirmRunModal extends React.Component<Props> {
           />
           <Button
             category={Category.primary}
-            onClick={() => {
-              dispatch(acceptRunActionConfirmModal());
-              handleClose();
-            }}
+            onClick={this.onConfirm}
             size={Size.medium}
             tag="button"
             text="Confirm"

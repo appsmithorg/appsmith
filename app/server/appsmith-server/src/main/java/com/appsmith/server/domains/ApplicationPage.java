@@ -20,6 +20,10 @@ public class ApplicationPage {
 
     Boolean isDefault;
 
+    // This field will represent the root pageId in git system where we are connecting resources among the branches
+    @JsonIgnore
+    String defaultPageId;
+
     @JsonIgnore
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);

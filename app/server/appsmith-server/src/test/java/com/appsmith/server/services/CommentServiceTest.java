@@ -101,8 +101,17 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void setup() {
-        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = applicationService
-                .findByName("TestApplications", AclPermission.READ_APPLICATIONS)
+        String randomId = UUID.randomUUID().toString();
+        Organization organization = new Organization();
+        organization.setName(randomId + "-test-org");
+
+        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = organizationService
+                .create(organization).flatMap(organization1 -> {
+                    Application application = new Application();
+                    application.setName(randomId + "-test-app");
+                    application.setOrganizationId(organization1.getId());
+                    return applicationPageService.createApplication(application);
+                })
                 .flatMap(application -> {
                     final CommentThread thread = new CommentThread();
                     thread.setApplicationId(application.getId());
@@ -341,7 +350,7 @@ public class CommentServiceTest {
         Mono<Long> unreadCountMono = commentThreadRepository
                 .saveAll(List.of(c1, c2, c3)) // save all the threads
                 .collectList()
-                .then(commentService.getUnreadCount("test-application-1")); // count unread in first app
+                .then(commentService.getUnreadCount("test-application-1", null)); // count unread in first app
 
         StepVerifier.create(unreadCountMono).assertNext(aLong -> {
             assertThat(aLong).isEqualTo(1);
@@ -368,7 +377,7 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 })
                 .flatMap(savedComment ->
                         commentThreadRepository.findById(savedComment.getThreadId())
@@ -581,7 +590,7 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 });
 
         StepVerifier.create(commentMono).assertNext(comment -> {
