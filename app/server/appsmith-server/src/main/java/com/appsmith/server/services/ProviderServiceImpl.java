@@ -42,6 +42,10 @@ public class ProviderServiceImpl extends BaseService<ProviderRepository, Provide
 
     @Override
     public Flux<Provider> get(MultiValueMap<String, String> params) {
+
+        // Remove branch name as providers are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
+
         Provider providerExample = new Provider();
         Sort sort = Sort.by("sortOrder");
 
