@@ -52,16 +52,6 @@ export interface OnboardingState {
 }
 
 const onboardingReducer = createReducer(initialState, {
-  [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (state: OnboardingState) => {
-    return {
-      ...state,
-      ...initialState,
-      enableFirstTimeUserOnboarding: state.enableFirstTimeUserOnboarding,
-      firstTimeUserOnboardingApplicationId:
-        state.firstTimeUserOnboardingApplicationId,
-      showFirstTimeUserOnboardingModal: state.showFirstTimeUserOnboardingModal,
-    };
-  },
   [ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION]: (
     state: OnboardingState,
     action: ReduxAction<boolean>,
@@ -119,8 +109,13 @@ const onboardingReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
+      ...initialState,
       guidedTour: action.payload,
       exploring: action.payload,
+      enableFirstTimeUserOnboarding: state.enableFirstTimeUserOnboarding,
+      firstTimeUserOnboardingApplicationId:
+        state.firstTimeUserOnboardingApplicationId,
+      showFirstTimeUserOnboardingModal: state.showFirstTimeUserOnboardingModal,
     };
   },
   [ReduxActionTypes.GUIDED_TOUR_TOGGLE_LOADER]: (
