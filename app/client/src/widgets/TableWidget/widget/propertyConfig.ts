@@ -648,12 +648,9 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.TEXT,
                     params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
-                      },
+                      allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
                     },
                   },
                 },

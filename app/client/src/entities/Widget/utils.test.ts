@@ -223,13 +223,10 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.createdAt.fontStyle": {
-          type: "TABLE_PROPERTY",
           params: {
-            params: {
-              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
-            },
-            type: "TEXT",
+            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
           },
+          type: "TEXT",
         },
         "primaryColumns.createdAt.horizontalAlignment": {
           type: "TABLE_PROPERTY",
@@ -300,13 +297,10 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.name.fontStyle": {
-          type: "TABLE_PROPERTY",
           params: {
-            params: {
-              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
-            },
-            type: "TEXT",
+            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
           },
+          type: "TEXT",
         },
         "primaryColumns.name.horizontalAlignment": {
           type: "TABLE_PROPERTY",
