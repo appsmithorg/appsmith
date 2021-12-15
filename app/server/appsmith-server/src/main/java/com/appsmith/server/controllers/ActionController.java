@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
@@ -54,56 +55,66 @@ public class ActionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> createAction(@Valid @RequestBody ActionDTO resource,
-                                               @RequestHeader(name = "Origin", required = false) String originHeader,
-                                               ServerWebExchange exchange) {
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                     @RequestHeader(name = "Origin", required = false) String originHeader,
+                                                     ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return layoutActionService.createSingleAction(resource)
+        return layoutActionService.createSingleActionWithBranch(resource, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @PutMapping("/{id}")
-    public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String id, @Valid @RequestBody ActionDTO resource) {
-        log.debug("Going to update resource with id: {}", id);
-        return layoutActionService.updateSingleAction(id, resource)
+    @PutMapping("/{defaultActionId}")
+    public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String defaultActionId,
+                                                     @Valid @RequestBody ActionDTO resource,
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update resource with defaultActionId: {}, branch: {}", defaultActionId, branchName);
+        return layoutActionService.updateSingleActionWithBranchName(defaultActionId, resource, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @PostMapping("/execute")
-    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody ExecuteActionDTO executeActionDTO) {
-        return newActionService.executeAction(executeActionDTO)
+    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody ExecuteActionDTO executeActionDTO,
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newActionService.executeAction(executeActionDTO, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @PutMapping("/move")
-    public Mono<ResponseDTO<ActionDTO>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO) {
-        log.debug("Going to move action {} from page {} to page {}", actionMoveDTO.getAction().getName(), actionMoveDTO.getAction().getPageId(), actionMoveDTO.getDestinationPageId());
-        return layoutActionService.moveAction(actionMoveDTO)
+    public Mono<ResponseDTO<ActionDTO>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO,
+                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to move action {} from page {} to page {} on branch {}", actionMoveDTO.getAction().getName(), actionMoveDTO.getAction().getPageId(), actionMoveDTO.getDestinationPageId(), branchName);
+        return layoutActionService.moveAction(actionMoveDTO, branchName)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
     @PutMapping("/refactor")
-    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO) {
-        return layoutActionService.refactorActionName(refactorActionNameDTO)
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return layoutActionService.refactorActionName(refactorActionNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @GetMapping("/view")
-    public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(@RequestParam String applicationId) {
-        return newActionService.getActionsForViewMode(applicationId).collectList()
+    public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(@RequestParam String applicationId,
+                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newActionService.getActionsForViewMode(applicationId, branchName).collectList()
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
 
-    @PutMapping("/executeOnLoad/{id}")
-    public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(@PathVariable String id, @RequestParam Boolean flag) {
-        log.debug("Going to set execute on load for action id {} to {}", id, flag);
-        return layoutActionService.setExecuteOnLoad(id, flag)
+    @PutMapping("/executeOnLoad/{defaultActionId}")
+    public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(@PathVariable String defaultActionId,
+                                                         @RequestParam Boolean flag,
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to set execute on load for action id {} and branchName {} to {}", defaultActionId, branchName, flag);
+        return layoutActionService.setExecuteOnLoad(defaultActionId, branchName, flag)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id) {
-        log.debug("Going to delete unpublished action with id: {}", id);
-        return layoutActionService.deleteUnpublishedAction(id)
+    public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id,
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to delete unpublished action with id: {}, branchName: {}", id, branchName);
+        return layoutActionService.deleteUnpublishedAction(id, branchName)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
@@ -118,10 +129,11 @@ public class ActionController {
      * @return
      */
     @GetMapping("")
-    public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all actions with params : {}", params);
+    public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params,
+                                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to get all actions with params: {}, branch: {}", params, branchName);
         // We handle JS actions as part of the collections request, so that all the contextual variables are also picked up
-        return newActionService.getUnpublishedActionsExceptJs(params)
+        return newActionService.getUnpublishedActions(params, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }

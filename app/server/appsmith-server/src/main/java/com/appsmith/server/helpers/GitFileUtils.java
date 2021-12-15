@@ -1,15 +1,19 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
-import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.copyProperties;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -38,7 +44,6 @@ import java.util.stream.Collectors;
 public class GitFileUtils {
 
     private final FileInterface fileUtils;
-    private final GitExecutor gitExecutor;
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
@@ -62,73 +67,77 @@ public class GitFileUtils {
             3. Save application to git repo
          */
         ApplicationGitReference applicationReference = new ApplicationGitReference();
-        return gitExecutor.checkoutToBranch(baseRepoSuffix, branchName)
-                .flatMap(result -> {
-                    // Pass application reference
-                    applicationReference.setApplication(applicationJson.getExportedApplication());
+        // Pass application reference
+        applicationReference.setApplication(applicationJson.getExportedApplication());
 
-                    // Pass metadata
-                    Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
-                            .map(Field::getName)
-                            .filter(name -> !blockedMetadataFields.contains(name))
-                            .collect(Collectors.toList());
+        // Pass metadata
+        Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
+                .map(Field::getName)
+                .filter(name -> !blockedMetadataFields.contains(name))
+                .collect(Collectors.toList());
 
-                    ApplicationJson applicationMetadata = new ApplicationJson();
+        ApplicationJson applicationMetadata = new ApplicationJson();
 
-                    BeanCopyUtils.copyProperties(applicationJson, applicationMetadata, keys);
-                    applicationReference.setMetadata(applicationMetadata);
+        copyProperties(applicationJson, applicationMetadata, keys);
+        applicationReference.setMetadata(applicationMetadata);
 
-                    // Pass pages within the application
-                    Map<String, Object> resourceMap = new HashMap<>();
-                    applicationJson.getPageList().forEach(newPage -> {
-                        String pageName = "";
-                        if (newPage.getUnpublishedPage() != null) {
-                            pageName = newPage.getUnpublishedPage().getName();
-                        } else if (newPage.getPublishedPage() != null) {
-                            pageName = newPage.getPublishedPage().getName();
-                        }
-                        // pageName will be used for naming the json file
-                        resourceMap.put(pageName, newPage);
-                    });
-                    applicationReference.setPages(new HashMap<>(resourceMap));
-                    resourceMap.clear();
+        // Pass pages within the application
+        Map<String, Object> resourceMap = new HashMap<>();
+        applicationJson.getPageList().forEach(newPage -> {
+            String pageName = newPage.getUnpublishedPage() != null
+                    ? newPage.getUnpublishedPage().getName()
+                    : newPage.getPublishedPage().getName();
 
-                    // Send actions
-                    applicationJson.getActionList().forEach(newAction -> {
-                        String prefix = newAction.getUnpublishedAction() != null ?
-                                newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
-                                : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
-                        resourceMap.put(prefix, newAction);
-                    });
-                    applicationReference.setActions(new HashMap<>(resourceMap));
-                    resourceMap.clear();
+            removeUnwantedFieldsFromPage(newPage);
+            // pageName will be used for naming the json file
+            resourceMap.put(pageName, newPage);
+        });
+        applicationReference.setPages(new HashMap<>(resourceMap));
+        resourceMap.clear();
 
-                    // Send jsActionCollections
-                    applicationJson.getActionCollectionList().forEach(actionCollection -> {
-                        String prefix = actionCollection.getUnpublishedCollection() != null ?
-                                actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()
-                                : actionCollection.getPublishedCollection().getName() + "_" + actionCollection.getPublishedCollection().getPageId();
-                        resourceMap.put(prefix, actionCollection);
-                    });
-                    applicationReference.setActionsCollections(new HashMap<>(resourceMap));
-                    resourceMap.clear();
+        // Send actions
+        applicationJson.getActionList().forEach(newAction -> {
+            String prefix = newAction.getUnpublishedAction() != null ?
+                    newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
+                    : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
+            removeUnwantedFieldFromAction(newAction);
+            resourceMap.put(prefix, newAction);
+        });
+        applicationReference.setActions(new HashMap<>(resourceMap));
+        resourceMap.clear();
 
-                    // Send datasources
-                    applicationJson.getDatasourceList().forEach(
-                            datasource -> resourceMap.put(datasource.getName(), datasource)
-                    );
-                    applicationReference.setDatasources(new HashMap<>(resourceMap));
-                    resourceMap.clear();
+        // Send jsActionCollections
+        applicationJson.getActionCollectionList().forEach(actionCollection -> {
+            String prefix = actionCollection.getUnpublishedCollection() != null ?
+                    actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()
+                    : actionCollection.getPublishedCollection().getName() + "_" + actionCollection.getPublishedCollection().getPageId();
+
+            removeUnwantedFieldFromActionCollection(actionCollection);
+
+            resourceMap.put(prefix, actionCollection);
+        });
+        applicationReference.setActionsCollections(new HashMap<>(resourceMap));
+        resourceMap.clear();
+
+        // Send datasources
+        applicationJson.getDatasourceList().forEach(
+                datasource -> {
+                    datasource.setUpdatedAt(null);
+                    datasource.setCreatedAt(null);
+                    resourceMap.put(datasource.getName(), datasource);
+                }
+        );
+        applicationReference.setDatasources(new HashMap<>(resourceMap));
+        resourceMap.clear();
 
 
-                    // Save application to git repo
-                    try {
-                        return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
-                    } catch (IOException | GitAPIException e) {
-                        log.error("Error occurred while saving files to local git repo: ", e);
-                        throw Exceptions.propagate(e);
-                    }
-                });
+        // Save application to git repo
+        try {
+            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
+        } catch (IOException | GitAPIException e) {
+            log.error("Error occurred while saving files to local git repo: ", e);
+            throw Exceptions.propagate(e);
+        }
     }
 
     /**
@@ -211,4 +220,69 @@ public class GitFileUtils {
     }
 
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); }
+
+    private void removeUnwantedFieldsFromPage(NewPage page) {
+        page.setDefaultResources(null);
+        page.setCreatedAt(null);
+        page.setUpdatedAt(null);
+        PageDTO unpublishedPage = page.getUnpublishedPage();
+        PageDTO publishedPage = page.getPublishedPage();
+        if (unpublishedPage != null) {
+            unpublishedPage
+                    .getLayouts()
+                    .forEach(this::removeUnwantedFieldsFromLayout);
+        }
+        if (publishedPage != null) {
+            publishedPage
+                    .getLayouts()
+                    .forEach(this::removeUnwantedFieldsFromLayout);
+        }
+    }
+
+    private void removeUnwantedFieldFromAction(NewAction action) {
+        action.setDefaultResources(null);
+        action.setCreatedAt(null);
+        action.setUpdatedAt(null);
+        ActionDTO unpublishedAction = action.getUnpublishedAction();
+        ActionDTO publishedAction = action.getPublishedAction();
+        if (unpublishedAction != null) {
+            unpublishedAction.setDefaultResources(null);
+            if (unpublishedAction.getDatasource() != null) {
+                unpublishedAction.getDatasource().setCreatedAt(null);
+            }
+        }
+        if (publishedAction != null) {
+            publishedAction.setDefaultResources(null);
+            if (publishedAction.getDatasource() != null) {
+                publishedAction.getDatasource().setCreatedAt(null);
+            }
+        }
+    }
+
+    private void removeUnwantedFieldFromActionCollection(ActionCollection actionCollection) {
+        actionCollection.setDefaultResources(null);
+        actionCollection.setCreatedAt(null);
+        actionCollection.setUpdatedAt(null);
+        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+        ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+        if (unpublishedCollection != null) {
+            unpublishedCollection.setDefaultResources(null);
+            unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(null);
+        }
+        if (publishedCollection != null) {
+            publishedCollection.setDefaultResources(null);
+        }
+    }
+
+    private void removeUnwantedFieldsFromLayout(Layout layout) {
+        layout.setAllOnPageLoadActionNames(null);
+        layout.setCreatedAt(null);
+        layout.setUpdatedAt(null);
+        layout.setAllOnPageLoadActionEdges(null);
+        layout.setActionsUsedInDynamicBindings(null);
+        layout.setMongoEscapedWidgetNames(null);
+        if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
+            layout.getLayoutOnLoadActions().forEach(layoutAction -> layoutAction.forEach(actionDTO -> actionDTO.setDefaultActionId(null)));
+        }
+    }
 }
