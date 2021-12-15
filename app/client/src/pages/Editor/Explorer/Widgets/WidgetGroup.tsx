@@ -12,11 +12,11 @@ import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer"
 import { getSelectedWidgets } from "selectors/ui";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
+import { AppState } from "reducers";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
   step: number;
-  widgets?: CanvasStructure;
   searchKeyword?: string;
   addWidgetsFn?: () => void;
 };
@@ -32,6 +32,9 @@ const StyledLink = styled(Link)`
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
+  const widgets = useSelector(
+    (state: AppState) => state.ui.pageCanvasStructure[props.pageId],
+  );
   const selectedWidgets = useSelector(getSelectedWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -58,14 +61,14 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   );
 
   const widgetsInStep = useMemo(() => {
-    return props.widgets?.children?.map((child) => child.widgetId) || [];
-  }, [props.widgets?.children]);
+    return widgets?.children?.map((child) => child.widgetId) || [];
+  }, [widgets?.children]);
 
   return (
     <Entity
       addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
-      disabled={!props.widgets && !!props.searchKeyword}
+      disabled={!widgets && !!props.searchKeyword}
       entityId={props.pageId + "_widgets"}
       icon={""}
       isDefaultExpanded={
@@ -79,7 +82,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       searchKeyword={props.searchKeyword}
       step={props.step}
     >
-      {props.widgets?.children?.map((child) => (
+      {widgets?.children?.map((child) => (
         <WidgetEntity
           childWidgets={child.children}
           key={child.widgetId}
@@ -92,7 +95,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
           widgetsInStep={widgetsInStep}
         />
       ))}
-      {(!props.widgets?.children || props.widgets?.children.length === 0) &&
+      {(!widgets?.children || widgets?.children.length === 0) &&
         !props.searchKeyword &&
         childNode}
     </Entity>

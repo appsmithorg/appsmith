@@ -7,14 +7,14 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
-import {
-  useWidgets,
-  useActions,
-  useFilteredDatasources,
-  useJSCollections,
-} from "./hooks";
+// import {
+//   useWidgets,
+//   useActions,
+//   useFilteredDatasources,
+//   useJSCollections,
+// } from "./hooks";
 import Search from "./ExplorerSearch";
-import ExplorerPageGroup from "./Pages/PageGroup";
+// import ExplorerPageGroup from "./Pages/PageGroup";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -24,7 +24,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-import { getPlugins } from "selectors/entitiesSelector";
+// import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
@@ -34,8 +34,16 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getPageList,
+} from "selectors/editorSelectors";
 import { Datasources } from "./Datasources";
+import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
+// import { currentPageId } from "sagas/selectors";
+import Files from "./Files";
+import ExplorerPageEntity from "./Pages/PageEntity";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -79,9 +87,10 @@ const StyledDivider = styled(Divider)`
 `;
 function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
-  const [searchKeyword, setSearchhKeyword] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const applicationId = useSelector(getCurrentApplicationId);
-
+  const pages = useSelector(getPageList);
+  const currentPageId = useSelector(getCurrentPageId) || pages[0].pageId;
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -91,31 +100,31 @@ function EntityExplorer(props: IPanelProps) {
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
 
-  const plugins = useSelector(getPlugins);
-  const widgets = useWidgets(searchKeyword);
-  const actions = useActions(searchKeyword);
-  const jsActions = useJSCollections(searchKeyword);
-  const datasources = useFilteredDatasources(searchKeyword);
+  // const plugins = useSelector(getPlugins);
+  // const widgets = useWidgets(searchKeyword);
+  // const actions = useActions(searchKeyword);
+  // const jsActions = useJSCollections(searchKeyword);
+  // const datasources = useFilteredDatasources(searchKeyword);
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
 
-  let noResults = false;
-  if (searchKeyword) {
-    const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
-    const noJSActions =
-      Object.values(jsActions).filter(
-        (jsActions) => jsActions && jsActions.length > 0,
-      ).length === 0;
-    const noActions =
-      Object.values(actions).filter((actions) => actions && actions.length > 0)
-        .length === 0;
-    const noDatasource =
-      Object.values(datasources).filter(
-        (datasources) => datasources && datasources.length > 0,
-      ).length === 0;
-    noResults = noWidgets && noActions && noDatasource && noJSActions;
-  }
+  const noResults = false;
+  // if (searchKeyword) {
+  //   const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
+  //   const noJSActions =
+  //     Object.values(jsActions).filter(
+  //       (jsActions) => jsActions && jsActions.length > 0,
+  //     ).length === 0;
+  //   const noActions =
+  //     Object.values(actions).filter((actions) => actions && actions.length > 0)
+  //       .length === 0;
+  //   const noDatasource =
+  //     Object.values(datasources).filter(
+  //       (datasources) => datasources && datasources.length > 0,
+  //     ).length === 0;
+  //   noResults = noWidgets && noActions && noDatasource && noJSActions;
+  // }
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
@@ -133,7 +142,7 @@ function EntityExplorer(props: IPanelProps) {
    * filter entitites
    */
   const search = (e: any) => {
-    setSearchhKeyword(e.target.value);
+    setSearchKeyword(e.target.value);
   };
 
   const clearSearchInput = () => {
@@ -141,8 +150,12 @@ function EntityExplorer(props: IPanelProps) {
       searchInputRef.current.value = "";
     }
 
-    setSearchhKeyword("");
+    setSearchKeyword("");
   };
+
+  const addWidgetsFn = useCallback(() => showWidgetsSidebar(currentPageId), [
+    currentPageId,
+  ]);
 
   return (
     <Wrapper className={"relative"} ref={explorerRef}>
@@ -153,16 +166,11 @@ function EntityExplorer(props: IPanelProps) {
         onChange={search}
         ref={searchInputRef}
       />
-
-      <ExplorerPageGroup
-        actions={actions}
-        datasources={datasources}
-        jsActions={jsActions}
-        plugins={plugins}
+      <ExplorerPageEntity
+        pageId={currentPageId}
         searchKeyword={searchKeyword}
         showWidgetsSidebar={showWidgetsSidebar}
-        step={-3}
-        widgets={widgets}
+        step={0}
       />
       {noResults && (
         <NoResult

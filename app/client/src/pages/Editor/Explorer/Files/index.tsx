@@ -21,9 +21,8 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
-function Files() {
+function Files({ pageId }: any) {
   const files = useFilesForExplorer("type");
-  const currentPageId = useSelector(getCurrentPageId);
   const currentApplicationId = useSelector(getCurrentApplicationId);
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -42,10 +41,10 @@ function Files() {
       addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
       className={`group`}
       disabled={false}
-      entityId={currentPageId + "_widgets"}
+      entityId={pageId + "_widgets"}
       icon={""}
       isDefaultExpanded
-      key={currentPageId + "_widgets"}
+      key={pageId + "_widgets"}
       name="QUERIES/JS"
       onCreate={onCreate}
       searchKeyword={""}
@@ -64,7 +63,7 @@ function Files() {
               action={entity}
               icon={jsFileIcon}
               key={entity.config.id}
-              pageId={currentPageId as string}
+              pageId={pageId as string}
               searchKeyword={""}
               step={2}
             />
@@ -73,7 +72,7 @@ function Files() {
           const config = getActionConfig(type as PluginType);
           const url = config?.getURL(
             currentApplicationId,
-            currentPageId as string,
+            pageId as string,
             entity.config.id,
             entity.config.pluginType,
             pluginGroups[
@@ -93,7 +92,7 @@ function Files() {
               active={false}
               icon={icon}
               key={entity.config.id}
-              pageId={currentPageId as string}
+              pageId={pageId as string}
               searchKeyword={""}
               step={2}
               url={url || ""}
