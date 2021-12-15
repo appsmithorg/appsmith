@@ -118,6 +118,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     borderRadOnStart,
     buttonColor,
     buttonVariant,
+    iconAlign,
     isDisabled,
     isHorizontal,
     theme,
@@ -130,6 +131,10 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
           ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
+      flex-direction : ${iconAlign === "right" ? "row-reverse" : "row"};
+      .bp3-icon {
+        ${iconAlign === "right" ? "margin-left: 10px" : "margin-right: 10px"};
+      }
     }
 
     &:hover, &:active {
@@ -436,6 +441,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
               borderRadius={this.props.borderRadius}
               buttonColor={button.buttonColor}
               buttonVariant={buttonVariant}
+              iconAlign={button.iconAlign}
               isDisabled={isButtonDisabled}
               isHorizontal={isHorizontal}
               key={button.id}

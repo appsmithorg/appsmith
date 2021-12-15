@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
@@ -13,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NumberUtils;
 import com.appsmith.server.repositories.NotificationRepository;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +41,7 @@ public class NotificationServiceImpl
         implements NotificationService {
 
     private final SessionUserService sessionUserService;
+    private final ResponseUtils responseUtils;
 
     public NotificationServiceImpl(
             Scheduler scheduler,
@@ -47,9 +50,11 @@ public class NotificationServiceImpl
             ReactiveMongoTemplate reactiveMongoTemplate,
             NotificationRepository repository,
             AnalyticsService analyticsService,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -73,7 +78,8 @@ public class NotificationServiceImpl
     public Flux<Notification> get(MultiValueMap<String, String> params) {
         // results will be sorted in descending order of createdAt
         Sort sort = Sort.by(Sort.Direction.DESC, QNotification.notification.createdAt.getMetadata().getName());
-
+        // Remove branch name as notifications are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         // get page size from query params, default is 10 if param not present
         int pageSize = 10;
         if(params.containsKey("pageSize")) {
@@ -101,7 +107,33 @@ public class NotificationServiceImpl
                         user -> repository.findByForUsernameAndCreatedAtBefore(
                                 user.getUsername(), instant, pageRequest
                         )
-                );
+                )
+                .map(notification -> {
+                    if (notification instanceof CommentNotification) {
+                        CommentNotification commentNotification = (CommentNotification) notification;
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
+                    } else if (notification instanceof CommentThreadNotification) {
+                        CommentThreadNotification threadNotification = (CommentThreadNotification) notification;
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
+                    }
+                    return notification;
+                });
+    }
+
+    @Override
+    public Mono<Notification> findByIdAndBranchName(String id, String branchName) {
+        // Ignore branch name as notifications are independent of branchNames
+        return repository.findById(id)
+                .map(notification -> {
+                    if (notification instanceof CommentNotification) {
+                        CommentNotification commentNotification = (CommentNotification) notification;
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(commentNotification.getComment());
+                    } else if(notification instanceof CommentThreadNotification) {
+                        CommentThreadNotification threadNotification = (CommentThreadNotification) notification;
+                        responseUtils.updatePageAndAppIdWithDefaultResourcesForComments(threadNotification.getCommentThread());
+                    }
+                    return notification;
+                });
     }
 
     /**
