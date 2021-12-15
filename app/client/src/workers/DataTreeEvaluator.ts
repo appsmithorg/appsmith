@@ -784,6 +784,8 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
+            contextData,
+            callBackData,
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty(result.errors, data, fullPropertyPath);
