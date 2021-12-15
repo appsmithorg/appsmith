@@ -704,6 +704,11 @@ jobs:
         working-directory: app/client/perf
         run: chmod +x ./start-test.sh
 
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
       - name: Run performance tests
         working-directory: app/client/perf
         shell: bash

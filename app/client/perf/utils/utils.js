@@ -122,3 +122,13 @@ exports.getFormattedTime = () => {
   var s = today.getSeconds();
   return y + "-" + m + "-" + d + "-" + h + "-" + mi + "-" + s;
 };
+
+exports.sortObjectKeys = (obj) => {
+  const sortedObj = {};
+  Object.keys(obj)
+    .sort()
+    .forEach((key) => {
+      sortedObj[key] = obj[key];
+    });
+  return sortedObj;
+};
