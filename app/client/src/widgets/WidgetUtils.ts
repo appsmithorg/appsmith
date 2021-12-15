@@ -124,16 +124,12 @@ export const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
+        ? lightenColor(backgroundColor)
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
+        ? lightenColor(backgroundColor)
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:

@@ -630,10 +630,12 @@ export const TreeSelectContainer = styled.div<{
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
+  justify-content: flex-end;
 
   label.tree-select-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+    margin-bottom: 0px;
+    margin-right: 0px;
   }
   .rc-tree-select {
     display: inline-block;
@@ -744,6 +746,7 @@ export const TreeSelectContainer = styled.div<{
         font-family: system-ui;
 
         height: 100%;
+        min-height: 30px;
         border: none;
       }
     }

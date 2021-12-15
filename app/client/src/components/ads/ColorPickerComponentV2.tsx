@@ -12,6 +12,8 @@ import { debounce, get } from "lodash";
 import { Colors } from "constants/Colors";
 import * as colors from "twind/colors";
 import { tw } from "twind";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { useSelector } from "react-redux";
 
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
@@ -62,6 +64,7 @@ interface ColorPickerProps {
 
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<any>();
+  const theme = useSelector(getSelectedAppTheme);
   const [color, setColor] = React.useState(props.color);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
@@ -72,6 +75,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
     debouncedOnChange(value);
     setColor(value);
   };
+  const userDefinedColors = theme.properties.colors;
 
   // if props.color changes and state color is different,
   // sets the state color to props color
@@ -136,14 +140,24 @@ function ColorPickerComponent(props: ColorPickerProps) {
         ref={inputRef}
         value={color || ""}
       />
-      <div className="p-3 space-y-2 w-72">
+      <div
+        className="p-3 space-y-2 w-72"
+        key={`color-picker-v2-${props.color}`}
+      >
         <div className="space-y-2">
           <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
           <section className="space-y-2">
-            <h3 className="text-xs">Application Color</h3>
+            <h3 className="text-xs">Application Colors</h3>
             <div className="flex space-x-1">
-              <div className="w-6 h-6 transform border rounded-full white" />
-              <div className="w-6 h-6 transform border rounded-full white" />
+              {Object.keys(userDefinedColors).map((colorKey, index) => (
+                <div
+                  className={`${tw`bg-[${userDefinedColors[colorKey] ||
+                    userDefinedColors[
+                      colorKey
+                    ]}]`} border rounded-full h-6 w-6`}
+                  key={index}
+                />
+              ))}
             </div>
           </section>
         </div>

@@ -18,6 +18,7 @@ import PerformanceTracker, {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  themeModeSelector,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import {
@@ -45,12 +46,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
-import {
-  createMessage,
-  ENTITY_EXPLORER_TITLE,
-  LOCK_ENTITY_EXPLORER_MESSAGE,
-} from "constants/messages";
+import { createMessage, ENTITY_EXPLORER_TITLE } from "constants/messages";
 
 type Props = {
   width: number;
@@ -65,6 +61,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const pageId = useSelector(getCurrentPageId);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
+  const isThemeMode = useSelector(themeModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const applicationId = useSelector(getCurrentApplicationId);
   const enableFirstTimeUserOnboarding = useSelector(
@@ -215,10 +212,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     <div
       className={classNames({
         [`js-entity-explorer t--entity-explorer transform transition-all flex h-full duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
-        "relative ": pinned && !isPreviewMode,
-        "-translate-x-full": (!pinned && !active) || isPreviewMode,
+        "relative ": pinned && !isPreviewMode && !isThemeMode,
+        "-translate-x-full":
+          (!pinned && !active) || isPreviewMode || isThemeMode,
         "shadow-xl": !pinned,
-        fixed: !pinned || isPreviewMode,
+        fixed: !pinned || isPreviewMode || isThemeMode,
       })}
     >
       {/* SIDEBAR */}
@@ -234,15 +232,17 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           <h3 className="flex items-center text-sm font-medium text-gray-800 uppercase min-h-7">
             {createMessage(ENTITY_EXPLORER_TITLE)}
           </h3>
-          <div className="flex items-center">
+          <div
+            className={classNames({
+              "items-center transition-all duration-300 transform ": true,
+              "opacity-0 pointer-events-none scale-50": pinned === false,
+              "opacity-0 scale-100 group-hover:opacity-100": pinned,
+            })}
+          >
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">
-                  <span>
-                    {pinned
-                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                      : "Close sidebar"}
-                  </span>
+                  <span>Close sidebar</span>
                   <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
                 </div>
               }
@@ -252,11 +252,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
                 onClick={onPin}
                 type="button"
               >
-                {pinned ? (
-                  <PinIcon className="w-3 h-3 text-trueGray-400" />
-                ) : (
-                  <UnpinIcon className="w-3 h-3 text-trueGray-400" />
-                )}
+                <PinIcon className="w-3 h-3 text-trueGray-500" />
               </button>
             </TooltipComponent>
           </div>

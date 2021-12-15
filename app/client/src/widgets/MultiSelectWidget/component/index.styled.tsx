@@ -245,6 +245,8 @@ export const MultiSelectContainer = styled.div<{
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
+  justify-content: flex-end;
 
   label.tree-multiselect-label {
     margin-bottom: 0px;

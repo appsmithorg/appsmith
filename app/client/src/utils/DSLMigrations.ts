@@ -46,6 +46,8 @@ import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
+import BoxShadowOptionsControl from "components/propertyControls/BoxShadowOptionsControl";
+import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 
 /**
  * adds logBlackList key for all list widget children
@@ -987,11 +989,12 @@ export const transformDSL = (
   }
   if (currentDSL.version === 45) {
     currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 46;
   }
 
   if (currentDSL.version === 46) {
-    currentDSL = migrateBorderRadiusOfContainers(currentDSL);
+    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
@@ -1464,39 +1467,76 @@ export const migrateFilterValueForDropDownWidget = (
   return newDSL;
 };
 
-export const migrateBorderRadiusOfContainers = (
+export const migrateStylingPropertiesForTheming = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  // eslint-disable-next-line
-  console.log("came here");
-  // eslint-disable-next-line
-  console.log({ currentDSL });
   currentDSL.children = currentDSL.children?.map((child) => {
-    // console.log({ type: child.type });
-
-    if (
-      child.type === "CONTAINER_WIDGET" ||
-      child.type === "STATBOX_WIDGET" ||
-      child.type === "FORM_WIDGET"
-    ) {
-      const borderRadius = toNumber(child.borderRadius);
-
-      switch (true) {
-        case borderRadius === 0:
-          child.borderRadius = ButtonBorderRadiusTypes.SHARP;
-          break;
-        case borderRadius > 0 && borderRadius <= 10:
-          child.borderRadius = ButtonBorderRadiusTypes.ROUNDED;
-          break;
-        case borderRadius > 10:
-          child.borderRadius = ButtonBorderRadiusTypes.CIRCLE;
-          break;
-        default:
-          child.borderRadius = ButtonBorderRadiusTypes.SHARP;
-      }
+    // migrate border radius
+    switch (child.borderRadius) {
+      case ButtonBorderRadiusTypes.SHARP:
+        child.borderRadius = "0px";
+        break;
+      case ButtonBorderRadiusTypes.ROUNDED:
+        child.borderRadius = "0.375rem";
+        break;
+      case ButtonBorderRadiusTypes.CIRCLE:
+        child.borderRadius = "9999px";
+        break;
+      default:
+        child.borderRadius = "0px";
     }
+
+    // migrate box shadow
+    switch (child.boxShadow) {
+      case BoxShadowTypes.VARIANT1:
+        child.boxShadow = `0px 0px 4px 3px ${child.boxShadowColor ||
+          "rgba(0, 0, 0, 0.25)"}`;
+        break;
+      case BoxShadowTypes.VARIANT2:
+        child.boxShadow = `3px 3px 4px ${child.boxShadowColor ||
+          "rgba(0, 0, 0, 0.25)"}`;
+        break;
+      case BoxShadowTypes.VARIANT3:
+        child.boxShadow = `0px 1px 3px ${child.boxShadowColor ||
+          "rgba(0, 0, 0, 0.25)"}`;
+        break;
+      case BoxShadowTypes.VARIANT4:
+        child.boxShadow = `2px 2px 0px  ${child.boxShadowColor ||
+          "rgba(0, 0, 0, 0.25)"}`;
+        break;
+      case BoxShadowTypes.VARIANT5:
+        child.boxShadow = `-2px -2px 0px ${child.boxShadowColor ||
+          "rgba(0, 0, 0, 0.25)"}`;
+        break;
+
+      default:
+        child.borderRadius = "none";
+    }
+
+    // add primaryColor color to missing widgets
+    if (
+      [
+        "DATE_PICKER_WIDGET2",
+        "INPUT_WIDGET",
+        "LIST_WIDGET",
+        "MULTI_SELECT_TREE_WIDGET",
+        "DROP_DOWN_WIDGET",
+        "TABS_WIDGET",
+        "SINGLE_SELECT_TREE_WIDGET",
+        "TABLE_WIDGET",
+      ].indexOf(child.type) > -1
+    ) {
+      child.primaryColor = "{{appsmith.theme.colors.primaryColor}}";
+      child.dynamicBindingPathList = [
+        ...(child.dynamicBindingPathList || []),
+        {
+          key: "primaryColor",
+        },
+      ];
+    }
+
     if (child.children && child.children.length > 0) {
-      child = migrateBorderRadiusOfContainers(child);
+      child = migrateStylingPropertiesForTheming(child);
     }
     return child;
   });

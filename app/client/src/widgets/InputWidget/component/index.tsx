@@ -121,8 +121,9 @@ const InputComponentWrapper = styled((props) => (
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border-color: ${({ hasError }) =>
         hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
-      height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
+      height: 100%;
       width: 100%;
+      min-height: 32px;
       ${(props) =>
         props.numeric &&
         `
@@ -202,12 +203,12 @@ const InputComponentWrapper = styled((props) => (
     height: 100%;
     align-items: center;
     justify-content: flex-end;
+    gap: ${(props) => (props.compactMode ? "10px" : "5px")};
 
     label {
       ${labelStyle}
-      margin-right: 5px;
+      margin-right: 0px;
       margin-bottom: 0px;
-      fon
       text-align: right;
       align-self: flex-start;
       color: ${(props) =>
@@ -293,8 +294,7 @@ const ToolTipIcon = styled(IconWrapper)`
 const TextLableWrapper = styled.div<{
   compactMode: boolean;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  ${(props) => (props.compactMode ? "&&& {}" : "width: 100%;")}
   display: flex;
 `;
 

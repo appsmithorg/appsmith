@@ -27,9 +27,9 @@ function FilePickerComponent(props: FilePickerComponentProps) {
 
   return (
     <BaseButton
-      backgroundColor={props.backgroundColor}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
+      buttonColor={props.backgroundColor}
       disabled={props.isDisabled}
       loading={props.isLoading}
       onClick={openModal}

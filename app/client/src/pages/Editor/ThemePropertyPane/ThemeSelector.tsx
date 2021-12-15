@@ -36,7 +36,7 @@ function ThemeSelector() {
         <ArrowLeft className="w-4 h-4 transition-all transform" />
         <h3 className="text-xs font-medium uppercase">Back</h3>
       </button>
-      <header className="px-3 space-y-2">
+      {/* <header className="px-3 space-y-2">
         <h3 className="text-sm font-medium uppercase">Current Theme</h3>
         <ThemeCard
           changeable={false}
@@ -45,10 +45,10 @@ function ThemeSelector() {
           selectable={false}
           theme={selectedTheme}
         />
-      </header>
+      </header> */}
       <header className="px-3 space-y-2">
-        <h3 className="text-sm font-medium uppercase">Other Themes</h3>
-        <ThemeList themes={otherThemes} />
+        <h3 className="text-sm font-medium uppercase">Themes</h3>
+        <ThemeList themes={themes} />
       </header>
     </>
   );

@@ -11,7 +11,7 @@ export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
 }>`
   ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+    props.compactMode ? "&&& {margin-right: 0px;}" : "width: 100%;"}
   display: flex;
 `;
 

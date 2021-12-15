@@ -27,8 +27,7 @@ export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  ${(props) => (props.compactMode ? "&&& {}" : "width: 100%;")}
   display: flex;
 `;
 
@@ -606,11 +605,12 @@ export const TreeSelectContainer = styled.div<{
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
-  justify-content: end;
+  justify-content: flex-end;
+  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
 
   label.tree-select-label {
     margin-bottom: 0px;
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+    margin-right: 0px;
   }
   .rc-tree-select {
     display: inline-block;

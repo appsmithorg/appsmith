@@ -441,11 +441,11 @@ const PropertyControl = memo((props: Props) => {
                   <ControlIcons.JS_TOGGLE />
                 </JSToggleButton>
               )}
-              {isThemeBound && (
+              {/* {isThemeBound && (
                 <ThemeBound>
                   <ControlIcons.THEME_BOUND />
                 </ThemeBound>
-              )}
+              )} */}
             </ControlPropertyLabelContainer>
             <Indicator
               show={propertyName === "onSubmit"}

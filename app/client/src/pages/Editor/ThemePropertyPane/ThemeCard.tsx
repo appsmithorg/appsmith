@@ -4,6 +4,7 @@ import styled from "styled-components";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { last } from "lodash";
 import {
   getAppThemingStack,
   AppThemingMode,
@@ -12,12 +13,12 @@ import {
   changeSelectedThemeAction,
   setAppThemingModeStack,
 } from "actions/appThemingActions";
-import { last } from "lodash";
-import Button, { Category } from "components/ads/Button";
-import { AppTheme } from "entities/AppTheming";
-import { getCustomTextColor2 } from "widgets/WidgetUtils";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
+import { AppTheme } from "entities/AppTheming";
+import Button, { Category } from "components/ads/Button";
+import CheckmarkIcon from "remixicon-react/CheckLineIcon";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 
 interface ThemeCard {
   theme: AppTheme;
@@ -97,11 +98,11 @@ export function ThemeCard(props: ThemeCard) {
 
   return (
     <div
-      className={`p-0.5 ${
-        props.className
-      } ring-gray-200 ring-1 overflow-hidden relative group  transition-all cursor-pointer ${
-        changeable || editable ? "hover:shadow-xl" : ""
-      }`}
+      className={`ring-1 p-0.5 ${
+        props.isSelected ? "ring-primary-500 ring-2" : "ring-gray-200"
+      } ${props.className} ${
+        !selectable ? "overflow-hidden" : ""
+      }  relative group hover:shadow-xl transition-all cursor-pointer`}
       onClick={changeSelectedTheme}
     >
       <main
@@ -110,7 +111,7 @@ export function ThemeCard(props: ThemeCard) {
         }`}
       >
         <hgroup
-          className={`${tw`bg-[${primaryColor}] text-[${getCustomTextColor2(
+          className={`${tw`bg-[${primaryColor}] text-[${getComplementaryGrayscaleColor(
             primaryColor,
           )}]`} text-white flex p-3`}
         >
@@ -119,7 +120,9 @@ export function ThemeCard(props: ThemeCard) {
         </hgroup>
         <section className="flex justify-between px-3 pt-3">
           <div
-            className={`${tw`text-[${getCustomTextColor2(backgroundColor)}]`}`}
+            className={`${tw`text-[${getComplementaryGrayscaleColor(
+              backgroundColor,
+            )}]`}`}
           >
             AaBbCc
           </div>
@@ -136,7 +139,7 @@ export function ThemeCard(props: ThemeCard) {
         <section className="p-3">
           <div className="flex space-x-2">
             <button
-              className={`${tw`rounded-[${primaryBorderRadius}] bg-[${primaryColor}] text-[${getCustomTextColor2(
+              className={`${tw`rounded-[${primaryBorderRadius}] bg-[${primaryColor}] text-[${getComplementaryGrayscaleColor(
                 primaryColor,
               )}] px-4 py-1 ${tw`${css({
                 "&": {
@@ -188,6 +191,9 @@ export function ThemeCard(props: ThemeCard) {
           Apply this theme
         </div>
       </aside>
+      {props.isSelected && (
+        <CheckmarkIcon className="absolute w-6 h-6 text-white border-2 border-white rounded-full -right-2 -top-2 bg-primary-500" />
+      )}
     </div>
   );
 }
