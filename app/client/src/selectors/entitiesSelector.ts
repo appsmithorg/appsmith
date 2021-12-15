@@ -530,6 +530,12 @@ export const getExistingActionNames = createSelector(
   },
 );
 
+export const getExistingJSCollectionNames = createSelector(
+  getJSCollections,
+  (jsActions) =>
+    jsActions.map((action: { config: { name: string } }) => action.config.name),
+);
+
 export const getAppMode = (state: AppState) => state.entities.app.mode;
 
 export const widgetsMapWithParentModalId = (state: AppState) => {

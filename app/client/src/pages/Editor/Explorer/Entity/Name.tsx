@@ -18,6 +18,7 @@ import { Classes, Position } from "@blueprintjs/core";
 import { AppState } from "reducers";
 import {
   getExistingActionNames,
+  getExistingJSCollectionNames,
   getExistingPageNames,
   getExistingWidgetNames,
 } from "selectors/entitiesSelector";
@@ -152,10 +153,8 @@ export const EntityName = forwardRef(
       useSelector(getExistingActionNames),
     );
 
-    const existingJSCollectionNames: string[] = useSelector((state: AppState) =>
-      state.entities.jsActions.map(
-        (action: { config: { name: string } }) => action.config.name,
-      ),
+    const existingJSCollectionNames: string[] = useSelector(
+      getExistingJSCollectionNames,
     );
 
     const hasNameConflict = useCallback(
