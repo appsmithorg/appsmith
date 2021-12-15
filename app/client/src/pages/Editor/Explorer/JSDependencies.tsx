@@ -53,7 +53,7 @@ const Title = styled.div`
   height: 30px;
   align-items: center;
   padding-right: 8px;
-  padding-right: 6px;
+  padding-left: 0.25rem;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
   }
@@ -108,7 +108,7 @@ export function JSDependencies() {
           isVisible={!!dependencyList}
           onClick={toggleDependencies}
         />
-        <span className="text-gray-900 ml-1">Dependencies</span>
+        <span className="text-gray-900 ml-1 font-medium">DEPENDENCIES</span>
         <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
           <Icon
             className="t--help-icon"

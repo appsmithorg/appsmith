@@ -71,7 +71,17 @@ const NoResult = styled(NonIdealState)`
 `;
 
 const StyledDivider = styled(Divider)`
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: #f0f0f0;
+  margin-top: 0;
+  margin-bottom: 5px;
+`;
+
+const AppLevelIndicator = styled.div`
+  text-align: center;
+  width: 100%;
+  font-size: 10px;
+  font-weight: 400;
+  color: #716e6e;
 `;
 function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
@@ -165,6 +175,9 @@ function EntityExplorer(props: IPanelProps) {
         />
       )}
       <StyledDivider />
+      <AppLevelIndicator className="text-center text-gray-300 text-sm">
+        This Application
+      </AppLevelIndicator>
       <Datasources />
       <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />

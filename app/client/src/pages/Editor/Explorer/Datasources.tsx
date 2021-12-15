@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useAppWideAndOtherDatasource } from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
@@ -6,7 +6,6 @@ import { useSelector } from "store";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getPageList,
 } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
 import { keyBy } from "lodash";
@@ -26,7 +25,7 @@ const emptyNode = (
 );
 
 const ShowAll = styled.div`
-  padding: 0.25rem 1rem;
+  padding: 0.25rem 1.5rem;
   font-weight: 500;
   font-size: 12px;
   color: ${Colors.DOVE_GRAY2};
@@ -40,38 +39,39 @@ const ShowAll = styled.div`
 `;
 
 export function Datasources() {
-  const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
+  const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
-  const pages = useSelector(getPageList);
-  const pageId = useSelector(getCurrentPageId) || pages[0].pageId;
-
+  const pageId = useSelector(getCurrentPageId) || "";
   const plugins = useSelector(getPlugins);
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
-
-  const addDatasource = () => {
+  const addDatasource = useCallback(() => {
     history.push(
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
     );
-  };
+  }, [applicationId, pageId]);
 
-  const listDatasource = () => {
+  const listDatasource = useCallback(() => {
     history.push(
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
     );
-  };
+  }, [applicationId, pageId]);
 
-  const datasourceElements = appWideDS.map((datasource: Datasource) => {
-    return (
-      <ExplorerDatasourceEntity
-        datasource={datasource}
-        key={datasource.id}
-        pageId={pageId}
-        plugin={pluginGroups[datasource.pluginId]}
-        searchKeyword={""}
-        step={1}
-      />
-    );
-  });
+  const datasourceElements = React.useMemo(
+    () =>
+      appWideDS.map((datasource: Datasource) => {
+        return (
+          <ExplorerDatasourceEntity
+            datasource={datasource}
+            key={datasource.id}
+            pageId={pageId}
+            plugin={pluginGroups[datasource.pluginId]}
+            searchKeyword={""}
+            step={1}
+          />
+        );
+      }),
+    [appWideDS, pageId],
+  );
 
   return (
     <Entity

@@ -1,11 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useFilesForExplorer } from "../hooks";
 import { Entity } from "../Entity/index";
-import {
-  createMessage,
-  ADD_WIDGET_TOOLTIP,
-  ADD_QUERY_JS_TOOLTIP,
-} from "constants/messages";
+import { createMessage, ADD_QUERY_JS_TOOLTIP } from "constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -33,13 +29,14 @@ const emptyNode = (
   </EntityPlaceholder>
 );
 
-function Files({ pageId }: any) {
-  const files = useFilesForExplorer("type");
+function Files() {
+  const [sortBy, setSortBy] = React.useState("name");
+  const pageId = useSelector(getCurrentPageId);
+  const files = useFilesForExplorer(sortBy);
   const currentApplicationId = useSelector(getCurrentApplicationId);
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const dispatch = useDispatch();
-
   const onCreate = useCallback(() => {
     dispatch(
       toggleShowGlobalSearchModal(
@@ -110,12 +107,12 @@ function Files({ pageId }: any) {
       className={`group`}
       disabled={false}
       entityId={pageId + "_widgets"}
-      icon={""}
+      icon={null}
       isDefaultExpanded
       key={pageId + "_widgets"}
       name="QUERIES/JS"
       onClickRightIcon={() => {
-        const test = "";
+        setSortBy((sort) => (sort === "name" ? "type" : "name"));
       }}
       onCreate={onCreate}
       rightIcon={SortFileIcon}
