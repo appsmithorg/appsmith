@@ -5,7 +5,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import Entity from "../Entity";
+import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
 import { BUILDER_PAGE_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { createPage, updatePage } from "actions/pageActions";
@@ -13,8 +13,8 @@ import {
   hiddenPageIcon,
   pageIcon,
   defaultPageIcon,
-  pageGroupIcon,
   settingsIcon,
+  currentPageIcon,
 } from "../ExplorerIcons";
 import {
   createMessage,
@@ -27,6 +27,18 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { Position } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import styled from "styled-components";
+import PageContextMenu from "./PageContextMenu";
+import { resolveAsSpaceChar } from "utils/helpers";
+
+const StyledEntity = styled(Entity)`
+  &.pages {
+    & > div:not(.t--entity-item) {
+      height: 148px !important;
+      overflow: scroll;
+    }
+  }
+`;
 
 function PageChooser() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -69,15 +81,16 @@ function PageChooser() {
   );
 
   return (
-    <Entity
+    <StyledEntity
       action={() =>
         history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId))
       }
       addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
       alwaysShowRightIcon
       className="group pages"
+      disabled
       entityId="Pages"
-      icon={pageGroupIcon}
+      icon={""}
       isDefaultExpanded
       name="PAGES"
       onClickRightIcon={() => {
@@ -92,29 +105,41 @@ function PageChooser() {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
         const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
         const isCurrentPage = currentPageId === page.pageId;
+        const contextMenu = (
+          <PageContextMenu
+            applicationId={applicationId as string}
+            className={EntityClassNames.CONTEXT_MENU}
+            isDefaultPage={page.isDefault}
+            isHidden={!!page.isHidden}
+            key={page.pageId}
+            name={page.pageName}
+            pageId={page.pageId}
+          />
+        );
 
         return (
           <Entity
             action={() => switchPage(page.pageId)}
             active={isCurrentPage}
             className="page"
-            // contextMenu={contextMenu}
+            contextMenu={contextMenu}
             entityId={page.pageId}
             icon={icon}
             isDefaultExpanded={isCurrentPage}
             key={key.toString()}
             name={page.pageName}
-            // onNameEdit={resolveAsSpaceChar}
+            onNameEdit={resolveAsSpaceChar}
+            // preRightIcon={isCurrentPage ? currentPageIcon : ""}
             rightIcon={rightIcon}
             searchKeyword={""}
-            step={0}
+            step={2}
             updateEntityName={(id, name) =>
               updatePage(id, name, !!page.isHidden)
             }
           />
         );
       })}
-    </Entity>
+    </StyledEntity>
   );
 }
 

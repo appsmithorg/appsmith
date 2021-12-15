@@ -93,7 +93,7 @@ export const jsFunctionIcon = (
 
 const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 export const settingsIcon = (
-  <SettingsIcon color={Colors.GRAY} height={16} width={16} />
+  <SettingsIcon color={Colors.CODE_GRAY} height={16} width={16} />
 );
 
 const QueryMainIcon = MenuIcons.QUERY_MAIN;
@@ -195,3 +195,12 @@ export function MethodTag(props: { type: typeof HTTP_METHODS[number] }) {
     </StyledTag>
   );
 }
+
+const CurrentPageIcon = MenuIcons.CURRENT_PAGE_ICON;
+export const currentPageIcon = (
+  <CurrentPageIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);

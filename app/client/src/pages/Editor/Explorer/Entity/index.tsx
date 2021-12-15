@@ -25,6 +25,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
   RIGHT_ICON = "entity-right-icon",
+  PRE_RIGHT_ICON = "entity-pre-right-icon",
   ADD_BUTTON = "t--entity-add-btn",
   NAME = "t--entity-name",
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
@@ -169,7 +170,7 @@ export type EntityProps = {
   onClickRightIcon?: () => void;
   addButtonHelptext?: string;
   isBeta?: boolean;
-  preRightIcon?: string;
+  preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
 };
 
@@ -281,7 +282,7 @@ export const Entity = forwardRef(
           />
           {props.preRightIcon && (
             <IconWrapper
-              className={EntityClassNames.RIGHT_ICON}
+              className={EntityClassNames.PRE_RIGHT_ICON}
               onClick={props.onClickPreRightIcon}
             >
               {props.preRightIcon}
