@@ -51,15 +51,15 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
+
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
-import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
@@ -80,8 +80,6 @@ import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
-import EndTour from "pages/Editor/GuidedTour/EndTour";
-import Boxed from "pages/Editor/GuidedTour/Boxed";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -96,7 +94,6 @@ const HeaderWrapper = styled.div`
     ${(props) => getTypographyByKey(props, "h4")}
     color: ${(props) => props.theme.colors.header.appName};
   }
-
   & ${Profile} {
     width: 24px;
     height: 24px;
@@ -166,7 +163,6 @@ const BindingBanner = styled.div`
   transform: translate(-50%, 0);
   text-align: center;
   background: ${Colors.DANUBE};
-
   color: ${Colors.WHITE};
   font-weight: 500;
   font-size: 15px;
@@ -175,7 +171,6 @@ const BindingBanner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
   z-index: 9999;
 `;
@@ -185,7 +180,6 @@ const StyledDeployIcon = styled(Icon)`
   width: 20px;
   align-self: center;
   background: ${(props) => props.theme.colors.header.shareBtnHighlight};
-
   &:hover {
     background: rgb(191, 65, 9);
   }
@@ -217,6 +211,7 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
+  inOnboarding: boolean;
   sharedUserList: OrgUser[];
   currentUser?: User;
 };
@@ -289,19 +284,21 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  const showGitSyncModal = useCallback(() => {
-    dispatch(
-      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
-    );
-  }, [dispatch, setIsGitSyncModalOpen]);
-
-  const handleClickDeploy = useCallback(() => {
-    if (getFeatureFlags().GIT && isGitConnected) {
-      showGitSyncModal();
-    } else {
-      handlePublish();
-    }
-  }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
+  const handleClickDeploy = useCallback(
+    (fromDeploy?: boolean) => {
+      if (getFeatureFlags().GIT && isGitConnected) {
+        dispatch(showConnectGitModal());
+        AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+          source: fromDeploy
+            ? "Deploy button"
+            : "Application name menu (top left)",
+        });
+      } else {
+        handlePublish();
+      }
+    },
+    [getFeatureFlags().GIT, dispatch, handlePublish],
+  );
 
   /**
    * on hovering the menu, make the explorer active
@@ -372,6 +369,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               />
             </AppsmithLink>
           </TooltipComponent>
+
           <TooltipComponent
             autoFocus={false}
             content={createMessage(RENAME_APPLICATION_TOOLTIP)}
@@ -391,7 +389,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               defaultValue={currentApplication?.name || ""}
-              deploy={handleClickDeploy}
+              deploy={() => handleClickDeploy(false)}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -425,71 +423,67 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection className="space-x-3">
           <EditorSaveIndicator />
-          <Boxed alternative={<EndTour />} step={8}>
-            <RealtimeAppEditors applicationId={applicationId} />
-            <FormDialogComponent
-              Form={AppInviteUsersForm}
-              applicationId={applicationId}
-              canOutsideClickClose
-              headerIcon={{
-                name: "right-arrow",
-                bgColor: "transparent",
-              }}
-              isOpen={showAppInviteUsersDialog}
-              orgId={orgId}
-              title={
-                currentApplication
-                  ? currentApplication.name
-                  : "Share Application"
-              }
+          <RealtimeAppEditors applicationId={applicationId} />
+          <FormDialogComponent
+            Form={AppInviteUsersForm}
+            applicationId={applicationId}
+            canOutsideClickClose
+            headerIcon={{
+              name: "right-arrow",
+              bgColor: "transparent",
+            }}
+            isOpen={showAppInviteUsersDialog}
+            orgId={orgId}
+            title={
+              currentApplication ? currentApplication.name : "Share Application"
+            }
+            trigger={
+              <TooltipComponent
+                content={
+                  filteredSharedUserList.length
+                    ? createMessage(
+                        SHARE_BUTTON_TOOLTIP_WITH_USER(
+                          filteredSharedUserList.length,
+                        ),
+                      )
+                    : createMessage(SHARE_BUTTON_TOOLTIP)
+                }
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.BOTTOM}
+              >
+                <ShareButtonComponent />
+              </TooltipComponent>
+            }
+          />
+          <DeploySection>
+            <TooltipComponent
+              content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.BOTTOM_RIGHT}
+            >
+              <StyledDeployButton
+                className="t--application-publish-btn"
+                isLoading={isPublishing}
+                onClick={() => handleClickDeploy(true)}
+                size={Size.small}
+                text={"Deploy"}
+              />
+            </TooltipComponent>
+
+            <DeployLinkButtonDialog
+              link={getApplicationViewerPageURL({
+                applicationId: props.applicationId,
+                pageId,
+              })}
               trigger={
-                <TooltipComponent
-                  content={
-                    filteredSharedUserList.length
-                      ? createMessage(
-                          SHARE_BUTTON_TOOLTIP_WITH_USER(
-                            filteredSharedUserList.length,
-                          ),
-                        )
-                      : createMessage(SHARE_BUTTON_TOOLTIP)
-                  }
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position={Position.BOTTOM}
-                >
-                  <ShareButtonComponent />
-                </TooltipComponent>
+                <StyledDeployIcon
+                  fillColor="#fff"
+                  name={"down-arrow"}
+                  size={IconSize.XXL}
+                />
               }
             />
-            <DeploySection>
-              <TooltipComponent
-                content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position={Position.BOTTOM_RIGHT}
-              >
-                <StyledDeployButton
-                  className="t--application-publish-btn"
-                  isLoading={isPublishing}
-                  onClick={handleClickDeploy}
-                  size={Size.small}
-                  text={"Deploy"}
-                />
-              </TooltipComponent>
-
-              <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL({
-                  applicationId: props.applicationId,
-                  pageId,
-                })}
-                trigger={
-                  <StyledDeployIcon
-                    fillColor="#fff"
-                    name={"down-arrow"}
-                    size={IconSize.XXL}
-                  />
-                }
-              />
-            </DeploySection>
-          </Boxed>
+          </DeploySection>
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown

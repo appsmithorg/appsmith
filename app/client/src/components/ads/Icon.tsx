@@ -46,7 +46,7 @@ import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
+// import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
 import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
 import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
@@ -78,6 +78,7 @@ import { ControlIcons } from "icons/ControlIcons";
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
+import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
 import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
@@ -135,6 +136,7 @@ import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
+import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -277,6 +279,7 @@ export const IconCollection = [
   "rocket",
   "search",
   "send-button",
+  "settings-2-line",
   "share",
   "share-2",
   "share-box",
@@ -467,7 +470,7 @@ const Icon = forwardRef(
         returnIcon = <DiscordIcon />;
         break;
       case "down-arrow-2":
-        returnIcon = <DownArrow2 />;
+        returnIcon = <ArrowDownLineIcon />;
         break;
       case "downArrow":
         returnIcon = <DownArrow />;
@@ -627,6 +630,9 @@ const Icon = forwardRef(
         break;
       case "send-button":
         returnIcon = <SendButton />;
+        break;
+      case "settings-2-line":
+        returnIcon = <Settings2LineIcon />;
         break;
       case "share":
         returnIcon = <ShareForwardIcon />;

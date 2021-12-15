@@ -446,7 +446,7 @@ public class ActionCollectionServiceTest {
         assert createdActionCollectionDTO != null;
 
         final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = applicationPageService.publish(testApp.getId(), true)
-                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId()))
+                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId(), null))
                 .collectList();
 
         StepVerifier.create(viewModeCollectionsMono)

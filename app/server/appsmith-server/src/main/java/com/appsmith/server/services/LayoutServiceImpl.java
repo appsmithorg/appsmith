@@ -6,15 +6,18 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Slf4j
@@ -22,10 +25,13 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 public class LayoutServiceImpl implements LayoutService {
 
     private final NewPageService newPageService;
+    private final ResponseUtils responseUtils;
 
     @Autowired
-    public LayoutServiceImpl(NewPageService newPageService) {
+    public LayoutServiceImpl(NewPageService newPageService,
+                             ResponseUtils responseUtils) {
         this.newPageService = newPageService;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -58,6 +64,16 @@ public class LayoutServiceImpl implements LayoutService {
     }
 
     @Override
+    public Mono<Layout> createLayout(String defaultPageId, Layout layout, String branchName) {
+        if (StringUtils.isEmpty(branchName)) {
+            return createLayout(defaultPageId, layout);
+        }
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .flatMap(branchedPage ->  createLayout(branchedPage.getId(), layout))
+                .map(responseUtils::updateLayoutWithDefaultResources);
+    }
+
+    @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
         return newPageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
@@ -68,6 +84,16 @@ public class LayoutServiceImpl implements LayoutService {
                     matchedLayout.setViewMode(viewMode);
                     return matchedLayout;
                 });
+    }
+
+    @Override
+    public Mono<Layout> getLayout(String defaultPageId, String layoutId, Boolean viewMode, String branchName) {
+        if (StringUtils.isEmpty(branchName)) {
+            return getLayout(defaultPageId, layoutId, viewMode);
+        }
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .flatMap(branchedPage ->  getLayout(branchedPage.getId(), layoutId, viewMode))
+                .map(responseUtils::updateLayoutWithDefaultResources);
     }
 
 }

@@ -30,6 +30,7 @@ import { handlePathUpdated } from "actions/recentEntityActions";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
@@ -46,6 +47,7 @@ import {
 import { loading } from "selectors/onboardingSelectors";
 import GuidedTourDialog from "./GuidedTour/Dialog";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -220,8 +222,10 @@ class Editor extends Component<Props> {
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
+              <DisconnectGitModal />
               <ConcurrentPageEditorToast />
               <GuidedTourDialog />
+              <RepoLimitExceededErrorModal />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

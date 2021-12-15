@@ -8,6 +8,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.OrganizationService;
@@ -32,6 +33,7 @@ public class ApplicationForkingService {
     private final PolicyUtils policyUtils;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
+    private final ResponseUtils responseUtils;
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
@@ -73,6 +75,14 @@ public class ApplicationForkingService {
                             .flatMap(application ->
                                     sendForkApplicationAnalyticsEvent(srcApplicationId, targetOrganizationId, application));
                 });
+    }
+
+    public Mono<Application> forkApplicationToOrganization(String srcApplicationId,
+                                                           String targetOrganizationId,
+                                                           String branchName) {
+        return applicationService.findBranchedApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
+                .flatMap(branchedApplicationId -> forkApplicationToOrganization(branchedApplicationId, targetOrganizationId))
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String orgId, Application application) {
