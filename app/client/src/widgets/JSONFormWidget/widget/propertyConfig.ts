@@ -1,7 +1,7 @@
 import generatePanelPropertyConfig from "./propertyConfig/fieldPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { FormBuilderWidgetProps } from ".";
+import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -11,7 +11,7 @@ const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
 
 export const sourceDataValidationFn = (
   value: any,
-  props: FormBuilderWidgetProps,
+  props: JSONFormWidgetProps,
   _?: any,
 ) => {
   if (_.isPlainObject(value)) {

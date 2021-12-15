@@ -3,8 +3,8 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { FieldType } from "widgets/FormBuilderWidget/constants";
-import { MultiSelectFieldProps } from "widgets/FormBuilderWidget/fields/MultiSelectField";
+import { FieldType } from "widgets/JSONFormWidget/constants";
+import { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
 import { HiddenFnParams, getSchemaItem } from "../helper";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {

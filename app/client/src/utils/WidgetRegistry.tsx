@@ -111,9 +111,9 @@ import MultiSelectTreeWidget, {
 import SwitchGroupWidget, {
   CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
 } from "widgets/SwitchGroupWidget";
-import FormBuilderWidget, {
-  CONFIG as FORM_BUILDER_WIDGET_CONFIG,
-} from "widgets/FormBuilderWidget";
+import JSONFormWidget, {
+  CONFIG as JSON_FORM_WIDGET_CONFIG,
+} from "widgets/JSONFormWidget";
 
 import log from "loglevel";
 
@@ -161,7 +161,7 @@ export const registerWidgets = () => {
   registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG);
   registerWidget(AudioWidget, AUDIO_WIDGET_CONFIG);
-  registerWidget(FormBuilderWidget, FORM_BUILDER_WIDGET_CONFIG);
+  registerWidget(JSONFormWidget, JSON_FORM_WIDGET_CONFIG);
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };

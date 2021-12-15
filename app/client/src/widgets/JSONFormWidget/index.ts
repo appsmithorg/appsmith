@@ -3,7 +3,7 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Form Builder",
+  name: "JSON Form",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
@@ -16,7 +16,7 @@ export const CONFIG = {
     showReset: true,
     title: "Form",
     version: 1,
-    widgetName: "FormBuilder",
+    widgetName: "JSONForm",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

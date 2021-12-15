@@ -3,9 +3,9 @@ import { cloneDeep, debounce, isEmpty, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
-import SchemaParser from "widgets/FormBuilderWidget/schemaParser";
+import SchemaParser from "widgets/JSONFormWidget/schemaParser";
 import styled from "constants/DefaultTheme";
-import { ARRAY_ITEM_KEY, Schema } from "widgets/FormBuilderWidget/constants";
+import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
 import { Category, Size } from "components/ads/Button";
 import {
   BaseItemProps,

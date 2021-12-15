@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import { pick } from "lodash";
 
-import Field from "widgets/FormBuilderWidget/component/Field";
+import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import MultiSelect from "widgets/MultiSelectWidget/component";
 import useEvents from "./useEvents";

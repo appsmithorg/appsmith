@@ -1,7 +1,7 @@
 import { isEmpty } from "lodash";
 
 import { PanelConfig } from "constants/PropertyControlConstants";
-import { FieldType } from "widgets/FormBuilderWidget/constants";
+import { FieldType } from "widgets/JSONFormWidget/constants";
 import { getSchemaItem, HiddenFnParams } from "./helper";
 import {
   CHECKBOX_PROPERTIES,

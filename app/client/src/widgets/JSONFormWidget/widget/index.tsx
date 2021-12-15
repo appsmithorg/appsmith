@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { isEmpty } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import FormBuilderComponent from "../component";
+import JSONFormComponent from "../component";
 import propertyConfig from "./propertyConfig";
 import SchemaParser from "../schemaParser";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -15,7 +15,7 @@ import {
 import { ARRAY_ITEM_KEY, DataType, Schema, SchemaItem } from "../constants";
 import { AppState } from "reducers";
 
-export interface FormBuilderWidgetProps extends WidgetProps {
+export interface JSONFormWidgetProps extends WidgetProps {
   canvasWidgets: Record<string, WidgetProps>;
   fixedFooter: boolean;
   sourceData?: Record<string, any>;
@@ -28,10 +28,7 @@ export interface FormBuilderWidgetProps extends WidgetProps {
   title: string;
 }
 
-class FormBuilderWidget extends BaseWidget<
-  FormBuilderWidgetProps,
-  WidgetState
-> {
+class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return propertyConfig;
   }
@@ -57,12 +54,12 @@ class FormBuilderWidget extends BaseWidget<
     this.constructAndSaveSchemaIfRequired();
   }
 
-  componentDidUpdate(prevProps: FormBuilderWidgetProps) {
+  componentDidUpdate(prevProps: JSONFormWidgetProps) {
     this.constructAndSaveSchemaIfRequired(prevProps);
     this.parseAndSaveFieldState();
   }
 
-  constructAndSaveSchemaIfRequired = (prevProps?: FormBuilderWidgetProps) => {
+  constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {
     const prevSourceData = prevProps?.sourceData;
     const currSourceData = this.props?.sourceData;
     const widget = this.props.canvasWidgets[this.props.widgetId];
@@ -170,7 +167,7 @@ class FormBuilderWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <FormBuilderComponent
+      <JSONFormComponent
         {...this.props}
         executeAction={this.onExecuteAction}
         onSubmit={this.onSubmit}
@@ -192,4 +189,4 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-export default connect(mapStateToProps, null)(FormBuilderWidget);
+export default connect(mapStateToProps, null)(JSONFormWidget);

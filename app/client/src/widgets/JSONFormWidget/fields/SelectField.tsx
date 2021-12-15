@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import { pick } from "lodash";
 
-import Field from "widgets/FormBuilderWidget/component/Field";
+import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import DropDownComponent from "widgets/DropdownWidget/component";
 import { DropdownOption } from "widgets/DropdownWidget/constants";

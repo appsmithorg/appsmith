@@ -1,14 +1,14 @@
 import { get } from "lodash";
 
-import SchemaParser from "widgets/FormBuilderWidget/schemaParser";
+import SchemaParser from "widgets/JSONFormWidget/schemaParser";
 import { FieldType, SchemaItem, ARRAY_ITEM_KEY } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
-import { FormBuilderWidgetProps } from "..";
+import { JSONFormWidgetProps } from "..";
 
-export type HiddenFnParams = [FormBuilderWidgetProps, string];
+export type HiddenFnParams = [JSONFormWidgetProps, string];
 
 export const fieldTypeUpdateHook = (
-  props: FormBuilderWidgetProps,
+  props: JSONFormWidgetProps,
   propertyPath: string,
   fieldType: FieldType,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
@@ -33,7 +33,7 @@ export const fieldTypeUpdateHook = (
 };
 
 export const hiddenIfArrayItemIsObject = (
-  props: FormBuilderWidgetProps,
+  props: JSONFormWidgetProps,
   propertyPath: string,
   options?: { checkGrandParentPath: boolean },
 ) => {
@@ -52,7 +52,7 @@ export const hiddenIfArrayItemIsObject = (
 };
 
 export const getSchemaItem = <TSchemaItem extends SchemaItem>(
-  props: FormBuilderWidgetProps,
+  props: JSONFormWidgetProps,
   propertyPath: string,
 ) => {
   const parentPropertyPath = getParentPropertyPath(propertyPath);

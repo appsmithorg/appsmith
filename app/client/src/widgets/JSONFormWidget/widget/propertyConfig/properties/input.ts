@@ -1,7 +1,7 @@
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { CurrencyDropdownOptions } from "widgets/InputWidget/component/CurrencyCodeDropdown";
-import { FieldType, INPUT_TYPES } from "widgets/FormBuilderWidget/constants";
-import { FormBuilderWidgetProps } from "../..";
+import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
+import { JSONFormWidgetProps } from "../..";
 import { getSchemaItem, HiddenFnParams } from "../helper";
 import { ISDCodeDropdownOptions } from "widgets/InputWidget/component/ISDCodeDropdown";
 import {
@@ -11,7 +11,7 @@ import {
 
 function defaultValueValidation(
   value: any,
-  props: FormBuilderWidgetProps,
+  props: JSONFormWidgetProps,
   lodash: any,
   _: any,
   propertyPath: string,

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { pick } from "lodash";
 
-import Field from "widgets/FormBuilderWidget/component/Field";
+import Field from "widgets/JSONFormWidget/component/Field";
 import { AlignWidget } from "widgets/constants";
 import {
   BaseFieldComponentProps,

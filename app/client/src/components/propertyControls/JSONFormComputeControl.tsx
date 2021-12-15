@@ -17,7 +17,7 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
-import { FormBuilderWidgetProps } from "widgets/FormBuilderWidget/widget";
+import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import {
   ARRAY_ITEM_KEY,
   DataType,
@@ -25,7 +25,7 @@ import {
   getBindingTemplate,
   Schema,
   SchemaItem,
-} from "widgets/FormBuilderWidget/constants";
+} from "widgets/JSONFormWidget/constants";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -236,7 +236,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
 
 export interface JSONFormComputeControlProps extends ControlProps {
   defaultValue?: string;
-  widgetProperties: FormBuilderWidgetProps;
+  widgetProperties: JSONFormWidgetProps;
   placeholderText?: string;
 }
 

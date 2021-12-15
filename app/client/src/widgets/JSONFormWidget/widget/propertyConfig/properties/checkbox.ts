@@ -1,6 +1,6 @@
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { FieldType } from "widgets/FormBuilderWidget/constants";
+import { FieldType } from "widgets/JSONFormWidget/constants";
 import { HiddenFnParams, getSchemaItem } from "../helper";
 
 type ExtendedControlConfig = PropertyPaneControlConfig & {

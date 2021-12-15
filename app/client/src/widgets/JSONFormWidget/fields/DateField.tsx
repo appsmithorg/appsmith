@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { pick } from "lodash";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
-import Field from "widgets/FormBuilderWidget/component/Field";
+import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
 import {

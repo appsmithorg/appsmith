@@ -4,7 +4,7 @@ import {
   FieldType,
   FIELD_EXPECTING_OPTIONS,
   FIELD_SUPPORTING_FOCUS_EVENTS,
-} from "widgets/FormBuilderWidget/constants";
+} from "widgets/JSONFormWidget/constants";
 import {
   fieldTypeUpdateHook,
   HiddenFnParams,

@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { pick } from "lodash";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
-import Field from "widgets/FormBuilderWidget/component/Field";
+import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
 import { AlignWidget } from "widgets/constants";

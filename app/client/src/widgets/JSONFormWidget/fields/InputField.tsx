@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
 import { pick } from "lodash";
 
-import Field from "widgets/FormBuilderWidget/component/Field";
+import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import InputComponent from "widgets/InputWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

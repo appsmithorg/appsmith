@@ -13,7 +13,7 @@ type StyledContainerProps = {
   backgroundColor?: string;
 };
 
-export type FormBuilderComponentProps<TValues> = {
+export type JSONFormComponentProps<TValues> = {
   backgroundColor?: string;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   fixedFooter: boolean;
@@ -51,7 +51,7 @@ const StyledZeroTitle = styled(Text)`
   width: 100%;
 `;
 
-function FormBuilderComponent<TValues>({
+function JSONFormComponent<TValues>({
   backgroundColor,
   executeAction,
   renderMode,
@@ -60,7 +60,7 @@ function FormBuilderComponent<TValues>({
   updateWidgetMetaProperty,
   updateWidgetProperty,
   ...rest
-}: FormBuilderComponentProps<TValues>) {
+}: JSONFormComponentProps<TValues>) {
   const isSchemaEmpty = isEmpty(schema);
   const zeroState = (
     <StyledZeroStateWrapper>
@@ -105,4 +105,4 @@ function FormBuilderComponent<TValues>({
   );
 }
 
-export default FormBuilderComponent;
+export default JSONFormComponent;
