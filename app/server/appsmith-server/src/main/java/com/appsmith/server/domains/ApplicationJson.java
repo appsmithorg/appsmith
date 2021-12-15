@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,9 @@ import java.util.Set;
 @Getter
 @Setter
 public class ApplicationJson {
+
+    @JsonIgnore
+    Integer version = 1;
 
     Application exportedApplication;
 

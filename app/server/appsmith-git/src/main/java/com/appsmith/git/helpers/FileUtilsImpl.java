@@ -67,6 +67,8 @@ public class FileUtilsImpl implements FileInterface {
 
     private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("(.*?)\\.(md|git|gitignore)$");
 
+    private static final Integer version = 1;
+
 
     /**
      * This method will save the complete application in the local repo directory.
@@ -257,11 +259,11 @@ public class FileUtilsImpl implements FileInterface {
                         .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
                         .create();
 
-                    // Extract application data from the json
-                    applicationGitReference.setApplication(readFile(baseRepoPath.resolve("application.json"), gson));
-
                     // Extract application metadata from the json
                     applicationGitReference.setMetadata(readFile(baseRepoPath.resolve("metadata.json"), gson));
+
+                    // Extract application data from the json
+                    applicationGitReference.setApplication(readFile(baseRepoPath.resolve("application.json"), gson));
 
                     // Extract actions
                     applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson));
