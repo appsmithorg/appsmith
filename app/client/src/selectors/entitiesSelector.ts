@@ -534,3 +534,9 @@ export const getDatasourceIdToNameMap = createSelector(
     }, {} as Record<string, string>);
   },
 );
+
+export const getWidgetsForCurrentPage = createSelector(
+  (state: AppState) => state.ui.pageCanvasStructure,
+  getCurrentPageId,
+  (canvasStructure, pageId) => (pageId ? canvasStructure[pageId] : null),
+);

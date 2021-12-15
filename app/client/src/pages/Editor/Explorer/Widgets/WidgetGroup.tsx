@@ -8,14 +8,15 @@ import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidgets } from "selectors/ui";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
-import { AppState } from "reducers";
+import { getWidgetsForCurrentPage } from "selectors/entitiesSelector";
 
 type ExplorerWidgetGroupProps = {
-  pageId: string;
   step: number;
   searchKeyword?: string;
   addWidgetsFn?: () => void;
@@ -32,21 +33,20 @@ const StyledLink = styled(Link)`
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  const widgets = useSelector(
-    (state: AppState) => state.ui.pageCanvasStructure[props.pageId],
-  );
+  const pageId = useSelector(getCurrentPageId) || "";
+  const widgets = useSelector(getWidgetsForCurrentPage);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
       Please{" "}
-      {params.pageId !== props.pageId ? (
+      {params.pageId !== pageId ? (
         <>
           <StyledLink
             to={BUILDER_PAGE_URL({
               applicationId,
-              pageId: props.pageId,
+              pageId: pageId,
             })}
           >
             switch to this page
@@ -69,14 +69,14 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!widgets && !!props.searchKeyword}
-      entityId={props.pageId + "_widgets"}
+      entityId={pageId + "_widgets"}
       icon={""}
       isDefaultExpanded={
         !!props.searchKeyword ||
-        (params.pageId === props.pageId &&
+        (params.pageId === pageId &&
           !!(selectedWidgets && selectedWidgets.length))
       }
-      key={props.pageId + "_widgets"}
+      key={pageId + "_widgets"}
       name="WIDGETS"
       onCreate={props.addWidgetsFn}
       searchKeyword={props.searchKeyword}
@@ -86,7 +86,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
         <WidgetEntity
           childWidgets={child.children}
           key={child.widgetId}
-          pageId={props.pageId}
+          pageId={pageId}
           searchKeyword={props.searchKeyword}
           step={props.step + 1}
           widgetId={child.widgetId}

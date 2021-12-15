@@ -129,7 +129,7 @@ function PageChooser() {
             key={key.toString()}
             name={page.pageName}
             onNameEdit={resolveAsSpaceChar}
-            // preRightIcon={isCurrentPage ? currentPageIcon : ""}
+            preRightIcon={isCurrentPage ? currentPageIcon : ""}
             rightIcon={rightIcon}
             searchKeyword={""}
             step={1}

@@ -25,6 +25,8 @@ import {
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "./helpers";
+import { createSelector } from "reselect";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;

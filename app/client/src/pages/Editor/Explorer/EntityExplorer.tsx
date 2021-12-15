@@ -7,14 +7,7 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
-// import {
-//   useWidgets,
-//   useActions,
-//   useFilteredDatasources,
-//   useJSCollections,
-// } from "./hooks";
 import Search from "./ExplorerSearch";
-// import ExplorerPageGroup from "./Pages/PageGroup";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -24,7 +17,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-// import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
@@ -37,12 +29,8 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getPageList,
 } from "selectors/editorSelectors";
 import { Datasources } from "./Datasources";
-import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
-// import { currentPageId } from "sagas/selectors";
-import Files from "./Files";
 import ExplorerPageEntity from "./Pages/PageEntity";
 
 const Wrapper = styled.div`
@@ -89,8 +77,7 @@ function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
   const applicationId = useSelector(getCurrentApplicationId);
-  const pages = useSelector(getPageList);
-  const currentPageId = useSelector(getCurrentPageId) || pages[0].pageId;
+  const currentPageId = useSelector(getCurrentPageId);
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -126,17 +113,19 @@ function EntityExplorer(props: IPanelProps) {
   //   noResults = noWidgets && noActions && noDatasource && noJSActions;
   // }
   const { openPanel } = props;
-  const showWidgetsSidebar = useCallback(
-    (pageId: string) => {
-      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
-      openPanel({ component: WidgetSidebar });
-      dispatch(forceOpenWidgetPanel(true));
-      if (isFirstTimeUserOnboardingEnabled) {
-        dispatch(toggleInOnboardingWidgetSelection(true));
-      }
-    },
-    [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
-  );
+  const showWidgetsSidebar = useCallback(() => {
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId: currentPageId }));
+    openPanel({ component: WidgetSidebar });
+    dispatch(forceOpenWidgetPanel(true));
+    if (isFirstTimeUserOnboardingEnabled) {
+      dispatch(toggleInOnboardingWidgetSelection(true));
+    }
+  }, [
+    openPanel,
+    applicationId,
+    isFirstTimeUserOnboardingEnabled,
+    currentPageId,
+  ]);
 
   /**
    * filter entitites
@@ -153,10 +142,6 @@ function EntityExplorer(props: IPanelProps) {
     setSearchKeyword("");
   };
 
-  const addWidgetsFn = useCallback(() => showWidgetsSidebar(currentPageId), [
-    currentPageId,
-  ]);
-
   return (
     <Wrapper className={"relative"} ref={explorerRef}>
       {/* SEARCH */}
@@ -167,7 +152,6 @@ function EntityExplorer(props: IPanelProps) {
         ref={searchInputRef}
       />
       <ExplorerPageEntity
-        pageId={currentPageId}
         searchKeyword={searchKeyword}
         showWidgetsSidebar={showWidgetsSidebar}
         step={0}

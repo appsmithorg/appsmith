@@ -3,28 +3,21 @@ import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import Files from "../Files";
 
 type ExplorerPageEntityProps = {
-  pageId: string;
   step: number;
   searchKeyword?: string;
-  showWidgetsSidebar: (pageId: string) => void;
+  showWidgetsSidebar: () => void;
 };
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
-  const addWidgetsFn = useCallback(
-    () => props.showWidgetsSidebar(props.pageId),
-    [props.pageId],
-  );
-
   return (
     <div>
       <ExplorerWidgetGroup
-        addWidgetsFn={addWidgetsFn}
-        pageId={props.pageId}
+        addWidgetsFn={props.showWidgetsSidebar}
         searchKeyword={props.searchKeyword}
         step={props.step}
       />
 
-      <Files pageId={props.pageId} />
+      <Files />
     </div>
   );
 }
