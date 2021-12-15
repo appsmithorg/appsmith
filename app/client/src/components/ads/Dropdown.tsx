@@ -598,9 +598,11 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           }
           return !option.isSectionHeader ? (
             <OptionWrapper
+              aria-selected={props.selected.value === option.value}
               className="t--dropdown-option"
               key={index}
               onClick={() => props.optionClickHandler(option)}
+              role="option"
               selected={props.selected.value === option.value}
             >
               {option.leftElement && (
@@ -835,6 +837,7 @@ export default function Dropdown(props: DropdownProps) {
       data-cy={props.cypressSelector}
       height={props.height || "36px"}
       onKeyDown={handleKeydown}
+      role="listbox"
       tabIndex={0}
       width={dropdownWidth}
     >
