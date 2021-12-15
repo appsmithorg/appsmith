@@ -99,7 +99,7 @@ function PageChooser() {
       onCreate={createPageCallback}
       rightIcon={settingsIconWithTooltip}
       searchKeyword={""}
-      step={-1}
+      step={0}
     >
       {pages.map((page, key) => {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
@@ -132,7 +132,7 @@ function PageChooser() {
             // preRightIcon={isCurrentPage ? currentPageIcon : ""}
             rightIcon={rightIcon}
             searchKeyword={""}
-            step={2}
+            step={1}
             updateEntityName={(id, name) =>
               updatePage(id, name, !!page.isHidden)
             }

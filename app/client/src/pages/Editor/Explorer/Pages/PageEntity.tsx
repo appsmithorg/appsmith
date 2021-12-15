@@ -21,7 +21,7 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
         addWidgetsFn={addWidgetsFn}
         pageId={props.pageId}
         searchKeyword={props.searchKeyword}
-        step={props.step + 1}
+        step={props.step}
       />
 
       <Files pageId={props.pageId} />

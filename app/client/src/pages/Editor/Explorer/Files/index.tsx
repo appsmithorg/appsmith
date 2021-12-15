@@ -48,7 +48,7 @@ function Files({ pageId }: any) {
       name="QUERIES/JS"
       onCreate={onCreate}
       searchKeyword={""}
-      step={-1}
+      step={0}
     >
       {files.map(({ entity, type }: any) => {
         if (type === "group") {
