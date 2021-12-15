@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.User;
@@ -10,7 +11,9 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +53,7 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, boolean viewMode, AclPermission aclPermission, Sort sort) {
+    public Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(String name, List<String> pageIds, boolean viewMode, String branchName, AclPermission aclPermission, Sort sort) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -58,6 +61,10 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
          */
 
         List<Criteria> criteriaList = new ArrayList<>();
+
+        if (!StringUtils.isEmpty(branchName)) {
+            criteriaList.add(where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME).is(branchName));
+        }
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
@@ -126,5 +133,13 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
     @Override
     public Flux<ActionCollection> findByPageId(String pageId) {
         return this.findByPageId(pageId, null);
+    }
+
+    @Override
+    public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultCollectionId, AclPermission permission) {
+        final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
+        Criteria defaultCollectionIdCriteria = where(defaultResources + "." + FieldName.COLLECTION_ID).is(defaultCollectionId);
+        Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
+        return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);
     }
 }

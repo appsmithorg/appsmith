@@ -133,7 +133,12 @@ export const getDifferenceInJSCollection = (
       const existedVar = varList.find((item) => item.name === newVar.name);
       if (!!existedVar) {
         const existedValue = existedVar.value;
-        if (existedValue.toString() !== newVar.value.toString()) {
+        if (
+          (!!existedValue &&
+            existedValue.toString() !==
+              (newVar.value && newVar.value.toString())) ||
+          (!existedValue && !!newVar.value)
+        ) {
           changedVariables.push(newVar);
         }
       } else {
