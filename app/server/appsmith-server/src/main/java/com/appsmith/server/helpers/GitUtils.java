@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 public class GitUtils {
 
     /**
-     * Special chars are transformed to "-" : https://github.com/desktop/desktop/issues/3090
      * Sample repo urls :
      * git@gitPlatform.com:user/repoName.git
      * https://gitPlatform.com/user/repoName
@@ -29,7 +28,6 @@ public class GitUtils {
     }
 
     /**
-     * Special chars are transformed to "-" : https://github.com/desktop/desktop/issues/3090
      * Sample repo urls :
      * git@github.com:username/reponame.git
      * ssh://git@bitbucket.org/<workspace_ID>/<repo_name>.git
@@ -47,8 +45,8 @@ public class GitUtils {
     }
 
     /**
-     * This method cgecks if the provided git-repo is public or private by checking the response from the get request
-     * if we get 2xx then repo is public otherwise it's private
+     * This method checks if the provided git-repo is public or private by checking the response from the get request
+     * if we get 200 or 202 then repo is public otherwise it's private
      *
      * @param remoteHttpsUrl remote url in https format
      * @return if the repo is public
