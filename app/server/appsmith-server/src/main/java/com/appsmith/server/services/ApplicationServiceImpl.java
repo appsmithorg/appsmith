@@ -547,4 +547,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId) {
         return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
     }
+
+    @Override
+    public Mono<Long> findGitConnectedApplication(String organizationId) {
+        return repository.findGitConnectedApplication(organizationId);
+    }
 }

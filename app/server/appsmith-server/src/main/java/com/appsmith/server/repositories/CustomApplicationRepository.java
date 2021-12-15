@@ -36,4 +36,6 @@ public interface CustomApplicationRepository extends AppsmithRepository<Applicat
     Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId);
 
     Mono<List<String>> getAllApplicationId(String organizationId);
+
+    Mono<Long> findGitConnectedApplication(String organizationId);
 }

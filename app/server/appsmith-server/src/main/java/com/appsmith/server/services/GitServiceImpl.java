@@ -7,6 +7,8 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -20,8 +22,11 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitConnectionLimitDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
+import com.appsmith.server.dtos.MockDataDTO;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -29,6 +34,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.helpers.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -39,12 +45,15 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -74,6 +83,9 @@ public class GitServiceImpl implements GitService {
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
+    private final CommonConfig commonConfig;
+    private final ConfigService configService;
+    private final CloudServicesConfig cloudServicesConfig;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -453,6 +465,18 @@ public class GitServiceImpl implements GitService {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 )
                 .then(getApplicationById(defaultApplicationId))
+                //Check the limit for number of private repo
+                .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
+                        .flatMap(limitCount -> {
+                            //get git connected apps count from db
+                            return applicationService.findGitConnectedApplication(application.getOrganizationId())
+                                    .flatMap(count -> {
+                                        if(limitCount <= count) {
+                                            return Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR));
+                                        }
+                                        return Mono.just(application);
+                                    });
+                        }))
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
@@ -514,8 +538,6 @@ public class GitServiceImpl implements GitService {
                                             gitApplicationMetadata.setIsRepoPrivate(true);
                                             log.debug("Error while checking if the repo is private: ", e);
                                         }
-
-                                        // TODO check if we can attach this app to git by requesting to CS
 
                                         // Set branchName for each application resource
                                         return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
@@ -599,6 +621,35 @@ public class GitServiceImpl implements GitService {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                 });
+    }
+
+    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId) {
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+        return configService.getInstanceId().map(instanceId -> {
+            if (commonConfig.isCloudHosting()) {
+                return Mono.just(orgId);
+            } else {
+                return Mono.just(instanceId);
+            }
+        }).flatMap(key -> {
+            //Call the cloud service API
+            return WebClient
+                    .create(baseUrl + "api/v1/git/limit/" + key)
+                    .get()
+                    .exchange()
+                    .flatMap(response -> {
+                        if (response.statusCode().is2xxSuccessful()) {
+                            return response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Integer>>() {
+                            });
+                        } else {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.CLOUD_SERVICES_ERROR,
+                                    "Unable to connect to cloud-services with error status {}", response.statusCode()));
+                        }
+                    })
+                    .map(ResponseDTO::getData)
+                    .doOnError(error -> log.error("Error fetching config from cloud services", error));
+        });
     }
 
     @Override

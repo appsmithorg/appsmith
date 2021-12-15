@@ -158,4 +158,13 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
                 .map(BaseDomain::getId)
                 .collectList();
     }
+
+    @Override
+    public Mono<Long> findGitConnectedApplication(String organizationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+        Query query = new Query();
+        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
+        return mongoOperations.count(query, Application.class);
+    }
 }
