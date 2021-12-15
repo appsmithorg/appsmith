@@ -50,7 +50,9 @@ function Files() {
       files.map(({ entity, type }: any) => {
         if (type === "group") {
           return (
-            <div className={`text-xs text-[${Colors.CODE_GRAY}] px-8 my-2`}>
+            <div
+              className={`text-sm text-[${Colors.CODE_GRAY}] px-4 my-2 bg-trueGray-100`}
+            >
               {entity.name}
             </div>
           );

@@ -175,9 +175,7 @@ function EntityExplorer(props: IPanelProps) {
         />
       )}
       <StyledDivider />
-      <AppLevelIndicator className="text-center text-gray-300 text-sm">
-        This Application
-      </AppLevelIndicator>
+      <div className="text-xs text-[#090707] text-center">This Application</div>
       <Datasources />
       <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />

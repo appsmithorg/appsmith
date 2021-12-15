@@ -90,7 +90,7 @@ export function Datasources() {
       {otherDS.length ? (
         <ShowAll onClick={listDatasource}>
           Show all datasources
-          <ArrowRightLineIcon color="#716E6E" size={"14px"} />
+          <ArrowRightLineIcon color={Colors.DOVE_GRAY2} size={"14px"} />
         </ShowAll>
       ) : null}
     </Entity>
