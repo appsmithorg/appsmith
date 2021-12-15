@@ -2,7 +2,7 @@ import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
 import _ from "lodash";
 import { ECMA_VERSION } from "workers/constants";
-import { unEscapeScript } from "./evaluate";
+import { sanitizeScript } from "./evaluate";
 
 /*
  * Valuable links:
@@ -153,17 +153,17 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
-    const unEscapedCode = unEscapeScript(code);
+    const sanitizedScript = sanitizeScript(code);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
-       Some syntaxes won't be valid unless they're at the RHS of a statement.
+       Some syntax won't be valid unless they're at the RHS of a statement.
        Since we're assigning all code/script to RHS during evaluation, we do the same here.
        So that during ast parse, those errors are neglected.
     */
     /* e.g. IIFE without braces
       function() { return 123; }() -> is invalid
-      let result = function() { return 123; }() -> is valid 
+      let result = function() { return 123; }() -> is valid
     */
-    const wrappedCode = wrapCode(unEscapedCode);
+    const wrappedCode = wrapCode(sanitizedScript);
     ast = getAST(wrappedCode);
   } catch (e) {
     if (e instanceof SyntaxError) {
@@ -196,7 +196,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
           isMemberExpressionNode(parent) &&
           /* Member expressions that are "computed" (with [ ] search)
              and the ones that have optional chaining ( a.b?.c )
-             will be considered top level node. 
+             will be considered top level node.
              We will stop looking for further parents */
           /* "computed" exception - isArrayAccessorNode
              Member expressions that are array accessors with static index - [9]

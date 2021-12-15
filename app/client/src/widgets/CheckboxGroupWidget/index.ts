@@ -10,6 +10,7 @@ export const CONFIG = {
   defaults: {
     rows: 1.5 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },

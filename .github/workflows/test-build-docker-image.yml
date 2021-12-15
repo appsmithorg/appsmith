@@ -20,8 +20,8 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
@@ -132,8 +132,8 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
 
     # Service containers to run with this job. Required for running tests
@@ -221,8 +221,8 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
 
     steps:
@@ -280,8 +280,8 @@ jobs:
       success() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
     defaults:
@@ -617,7 +617,6 @@ jobs:
 
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
-            --push \
             --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
             $tag_args \
             .
@@ -631,10 +630,29 @@ jobs:
 
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
-            --push \
             --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
             $tag_args \
             .
+
+      - name: Check and push fat image to Docker Hub with commit tag
+        if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            tag=nightly
+          else
+            tag="${{ steps.vars.outputs.tag }}"
+          fi
+          docker run --detach --publish 80:80 --name appsmith \
+            "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
+          sleep 180
+          cd deploy/docker
+          if bash run-test.sh; then
+            echo "Fat container test passed. Pushing image."
+            docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+          else
+            echo "Fat container test FAILED. Not pushing image."
+          fi
 
       # Build release Docker image and push to Docker Hub
       - name: Push server release image to Docker Hub
