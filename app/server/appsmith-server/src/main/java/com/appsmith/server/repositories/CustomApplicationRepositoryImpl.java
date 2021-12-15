@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -74,8 +75,8 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault) {
-        final ApplicationPage applicationPage = new ApplicationPage(pageId, isDefault);
+    public Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId) {
+        final ApplicationPage applicationPage = new ApplicationPage(pageId, isDefault, defaultPageId);
         return mongoOperations.updateFirst(
                 Query.query(getIdCriteria(applicationId)),
                 new Update().push(fieldName(QApplication.application.pages), applicationPage),
@@ -141,5 +142,20 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
         return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
+    }
+
+    /**
+     * Returns a list of application ids which are under the organization with provided organizationId
+     * @param organizationId organization id
+     * @return list of String
+     */
+    @Override
+    public Mono<List<String>> getAllApplicationId(String organizationId) {
+        Query query = new Query();
+        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.fields().include(fieldName(QApplication.application.id));
+        return mongoOperations.find(query, Application.class)
+                .map(BaseDomain::getId)
+                .collectList();
     }
 }

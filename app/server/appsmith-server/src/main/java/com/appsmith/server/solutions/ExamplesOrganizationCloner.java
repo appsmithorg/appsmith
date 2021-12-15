@@ -8,6 +8,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
@@ -208,7 +209,9 @@ public class ExamplesOrganizationCloner {
                     final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
-
+                    DefaultResources defaults = new DefaultResources();
+                    defaults.setApplicationId(newPage.getApplicationId());
+                    newPage.setDefaultResources(defaults);
                     makePristine(newPage);
                     PageDTO page = newPage.getUnpublishedPage();
 
@@ -219,7 +222,7 @@ public class ExamplesOrganizationCloner {
                     }
 
                     page.setApplicationId(newPage.getApplicationId());
-
+                    page.setDefaultResources(defaults);
                     return applicationPageService
                             .createPage(page)
                             .flatMap(savedPage ->
@@ -272,7 +275,7 @@ public class ExamplesOrganizationCloner {
                                         })
                                         // This call to `collectMap` will wait for all actions in all pages to have been processed, and so the
                                         // `clonedPages` list will also contain all pages cloned.
-                                        .collect(HashMap<String, String>::new, (map, tuple3) -> map.put(tuple3.getT2(), tuple3.getT1()))
+                                        .collect(HashMap<String, String>::new, (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
                                         .flatMap(actionIdsMap -> {
                                             // Pick all action collections
                                             return actionCollectionService
@@ -290,18 +293,19 @@ public class ExamplesOrganizationCloner {
                                                         actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
 
                                                         // Replace all action Ids from map
-                                                        final HashSet<String> newActionIds = new HashSet<>();
+                                                        final Map<String, String> newActionIds = new HashMap<>();
                                                         unpublishedCollection
-                                                                .getActionIds()
-                                                                .stream()
-                                                                .forEach(oldActionId -> newActionIds.add(actionIdsMap.get(oldActionId)));
-                                                        unpublishedCollection.setActionIds(newActionIds);
+                                                                .getDefaultToBranchedActionIdsMap()
+                                                                .forEach((defaultActionId, oldActionId) -> newActionIds
+                                                                        .put(defaultActionId, actionIdsMap.get(oldActionId)));
+
+                                                        unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
                                                         return actionCollectionService.create(actionCollection)
                                                                 .flatMap(newlyCreatedActionCollection -> {
-                                                                    return Flux.fromIterable(newActionIds)
+                                                                    return Flux.fromIterable(newActionIds.values())
                                                                             .flatMap(newActionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
-                                                                                newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedAction.getId());
+                                                                                newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
                                                                                 return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                                                                             })
                                                                             .collectList();
