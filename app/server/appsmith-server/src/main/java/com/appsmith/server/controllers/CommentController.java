@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -37,28 +38,30 @@ public class CommentController extends BaseController<CommentService, Comment, S
     }
 
     @Override
-    @PostMapping
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Comment>> create(@Valid @RequestBody Comment resource,
-                                             @RequestParam String threadId,
-                                             ServerWebExchange exchange) {
+                                                    @RequestParam String threadId,
+                                                    ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin())
+        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin(), exchange.getRequest().getHeaders().getFirst(FieldName.BRANCH_NAME))
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PostMapping("/threads")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
-                                                         @RequestHeader(name = "Origin", required = false) String originHeader) {
-        log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.createThread(resource, originHeader)
+                                                         @RequestHeader(name = "Origin", required = false) String originHeader,
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to create resource {}, on branch: {}", resource.getClass().getName(), branchName);
+        return service.createThread(resource, originHeader, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @GetMapping("/threads")
-    public Mono<ResponseDTO<List<CommentThread>>> getCommentThread(@Valid CommentThreadFilterDTO filterDTO) {
-        return service.getThreadsByApplicationId(filterDTO)
+    public Mono<ResponseDTO<List<CommentThread>>> getCommentThread(@Valid CommentThreadFilterDTO filterDTO,
+                                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return service.getThreadsByApplicationId(filterDTO, branchName)
                 .map(threads -> new ResponseDTO<>(HttpStatus.OK.value(), threads, null));
     }
 
@@ -74,7 +77,7 @@ public class CommentController extends BaseController<CommentService, Comment, S
 
     @Override
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Comment>> delete(@PathVariable String id) {
+    public Mono<ResponseDTO<Comment>> delete(@PathVariable String id, String ignoreBranchName) {
         log.debug("Going to delete comment with id: {}", id);
         return service.deleteComment(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
@@ -115,8 +118,9 @@ public class CommentController extends BaseController<CommentService, Comment, S
     }
 
     @GetMapping("/threads/{applicationId}/count/unread")
-    public Mono<ResponseDTO<Long>> countUnreadCommentThreads(@PathVariable String applicationId) {
-        return service.getUnreadCount(applicationId)
+    public Mono<ResponseDTO<Long>> countUnreadCommentThreads(@PathVariable String applicationId,
+                                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return service.getUnreadCount(applicationId, branchName)
                 .map(threads -> new ResponseDTO<>(HttpStatus.OK.value(), threads, null));
     }
 }

@@ -116,6 +116,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
 
+        // Remove branch name as plugins are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         String organizationId = params.getFirst(FieldName.ORGANIZATION_ID);
         if (organizationId == null) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
