@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
@@ -130,5 +131,13 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
                     // If the page hasn't been published, just send the unpublished page name
                     return p.getUnpublishedPage().getName();
                 });
+    }
+
+    @Override
+    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
+        final String defaultResources = fieldName(QNewPage.newPage.defaultResources);
+        Criteria defaultPageIdCriteria = where(defaultResources + "." + FieldName.PAGE_ID).is(defaultPageId);
+        Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
+        return queryOne(List.of(defaultPageIdCriteria, branchCriteria), permission);
     }
 }
