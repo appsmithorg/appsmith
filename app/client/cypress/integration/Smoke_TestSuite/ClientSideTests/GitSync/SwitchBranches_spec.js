@@ -1,7 +1,6 @@
-const pages = require("../../../../locators/Pages.json");
-// const jsActions = require("../../../../locators/jsActionLocators.json");
-const commonLocators = require("../../../../locators/commonLocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
+import pages from "../../../../locators/Pages";
+import commonLocators from "../../../../locators/commonlocators";
+import explorer from "../../../../locators/explorerlocators";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import homePage from "../../../../locators/HomePage";
 
@@ -22,6 +21,29 @@ describe("Git sync connect to repo", function() {
   // it("connects successfully", function() {
   //   cy.connectToGitRepo();
   // });
+
+  it("prune branch name", function() {
+    cy.get(commonLocators.canvas).click({ force: true });
+    cy.get(gitSyncLocators.branchButton).click();
+
+    // validate of the branch name
+    const hypenBranchName = "bypen-branch-name";
+    cy.get(gitSyncLocators.branchSearchInput).type(
+      `{selectall}${hypenBranchName}`,
+    );
+    cy.get(gitSyncLocators.branchSearchInput).should(
+      "have.value",
+      removeSpecialChars(hypenBranchName),
+    );
+
+    const specialBranchName = "special&branch-name~@#$%^&*()_+={}[]><,.";
+    cy.get(gitSyncLocators.branchSearchInput).type(
+      `{selectall}${specialBranchName}`,
+    );
+
+    cy.wait(200);
+    cy.get(gitSyncLocators.closeBranchList).click();
+  });
 
   it("creates a new branch", function() {
     cy.get(commonLocators.canvas).click({ force: true });
@@ -153,7 +175,7 @@ describe("Git sync connect to repo", function() {
     });
   });
 
-  it.only("test sync and prune branches", () => {
+  it("test sync and prune branches", () => {
     // uncomment once prune branch flow is complete
     // const tempBranch = "featureA";
     // const tempBranchRenamed = "newFeatureA";
@@ -178,6 +200,11 @@ describe("Git sync connect to repo", function() {
   });
 
   after(() => {
-    // cy.deleteTestGithubRepo(repoName);
+    cy.deleteTestGithubRepo(repoName);
   });
 });
+
+const removeSpecialChars = (value) => {
+  const separatorRegex = /(?!\/)\W+/;
+  return value.split(separatorRegex).join("_");
+};

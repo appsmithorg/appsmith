@@ -33,7 +33,6 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import gitSyncLocators from "../locators/gitSyncLocators";
-import { howMuchTimeBeforeText } from "../../src/utils/helpers";
 
 let pageidcopy = " ";
 const GITHUB_API_BASE = "https://api.github.com";

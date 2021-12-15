@@ -93,7 +93,7 @@ describe("Git", function() {
     // cy.contains("NewPage");
   });
 
-  it.only("enables pulling remote changes, shows conflicts if any", function() {
+  it("enables pulling remote changes, shows conflicts if any", function() {
     // normal pull
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch3);
