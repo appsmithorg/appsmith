@@ -97,8 +97,11 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -4439,6 +4442,17 @@ public class DatabaseChangelog {
                     Notification.class
             );
         });
+    }
+
+    @ChangeSet(order = "102", id = "flush-spring-redis-keys", author = "")
+    public void clearRedisCache(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        final String script =
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
+                " do redis.call('del',k) " +
+                "end";
+        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
+
+        flushdb.subscribe();
     }
 
     /* Map values from pluginSpecifiedTemplates to formData (UQI) */
