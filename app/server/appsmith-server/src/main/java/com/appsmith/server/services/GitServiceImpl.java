@@ -7,6 +7,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
@@ -24,6 +25,8 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitConnectionLimitDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
+import com.appsmith.server.dtos.MockDataDTO;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -41,12 +44,15 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -78,6 +84,7 @@ public class GitServiceImpl implements GitService {
     private final EmailConfig emailConfig;
     private final CommonConfig commonConfig;
     private final ConfigService configService;
+    private final CloudServicesConfig cloudServicesConfig;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -616,16 +623,31 @@ public class GitServiceImpl implements GitService {
     }
 
     private Mono<Integer> getPrivateRepoLimitForOrg(String orgId) {
-        return configService.getInstanceId().map(s -> {
-            GitConnectionLimitDTO gitConnectionLimitDTO = new GitConnectionLimitDTO();
-            gitConnectionLimitDTO.setInstanceId(s);
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+        return configService.getInstanceId().map(instanceId -> {
             if (commonConfig.isCloudHosting()) {
-                gitConnectionLimitDTO.setOrgId(orgId);
+                return Mono.just(orgId);
+            } else {
+                return Mono.just(instanceId);
             }
-            return gitConnectionLimitDTO;
-        }).flatMap(gitConnectionLimitDTO -> {
+        }).flatMap(key -> {
             //Call the cloud service API
-            return Mono.just(3);
+            return WebClient
+                    .create(baseUrl + "api/v1/git/limit/" + key)
+                    .get()
+                    .exchange()
+                    .flatMap(response -> {
+                        if (response.statusCode().is2xxSuccessful()) {
+                            return response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Integer>>() {
+                            });
+                        } else {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.CLOUD_SERVICES_ERROR,
+                                    "Unable to connect to cloud-services with error status {}", response.statusCode()));
+                        }
+                    })
+                    .map(ResponseDTO::getData)
+                    .doOnError(error -> log.error("Error fetching config from cloud services", error));
         });
     }
 
