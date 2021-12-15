@@ -21,6 +21,7 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -130,6 +131,7 @@ type UserGitProfileSettingsProps = {
 };
 
 const goToGitProfile = () => {
+  AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK");
   history.push(GIT_PROFILE_ROUTE);
 };
 
