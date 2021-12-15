@@ -65,6 +65,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   ${({ disabled }) => disabled && `background: ${Colors.GREY_3}`};
 
   .fullscreen {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -103,6 +104,7 @@ const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
 
 const PhotoViewer = styled.img`
   ${overlayerMixin}
+  height: 100%;
 `;
 
 const VideoPlayer = styled.video`
