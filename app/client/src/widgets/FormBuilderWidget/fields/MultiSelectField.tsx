@@ -115,10 +115,10 @@ function MultiSelectField({
             <MultiSelect
               compactMode={false}
               disabled={schemaItem.isDisabled}
+              dropDownWidth={90}
               dropdownStyle={{
                 zIndex: Layers.dropdownModalWidget,
               }}
-              // TODO: Fix this with the derived state
               isValid
               loading={false}
               onBlur={onBlurHandler}
@@ -129,6 +129,7 @@ function MultiSelectField({
               placeholder={schemaItem.placeholderText || ""}
               serverSideFiltering={schemaItem.serverSideFiltering}
               value={value}
+              width={100}
             />
           </StyledMultiSelectWrapper>
         );

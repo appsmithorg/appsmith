@@ -30,9 +30,6 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isVisible: true,
 };
 
-const WRAPPER_PADDING_X = 15;
-const WRAPPER_PADDING_Y = 10;
-
 const StyledWrapper = styled.div<StyledWrapperProps>`
   padding-top: 0;
   width: 100%;

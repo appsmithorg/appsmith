@@ -16,7 +16,11 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
 import { Size, Category } from "components/ads/Button";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -70,6 +74,11 @@ interface ReduxStateProps {
   datasources: any;
 }
 
+type DroppableItem = BaseItemProps & {
+  isDerived?: boolean;
+  isDuplicateLabel?: boolean;
+};
+
 type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   isFocused: boolean;
   theme: EditorTheme;
@@ -81,21 +90,6 @@ type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   hideEvaluatedValue?: boolean;
   useValidationMessage?: boolean;
   children: JSX.Element;
-};
-
-type RenderComponentProps = {
-  index: number;
-  item: {
-    label: string;
-    isDerived?: boolean;
-    isVisible?: boolean;
-    isDuplicateLabel?: boolean;
-  };
-  updateFocus?: (index: number, isFocused: boolean) => void;
-  updateOption: (index: number, value: string) => void;
-  onEdit?: (index: number) => void;
-  deleteOption: (index: number) => void;
-  toggleVisibility?: (index: number) => void;
 };
 
 const getOriginalColumn = (

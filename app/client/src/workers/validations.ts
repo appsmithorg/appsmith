@@ -895,6 +895,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     if (!config.params?.type)
       return {
@@ -908,6 +909,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       config.params as ValidationConfig,
       value,
       props,
+      propertyPath,
     );
     if (result.isValid) return result;
 
@@ -919,6 +921,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           config.params as ValidationConfig,
           item,
           props,
+          propertyPath,
         );
         if (!result.isValid) return result;
         resultValue.push(result.parsed);

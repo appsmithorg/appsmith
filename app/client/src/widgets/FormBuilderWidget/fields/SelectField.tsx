@@ -103,6 +103,7 @@ function SelectField({
             <DropDownComponent
               compactMode={false}
               disabled={schemaItem.isDisabled}
+              dropDownWidth={100}
               height={10}
               isFilterable={schemaItem.isFilterable}
               isLoading={false}
