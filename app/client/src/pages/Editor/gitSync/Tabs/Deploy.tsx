@@ -196,6 +196,7 @@ function Deploy() {
         >
           <TextInput
             autoFocus
+            className="t--commit-comment-input"
             disabled={commitInputDisabled}
             fill
             onChange={setCommitMessage}

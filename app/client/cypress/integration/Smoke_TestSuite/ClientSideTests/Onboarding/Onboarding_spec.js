@@ -5,7 +5,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const gitSyncLocators = require("../../../../locators/gitSyncLocators");
 
 describe("Onboarding", function() {
-  it.only("Onboarding flow - manual without using do it for me option", function() {
+  it("Onboarding flow - manual without using do it for me option", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
 
     // cy.get(gitSyncLocators.connectGitBottomBar).should("exist");

@@ -3319,7 +3319,7 @@ Cypress.Commands.add("connectToGitRepo", (repo) => {
   let generatedKey;
   // open gitSync modal
   cy.get(homePage.deployPopupOptionTrigger).click();
-  cy.get(homePage.connectToGitBtn).click();
+  cy.get(homePage.connectToGitBtn).click({ force: true });
 
   // todo: check for the initial state: init git connection button, regular deploy button
   // add the test repo and click on submit btn
@@ -3369,6 +3369,15 @@ Cypress.Commands.add("connectToGitRepo", (repo) => {
       "response.body.responseMeta.status",
       200,
     );
+
+    // comment text input should not empty
+    cy.get(gitSyncLocators.commitCommentInput)
+      .invoke("val")
+      .should("not.be.empty");
+    cy.get(gitSyncLocators.commitCommentInput).clear();
+    cy.get(gitSyncLocators.commitButton).should("be.disabled");
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+
     // click commit button
     cy.get(gitSyncLocators.commitButton).click();
     // check for commit success

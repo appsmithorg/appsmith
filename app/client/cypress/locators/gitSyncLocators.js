@@ -5,6 +5,7 @@ export default {
   createNewBranchButton: ".t--create-new-branch-button",
   createNewBranchSubmitbutton: ".t--create-new-branch-submit-button",
   branchButton: ".t--branch-button",
+  commitCommentInput: ".t--commit-comment-input",
   commitButton: ".t--commit-button",
   pullButton: ".t--pull-button",
   openRepoButton: ".t--open-repo-button",

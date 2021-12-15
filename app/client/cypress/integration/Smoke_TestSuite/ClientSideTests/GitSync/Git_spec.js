@@ -98,6 +98,7 @@ describe("Git", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch3);
     cy.Createpage(tempBranch3Page);
+
     cy.commitAndPush();
 
     cy.mergeViaGithubApi({
