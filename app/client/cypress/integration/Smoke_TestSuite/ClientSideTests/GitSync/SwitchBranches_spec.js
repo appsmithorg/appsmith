@@ -199,6 +199,15 @@ describe("Git sync connect to repo", function() {
     // cy.contains(`origin/${tempBranch} already exists`);
   });
 
+  // Validate the error faced when user switches between the branches
+  it.only("error faced when user switechs branched with new page", function() {
+    cy.createGitBranch(childBranchKey);
+    cy.Createpage("ChildPage1");
+    cy.switchGitBranch("master");
+
+    cy.contains("Unable to find page");
+  });
+
   after(() => {
     cy.deleteTestGithubRepo(repoName);
   });
