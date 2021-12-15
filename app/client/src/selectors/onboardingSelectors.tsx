@@ -317,20 +317,6 @@ export const isButtonWidgetPresent = createSelector(getWidgets, (widgets) => {
 
   return !!buttonWidget;
 });
-export const doesButtonWidgetHaveText = createSelector(
-  getWidgets,
-  (widgets) => {
-    const widgetValues = Object.values(widgets);
-    const buttonWidget = widgetValues.find((widget) => {
-      return (
-        widget.type === "BUTTON_WIDGET" &&
-        widget.text.toLowerCase().includes("update")
-      );
-    });
-
-    return !!buttonWidget;
-  },
-);
 
 export const buttonWidgetHasOnClickBinding = createSelector(
   getWidgets,

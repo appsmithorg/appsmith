@@ -25,7 +25,6 @@ import {
   isEmailInputBound,
   isImageWidgetBound,
   isButtonWidgetPresent,
-  doesButtonWidgetHaveText,
   buttonWidgetHasOnClickBinding,
   buttonWidgetHasOnSuccessBinding,
 } from "selectors/onboardingSelectors";
