@@ -11,6 +11,7 @@ export const CONFIG = {
     rows: 1.725 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     mode: "SHOW_ALL",
+    animateLoading: true,
     options: [
       {
         label: "Blue",
