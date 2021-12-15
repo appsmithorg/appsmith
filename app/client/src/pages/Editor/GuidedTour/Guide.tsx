@@ -204,7 +204,7 @@ const SuccessMessageWrapper = styled.div`
   }
 `;
 
-const ProgressBar = styled.div`
+const ProgressBar = styled.div<{ duration: number }>`
   height: 7px;
   position: relative;
   background: #e5edfd;
@@ -213,7 +213,7 @@ const ProgressBar = styled.div`
     height: 100%;
     width: 100%;
     background-color: #5a92f9;
-    animation: progressBar 5s linear;
+    animation: progressBar ${(props) => props.duration}s linear;
   }
 
   @keyframes progressBar {
@@ -353,6 +353,7 @@ function CompletionContent(props: CompletionContentProps) {
   const info = Steps[props.step].info;
   const success = Steps[props.step].success;
   const dispatch = useDispatch();
+  const duration = success?.duration ?? 5;
 
   const tickMarkRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -381,7 +382,7 @@ function CompletionContent(props: CompletionContentProps) {
     if (success?.timed) {
       setTimeout(() => {
         onSuccessButtonClick();
-      }, 5000);
+      }, duration * 1000);
     }
   }, [success?.timed]);
 
@@ -393,7 +394,7 @@ function CompletionContent(props: CompletionContentProps) {
     return (
       <SuccessMessageWrapper>
         {success?.timed && (
-          <ProgressBar>
+          <ProgressBar duration={duration}>
             <div className="progress" />
           </ProgressBar>
         )}

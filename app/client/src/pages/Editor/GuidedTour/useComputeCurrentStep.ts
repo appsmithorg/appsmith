@@ -61,7 +61,6 @@ function useComputeCurrentStep(isExploring: boolean) {
   const imageWidgetBound = useSelector(isImageWidgetBound);
   // 6
   const buttonWidgetPresent = useSelector(isButtonWidgetPresent);
-  const buttonWidgetHasText = useSelector(doesButtonWidgetHaveText);
   // 7
   const buttonWidgetonClickBinding = useSelector(buttonWidgetHasOnClickBinding);
   // 8
@@ -118,7 +117,7 @@ function useComputeCurrentStep(isExploring: boolean) {
   }
 
   if (step === 6) {
-    if (buttonWidgetPresent && buttonWidgetHasText && hadReachedStep > 6) {
+    if (buttonWidgetPresent && hadReachedStep > 6) {
       step = 7;
     }
   }
@@ -251,7 +250,7 @@ function useComputeCurrentStep(isExploring: boolean) {
         dispatch(markStepComplete());
       }
     }
-  }, [step, buttonWidgetPresent, buttonWidgetHasText]);
+  }, [step, buttonWidgetPresent]);
 
   useEffect(() => {
     if (step === 7 && hadReachedStep <= 7) {

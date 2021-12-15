@@ -130,6 +130,7 @@ type Step = {
     text: string;
     onClick?: (dispatch: Dispatch<any>) => void;
     timed?: boolean;
+    duration?: number;
   };
   info?: {
     icon: IconName;
@@ -285,6 +286,7 @@ export const Steps: StepsType = {
       onClick: (dispatch) => {
         dispatch(setCurrentStep(5));
       },
+      duration: 12,
     },
   },
   5: {
@@ -328,6 +330,7 @@ export const Steps: StepsType = {
           highlightSection("widget-card-buttonwidget");
         }, 2000);
       },
+      duration: 12,
     },
   },
   6: {
@@ -352,6 +355,7 @@ export const Steps: StepsType = {
           highlightSection("explorer-entity-updateCustomerInfo");
         }, 1000);
       },
+      duration: 6,
     },
     info: {
       icon: "lightbulb-flash-line",
