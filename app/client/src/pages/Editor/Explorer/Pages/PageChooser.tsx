@@ -34,7 +34,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 const StyledEntity = styled(Entity)`
   &.pages {
     & > div:not(.t--entity-item) {
-      height: 148px !important;
+      max-height: 148px !important;
       overflow: scroll;
     }
   }
@@ -129,7 +129,7 @@ function PageChooser() {
             key={key.toString()}
             name={page.pageName}
             onNameEdit={resolveAsSpaceChar}
-            preRightIcon={isCurrentPage ? currentPageIcon : ""}
+            // preRightIcon={isCurrentPage ? currentPageIcon : ""}
             rightIcon={rightIcon}
             searchKeyword={""}
             step={1}
