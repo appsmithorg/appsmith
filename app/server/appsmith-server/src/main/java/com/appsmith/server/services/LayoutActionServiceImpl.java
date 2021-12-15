@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +19,11 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                                    SessionUserService sessionUserService,
                                    ActionCollectionService actionCollectionService,
                                    CollectionService collectionService,
-                                   ApplicationService applicationService) {
+                                   ApplicationService applicationService,
+                                   ResponseUtils responseUtils) {
 
-        super(objectMapper, analyticsService, newPageService, newActionService, pageLoadActionsUtil,
-                sessionUserService, actionCollectionService, collectionService, applicationService);
+        super(objectMapper, analyticsService, newPageService, newActionService, pageLoadActionsUtil, sessionUserService,
+                actionCollectionService, collectionService, applicationService, responseUtils);
+
     }
 }

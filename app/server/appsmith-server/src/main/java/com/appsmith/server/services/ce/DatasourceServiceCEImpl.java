@@ -26,6 +26,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -76,6 +77,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    PolicyGenerator policyGenerator,
                                    SequenceService sequenceService,
                                    NewActionRepository newActionRepository) {
+
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -95,10 +97,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        if (datasource.getGitSyncId() == null) {
-            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
+        if (StringUtils.isEmpty(datasource.getGitSyncId())) {
+            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
         }
-
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (StringUtils.isEmpty(datasource.getName())) {
             datasourceMono = sequenceService
@@ -362,6 +363,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         /**
          * Note : Currently this API is ONLY used to fetch datasources for an organization.
          */
+        // Remove branch name as datasources are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
             return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
@@ -378,9 +381,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
         datasourceList
-            .stream()
-            .filter(datasource -> datasource.getGitSyncId() == null)
-            .forEach(datasource -> datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString()));
+                .stream()
+                .filter(datasource -> datasource.getGitSyncId() == null)
+                .forEach(datasource -> datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString()));
         return repository.saveAll(datasourceList);
     }
 
@@ -400,4 +403,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
     }
+
+    @Override
+    public Mono<Datasource> deleteByIdAndBranchName(String id, String branchName) {
+        // Ignore branchName as datasources are branch independent entity
+        return this.delete(id);
+    }
+
 }

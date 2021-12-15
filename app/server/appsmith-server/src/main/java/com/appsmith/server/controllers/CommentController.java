@@ -13,4 +13,5 @@ public class CommentController extends CommentControllerCE {
     public CommentController(CommentService service) {
         super(service);
     }
+
 }

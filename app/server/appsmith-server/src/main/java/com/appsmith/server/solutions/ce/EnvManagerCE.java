@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
+import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -23,7 +24,7 @@ public interface EnvManagerCE {
 
     Mono<Void> restart();
 
-    Mono<Boolean> sendTestEmail();
+    Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO);
 
     Mono<Void> download(ServerWebExchange exchange);
 }

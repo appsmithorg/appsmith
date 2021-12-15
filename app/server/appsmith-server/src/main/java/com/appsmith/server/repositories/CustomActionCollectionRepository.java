@@ -4,5 +4,4 @@ import com.appsmith.server.repositories.ce.CustomActionCollectionRepositoryCE;
 
 public interface CustomActionCollectionRepository extends CustomActionCollectionRepositoryCE {
 
-
 }

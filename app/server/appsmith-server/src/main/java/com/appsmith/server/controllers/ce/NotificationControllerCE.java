@@ -58,12 +58,12 @@ public class NotificationControllerCE extends BaseController<NotificationService
     }
 
     @Override
-    public Mono<ResponseDTO<Notification>> update(String s, Notification resource) {
+    public Mono<ResponseDTO<Notification>> update(String s, Notification resource, String ignoreBranchName) {
         return Mono.error(new AppsmithException(UNSUPPORTED_OPERATION));
     }
 
     @Override
-    public Mono<ResponseDTO<Notification>> delete(String s) {
+    public Mono<ResponseDTO<Notification>> delete(String s, String ignoreBranchName) {
         return Mono.error(new AppsmithException(UNSUPPORTED_OPERATION));
     }
 }

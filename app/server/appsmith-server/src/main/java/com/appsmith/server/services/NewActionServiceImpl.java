@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.NewActionServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +35,13 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 SessionUserService sessionUserService,
                                 PolicyUtils policyUtils,
                                 AuthenticationValidator authenticationValidator,
-                                ConfigService configService) {
+                                ConfigService configService,
+                                ResponseUtils responseUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
                 policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
-                authenticationValidator, configService);
+                authenticationValidator, configService, responseUtils);
+
     }
 }

@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.services.ce.NotificationServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +21,10 @@ public class NotificationServiceImpl extends NotificationServiceCEImpl implement
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    NotificationRepository repository,
                                    AnalyticsService analyticsService,
-                                   SessionUserService sessionUserService) {
+                                   SessionUserService sessionUserService,
+                                   ResponseUtils responseUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                sessionUserService);
+                sessionUserService, responseUtils);
     }
 }

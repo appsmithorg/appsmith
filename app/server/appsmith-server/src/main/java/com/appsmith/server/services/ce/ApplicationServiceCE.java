@@ -24,15 +24,21 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> save(Application application);
 
+    Mono<Application> update(String defaultApplicationId, Application application, String branchName);
+
     Mono<Application> createDefault(Application object);
 
     Mono<Application> archive(Application application);
 
-    Mono<Application> changeViewAccess (String id, ApplicationAccessDTO applicationAccessDTO);
+    Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO);
+
+    Mono<Application> changeViewAccess(String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
 
     Flux<Application> findAllApplicationsByOrganizationId(String organizationId);
 
     Mono<Application> getApplicationInViewMode(String applicationId);
+
+    Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName);
 
     Mono<Application> saveLastEditInformation(String applicationId);
 
@@ -42,11 +48,12 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<GitAuth> getSshKey(String applicationId);
 
-    Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
-                                                                      String defaultApplicationId,
-                                                                      AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
+                                                              String defaultApplicationId,
+                                                              AclPermission aclPermission);
 
-    Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
+    Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
-    Flux<Application> findAllApplicationsByGitDefaultApplicationId(String defaultApplicationId);
+    Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId);
+
 }

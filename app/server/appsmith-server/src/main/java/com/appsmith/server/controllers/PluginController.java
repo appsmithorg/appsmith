@@ -14,4 +14,5 @@ public class PluginController extends PluginControllerCE {
     public PluginController(PluginService service) {
         super(service);
     }
+
 }

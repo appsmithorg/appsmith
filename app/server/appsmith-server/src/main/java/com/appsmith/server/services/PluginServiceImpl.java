@@ -26,11 +26,13 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                              AnalyticsService analyticsService,
                              OrganizationService organizationService,
                              PluginManager pluginManager,
-                             ReactiveRedisTemplate<String, String> reactiveTemplate,
+                             ReactiveRedisTemplate<String,
+                                     String> reactiveTemplate,
                              ChannelTopic topic,
                              ObjectMapper objectMapper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 organizationService, pluginManager, reactiveTemplate, topic, objectMapper);
+
     }
 }

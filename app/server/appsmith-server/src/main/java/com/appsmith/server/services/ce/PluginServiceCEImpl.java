@@ -96,16 +96,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Autowired
     public PluginServiceCEImpl(Scheduler scheduler,
-                               Validator validator,
-                               MongoConverter mongoConverter,
-                               ReactiveMongoTemplate reactiveMongoTemplate,
-                               PluginRepository repository,
-                               AnalyticsService analyticsService,
-                               OrganizationService organizationService,
-                               PluginManager pluginManager,
-                               ReactiveRedisTemplate<String, String> reactiveTemplate,
-                               ChannelTopic topic,
-                               ObjectMapper objectMapper) {
+                             Validator validator,
+                             MongoConverter mongoConverter,
+                             ReactiveMongoTemplate reactiveMongoTemplate,
+                             PluginRepository repository,
+                             AnalyticsService analyticsService,
+                             OrganizationService organizationService,
+                             PluginManager pluginManager,
+                             ReactiveRedisTemplate<String, String> reactiveTemplate,
+                             ChannelTopic topic,
+                             ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.pluginManager = pluginManager;
@@ -117,6 +117,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     @Override
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
 
+        // Remove branch name as plugins are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         String organizationId = params.getFirst(FieldName.ORGANIZATION_ID);
         if (organizationId == null) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
@@ -418,7 +420,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     if (editorMap == null) {
                         return Mono.just(new HashMap());
                     }
-                    
+
                     editorMap.stream()
                             .filter(item -> {
                                 if (((Map) item).get(KEY_CHILDREN) == null) {

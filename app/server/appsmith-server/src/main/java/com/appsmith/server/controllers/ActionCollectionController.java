@@ -13,6 +13,7 @@ public class ActionCollectionController extends ActionCollectionControllerCE {
 
     public ActionCollectionController(ActionCollectionService actionCollectionService,
                                       LayoutCollectionService layoutCollectionService) {
+
         super(actionCollectionService, layoutCollectionService);
     }
 

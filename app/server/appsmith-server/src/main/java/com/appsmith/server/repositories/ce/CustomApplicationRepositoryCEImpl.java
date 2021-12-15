@@ -74,8 +74,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault) {
-        final ApplicationPage applicationPage = new ApplicationPage(pageId, isDefault);
+    public Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId) {
+        final ApplicationPage applicationPage = new ApplicationPage(pageId, isDefault, defaultPageId);
         return mongoOperations.updateFirst(
                 Query.query(getIdCriteria(applicationId)),
                 new Update().push(fieldName(QApplication.application.pages), applicationPage),
@@ -117,7 +117,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Update updateObj = new Update();
         gitAuth.setGeneratedAt(Instant.now());
         String path = String.format("%s.%s", fieldName(QApplication.application.gitApplicationMetadata),
-                        fieldName(QApplication.application.gitApplicationMetadata.gitAuth)
+                fieldName(QApplication.application.gitApplicationMetadata.gitAuth)
         );
 
         updateObj.set(path, gitAuth);
@@ -145,6 +145,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     /**
      * Returns a list of application ids which are under the organization with provided organizationId
+     *
      * @param organizationId organization id
      * @return list of String
      */

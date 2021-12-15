@@ -20,7 +20,7 @@ public class ProviderServiceImpl extends ProviderServiceCEImpl implements Provid
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                ProviderRepository repository,
                                AnalyticsService analyticsService) {
-
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
+
 }

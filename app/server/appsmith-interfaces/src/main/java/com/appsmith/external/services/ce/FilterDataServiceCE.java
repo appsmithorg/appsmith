@@ -51,7 +51,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             DataType.DOUBLE, "DOUBLE",
             DataType.BOOLEAN, "BOOLEAN",
             DataType.STRING, "VARCHAR",
-            DataType.DATE, "DATE"
+            DataType.DATE, "DATE",
+            DataType.TIMESTAMP, "TIMESTAMP"
     );
 
     private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
@@ -108,6 +109,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return finalResultsNode;
     }
 
+    /**
+     * This filter method is using the new UQI format of
+     * @param items
+     * @param condition
+     * @return
+     */
     public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
 
         if (items == null || items.size() == 0) {
@@ -633,13 +640,13 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         } catch (SQLException e) {
             // Alarm! This should never fail since appsmith is the creator of the query and supporter of it. Raise
             // an alarm and fix quickly!
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
-                        "Error while interacting with value " + value + " : " + e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Error while interacting with value " + value + " : " + e.getMessage());
         } catch (IllegalArgumentException e) {
             // The data type recognized does not match the data type of the value being set via Prepared Statement
             // Add proper handling here.
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
-                            "Error while interacting with value " + value + " : " + e.getMessage() +
+                    "Error while interacting with value " + value + " : " + e.getMessage() +
                             ". The data type value was being parsed to was : " + dataType);
         }
 

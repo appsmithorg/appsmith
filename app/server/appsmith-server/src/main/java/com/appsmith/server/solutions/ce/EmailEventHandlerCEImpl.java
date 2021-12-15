@@ -5,6 +5,7 @@ import com.appsmith.server.constants.CommentConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.events.CommentAddedEvent;
@@ -15,9 +16,9 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -37,7 +38,9 @@ import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 
 
 @Slf4j
+@RequiredArgsConstructor
 public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
+
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
 
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -46,30 +49,10 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     private final ApplicationRepository applicationRepository;
     private final NewPageRepository newPageRepository;
     private final PolicyUtils policyUtils;
-
-    @Autowired
     private final EmailConfig emailConfig;
 
-    @Autowired
-    public EmailEventHandlerCEImpl(ApplicationEventPublisher applicationEventPublisher,
-                                   EmailSender emailSender,
-                                   OrganizationRepository organizationRepository,
-                                   ApplicationRepository applicationRepository,
-                                   NewPageRepository newPageRepository,
-                                   PolicyUtils policyUtils,
-                                   EmailConfig emailConfig) {
-
-        this.applicationEventPublisher = applicationEventPublisher;
-        this.emailSender = emailSender;
-        this.organizationRepository = organizationRepository;
-        this.applicationRepository = applicationRepository;
-        this.newPageRepository = newPageRepository;
-        this.policyUtils = policyUtils;
-        this.emailConfig = emailConfig;
-    }
-
     public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
-        if (CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
+        if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
             return Mono.just(Boolean.FALSE);
         }
 
@@ -91,7 +74,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     }
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, CommentThread thread, String originHeader) {
-        if (CollectionUtils.isEmpty(thread.getSubscribers())) {
+        if(CollectionUtils.isEmpty(thread.getSubscribers())) {
             // no subscriber found, return without doing anything
             return Mono.just(Boolean.FALSE);
         }
@@ -149,12 +132,24 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
             urlPostfix = "";
         }
 
+        String branchName = null;
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        if (application.getGitApplicationMetadata() != null) {
+            application.setId(gitData.getDefaultApplicationId());
+            branchName = gitData.getBranchName();
+        }
+
         String baseUrl = originHeader;
-        if (StringUtils.isEmpty(originHeader)) {
+        if(StringUtils.isEmpty(originHeader)) {
             baseUrl = DEFAULT_ORIGIN_HEADER;
         }
-        return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
-                baseUrl, application.getId(), pageId, urlPostfix, threadId
+        if (StringUtils.isEmpty(branchName)) {
+            return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
+                    baseUrl, application.getId(), pageId, urlPostfix, threadId
+            );
+        }
+        return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true&branch=%s",
+                baseUrl, application.getId(), pageId, urlPostfix, threadId, branchName
         );
     }
 
@@ -172,9 +167,12 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         templateParams.put("Commenter_Name", resolvedState.getAuthorName());
         templateParams.put("Application_Name", commentThread.getApplicationName());
         templateParams.put("Page_Name", pageName);
+
+        String pageId = commentThread.getDefaultResources() == null ? commentThread.getPageId() : commentThread.getDefaultResources().getPageId();
+
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                commentThread.getPageId(),
+                pageId,
                 commentThread.getId(),
                 receiverUserRole.getUsername(),
                 originHeader)
@@ -199,9 +197,12 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         templateParams.put("Application_Name", comment.getApplicationName());
         templateParams.put("Page_Name", pagename);
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
+
+        String pageId = comment.getDefaultResources() == null ? comment.getPageId() : comment.getDefaultResources().getPageId();
+
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                comment.getPageId(),
+                pageId,
                 comment.getThreadId(),
                 receiverUserRole.getUsername(),
                 originHeader)
@@ -213,10 +214,10 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         );
 
         // check if user has been mentioned in the comment
-        if (CommentUtils.isUserMentioned(comment, receiverEmail)) {
+        if(CommentUtils.isUserMentioned(comment, receiverEmail)) {
             templateParams.put("Mentioned", true);
             emailSubject = String.format("New comment for you from %s", comment.getAuthorName());
-        } else if (Boolean.TRUE.equals(comment.getLeading())) {
+        } else if(Boolean.TRUE.equals(comment.getLeading())) {
             templateParams.put("NewComment", true);
         } else {
             templateParams.put("Replied", true);
@@ -233,7 +234,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,
-                comment.getPageId(),
+                comment.getDefaultResources().getPageId(),
                 comment.getThreadId(),
                 CommentConstants.APPSMITH_BOT_USERNAME,
                 originHeader)
@@ -250,12 +251,12 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     private Mono<Boolean> sendEmailForCommentAdded(Organization organization, Application application, Comment comment, String originHeader, Set<String> subscribers, String pagename) {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         for (UserRole userRole : organization.getUserRoles()) {
-            if (!comment.getAuthorUsername().equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
+            if(!comment.getAuthorUsername().equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
                 emailMonos.add(getAddCommentEmailSenderMono(userRole, comment, originHeader, application, pagename));
             }
         }
 
-        if (CommentUtils.isUserMentioned(comment, CommentConstants.APPSMITH_BOT_USERNAME)) {
+        if(CommentUtils.isUserMentioned(comment, CommentConstants.APPSMITH_BOT_USERNAME)) {
             emailMonos.add(geBotEmailSenderMono(comment, originHeader, organization, application));
         }
         return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));
@@ -265,10 +266,11 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         Set<String> subscribers = commentThread.getSubscribers();
         for (UserRole userRole : organization.getUserRoles()) {
-            if (!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
+            if(!authorUserName.equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
                 emailMonos.add(getResolveThreadEmailSenderMono(userRole, commentThread, originHeader, application, pageName));
             }
         }
         return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));
     }
+
 }

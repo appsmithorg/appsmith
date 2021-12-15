@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -29,15 +30,19 @@ public class CommentServiceImpl extends CommentServiceCEImpl implements CommentS
                               UserService userService,
                               SessionUserService sessionUserService,
                               ApplicationService applicationService,
+                              NewPageService newPageService,
                               NotificationService notificationService,
                               PolicyGenerator policyGenerator,
                               PolicyUtils policyUtils,
                               EmailEventHandler emailEventHandler,
                               UserDataRepository userDataRepository,
-                              SequenceService sequenceService) {
+                              SequenceService sequenceService,
+                              ResponseUtils responseUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                threadRepository, userService, sessionUserService, applicationService, notificationService,
-                policyGenerator, policyUtils, emailEventHandler, userDataRepository, sequenceService);
+                threadRepository, userService, sessionUserService, applicationService, newPageService,
+                notificationService, policyGenerator, policyUtils, emailEventHandler, userDataRepository,
+                sequenceService, responseUtils);
+
     }
 }

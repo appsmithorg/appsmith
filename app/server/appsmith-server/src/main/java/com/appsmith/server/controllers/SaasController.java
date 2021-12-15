@@ -15,4 +15,5 @@ public class SaasController extends SaasControllerCE {
     public SaasController(AuthenticationService authenticationService) {
         super(authenticationService);
     }
+
 }

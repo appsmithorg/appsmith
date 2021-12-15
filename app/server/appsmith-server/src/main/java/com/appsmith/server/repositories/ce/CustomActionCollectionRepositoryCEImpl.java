@@ -1,10 +1,12 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -12,13 +14,16 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection> implements CustomActionCollectionRepositoryCE {
+public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
+        implements CustomActionCollectionRepositoryCE {
+
     public CustomActionCollectionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
         super(mongoOperations, mongoConverter);
     }
@@ -51,7 +56,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, boolean viewMode, AclPermission aclPermission, Sort sort) {
+    public Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(String name, List<String> pageIds, boolean viewMode, String branchName, AclPermission aclPermission, Sort sort) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -59,6 +64,10 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
          */
 
         List<Criteria> criteriaList = new ArrayList<>();
+
+        if (!StringUtils.isEmpty(branchName)) {
+            criteriaList.add(where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME).is(branchName));
+        }
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
@@ -127,5 +136,13 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Flux<ActionCollection> findByPageId(String pageId) {
         return this.findByPageId(pageId, null);
+    }
+
+    @Override
+    public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultCollectionId, AclPermission permission) {
+        final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
+        Criteria defaultCollectionIdCriteria = where(defaultResources + "." + FieldName.COLLECTION_ID).is(defaultCollectionId);
+        Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
+        return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);
     }
 }

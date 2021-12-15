@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.ActionCollectionServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,10 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                                        AnalyticsService analyticsService,
                                        NewActionService newActionService,
                                        PolicyGenerator policyGenerator,
-                                       ApplicationService applicationService) {
-
+                                       ApplicationService applicationService,
+                                       ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                newActionService, policyGenerator, applicationService);
+                newActionService, policyGenerator, applicationService, responseUtils);
+
     }
 }

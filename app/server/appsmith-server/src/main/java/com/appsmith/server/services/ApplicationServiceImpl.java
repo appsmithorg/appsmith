@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
@@ -26,9 +27,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
-                                  SessionUserService sessionUserService) {
+                                  SessionUserService sessionUserService,
+                                  ResponseUtils responseUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService);
+                configService, commentThreadRepository, sessionUserService, responseUtils);
+
     }
 }

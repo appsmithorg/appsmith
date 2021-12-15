@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.ce.NewPageServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,10 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
                               NewPageRepository repository,
                               AnalyticsService analyticsService,
                               ApplicationService applicationService,
-                              UserDataService userDataService) {
+                              UserDataService userDataService,
+                              ResponseUtils responseUtils) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, applicationService, userDataService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
+                applicationService, userDataService, responseUtils);
     }
 }

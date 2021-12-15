@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ce.LayoutCollectionServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,8 +13,10 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                                        LayoutActionService layoutActionService,
                                        ActionCollectionService actionCollectionService,
                                        NewActionService newActionService,
-                                       AnalyticsService analyticsService) {
+                                       AnalyticsService analyticsService,
+                                       ResponseUtils responseUtils) {
 
-        super(newPageService, layoutActionService, actionCollectionService, newActionService, analyticsService);
+        super(newPageService, layoutActionService, actionCollectionService, newActionService, analyticsService,
+                responseUtils);
     }
 }

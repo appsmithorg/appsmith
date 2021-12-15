@@ -5,13 +5,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ProviderRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.ProviderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,6 +42,10 @@ public class ProviderServiceCEImpl extends BaseService<ProviderRepository, Provi
 
     @Override
     public Flux<Provider> get(MultiValueMap<String, String> params) {
+
+        // Remove branch name as providers are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
+
         Provider providerExample = new Provider();
         Sort sort = Sort.by("sortOrder");
 

@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.OrganizationService;
@@ -18,9 +19,10 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                                          ExamplesOrganizationCloner examplesOrganizationCloner,
                                          PolicyUtils policyUtils,
                                          SessionUserService sessionUserService,
-                                         AnalyticsService analyticsService) {
+                                         AnalyticsService analyticsService,
+                                         ResponseUtils responseUtils) {
 
         super(applicationService, organizationService, examplesOrganizationCloner, policyUtils, sessionUserService,
-                analyticsService);
+                analyticsService, responseUtils);
     }
 }

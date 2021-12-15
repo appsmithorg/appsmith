@@ -7,4 +7,8 @@ public interface ApplicationForkingServiceCE {
 
     Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId);
 
+    Mono<Application> forkApplicationToOrganization(String srcApplicationId,
+                                                    String targetOrganizationId,
+                                                    String branchName);
+
 }

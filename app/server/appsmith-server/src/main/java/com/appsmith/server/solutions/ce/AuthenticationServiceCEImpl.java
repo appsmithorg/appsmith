@@ -282,7 +282,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 "&view_mode=true"));
     }
 
-    public Mono<String> getAppsmithToken(String datasourceId, String pageId, ServerHttpRequest request) {
+    public Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request) {
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
@@ -298,8 +298,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                                newPageService.getById(pageId)
-                                        .map(page -> List.of(pageId, page.getApplicationId())),
+                                newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.READ_PAGES)
+                                        .map(page -> List.of(page.getId(), page.getApplicationId())),
                                 configService.getInstanceId(),
                                 pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {

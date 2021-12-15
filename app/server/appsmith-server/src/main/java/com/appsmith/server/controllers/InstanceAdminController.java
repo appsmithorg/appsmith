@@ -15,4 +15,5 @@ public class InstanceAdminController extends InstanceAdminControllerCE {
     public InstanceAdminController(EnvManager envManager) {
         super(envManager);
     }
+
 }
