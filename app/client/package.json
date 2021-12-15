@@ -117,7 +117,7 @@
     "react-responsive": "^9.0.0-beta.3",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "4.0.1",
+    "react-scripts": "5.0.0",
     "react-select": "^3.0.8",
     "react-spring": "^8.0.27",
     "react-syntax-highlighter": "^15.4.4",
