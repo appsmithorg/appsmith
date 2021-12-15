@@ -9,6 +9,7 @@ import {
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
+  API_EDITOR_TABS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -66,6 +67,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const Form = styled.form`
   display: flex;
@@ -260,7 +262,6 @@ interface APIFormProps {
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 export const NameWrapper = styled.div`
-  width: 49%;
   display: flex;
   align-items: center;
   input {
@@ -601,9 +602,11 @@ function ApiEditorForm(props: Props) {
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">
-            <BoundaryContainer>
+            <BoundaryContainer
+              data-replay-id={btoa("actionConfiguration.httpMethod")}
+            >
               <RequestDropdownField
-                className="t--apiFormHttpMethod"
+                className={`t--apiFormHttpMethod ${replayHighlightClass}`}
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
@@ -637,7 +640,7 @@ function ApiEditorForm(props: Props) {
                 selectedIndex={selectedIndex}
                 tabs={[
                   {
-                    key: "headers",
+                    key: API_EDITOR_TABS.HEADERS,
                     title: createMessage(API_EDITOR_TAB_TITLES.HEADERS),
                     count: headersCount,
                     panelComponent: (
@@ -667,7 +670,7 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
-                    key: "params",
+                    key: API_EDITOR_TABS.PARAMS,
                     title: createMessage(API_EDITOR_TAB_TITLES.PARAMS),
                     count: paramsCount,
                     panelComponent: (
@@ -692,7 +695,7 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
-                    key: "body",
+                    key: API_EDITOR_TABS.BODY,
                     title: createMessage(API_EDITOR_TAB_TITLES.BODY),
                     panelComponent: allowPostBody ? (
                       <PostBodyData
@@ -708,7 +711,7 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
-                    key: "pagination",
+                    key: API_EDITOR_TABS.PAGINATION,
                     title: createMessage(API_EDITOR_TAB_TITLES.PAGINATION),
                     panelComponent: (
                       <Pagination
@@ -719,12 +722,12 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
-                    key: "authentication",
+                    key: API_EDITOR_TABS.AUTHENTICATION,
                     title: createMessage(API_EDITOR_TAB_TITLES.AUTHENTICATION),
                     panelComponent: <ApiAuthentication />,
                   },
                   {
-                    key: "settings",
+                    key: API_EDITOR_TABS.SETTINGS,
                     title: createMessage(API_EDITOR_TAB_TITLES.SETTINGS),
                     panelComponent: (
                       <SettingsWrapper>
@@ -861,5 +864,6 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 }, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
+    enableReinitialize: true,
   })(ApiEditorForm),
 );

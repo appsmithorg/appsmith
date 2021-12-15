@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -124,6 +124,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
         isSortable: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
@@ -205,6 +206,9 @@ describe("getAllPathsFromPropertyConfig", () => {
             default: true,
           },
         },
+        primaryColumnId: {
+          type: "TEXT",
+        },
         tableData: {
           type: "OBJECT_ARRAY",
           params: {
@@ -217,6 +221,7 @@ describe("getAllPathsFromPropertyConfig", () => {
     const result = getAllPathsFromPropertyConfig(widget, config, {
       selectedRow: true,
       selectedRows: true,
+      tableData: true,
     });
 
     // Note: Removing until we figure out how functions are represented here.
@@ -338,7 +343,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config, {});
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      "chartData.random-id.data": true,
+    });
 
     expect(result).toStrictEqual(expected);
   });
