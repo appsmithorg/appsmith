@@ -53,14 +53,12 @@ describe("Image Annotator Widget", function() {
     // Set default annotations
     const defaultAnnotations = [
       {
-        geometry: {
-          type: "RECTANGLE",
-          x: 15.132557927662546,
-          y: 21.022727272727273,
-          width: 16.326034802150083,
-          height: 21.022727272727273,
-        },
-        data: { text: "annotation01", id: 0.381974126691756 },
+        shape: "RECTANGLE",
+        x: 15.132557927662546,
+        y: 21.022727272727273,
+        width: 16.326034802150083,
+        height: 21.022727272727273,
+        text: "annotation01",
       },
     ];
     cy.get(viewWidgetsPage.imageAnnotatorDefaultAnnotations)
