@@ -295,4 +295,12 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
         return mongoOperations.count(query, NewAction.class);
     }
+
+    @Override
+    public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
+        final String defaultResources = fieldName(QNewAction.newAction.defaultResources);
+        Criteria defaultActionIdCriteria = where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
+        Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
+        return queryOne(List.of(defaultActionIdCriteria, branchCriteria), permission);
+    }
 }

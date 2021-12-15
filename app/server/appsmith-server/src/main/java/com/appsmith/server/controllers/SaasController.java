@@ -1,7 +1,8 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.constants.Url;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.solutions.AuthenticationService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,10 +30,13 @@ public class SaasController {
     }
 
     @PostMapping("/{datasourceId}/pages/{pageId}/oauth")
-    public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId, @PathVariable String pageId, ServerWebExchange serverWebExchange) {
+    public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId,
+                                                      @PathVariable String pageId,
+                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                      ServerWebExchange serverWebExchange) {
 
         log.debug("Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
-        return authenticationService.getAppsmithToken(datasourceId, pageId, serverWebExchange.getRequest())
+        return authenticationService.getAppsmithToken(datasourceId, pageId, branchName, serverWebExchange.getRequest())
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 

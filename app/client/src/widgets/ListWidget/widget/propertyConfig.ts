@@ -70,7 +70,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: 0 } },
+        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
       },
       {
         helpText:
@@ -92,6 +92,17 @@ const PropertyPaneConfig = [
         validation: {
           type: ValidationTypes.BOOLEAN,
         },
+      },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
     ],
   },

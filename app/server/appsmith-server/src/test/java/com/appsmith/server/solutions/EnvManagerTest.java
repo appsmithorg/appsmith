@@ -302,27 +302,8 @@ public class EnvManagerTest {
                 user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
         ).thenReturn(false);
 
-        StepVerifier.create(envManager.sendTestEmail())
+        StepVerifier.create(envManager.sendTestEmail(null))
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
                 .verify();
-    }
-
-    @Test
-    public void sendTestEmail_WhenUserIsSuperUser_MailSent() {
-        User user = new User();
-        user.setEmail("sample-super-user");
-        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
-        Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(true);
-        Mockito.when(emailSender.sendMail(any(String.class), any(String.class), any(String.class)))
-                .thenReturn(Mono.just(true));
-
-        StepVerifier.create(envManager.sendTestEmail())
-                .assertNext(aBoolean -> {
-                    assertThat(aBoolean).isTrue();
-                })
-                .verifyComplete();
     }
 }

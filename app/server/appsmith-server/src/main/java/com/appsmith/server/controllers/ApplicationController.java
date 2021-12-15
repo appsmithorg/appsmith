@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -12,7 +13,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.GitService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -50,7 +51,6 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     private final ApplicationFetcher applicationFetcher;
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
-    private final GitService gitService;
 
     @Autowired
     public ApplicationController(
@@ -58,14 +58,12 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService,
-            GitService gitService) {
+            ImportExportApplicationService importExportApplicationService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
-        this.gitService = gitService;
     }
 
     @PostMapping
@@ -81,9 +79,10 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @PostMapping("/publish/{applicationId}")
-    public Mono<ResponseDTO<Boolean>> publish(@PathVariable String applicationId) {
-        return applicationPageService.publish(applicationId, true)
+    @PostMapping("/publish/{defaultApplicationId}")
+    public Mono<ResponseDTO<Boolean>> publish(@PathVariable String defaultApplicationId,
+                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationPageService.publish(defaultApplicationId, branchName, true)
                 .flatMap(application ->
                         // This event should parallel a similar event sent from the client, so we want it to be sent by the
                         // controller and not the service method.
@@ -93,24 +92,28 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 );
     }
 
-    @PutMapping("/{applicationId}/page/{pageId}/makeDefault")
-    public Mono<ResponseDTO<Application>> makeDefault(@PathVariable String applicationId, @PathVariable String pageId) {
-        return applicationPageService.makePageDefault(applicationId, pageId)
+    @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/makeDefault")
+    public Mono<ResponseDTO<Application>> makeDefault(@PathVariable String defaultApplicationId,
+                                                      @PathVariable String defaultPageId,
+                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationPageService.makePageDefault(defaultApplicationId, defaultPageId, branchName)
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
-    @PutMapping("/{applicationId}/page/{pageId}/reorder")
+    @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/reorder")
     public Mono<ResponseDTO<ApplicationPagesDTO>> reorderPage(
-            @PathVariable String applicationId,
-            @PathVariable String pageId,
-            @RequestParam Integer order
-    ) {
-        return applicationPageService.reorderPage(applicationId, pageId, order)
+            @PathVariable String defaultApplicationId,
+            @PathVariable String defaultPageId,
+            @RequestParam Integer order,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationPageService.reorderPage(defaultApplicationId, defaultPageId, order, branchName)
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
+    @Override
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
+    public Mono<ResponseDTO<Application>> delete(@PathVariable String id,
+                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to delete application with id: {}", id);
         return applicationPageService.deleteApplication(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
@@ -123,39 +126,44 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
-    @PutMapping("/{applicationId}/changeAccess")
-    public Mono<ResponseDTO<Application>> shareApplication(@PathVariable String applicationId, @RequestBody ApplicationAccessDTO applicationAccessDTO) {
-        log.debug("Going to change access for application {} to {}", applicationId, applicationAccessDTO.getPublicAccess());
-        return service.changeViewAccess(applicationId, applicationAccessDTO)
+    @PutMapping("/{defaultApplicationId}/changeAccess")
+    public Mono<ResponseDTO<Application>> shareApplication(@PathVariable String defaultApplicationId,
+                                                           @RequestBody ApplicationAccessDTO applicationAccessDTO,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to change access for application {}, branch {} to {}", defaultApplicationId, branchName, applicationAccessDTO.getPublicAccess());
+        return service.changeViewAccess(defaultApplicationId, branchName, applicationAccessDTO)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @PostMapping("/clone/{applicationId}")
-    public Mono<ResponseDTO<Application>> cloneApplication(@PathVariable String applicationId) {
-        return applicationPageService.cloneApplication(applicationId)
+    public Mono<ResponseDTO<Application>> cloneApplication(@PathVariable String applicationId,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationPageService.cloneApplication(applicationId, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @GetMapping("/view/{applicationId}")
-    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String applicationId) {
-        return service.getApplicationInViewMode(applicationId)
+    @GetMapping("/view/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String defaultApplicationId,
+                                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return service.getApplicationInViewMode(defaultApplicationId, branchName)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
-    @PostMapping("/{applicationId}/fork/{organizationId}")
+    @PostMapping("/{defaultApplicationId}/fork/{organizationId}")
     public Mono<ResponseDTO<Application>> forkApplication(
-            @PathVariable String applicationId,
-            @PathVariable String organizationId
-    ) {
-        return applicationForkingService.forkApplicationToOrganization(applicationId, organizationId)
+            @PathVariable String defaultApplicationId,
+            @PathVariable String organizationId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationForkingService.forkApplicationToOrganization(defaultApplicationId, organizationId, branchName)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @GetMapping("/export/{id}")
-    public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id) {
-        log.debug("Going to export application with id: {}", id);
+    public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id,
+                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
-        return importExportApplicationService.exportApplicationById(id)
+        return importExportApplicationService.exportApplicationById(id, branchName)
                 .map(fetchedResource -> {
                     String applicationName = fetchedResource.getExportedApplication().getName();
                     HttpHeaders responseHeaders = new HttpHeaders();
@@ -171,8 +179,8 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<Application>> importApplicationFromFile(
-            @RequestPart("file") Mono<Part> fileMono, @PathVariable String orgId) {
+    public Mono<ResponseDTO<Application>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
+                                                                    @PathVariable String orgId) {
         log.debug("Going to import application in organization with id: {}", orgId);
         return fileMono
                 .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))
@@ -189,5 +197,15 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     public Mono<ResponseDTO<GitAuth>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @Override
+    @PutMapping("/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> update(@PathVariable String defaultApplicationId,
+                                                @RequestBody Application resource,
+                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update resource from base controller with id: {}", defaultApplicationId);
+        return service.update(defaultApplicationId, resource, branchName)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 }
