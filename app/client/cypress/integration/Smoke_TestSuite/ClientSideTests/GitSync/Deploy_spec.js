@@ -1,7 +1,7 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 let repoName;
-describe("Git sync modal: connect tab", function() {
+describe("Git sync modal: deploy tab", function() {
   before(() => {
     cy.generateUUID().then((uid) => {
       repoName = uid;
@@ -10,7 +10,7 @@ describe("Git sync modal: connect tab", function() {
     });
   });
 
-  it.only("Validate commit comment inputbox and last deployed preview", function() {
+  it("Validate commit comment inputbox and last deployed preview", function() {
     // last deployed preview
     // The deploy preview Link should be displayed only after the first commit done
     cy.get(gitSyncLocators.deployPreview).should("not.exist");

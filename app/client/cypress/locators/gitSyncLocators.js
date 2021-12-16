@@ -32,4 +32,5 @@ export default {
   learnMoreSshUrl: ".t--learn-more-ssh-url",
   readDocument: ".t--read-document",
   deployPreview: ".t--git-deploy-preview",
+  mergeButton: ".t--git-merge-button",
 };

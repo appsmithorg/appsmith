@@ -209,7 +209,7 @@ describe("Git sync connect to repo", function() {
   });
 
   // Validate the error faced when user switches between the branches
-  it.only("error faced when user switechs branched with new page", function() {
+  it("error faced when user switechs branched with new page", function() {
     cy.get(commonLocators.canvas).click({ force: true });
     cy.createGitBranch(parentBranchKey);
     cy.createGitBranch(childBranchKey);
