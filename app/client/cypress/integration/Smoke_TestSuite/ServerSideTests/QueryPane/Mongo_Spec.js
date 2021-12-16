@@ -52,6 +52,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("3. Validate Find documents command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.setQueryTimeout(30000);
 
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
@@ -98,6 +99,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("4. Validate Count command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Count");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.runQuery();
@@ -107,6 +109,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("5. Validate Distinct command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Distinct");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.typeValueNValidate("{beds : {$lte: 2}}", "Query");
@@ -123,6 +126,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("6. Validate Aggregate command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Aggregate");
     cy.typeValueNValidate("listingsAndReviews", "Collection");
     cy.typeValueNValidate(
@@ -189,6 +193,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
     cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "Find Document(s)");
     cy.xpath(queryLocators.mongoFormFind).click({ force: true });
     cy.xpath("//div[text()='Find']")
