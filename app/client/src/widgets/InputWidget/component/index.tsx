@@ -44,11 +44,7 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
-import {
-  formatCurrencyNumber,
-  limitDecimalValue,
-  getSeparators,
-} from "./utilities";
+import { limitDecimalValue, getSeparators } from "./utilities";
 
 /**
  * All design system component specific logic goes here.
