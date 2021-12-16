@@ -23,7 +23,6 @@ import { ThemeProp, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 
 import ReCAPTCHA from "react-google-recaptcha";
-import { Colors } from "../../../constants/Colors";
 import _ from "lodash";
 import {
   ButtonPlacement,

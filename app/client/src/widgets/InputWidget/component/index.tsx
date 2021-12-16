@@ -147,21 +147,12 @@ const InputComponentWrapper = styled((props) => (
           }
         }
       `}
-      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-      &:active {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
-      }
-      &:hover {
-        border-color: ${Colors.GREY_5};
-      }
-      &:disabled {
-        background-color: ${Colors.GREY_1};
-        border: 1px solid ${Colors.GREY_3};
-        & + .bp3-input-action {
-          pointer-events: none;
-        }
-      }
+
+
+      ${({ disabled }) =>
+        disabled &&
+        ` background-color: ${Colors.GREY_1};
+      `}
     }
 
     .${Classes.INPUT_GROUP} {
@@ -273,6 +264,7 @@ const TextInputWrapper = styled.div<{
   boxShadow?: string;
   primaryColor: string;
   hasError?: boolean;
+  disabled?: boolean;
 }>`
   width: 100%;
   display: flex;
@@ -283,7 +275,7 @@ const TextInputWrapper = styled.div<{
   border-color: ${({ hasError }) =>
     hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
   border-radius: ${({ borderRadius }) => borderRadius} !important;
-    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 
   &:focus-within {
     outline: 0;
@@ -294,6 +286,14 @@ const TextInputWrapper = styled.div<{
         hasError ? Colors.DANGER_SOLID : primaryColor,
       )} !important;`};
   }
+
+  ${({ disabled }) =>
+    disabled &&
+    ` background-color: ${Colors.GREY_1};
+      border: 1px solid ${Colors.GREY_3};
+      & + .bp3-input-action {
+      pointer-events: none;
+    }`}
 `;
 
 export const isNumberInputType = (inputType: InputType) => {
@@ -601,6 +601,7 @@ class InputComponent extends React.Component<
         <TextInputWrapper
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
+          disabled={this.props.disabled}
           hasError={this.props.isInvalid}
           primaryColor={this.props.primaryColor}
         >

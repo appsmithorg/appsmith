@@ -18,7 +18,6 @@ import {
   colorsPropertyName,
   getThemePropertyBinding,
 } from "constants/ThemeContants";
-import TooltipComponent from "./Tooltip";
 import { getWidgets } from "sagas/selectors";
 import { extractColors } from "utils/helpers";
 

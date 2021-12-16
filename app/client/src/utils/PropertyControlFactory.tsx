@@ -6,12 +6,6 @@ import {
   ControlData,
 } from "components/propertyControls/BaseControl";
 
-const THEME_BOUND_CONTROLS = [
-  "COLOR_PICKER",
-  "BOX_SHADOW_OPTIONS",
-  "BORDER_RADIUS_OPTIONS",
-];
-
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
 
@@ -31,11 +25,8 @@ class PropertyControlFactory {
     hideEvaluatedValue?: boolean,
   ): JSX.Element {
     let controlBuilder;
-    const isThemeBoundControl = THEME_BOUND_CONTROLS.indexOf(
-      controlData.controlType,
-    );
 
-    if (preferEditor && !isThemeBoundControl) {
+    if (preferEditor) {
       controlBuilder = customEditor
         ? this.controlMap.get(customEditor)
         : this.controlMap.get("CODE_EDITOR");

@@ -138,7 +138,6 @@ function* getChildWidgetProps(
     themeDefaultConfig,
   );
   widget.dynamicBindingPathList = _.cloneDeep(dynamicBindingPathList);
-  widget.dynamicPropertyPathList = _.cloneDeep(dynamicBindingPathList);
   return widget;
 }
 function* generateChildWidgets(

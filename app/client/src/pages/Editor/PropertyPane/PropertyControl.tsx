@@ -24,7 +24,6 @@ import {
   getEvalValuePath,
   isPathADynamicProperty,
   isPathADynamicTrigger,
-  isThemeBoundProperty,
 } from "utils/DynamicBindingUtils";
 import {
   getWidgetPropsForPropertyName,
@@ -358,10 +357,6 @@ const PropertyControl = memo((props: Props) => {
     }
 
     const isDynamic: boolean = isPathADynamicProperty(
-      widgetProperties,
-      propertyName,
-    );
-    const isThemeBound: boolean = isThemeBoundProperty(
       widgetProperties,
       propertyName,
     );
