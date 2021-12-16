@@ -353,12 +353,14 @@ class InputComponent extends React.Component<
     this.props.onValueChange(deFormattedValue + "");
   };
 
-  onIncrementButtonClick = () => {
+  onIncrementButtonClick = (e: React.MouseEvent) => {
     this.updateValueOnButtonClick(1);
+    e.preventDefault();
   };
 
-  onDecrementButtonClick = () => {
+  onDecrementButtonClick = (e: React.MouseEvent) => {
     this.updateValueOnButtonClick(-1);
+    e.preventDefault();
   };
 
   setFocusState = (isFocused: boolean) => {

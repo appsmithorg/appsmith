@@ -1,4 +1,3 @@
-import { isEqual } from "lodash";
 import {
   formatCurrencyNumber,
   limitDecimalValue,
@@ -54,6 +53,6 @@ describe("Group separator test", () => {
   });
   it("For it (Italian) locale", () => {
     const response = getGroupSeparator("it");
-    expect(response).toBe(".");
+    expect(response).toEqual(".");
   });
 });
