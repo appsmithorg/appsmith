@@ -23,13 +23,11 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import io.sentry.protocol.App;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -713,6 +711,10 @@ public class GitServiceTest {
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("defaultBranch");
         branchList.add(gitBranchDTO);
+
+        GitBranchDTO remoteGitBranchDTO = new GitBranchDTO();
+        remoteGitBranchDTO.setBranchName("origin/defaultBranch");
+        branchList.add(remoteGitBranchDTO);
 
         Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(false)))
                 .thenReturn(Mono.just(branchList));

@@ -96,7 +96,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const clonePageCallback = useCallback((): void => {
     dispatch(clonePageInit(item.pageId, true));
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   /**
    * delete the page
@@ -109,7 +109,7 @@ function PageListItem(props: PageListItemProps) {
     AnalyticsUtil.logEvent("DELETE_PAGE", {
       pageName: item.pageName,
     });
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   /**
    * sets the page as default
@@ -118,7 +118,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const setPageAsDefaultCallback = useCallback((): void => {
     dispatch(setPageAsDefault(item.pageId, applicationId));
-  }, [dispatch]);
+  }, [dispatch, item, applicationId]);
 
   /**
    * sets the page hidden
@@ -127,7 +127,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const setPageHidden = useCallback(() => {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   return (
     <Container>
