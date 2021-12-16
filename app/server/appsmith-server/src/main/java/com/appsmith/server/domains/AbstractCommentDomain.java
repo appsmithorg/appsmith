@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.Transient;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -22,4 +23,11 @@ public abstract class AbstractCommentDomain extends BaseDomain {
     /** Edit/Published Mode */
     CommentMode mode;
 
+
+    @Transient
+    String branchName;
+
+    public String getType() {
+        return getClass().getSimpleName();
+    }
 }

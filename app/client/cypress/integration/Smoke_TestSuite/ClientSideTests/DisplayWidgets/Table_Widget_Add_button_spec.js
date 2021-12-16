@@ -50,15 +50,43 @@ describe("Table Widget property pane feature validation", function() {
     cy.editColumn("id");
     // Changing column data type to "Button"
     cy.changeColumnType("Button");
-    const color = "rgb(255, 0, 0)";
+    const color1 = "rgb(255, 0, 0)";
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()
-      .type(color);
-    // Close Property pane
-    //cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color);
+      .type(color1);
+    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
+
+    // Changing the color again to reproduce issue #9526
+    const color2 = "rgb(255, 255, 0)";
+    cy.get(widgetsPage.buttonColor)
+      .click({ force: true })
+      .clear()
+      // following wait is required to reproduce #9526
+      .wait(600)
+      .type(color2);
+    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
   });
+
+  it("Table Button label color validation", function() {
+    const color1 = "rgb(255, 255, 0)";
+    cy.get(widgetsPage.labelColor)
+      .click({ force: true })
+      .clear()
+      .type(color1);
+    cy.get(widgetsPage.tableBtn).should("have.css", "color", color1);
+
+    // Changing the color again to reproduce issue #9526
+    const color2 = "rgb(0, 0, 255)";
+    cy.get(widgetsPage.labelColor)
+      .click({ force: true })
+      .clear()
+      // following wait is required to reproduce #9526
+      .wait(600)
+      .type(color2);
+    cy.get(widgetsPage.tableBtn).should("have.css", "color", color2);
+  });
+
   it("Table widget triggeredRow property should be accessible", function() {
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
@@ -136,6 +164,23 @@ describe("Table Widget property pane feature validation", function() {
     // validate label
     cy.contains("Menu button").should("exist");
 
+    const color1 = "rgb(255, 255, 0)";
+    cy.get(widgetsPage.menuColor)
+      .click({ force: true })
+      .clear()
+      .type(color1);
+    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
+
+    // Changing the color again to reproduce issue #9526
+    const color2 = "rgb(255, 0, 0)";
+    cy.get(widgetsPage.menuColor)
+      .click({ force: true })
+      .clear()
+      // following wait is required to reproduce #9526
+      .wait(500)
+      .type(color2);
+    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
+
     // Add a Menu item 1
     cy.get(".t--add-menu-item-btn").click({
       force: true,
@@ -171,9 +216,11 @@ describe("Table Widget property pane feature validation", function() {
         force: true,
       });
     // update menu item background color
-    cy.get(widgetsPage.backgroundcolorPickerNew).type("#FFC13D", {
-      force: true,
-    });
+    cy.get(widgetsPage.backgroundcolorPickerNew)
+      .clear()
+      .type("#FFC13D", {
+        force: true,
+      });
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
 
@@ -188,9 +235,11 @@ describe("Table Widget property pane feature validation", function() {
         force: true,
       });
     // update menu item background color
-    cy.get(widgetsPage.backgroundcolorPickerNew).type("#3366FF", {
-      force: true,
-    });
+    cy.get(widgetsPage.backgroundcolorPickerNew)
+      .clear()
+      .type("#3366FF", {
+        force: true,
+      });
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
 
@@ -203,21 +252,15 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
 
     // verify menu items background color
-    cy.contains("Menu Item 1").should(
-      "have.css",
-      "background-color",
-      "rgb(3, 179, 101)",
-    );
-    cy.contains("Menu Item 2").should(
-      "have.css",
-      "background-color",
-      "rgb(255, 193, 61)",
-    );
-    cy.contains("Menu Item 3").should(
-      "have.css",
-      "background-color",
-      "rgb(51, 102, 255)",
-    );
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .should("have.css", "background-color", "rgb(3, 179, 101)");
+    cy.get(".bp3-menu-item")
+      .eq(1)
+      .should("have.css", "background-color", "rgb(255, 193, 61)");
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.css", "background-color", "rgb(51, 102, 255)");
 
     //cy.closePropertyPane();
 
@@ -244,14 +287,18 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     // check Menu Item 3 is disable
     cy.get(".bp3-menu-item")
-      .last()
+      .eq(2)
       .should("have.css", "background-color", "rgb(250, 250, 250)");
-    cy.get(".bp3-menu-item").should("have.class", "bp3-disabled");
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.class", "bp3-disabled");
 
     // Click on the Menu Item
-    cy.contains("Menu Item 1").click({
-      force: true,
-    });
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .click({
+        force: true,
+      });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     // Validating the toast message

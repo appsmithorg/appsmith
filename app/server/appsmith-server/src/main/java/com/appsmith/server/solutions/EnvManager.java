@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
+import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
@@ -15,15 +16,17 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -39,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,6 +98,7 @@ public class EnvManager {
         APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET,
         APPSMITH_OAUTH2_GITHUB_CLIENT_ID,
         APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET,
+        APPSMITH_CUSTOM_DOMAIN,
     }
 
     private static final Set<String> VARIABLE_WHITELIST = Stream.of(Vars.values())
@@ -119,14 +124,14 @@ public class EnvManager {
         if (changes.containsKey(Vars.APPSMITH_MAIL_HOST.name())) {
             changes.put(
                     Vars.APPSMITH_MAIL_ENABLED.name(),
-                    Boolean.toString(StringUtils.isNotEmpty(changes.get(Vars.APPSMITH_MAIL_HOST.name())))
+                    Boolean.toString(!StringUtils.isEmpty(changes.get(Vars.APPSMITH_MAIL_HOST.name())))
             );
         }
 
         if (changes.containsKey(Vars.APPSMITH_MAIL_USERNAME.name())) {
             changes.put(
                     Vars.APPSMITH_MAIL_SMTP_AUTH.name(),
-                    Boolean.toString(StringUtils.isNotEmpty(changes.get(Vars.APPSMITH_MAIL_USERNAME.name())))
+                    Boolean.toString(!StringUtils.isEmpty(changes.get(Vars.APPSMITH_MAIL_USERNAME.name())))
             );
         }
 
@@ -328,13 +333,39 @@ public class EnvManager {
                 });
     }
 
-    public Mono<Boolean> sendTestEmail() {
+    public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
         return verifyCurrentUserIsSuper()
-                .flatMap(user -> emailSender.sendMail(
-                        user.getEmail(),
-                        "Test email from Appsmith",
-                        "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n"
-                ));
+                .flatMap(user -> {
+                    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+                    mailSender.setHost(requestDTO.getSmtpHost());
+                    mailSender.setPort(requestDTO.getSmtpPort());
+
+                    Properties props = mailSender.getJavaMailProperties();
+                    props.put("mail.transport.protocol", "smtp");
+                    props.put("mail.smtp.starttls.enable", "true");
+
+                    if(!StringUtils.isEmpty(requestDTO.getUsername())) {
+                        props.put("mail.smtp.auth", "true");
+                        mailSender.setUsername(requestDTO.getUsername());
+                        mailSender.setPassword(requestDTO.getPassword());
+                    } else {
+                        props.put("mail.smtp.auth", "false");
+                    }
+                    props.put("mail.debug", "true");
+
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(requestDTO.getFromEmail());
+                    message.setTo(user.getEmail());
+                    message.setSubject("Test email from Appsmith");
+                    message.setText("This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
+                    try {
+                        mailSender.send(message);
+                    } catch (MailException mailException) {
+                        log.error("failed to send test email", mailException);
+                        throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "check log for details");
+                    }
+                    return Mono.just(Boolean.TRUE);
+                });
     }
 
     public Mono<Void> download(ServerWebExchange exchange) {

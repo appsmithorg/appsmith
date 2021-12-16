@@ -427,7 +427,7 @@ function* createOnboardingDatasource() {
     });
 
     // Navigate to that datasource page
-    yield put(changeDatasource(onboardingDatasource));
+    yield put(changeDatasource({ datasource: onboardingDatasource }));
 
     yield take(ReduxActionTypes.SHOW_ONBOARDING_LOADER);
     yield put(

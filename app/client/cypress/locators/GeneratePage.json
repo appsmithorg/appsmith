@@ -23,8 +23,5 @@
   "currentNameField": "//div[@type='FORM_WIDGET']//span[text()='name:']//ancestor::div[contains(@class,'t--widget-textwidget')]/preceding-sibling::div[contains(@class, 't--widget-inputwidget')][1]//input",
   "deleteofSelectedRow": "//div[@class='tr selected-row']//span[text()='Delete']",
   "confirmBtn": "span:contains('Confirm')",
-  "postgressnewPageEntityMenu": "//div[text()='Public.users_crud']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div",
-  "deleteMenuItem": "//div[text()='Delete']/parent::a[contains(@class, 'single-select')]", 
-  "mongonewPageEntityMenu": "//div[text()='ListingsAndReviews']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div"
-
+  "deleteMenuItem": "//div[text()='Delete']/parent::a[contains(@class, 'single-select')]"
 }
