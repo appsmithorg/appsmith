@@ -229,9 +229,9 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.wait(1000);
     cy.PublishtheApp();
     cy.wait(3000);
-    cy.get(commonlocators.toastAction)
-      .its("length")
-      .should("eq", 0); // checking no error msg appears!
+    cy.get(commonlocators.toastAction).should("not.exist");
+    // .its("length")
+    // .should("eq", 0); // checking no error msg appears!
 
     //.should('not.exist')
     //.should("have.length", 0)
