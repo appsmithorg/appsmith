@@ -76,13 +76,6 @@ const StyledDivider = styled(Divider)`
   margin-bottom: 5px;
 `;
 
-const AppLevelIndicator = styled.div`
-  text-align: center;
-  width: 100%;
-  font-size: 10px;
-  font-weight: 400;
-  color: #716e6e;
-`;
 function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
