@@ -30,7 +30,7 @@ export enum MathComparators {
 export type GridProps = {
   parentColumnSpace: number;
   parentRowSpace: number;
-  maxGrirdColumns: number;
+  maxGridColumns: number;
   paddingOffset?: number;
 };
 

@@ -69,7 +69,7 @@ export const useCanvasDragging = (
   const gridProps = {
     parentColumnSpace: snapColumnSpace,
     parentRowSpace: snapRowSpace,
-    maxGrirdColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+    maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
     paddingOffset: 0,
   };
 
@@ -186,6 +186,10 @@ export const useCanvasDragging = (
         leftColumn: 0,
         topRow: 0,
       };
+      let lastMousePositionOutsideCanvas = {
+        x: 0,
+        y: 0,
+      };
 
       const resetCanvasState = () => {
         if (canvasDrawRef.current && canvasRef.current) {
@@ -259,7 +263,7 @@ export const useCanvasDragging = (
           }
         };
 
-        const onFirstMoveOnCanvas = (e: any) => {
+        const onFirstMoveOnCanvas = (e: any, over = false) => {
           if (
             !isResizing &&
             isDragging &&
@@ -278,11 +282,16 @@ export const useCanvasDragging = (
             }
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
-            lastMousePosition = {
-              x: e.clientX,
-              y: e.clientY,
-            };
-            onMouseMove(e);
+            if (over) {
+              lastMousePosition = { ...lastMousePositionOutsideCanvas };
+            } else {
+              lastMousePosition = {
+                x: e.clientX,
+                y: e.clientY,
+              };
+            }
+
+            onMouseMove(e, over);
           }
         };
 
@@ -329,11 +338,10 @@ export const useCanvasDragging = (
           }
           return currentDirection.current;
         };
-        const onMouseMove = (e: any) => {
+        const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
             const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove(e);
             currentDirection.current = getMouseMoveDirection(e);
-
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
@@ -416,6 +424,7 @@ export const useCanvasDragging = (
                     currentDirection.current,
                     false,
                     !canReflowBasedOnMouseSpeed,
+                    firstMove,
                   );
                 }
 
@@ -612,6 +621,14 @@ export const useCanvasDragging = (
             });
           }
         };
+        const captureMousePosition = (e: any) => {
+          if (isDragging && !canvasIsDragging) {
+            lastMousePositionOutsideCanvas = {
+              x: e.clientX,
+              y: e.clientY,
+            };
+          }
+        };
         const initializeListeners = () => {
           canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
           canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
@@ -620,7 +637,7 @@ export const useCanvasDragging = (
 
           canvasRef.current?.addEventListener(
             "mouseover",
-            onFirstMoveOnCanvas,
+            (e) => onFirstMoveOnCanvas(e, true),
             false,
           );
           canvasRef.current?.addEventListener(
@@ -635,6 +652,7 @@ export const useCanvasDragging = (
           );
           document.body.addEventListener("mouseup", onMouseUp, false);
           window.addEventListener("mouseup", onMouseUp, false);
+          window.addEventListener("mousemove", captureMousePosition);
         };
         const startDragging = () => {
           if (canvasRef.current && canvasDrawRef.current && scrollParent) {
@@ -672,6 +690,7 @@ export const useCanvasDragging = (
           );
           document.body.removeEventListener("mouseup", onMouseUp);
           window.removeEventListener("mouseup", onMouseUp);
+          window.removeEventListener("mousemove", captureMousePosition);
         };
       } else {
         resetCanvasState();

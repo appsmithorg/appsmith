@@ -474,7 +474,7 @@ export function getMaxX(
 
   if (direction === ReflowDirection.RIGHT)
     maxX =
-      gridProps.maxGrirdColumns -
+      gridProps.maxGridColumns -
       collisionTree[accessors.direction] -
       movementLimit;
 

@@ -262,7 +262,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     parentColumnSpace: props.parentColumnSpace,
     parentRowSpace: props.parentRowSpace,
     paddingOffset: props.paddingOffset,
-    maxGrirdColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+    maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
   };
 
   const originalPositions = {
