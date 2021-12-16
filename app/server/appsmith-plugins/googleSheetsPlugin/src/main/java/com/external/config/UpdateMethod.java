@@ -99,6 +99,11 @@ public class UpdateMethod implements Method {
                 .map(response -> {// Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
+                    if (responseBody == null) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Expected to receive a response body."));
+                    }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody = null;
                     try {
@@ -110,15 +115,15 @@ public class UpdateMethod implements Method {
                                 e.getMessage()
                         ));
                     }
-                    if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
-                        throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
-                    }
+                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") != null) {
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                        }
 
-                    if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Could not map request back to existing data"));
                     }
 
                     // This is the object with the original values in the referred row

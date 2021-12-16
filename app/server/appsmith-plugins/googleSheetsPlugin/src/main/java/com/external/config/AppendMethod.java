@@ -104,6 +104,11 @@ public class AppendMethod implements Method {
                     // Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
+                    if (responseBody == null) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Expected to receive a response body."));
+                    }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
                     try {
@@ -121,12 +126,12 @@ public class AppendMethod implements Method {
                                 "Expected to receive a response of existing headers."));
                     }
 
-                    if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
-                        throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
-                    }
+                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") != null) {
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                        }
 
-                    if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Could not map request back to existing data"));
