@@ -80,7 +80,7 @@ export const limitDecimalValue = (
 Return the type of decimal separator for decimal digit numbers
   eg: 
   getDecimalSeparator("en-US") will return "."
-  getDecimalSeparator("fr-FR") will return "."
+  getDecimalSeparator("fr-FR") will return ","
 */
 export const getDecimalSeparator = (locale: string) => {
   const numberWithDecimalSeparator = 1.1;
@@ -98,7 +98,7 @@ Return the type of decimal separator for decimal digit numbers
   getGroupSeparator("en-US") will return ","
   getGroupSeparator("fr-FR") will return " "
 */
-const getGroupSeparator = (locale: string) => {
+export const getGroupSeparator = (locale: string) => {
   const numberWithDecimalSeparator = 1000.1;
   const formatter = new Intl.NumberFormat(locale);
   return (

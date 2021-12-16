@@ -1,4 +1,10 @@
-import { formatCurrencyNumber, limitDecimalValue } from "./utilities";
+import { isEqual } from "lodash";
+import {
+  formatCurrencyNumber,
+  limitDecimalValue,
+  getDecimalSeparator,
+  getGroupSeparator,
+} from "./utilities";
 
 describe("currency Number formating", () => {
   it("Without Decimal", () => {
@@ -27,5 +33,27 @@ describe("Limiting decimal Numbers ", () => {
   it("With Decimal more than the limit", () => {
     const response = limitDecimalValue(2, "3456789.35444", ".", ",");
     expect(response).toStrictEqual("3456789.35");
+  });
+});
+
+describe("Decimal separator test", () => {
+  it("For en-US locale", () => {
+    const response = getDecimalSeparator("en-US");
+    expect(response).toEqual(".");
+  });
+  it("For it (Italian) locale", () => {
+    const response = getDecimalSeparator("it");
+    expect(response).toEqual(",");
+  });
+});
+
+describe("Group separator test", () => {
+  it("For en-US locale", () => {
+    const response = getGroupSeparator("en-US");
+    expect(response).toEqual(",");
+  });
+  it("For it (Italian) locale", () => {
+    const response = getGroupSeparator("it");
+    expect(response).toBe(".");
   });
 });
