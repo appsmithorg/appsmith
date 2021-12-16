@@ -40,7 +40,7 @@ const StyledEntity = styled(Entity)`
   &.pages {
     & > div:not(.t--entity-item) {
       max-height: 148px !important;
-      overflow: scroll;
+      overflow-y: auto !important;
     }
   }
 `;
