@@ -22,6 +22,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitConnectionLimitDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -58,6 +59,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +96,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
     private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please resolve merge conflicts in remote and pull again";
+
+    private final static Map<Mono<String>, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -651,7 +655,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                 return Mono.just(instanceId);
             }
         }).flatMap(key -> {
-            //Call the cloud service API
+            // check the cache for the repo limit
+            if(gitLimitCache.containsKey(key)) {
+                return Mono.just(gitLimitCache.get(key).getRepoLimit());
+            }
+            // Call the cloud service API
             return WebClient
                     .create(baseUrl + "api/v1/git/limit/" + key)
                     .get()
@@ -667,7 +675,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         }
                     })
                     .map(ResponseDTO::getData)
-                    .cache()
+                    // cache the repo limit
+                    .map(limit -> {
+                        GitConnectionLimitDTO gitConnectionLimitDTO = new GitConnectionLimitDTO();
+                        gitConnectionLimitDTO.setRepoLimit(limit);
+                        gitConnectionLimitDTO.setExpiryTime(Instant.now().plusSeconds(24 * 60 * 60));
+                        gitLimitCache.put(key, gitConnectionLimitDTO);
+                        return limit;
+                    })
                     .doOnError(error -> log.error("Error fetching config from cloud services", error));
         });
     }
