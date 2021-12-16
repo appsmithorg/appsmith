@@ -200,12 +200,45 @@ describe("Git sync connect to repo", function() {
   });
 
   // Validate the error faced when user switches between the branches
-  it.only("error faced when user switechs branched with new page", function() {
+  it("error faced when user switechs branched with new page", function() {
     cy.createGitBranch(childBranchKey);
     cy.Createpage("ChildPage1");
     cy.switchGitBranch("master");
 
     cy.contains("Unable to find page");
+  });
+
+  // Validate the error faced when user switches between the branches
+  it.only("error faced when user switechs branched with new page", function() {
+    cy.get(commonLocators.canvas).click({ force: true });
+    cy.createGitBranch(parentBranchKey);
+    cy.createGitBranch(childBranchKey);
+
+    cy.get(gitSyncLocators.branchButton).click();
+    cy.get(gitSyncLocators.branchSearchInput).type(
+      `{selectall}${parentBranchKey.slice(0, 3)}`,
+    );
+    cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
+
+    cy.get(gitSyncLocators.branchSearchInput).type(
+      `{selectall}${childBranchKey.slice(0, 3)}`,
+    );
+    cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
+
+    cy.get(gitSyncLocators.branchSearchInput).type(
+      `{selectall}${branchQueryKey}`,
+    );
+    cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
+    cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
+
+    cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}abcd`);
+    cy.get(gitSyncLocators.branchListItem).should("not.exist");
+
+    cy.get(gitSyncLocators.branchSearchInput).clear();
+    cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
+    cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
+
+    cy.get(gitSyncLocators.closeBranchList).click();
   });
 
   after(() => {
