@@ -26,6 +26,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
   formatCurrencyNumber,
   getDecimalSeparator,
+  getLocale,
 } from "../component/utilities";
 
 export function defaultValueValidation(
@@ -705,7 +706,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.text === "") return "";
     const valueToFormat = "" + this.props.text;
 
-    const locale = navigator.languages?.[0] || "en-US";
+    const locale = getLocale();
     const decimalSeparator = getDecimalSeparator(locale);
     return formatCurrencyNumber(
       this.props.decimalsInCurrency,

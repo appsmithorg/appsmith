@@ -108,8 +108,10 @@ export const getGroupSeparator = (locale: string) => {
   );
 };
 
+export const getLocale = () => navigator.languages?.[0] || "en-US";
+
 export const getSeparators = () => {
-  const locale = navigator.languages?.[0] || "en-US";
+  const locale = getLocale();
   return {
     decimalSeparator: getDecimalSeparator(locale),
     groupSeparator: getGroupSeparator(locale),
