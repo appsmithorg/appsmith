@@ -4491,17 +4491,27 @@ public class DatabaseChangelog {
         );
         firestorePlugin.setUiComponent("UQIDbEditorForm");
 
-
         // Find all Firestore actions
+        final Query firestoreActionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
+                        .and(fieldName(QNewAction.newAction.deleted)).is(true)
+        );
+        firestoreActionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
         List<NewAction> firestoreActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId()))),
+                firestoreActionQuery,
                 NewAction.class
         );
 
-        List<NewAction> actionsToSave = new ArrayList<>();
+        for (NewAction firestoreActionId : firestoreActions) {
 
-        for (NewAction firestoreAction : firestoreActions) {
+            // Fetch one page at a time to avoid OOM.
+            final NewAction firestoreAction = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(firestoreActionId.getId())),
+                    NewAction.class
+            );
+
             ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
 
             /* No migrations required if action configuration does not exist. */
@@ -4554,11 +4564,6 @@ public class DatabaseChangelog {
                     objectMapper, firestoreAction, firestoreMigrationMap);
             unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
-            actionsToSave.add(firestoreAction);
-        }
-
-        // Save the actions which have been migrated.
-        for (NewAction firestoreAction : actionsToSave) {
             mongockTemplate.save(firestoreAction);
         }
 
