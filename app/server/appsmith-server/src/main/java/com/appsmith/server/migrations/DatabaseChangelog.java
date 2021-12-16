@@ -144,6 +144,16 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @ChangeLog(order = "001")
 public class DatabaseChangelog {
 
+    public static ObjectMapper objectMapper = new ObjectMapper();
+    public static final String FIRESTORE_PLUGIN_NAME = "firestore-plugin";
+    public static final String CONDITION_KEY = "condition";
+    public static final String CHILDREN_KEY = "children";
+    public static final String OPERATOR_KEY = "operator";
+    public static final String VALUE_KEY = "value";
+    public static final String PATH_KEY = "path";
+    public static final String AND = "AND";
+    public static final String KEY = "key";
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Setter
@@ -3472,8 +3482,93 @@ public class DatabaseChangelog {
             Map.entry(8, List.of("list.unSignedUrl"))
     );
 
-    private void updateFormDataMultipleOptions(int index, Object value, Map formData, Map<Integer, List<String>> migrationMap) {
+    /**
+     * This class is meant to hold any method that is required to transform data before migrating the data to UQI
+     * schema. Usage of a class makes the data transformation process modular e.g. someone could create
+     * another class extending this class and override the `transformData` method.
+     */
+    public class UQIMigrationDataTransformer {
+
+        /**
+         * This method holds the steps to transform data before it is migrated to UQI schema.
+         * Each transformation is uniquely identified by the combination of plugin name and the transformation name.
+         *
+         * @param pluginName - name of the plugin for which the transformation is intended
+         * @param transformationName - name of the transformation relative to the plugin
+         * @param value - value that needs to be transformed
+         * @return - transformed value
+         */
+        public Object transformData(String pluginName, String transformationName, Object value) {
+
+            if (value == null) {
+                return value;
+            }
+
+            switch (pluginName) {
+                /* Data transformations for Firestore plugin are defined in this case. */
+                case FIRESTORE_PLUGIN_NAME:
+                    /**
+                     * This case takes care of transforming Firestore's where clause data to UQI's where
+                     * clause schema.
+                     */
+                    if ("where-clause-migration".equals(transformationName)) {
+                        /* This map will hold the transformed data as per UQI's where clause schema */
+                        HashMap<String, Object> uqiWhereMap = new HashMap<>();
+                        uqiWhereMap.put(CONDITION_KEY, AND);
+                        uqiWhereMap.put(CHILDREN_KEY, new ArrayList<>());
+
+                        List<Map<String, Object>> oldListOfConditions = (List<Map<String, Object>>) value;
+                        oldListOfConditions.stream()
+                                .forEachOrdered(oldCondition -> {
+                                    /* Map old values to keys in the new UQI format. */
+                                    Map<String, Object> uqiCondition = new HashMap<>();
+                                    uqiCondition.put(CONDITION_KEY, oldCondition.get(OPERATOR_KEY));
+                                    uqiCondition.put(KEY, oldCondition.get(PATH_KEY));
+                                    uqiCondition.put(VALUE_KEY, oldCondition.get(VALUE_KEY));
+
+                                    /* Add condition to the UQI where clause. */
+                                    ((List) uqiWhereMap.get(CHILDREN_KEY)).add(uqiCondition);
+                                });
+
+                        return uqiWhereMap;
+                    }
+
+                    /**
+                     * Throw error since no handler could be found for the pluginName and transformationName
+                     * combination.
+                     */
+                    String transformationKeyNotFoundErrorMessage = "Data transformer failed to find any " +
+                            "matching case for plugin: " + pluginName + " and key: " + transformationName + ". Please " +
+                            "contact Appsmith customer support to resolve this.";
+                    assert false : transformationKeyNotFoundErrorMessage;
+
+                    break;
+                default:
+                    /* Throw error since no handler could be found for the plugin matching pluginName */
+                    String noPluginHandlerFoundErrorMessage = "Data transformer failed to find any matching case for " +
+                            "plugin: " + pluginName + ". Please contact Appsmith customer support to resolve this.";
+                    assert false : noPluginHandlerFoundErrorMessage;
+            }
+
+            /* Execution flow is never expected to reach here. */
+            String badExecutionFlowErrorMessage = "Execution flow is never supposed to reach here. Please contact " +
+                    "Appsmith customer support to resolve this.";
+            assert false : badExecutionFlowErrorMessage;
+
+            return value;
+        }
+    }
+
+    private void updateFormDataMultipleOptions(int index, Object value, Map formData,
+                                               Map<Integer, List<String>> migrationMap,
+                                               Map<Integer, String> uqiDataTransformationMap,
+                                               UQIMigrationDataTransformer dataTransformer,
+                                               String pluginName) {
         if (migrationMap.containsKey(index)) {
+            if (dataTransformer != null && uqiDataTransformationMap.containsKey(index)) {
+                String transformationKey = uqiDataTransformationMap.get(index);
+                value = dataTransformer.transformData(pluginName, transformationKey, value);
+            }
             List<String> paths = migrationMap.get(index);
             for (String path : paths) {
                 setValueSafelyInFormData(formData, path, value);
@@ -3481,16 +3576,20 @@ public class DatabaseChangelog {
         }
     }
 
-    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates, Map<Integer, List<String>> migrationMap) {
+    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates,
+               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
+               UQIMigrationDataTransformer dataTransformer, String pluginName) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
             for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
                 Property template = pluginSpecifiedTemplates.get(i);
                 if (template != null) {
-                    updateFormDataMultipleOptions(i, template.getValue(), formData, migrationMap);
+                    updateFormDataMultipleOptions(i, template.getValue(), formData, migrationMap,
+                            uqiDataTransformationMap, dataTransformer, pluginName);
                 }
             }
+
             return formData;
         }
 
@@ -3531,7 +3630,8 @@ public class DatabaseChangelog {
             List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
 
             unpublishedAction.getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                            s3MigrationMap, null, null, null)
             );
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
@@ -3540,67 +3640,17 @@ public class DatabaseChangelog {
                     publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
                 pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
                 publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                                s3MigrationMap, null, null, null)
                 );
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
-            // Now migrate the dynamic binding pathlist
+            // Migrate the dynamic binding path list for unpublished action
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-
-            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
-                List<Property> newDynamicBindingPathList = new ArrayList<>();
-                for (Property path : dynamicBindingPathList) {
-                    String pathKey = path.getKey();
-                    if (pathKey.contains("pluginSpecifiedTemplates")) {
-
-                        // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
-                        Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
-                        Matcher matcher = pattern.matcher(pathKey);
-
-                        while (matcher.find()) {
-                            int index = Integer.parseInt(matcher.group());
-                            List<String> partialPaths = s3MigrationMap.get(index);
-                            for (String partialPath : partialPaths) {
-                                Property dynamicBindingPath = new Property("formData." + partialPath, null);
-                                newDynamicBindingPathList.add(dynamicBindingPath);
-                            }
-                        }
-                    } else {
-                        // this dynamic binding is for body. Add as is
-                        newDynamicBindingPathList.add(path);
-                    }
-
-                    // We may have an invalid dynamic binding. Trim the same
-                    List<String> dynamicBindingPathNames = newDynamicBindingPathList
-                            .stream()
-                            .map(property -> property.getKey())
-                            .collect(Collectors.toList());
-
-                    Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, s3Action, dynamicBindingPathNames);
-
-                    // We have found atleast 1 invalid dynamic binding path.
-                    if (!pathsToRemove.isEmpty()) {
-                        // First remove the invalid paths from the set of paths
-                        dynamicBindingPathNames.removeAll(pathsToRemove);
-
-                        // Transform the set of paths to Property as it is stored in the db.
-                        List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
-                                .stream()
-                                .map(dynamicBindingPath -> {
-                                    Property property = new Property();
-                                    property.setKey(dynamicBindingPath);
-                                    return property;
-                                })
-                                .collect(Collectors.toList());
-
-                        // Reset the path list to only contain valid binding paths.
-                        newDynamicBindingPathList = updatedDynamicBindingPathList;
-                    }
-                }
-
-                unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
-            }
+            List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                    objectMapper, s3Action, s3MigrationMap);
+            unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
             actionsToSave.add(s3Action);
         }
@@ -3611,6 +3661,77 @@ public class DatabaseChangelog {
         }
         // Now that the actions have completed the migrations, update the plugin to use the new UI form.
         mongockTemplate.save(s3Plugin);
+    }
+
+    /**
+     * Method to port `dynamicBindingPathList` to UQI model.
+     *
+     * @param dynamicBindingPathList : old dynamicBindingPathList
+     * @param objectMapper
+     * @param action
+     * @param migrationMap : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
+     *                     reference, please check out the `s3MigrationMap` defined above.
+     * @return : updated dynamicBindingPathList - ported to UQI model.
+     */
+    private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
+                                                            ObjectMapper objectMapper, NewAction action,
+                                                            Map<Integer, List<String>> migrationMap) {
+        // Return if empty.
+        if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
+            return dynamicBindingPathList;
+        }
+
+        List<Property> newDynamicBindingPathList = new ArrayList<>();
+        for (Property path : dynamicBindingPathList) {
+            String pathKey = path.getKey();
+            if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                Matcher matcher = pattern.matcher(pathKey);
+
+                while (matcher.find()) {
+                    int index = Integer.parseInt(matcher.group());
+                    List<String> partialPaths = migrationMap.get(index);
+                    for (String partialPath : partialPaths) {
+                        Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                        newDynamicBindingPathList.add(dynamicBindingPath);
+                    }
+                }
+            } else {
+                // this dynamic binding is for body. Add as is
+                newDynamicBindingPathList.add(path);
+            }
+
+            // We may have an invalid dynamic binding. Trim the same
+            List<String> dynamicBindingPathNames = newDynamicBindingPathList
+                    .stream()
+                    .map(property -> property.getKey())
+                    .collect(Collectors.toList());
+
+            Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
+
+            // We have found atleast 1 invalid dynamic binding path.
+            if (!pathsToRemove.isEmpty()) {
+                // First remove the invalid paths from the set of paths
+                dynamicBindingPathNames.removeAll(pathsToRemove);
+
+                // Transform the set of paths to Property as it is stored in the db.
+                List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
+                        .stream()
+                        .map(dynamicBindingPath -> {
+                            Property property = new Property();
+                            property.setKey(dynamicBindingPath);
+                            return property;
+                        })
+                        .collect(Collectors.toList());
+
+                // Reset the path list to only contain valid binding paths.
+                newDynamicBindingPathList = updatedDynamicBindingPathList;
+            }
+        }
+
+        return newDynamicBindingPathList;
     }
 
     @ChangeSet(order = "094", id = "set-slug-to-application-and-page", author = "")
@@ -3974,7 +4095,7 @@ public class DatabaseChangelog {
         mongockTemplate.save(googleSheetsPlugin);
     }
 
-    @ChangeSet(order = "101", id = "insert-default-resources", author = "")
+    @ChangeSet(order = "102", id = "insert-default-resources", author = "")
     public void insertDefaultResources(MongockTemplate mongockTemplate) {
 
         // Update datasources
@@ -4334,4 +4455,114 @@ public class DatabaseChangelog {
         flushdb.subscribe();
     }
 
+    /* Map values from pluginSpecifiedTemplates to formData (UQI) */
+    public final static Map<Integer, List<String>> firestoreMigrationMap = Map.ofEntries(
+            Map.entry(0, List.of("command")),
+            Map.entry(1, List.of("orderBy")),
+            Map.entry(2, List.of("limitDocuments")),
+            Map.entry(3, List.of("where")),
+            Map.entry(4, List.of("")), // index 4 is not used in pluginSpecifiedTemplates
+            Map.entry(5, List.of("")), // index 5 is not used in pluginSpecifiedTemplates
+            Map.entry(6, List.of("startAfter")),
+            Map.entry(7, List.of("endBefore")),
+            Map.entry(8, List.of("timestampValuePath")),
+            Map.entry(9, List.of("deleteKeyPath"))
+    );
+
+    /**
+     * This map indicates which fields in pluginSpecifiedTemplates require a transformation before their data can be
+     * migrated to the UQI schema.
+     * The key contains the index of the data that needs transformation and the value indicates the which kind of
+     * transformation is required. e.g. (3, "where-clause-migration") indicates that the value against index 3 in
+     * pluginSpecifiedTemplates needs to be migrated by the rules identified by the string "where-clause-migration".
+     * The rules are defined in the class UQIMigrationDataTransformer.
+     */
+    public static final Map<Integer, String> firestoreUQIDataTransformationMap = Map.ofEntries(
+            Map.entry(3, "where-clause-migration")
+    );
+
+    @ChangeSet(order = "103", id = "migrate-firestore-to-uqi", author = "")
+    public void migrateFirestorePluginToUqi(MongockTemplate mongockTemplate) {
+
+        // Update Firestore plugin to indicate use of UQI schema
+        Plugin firestorePlugin = mongockTemplate.findOne(
+                query(where("packageName").is("firestore-plugin")),
+                Plugin.class
+        );
+        firestorePlugin.setUiComponent("UQIDbEditorForm");
+
+
+        // Find all Firestore actions
+        List<NewAction> firestoreActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction firestoreAction : firestoreActions) {
+            ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
+
+            /* No migrations required if action configuration does not exist. */
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                continue;
+            }
+
+            List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+            UQIMigrationDataTransformer uqiMigrationDataTransformer = new UQIMigrationDataTransformer();
+
+            /**
+             * Migrate unpublished action configuration data.
+             * Create `formData` used in UQI schema from the `pluginSpecifiedTemplates` used earlier.
+             */
+            unpublishedAction.getActionConfiguration().setFormData(
+                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                            firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer,
+                            "firestore-plugin")
+            );
+
+            /* `pluginSpecifiedTemplates` is no longer required since `formData` will be used in UQI schema. */
+            unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+
+            /**
+             * Migrate published action configuration data.
+             * Create `formData` used in UQI schema from the `pluginSpecifiedTemplates` used earlier.
+             */
+            ActionDTO publishedAction = firestoreAction.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
+                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
+                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                publishedAction.getActionConfiguration().setFormData(
+                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates,
+                                firestoreMigrationMap, firestoreUQIDataTransformationMap, uqiMigrationDataTransformer
+                                , "firestore-plugin")
+                );
+
+                /* `pluginSpecifiedTemplates` is no longer required since `formData` will be used in UQI schema. */
+                publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+            }
+
+            /**
+             * Migrate the dynamic binding path list for unpublished action.
+             * Please note that there is no requirement to migrate the dynamic binding path list for published actions
+             * since the `on page load` actions do not get computed on published actions data. They are only computed
+             * on unpublished actions data and copied over for the view mode.
+             */
+            List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
+            List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                    objectMapper, firestoreAction, firestoreMigrationMap);
+            unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
+
+            actionsToSave.add(firestoreAction);
+        }
+
+        // Save the actions which have been migrated.
+        for (NewAction firestoreAction : actionsToSave) {
+            mongockTemplate.save(firestoreAction);
+        }
+
+        // Update plugin data.
+        mongockTemplate.save(firestorePlugin);
+    }
 }
