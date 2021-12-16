@@ -138,7 +138,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.verticalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
         // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.isCellVisible":
@@ -159,8 +158,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.createdAt.verticalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.textSize":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.fontStyle":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.textColor":
           EvaluationSubstitutionType.TEMPLATE,
@@ -221,12 +218,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
             type: "TEXT",
           },
-        },
-        "primaryColumns.createdAt.fontStyle": {
-          params: {
-            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
-          },
-          type: "TEXT",
         },
         "primaryColumns.createdAt.horizontalAlignment": {
           type: "TABLE_PROPERTY",
@@ -295,12 +286,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
             type: "TEXT",
           },
-        },
-        "primaryColumns.name.fontStyle": {
-          params: {
-            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
-          },
-          type: "TEXT",
         },
         "primaryColumns.name.horizontalAlignment": {
           type: "TABLE_PROPERTY",

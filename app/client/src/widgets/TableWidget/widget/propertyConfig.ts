@@ -644,15 +644,9 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: true,
+                  isBindProperty: false,
                   isTriggerProperty: false,
                   isJSConvertible: true,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
-                    },
-                  },
                 },
                 {
                   propertyName: "verticalAlignment",
