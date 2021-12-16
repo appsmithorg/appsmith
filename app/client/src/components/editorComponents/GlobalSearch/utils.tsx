@@ -74,7 +74,7 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
     <>
-      {modText()} + <span>&#8682;</span> + N
+      {modText()} + <span>&#8682;</span> + K
     </>
   ),
 };

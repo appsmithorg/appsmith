@@ -26,6 +26,7 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "./helpers";
 import { useLocation } from "react-router";
+import { isEmbeddedRestDatasource } from "entities/Datasource";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -331,7 +332,9 @@ export const useFilesForExplorer = (sort = "name") => {
           if (file.config.pluginType === PluginType.JS) {
             group = "JS Objects";
           } else if (file.config.pluginType === PluginType.API) {
-            group = "APIs";
+            group = isEmbeddedRestDatasource(file.config.datasource)
+              ? "APIs"
+              : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
           } else {
             group = datasourceIdToNameMap[file.config.datasource.id];
           }
