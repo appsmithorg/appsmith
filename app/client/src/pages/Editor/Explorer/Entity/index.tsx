@@ -107,7 +107,7 @@ export const EntityItem = styled.div<{
   & .${EntityClassNames.RIGHT_ICON} {
     visibility: ${(props) =>
       props.alwaysShowRightIcon ? "visible" : "hidden"};
-    height: 30px;
+    height: 100%;
     width: 30px;
     display: inline-flex;
     align-items: center;
@@ -137,6 +137,8 @@ export const EntityItem = styled.div<{
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
+  display: flex;
+  align-items: center;
 
   div {
     cursor: pointer;

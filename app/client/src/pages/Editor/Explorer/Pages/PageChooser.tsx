@@ -14,7 +14,7 @@ import {
   pageIcon,
   defaultPageIcon,
   settingsIcon,
-  // currentPageIcon,
+  currentPageIcon,
 } from "../ExplorerIcons";
 import {
   createMessage,
@@ -41,6 +41,16 @@ const StyledEntity = styled(Entity)`
     & > div:not(.t--entity-item) {
       max-height: 148px !important;
       overflow-y: auto !important;
+    }
+  }
+  &.page .${EntityClassNames.PRE_RIGHT_ICON} {
+    position: absolute;
+    width: 20px;
+    right: 0;
+  }
+  &.page:hover {
+    & .${EntityClassNames.PRE_RIGHT_ICON} {
+      display: none;
     }
   }
 `;
@@ -177,9 +187,8 @@ function PageChooser() {
         );
 
         return (
-          <Entity
+          <StyledEntity
             action={() => switchPage(page.pageId)}
-            active={isCurrentPage}
             className="page"
             contextMenu={contextMenu}
             entityId={page.pageId}
@@ -188,7 +197,7 @@ function PageChooser() {
             key={key.toString()}
             name={page.pageName}
             onNameEdit={resolveAsSpaceChar}
-            // preRightIcon={isCurrentPage ? currentPageIcon : ""}
+            preRightIcon={isCurrentPage ? currentPageIcon : ""}
             rightIcon={rightIcon}
             searchKeyword={""}
             step={1}
