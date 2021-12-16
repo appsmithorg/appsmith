@@ -9,7 +9,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
-import com.appsmith.server.repositories.ce.UserRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
 import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;

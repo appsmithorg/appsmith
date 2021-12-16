@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.repositories.ce.UserRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserDataServiceCEImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;

@@ -21,7 +21,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.repositories.ce.UserRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import lombok.extern.slf4j.Slf4j;

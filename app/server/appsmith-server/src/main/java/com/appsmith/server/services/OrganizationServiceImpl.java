@@ -4,7 +4,7 @@ import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ce.UserRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.OrganizationServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;

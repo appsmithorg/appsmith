@@ -2,7 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.repositories.ce.UserRepository;
+import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;

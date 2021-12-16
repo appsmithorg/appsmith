@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.User;
-import com.appsmith.server.repositories.ce.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
