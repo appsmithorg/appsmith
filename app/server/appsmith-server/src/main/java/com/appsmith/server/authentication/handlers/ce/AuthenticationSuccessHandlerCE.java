@@ -8,7 +8,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.ce.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;

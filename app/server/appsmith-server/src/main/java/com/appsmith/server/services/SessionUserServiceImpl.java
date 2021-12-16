@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.ce.UserRepository;
 import com.appsmith.server.services.ce.SessionUserServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

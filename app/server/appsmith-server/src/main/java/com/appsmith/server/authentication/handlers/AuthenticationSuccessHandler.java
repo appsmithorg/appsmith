@@ -3,7 +3,7 @@ package com.appsmith.server.authentication.handlers;
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.ce.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;

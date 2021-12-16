@@ -1,7 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.domains.User;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.ce.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

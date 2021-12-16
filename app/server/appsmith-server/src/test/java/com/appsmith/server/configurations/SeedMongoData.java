@@ -16,7 +16,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.ce.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;

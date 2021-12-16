@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.CommentMode;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -25,5 +25,5 @@ public interface CustomCommentThreadRepositoryCE extends AppsmithRepository<Comm
 
     Mono<Long> countUnreadThreads(String applicationId, String userEmail);
 
-    Mono<UpdateResult> archiveByPageId(String pageId, CommentMode commentMode);
+    Mono<UpdateResult> archiveByPageId(String pageId, ApplicationMode commentMode);
 }

@@ -1,10 +1,7 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Theme;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.repositories.ce.CustomThemeRepositoryCE;
 
-public interface CustomThemeRepository extends AppsmithRepository<Theme> {
-    Flux<Theme> getSystemThemes();
-    Mono<Theme> getSystemThemeByName(String themeName);
+public interface CustomThemeRepository extends CustomThemeRepositoryCE {
+
 }

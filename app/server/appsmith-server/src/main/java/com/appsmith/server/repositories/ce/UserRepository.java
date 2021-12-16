@@ -1,6 +1,6 @@
-package com.appsmith.server.repositories;
+package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.repositories.ce.UserRepositoryCE;
+import com.appsmith.server.repositories.CustomUserRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

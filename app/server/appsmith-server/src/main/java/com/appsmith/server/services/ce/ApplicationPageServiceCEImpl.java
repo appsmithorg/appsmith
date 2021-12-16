@@ -10,14 +10,15 @@ import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -38,6 +39,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -86,10 +88,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
     private final CommentThreadRepository commentThreadRepository;
+    private final ThemeService themeService;
+    private final ResponseUtils responseUtils;
+
 
     public static final Integer EVALUATION_VERSION = 2;
 
-    private final ResponseUtils responseUtils;
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -313,7 +317,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(tuple -> {
                     Application application1 = tuple.getT1();
                     application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                    return applicationService.createDefault(application1);
+                    // assign the default theme id to edit mode
+                    return themeService.getDefaultThemeId().map(themeId-> {
+                        application1.setEditModeThemeId(themeId);
+                        application1.setPublishedModeThemeId(themeId);
+                        return themeId;
+                    }).then(applicationService.createDefault(application1));
                 })
                 .flatMap(savedApplication -> {
 
@@ -649,6 +658,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
                                 return applicationService.createDefault(application1);
                             })
+                            // duplicate the source application's themes if required i.e. if they were customized
+                            .flatMap(application ->
+                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application.getId())
+                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application.getId()))
+                                            .map(themesZip -> {
+                                                application.setEditModeThemeId(themesZip.getT1().getId());
+                                                application.setPublishedModeThemeId(themesZip.getT2().getId());
+                                                return application;
+                                            })
+                            )
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
@@ -733,7 +752,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             }).collectList();
 
                     Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(
-                            id, CommentMode.EDIT
+                            id, ApplicationMode.EDIT
                     );
 
                     /**
@@ -781,6 +800,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
 
+        Mono<Theme> publishThemeMono = applicationMono.flatMap(application ->  themeService.publishTheme(
+                application.getEditModeThemeId(), application.getPublishedModeThemeId(), application.getId()
+        ));
+
         Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
                 .flatMap(application -> {
@@ -813,7 +836,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Mono<List<Boolean>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, CommentMode.PUBLISHED)
+                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
                                         .then(newPageService.archiveById(id))
                                 )
                                 .collectList();
@@ -877,7 +900,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return Mono.when(
                         publishApplicationAndPages.collectList(),
                         publishedActionsFlux.collectList(),
-                        publishedCollectionsFlux
+                        publishedCollectionsFlux,
+                        publishThemeMono
                 )
                 .then(applicationMono);
     }
