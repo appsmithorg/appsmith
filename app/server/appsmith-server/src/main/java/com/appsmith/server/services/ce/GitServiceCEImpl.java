@@ -663,52 +663,62 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     /**
      * Disconnect from the git repo. This method will remove all the git metadata for the application
-     * @param applicationId
+     *
+     * @param defaultApplicationId
      * @return Application data
      */
     @Override
-    public Mono<Application> detachRemote(String applicationId) {
-        return getApplicationById(applicationId)
-                .flatMap(application -> {
-                    if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
-                            || isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
+    public Mono<Application> detachRemote(String defaultApplicationId) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(defaultApplication -> {
+                    if(Optional.ofNullable(defaultApplication.getGitApplicationMetadata()).isEmpty()
+                            || isInvalidDefaultApplicationGitMetadata(defaultApplication.getGitApplicationMetadata())) {
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Please reconfigure the application to connect to git repo")
+                        );
                     }
                     //Remove the git contents from file system
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                     String repoName = gitApplicationMetadata.getRepoName();
-                    Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                    Path repoPath = Paths.get(defaultApplication.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
                     String defaultApplicationBranchName = gitApplicationMetadata.getBranchName();
                     String remoteUrl = gitApplicationMetadata.getRemoteUrl();
                     String privateKey = gitApplicationMetadata.getGitAuth().getPrivateKey();
                     String publicKey = gitApplicationMetadata.getGitAuth().getPublicKey();
-                    application.setGitApplicationMetadata(null);
                     return Mono.zip(
                             gitExecutor.listBranches(repoPath,
                                     remoteUrl,
                                     privateKey,
                                     publicKey,
                                     false),
-                            applicationService.save(application),
+                            Mono.just(defaultApplication),
                             Mono.just(repoPath),
                             Mono.just(defaultApplicationBranchName));
                 })
                 .flatMap(tuple -> {
-                    Application application = tuple.getT2();
+                    Application defaultApplication = tuple.getT2();
                     Path repoPath = tuple.getT3();
-                    List<String> branch = tuple.getT1().stream().map(gitBranchDTO -> gitBranchDTO.getBranchName()).collect(Collectors.toList());
+                    List<String> branch = tuple.getT1()
+                            .stream()
+                            .map(GitBranchDTO::getBranchName)
+                            .filter(branchName -> !branchName.startsWith("origin"))
+                            .collect(Collectors.toList());
 
                     //Remove the parent application branch name from the list
                     branch.remove(tuple.getT4());
-
+                    defaultApplication.setGitApplicationMetadata(null);
                     return fileUtils.detachRemote(repoPath)
                             .flatMap(status -> Flux.fromIterable(branch)
-                                    .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, applicationId, MANAGE_APPLICATIONS)
-                                            .flatMap(applicationPageService::deleteApplicationByResource))
-                                    .then(Mono.just(application)));
+                                    .flatMap(gitBranch ->
+                                            applicationService
+                                                    .findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+                                                    .flatMap(applicationPageService::deleteApplicationByResource)
+                                    )
+                                    .then(applicationService.save(defaultApplication)));
                 })
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
+
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
 
