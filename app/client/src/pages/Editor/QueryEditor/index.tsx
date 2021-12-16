@@ -83,7 +83,6 @@ type ReduxStateProps = {
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
   applicationId: string;
-  pluginId: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -287,7 +286,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
     applicationId: getCurrentApplicationId(state),
-    pluginId: queryAction.pluginId,
   };
 };
 
