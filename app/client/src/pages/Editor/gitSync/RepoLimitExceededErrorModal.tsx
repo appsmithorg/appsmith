@@ -14,12 +14,15 @@ import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES,
+  CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
+  DISCONNECT_CAUSE_APPLICATION_BREAK,
+  DISCONNECT_GIT,
+  LEARN_MORE,
   REPOSITORY_LIMIT_REACHED,
   REPOSITORY_LIMIT_REACHED_INFO,
-  REVOKE_ACCESS,
-  REVOKE_EXISTING_REPOSITORIES,
-  REVOKE_EXISTING_REPOSITORIES_INFO,
+  DISCONNECT_EXISTING_REPOSITORIES,
+  DISCONNECT_EXISTING_REPOSITORIES_INFO,
 } from "constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
@@ -33,6 +36,8 @@ import {
   ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import InfoWrapper from "./components/InfoWrapper";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 const Container = styled.div`
   height: 600px;
@@ -141,6 +146,28 @@ function RepoLimitExceededErrorModal() {
           >
             {createMessage(REPOSITORY_LIMIT_REACHED_INFO)}
           </Text>
+          <InfoWrapper
+            style={{
+              margin: `${theme.spaces[7]}px 0px`,
+              paddingTop: theme.spaces[6],
+              paddingBottom: theme.spaces[6],
+            }}
+          >
+            <Icon
+              fillColor={Colors.YELLOW_LIGHT}
+              name="info"
+              size={IconSize.XXXL}
+            />
+            <div style={{ display: "block" }}>
+              <Text
+                color={Colors.BROWN}
+                style={{ marginRight: theme.spaces[2] }}
+                type={TextType.P3}
+              >
+                {createMessage(CONTACT_SUPPORT_TO_UPGRADE)}
+              </Text>
+            </div>
+          </InfoWrapper>
           <ButtonContainer>
             <Button
               category={Category.tertiary}
@@ -152,18 +179,35 @@ function RepoLimitExceededErrorModal() {
           </ButtonContainer>
           <Text
             color={Colors.BLACK}
-            style={{ marginTop: theme.spaces[17] + 20 }}
+            style={{ marginTop: theme.spaces[17] }}
             type={TextType.H1}
           >
-            {createMessage(REVOKE_EXISTING_REPOSITORIES)}
+            {createMessage(DISCONNECT_EXISTING_REPOSITORIES)}
           </Text>
           <Text
             color={Colors.BLACK}
             style={{ marginTop: theme.spaces[3], width: 410 }}
             type={TextType.P1}
           >
-            {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
+            {createMessage(DISCONNECT_EXISTING_REPOSITORIES_INFO)}
           </Text>
+          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px` }}>
+            <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
+            <div style={{ display: "block" }}>
+              <Text
+                color={Colors.CRIMSON}
+                style={{ marginRight: theme.spaces[2] }}
+                type={TextType.P3}
+              >
+                {createMessage(DISCONNECT_CAUSE_APPLICATION_BREAK)}
+              </Text>
+              <Link
+                color={Colors.CRIMSON}
+                link={DOCS_BASE_URL}
+                text={createMessage(LEARN_MORE)}
+              />
+            </div>
+          </InfoWrapper>
           {applications.map((application: ApplicationPayload) => {
             const { gitApplicationMetadata } = application;
             return (
@@ -187,7 +231,7 @@ function RepoLimitExceededErrorModal() {
                   onClick={() =>
                     openDisconnectGitModal(application.id, application.name)
                   }
-                  text={createMessage(REVOKE_ACCESS)}
+                  text={createMessage(DISCONNECT_GIT)}
                 />
               </ApplicationWrapper>
             );
