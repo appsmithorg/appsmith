@@ -1,4 +1,8 @@
-import { setUpTourApp, toggleLoader } from "actions/onboardingActions";
+import {
+  setUpTourApp,
+  showInfoMessage,
+  toggleLoader,
+} from "actions/onboardingActions";
 import Button from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import { isArray } from "lodash";
@@ -10,6 +14,7 @@ import {
   getCurrentStep,
   isExploringSelector,
   loading,
+  showInfoMessageSelector,
   showSuccessMessage,
 } from "selectors/onboardingSelectors";
 import { useSelector } from "react-redux";
@@ -346,10 +351,11 @@ function GuideStepsContent(props: {
 
 type CompletionContentProps = {
   step: number;
+  showInfoMessage: boolean;
 };
 
 function CompletionContent(props: CompletionContentProps) {
-  const [showSuccess, setShowSuccess] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(!props.showInfoMessage);
   const info = Steps[props.step].info;
   const success = Steps[props.step].success;
   const dispatch = useDispatch();
@@ -376,15 +382,20 @@ function CompletionContent(props: CompletionContentProps) {
   const onSuccessButtonClick = () => {
     setShowSuccess(false);
     success?.onClick && success?.onClick(dispatch);
+
+    if (info) {
+      // We skip showing success message again
+      dispatch(showInfoMessage());
+    }
   };
 
   useEffect(() => {
-    if (success?.timed) {
+    if (success?.timed && showSuccess) {
       setTimeout(() => {
         onSuccessButtonClick();
       }, duration * 1000);
     }
-  }, [success?.timed]);
+  }, [success?.timed, showSuccess]);
 
   const onInfoButtonClick = () => {
     info?.onClick(dispatch);
@@ -438,6 +449,7 @@ export type GuideBody = {
     completedSubSteps: number[];
     hintCount: number;
   };
+  showInfoMessage: boolean;
 };
 
 function GuideBody(props: GuideBody) {
@@ -445,8 +457,13 @@ function GuideBody(props: GuideBody) {
 
   if (props.exploring) {
     return <InitialContent />;
-  } else if (successMessage) {
-    return <CompletionContent step={props.step} />;
+  } else if (successMessage || props.showInfoMessage) {
+    return (
+      <CompletionContent
+        showInfoMessage={props.showInfoMessage}
+        step={props.step}
+      />
+    );
   } else {
     return <GuideStepsContent currentStep={props.step} meta={props.meta} />;
   }
@@ -458,14 +475,20 @@ type GuideProps = {
 // Guided tour steps
 function Guide(props: GuideProps) {
   const exploring = useSelector(isExploringSelector);
-  const meta = useComputeCurrentStep(exploring);
   const step = useSelector(getCurrentStep);
+  const showInfoMessage = useSelector(showInfoMessageSelector);
+  const meta = useComputeCurrentStep(exploring, showInfoMessage);
 
   return (
     <GuideWrapper className={props.className}>
       <CardWrapper>
         <UpperContent>
-          <GuideBody exploring={exploring} meta={meta} step={step} />
+          <GuideBody
+            exploring={exploring}
+            meta={meta}
+            showInfoMessage={showInfoMessage}
+            step={step}
+          />
         </UpperContent>
       </CardWrapper>
     </GuideWrapper>

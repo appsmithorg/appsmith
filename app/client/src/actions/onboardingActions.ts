@@ -109,3 +109,9 @@ export const updateButtonWidgetText = () => {
     type: ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
   };
 };
+
+export const showInfoMessage = () => {
+  return {
+    type: ReduxActionTypes.SHOW_INFO_MESSAGE,
+  };
+};

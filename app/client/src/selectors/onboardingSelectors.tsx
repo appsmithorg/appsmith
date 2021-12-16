@@ -354,6 +354,8 @@ export const buttonWidgetHasOnSuccessBinding = createSelector(
 
 export const showSuccessMessage = (state: AppState) =>
   state.ui.onBoarding.showSuccessMessage;
+export const showInfoMessageSelector = (state: AppState) =>
+  state.ui.onBoarding.showInfoMessage;
 
 export const loading = (state: AppState) => state.ui.onBoarding.loading;
 

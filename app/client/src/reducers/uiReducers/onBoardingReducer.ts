@@ -19,6 +19,7 @@ const initialState: OnboardingState = {
   datasourceId: "",
   currentStep: 1,
   showSuccessMessage: false,
+  showInfoMessage: false,
   tableWidgetWasSelected: false,
   hadReachedStep: 1,
   showEndTourDialog: false,
@@ -43,6 +44,7 @@ export interface OnboardingState {
   currentStep: number;
   indicatorLocation?: IndicatorLocation;
   showSuccessMessage: boolean;
+  showInfoMessage: boolean;
   tableWidgetWasSelected: boolean;
   hadReachedStep: number;
   showEndTourDialog: boolean;
@@ -153,14 +155,25 @@ const onboardingReducer = createReducer(initialState, {
     state: OnboardingState,
     action: ReduxAction<number>,
   ) => {
+    if (action.payload === state.currentStep) {
+      return state;
+    }
+
     return {
       ...state,
       currentStep: action.payload,
       showSuccessMessage: false,
+      showInfoMessage: false,
       hadReachedStep:
         action.payload > state.hadReachedStep
           ? action.payload
           : state.hadReachedStep,
+    };
+  },
+  [ReduxActionTypes.SHOW_INFO_MESSAGE]: (state: OnboardingState) => {
+    return {
+      ...state,
+      showInfoMessage: true,
     };
   },
   [ReduxActionTypes.SET_INDICATOR_LOCATION]: (

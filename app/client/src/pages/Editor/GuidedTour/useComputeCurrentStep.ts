@@ -32,7 +32,7 @@ import { Steps } from "./constants";
 import { GuideBody } from "./Guide";
 import { highlightSection } from "./utils";
 
-function useComputeCurrentStep(isExploring: boolean) {
+function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   let step = 1;
   const meta: GuideBody["meta"] = {
     completedSubSteps: [],
@@ -242,14 +242,14 @@ function useComputeCurrentStep(isExploring: boolean) {
 
   // 6
   useEffect(() => {
-    if (step === 6 && hadReachedStep <= 6) {
+    if (step === 6 && hadReachedStep <= 6 && !showInfoMessage) {
       if (buttonWidgetPresent) {
         dispatch(setIndicatorLocation("NONE"));
         dispatch(updateButtonWidgetText());
         dispatch(markStepComplete());
       }
     }
-  }, [step, buttonWidgetPresent]);
+  }, [step, buttonWidgetPresent, showInfoMessage]);
 
   useEffect(() => {
     if (step === 7 && hadReachedStep <= 7) {
