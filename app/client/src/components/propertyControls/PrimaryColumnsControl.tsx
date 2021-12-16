@@ -140,7 +140,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
   );
 
   const onFocus = () => {
-    setEditing(true);
+    setEditing(false);
     debouncedFocus(index, true);
   };
   const onBlur = () => {
