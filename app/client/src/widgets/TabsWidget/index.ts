@@ -17,6 +17,7 @@ export const CONFIG = {
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     shouldScrollContents: false,
     widgetName: "Tabs",
+    animateLoading: true,
     tabsObj: {
       tab1: {
         label: "Tab 1",
