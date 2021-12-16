@@ -23,7 +23,10 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import derivedProperties from "./parseDerivedProperties";
+import {
+  formatCurrencyNumber,
+  getDecimalSeparator,
+} from "../component/utilities";
 
 export function defaultValueValidation(
   value: any,
@@ -591,7 +594,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           }
         })()
       }}`,
-      value: `{{(()=>{${derivedProperties.getFormattedText}})()}}`,
+      value: `{{this.text}}`,
     };
   }
 
@@ -695,8 +698,24 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
   };
 
+  getFormattedText = () => {
+    if (this.props.isFocused || this.props.inputType !== InputTypes.CURRENCY) {
+      return this.props.text ? this.props.text : "";
+    }
+    if (this.props.text === "") return "";
+    const valueToFormat = "" + this.props.text;
+
+    const locale = navigator.languages?.[0] || "en-US";
+    const decimalSeparator = getDecimalSeparator(locale);
+    return formatCurrencyNumber(
+      this.props.decimalsInCurrency,
+      valueToFormat,
+      decimalSeparator,
+    );
+  };
+
   getPageView() {
-    const value = this.props.text ?? "";
+    const value = this.getFormattedText();
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCountryCode = this.props.selectedCurrencyCountryCode

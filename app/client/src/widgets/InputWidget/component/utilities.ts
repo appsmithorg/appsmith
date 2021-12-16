@@ -82,12 +82,14 @@ Return the type of decimal separator for decimal digit numbers
   getDecimalSeparator("en-US") will return "."
   getDecimalSeparator("fr-FR") will return "."
 */
-const getDecimalSeparator = (locale: string) => {
+export const getDecimalSeparator = (locale: string) => {
   const numberWithDecimalSeparator = 1.1;
   const formatter = new Intl.NumberFormat(locale);
-  return formatter
-    ?.formatToParts(numberWithDecimalSeparator)
-    ?.find((part) => part.type === "decimal")?.value;
+  return (
+    formatter
+      ?.formatToParts(numberWithDecimalSeparator)
+      ?.find((part) => part.type === "decimal")?.value || "."
+  );
 };
 
 /*
@@ -99,9 +101,11 @@ Return the type of decimal separator for decimal digit numbers
 const getGroupSeparator = (locale: string) => {
   const numberWithDecimalSeparator = 1000.1;
   const formatter = new Intl.NumberFormat(locale);
-  return formatter
-    ?.formatToParts(numberWithDecimalSeparator)
-    ?.find((part) => part.type === "group")?.value;
+  return (
+    formatter
+      ?.formatToParts(numberWithDecimalSeparator)
+      ?.find((part) => part.type === "group")?.value || ","
+  );
 };
 
 export const getSeparators = () => {

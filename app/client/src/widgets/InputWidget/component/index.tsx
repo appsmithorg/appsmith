@@ -320,14 +320,14 @@ class InputComponent extends React.Component<
     super(props);
     this.state = { showPassword: false };
     const separators = getSeparators();
-    this.groupSeparator = separators.groupSeparator || ",";
-    this.decimalSeparator = separators.decimalSeparator || ".";
+    this.groupSeparator = separators.groupSeparator;
+    this.decimalSeparator = separators.decimalSeparator;
   }
 
   componentDidMount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const element: any = document.querySelectorAll(
-        `#${this.props.widgetId} .bp3-button`,
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
       );
       if (element !== null) {
         element[0].addEventListener("click", this.onIncrementButtonClick);
@@ -339,7 +339,7 @@ class InputComponent extends React.Component<
   componentWillUnmount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const element: any = document.querySelectorAll(
-        `#${this.props.widgetId} .bp3-button`,
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
       );
       if (element !== null) {
         element[0].removeEventListener("click", this.onIncrementButtonClick);
@@ -354,12 +354,7 @@ class InputComponent extends React.Component<
       .join("");
     const stepSize = this.props.stepSize || 1;
     deFormattedValue = +deFormattedValue + stepSize * type;
-    const formattedValue = formatCurrencyNumber(
-      this.props.decimalsInCurrency,
-      "" + deFormattedValue,
-      this.decimalSeparator,
-    );
-    this.props.onValueChange(formattedValue);
+    this.props.onValueChange(deFormattedValue + "");
   };
 
   onIncrementButtonClick = () => {
@@ -486,25 +481,10 @@ class InputComponent extends React.Component<
   };
 
   onNumberInputBlur = () => {
-    if (this.props.value) {
-      const formattedValue = formatCurrencyNumber(
-        this.props.decimalsInCurrency,
-        this.props.value,
-        this.decimalSeparator,
-      );
-      this.props.onValueChange(formattedValue);
-    }
-
     this.setFocusState(false);
   };
 
   onNumberInputFocus = () => {
-    if (this.props.value) {
-      const deFormattedValue = ("" + this.props.value)
-        .split(this.groupSeparator)
-        .join("");
-      this.props.onValueChange(deFormattedValue);
-    }
     this.setFocusState(true);
   };
 
