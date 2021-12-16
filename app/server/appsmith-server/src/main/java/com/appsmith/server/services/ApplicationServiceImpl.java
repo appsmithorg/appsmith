@@ -34,9 +34,4 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 configService, commentThreadRepository, sessionUserService, responseUtils);
 
     }
-
-    @Override
-    public Mono<Long> findGitConnectedApplication(String organizationId) {
-        return repository.findGitConnectedApplication(organizationId);
-    }
 }
