@@ -24,6 +24,7 @@ export const CONFIG = {
     isRequired: false,
     isInline: true,
     isVisible: true,
+    animateLoading: true,
     alignment: Alignment.LEFT,
     version: 1,
   },

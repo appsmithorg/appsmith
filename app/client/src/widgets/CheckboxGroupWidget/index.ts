@@ -23,6 +23,7 @@ export const CONFIG = {
     widgetName: "CheckboxGroup",
     optionAlignment: CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
