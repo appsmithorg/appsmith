@@ -70,11 +70,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       disabled={!widgets && !!props.searchKeyword}
       entityId={pageId + "_widgets"}
       icon={""}
-      isDefaultExpanded={
-        !!props.searchKeyword ||
-        (params.pageId === pageId &&
-          !!(selectedWidgets && selectedWidgets.length))
-      }
+      isDefaultExpanded={params.pageId === pageId}
       key={pageId + "_widgets"}
       name="WIDGETS"
       onCreate={props.addWidgetsFn}
