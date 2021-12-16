@@ -1,6 +1,7 @@
 import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
+import { Colors } from "constants/Colors";
 import { get } from "lodash";
 
 export enum ColumnTypes {
@@ -72,6 +73,13 @@ export function defaultSelectedRowValidation(
     } else {
       try {
         const _value: string = value as string;
+
+        if (_value === "") {
+          return {
+            isValid: true,
+            parsed: undefined,
+          };
+        }
         if (Number.isInteger(parseInt(_value, 10)) && parseInt(_value, 10) > -1)
           return { isValid: true, parsed: parseInt(_value, 10) };
 
@@ -249,6 +257,11 @@ export const updateDerivedColumnsHook = (
     if (/^primaryColumns\.\w+$/.test(propertyPath)) {
       const newId = propertyValue.id;
       if (newId) {
+        // sets default value for some properties
+        propertyValue.buttonColor = Colors.GREEN;
+        propertyValue.menuColor = Colors.GREEN;
+        propertyValue.labelColor = Colors.WHITE;
+
         propertiesToUpdate = [
           {
             propertyPath: `derivedColumns.${newId}`,

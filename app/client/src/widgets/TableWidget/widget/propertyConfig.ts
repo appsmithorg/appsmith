@@ -1,5 +1,4 @@
 import { get } from "lodash";
-import { Colors } from "constants/Colors";
 import { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -931,7 +930,6 @@ export default [
                   helpText: "Changes the color of the button",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -1089,7 +1087,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.WHITE,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
@@ -1116,7 +1113,6 @@ export default [
                   isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
-                  defaultColor: Colors.GREEN,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
@@ -1595,6 +1591,17 @@ export default [
         validation: {
           type: ValidationTypes.BOOLEAN,
         },
+      },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "Controls sorting in View Mode",

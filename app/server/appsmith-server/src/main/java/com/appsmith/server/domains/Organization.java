@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
@@ -53,5 +54,8 @@ public class Organization extends BaseDomain {
     public String getLogoUrl() {
         return Url.ASSET_URL + "/" + logoAssetId;
     }
+
+    @Transient
+    private long gitConnectedApplications;
 
 }
