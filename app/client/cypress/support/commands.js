@@ -3388,6 +3388,7 @@ Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
       entityNameinLeftSidebar +
       "']",
   )
+    .last()
     .click({ force: true })
     .wait(2000);
 });
