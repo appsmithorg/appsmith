@@ -89,32 +89,11 @@ function EntityExplorer(props: IPanelProps) {
     PerformanceTracker.stopTracking();
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
-
-  // const plugins = useSelector(getPlugins);
-  // const widgets = useWidgets(searchKeyword);
-  // const actions = useActions(searchKeyword);
-  // const jsActions = useJSCollections(searchKeyword);
-  // const datasources = useFilteredDatasources(searchKeyword);
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
 
   const noResults = false;
-  // if (searchKeyword) {
-  //   const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
-  //   const noJSActions =
-  //     Object.values(jsActions).filter(
-  //       (jsActions) => jsActions && jsActions.length > 0,
-  //     ).length === 0;
-  //   const noActions =
-  //     Object.values(actions).filter((actions) => actions && actions.length > 0)
-  //       .length === 0;
-  //   const noDatasource =
-  //     Object.values(datasources).filter(
-  //       (datasources) => datasources && datasources.length > 0,
-  //     ).length === 0;
-  //   noResults = noWidgets && noActions && noDatasource && noJSActions;
-  // }
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
     history.push(BUILDER_PAGE_URL({ applicationId, pageId: currentPageId }));
