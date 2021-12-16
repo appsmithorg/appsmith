@@ -88,7 +88,6 @@ function Files() {
           return (
             <ExplorerActionEntity
               action={entity}
-              active={false}
               icon={icon}
               key={entity.config.id}
               pageId={pageId as string}

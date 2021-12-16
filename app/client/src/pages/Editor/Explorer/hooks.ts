@@ -25,6 +25,7 @@ import {
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "./helpers";
+import { useLocation } from "react-router";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -378,3 +379,8 @@ export const useFilesForExplorer = (sort = "name") => {
     }
   }, [sort, actions, jsActions]);
 };
+
+export function useActiveAction(actionId: string) {
+  const location = useLocation();
+  return location.pathname.includes(actionId);
+}

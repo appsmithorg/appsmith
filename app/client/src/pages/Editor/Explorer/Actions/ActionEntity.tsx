@@ -8,8 +8,9 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
+import { useSelector } from "store";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { useActiveAction } from "../hooks";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -19,14 +20,14 @@ type ExplorerActionEntityProps = {
   action: any;
   url: string;
   icon: ReactNode;
-  active: boolean;
   step: number;
   searchKeyword?: string;
   pageId: string;
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
-  const { pageId } = useParams<ExplorerURLParams>();
+  const pageId = useSelector(getCurrentPageId);
+  const active = useActiveAction(props.action.config.id);
   const switchToAction = useCallback(() => {
     PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
       url: props.url,
@@ -45,7 +46,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   return (
     <Entity
       action={switchToAction}
-      active={props.active}
+      active={active}
       className="action"
       contextMenu={contextMenu}
       entityId={props.action.config.id}

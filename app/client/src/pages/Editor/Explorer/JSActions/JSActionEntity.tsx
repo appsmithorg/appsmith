@@ -5,12 +5,12 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
-import { getJSCollectionIdFromURL } from "../helpers";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { useActiveAction } from "../hooks";
 
 type ExplorerJSCollectionEntityProps = {
   action: JSCollectionData;
@@ -45,8 +45,7 @@ export const ExplorerJSCollectionEntity = memo(
         pageId={props.pageId}
       />
     );
-    const jsactionId = getJSCollectionIdFromURL();
-    const active = jsactionId === props.action.config.id;
+    const active = useActiveAction(props.action.config.id);
     return (
       <Entity
         action={navigateToJSCollection}

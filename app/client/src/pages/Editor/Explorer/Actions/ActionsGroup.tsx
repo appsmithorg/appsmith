@@ -1,7 +1,6 @@
 import React, { memo, ReactElement } from "react";
 import ExplorerActionEntity from "./ActionEntity";
 import { Page } from "constants/ReduxActionConstants";
-import { getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
@@ -29,9 +28,6 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
             action.config.pluginId || action.config.datasource.pluginId
           ],
         );
-        const actionId = getActionIdFromURL();
-        const active = actionId === action.config.id;
-
         const icon = props.config?.getIcon(
           action.config,
           props.plugins[
@@ -41,7 +37,6 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
         return (
           <ExplorerActionEntity
             action={action}
-            active={active}
             icon={icon}
             key={action.config.id}
             pageId={props.page.pageId}
