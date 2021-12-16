@@ -105,6 +105,7 @@ function FormTitle(props: FormTitleProps) {
         forceDefault={forceUpdate}
         isEditingDefault={props.focusOnMount}
         isInvalid={isInvalidDatasourceName}
+        maxLength={30}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         type="text"
