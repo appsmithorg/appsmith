@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.appsmith.external.constants.FieldName.FILE_TYPE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 /**
@@ -133,7 +134,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
                     .stream()
                     .filter(property -> property.getKey() != null)
                     .forEach(property -> {
-                        if ("FILE".equalsIgnoreCase(property.getType())) {
+                        if (FILE_TYPE.equalsIgnoreCase(property.getType())) {
                             bodyDataMap.put(property.getKey(), "<file>");
                         } else {
                             bodyDataMap.put(property.getKey(), property.getValue());
