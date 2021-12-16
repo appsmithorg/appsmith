@@ -849,17 +849,25 @@ function CameraComponent(props: CameraComponentProps) {
   const {
     disabled,
     height,
+    image,
+    mediaCaptureStatus,
     mirrored,
     mode,
     onImageCapture,
+    onMediaCaptureStatusChange,
     onRecordingStart,
     onRecordingStop,
+    onTimerChange,
+    timer,
+    videoBlobURL,
     width,
   } = props;
 
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
+  const isFirstRender = useRef(true);
+  const isTimerFirstRender = useRef(true);
 
   const [scaleAxis, setScaleAxis] = useState<"x" | "y">("x");
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
@@ -871,13 +879,14 @@ function CameraComponent(props: CameraComponentProps) {
     MediaTrackConstraints
   >({});
 
-  const [image, setImage] = useState<string | null>();
-  const [video, setVideo] = useState<Blob | null>();
-  const [mediaCaptureStatus, setMediaCaptureStatus] = useState<
-    MediaCaptureStatus
-  >(MediaCaptureStatusTypes.IMAGE_DEFAULT);
+  // const [image, setImage] = useState<string | null>();
+  // const [video, setVideo] = useState<Blob | null>();
+  // const [mediaCaptureStatus, setMediaCaptureStatus] = useState<
+  //   MediaCaptureStatus
+  // >(MediaCaptureStatusTypes.IMAGE_DEFAULT);
   const [isPhotoViewerReady, setIsPhotoViewerReady] = useState(false);
   const [isVideoPlayerReady, setIsVideoPlayerReady] = useState(false);
+  const [isVideoPlayerEnded, setIsVideoPlayerEnded] = useState(false);
   const [playerDays, setPlayerDays] = useState(0);
   const [playerHours, setPlayerHours] = useState(0);
   const [playerMinutes, setPlayerMinutes] = useState(0);
@@ -886,12 +895,33 @@ function CameraComponent(props: CameraComponentProps) {
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [error, setError] = useState<string>("");
-  const { days, hours, minutes, pause, reset, seconds, start } = useStopwatch({
+  const {
+    days,
+    hours,
+    isRunning,
+    minutes,
+    pause,
+    reset,
+    seconds,
+    start,
+  } = useStopwatch({
     autoStart: false,
   });
   const fullScreenHandle = useFullScreenHandle();
 
   useEffect(() => {
+    // Initialize media capture status
+    if (
+      mediaCaptureStatus === MediaCaptureStatusTypes.IMAGE_DEFAULT ||
+      mediaCaptureStatus === MediaCaptureStatusTypes.VIDEO_DEFAULT
+    ) {
+      const defaultMediaCaptureStatus =
+        mode === CameraModeTypes.CAMERA
+          ? MediaCaptureStatusTypes.IMAGE_DEFAULT
+          : MediaCaptureStatusTypes.VIDEO_DEFAULT;
+      onMediaCaptureStatusChange(defaultMediaCaptureStatus);
+    }
+
     navigator.mediaDevices
       .enumerateDevices()
       .then(handleDeviceInputs)
@@ -899,6 +929,27 @@ function CameraComponent(props: CameraComponentProps) {
         setError(err.message);
       });
   }, []);
+
+  useEffect(() => {
+    if (isTimerFirstRender.current) {
+      isTimerFirstRender.current = false;
+      return;
+    }
+    if (!isRunning) {
+      onTimerChange({ days, hours, minutes, seconds });
+    }
+  }, [isRunning]);
+
+  useEffect(() => {
+    if (isVideoPlayerEnded) {
+      onTimerChange({
+        days: playerDays,
+        hours: playerHours,
+        minutes: playerMinutes,
+        seconds: playerSeconds,
+      });
+    }
+  }, [isVideoPlayerEnded]);
 
   useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
@@ -916,12 +967,16 @@ function CameraComponent(props: CameraComponentProps) {
   }, [height, width]);
 
   useEffect(() => {
-    setIsReadyPlayerTimer(false);
-    if (mode === CameraModeTypes.CAMERA) {
-      setMediaCaptureStatus(MediaCaptureStatusTypes.IMAGE_DEFAULT);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
       return;
     }
-    setMediaCaptureStatus(MediaCaptureStatusTypes.VIDEO_DEFAULT);
+    setIsReadyPlayerTimer(false);
+    if (mode === CameraModeTypes.CAMERA) {
+      onMediaCaptureStatusChange(MediaCaptureStatusTypes.IMAGE_DEFAULT);
+      return;
+    }
+    onMediaCaptureStatusChange(MediaCaptureStatusTypes.VIDEO_DEFAULT);
 
     return () => {
       mediaRecorderRef.current?.removeEventListener(
@@ -931,32 +986,17 @@ function CameraComponent(props: CameraComponentProps) {
     };
   }, [mode]);
 
-  useEffect(() => {
-    onImageCapture(image);
-  }, [image]);
+  // useEffect(() => {
+  //   onImageCapture(image);
+  // }, [image]);
 
   useEffect(() => {
-    onRecordingStop(video);
+    // onRecordingStop(video);
 
-    if (video && videoElementRef.current) {
-      videoElementRef.current.src = URL.createObjectURL(video);
-      videoElementRef.current.removeEventListener("ended", handlePlayerEnded);
-      videoElementRef.current.addEventListener("ended", handlePlayerEnded);
-      videoElementRef.current.removeEventListener(
-        "timeupdate",
-        handleTimeUpdate,
-      );
-      videoElementRef.current.addEventListener("timeupdate", handleTimeUpdate);
+    if (videoBlobURL && videoElementRef.current) {
+      videoElementRef.current.src = videoBlobURL;
     }
-
-    return () => {
-      videoElementRef.current?.removeEventListener("ended", handlePlayerEnded);
-      videoElementRef.current?.removeEventListener(
-        "timeupdate",
-        handleTimeUpdate,
-      );
-    };
-  }, [video]);
+  }, [videoBlobURL, videoElementRef.current]);
 
   useEffect(() => {
     // Set the flags for previewing the captured photo and video
@@ -974,6 +1014,19 @@ function CameraComponent(props: CameraComponentProps) {
     ];
     setIsPhotoViewerReady(photoReadyStates.includes(mediaCaptureStatus));
     setIsVideoPlayerReady(videoReadyStates.includes(mediaCaptureStatus));
+
+    if (videoElementRef.current) {
+      videoElementRef.current.addEventListener("ended", handlePlayerEnded);
+      videoElementRef.current.addEventListener("timeupdate", handleTimeUpdate);
+    }
+
+    return () => {
+      videoElementRef.current?.removeEventListener("ended", handlePlayerEnded);
+      videoElementRef.current?.removeEventListener(
+        "timeupdate",
+        handleTimeUpdate,
+      );
+    };
   }, [mediaCaptureStatus]);
 
   const appLayout = useSelector(getCurrentApplicationLayout);
@@ -1012,26 +1065,27 @@ function CameraComponent(props: CameraComponentProps) {
   const captureImage = useCallback(() => {
     if (webcamRef.current) {
       const capturedImage = webcamRef.current.getScreenshot();
-      setImage(capturedImage);
+      onImageCapture(capturedImage);
     }
-  }, [webcamRef, setImage]);
+  }, [webcamRef, onImageCapture]);
 
   const resetMedia = useCallback(() => {
     setIsReadyPlayerTimer(false);
     reset(0, false);
+    onTimerChange();
 
     if (mode === CameraModeTypes.CAMERA) {
-      setImage(null);
+      onImageCapture(null);
       return;
     }
-    setVideo(null);
+    onRecordingStop(null);
   }, [mode]);
 
   const handleStatusChange = useCallback(
     (status: MediaCaptureStatus) => {
-      setMediaCaptureStatus(status);
+      onMediaCaptureStatusChange(status);
     },
-    [setMediaCaptureStatus],
+    [onMediaCaptureStatusChange],
   );
 
   const handleRecordingStart = useCallback(() => {
@@ -1052,10 +1106,10 @@ function CameraComponent(props: CameraComponentProps) {
   const handleDataAvailable = useCallback(
     ({ data }) => {
       if (data.size > 0) {
-        setVideo(data);
+        onRecordingStop(data);
       }
     },
-    [setVideo],
+    [onRecordingStop],
   );
 
   const handleRecordingStop = useCallback(() => {
@@ -1076,14 +1130,21 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   const handlePlayerEnded = () => {
-    setMediaCaptureStatus((prevStatus) => {
-      switch (prevStatus) {
-        case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
-          return MediaCaptureStatusTypes.VIDEO_SAVED;
-        default:
-          return MediaCaptureStatusTypes.VIDEO_CAPTURED;
-      }
-    });
+    // setMediaCaptureStatus((prevStatus) => {
+    //   switch (prevStatus) {
+    //     case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
+    //       return MediaCaptureStatusTypes.VIDEO_SAVED;
+    //     default:
+    //       return MediaCaptureStatusTypes.VIDEO_CAPTURED;
+    //   }
+    // });
+    const targetStatus =
+      mediaCaptureStatus === MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE
+        ? MediaCaptureStatusTypes.VIDEO_SAVED
+        : MediaCaptureStatusTypes.VIDEO_CAPTURED;
+
+    onMediaCaptureStatusChange(targetStatus);
+    setIsVideoPlayerEnded(true);
   };
 
   const handleTimeUpdate = () => {
@@ -1121,7 +1182,12 @@ function CameraComponent(props: CameraComponentProps) {
         );
       }
       return (
-        <Timer days={days} hours={hours} minutes={minutes} seconds={seconds} />
+        <Timer
+          days={days || timer?.days || 0}
+          hours={hours || timer?.hours || 0}
+          minutes={minutes || timer?.minutes || 0}
+          seconds={seconds || timer?.seconds || 0}
+        />
       );
     }
     return null;
@@ -1204,11 +1270,17 @@ function CameraComponent(props: CameraComponentProps) {
 export interface CameraComponentProps {
   disabled: boolean;
   height: number;
+  image: string | null;
+  mediaCaptureStatus: MediaCaptureStatus;
   mirrored: boolean;
   mode: CameraMode;
-  onImageCapture: (image?: string | null) => void;
+  onImageCapture: (image: string | null) => void;
+  onMediaCaptureStatusChange: (status: MediaCaptureStatus) => void;
   onRecordingStart: () => void;
-  onRecordingStop: (video?: Blob | null) => void;
+  onRecordingStop: (video: Blob | null) => void;
+  onTimerChange: (timer?: TimerProps) => void;
+  timer?: TimerProps;
+  videoBlobURL?: string;
   width: number;
 }
 
