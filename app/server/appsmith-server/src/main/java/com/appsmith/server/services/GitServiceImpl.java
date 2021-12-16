@@ -289,8 +289,20 @@ public class GitServiceImpl implements GitService {
                         Boolean currentRepoVisibilityStatus = GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl());
                         if (!currentRepoVisibilityStatus.equals(repoVisibilityStatus)) {
                             defaultGitMetadata.setIsRepoPrivate(currentRepoVisibilityStatus);
-                            // TODO check if the commit application will be allowed if the repo is made private
-                            return applicationService.save(defaultApplication);
+                            // check if the commit application will be allowed if the repo is made private
+                            return applicationService.save(defaultApplication)
+                                    //Check the limit for number of private repo
+                                    .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
+                                            .flatMap(limitCount -> {
+                                                //get git connected apps count from db
+                                                return applicationService.findGitConnectedApplication(application.getOrganizationId())
+                                                        .flatMap(count -> {
+                                                            if(limitCount <= count) {
+                                                                return Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR));
+                                                            }
+                                                            return Mono.just(application);
+                                                        });
+                                            }));
                         }
                     } catch (IOException e) {
                         log.debug("Error while checking if the repo is private: ", e);
@@ -627,7 +639,7 @@ public class GitServiceImpl implements GitService {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         return configService.getInstanceId().map(instanceId -> {
             if (commonConfig.isCloudHosting()) {
-                return Mono.just(orgId);
+                return Mono.just(instanceId + "_" + orgId);
             } else {
                 return Mono.just(instanceId);
             }
@@ -648,6 +660,7 @@ public class GitServiceImpl implements GitService {
                         }
                     })
                     .map(ResponseDTO::getData)
+                    .cache()
                     .doOnError(error -> log.error("Error fetching config from cloud services", error));
         });
     }
