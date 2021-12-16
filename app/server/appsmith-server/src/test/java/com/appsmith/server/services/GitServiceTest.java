@@ -15,7 +15,6 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1011,6 +1010,8 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    // TODO TCs for merge and merge status needs to be re-written to address all the scenarios
+    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void isMergeBranch_ConflictingChanges_Success() throws IOException, GitAPIException {
@@ -1068,6 +1069,8 @@ public class GitServiceTest {
                 .assertNext(s -> assertThat(s.isMergeAble()))
                 .verifyComplete();
     }
+
+     */
 
     @Test
     @WithUserDetails(value = "api_user")
