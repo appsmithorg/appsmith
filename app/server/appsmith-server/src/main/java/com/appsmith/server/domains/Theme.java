@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -59,27 +60,35 @@ public class Theme extends BaseDomain {
     @Data
     public static class ResponsiveAttributes {
         @JsonProperty("none")
+        @SerializedName("none")
         private String noneValue;
 
         @JsonProperty("DEFAULT")
+        @SerializedName("DEFAULT")
         private String defaultValue;
 
         @JsonProperty("md")
+        @SerializedName("md")
         private String mdValue;
 
         @JsonProperty("lg")
+        @SerializedName("lg")
         private String lgValue;
 
         @JsonProperty("xl")
+        @SerializedName("xl")
         private String xlValue;
 
         @JsonProperty("2xl")
+        @SerializedName("2xl")
         private String doubleXlValue;
 
         @JsonProperty("3xl")
+        @SerializedName("3xl")
         private String tripleXlValue;
 
         @JsonProperty("full")
+        @SerializedName("full")
         private String fullValue;
     }
 
