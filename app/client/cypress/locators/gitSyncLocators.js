@@ -15,6 +15,7 @@ export default {
   branchListItem: ".t--branch-item",
   closeGitSyncModal: ".t--close-git-sync-modal",
   gitSyncModal: ".git-sync-modal",
+  bottomBarCommitButton: ".t--bottom-bar-commit",
   bottomBarMergeButton: ".t--bottom-bar-merge",
   bottomBarPullButton: ".t--bottom-bar-pull",
   mergeBranchDropdownDestination: ".t--merge-branch-dropdown-destination",
