@@ -1,6 +1,8 @@
+const path = require("path");
 const Perf = require("./perf.js");
 const dsl = require("./dsl/simple-typing").dsl;
 const { delay } = require("./utils/utils");
+global.APP_ROOT = path.resolve(__dirname);
 
 // const dsl = require("./dsl/text-widget").dsl;
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;

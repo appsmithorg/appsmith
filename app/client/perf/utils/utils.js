@@ -97,15 +97,28 @@ exports.login = async (page) => {
 
   await delay(1000);
 
-  const emailSelector =
-    "#root > section > div.StyledComponents__AuthCardContainer-sc-1a3zid1-1.MoHzZ > div > form > div:nth-child(1) > div > div > input";
-  const passwordSelector =
-    "#root > section > div.StyledComponents__AuthCardContainer-sc-1a3zid1-1.MoHzZ > div > form > div:nth-child(2) > div > div > input";
-  const buttonSelector =
-    "#root > section > div.StyledComponents__AuthCardContainer-sc-1a3zid1-1.MoHzZ > div > form > div.StyledComponents__FormActions-sc-1a3zid1-9.cGIzTy > button";
-  await page.waitForSelector(emailSelector);
-  await page.waitForSelector(passwordSelector);
-  await page.waitForSelector(buttonSelector);
+  const emailSelector = "input[name='username']";
+  const passwordSelector = "input[name='password']";
+  const buttonSelector = "button[type='submit']";
+  console.log(
+    "Screenshot:",
+    `${APP_ROOT}/traces/reports/login-selector-error.png`,
+  );
+  try {
+    await page.waitForSelector(emailSelector);
+    await page.waitForSelector(passwordSelector);
+    await page.waitForSelector(buttonSelector);
+  } catch (e) {
+    console.error(e);
+    console.log(
+      "Screenshot:",
+      `${APP_ROOT}/traces/reports/login-selector-error.png`,
+    );
+    await page.screenshot({
+      path: `${APP_ROOT}/traces/reports/login-selector-error.png`,
+    });
+  }
+
   await page.type(emailSelector, process.env.CYPRESS_TESTUSERNAME1);
   await page.type(passwordSelector, process.env.CYPRESS_TESTPASSWORD1);
   delay(2000);
