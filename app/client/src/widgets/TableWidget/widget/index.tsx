@@ -637,7 +637,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         // Use the selectedRowIndex if available as default selected index
         let selectedRowIndices: number[] = [];
         // Check if selectedRowIndex is valid
-        if (this.props.selectedRowIndex && this.props.selectedRowIndex > -1) {
+        if (
+          this.props.selectedRowIndex !== undefined &&
+          this.props.selectedRowIndex > -1 &&
+          !Array.isArray(this.props.selectedRowIndex)
+        ) {
           selectedRowIndices = [this.props.selectedRowIndex];
         }
         // Else use the defaultSelectedRow if available
@@ -649,6 +653,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             ? [this.props.defaultSelectedRow]
             : this.props.defaultSelectedRow;
         }
+
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,

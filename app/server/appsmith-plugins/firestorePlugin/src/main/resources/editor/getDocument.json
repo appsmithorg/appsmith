@@ -1,0 +1,17 @@
+{
+  "identifier": "GET_DOCUMENT",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'GET_DOCUMENT'}}"
+  },
+  "children" : [
+    {
+      "label": "Collection/Document Path",
+      "configProperty": "actionConfiguration.path",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
+    }
+  ]
+}
