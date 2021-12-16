@@ -3913,7 +3913,7 @@ public class DatabaseChangelog {
 
         for (NewPage onlyIdPage : pages) {
 
-            // Fetch one page at a time to avoid OOM.
+            // Fetch one action at a time to avoid OOM.
             NewPage page = mongockTemplate.findOne(
                     query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
                     NewPage.class
@@ -4138,13 +4138,18 @@ public class DatabaseChangelog {
         // Update pages for defaultIds (applicationId, pageId) along-with the defaultActionIds for onPageLoadActions
         final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
         pageQuery.fields()
-                .include(fieldName(QNewPage.newPage.applicationId))
-                .include(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts")
-                .include(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts");
+                .include(fieldName(QNewPage.newPage.id));
 
         List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
 
-        for (NewPage page : pages) {
+        for (NewPage onlyIdPage : pages) {
+
+            // Fetch one page at a time to avoid OOM.
+            NewPage page = mongockTemplate.findOne(
+                    query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
+                    NewPage.class
+            );
+
             String applicationId = page.getApplicationId();
             final Update defaultResourceUpdates = new Update();
             DefaultResources defaults = new DefaultResources();
@@ -4193,15 +4198,17 @@ public class DatabaseChangelog {
                 .addCriteria(where(fieldName(QNewAction.newAction.applicationId)).exists(true));
 
         actionQuery.fields()
-                .include(fieldName(QNewAction.newAction.applicationId))
-                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.collectionId))
-                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId))
-                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.collectionId));
+                .include(fieldName(QNewAction.newAction.id));
 
         List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
 
-        for (NewAction action : actions) {
+        for (NewAction actionIdOnly : actions) {
+            // Fetch one action at a time to avoid OOM.
+            final NewAction action = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(actionIdOnly.getId())),
+                    NewAction.class
+            );
+
             String applicationId = action.getApplicationId();
             if (StringUtils.isEmpty(applicationId)) {
                 continue;
