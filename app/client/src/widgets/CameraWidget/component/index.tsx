@@ -878,12 +878,6 @@ function CameraComponent(props: CameraComponentProps) {
   const [videoConstraints, setVideoConstraints] = useState<
     MediaTrackConstraints
   >({});
-
-  // const [image, setImage] = useState<string | null>();
-  // const [video, setVideo] = useState<Blob | null>();
-  // const [mediaCaptureStatus, setMediaCaptureStatus] = useState<
-  //   MediaCaptureStatus
-  // >(MediaCaptureStatusTypes.IMAGE_DEFAULT);
   const [isPhotoViewerReady, setIsPhotoViewerReady] = useState(false);
   const [isVideoPlayerReady, setIsVideoPlayerReady] = useState(false);
   const [isVideoPlayerEnded, setIsVideoPlayerEnded] = useState(false);
@@ -958,7 +952,6 @@ function CameraComponent(props: CameraComponentProps) {
   }, [isAudioMuted, isVideoMuted]);
 
   useEffect(() => {
-    // setVideoConstraints({ ...videoConstraints, height, width });
     if (width > height) {
       setScaleAxis("x");
       return;
@@ -986,13 +979,7 @@ function CameraComponent(props: CameraComponentProps) {
     };
   }, [mode]);
 
-  // useEffect(() => {
-  //   onImageCapture(image);
-  // }, [image]);
-
   useEffect(() => {
-    // onRecordingStop(video);
-
     if (videoBlobURL && videoElementRef.current) {
       videoElementRef.current.src = videoBlobURL;
     }
@@ -1130,14 +1117,6 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   const handlePlayerEnded = () => {
-    // setMediaCaptureStatus((prevStatus) => {
-    //   switch (prevStatus) {
-    //     case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
-    //       return MediaCaptureStatusTypes.VIDEO_SAVED;
-    //     default:
-    //       return MediaCaptureStatusTypes.VIDEO_CAPTURED;
-    //   }
-    // });
     const targetStatus =
       mediaCaptureStatus === MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE
         ? MediaCaptureStatusTypes.VIDEO_SAVED
