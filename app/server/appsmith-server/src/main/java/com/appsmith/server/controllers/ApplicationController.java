@@ -4,7 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ApplicationControllerCE;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ce.ThemeServiceCE;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -20,7 +20,7 @@ public class ApplicationController extends ApplicationControllerCE {
                                  ApplicationFetcher applicationFetcher,
                                  ApplicationForkingService applicationForkingService,
                                  ImportExportApplicationService importExportApplicationService,
-                                 ThemeServiceCE themeService) {
+                                 ThemeService themeService) {
 
         super(service, applicationPageService, applicationFetcher, applicationForkingService,
                 importExportApplicationService, themeService);

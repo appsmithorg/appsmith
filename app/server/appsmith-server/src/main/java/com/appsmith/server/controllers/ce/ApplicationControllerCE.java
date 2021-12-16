@@ -14,7 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ce.ThemeServiceCE;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -52,7 +52,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ApplicationFetcher applicationFetcher;
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
-    private final ThemeServiceCE themeServiceCE;
+    private final ThemeService themeService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -60,13 +60,13 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService, ThemeServiceCE themeServiceCE) {
+            ImportExportApplicationService importExportApplicationService, ThemeService themeService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
-        this.themeServiceCE = themeServiceCE;
+        this.themeService = themeService;
     }
 
     @PostMapping
@@ -214,7 +214,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @PatchMapping("{applicationId}/themes/{themeId}")
     public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
-        return themeServiceCE.changeCurrentTheme(themeId, applicationId)
+        return themeService.changeCurrentTheme(themeId, applicationId)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 }
