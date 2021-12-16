@@ -31,6 +31,7 @@ import { handlePathUpdated } from "actions/recentEntityActions";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
@@ -45,6 +46,7 @@ import {
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -220,7 +222,9 @@ class Editor extends Component<Props> {
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
+              <DisconnectGitModal />
               <ConcurrentPageEditorToast />
+              <RepoLimitExceededErrorModal />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

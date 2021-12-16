@@ -25,12 +25,17 @@ import Button, { Category, Size } from "components/ads/Button";
 import { useGitConnect, useSSHKeyPair, useUserGitConfig } from "../hooks";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import {
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+} from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
   remoteUrlInputValue,
+  setDisconnectingGitApplication,
+  setIsDisconnectGitModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -54,6 +59,9 @@ import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
 import Link from "../components/Link";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import TooltipComponent from "components/ads/Tooltip";
+import Icon, { IconSize } from "components/ads/Icon";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -73,6 +81,7 @@ const UrlContainer = styled.div`
 const UrlInputContainer = styled.div`
   width: calc(100% - 30px);
   margin-right: 8px;
+  position: relative;
 `;
 
 const ButtonContainer = styled.div<{ topMargin: number }>`
@@ -108,6 +117,15 @@ const StickyMenuWrapper = styled.div`
   background: white;
 `;
 
+const TooltipWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: -30px;
+  top: 8px;
+`;
+
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
 const HTTP_LITERAL = "https";
@@ -130,6 +148,7 @@ function GitConnection({ isImport }: Props) {
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
   const { tempRemoteUrl = "" } = useSelector(getTempRemoteUrl) || ({} as any);
+  const curApplication = useSelector(getCurrentApplication);
 
   const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore || tempRemoteUrl);
   const isGitConnected = !!remoteUrlInStore;
@@ -194,6 +213,7 @@ function GitConnection({ isImport }: Props) {
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
     }
+    AnalyticsUtil.logEvent("COPY_SSH_KEY_BUTTON_CLICK");
   };
 
   useEffect(() => {
@@ -227,6 +247,7 @@ function GitConnection({ isImport }: Props) {
   const onSubmit = useCallback(() => {
     if (isConnectingToGit) return;
     setTriedSubmit(true);
+    AnalyticsUtil.logEvent("CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
 
     if (
       authorInfo.authorName &&
@@ -270,6 +291,9 @@ function GitConnection({ isImport }: Props) {
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
+    AnalyticsUtil.logEvent("REPO_URL_EDIT", {
+      repoUrl: value,
+    });
   };
 
   const submitButtonDisabled = useMemo(() => {
@@ -317,6 +341,9 @@ function GitConnection({ isImport }: Props) {
 
   const toggleHandler = useCallback(() => {
     setUseGlobalConfig(!useGlobalConfig);
+    AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED", {
+      value: !useGlobalConfig,
+    });
   }, [setUseGlobalConfig, useGlobalConfig]);
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
@@ -332,6 +359,16 @@ function GitConnection({ isImport }: Props) {
       }, 100);
     }
   }, [scrollWrapperRef]);
+
+  const openDisconnectGitModal = useCallback(() => {
+    dispatch(
+      setDisconnectingGitApplication({
+        id: curApplication?.id || "",
+        name: curApplication?.name || "",
+      }),
+    );
+    dispatch(setIsDisconnectGitModalOpen(true));
+  }, []);
 
   return (
     <Container ref={scrollWrapperRef}>
@@ -355,6 +392,10 @@ function GitConnection({ isImport }: Props) {
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
               link={DOCS_BASE_URL}
+              onClick={() => {
+                AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_REMOTEURL_CLICK");
+                window.open(DOCS_BASE_URL, "_blank");
+              }}
               text={createMessage(LEARN_MORE)}
             />
           </RemoteUrlInfoWrapper>
@@ -372,6 +413,19 @@ function GitConnection({ isImport }: Props) {
               placeholder={placeholderText}
               value={remoteUrl}
             />
+            {isGitConnected && (
+              <TooltipWrapper>
+                <TooltipComponent content="Revoke Access">
+                  <Icon
+                    fillColor={Colors.DARK_GRAY}
+                    hoverFillColor={Colors.ERROR_RED}
+                    name="delete"
+                    onClick={openDisconnectGitModal}
+                    size={IconSize.XXXXL}
+                  />
+                </TooltipComponent>
+              </TooltipWrapper>
+            )}
           </UrlInputContainer>
         </UrlContainer>
         {!SSHKeyPair ? (
