@@ -1,4 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 
 export const createQueryRequest = (payload: Partial<Action>) => {
@@ -33,12 +34,16 @@ export const changeQuery = (
  * This action when executed updates the status of isSaving query to true for an actionId.
  * This function was created to add a sync to the text updated in the editor and shortcut command fired to execute the query.
  *
- * @param {ReduxAction} payload Contains object having id of the action.
+ * @param {ReduxAction} payload Contains object having id of the action and type indicating that it is an action.
  */
 
-export const preparingForUpdateAction = (
-  payload: ReduxAction<{ id: string }>,
-) => ({
-  type: ReduxActionTypes.PREPARING_UPDATE_ACTION,
-  payload: payload,
-});
+export const startingEntityUpdation = (
+  payload: ReduxAction<{ id: string; type: string }>,
+) => {
+  if (payload.type === ENTITY_TYPE.ACTION) {
+    return {
+      type: ReduxActionTypes.ENTITY_UPDATE_STARTED,
+      payload: payload,
+    };
+  }
+};

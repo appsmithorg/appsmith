@@ -82,7 +82,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import { preparingForUpdateAction } from "actions/queryPaneActions";
+import { startingEntityUpdation } from "actions/queryPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -96,7 +96,9 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
-  preparingForUpdateAction: (payload: ReduxAction<{ id: string }>) => void;
+  startingEntityUpdation: (
+    payload: ReduxAction<{ id: string; type: string }>,
+  ) => void;
 }
 
 export type CodeEditorExpected = {
@@ -242,7 +244,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", this.startHandleChange);
+        editor.on("change", this.startChange);
         editor.on("keyup", this.handleAutocompleteKeyup);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
@@ -307,7 +309,7 @@ class CodeEditor extends Component<Props, State> {
     if (!this.editor) return;
 
     this.editor.off("beforeChange", this.handleBeforeChange);
-    this.editor.off("change", this.startHandleChange);
+    this.editor.off("change", this.startChange);
     this.editor.off("keyup", this.handleAutocompleteKeyup);
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
@@ -402,19 +404,16 @@ class CodeEditor extends Component<Props, State> {
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
 
-  startHandleChange = (instance?: any, changeObj?: any) => {
+  startChange = (instance?: any, changeObj?: any) => {
     const entityInformation: FieldEntityInformation = this.getEntityInformation();
-    if (
-      entityInformation.entityType === ENTITY_TYPE.ACTION &&
-      entityInformation.entityId
-    ) {
-      const id: string = entityInformation.entityId as string;
+    if (entityInformation.entityId) {
       const payload: any = {
-        id,
+        id: entityInformation.entityId,
+        type: entityInformation.entityType,
       };
       /* This action updates the status of the api to isStarting true so that any
       shortcut commands do not execute before updating the input in the redux store */
-      this.props.preparingForUpdateAction(payload);
+      this.props.startingEntityUpdation(payload);
     }
     this.handleDebouncedChange(instance, changeObj);
   };
@@ -738,8 +737,9 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
-  preparingForUpdateAction: (payload: ReduxAction<{ id: string }>) =>
-    dispatch(preparingForUpdateAction(payload)),
+  startingEntityUpdation: (
+    payload: ReduxAction<{ id: string; type: string }>,
+  ) => dispatch(startingEntityUpdation(payload)),
 });
 
 export default Sentry.withProfiler(

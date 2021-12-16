@@ -55,7 +55,7 @@ const queryPaneReducer = createReducer(initialState, {
     lastUsed: action.payload.id,
   }),
   /* This action updates the status of the queryPane isSaving for an actionId of the application in the redux store */
-  [ReduxActionTypes.PREPARING_UPDATE_ACTION]: (
+  [ReduxActionTypes.ENTITY_UPDATE_STARTED]: (
     state: QueryPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
