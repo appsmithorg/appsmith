@@ -11,6 +11,7 @@ import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridProps, ReflowDirection, ReflowedSpace } from "reflow/reflowTypes";
+import { getNearestParentCanvas } from "utils/generators";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
@@ -45,6 +46,7 @@ export type DimensionProps = {
 
 type ResizableHandleProps = {
   allowResize: boolean;
+  scrollParent: HTMLDivElement | null;
   dragCallback: (x: number, y: number) => void;
   component: StyledComponent<"div", Record<string, unknown>>;
   onStart: () => void;
@@ -56,24 +58,44 @@ type ResizableHandleProps = {
 };
 
 function ResizableHandle(props: ResizableHandleProps) {
-  const bind = useDrag(
-    ({ first, last, dragging, movement: [mx, my], memo }) => {
-      if (!props.allowResize) {
-        return;
-      }
-      const snapped = getSnappedValues(mx, my, props.snapGrid);
-      if (dragging && memo && (snapped.x !== memo.x || snapped.y !== memo.y)) {
-        props.dragCallback(snapped.x, snapped.y);
-      }
-      if (first) {
-        props.onStart();
-      }
-      if (last) {
-        props.onStop();
-      }
-      return snapped;
-    },
-  );
+  const bind = useDrag((state) => {
+    const {
+      first,
+      last,
+      dragging,
+      memo,
+      movement: [mx, my],
+    } = state;
+    if (!props.allowResize) {
+      return;
+    }
+    const scrollParent = getNearestParentCanvas(props.scrollParent);
+
+    const initialScrollTop = memo ? memo.scrollTop : 0;
+    const currentScrollTop = scrollParent?.scrollTop || 0;
+
+    const deltaScrolledHeight = currentScrollTop - initialScrollTop;
+    const deltaY = my + deltaScrolledHeight;
+    const snapped = getSnappedValues(mx, deltaY, props.snapGrid);
+    if (first) {
+      props.onStart();
+      return { scrollTop: currentScrollTop, snapped };
+    }
+    const { snapped: snappedMemo } = memo;
+
+    if (
+      dragging &&
+      snappedMemo &&
+      (snapped.x !== snappedMemo.x || snapped.y !== snappedMemo.y)
+    ) {
+      props.dragCallback(snapped.x, snapped.y);
+    }
+    if (last) {
+      props.onStop();
+    }
+
+    return { ...memo, snapped };
+  });
   const propsToPass = {
     ...bind(),
     showAsBorder: !props.allowResize,
@@ -182,7 +204,7 @@ export function Resizable(props: ResizableProps) {
       resizedPositions,
     } = props.getResizedPositions({ width, height }, { x, y });
 
-    if (canResizeHorizontally || canResizeVertically)
+    if (canResizeHorizontally || canResizeVertically) {
       set((prevState) => {
         let newRect = { ...rect };
 
@@ -221,6 +243,7 @@ export function Resizable(props: ResizableProps) {
 
         return newRect;
       });
+    }
   };
 
   useEffect(() => {
@@ -395,6 +418,7 @@ export function Resizable(props: ResizableProps) {
         setResizing(true);
       }}
       onStop={onResizeStop}
+      scrollParent={resizableRef.current}
       snapGrid={props.snapGrid}
     />
   ));

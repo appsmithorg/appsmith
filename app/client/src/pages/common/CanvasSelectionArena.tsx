@@ -148,8 +148,8 @@ export function CanvasSelectionArena({
 
   useCanvasDragToScroll(
     canvasRef,
-    isCurrentWidgetDrawing,
-    isDraggingForSelection,
+    isCurrentWidgetDrawing || isResizing,
+    isDraggingForSelection || isResizing,
     snapRows,
     canExtend,
   );
@@ -445,7 +445,7 @@ export function CanvasSelectionArena({
 
   const shouldShow =
     appMode === APP_MODE.EDIT &&
-    !(isDragging || isResizing || isCommentMode || isPreviewMode);
+    !(isDragging || isCommentMode || isPreviewMode);
 
   return shouldShow ? (
     <StyledSelectionCanvas
