@@ -1,12 +1,9 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.repositories.ce.NewPageRepositoryCE;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
 
 @Repository
-public interface NewPageRepository extends BaseRepository<NewPage, String>, CustomNewPageRepository {
-
-    Flux<NewPage> findByApplicationId(String applicationId);
+public interface NewPageRepository extends NewPageRepositoryCE, CustomNewPageRepository {
 
 }
