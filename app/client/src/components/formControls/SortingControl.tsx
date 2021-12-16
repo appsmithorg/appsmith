@@ -7,6 +7,12 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 
+// sorting's order dropdown values
+enum OrderDropDownValues {
+  ASCENDING = "Ascending",
+  DESCENDING = "Descending",
+}
+
 // Form config for the column field
 const columnFieldConfig: any = {
   key: "column",
@@ -20,15 +26,15 @@ const columnFieldConfig: any = {
 const orderFieldConfig: any = {
   key: "order",
   controlType: "DROP_DOWN",
-  initialValue: "Ascending",
+  initialValue: OrderDropDownValues.ASCENDING,
   options: [
     {
-      label: "Ascending",
-      value: "Ascending",
+      label: OrderDropDownValues.ASCENDING,
+      value: OrderDropDownValues.ASCENDING,
     },
     {
-      label: "Descending",
-      value: "Descending",
+      label: OrderDropDownValues.DESCENDING,
+      value: OrderDropDownValues.DESCENDING,
     },
   ],
 };
@@ -114,7 +120,7 @@ function SortingComponent(props: any) {
     if (props.fields.length < 1) {
       props.fields.push({
         column: "",
-        order: "Ascending",
+        order: OrderDropDownValues.ASCENDING,
       });
     } else {
       onDeletePressed(props.index);
@@ -134,7 +140,6 @@ function SortingComponent(props: any) {
                   label: "",
                   customStyles,
                   configProperty: `${field}.column`,
-                  // initialValue: props.comparisonTypes[0].value,
                 }}
                 formName={props.formName}
               />
@@ -168,7 +173,7 @@ function SortingComponent(props: any) {
         onClick={() =>
           props.fields.push({
             column: "",
-            order: "Ascending",
+            order: OrderDropDownValues.ASCENDING,
           })
         }
       >
