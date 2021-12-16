@@ -31,6 +31,7 @@ import { handlePathUpdated } from "actions/recentEntityActions";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
@@ -44,6 +45,8 @@ import {
   collabStartSharingPointerEvent,
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
+import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -66,6 +69,7 @@ type EditorProps = {
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
+  pageLevelSocketRoomId: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -95,7 +99,9 @@ class Editor extends Component<Props> {
     this.unlisten = history.listen(this.handleHistoryChange);
 
     if (this.props.isPageLevelSocketConnected && pageId) {
-      this.props.collabStartSharingPointerEvent(pageId);
+      this.props.collabStartSharingPointerEvent(
+        getPageLevelSocketRoomId(pageId, branch),
+      );
     }
   }
 
@@ -161,15 +167,23 @@ class Editor extends Component<Props> {
     }
 
     if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
-      this.props.collabStartSharingPointerEvent(pageId);
+      this.props.collabStartSharingPointerEvent(
+        getPageLevelSocketRoomId(pageId, branch),
+      );
     }
   }
 
   componentWillUnmount() {
     const { pageId } = this.props.match.params || {};
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
-    this.props.collabStopSharingPointerEvent(pageId);
+    this.props.collabStopSharingPointerEvent(
+      getPageLevelSocketRoomId(pageId, branch),
+    );
   }
 
   handleHistoryChange = (location: any) => {
@@ -208,7 +222,9 @@ class Editor extends Component<Props> {
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
+              <DisconnectGitModal />
               <ConcurrentPageEditorToast />
+              <RepoLimitExceededErrorModal />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

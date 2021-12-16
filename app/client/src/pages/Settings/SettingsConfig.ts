@@ -7,6 +7,7 @@ import {
   GOOGLE_MAPS_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
+import { isNil, omitBy } from "lodash";
 import { Dispatch } from "react";
 import { isEmail } from "utils/formhelpers";
 
@@ -40,12 +41,16 @@ export type Setting = {
   subCategory?: string;
   value?: string;
   text?: string;
-  action?: (dispatch?: Dispatch<ReduxAction<any>>) => void;
+  action?: (
+    dispatch?: Dispatch<ReduxAction<any>>,
+    settings?: Record<string, any>,
+  ) => void;
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
+  isDisabled?: (values: Record<string, any>) => boolean;
 };
 
 export class SettingsFactory {
@@ -194,18 +199,29 @@ SettingsFactory.register("APPSMITH_MAIL_PASSWORD", {
 });
 
 SettingsFactory.register("APPSMITH_MAIL_TEST_EMAIL", {
-  action: (dispatch) => {
+  action: (dispatch, settings = {}) => {
     dispatch &&
       dispatch({
         type: ReduxActionTypes.SEND_TEST_EMAIL,
-        payload: true,
+        payload: omitBy(
+          {
+            smtpHost: settings["APPSMITH_MAIL_HOST"],
+            smtpPort: settings["APPSMITH_MAIL_PORT"],
+            fromEmail: settings["APPSMITH_MAIL_FROM"],
+            username: settings["APPSMITH_MAIL_USERNAME"],
+            password: settings["APPSMITH_MAIL_PASSWORD"],
+          },
+          isNil,
+        ),
       });
   },
   category: "email",
   controlType: SettingTypes.BUTTON,
-  isVisible: (values: Record<string, any>) => {
+  isDisabled: (settings: Record<string, any>) => {
     return (
-      values && values["APPSMITH_MAIL_HOST"] && values["APPSMITH_MAIL_FROM"]
+      !settings ||
+      !settings["APPSMITH_MAIL_HOST"] ||
+      !settings["APPSMITH_MAIL_FROM"]
     );
   },
   text: "Send Test Email",
@@ -392,4 +408,12 @@ SettingsFactory.register("APPSMITH_REDIS_URL", {
   label: "Redis URL",
   subText:
     "Appsmith internally uses redis for session storage. Change this to an external redis for Clustering",
+});
+
+SettingsFactory.register("APPSMITH_CUSTOM_DOMAIN", {
+  category: "advanced",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Custom Domain",
+  subText: "Custom domain for your Appsmith instance",
 });

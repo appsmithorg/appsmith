@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -11,7 +12,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -138,6 +139,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -293,6 +305,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const options = _.isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
@@ -308,6 +322,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           )
         }
         disabled={this.props.isDisabled}
+        dropDownWidth={dropDownWidth}
         hasError={isInvalid}
         height={componentHeight}
         isFilterable={this.props.isFilterable}

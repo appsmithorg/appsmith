@@ -107,42 +107,49 @@ public class EncryptionHandler {
                     Type[] typeArguments;
                     ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
                     typeArguments = parameterizedType.getActualTypeArguments();
-                    Class<?> subFieldType = (Class<?>) typeArguments[0];
 
-                    if (this.encryptedFieldsMap.containsKey(subFieldType)) {
-                        // This is a known type, it should necessarily be of AppsmithDomain type
-                        assert AppsmithDomain.class.isAssignableFrom(subFieldType);
-                        final List<CandidateField> existingSubTypeCandidates = this.encryptedFieldsMap.get(subFieldType);
-                        if (!existingSubTypeCandidates.isEmpty()) {
-                            finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_KNOWN));
-                        }
-                    } else if (AppsmithDomain.class.isAssignableFrom(subFieldType)) {
-                        // If the type is not known, then this is either not parsed yet, or has polymorphic implementations
-
-                        field.setAccessible(true);
-                        Object fieldValue = ReflectionUtils.getField(field, source);
-                        Collection<?> list = (Collection<?>) fieldValue;
-
-                        if (list == null || list.isEmpty()) {
-                            finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_UNKNOWN));
-                        } else {
-                            for (final Object o : list) {
-                                if (o == null) {
-                                    continue;
-                                }
-                                if (o.getClass().getCanonicalName().equals(subFieldType.getTypeName())) {
-                                    final List<CandidateField> candidateFieldsForListMember = findCandidateFieldsForType(o);
-                                    if (candidateFieldsForListMember != null && !candidateFieldsForListMember.isEmpty()) {
-                                        finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_KNOWN));
-                                    }
-                                } else {
-                                    finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_POLYMORPHIC));
-                                }
-                                break;
+                    Class<?> subFieldType;
+                    try {
+                        subFieldType = (Class<?>) typeArguments[0];
+                    } catch (ClassCastException|ArrayIndexOutOfBoundsException e) {
+                        subFieldType = null;
+                    }
+                    if(subFieldType != null) {
+                        if (this.encryptedFieldsMap.containsKey(subFieldType)) {
+                            // This is a known type, it should necessarily be of AppsmithDomain type
+                            assert AppsmithDomain.class.isAssignableFrom(subFieldType);
+                            final List<CandidateField> existingSubTypeCandidates = this.encryptedFieldsMap.get(subFieldType);
+                            if (!existingSubTypeCandidates.isEmpty()) {
+                                finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_KNOWN));
                             }
-                        }
-                        field.setAccessible(false);
+                        } else if (AppsmithDomain.class.isAssignableFrom(subFieldType)) {
+                            // If the type is not known, then this is either not parsed yet, or has polymorphic implementations
 
+                            field.setAccessible(true);
+                            Object fieldValue = ReflectionUtils.getField(field, source);
+                            Collection<?> list = (Collection<?>) fieldValue;
+
+                            if (list == null || list.isEmpty()) {
+                                finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_UNKNOWN));
+                            } else {
+                                for (final Object o : list) {
+                                    if (o == null) {
+                                        continue;
+                                    }
+                                    if (o.getClass().getCanonicalName().equals(subFieldType.getTypeName())) {
+                                        final List<CandidateField> candidateFieldsForListMember = findCandidateFieldsForType(o);
+                                        if (candidateFieldsForListMember != null && !candidateFieldsForListMember.isEmpty()) {
+                                            finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_KNOWN));
+                                        }
+                                    } else {
+                                        finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_POLYMORPHIC));
+                                    }
+                                    break;
+                                }
+                            }
+                            field.setAccessible(false);
+
+                        }
                     }
                     // TODO Add support for nested collections
                 } else if (Map.class.isAssignableFrom(field.getType()) &&

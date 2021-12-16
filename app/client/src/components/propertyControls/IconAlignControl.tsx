@@ -10,6 +10,7 @@ import {
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
 import { ThemeProp } from "components/ads/common";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const StyledButtonGroup = styled(ButtonGroup)`
   height: 33px;
@@ -51,7 +52,7 @@ class IconAlignControl extends BaseControl<IconAlignControlProps> {
     const { propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
+      <StyledButtonGroup className={replayHighlightClass} fill>
         <StyledButton
           active={propertyValue === Alignment.LEFT || undefined}
           icon={<ControlIcons.ICON_ALIGN_LEFT color="#979797" />}

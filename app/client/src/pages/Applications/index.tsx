@@ -511,21 +511,21 @@ const OrgNameHolder = styled(Text)`
 `;
 
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
-${(props) => {
-  const color = props.disabled
-    ? props.theme.colors.applications.orgColor
-    : props.theme.colors.applications.hover.orgColor[9];
-  return `${textIconStyles({
-    color: color,
-    hover: color,
-  })}`;
-}}
+  ${(props) => {
+    const color = props.disabled
+      ? props.theme.colors.applications.orgColor
+      : props.theme.colors.applications.hover.orgColor[9];
+    return `${textIconStyles({
+      color: color,
+      hover: color,
+    })}`;
+  }}
 
-.${Classes.ICON} {
-  display: ${(props) => (!props.disabled ? "inline" : "none")};;
-  margin-left: 8px;
-  color: ${(props) => props.theme.colors.applications.iconColor};
-}
+  .${Classes.ICON} {
+    display: ${(props) => (!props.disabled ? "inline" : "none")};
+    margin-left: 8px;
+    color: ${(props) => props.theme.colors.applications.iconColor};
+  }
 `;
 const OrgRename = styled(EditableText)`
   padding: 0 2px;
@@ -822,7 +822,7 @@ function ApplicationsSection(props: any) {
                                 text="Import Application"
                               />
                             )}
-                            {getFeatureFlags().GIT && (
+                            {getFeatureFlags().GIT_IMPORT && (
                               <MenuItem
                                 cypressSelector="t--org-import-app-git"
                                 icon="upload"
@@ -936,7 +936,7 @@ function ApplicationsSection(props: any) {
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       <WelcomeHelper />
-      {getFeatureFlags().GIT && <ImportAppViaGitModal />}
+      {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );
 }
