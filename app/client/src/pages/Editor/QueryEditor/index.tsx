@@ -42,6 +42,7 @@ import {
 } from "actions/evaluationActions";
 import { getUIComponent } from "selectors/formSelectors";
 import { diff } from "deep-diff";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -72,6 +73,7 @@ type ReduxStateProps = {
   isDeleting: boolean;
   formData: QueryAction;
   runErrorMessage: Record<string, string>;
+  pluginId: string | undefined;
   pluginIds: Array<string> | undefined;
   responses: any;
   isCreating: boolean;
@@ -100,6 +102,9 @@ class QueryEditor extends React.Component<Props> {
   }
 
   componentDidMount() {
+    // if the current action is non existent, do not dispatch change query page action
+    // this action should only be dispatched when switching from an existent action.
+    if (!this.props.pluginId) return;
     this.props.changeQueryPage(this.props.match.params.queryId);
 
     PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
@@ -169,6 +174,7 @@ class QueryEditor extends React.Component<Props> {
       match: {
         params: { queryId },
       },
+      pluginId,
       pluginIds,
       pluginImages,
       responses,
@@ -177,6 +183,17 @@ class QueryEditor extends React.Component<Props> {
       uiComponent,
     } = this.props;
     const { pageId } = this.props.match.params;
+
+    // custom function to return user to integrations page if action is not found
+    const goToDatasourcePage = () =>
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      );
+
+    // if the action can not be found, generate a entity not found page
+    if (!pluginId && queryId) {
+      return <EntityNotFoundPane goBackFn={goToDatasourcePage} />;
+    }
 
     if (!pluginIds?.length) {
       return (
@@ -255,6 +272,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   return {
     pluginImages: getPluginImages(state),
+    pluginId,
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
