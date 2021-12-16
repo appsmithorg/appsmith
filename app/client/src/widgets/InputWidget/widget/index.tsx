@@ -335,6 +335,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Clears the input value after submit",
             propertyName: "resetOnSubmit",
             label: "Reset on submit",
@@ -508,7 +519,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{
-        function(){
+        (function(){
           if (!this.isRequired && !this.text) {
             return true
           }
@@ -577,7 +588,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           } else {
             return true;
           }
-        }()
+        })()
       }}`,
       value: `{{this.text}}`,
     };
