@@ -7,6 +7,7 @@ import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 import { typography, Typography, TypographyKeys } from "./typography";
+
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {

@@ -81,80 +81,80 @@ const InputComponentWrapper = styled((props) => (
   primaryColor: string;
 }>`
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  &&&& {
-    .currency-type-filter,
-    .country-type-filter {
-      width: fit-content;
-      height: 100%;
-      position: absolute;
-      display: inline-block;
-      left: 0;
-      z-index: 16;
-      svg {
-        path {
-          fill: ${(props) => props.theme.colors.icon?.hover};
-        }
+  height: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
+
+  .currency-type-filter,
+  .country-type-filter {
+    width: fit-content;
+    height: 100%;
+    position: absolute;
+    display: inline-block;
+    left: 0;
+    z-index: 16;
+    svg {
+      path {
+        fill: ${(props) => props.theme.colors.icon?.hover};
       }
     }
-    .${Classes.INPUT} {
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        props.allowCurrencyChange &&
-        `
-      padding-left: 45px;`};
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        !props.allowCurrencyChange &&
-        `
-      padding-left: 35px;`};
-      ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        `padding-left: 85px;
-        `};
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
-      border-radius: 0px;
-      box-shadow: none !important;
-      height: 100%;
-      width: 100%;
-      ${(props) =>
-        props.numeric &&
-        `
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-        ${props.hasError ? "" : "border-right-width: 0px;"}
-      `}
-      ${(props) =>
-        props.inputType === "PASSWORD" &&
-        `
-        & + .bp3-input-action {
+  }
+
+  .${Classes.INPUT} {
+    ${(props) =>
+      props.inputType === InputTypes.CURRENCY &&
+      props.allowCurrencyChange &&
+      `
+    padding-left: 45px;`};
+    ${(props) =>
+      props.inputType === InputTypes.CURRENCY &&
+      !props.allowCurrencyChange &&
+      `
+    padding-left: 35px;`};
+    ${(props) =>
+      props.inputType === InputTypes.PHONE_NUMBER &&
+      `padding-left: 85px;
+      `};
+    background: ${({ disabled }) => (disabled ? Colors.GREY_1 : Colors.WHITE)};
+    border-radius: 0px;
+    box-shadow: none !important;
+    height: 100%;
+    width: 100%;
+
+    ${(props) =>
+      props.numeric &&
+      `
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      ${props.hasError ? "" : "border-right-width: 0px;"}
+    `}
+    ${(props) =>
+      props.inputType === "PASSWORD" &&
+      `
+      & + .bp3-input-action {
+        height: 100%;
+        width: 36px;
+        cursor: pointer;
+        padding: 1px;
+        .password-input {
+          color: ${Colors.GREY_6};
+          justify-content: center;
           height: 100%;
-          width: 36px;
-          cursor: pointer;
-          padding: 1px;
-          .password-input {
-            color: ${Colors.GREY_6};
-            justify-content: center;
-            height: 100%;
-            svg {
-              width: 20px;
-              height: 20px;
-            }
-            &:hover {
-              background-color: ${Colors.GREY_2};
-              color: ${Colors.GREY_10};
-            }
+          svg {
+            width: 20px;
+            height: 20px;
+          }
+          &:hover {
+            background-color: ${Colors.GREY_2};
+            color: ${Colors.GREY_10};
           }
         }
-      `}
+      }
+    `}
+  }
 
-
-      ${({ disabled }) =>
-        disabled &&
-        ` background-color: ${Colors.GREY_1};
-      `}
-    }
-
+  & {
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
@@ -173,10 +173,6 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: 100%;
-    align-items: center;
-    justify-content: flex-end;
-    gap: ${(props) => (props.compactMode ? "10px" : "5px")};
 
     label {
       ${labelStyle}

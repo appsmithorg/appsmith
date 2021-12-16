@@ -7,9 +7,6 @@ import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 
 const DropdownTriggerIconWrapper = styled.div`
-  height: 19px;
-  padding: 9px 5px 9px 12px;
-  height: 19px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -100,7 +97,10 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
     return <CurrencyIconWrapper>{selectedCurrency}</CurrencyIconWrapper>;
   }
   const dropdownTriggerIcon = (
-    <DropdownTriggerIconWrapper className="t--input-currency-change">
+    <DropdownTriggerIconWrapper
+      className="h-full gap-2 px-3 t--input-currency-change focus:bg-gray-50"
+      tabIndex={0}
+    >
       {selectedCurrency}
       <Icon className="dropdown" name="downArrow" size={IconSize.XXS} />
     </DropdownTriggerIconWrapper>

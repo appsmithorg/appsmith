@@ -122,31 +122,6 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   }
 `;
 
-const DropdownTriggerWrapper = styled.div<{
-  isOpen: boolean;
-  disabled?: boolean;
-}>`
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  ${(props) =>
-    props.isOpen && !props.disabled
-      ? `
-      box-sizing: border-box;
-      border: 1px solid ${Colors.GREEN_1};
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
-    `
-      : null};
-  .${Classes.TEXT} {
-    ${(props) =>
-      props.disabled
-        ? `color: ${props.theme.colors.dropdown.header.disabledText}`
-        : `color: ${props.theme.colors.dropdown.header.text}`};
-  }
-`;
-
 const Selected = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
@@ -695,12 +670,6 @@ export default function Dropdown(props: DropdownProps) {
   const disabled = props.disabled || isLoading;
   const downIconColor = errorFlag ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
-  const onClickHandler = () => {
-    if (!props.disabled) {
-      setIsOpen(!isOpen);
-    }
-  };
-
   const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
     "100%",
   );
@@ -720,14 +689,7 @@ export default function Dropdown(props: DropdownProps) {
     : props.optionWidth || "260px";
 
   const dropdownTrigger = props.dropdownTriggerIcon ? (
-    <DropdownTriggerWrapper
-      disabled={props.disabled}
-      isOpen={isOpen}
-      onClick={onClickHandler}
-      ref={dropdownWrapperRef}
-    >
-      {props.dropdownTriggerIcon}
-    </DropdownTriggerWrapper>
+    props.dropdownTriggerIcon
   ) : (
     <DropdownSelect ref={dropdownWrapperRef}>
       <Selected

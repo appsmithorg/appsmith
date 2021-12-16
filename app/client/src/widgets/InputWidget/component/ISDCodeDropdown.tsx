@@ -7,9 +7,7 @@ import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
 import { Colors } from "constants/Colors";
 
 const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
-  padding: 7px;
-  width: 92px;
-  min-width: 92px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -83,8 +81,9 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   const selectedCountry = getSelectedISDCode(props.selected.value);
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
-      className="t--input-country-code-change"
+      className="gap-2 px-3 t--input-country-code-change focus:bg-gray-50"
       disabled={props.disabled}
+      tabIndex={0}
     >
       <FlagWrapper>
         {selectedCountry.value && countryToFlag(selectedCountry.value)}
