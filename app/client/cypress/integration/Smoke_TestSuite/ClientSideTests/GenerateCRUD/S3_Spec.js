@@ -2,6 +2,8 @@ const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage.json";
+const commonlocators = require("../../../../locators/commonlocators.json");
+const publishPage = require("../../../../locators/publishWidgetspage.json");
 
 describe("Generate New CRUD Page Inside from entity explorer", function() {
   let datasourceName;
@@ -11,7 +13,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.startInterceptRoutesForS3();
   });
 
-  it("Add new Page and generate CRUD template using existing supported datasource", function() {
+  it("1. Add new Page and generate CRUD template using existing supported datasource & Bug 9649", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasourceEditor.AmazonS3)
       .click({ force: true })
@@ -38,6 +40,17 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //   datasourceName = httpResponse.response.body.data.name;
     // });
 
+    //Create Dummy Page2 :
+    cy.get(pages.AddPage)
+      .first()
+      .click();
+    cy.wait("@createPage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+
+    //Creating CRUD Page3
     cy.get(pages.AddPage)
       .first()
       .click();
@@ -85,10 +98,39 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //Post Execute call not happening.. hence commenting it for this case
     //cy.wait("@post_Execute").should("have.nested.property", "response.body.responseMeta.status", 200,);
 
+    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+    });
     cy.get("span:contains('GOT IT')").click();
+
+    //Bug verification starts
+    cy.selectEntityByName("ListFiles");
+    cy.wait(2000);
+    cy.selectEntityByName("Page3");
+    cy.wait(1000);
+    cy.PublishtheApp();
+    cy.wait(3000);
+    cy.get(commonlocators.toastAction)
+      .its("length")
+      .should("eq", 0); // checking no error msg appears!
+
+    //.should('not.exist')
+    //.should("have.length", 0)
+
+    //cy.get('.datatable').find('tr')
+
+    // .should("contain.text", 'The action "ListFiles" has failed.');
+
+    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.wait(2000);
+
+    //cy.VerifyErrorMsgAbsence('The action "ListFiles" has failed.')
+    //cy.VerifyNoDataDisplayAbsence()
+    //cy.isNotInViewport("//div[text()='haiiii hello']")
+    //cy.isNotInViewport("//div[text()='No data to display']")
   });
 
-  it("Create new app and Generate CRUD page using a new datasource", function() {
+  it("2. Create new app and Generate CRUD page using a new datasource", function() {
     cy.NavigateToHome();
     cy.get(homePage.createNew)
       .first()
@@ -155,7 +197,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Generate CRUD page from datasource ACTIVE section", function() {
+  it("3. Generate CRUD page from datasource ACTIVE section", function() {
     // cy.NavigateToQueryEditor();
     // cy.get(pages.integrationActiveTab)
     //   .should("be.visible")

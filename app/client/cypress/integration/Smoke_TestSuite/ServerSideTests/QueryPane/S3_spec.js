@@ -285,7 +285,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       );
     });
     cy.typeValueNValidate("Auto", "File Path");
-
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
@@ -294,10 +293,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "The specified bucket is not valid.",
       ]);
     });
-
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
     cy.typeValueNValidate("AutoFile", "File Path");
-
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
