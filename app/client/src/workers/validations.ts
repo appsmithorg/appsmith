@@ -747,7 +747,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
-      parsed: config.params?.default || moment().toISOString(true),
+      parsed: config.params?.default,
       messages: [`Value does not match: ${getExpectedType(config)}`],
     };
     if (value === undefined || value === null || !isString(value)) {
@@ -763,8 +763,10 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (value === "" && !config.params?.required) {
         return {
           isValid: true,
-          parsed: config.params?.default || moment().toISOString(true),
+          parsed: config.params?.default,
         };
+      } else if (value === "" && config.params?.required) {
+        return invalidResponse;
       }
 
       if (!moment(value).isValid()) return invalidResponse;
