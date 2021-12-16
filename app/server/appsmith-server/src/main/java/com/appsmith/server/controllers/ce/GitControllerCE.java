@@ -46,7 +46,7 @@ public class GitControllerCE {
 
     @PostMapping("/profile/default")
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@RequestBody GitProfile gitProfile) {
-        //Add to the userData object - git config data
+        log.debug("Going to add default git profile for user");
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile)
                 .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
@@ -54,7 +54,7 @@ public class GitControllerCE {
     @PutMapping("/profile/{defaultApplicationId}")
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@PathVariable String defaultApplicationId,
                                                                      @RequestBody GitProfile gitProfile) {
-        // Add to the userData object - git config data
+        log.debug("Going to add repo specific git profile for application: {}", defaultApplicationId);
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile, defaultApplicationId)
                 .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
     }

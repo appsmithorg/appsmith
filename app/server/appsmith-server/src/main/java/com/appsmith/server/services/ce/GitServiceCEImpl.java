@@ -148,16 +148,16 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId) {
 
-        if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
+        if(DEFAULT.equals(defaultApplicationId) && StringUtils.isEmptyOrNull(gitProfile.getAuthorName())) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Name"));
-        } else if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
+        } else if(DEFAULT.equals(defaultApplicationId) && StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Email"));
         } else if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
         if (StringUtils.equalsIgnoreCase(DEFAULT, defaultApplicationId)) {
-            gitProfile.setUseGlobalProfile(Boolean.TRUE);
+            gitProfile.setUseGlobalProfile(null);
         } else if (!Boolean.TRUE.equals(gitProfile.getUseGlobalProfile())) {
             gitProfile.setUseGlobalProfile(Boolean.FALSE);
         }
@@ -181,7 +181,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         })
                         .filter(profiles -> !CollectionUtils.isNullOrEmpty(profiles))
                         .switchIfEmpty(Mono.defer(() -> {
-                                    // If profiles are empty use Appsmith's user details as git default profile
+                                    // If profiles are empty use Appsmith's user profile as git default profile
                                     GitProfile profile = new GitProfile();
                                     String authorName = StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName();
 
@@ -205,8 +205,36 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<GitProfile> getGitProfileForUser() {
-        // Get default git profile
-        return getGitProfileForUser(DEFAULT);
+        // Get default git profile if the default is empty then use Appsmith profile as a fallback value
+        return getGitProfileForUser(DEFAULT)
+                .flatMap(gitProfile -> {
+                    if (StringUtils.isEmptyOrNull(gitProfile.getAuthorName()) || StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())) {
+                        return sessionUserService.getCurrentUser()
+                                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                                .flatMap(currentUser -> {
+                                    String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
+                                            ? currentUser.getUsername()
+                                            : currentUser.getName();
+                                    gitProfile.setAuthorEmail(currentUser.getEmail());
+                                    gitProfile.setAuthorName(authorName);
+                                    gitProfile.setUseGlobalProfile(null);
+                                    return userDataService.getForUser(currentUser)
+                                            .flatMap(userData -> {
+                                                UserData updates = new UserData();
+                                                if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                                                    updates.setGitProfiles(Map.of(DEFAULT, gitProfile));
+                                                } else {
+                                                    userData.getGitProfiles().put(DEFAULT, gitProfile);
+                                                    updates.setGitProfiles(userData.getGitProfiles());
+                                                }
+                                                return userDataService.updateForUser(currentUser, updates)
+                                                        .thenReturn(gitProfile);
+                                            });
+                                });
+                    }
+                    gitProfile.setUseGlobalProfile(null);
+                    return Mono.just(gitProfile);
+                });
     }
 
     @Override
@@ -216,6 +244,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitProfile gitProfile = userData.getGitProfileByKey(defaultApplicationId);
                     if (gitProfile != null && gitProfile.getUseGlobalProfile() == null) {
                         gitProfile.setUseGlobalProfile(true);
+                    } else if (gitProfile == null) {
+                        // If the profile is requested for repo specific using the applicationId
+                        GitProfile gitProfile1 = new GitProfile();
+                        gitProfile1.setAuthorName("");
+                        gitProfile1.setAuthorEmail("");
+                        gitProfile1.setUseGlobalProfile(true);
+                        return gitProfile1;
                     }
                     return gitProfile;
                 });
@@ -322,7 +357,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     GitProfile authorProfile = currentUserData.getGitProfileByKey(gitApplicationData.getDefaultApplicationId());
 
-                    if (authorProfile == null || authorProfile.getUseGlobalProfile()) {
+                    if (authorProfile == null || Boolean.TRUE.equals(authorProfile.getUseGlobalProfile())) {
                         // Use default author profile as the fallback value
                         if (currentUserData.getGitProfileByKey(DEFAULT) != null) {
                             authorProfile = currentUserData.getGitProfileByKey(DEFAULT);
@@ -426,9 +461,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 );
 
-        Mono<Map<String, GitProfile>> profileMono = Boolean.TRUE.equals(gitConnectDTO.getGitProfile().getUseGlobalProfile())
-                ? this.getGitProfileForUser().map(profile -> Map.of(DEFAULT, profile))
-                : updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId);
+        Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId);
 
         return profileMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
@@ -1451,23 +1484,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return pushResult;
                                 })
                 );
-    }
-
-    private Mono<Map<String, GitProfile>> fetchGitProfile(UserData userData, String key) {
-        if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
-            return sessionUserService.getCurrentUser()
-                    .map(currentUser -> {
-                        String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
-                                ? currentUser.getUsername()
-                                : currentUser.getName();
-                        GitProfile gitProfile = new GitProfile();
-
-                        gitProfile.setAuthorEmail(currentUser.getEmail());
-                        gitProfile.setAuthorName(authorName);
-                        return Map.of();
-                    });
-        }
-        return Mono.just(userData.getGitProfiles());
     }
 
 }
