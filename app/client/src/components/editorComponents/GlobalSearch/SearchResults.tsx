@@ -94,6 +94,9 @@ export const SearchItemContainer = styled.div<{
         transform: scale(1.2);
       }
     }
+    .operation-desc {
+      opacity: 1;
+    }
     .icon-wrapper {
       svg {
         path: {
@@ -434,11 +437,6 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
     color: gray;
     font-size: 12px;
     opacity: ${(props) => (props.isActive ? 1 : 0)};
-  }
-  &&&:hover {
-    .operation-desc {
-      opacity: 1;
-    }
   }
 `;
 
