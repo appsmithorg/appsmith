@@ -141,6 +141,15 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput
+          combo="mod + shift + k"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
+          }
+        />
+        <Hotkey
+          allowInInput
           combo="mod + j"
           global
           label="Show omnibar"

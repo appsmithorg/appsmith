@@ -8,7 +8,6 @@ import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { getSelectedWidgets } from "selectors/ui";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -35,7 +34,6 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(getWidgetsForCurrentPage);
-  const selectedWidgets = useSelector(getSelectedWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
 
   const childNode = (
@@ -70,11 +68,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       disabled={!widgets && !!props.searchKeyword}
       entityId={pageId + "_widgets"}
       icon={""}
-      isDefaultExpanded={
-        !!props.searchKeyword ||
-        (params.pageId === pageId &&
-          !!(selectedWidgets && selectedWidgets.length))
-      }
+      isDefaultExpanded={params.pageId === pageId}
       key={pageId + "_widgets"}
       name="WIDGETS"
       onCreate={props.addWidgetsFn}
