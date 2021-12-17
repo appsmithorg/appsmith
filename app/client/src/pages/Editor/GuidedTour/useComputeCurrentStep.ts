@@ -5,6 +5,7 @@ import {
   tableWidgetWasSelected,
   enableGuidedTour,
   updateButtonWidgetText,
+  forceShowContent,
 } from "actions/onboardingActions";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -175,11 +176,16 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
       if (!queryLimitUpdated) {
         dispatch(setIndicatorLocation("QUERY_EDITOR"));
       } else if (queryExecutedSuccessfully) {
+        dispatch(forceShowContent(1));
         dispatch(setIndicatorLocation("NONE"));
         dispatch(markStepComplete());
-        if (Steps[1].elementSelector) {
-          highlightSection(Steps[1].elementSelector);
-        }
+
+        setTimeout(() => {
+          if (Steps[1].elementSelector) {
+            highlightSection(Steps[1].elementSelector);
+          }
+          // Adding a slight delay to wait for the table to be visible
+        }, 1000);
       } else {
         dispatch(setIndicatorLocation("RUN_QUERY"));
       }
