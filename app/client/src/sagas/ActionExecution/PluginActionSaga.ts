@@ -561,22 +561,27 @@ function* runActionSaga(
 }
 
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
-  const collectionId = "61533027b58c37631673f059";
-  const collection: JSCollection = yield select(getJSCollection, collectionId);
-  const jsAction = collection.actions.find((d) => d.id === pageAction.id);
-  if (!!jsAction) {
-    yield put(
-      executeJSFunction({
-        collectionName: collection.name,
-        action: jsAction,
-        collectionId: collectionId,
-      }),
+  const collectionId = pageAction.collectionId;
+  if (collectionId) {
+    const collection: JSCollection = yield select(
+      getJSCollection,
+      collectionId,
     );
+    const jsAction = collection.actions.find((d) => d.id === pageAction.id);
+    if (!!jsAction) {
+      yield put(
+        executeJSFunction({
+          collectionName: collection.name,
+          action: jsAction,
+          collectionId: collectionId,
+        }),
+      );
+    }
   }
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
-  if (!pageAction.hasOwnProperty("clientSideExecution")) {
+  if (pageAction.hasOwnProperty("clientSideExecution")) {
     yield call(executeOnPageLoadJSAction, pageAction);
   } else {
     const pageId = yield select(getCurrentPageId);

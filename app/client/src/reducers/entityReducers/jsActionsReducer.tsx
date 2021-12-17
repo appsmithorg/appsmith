@@ -13,6 +13,7 @@ export interface JSCollectionData {
   config: JSCollection;
   data?: Record<string, unknown>;
   isExecuting?: Record<string, boolean>;
+  [propName: string]: any;
 }
 export type JSCollectionDataState = JSCollectionData[];
 export interface PartialActionData {
@@ -31,10 +32,18 @@ const jsActionsReducer = createReducer(initialState, {
       const foundAction = state.find((currentAction) => {
         return currentAction.config.id === action.id;
       });
+      const actionsList = action?.actions;
+      const actionResultsData: Record<string, any> = {};
+      const actionListData = actionsList?.map((subAction) => {
+        actionResultsData[subAction.name] = {
+          data: {},
+        };
+      });
       return {
         isLoading: false,
         config: action,
         data: foundAction?.data,
+        ...actionResultsData,
       };
     });
   },
@@ -76,8 +85,9 @@ const jsActionsReducer = createReducer(initialState, {
     action: ReduxAction<{ data: JSCollection }>,
   ): JSCollectionDataState =>
     state.map((a) => {
-      if (a.config.id === action.payload.data.id)
-        return { isLoading: false, config: action.payload.data };
+      if (a.config.id === action.payload.data.id) {
+        return { ...a, isLoading: false, config: action.payload.data };
+      }
       return a;
     }),
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: (
@@ -87,6 +97,7 @@ const jsActionsReducer = createReducer(initialState, {
     state.map((a) => {
       if (a.config.id === action.payload.data.id)
         return {
+          ...a,
           isLoading: false,
           config: action.payload.data,
         };
@@ -284,6 +295,9 @@ const jsActionsReducer = createReducer(initialState, {
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
+        const executedAction =
+          a.config.actions &&
+          a.config.actions.find((d) => d.id === action.payload.actionId);
         return {
           ...a,
           data: {
@@ -336,6 +350,37 @@ const jsActionsReducer = createReducer(initialState, {
         };
       }
       return a;
+    }),
+  [ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<
+      Array<{
+        executeOnLoad: boolean;
+        id: string;
+        name: string;
+        collectionId: string;
+      }>
+    >,
+  ) =>
+    action.payload.forEach((action) => {
+      state.map((a) => {
+        if (a.config.id === action.collectionId) {
+          const updatedActions = a.config.actions.map((jsAction) => {
+            if (jsAction.id === action.id) {
+              set(jsAction, `executeOnLoad`, action.executeOnLoad);
+            }
+            return jsAction;
+          });
+          return {
+            ...a,
+            config: {
+              ...a.config,
+              actions: updatedActions,
+            },
+          };
+        }
+        return a;
+      });
     }),
 });
 

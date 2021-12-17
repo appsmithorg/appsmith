@@ -58,6 +58,7 @@ export interface SavePageResponse extends ApiResponse {
       executeOnLoad: boolean;
       id: string;
       name: string;
+      collectionId?: string;
     }>;
   };
 }

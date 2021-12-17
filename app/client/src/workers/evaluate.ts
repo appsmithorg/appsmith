@@ -113,7 +113,9 @@ export const createGlobalData = (
       Object.keys(resolvedObject).forEach((key: any) => {
         const dataTreeKey = GLOBAL_DATA[datum];
         if (dataTreeKey) {
+          const data = dataTreeKey[key].data;
           dataTreeKey[key] = resolvedObject[key];
+          dataTreeKey[key].data = data;
         }
       });
     });

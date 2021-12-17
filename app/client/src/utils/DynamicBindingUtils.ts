@@ -307,10 +307,13 @@ export const unsafeFunctionForEval = [
 export const isChildPropertyPath = (
   parentPropertyPath: string,
   childPropertyPath: string,
-): boolean =>
-  parentPropertyPath === childPropertyPath ||
-  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
-  childPropertyPath.startsWith(`${parentPropertyPath}[`);
+): boolean => {
+  return (
+    parentPropertyPath === childPropertyPath ||
+    childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+    childPropertyPath.startsWith(`${parentPropertyPath}[`)
+  );
+};
 
 /**
  * Paths set via evaluator on entities

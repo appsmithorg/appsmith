@@ -70,6 +70,7 @@ import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { JSCollection } from "entities/JSCollection";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -166,13 +167,25 @@ export default class DataTreeEvaluator {
     return { evalTree: this.evalTree, jsUpdates: jsUpdates };
   }
 
+  isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
+    const entity = dataTree[jsObjectName];
+    if (isJSAction(entity)) {
+      return entity.meta.hasOwnProperty(key);
+    }
+    return false;
+  }
+
   updateLocalUnEvalTree(dataTree: DataTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
+          const data = _.get(dataTree, `${update}.${key}.data`, undefined);
           _.set(dataTree, `${update}.${key}`, updates[key]);
+          if (this.isJSObjectFunction(dataTree, update, key)) {
+            _.set(dataTree, `${update}.${key}.data`, data);
+          }
         });
       }
     });

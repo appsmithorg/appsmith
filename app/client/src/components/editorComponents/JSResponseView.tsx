@@ -242,6 +242,9 @@ function JSResponseView(props: Props) {
                             action.id === selectActionId ? "active" : ""
                           }
                           key={action.id}
+                          onClick={() => {
+                            setSelectActionId(action.id);
+                          }}
                         >
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
