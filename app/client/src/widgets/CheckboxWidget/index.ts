@@ -17,6 +17,7 @@ export const CONFIG = {
     alignWidget: "LEFT",
     isDisabled: false,
     isRequired: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -17,6 +17,7 @@ export const CONFIG = {
     isDefaultClickDisabled: true,
     recaptchaType: RecaptchaTypes.V3,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

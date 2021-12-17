@@ -32,6 +32,7 @@ export interface ApiDatasourceForm {
   isValid: boolean;
   url: string;
   headers?: Property[];
+  queryParameters?: Property[];
   isSendSessionEnabled: boolean;
   sessionSignatureKey: string;
   authType: AuthType;

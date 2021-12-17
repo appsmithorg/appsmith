@@ -13,6 +13,7 @@ export const CONFIG = {
   defaults: {
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     widgetName: "Form",
     backgroundColor: "white",
     children: [],
