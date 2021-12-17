@@ -108,6 +108,44 @@ function MapChartComponent(props: MapChartComponentProps) {
   }, []);
 
   useEffect(() => {
+    const newHeight = height - WIDGET_PADDING * 2;
+    const newWidth = width - WIDGET_PADDING * 2;
+
+    const newChartConfigs = {
+      ...chartConfigs,
+      height: newHeight,
+      width: newWidth,
+    };
+    setChartConfigs(newChartConfigs);
+  }, [height, width]);
+
+  useEffect(() => {
+    const newChartConfigs: any = {
+      ...chartConfigs,
+    };
+    newChartConfigs["dataSource"]["chart"]["caption"] = caption;
+    setChartConfigs(newChartConfigs);
+  }, [caption]);
+
+  useEffect(() => {
+    const targetValue = showLabels ? "1" : "0";
+
+    const newChartConfigs: any = {
+      ...chartConfigs,
+    };
+    newChartConfigs["dataSource"]["chart"]["showLabels"] = targetValue;
+    setChartConfigs(newChartConfigs);
+  }, [showLabels]);
+
+  useEffect(() => {
+    const newChartConfigs: any = {
+      ...chartConfigs,
+    };
+    newChartConfigs["dataSource"]["colorRange"]["color"] = colorRange;
+    chart.setChartData(newChartConfigs.dataSource, "json");
+  }, [colorRange]);
+
+  useEffect(() => {
     const newChartConfigs = {
       ...chartConfigs,
       dataSource: {
@@ -151,44 +189,6 @@ function MapChartComponent(props: MapChartComponentProps) {
 
     initializeMap(newChartConfigs);
   }, [data, type]);
-
-  useEffect(() => {
-    const newHeight = height - WIDGET_PADDING * 2;
-    const newWidth = width - WIDGET_PADDING * 2;
-
-    const newChartConfigs = {
-      ...chartConfigs,
-      height: newHeight,
-      width: newWidth,
-    };
-    setChartConfigs(newChartConfigs);
-  }, [height, width]);
-
-  useEffect(() => {
-    const newChartConfigs: any = {
-      ...chartConfigs,
-    };
-    newChartConfigs["dataSource"]["chart"]["caption"] = caption;
-    setChartConfigs(newChartConfigs);
-  }, [caption]);
-
-  useEffect(() => {
-    const targetValue = showLabels ? "1" : "0";
-
-    const newChartConfigs: any = {
-      ...chartConfigs,
-    };
-    newChartConfigs["dataSource"]["chart"]["showLabels"] = targetValue;
-    setChartConfigs(newChartConfigs);
-  }, [showLabels]);
-
-  useEffect(() => {
-    const newChartConfigs: any = {
-      ...chartConfigs,
-    };
-    newChartConfigs["dataSource"]["colorRange"]["color"] = colorRange;
-    chart.setChartData(newChartConfigs.dataSource, "json");
-  }, [colorRange]);
 
   // Called by FC-React component to return the rendered chart
   const renderComplete = (chart: FusionCharts.FusionCharts) => {
