@@ -2443,9 +2443,15 @@ Cypress.Commands.add("runQuery", () => {
   cy.onlyQueryRun();
   cy.wait("@postExecute").should(
     "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
+    "response.body.data.isExecutionSuccess",
+    true,
   );
+
+  // cy.wait("@postExecute").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   200,
+  // );
 });
 
 Cypress.Commands.add("onlyQueryRun", () => {
