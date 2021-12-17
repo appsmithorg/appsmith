@@ -49,7 +49,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "PROGRESSBAR_WIDGET.progress",
   ],
   OBJECT: ["ACTION.data"],
-  ARRAY: ["ACTION.data"],
+  ARRAY: ["ACTION.data", "TABLE_WIDGET.selectedRowIndices"],
   BOOLEAN: [
     "CHECKBOX_WIDGET.isChecked",
     "SWITCH_WIDGET.isSwitchedOn",

@@ -15,6 +15,7 @@ export const CONFIG = {
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -19,6 +19,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class ActionCollection extends BaseDomain {
 
+    // Default resources from base domain will be used to store branchName, defaultApplicationId and defaultActionCollectionId
+
     String applicationId;
 
     String organizationId;
