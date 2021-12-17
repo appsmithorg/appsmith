@@ -10,7 +10,6 @@ import {
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
-import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
 import history from "utils/history";
@@ -40,17 +39,6 @@ const InputContainer = styled.div<{ isValid: boolean }>`
     input {
       ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
     }
-  }
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  .${GitSyncClasses.OPTION_SELECTOR_WRAPPER} {
-    display: flex;
-    align-items: center;
-    padding-top: 5px;
   }
 `;
 
