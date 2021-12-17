@@ -638,21 +638,23 @@ jobs:
         if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
+          echo Images available
+          docker image ls --format '{{.Repository}}:{{.Tag}}'
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             tag=nightly
           else
             tag="${{ steps.vars.outputs.tag }}"
           fi
-          docker run --detach --publish 80:80 --name appsmith \
-            "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
+          docker run --detach --publish 80:80 --pull never --name appsmith \
+            "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag" || true
           sleep 180
-          cd deploy/docker
-          if bash run-test.sh; then
+          if bash deploy/docker/run-test.sh; then
             echo "Fat container test passed. Pushing image."
             docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
           else
             echo "Fat container test FAILED. Not pushing image."
           fi
+          docker rm -f appsmith
 
       # Build release Docker image and push to Docker Hub
       - name: Push server release image to Docker Hub
