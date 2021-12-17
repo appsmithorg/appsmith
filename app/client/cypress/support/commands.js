@@ -6,7 +6,9 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 
 const dayjs = require("dayjs");
-
+const {
+  addMatchImageSnapshotCommand,
+} = require("cypress-image-snapshot/command");
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 const homePage = require("../locators/HomePage.json");
@@ -3500,3 +3502,4 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
 
 //   return originalFn(element, clearedText, options);
 // });
+addMatchImageSnapshotCommand();

@@ -6,6 +6,9 @@ const dotenv = require("dotenv");
 const chalk = require("chalk");
 const cypressLogToOutput = require("cypress-log-to-output");
 const { isFileExist } = require("cy-verify-downloads");
+const {
+  addMatchImageSnapshotPlugin,
+} = require("cypress-image-snapshot/plugin");
 
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
@@ -126,4 +129,7 @@ module.exports = (on, config) => {
   });
 
   return config;
+};
+module.exports = (on, config) => {
+  addMatchImageSnapshotPlugin(on, config);
 };
