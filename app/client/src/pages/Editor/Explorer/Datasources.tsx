@@ -79,7 +79,7 @@ export function Datasources() {
       className={"datasources"}
       entityId={pageId + "_datasources"}
       icon={null}
-      isDefaultExpanded={false}
+      isDefaultExpanded
       key={pageId + "_datasources"}
       name="DATASOURCES"
       onCreate={addDatasource}
