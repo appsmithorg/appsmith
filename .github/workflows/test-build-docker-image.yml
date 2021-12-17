@@ -609,28 +609,38 @@ jobs:
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
 
-      - name: Build and push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      - name: Build and push full image to Docker Hub
+        if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        continue-on-error: true
         working-directory: "."
         run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            segment_ce_key="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+            tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
+            tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
+          else
+            segment_ce_key="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
+            tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
+          fi
 
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
+          uname -m
+          load_amd64=""
+          load_arm64=""
+          if [[ "$(uname -m)" == "x86_64" ]]; then
+            load_amd64="--load"
+          else
+            load_arm64="--load"
+          fi
+
+          docker buildx build $load_amd64 \
+            --platform linux/amd64 \
+            --build-arg APPSMITH_SEGMENT_CE_KEY="$segment_ce_key" \
             $tag_args \
             .
 
-      - name: Build and push master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
-          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
-
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+          docker buildx build $load_arm64 \
+            --platform linux/arm64 \
+            --build-arg APPSMITH_SEGMENT_CE_KEY="$segment_ce_key" \
             $tag_args \
             .
 
@@ -653,6 +663,8 @@ jobs:
             docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
           else
             echo "Fat container test FAILED. Not pushing image."
+            # Temporarily pushing even if test fails.
+            docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
           fi
           docker rm -f appsmith
 

@@ -10,10 +10,9 @@ if [[ -f .env ]]; then
   source .env
 fi
 
-source envs/dev.env
 source ../util/is_wsl.sh
 if [ $IS_WSL ]; then
   _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true $_JAVA_OPTIONS"
 fi
 
-(cd dist && exec java -Xmx500m -jar server-*.jar)
+(cd dist && exec java -jar server-*.jar)
