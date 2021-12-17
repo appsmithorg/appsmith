@@ -174,6 +174,7 @@ export const Steps: StepsType = {
       text:
         "Excellent! You successfully queried the database and you can see the response of the query below. ",
       onClick: (dispatch) => {
+        dispatch(setExplorerPinnedAction(true));
         dispatch(setCurrentStep(2));
       },
     },

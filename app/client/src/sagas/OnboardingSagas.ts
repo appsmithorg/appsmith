@@ -47,6 +47,7 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+import { setExplorerPinnedAction } from "actions/explorerActions";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -138,6 +139,8 @@ function* setUpTourAppSaga() {
       },
     }),
   );
+  // Hide the explorer initialy
+  yield put(setExplorerPinnedAction(false));
   yield delay(1000);
   yield put(toggleLoader(false));
 }
