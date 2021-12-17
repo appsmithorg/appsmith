@@ -106,6 +106,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/table",
     selectedRow: generateTypeDef(widget.selectedRow),
     selectedRows: generateTypeDef(widget.selectedRows),
+    selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
     triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
@@ -421,6 +422,12 @@ export const entityDefinitions: Record<string, unknown> = {
     blobUrl: "string",
     dataURL: "string",
     rawBinary: "string",
+  },
+  SWITCH_GROUP_WIDGET: {
+    "!doc":
+      "Switch group widget allows users to create many switch components which can easily by used in a form",
+    "!url": "https://docs.appsmith.com/widget-reference/switch-group",
+    selectedValues: "[string]",
   },
 };
 
