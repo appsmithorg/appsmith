@@ -616,19 +616,11 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             segment_ce_key="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
-<<<<<<< HEAD
             tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${GITHUB_SHA}"
             tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly"
           else
             segment_ce_key="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
             tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{steps.vars.outputs.tag}}"
-=======
-            tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
-            tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
-          else
-            segment_ce_key="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
-            tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
->>>>>>> cdcd127dc161f09cb72836f07cc36bd841c97043
           fi
 
           echo "Architecture: $(uname -m)"
@@ -679,11 +671,7 @@ jobs:
           else
             echo "Fat container test FAILED. Not pushing image."
             # Temporarily pushing even if test fails.
-<<<<<<< HEAD
             docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
-=======
-            docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
->>>>>>> cdcd127dc161f09cb72836f07cc36bd841c97043
           fi
           docker rm -f appsmith
 
