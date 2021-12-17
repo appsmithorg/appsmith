@@ -14,7 +14,7 @@ import { getPlugins } from "selectors/entitiesSelector";
 import { getActionConfig } from "../Actions/helpers";
 import { PluginType } from "entities/Action";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { jsFileIcon, SortFileIcon } from "../ExplorerIcons";
+import { jsFileIcon } from "../ExplorerIcons";
 import { Colors } from "constants/Colors";
 import {
   filterCategories,
