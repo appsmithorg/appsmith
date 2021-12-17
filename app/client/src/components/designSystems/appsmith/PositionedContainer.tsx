@@ -74,12 +74,16 @@ export function PositionedContainer(props: PositionedContainerProps) {
     const reflowY = reflowedPosition?.Y || 0;
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
-    const transformStyles =
-      isCurrentCanvasReflowing && reflowedPosition
-        ? {
-            transform: `translate(${reflowX}px,${reflowY}px)`,
-          }
-        : {};
+    const effectedByReflow =
+      isCurrentCanvasReflowing && reflowedPosition && reflowX + reflowY !== 0;
+    const dropTargetStyles: CSSProperties =
+      isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
+    const transformStyles: CSSProperties = effectedByReflow
+      ? {
+          transform: `translate(${reflowX}px,${reflowY}px)`,
+          // boxShadow: `0 0 0 1px green`,
+        }
+      : {};
     const styles: CSSProperties = {
       position: "absolute",
       left: x,
@@ -94,6 +98,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       zIndex,
       backgroundColor: "inherit",
       ...transformStyles,
+      ...dropTargetStyles,
     };
     return styles;
   }, [
