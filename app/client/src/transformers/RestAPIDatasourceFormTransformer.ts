@@ -57,6 +57,7 @@ export const formValuesToDatasource = (
     datasourceConfiguration: {
       url: form.url,
       headers: cleanupProperties(form.headers),
+      queryParameters: cleanupProperties(form.queryParameters),
       properties: [
         {
           key: "isSendSessionEnabled",
