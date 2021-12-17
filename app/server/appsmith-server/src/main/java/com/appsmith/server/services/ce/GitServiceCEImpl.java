@@ -213,33 +213,12 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<GitProfile> getGitProfileForUser() {
+    public Mono<GitProfile> getDefaultGitProfileOrCreateIfEmpty() {
         // Get default git profile if the default is empty then use Appsmith profile as a fallback value
         return getGitProfileForUser(DEFAULT)
                 .flatMap(gitProfile -> {
                     if (StringUtils.isEmptyOrNull(gitProfile.getAuthorName()) || StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())) {
-                        return sessionUserService.getCurrentUser()
-                                .flatMap(user -> userService.findByEmail(user.getEmail()))
-                                .flatMap(currentUser -> {
-                                    String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
-                                            ? currentUser.getUsername()
-                                            : currentUser.getName();
-                                    gitProfile.setAuthorEmail(currentUser.getEmail());
-                                    gitProfile.setAuthorName(authorName);
-                                    gitProfile.setUseGlobalProfile(null);
-                                    return userDataService.getForUser(currentUser)
-                                            .flatMap(userData -> {
-                                                UserData updates = new UserData();
-                                                if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
-                                                    updates.setGitProfiles(Map.of(DEFAULT, gitProfile));
-                                                } else {
-                                                    userData.getGitProfiles().put(DEFAULT, gitProfile);
-                                                    updates.setGitProfiles(userData.getGitProfiles());
-                                                }
-                                                return userDataService.updateForUser(currentUser, updates)
-                                                        .thenReturn(gitProfile);
-                                            });
-                                });
+                        return updateGitProfileWithAppsmithProfile(DEFAULT);
                     }
                     gitProfile.setUseGlobalProfile(null);
                     return Mono.just(gitProfile);
@@ -262,6 +241,32 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return gitProfile1;
                     }
                     return gitProfile;
+                });
+    }
+
+    private Mono<GitProfile> updateGitProfileWithAppsmithProfile(String key) {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .flatMap(currentUser -> {
+                    GitProfile gitProfile = new GitProfile();
+                    String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
+                            ? currentUser.getUsername()
+                            : currentUser.getName();
+                    gitProfile.setAuthorEmail(currentUser.getEmail());
+                    gitProfile.setAuthorName(authorName);
+                    gitProfile.setUseGlobalProfile(null);
+                    return userDataService.getForUser(currentUser)
+                            .flatMap(userData -> {
+                                UserData updates = new UserData();
+                                if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                                    updates.setGitProfiles(Map.of(key, gitProfile));
+                                } else {
+                                    userData.getGitProfiles().put(key, gitProfile);
+                                    updates.setGitProfiles(userData.getGitProfiles());
+                                }
+                                return userDataService.updateForUser(currentUser, updates)
+                                        .thenReturn(gitProfile);
+                            });
                 });
     }
 

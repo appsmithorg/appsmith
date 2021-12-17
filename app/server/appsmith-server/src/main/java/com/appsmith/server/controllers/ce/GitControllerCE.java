@@ -61,7 +61,7 @@ public class GitControllerCE {
 
     @GetMapping("/profile/default")
     public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
-        return service.getGitProfileForUser()
+        return service.getDefaultGitProfileOrCreateIfEmpty()
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 

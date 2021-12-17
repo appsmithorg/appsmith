@@ -416,7 +416,7 @@ public class UserDataServiceTest {
     @WithUserDetails(value = "api_user")
     public void getAndUpdateDefaultGitProfile_fallbackValueFromUserProfileIfEmpty_updateWithProfile() {
 
-        Mono<GitProfile> gitConfigMono = gitService.getGitProfileForUser();
+        Mono<GitProfile> gitConfigMono = gitService.getDefaultGitProfileOrCreateIfEmpty();
 
         Mono<User> userData = userDataService.getForCurrentUser()
                 .flatMap(userData1 -> userService.getById(userData1.getUserId()));
