@@ -180,7 +180,7 @@ function PageChooser() {
             className={EntityClassNames.CONTEXT_MENU}
             isDefaultPage={page.isDefault}
             isHidden={!!page.isHidden}
-            key={page.pageId}
+            key={page.pageId + "_context-menu"}
             name={page.pageName}
             pageId={page.pageId}
           />
