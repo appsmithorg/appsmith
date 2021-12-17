@@ -109,6 +109,7 @@ function Files() {
       entityId={pageId + "_widgets"}
       icon={null}
       isDefaultExpanded
+      isSticky
       key={pageId + "_widgets"}
       name="QUERIES/JS"
       onCreate={onCreate}

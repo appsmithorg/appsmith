@@ -80,7 +80,7 @@ const StyledPinIcon = styled(PinIcon)`
   }
 `;
 
-function PageChooser() {
+function PagesContainer() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
@@ -211,6 +211,6 @@ function PageChooser() {
   );
 }
 
-PageChooser.displayName = "PageChooser";
+PagesContainer.displayName = "PagesContainer";
 
-export default PageChooser;
+export default PagesContainer;

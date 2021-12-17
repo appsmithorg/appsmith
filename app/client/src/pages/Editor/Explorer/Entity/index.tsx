@@ -52,14 +52,22 @@ export const EntityItem = styled.div<{
   step: number;
   spaced: boolean;
   highlight: boolean;
+  isSticky: boolean;
   rightIconClickable?: boolean;
   alwaysShowRightIcon?: boolean;
 }>`
-  position: relative;
+  position: ${({ isSticky }) => (isSticky ? "sticky" : "relative")};
+  ${(props) =>
+    props.isSticky &&
+    css`
+      top: 0;
+      z-index: 100;
+    `}
   font-size: 14px;
   user-select: none;
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
-  background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
+  background: ${(props) =>
+    props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
   height: 34px;
   width: 100%;
   display: inline-grid;
@@ -182,6 +190,7 @@ export type EntityProps = {
   isBeta?: boolean;
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
+  isSticky?: boolean;
 };
 
 export const Entity = forwardRef(
@@ -252,6 +261,9 @@ export const Entity = forwardRef(
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
 
+    // eslint-disable-next-line no-console
+    console.log(props.isSticky, "--00--");
+
     return (
       <Wrapper
         active={!!props.active}
@@ -265,6 +277,7 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           } t--entity-item`}
           highlight={!!props.highlight}
+          isSticky={props.isSticky === true}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}

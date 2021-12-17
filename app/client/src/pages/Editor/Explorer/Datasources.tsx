@@ -80,6 +80,7 @@ export function Datasources() {
       entityId={pageId + "_datasources"}
       icon={null}
       isDefaultExpanded
+      isSticky
       key={pageId + "_datasources"}
       name="DATASOURCES"
       onCreate={addDatasource}
