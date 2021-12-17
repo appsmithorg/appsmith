@@ -623,26 +623,32 @@ jobs:
             tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
           fi
 
-          uname -m
-          load_amd64=""
-          load_arm64=""
-          if [[ "$(uname -m)" == "x86_64" ]]; then
-            load_amd64="--load"
-          else
-            load_arm64="--load"
-          fi
-
-          docker buildx build $load_amd64 \
-            --platform linux/amd64 \
+          echo "Architecture: $(uname -m)"
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
             --build-arg APPSMITH_SEGMENT_CE_KEY="$segment_ce_key" \
             $tag_args \
             .
 
-          docker buildx build $load_arm64 \
-            --platform linux/arm64 \
-            --build-arg APPSMITH_SEGMENT_CE_KEY="$segment_ce_key" \
-            $tag_args \
-            .
+          #load_amd64=""
+          #load_arm64=""
+          #if [[ "$(uname -m)" == "x86_64" ]]; then
+          #  load_amd64="--load"
+          #else
+          #  load_arm64="--load"
+          #fi
+
+          #docker buildx build $load_amd64 \
+          #  --platform linux/amd64 \
+          #  --build-arg APPSMITH_SEGMENT_CE_KEY="$segment_ce_key" \
+          #  $tag_args \
+          #  .
+
+          #docker buildx build $load_arm64 \
+          #  --platform linux/arm64 \
+          #  --build-arg APPSMITH_SEGMENT_CE_KEY="$segment_ce_key" \
+          #  $tag_args \
+          #  .
 
       - name: Check and push fat image to Docker Hub with commit tag
         if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
