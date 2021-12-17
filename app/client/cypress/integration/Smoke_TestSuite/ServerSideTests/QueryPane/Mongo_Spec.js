@@ -60,19 +60,19 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.validateNSelectDropdown("Commands", "Find Document(s)");
 
     cy.typeValueNValidate("listingsAndReviews", "Collection");
-    cy.runQuery(); //exeute actions - 200 response is verified in this method
+    cy.runQuery();
     cy.xpath(queryLocators.countText).should("have.text", "10 Records");
 
     cy.typeValueNValidate("{beds : {$lte: 2}}", "Query");
-    cy.runQuery(); //exeute actions - 200 response is verified in this method
+    cy.runQuery();
     cy.xpath(queryLocators.countText).should("have.text", "10 Records");
 
     cy.typeValueNValidate("{number_of_reviews: -1}", "Sort"); //sort descending
-    cy.runQuery(); //exeute actions - 200 response is verified in this method
+    cy.runQuery();
     cy.xpath(queryLocators.countText).should("have.text", "10 Records");
 
     cy.typeValueNValidate("{house_rules: 1, description:1}", "Projection"); //Projection field
-    cy.runQuery(); //exeute actions - 200 response is verified in this method
+    cy.runQuery();
 
     cy.typeValueNValidate("5", "Limit"); //Limit field
     cy.onlyQueryRun();
