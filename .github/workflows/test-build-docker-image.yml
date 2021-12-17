@@ -652,6 +652,7 @@ jobs:
 
       - name: Check and push fat image to Docker Hub with commit tag
         if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        continue-on-error: true
         working-directory: "."
         run: |
           echo Images available
