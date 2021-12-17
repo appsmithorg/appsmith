@@ -22,6 +22,7 @@ import {
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -78,6 +79,12 @@ const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
   margin-top: ${(props) => props.theme.spaces[3]}px;
+`;
+
+const SectionTitle = styled.span`
+  ${(props) => getTypographyByKey(props, "u1")};
+  text-transform: uppercase;
+  color: ${Colors.GRAY_900};
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -178,11 +185,9 @@ function UserGitProfileSettings({
   const emailInvalid = !isValidEmail && !emailInputFocused && triedSubmit;
   return (
     <MainContainer>
-      <TitleWrapper>
-        <span className="label">
-          {createMessage(USER_PROFILE_SETTINGS_TITLE)}
-        </span>
-      </TitleWrapper>
+      <SectionTitle className="label">
+        {createMessage(USER_PROFILE_SETTINGS_TITLE)}
+      </SectionTitle>
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
