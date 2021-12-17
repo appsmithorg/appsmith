@@ -564,7 +564,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
         return applicationService.findById(commentThreadFilterDTO.getApplicationId(), READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.APPLICATION_ID
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, commentThreadFilterDTO.getApplicationId()
                 )))
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(objects -> {
