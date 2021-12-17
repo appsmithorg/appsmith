@@ -31,6 +31,7 @@ import {
   setIsGitSyncModalOpen,
   setIsGitErrorPopupVisible,
   setShowRepoLimitErrorModal,
+  setIsDisconnectGitModalOpen,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -497,6 +498,12 @@ function* disconnectGitSaga() {
         type: ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION,
         payload: { id: "", name: "" },
       });
+      yield put(setIsDisconnectGitModalOpen(false));
+      yield put(
+        setIsGitSyncModalOpen({
+          isOpen: false,
+        }),
+      );
     }
   } catch (e) {
     yield put({

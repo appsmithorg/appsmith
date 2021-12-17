@@ -106,7 +106,7 @@ function* initializeEditorSaga(
   yield put(resetEditorSuccess());
   const { applicationId, branch, pageId } = initializeEditorAction.payload;
   try {
-    if (branch) yield put(updateBranchLocally(branch));
+    yield put(updateBranchLocally(branch || ""));
 
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
