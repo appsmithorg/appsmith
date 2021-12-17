@@ -148,15 +148,25 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId) {
 
-        if(DEFAULT.equals(defaultApplicationId) && StringUtils.isEmptyOrNull(gitProfile.getAuthorName())) {
+        // Throw error in following situations:
+        // 1. Updating or creating global git profile (defaultApplicationId = "default") and update is made with empty
+        //    authorName or authorEmail
+        // 2. Updating or creating repo specific profile and user want to use repo specific profile but provided empty
+        //    values for authorName and email
+
+        if((DEFAULT.equals(defaultApplicationId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+                && StringUtils.isEmptyOrNull(gitProfile.getAuthorName())
+        ) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Name"));
-        } else if(DEFAULT.equals(defaultApplicationId) && StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())) {
+        } else if((DEFAULT.equals(defaultApplicationId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+                && StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())
+        ) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Email"));
         } else if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        if (StringUtils.equalsIgnoreCase(DEFAULT, defaultApplicationId)) {
+        if (DEFAULT.equals(defaultApplicationId)) {
             gitProfile.setUseGlobalProfile(null);
         } else if (!Boolean.TRUE.equals(gitProfile.getUseGlobalProfile())) {
             gitProfile.setUseGlobalProfile(Boolean.FALSE);
