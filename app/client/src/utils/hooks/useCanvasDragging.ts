@@ -348,7 +348,6 @@ export const useCanvasDragging = (
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
             const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove(e);
-            currentDirection.current = getMouseMoveDirection(e);
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
@@ -425,6 +424,7 @@ export const useCanvasDragging = (
                         bottom: 0,
                         id: currentBlock.widgetId,
                       };
+                  currentDirection.current = getMouseMoveDirection(e);
                   if (lastDraggedCanvas.current) {
                     currentDirection.current = getOppositeDirection(
                       currentDirection.current,
@@ -636,6 +636,7 @@ export const useCanvasDragging = (
         };
         const captureMousePosition = (e: any) => {
           if (isDragging && !canvasIsDragging) {
+            currentDirection.current = getMouseMoveDirection(e);
             lastMousePositionOutsideCanvas = {
               x: e.clientX,
               y: e.clientY,
