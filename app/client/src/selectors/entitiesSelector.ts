@@ -489,7 +489,7 @@ export const getExistingPageNames = createSelector(
 
 export const getExistingWidgetNames = createSelector(
   (state: AppState) => state.entities.canvasWidgets,
-  (widgets) => Object.values(widgets).map((widget) => widget.pageName),
+  (widgets) => Object.values(widgets).map((widget) => widget.widgetName),
 );
 
 export const getExistingActionNames = createSelector(
@@ -507,7 +507,11 @@ export const getExistingActionNames = createSelector(
       );
 
     // if the current action being edited is on the same page, filter the actions on the page and return their names.
-    if (editingAction && editingAction[0].config.pageId === currentPageId) {
+    if (
+      editingAction &&
+      editingAction.length > 1 &&
+      editingAction[0].config.pageId === currentPageId
+    ) {
       return actions.map(
         (actionItem: { config: { name: string; pageId: string } }) => {
           if (actionItem.config.pageId === currentPageId) {
