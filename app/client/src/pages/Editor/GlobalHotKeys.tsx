@@ -134,16 +134,16 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput
-          combo="mod + k"
+          combo="mod + p"
           global
           label="Show omnibar"
           onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
         />
         <Hotkey
           allowInInput
-          combo="mod + shift + k"
+          combo="mod + alt + n"
           global
-          label="Show omnibar"
+          label="Create New"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
           }
@@ -152,7 +152,7 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + j"
           global
-          label="Show omnibar"
+          label="Lookup code snippets"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS)
           }
@@ -161,14 +161,14 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + l"
           global
-          label="Show omnibar"
+          label="Search documentation"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
           }
         />
         <Hotkey
           allowInInput
-          combo="mod + p"
+          combo="mod + k"
           global
           label="Show omnibar"
           onKeyDown={(e) =>

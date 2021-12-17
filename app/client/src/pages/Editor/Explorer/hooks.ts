@@ -318,7 +318,7 @@ export const useEntityEditState = (entityId: string) => {
   );
 };
 
-export const useFilesForExplorer = (sort = "name") => {
+export const useFilesForExplorer = (sort = "type") => {
   const actions = useSelector(getActionsForCurrentPage);
   const jsActions = useSelector(getJSCollectionsForCurrentPage);
   const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;

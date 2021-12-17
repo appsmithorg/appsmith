@@ -170,7 +170,7 @@ function PageChooser() {
       searchKeyword={""}
       step={0}
     >
-      {pages.map((page, key) => {
+      {pages.map((page) => {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
         const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
         const isCurrentPage = currentPageId === page.pageId;
@@ -180,7 +180,7 @@ function PageChooser() {
             className={EntityClassNames.CONTEXT_MENU}
             isDefaultPage={page.isDefault}
             isHidden={!!page.isHidden}
-            key={page.pageId}
+            key={page.pageId + "_context-menu"}
             name={page.pageName}
             pageId={page.pageId}
           />
@@ -194,7 +194,7 @@ function PageChooser() {
             entityId={page.pageId}
             icon={icon}
             isDefaultExpanded={isCurrentPage}
-            key={key.toString()}
+            key={page.pageId}
             name={page.pageName}
             onNameEdit={resolveAsSpaceChar}
             preRightIcon={isCurrentPage ? currentPageIcon : ""}

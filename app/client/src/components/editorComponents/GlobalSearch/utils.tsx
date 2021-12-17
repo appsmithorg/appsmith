@@ -70,11 +70,11 @@ export type DocSearchItem = {
 export const comboHelpText = {
   [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} + J</>,
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
-  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + K</>,
-  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
+  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + P</>,
+  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + K</>,
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
     <>
-      {modText()} + <span>&#8682;</span> + K
+      {modText()} + <span>&#8997;</span> + N
     </>
   ),
 };

@@ -14,7 +14,7 @@ import { getPlugins } from "selectors/entitiesSelector";
 import { getActionConfig } from "../Actions/helpers";
 import { PluginType } from "entities/Action";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { jsFileIcon, SortFileIcon } from "../ExplorerIcons";
+import { jsFileIcon } from "../ExplorerIcons";
 import { Colors } from "constants/Colors";
 import {
   filterCategories,
@@ -30,9 +30,8 @@ const emptyNode = (
 );
 
 function Files() {
-  const [sortBy, setSortBy] = React.useState("name");
   const pageId = useSelector(getCurrentPageId);
-  const files = useFilesForExplorer(sortBy);
+  const files = useFilesForExplorer("type");
   const currentApplicationId = useSelector(getCurrentApplicationId);
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -112,11 +111,7 @@ function Files() {
       isDefaultExpanded
       key={pageId + "_widgets"}
       name="QUERIES/JS"
-      onClickRightIcon={() => {
-        setSortBy((sort) => (sort === "name" ? "type" : "name"));
-      }}
       onCreate={onCreate}
-      rightIcon={SortFileIcon}
       searchKeyword={""}
       step={0}
     >

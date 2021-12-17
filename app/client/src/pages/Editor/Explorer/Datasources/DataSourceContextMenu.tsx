@@ -36,7 +36,7 @@ export function DataSourceContextMenu(props: {
         {
           value: "rename",
           onSelect: editDatasourceName,
-          label: "Edit Name",
+          label: "Rename",
         },
         {
           value: "refresh",

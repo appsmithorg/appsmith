@@ -74,7 +74,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "rename",
           onSelect: editActionName,
-          label: "Edit Name",
+          label: "Rename",
         },
         {
           value: "copy",

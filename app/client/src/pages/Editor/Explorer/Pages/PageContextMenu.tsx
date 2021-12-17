@@ -88,7 +88,7 @@ export function PageContextMenu(props: {
     {
       value: "rename",
       onSelect: editPageName,
-      label: "Edit Name",
+      label: "Rename",
     },
     {
       value: "clone",
