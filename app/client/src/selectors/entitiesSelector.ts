@@ -510,7 +510,7 @@ export const getExistingActionNames = createSelector(
     // or if the there is no current action being edited (this happens when a widget, or any other entity is being edited), return the actions on the page.
     if (
       (editingAction &&
-        editingAction.length > 1 &&
+        editingAction.length > 0 &&
         editingAction[0].config.pageId === currentPageId) ||
       (editingAction && editingAction.length < 1)
     ) {
