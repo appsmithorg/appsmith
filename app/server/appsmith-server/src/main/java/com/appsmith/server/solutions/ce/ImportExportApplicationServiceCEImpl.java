@@ -43,6 +43,7 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -376,6 +377,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return stringifiedFile
                 .flatMap(data -> {
                     Gson gson = new Gson();
+
+                    // TODO use JsonObject to migrate between the versions
+                    JsonObject json = gson.fromJson(data, JsonObject.class);
+                    Map<String, Object> application = (Map<String, Object>) json.get("exportedApplication");
+
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
