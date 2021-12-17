@@ -23,7 +23,7 @@ public class Theme extends BaseDomain {
 
     @NotNull
     private String name;
-    private ThemeConfig config;
+    private Config config;
     private Properties properties;
     private Map<String, WidgetStyle> stylesheet;
 
@@ -37,7 +37,6 @@ public class Theme extends BaseDomain {
         private Colors colors;
         private BorderRadiusProperties borderRadius;
         private BoxShadowProperties boxShadow;
-        private String boxShadowColor;
         private FontFamilyProperties fontFamily;
     }
 
@@ -50,10 +49,10 @@ public class Theme extends BaseDomain {
     }
 
     @Data
-    public static class ThemeConfig {
+    public static class Config {
         private Colors colors;
-        private ThemeBorderRadius borderRadius;
-        private ResponsiveAttributes boxShadow;
+        private BorderRadius borderRadius;
+        private BoxShadow boxShadow;
         private FontFamily fontFamily;
     }
 
@@ -93,13 +92,12 @@ public class Theme extends BaseDomain {
     }
 
     @Data
-    public static class ThemeBorderRadius {
+    public static class BorderRadius {
         private ResponsiveAttributes appBorderRadius;
-        private ResponsiveAttributes buttonBorderRadius;
     }
 
     @Data
-    public static class ThemeBoxShadow {
+    public static class BoxShadow {
         private ResponsiveAttributes appBoxShadow;
     }
 
@@ -120,12 +118,12 @@ public class Theme extends BaseDomain {
         private String boxShadow;
         private String primaryColor;
         private String menuColor;
+        private String buttonColor;
     }
 
     @Data
     public static class BorderRadiusProperties {
         private String appBorderRadius;
-        private String buttonBorderRadius;
     }
 
     @Data
