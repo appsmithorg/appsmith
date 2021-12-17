@@ -34,6 +34,7 @@ import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
 import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
+import { ReactComponent as MapChartIcon } from "assets/icons/widget/map-chart.svg";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
@@ -223,6 +224,11 @@ export const WidgetIcons: {
   BUTTON_GROUP_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <ButtonGroupIcon />
+    </StyledIconWrapper>
+  ),
+  MAP_CHART_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MapChartIcon />
     </StyledIconWrapper>
   ),
 };
