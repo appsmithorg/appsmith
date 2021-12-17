@@ -27,6 +27,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { Position } from "@blueprintjs/core";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -186,6 +187,7 @@ const doConnectionsHaveErrors = (
 const useDependencyList = (name: string) => {
   const dataTree = useSelector(getDataTree);
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback((name) => {
     const entity = dataTree[name];
@@ -198,11 +200,12 @@ const useDependencyList = (name: string) => {
   }, []);
 
   const entityDependencies = useMemo(() => {
+    if (guidedTour) return null;
     return getDependenciesFromInverseDependencies(
       deps.inverseDependencyMap,
       name,
     );
-  }, [name, deps.inverseDependencyMap]);
+  }, [name, deps.inverseDependencyMap, guidedTour]);
 
   const dependencyOptions =
     entityDependencies?.directDependencies.map((e) => ({
