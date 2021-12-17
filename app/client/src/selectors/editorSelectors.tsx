@@ -392,3 +392,12 @@ export const previewModeSelector = (state: AppState) => {
 export const getZoomLevel = (state: AppState) => {
   return state.ui.editor.zoomLevel;
 };
+
+/**
+ * returns the `state.ui.editor.savingEntity`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const getIsSavingEntity = (state: AppState) =>
+  state.ui.editor.loadingStates.savingEntity;

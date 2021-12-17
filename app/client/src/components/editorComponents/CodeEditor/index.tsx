@@ -82,11 +82,11 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import { startingEntityUpdation } from "actions/queryPaneActions";
+import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
-import { ReduxAction } from "constants/ReduxActionConstants";
+
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -96,9 +96,7 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
-  startingEntityUpdation: (
-    payload: ReduxAction<{ id: string; type: string }>,
-  ) => void;
+  startingEntityUpdation: () => void;
 }
 
 export type CodeEditorExpected = {
@@ -405,15 +403,11 @@ class CodeEditor extends Component<Props, State> {
   handleDebouncedChange = _.debounce(this.handleChange, 600);
 
   startChange = (instance?: any, changeObj?: any) => {
-    const entityInformation: FieldEntityInformation = this.getEntityInformation();
-    if (entityInformation.entityId) {
-      const payload: any = {
-        id: entityInformation.entityId,
-        type: entityInformation.entityType,
-      };
-      /* This action updates the status of the api to isStarting true so that any
-      shortcut commands do not execute before updating the input in the redux store */
-      this.props.startingEntityUpdation(payload);
+    /* This action updates the status of the savingEntity to true so that any
+      shortcut commands do not execute before updating the entity in the store */
+    const entity = this.getEntityInformation();
+    if (entity.entityId) {
+      this.props.startingEntityUpdation();
     }
     this.handleDebouncedChange(instance, changeObj);
   };
@@ -737,9 +731,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
-  startingEntityUpdation: (
-    payload: ReduxAction<{ id: string; type: string }>,
-  ) => dispatch(startingEntityUpdation(payload)),
+  startingEntityUpdation: () => dispatch(startingEntityUpdation()),
 });
 
 export default Sentry.withProfiler(
