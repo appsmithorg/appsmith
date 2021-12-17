@@ -758,7 +758,7 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      <CloseEditor />
+      {!guidedTourEnabled && <CloseEditor />}
       {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
