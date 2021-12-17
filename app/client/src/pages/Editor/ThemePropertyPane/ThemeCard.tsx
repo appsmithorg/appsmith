@@ -1,25 +1,30 @@
-import { tw, css } from "twind/css";
-import * as Sentry from "@sentry/react";
+import { last } from "lodash";
+import classNames from "classnames";
 import styled from "styled-components";
+import * as Sentry from "@sentry/react";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { last } from "lodash";
 import {
-  getAppThemingStack,
-  AppThemingMode,
-} from "selectors/appThemingSelectors";
-import {
-  changeSelectedThemeAction,
   setAppThemingModeStack,
+  setPreviewAppThemeAction,
+  changeSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import {
+  AppThemingMode,
+  getAppThemingStack,
+} from "selectors/appThemingSelectors";
 import { Colors } from "constants/Colors";
 import { AppTheme } from "entities/AppTheming";
 import Button, { Category } from "components/ads/Button";
 import CheckmarkIcon from "remixicon-react/CheckLineIcon";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 
+/**
+ * ----------------------------------------------------------------------------
+ * TYPES
+ *-----------------------------------------------------------------------------
+ */
 interface ThemeCard {
   theme: AppTheme;
   isSelected?: boolean;
@@ -28,6 +33,12 @@ interface ThemeCard {
   editable?: boolean;
   changeable?: boolean;
 }
+
+/**
+ * ----------------------------------------------------------------------------
+ * STYLED
+ *-----------------------------------------------------------------------------
+ */
 
 const BlackButton = styled(Button)`
   border: 2px solid ${Colors.BLACK};
@@ -41,11 +52,48 @@ const BlackButton = styled(Button)`
   }
 `;
 
+const MainContainer = styled.main<{ backgroundColor: string }>`
+  background-color: ${({ backgroundColor }) => backgroundColor};
+`;
+
+const HeaderContainer = styled.main<{ primaryColor: string }>`
+  background-color: ${({ primaryColor }) => primaryColor};
+  color: ${({ primaryColor }) => getComplementaryGrayscaleColor(primaryColor)};
+`;
+
+const MainText = styled.main<{ backgroundColor: string }>`
+  color: ${({ backgroundColor }) =>
+    getComplementaryGrayscaleColor(backgroundColor)};
+`;
+
+const ThemeColorCircle = styled.main<{ backgroundColor: string }>`
+  background-color: ${({ backgroundColor }) => backgroundColor};
+`;
+
+const ThemeColorButton = styled.main<{
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow: string;
+  secondary?: boolean;
+  borderColor: string;
+}>`
+  background-color: ${({ backgroundColor }) => backgroundColor};
+  box-shadow: ${({ boxShadow }) => boxShadow};
+  border: ${({ borderColor }) => `1px solid ${borderColor}`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  color: ${({ backgroundColor }) =>
+    getComplementaryGrayscaleColor(backgroundColor)};
+`;
+
+/**
+ * ----------------------------------------------------------------------------
+ * COMPONENT
+ *-----------------------------------------------------------------------------
+ */
 export function ThemeCard(props: ThemeCard) {
   const { changeable, editable, selectable, theme } = props;
   const dispatch = useDispatch();
   const themingStack = useSelector(getAppThemingStack);
-  const applicationId = useSelector(getCurrentApplicationId);
   const themingMode = last(themingStack);
   const isThemeSelectionMode =
     themingMode === AppThemingMode.APP_THEME_SELECTION;
@@ -69,7 +117,7 @@ export function ThemeCard(props: ThemeCard) {
     dispatch(
       setAppThemingModeStack([...themingStack, AppThemingMode.APP_THEME_EDIT]),
     );
-  }, [changeSelectedThemeAction]);
+  }, [setAppThemingModeStack]);
 
   // colors
   const userDefinedColors = theme.properties.colors;
@@ -92,45 +140,43 @@ export function ThemeCard(props: ThemeCard) {
    */
   const changeSelectedTheme = useCallback(() => {
     if (isThemeSelectionMode) {
-      dispatch(changeSelectedThemeAction({ applicationId, theme }));
+      dispatch(setPreviewAppThemeAction(theme));
+      // dispatch(changeSelectedAppThemeAction({ applicationId, theme }));
     }
-  }, [changeSelectedThemeAction]);
+  }, [changeSelectedAppThemeAction]);
 
   return (
     <div
-      className={`ring-1 p-0.5 ${
-        props.isSelected ? "ring-primary-500 ring-2" : "ring-gray-200"
-      } ${props.className} ${
-        !selectable ? "overflow-hidden" : ""
-      }  relative group hover:shadow-xl transition-all cursor-pointer`}
+      className={classNames({
+        "ring-1 p-0.5 relative group hover:shadow-xl transition-all cursor-pointer": true,
+        "ring-gray-700 ring-2": props.isSelected,
+        "ring-gray-200": !props.isSelected,
+        "overflow-hidden": !selectable,
+      })}
       onClick={changeSelectedTheme}
     >
-      <main
-        className={`${tw`bg-[${backgroundColor}]`} ${
+      <MainContainer
+        backgroundColor={backgroundColor}
+        className={`${
           changeable || editable ? "group-hover:blur-md filter" : ""
         }`}
       >
-        <hgroup
-          className={`${tw`bg-[${primaryColor}] text-[${getComplementaryGrayscaleColor(
-            primaryColor,
-          )}]`} text-white flex p-3`}
+        <HeaderContainer
+          className="flex p-3 text-white"
+          primaryColor={primaryColor}
         >
           <h3 className="flex-grow">{theme.name}</h3>
           <aside>@appsmith</aside>
-        </hgroup>
+        </HeaderContainer>
         <section className="flex justify-between px-3 pt-3">
-          <div
-            className={`${tw`text-[${getComplementaryGrayscaleColor(
-              backgroundColor,
-            )}]`}`}
-          >
-            AaBbCc
-          </div>
+          <MainText backgroundColor={backgroundColor}>AaBbCc</MainText>
           <div className="flex items-center space-x-2">
             {Object.keys(userDefinedColors).map((colorKey, index) => (
-              <div
-                className={`${tw`bg-[${userDefinedColors[colorKey] ||
-                  userDefinedColors[colorKey]}]`} border rounded-full h-6 w-6`}
+              <ThemeColorCircle
+                backgroundColor={
+                  userDefinedColors[colorKey] || userDefinedColors[colorKey]
+                }
+                className="w-6 h-6 border rounded-full"
                 key={index}
               />
             ))}
@@ -138,31 +184,27 @@ export function ThemeCard(props: ThemeCard) {
         </section>
         <section className="p-3">
           <div className="flex space-x-2">
-            <button
-              className={`${tw`rounded-[${primaryBorderRadius}] bg-[${primaryColor}] text-[${getComplementaryGrayscaleColor(
-                primaryColor,
-              )}] px-4 py-1 ${tw`${css({
-                "&": {
-                  boxShadow: primaryBoxShadow,
-                },
-              })}`}`}`}
+            <ThemeColorButton
+              backgroundColor={primaryColor}
+              borderColor="transparent"
+              borderRadius={primaryBorderRadius}
+              boxShadow={primaryBoxShadow}
+              className="px-4 py-1"
             >
               Button
-            </button>
-            <button
-              className={`${tw`rounded-[${primaryBorderRadius}] border border-[${primaryColor}] bg-white text-[${primaryColor}] ${tw`${css(
-                {
-                  "&": {
-                    boxShadow: primaryBoxShadow,
-                  },
-                },
-              )}`}`} px-4 py-1`}
+            </ThemeColorButton>
+            <ThemeColorButton
+              backgroundColor="white"
+              borderColor={primaryColor}
+              borderRadius={primaryBorderRadius}
+              boxShadow={primaryBoxShadow}
+              className="px-4 py-1 border"
             >
               Button
-            </button>
+            </ThemeColorButton>
           </div>
         </section>
-      </main>
+      </MainContainer>
       <aside
         className={`absolute top-0 bottom-0 left-0 right-0 items-center justify-center hidden bg-black bg-opacity-25 ${
           changeable || editable ? "group-hover:flex" : ""
@@ -188,11 +230,11 @@ export function ThemeCard(props: ThemeCard) {
         }`}
       >
         <div className="py-1 text-xs tracking-wide text-white uppercase">
-          Apply this theme
+          Preview Theme
         </div>
       </aside>
       {props.isSelected && (
-        <CheckmarkIcon className="absolute w-6 h-6 text-white border-2 border-white rounded-full -right-2 -top-2 bg-primary-500" />
+        <CheckmarkIcon className="absolute w-6 h-6 text-white bg-gray-700 border-2 border-white rounded-full -right-2 -top-2" />
       )}
     </div>
   );

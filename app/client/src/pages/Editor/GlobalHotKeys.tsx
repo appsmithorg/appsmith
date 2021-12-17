@@ -42,10 +42,7 @@ import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
-import {
-  setThemeModeAction,
-  setPreviewModeAction,
-} from "actions/editorActions";
+import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
@@ -79,7 +76,6 @@ type Props = {
   isExplorerPinned: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
-  setThemeModeAction: (shouldPinned: boolean) => void;
 };
 
 @HotkeysTarget
@@ -270,7 +266,6 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.closeTableFilterProppane();
             e.preventDefault();
             this.props.setPreviewModeAction(false);
-            this.props.setThemeModeAction(false);
           }}
         />
         <Hotkey
@@ -430,8 +425,6 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(
         setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
       ),
-    setThemeModeAction: (shouldSet: boolean) =>
-      dispatch(setThemeModeAction(shouldSet)),
   };
 };
 

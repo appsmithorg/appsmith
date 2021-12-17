@@ -31,15 +31,3 @@ export const updateCanvasLayoutAction = (
     },
   };
 };
-
-/*
- * action that sets theme mode
- *
- * @param payload
- * @returns
- */
-
-export const setThemeModeAction = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_EDITOR_THEME_MODE,
-  payload,
-});

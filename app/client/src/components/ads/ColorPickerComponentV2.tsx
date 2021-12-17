@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -10,8 +10,6 @@ import {
 import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
 import { Colors } from "constants/Colors";
-import * as colors from "twind/colors";
-import { tw } from "twind";
 import { useSelector } from "store";
 import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import {
@@ -19,8 +17,27 @@ import {
   getThemePropertyBinding,
 } from "constants/ThemeContants";
 import { getWidgets } from "sagas/selectors";
-import { extractColors } from "utils/helpers";
+import { extractColorsFromString } from "utils/helpers";
+import { TAILWIND_COLORS } from "constants/ThemeConstants";
 
+/**
+ * ----------------------------------------------------------------------------
+ * TYPES
+ *-----------------------------------------------------------------------------
+ */
+interface ColorPickerProps {
+  color: string;
+  changeColor: (color: string) => void;
+  showThemeColors?: boolean;
+  showApplicationColors?: boolean;
+  evaluatedColorValue?: string;
+}
+
+/**
+ * ----------------------------------------------------------------------------
+ * STYLED
+ *-----------------------------------------------------------------------------
+ */
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
   height: 24px;
@@ -58,37 +75,32 @@ const StyledInputGroup = styled(InputGroup)`
     color: ${(props) => props.theme.colors.propertyPane.label};
 
     &:focus {
-      border: 1px solid ${Colors.PRIMARY_ORANGE};
+      border: 1px solid ${Colors.GREY_9};
     }
   }
 `;
 
-function useThemeColors() {
-  const theme = useSelector(getSelectedAppThemeProperties);
-  return theme[colorsPropertyName];
-}
-
-function useApplicationColors() {
-  const widgets = useSelector(getWidgets);
-
-  return extractColors(JSON.stringify(widgets));
-}
-
-interface ColorPickerProps {
-  color: string;
-  changeColor: (color: string) => void;
-  showThemeColors?: boolean;
-  showApplicationColors?: boolean;
-  evaluatedColorValue?: string;
-}
-
+/**
+ * ----------------------------------------------------------------------------
+ * COMPONENT
+ *-----------------------------------------------------------------------------
+ */
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<any>();
   const [color, setColor] = React.useState(props.color);
+  const widgets = useSelector(getWidgets);
+  const themeColors = useSelector(getSelectedAppThemeProperties).colors;
+  const applicationColors = extractColorsFromString(JSON.stringify(widgets));
+
+  /**
+   * debounced on change
+   *
+   */
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
     [props.changeColor],
   );
+
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     debouncedOnChange(value);
@@ -102,41 +114,6 @@ function ColorPickerComponent(props: ColorPickerProps) {
       setColor(props.color);
     }
   }, [props.color]);
-
-  const tailwindColors: {
-    [key: string]: {
-      [key: string]: string;
-    };
-  } = useMemo(() => {
-    const filteredColors: {
-      [key: string]: {
-        [key: string]: string;
-      };
-    } = {};
-
-    Object.keys(colors)
-      .filter((colorKey) =>
-        [
-          "gray",
-          "red",
-          "yellow",
-          "green",
-          "blue",
-          "indigo",
-          "purple",
-          "green",
-          "pink",
-        ].includes(colorKey),
-      )
-      .map((colorKey) => {
-        filteredColors[colorKey] = get(colors, `${colorKey}`);
-      });
-
-    return filteredColors;
-  }, []);
-
-  const themeColors = useThemeColors();
-  const applicationColors = useApplicationColors();
 
   return (
     <Popover
@@ -170,7 +147,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
               <div className="flex space-x-1">
                 {Object.keys(themeColors).map((colorKey) => (
                   <div
-                    className={`w-6 h-6 transform border rounded-full ${tw`bg-[${themeColors[colorKey]}]`}`}
+                    className="w-6 h-6 transform border rounded-full"
                     key={`color-picker-v2-${colorKey}`}
                     onClick={() => {
                       setColor(themeColors[colorKey]);
@@ -180,6 +157,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
                         ),
                       );
                     }}
+                    style={{ backgroundColor: themeColors[colorKey] }}
                   />
                 ))}
               </div>
@@ -194,12 +172,13 @@ function ColorPickerComponent(props: ColorPickerProps) {
               <div className="flex space-x-1">
                 {Object.values(applicationColors).map((colorCode: string) => (
                   <div
-                    className={`w-6 h-6 transform border rounded-full ${tw`bg-[${colorCode}]`}`}
+                    className="w-6 h-6 transform border rounded-full"
                     key={colorCode}
                     onClick={() => {
                       setColor(colorCode);
                       props.changeColor(colorCode);
                     }}
+                    style={{ backgroundColor: colorCode }}
                   />
                 ))}
               </div>
@@ -210,18 +189,22 @@ function ColorPickerComponent(props: ColorPickerProps) {
           <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
           <section className="space-y-2">
             <h3 className="text-xs">All Colors</h3>
-            {Object.keys(tailwindColors).map((colorKey) => (
+            {Object.keys(TAILWIND_COLORS).map((colorKey) => (
               <div className="flex space-x-1" key={colorKey}>
-                {Object.keys(get(tailwindColors, `${colorKey}`)).map(
+                {Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
                   (singleColorKey) => (
                     <div
-                      className={`h-6 w-6 rounded-full transform ${tw` bg-${colorKey}-${singleColorKey}`}`}
+                      className="items-center w-6 h-6 transform rounded-full"
                       key={`a-${colorKey}`}
                       onClick={() => {
-                        setColor(tailwindColors[colorKey][singleColorKey]);
+                        setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
                         props.changeColor(
-                          tailwindColors[colorKey][singleColorKey],
+                          TAILWIND_COLORS[colorKey][singleColorKey],
                         );
+                      }}
+                      style={{
+                        backgroundColor:
+                          TAILWIND_COLORS[colorKey][singleColorKey],
                       }}
                     />
                   ),

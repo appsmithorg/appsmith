@@ -630,18 +630,24 @@ export function unFocus(document: Document, window: Window) {
   }
 }
 
-const RGBRegex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/gi;
+const BLACKLIST_COLORS = ["#ffffff"];
+const HEX_REGEX = /#[0-9a-fA-F]{6}/gi;
+const RGB_REGEX = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/gi;
 
-const hexRegex = /#[0-9a-fA-F]{6}/gi;
-
-const blackListedColors = ["#ffffff"];
-
-export function extractColors(text: string) {
+/**
+ * extract colors from string
+ *
+ * @param text
+ * @returns
+ */
+export function extractColorsFromString(text: string) {
   const colors = new Set();
-  [...(text.match(RGBRegex) || []), ...(text.match(hexRegex) || [])]
-    .filter((d) => blackListedColors.indexOf(d.toLowerCase()) === -1)
+
+  [...(text.match(RGB_REGEX) || []), ...(text.match(HEX_REGEX) || [])]
+    .filter((d) => BLACKLIST_COLORS.indexOf(d.toLowerCase()) === -1)
     .forEach((color) => {
       colors.add(color.toLowerCase());
     });
+
   return Array.from(colors) as Array<string>;
 }

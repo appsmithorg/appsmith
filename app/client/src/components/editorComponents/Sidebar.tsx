@@ -18,7 +18,6 @@ import PerformanceTracker, {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  themeModeSelector,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import {
@@ -61,7 +60,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const pageId = useSelector(getCurrentPageId);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
-  const isThemeMode = useSelector(themeModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const applicationId = useSelector(getCurrentApplicationId);
   const enableFirstTimeUserOnboarding = useSelector(
@@ -212,11 +210,10 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     <div
       className={classNames({
         [`js-entity-explorer t--entity-explorer transform transition-all flex h-full duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
-        "relative ": pinned && !isPreviewMode && !isThemeMode,
-        "-translate-x-full":
-          (!pinned && !active) || isPreviewMode || isThemeMode,
+        "relative ": pinned && !isPreviewMode,
+        "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
-        fixed: !pinned || isPreviewMode || isThemeMode,
+        fixed: !pinned || isPreviewMode,
       })}
     >
       {/* SIDEBAR */}

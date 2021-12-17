@@ -68,10 +68,10 @@ export const fetchSelectedAppThemeAction = (applicationId: string) => ({
 /**
  * update selected theme
  *
- * @param mode
+ * @param payload
  * @returns
  */
-export const updateSelectedThemeAction = (
+export const updateSelectedAppThemeAction = (
   payload: UpdateSelectedAppThemeAction,
 ) => ({
   type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT,
@@ -81,12 +81,23 @@ export const updateSelectedThemeAction = (
 /**
  * change selected theme
  *
- * @param mode
+ * @param payload
  * @returns
  */
-export const changeSelectedThemeAction = (
+export const changeSelectedAppThemeAction = (
   payload: ChangeSelectedAppThemeAction,
 ) => ({
   type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
+  payload,
+});
+
+/**
+ * set the preview theme
+ *
+ * @param payload
+ * @returns
+ */
+export const setPreviewAppThemeAction = (payload?: AppTheme) => ({
+  type: ReduxActionTypes.SET_PREVIEW_APP_THEME,
   payload,
 });

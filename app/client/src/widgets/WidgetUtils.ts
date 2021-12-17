@@ -98,18 +98,6 @@ export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
   return "#000";
 };
 
-export const getCustomTextColor2 = (backgroundColor?: string) => {
-  const brightness = tinycolor(backgroundColor)
-    .greyscale()
-    .getBrightness();
-  const percentageBrightness = (brightness / 255) * 100;
-  const isDark = percentageBrightness < 70;
-
-  if (isDark) return "#fff";
-
-  return "#000";
-};
-
 export const getCustomHoverColor = (
   theme: Theme,
   buttonVariant?: ButtonVariant,
@@ -249,7 +237,7 @@ export const lightenColor = (color = "#fff") => {
       nextBrightness = 35;
       break;
     case percentageBrightness > 40:
-      nextBrightness = 45;
+      nextBrightness = 40;
       break;
     default:
       nextBrightness = 65;

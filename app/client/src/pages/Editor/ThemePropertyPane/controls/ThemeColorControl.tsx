@@ -1,5 +1,5 @@
-import { tw } from "twind";
 import { startCase } from "lodash";
+import classNames from "classnames";
 import React, { useState } from "react";
 
 import { AppTheme } from "entities/AppTheming";
@@ -24,12 +24,14 @@ function ThemeColorControl(props: ThemeColorControlProps) {
             return (
               <TooltipComponent content={startCase(colorName)} key={index}>
                 <div
-                  className={`${tw`bg-[${userDefinedColors[colorName]}] ${
-                    selectedColor === colorName ? "ring-1" : ""
-                  }`} w-6 h-6 border-2 cursor-pointer ring-primary-400`}
+                  className={classNames({
+                    "w-6 h-6 border-2 cursor-pointer ring-gray-700": true,
+                    "ring-1": selectedColor === colorName,
+                  })}
                   onClick={() => {
                     setSelectedColor(colorName);
                   }}
+                  style={{ background: userDefinedColors[colorName] }}
                 />
               </TooltipComponent>
             );

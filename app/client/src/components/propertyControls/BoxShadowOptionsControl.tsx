@@ -1,5 +1,4 @@
 import * as React from "react";
-import { tw, css } from "twind/css";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
@@ -10,6 +9,8 @@ import {
   boxShadowPropertyName,
   getThemePropertyBinding,
 } from "constants/ThemeContants";
+import { startCase } from "lodash";
+import CloseLineIcon from "remixicon-react/CloseLineIcon";
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
@@ -47,11 +48,24 @@ class BoxShadowOptionsControl extends BaseControl<
     optionKey: string,
     optionValue: string,
     twSuffix: string,
+    isThemeValue?: boolean,
   ) => {
     return (
-      <TooltipComponent content={optionKey} key={optionKey}>
+      <TooltipComponent
+        content={
+          <div>
+            {isThemeValue && (
+              <header className="text-xs text-center text-gray-300 uppercase">
+                Theme
+              </header>
+            )}
+            <div>{startCase(optionKey)}</div>
+          </div>
+        }
+        key={optionKey}
+      >
         <button
-          className={`flex items-center justify-center w-8 h-8 bg-white border ring-primary-400 ${
+          className={`flex items-center justify-center w-8 h-8 bg-white border ring-gray-700 ${
             this.props.propertyValue === optionValue ? "ring-1" : ""
           }`}
           onClick={() => {
@@ -59,14 +73,11 @@ class BoxShadowOptionsControl extends BaseControl<
           }}
         >
           <div
-            className={`flex items-center  justify-center w-5 h-5 bg-white ${tw`${css(
-              {
-                "&": {
-                  boxShadow: twSuffix,
-                },
-              },
-            )}`}`}
-          />
+            className="flex items-center justify-center w-5 h-5 bg-white"
+            style={{ boxShadow: twSuffix }}
+          >
+            {twSuffix === "none" && <CloseLineIcon className="text-gray-700" />}
+          </div>
         </button>
       </TooltipComponent>
     );
@@ -76,7 +87,7 @@ class BoxShadowOptionsControl extends BaseControl<
     return (
       <div className="mt-2 mb-2">
         <div className="inline-flex">
-          <div className="pr-2 mr-2 border-r">
+          <div className="pr-3 mr-3 border-r border-gray-300">
             {Object.keys(this.state.themeBoxShadowOptions).map((optionKey) =>
               this.renderOptions(
                 optionKey,
@@ -84,10 +95,11 @@ class BoxShadowOptionsControl extends BaseControl<
                   `${boxShadowPropertyName}.${optionKey}`,
                 ),
                 this.state.themeBoxShadowOptions[optionKey],
+                true,
               ),
             )}
           </div>
-          <div className="grid grid-flow-col gap-2 auto-cols-max">
+          <div className="grid grid-cols-5 gap-2 auto-cols-max">
             {Object.keys(boxShadowOptions).map((optionKey) =>
               this.renderOptions(
                 optionKey,

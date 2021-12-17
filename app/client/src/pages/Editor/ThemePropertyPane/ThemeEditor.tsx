@@ -13,7 +13,7 @@ import {
 } from "selectors/appThemingSelectors";
 import {
   setAppThemingModeStack,
-  updateSelectedThemeAction,
+  updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppTheme } from "entities/AppTheming";
 import ThemeFontControl from "./controls/ThemeFontControl";
@@ -35,21 +35,23 @@ function ThemeEditor() {
 
   const updateSelectedTheme = useCallback(
     (theme: AppTheme) => {
-      dispatch(updateSelectedThemeAction({ applicationId, theme }));
+      dispatch(updateSelectedAppThemeAction({ applicationId, theme }));
     },
-    [updateSelectedThemeAction],
+    [updateSelectedAppThemeAction],
   );
 
   return (
     <>
-      <button
-        className="inline-flex items-center px-3 space-x-1 text-gray-500 cursor-pointer "
-        onClick={onClickBack}
-        type="button"
-      >
-        <ArrowLeft className="w-4 h-4 transition-all transform" />
-        <h3 className="text-xs font-medium uppercase">Back</h3>
-      </button>
+      <header className="flex items-center justify-between px-3 ">
+        <button
+          className="inline-flex items-center h-5 space-x-1 text-gray-500 cursor-pointer"
+          onClick={onClickBack}
+          type="button"
+        >
+          <ArrowLeft className="w-4 h-4 transition-all transform" />
+          <h3 className="text-xs font-medium uppercase">Back</h3>
+        </button>
+      </header>
       <header className="px-3 space-y-2">
         <h3 className="text-sm font-medium uppercase">Current Theme</h3>
         <ThemeCard changeable theme={selectedTheme} />

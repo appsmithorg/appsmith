@@ -13,6 +13,7 @@ import { AppTheme } from "entities/AppTheming";
 import { all, takeLatest, put } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { CHANGE_APP_THEME, createMessage } from "constants/messages";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
@@ -881,7 +882,7 @@ export function* changeSelectedTheme(
     });
 
     Toaster.show({
-      text: `Theme ${theme.name} Applied`,
+      text: createMessage(CHANGE_APP_THEME, theme.name),
       variant: Variant.success,
     });
   } catch (error) {
@@ -905,7 +906,7 @@ export default function* appThemingSaga() {
     ),
     takeLatest(
       ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
-      updateSelectedTheme,
+      changeSelectedTheme,
     ),
   ]);
 }

@@ -392,13 +392,3 @@ export const previewModeSelector = (state: AppState) => {
 export const getZoomLevel = (state: AppState) => {
   return state.ui.editor.zoomLevel;
 };
-
-/**
- * returns the `state.ui.editor.isThemeMode`
- *
- * @param state AppState
- * @returns boolean
- */
-export const themeModeSelector = (state: AppState) => {
-  return state.ui.editor.isThemeMode;
-};

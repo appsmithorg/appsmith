@@ -7,13 +7,17 @@ export type AppThemingState = {
   stack: AppThemingMode[];
   selectedTheme: AppTheme;
   themes: AppTheme[];
-  isLoading: boolean;
+  themesLoading: boolean;
+  selectedThemeLoading: boolean;
+  previewTheme?: AppTheme;
 };
 
 const initialState: AppThemingState = {
   stack: [],
   themes: [],
-  isLoading: true,
+  themesLoading: false,
+  selectedThemeLoading: false,
+  previewTheme: undefined,
   selectedTheme: {
     name: "",
     created_by: "",
@@ -50,29 +54,36 @@ const themeReducer = createImmerReducer(initialState, {
     state.stack = action.payload;
   },
   [ReduxActionTypes.FETCH_APP_THEMES_INIT]: (state: AppThemingState) => {
-    state.isLoading = true;
+    state.themesLoading = true;
   },
   [ReduxActionTypes.FETCH_APP_THEMES_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme[]>,
   ) => {
-    state.isLoading = false;
+    state.themesLoading = false;
     state.themes = action.payload;
   },
   [ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {
-    state.isLoading = false;
+    state.themesLoading = false;
     state.selectedTheme = action.payload;
   },
   [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT]: () => {
     //
   },
+  [ReduxActionTypes.SET_PREVIEW_APP_THEME]: (
+    state: AppThemingState,
+    action: ReduxAction<AppTheme | undefined>,
+  ) => {
+    state.previewTheme = action.payload;
+  },
   [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {
+    state.previewTheme = undefined;
     state.selectedTheme = action.payload;
   },
   [ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS]: (

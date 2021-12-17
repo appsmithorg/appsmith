@@ -1,8 +1,9 @@
-import React from "react";
-import { css, tw } from "twind/css";
+import classNames from "classnames";
+import React, { useCallback } from "react";
 
-import TooltipComponent from "components/ads/Tooltip";
 import { AppTheme } from "entities/AppTheming";
+import TooltipComponent from "components/ads/Tooltip";
+import CloseLineIcon from "remixicon-react/CloseLineIcon";
 
 interface ThemeBoxShadowControlProps {
   options: {
@@ -14,39 +15,49 @@ interface ThemeBoxShadowControlProps {
   updateTheme: (theme: AppTheme) => void;
 }
 
-function ThemeShadowControl(props: ThemeBoxShadowControlProps) {
+function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
   const { options, sectionName, selectedOption, theme, updateTheme } = props;
 
+  /**
+   * changes the shadow in the theme
+   */
+  const onChangeShadow = useCallback(
+    (optionKey: string) => {
+      updateTheme({
+        ...theme,
+        properties: {
+          ...theme.properties,
+          boxShadow: {
+            ...theme.properties.boxShadow,
+            [sectionName]: options[optionKey],
+          },
+        },
+      });
+    },
+    [updateTheme, theme],
+  );
+
   return (
-    <div className="grid grid-flow-col auto-cols-max gap-2">
+    <div className="grid grid-flow-col gap-2 auto-cols-max">
       {Object.keys(options).map((optionKey) => (
         <TooltipComponent content={optionKey} key={optionKey}>
           <button
-            className={`flex items-center justify-center w-8 h-8 bg-white border ring-primary-400 ${
-              selectedOption === options[optionKey] ? "ring-1" : ""
-            }`}
-            onClick={() => {
-              updateTheme({
-                ...theme,
-                properties: {
-                  ...theme.properties,
-                  boxShadow: {
-                    ...theme.properties.boxShadow,
-                    [sectionName]: options[optionKey],
-                  },
-                },
-              });
-            }}
+            className={classNames({
+              "flex items-center justify-center w-8 h-8 bg-white border ring-gray-700": true,
+              "ring-1": selectedOption === options[optionKey],
+            })}
+            onClick={() => onChangeShadow(optionKey)}
           >
             <div
-              className={`flex items-center  justify-center w-5 h-5 bg-white ${tw`${css(
-                {
-                  "&": {
-                    boxShadow: options[optionKey],
-                  },
-                },
-              )}`}`}
-            />
+              className="flex items-center justify-center w-5 h-5 bg-white"
+              style={{
+                boxShadow: options[optionKey],
+              }}
+            >
+              {options[optionKey] === "none" && (
+                <CloseLineIcon className="text-gray-700" />
+              )}
+            </div>
           </button>
         </TooltipComponent>
       ))}
@@ -54,4 +65,4 @@ function ThemeShadowControl(props: ThemeBoxShadowControlProps) {
   );
 }
 
-export default ThemeShadowControl;
+export default ThemeBoxShadowControl;

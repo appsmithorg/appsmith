@@ -1,5 +1,4 @@
 import * as React from "react";
-import { tw } from "twind";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
@@ -10,6 +9,7 @@ import {
   borderRadiusPropertyName,
   borderRadiusOptions,
 } from "constants/ThemeContants";
+import { startCase } from "lodash";
 
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
@@ -48,11 +48,24 @@ class BorderRadiusOptionsControl extends BaseControl<
     optionKey: string,
     optionValue: string,
     twSuffix: string,
+    isThemeValue?: boolean,
   ) => {
     return (
-      <TooltipComponent content={optionKey} key={optionKey}>
+      <TooltipComponent
+        content={
+          <div>
+            {isThemeValue && (
+              <header className="text-xs text-center text-gray-300 uppercase">
+                Theme
+              </header>
+            )}
+            <div>{startCase(optionKey)}</div>
+          </div>
+        }
+        key={optionKey}
+      >
         <button
-          className={`flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-primary-500 cursor-pointer hover:bg-trueGray-50 ${
+          className={`flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-gray-700 cursor-pointer hover:bg-trueGray-50 ${
             this.props.propertyValue === optionValue ? "ring-1" : ""
           }`}
           onClick={() => {
@@ -60,7 +73,8 @@ class BorderRadiusOptionsControl extends BaseControl<
           }}
         >
           <div
-            className={`${tw`rounded-tl-[${twSuffix}]`} w-4 h-4 border-t-2 border-l-2 rounded- border-gray-600`}
+            className="w-4 h-4 border-t-2 border-l-2 border-gray-600 rounded-"
+            style={{ borderTopLeftRadius: twSuffix }}
           />
         </button>
       </TooltipComponent>
@@ -71,7 +85,7 @@ class BorderRadiusOptionsControl extends BaseControl<
     return (
       <div className="mt-2 mb-2">
         <div className="inline-flex">
-          <div className="pr-2 mr-2 border-r">
+          <div className="pr-3 mr-3 border-r border-gray-300">
             {Object.keys(this.state.themeBorderOptions).map((optionKey) =>
               this.renderOptions(
                 optionKey,
@@ -79,10 +93,11 @@ class BorderRadiusOptionsControl extends BaseControl<
                   `${borderRadiusPropertyName}.${optionKey}`,
                 ),
                 this.state.themeBorderOptions[optionKey],
+                true,
               ),
             )}
           </div>
-          <div className="grid grid-cols-6 gap-2 auto-cols-max">
+          <div className="grid grid-cols-5 gap-2 auto-cols-max">
             {Object.keys(borderRadiusOptions).map((optionKey) =>
               this.renderOptions(
                 optionKey,
