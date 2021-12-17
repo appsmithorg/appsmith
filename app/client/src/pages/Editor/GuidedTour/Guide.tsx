@@ -33,7 +33,7 @@ const CardWrapper = styled.div`
   display: flex;
   border-bottom: 1px solid #eeeeee;
   flex-direction: column;
-  background: #fafafa;
+  background: #ffefdb;
 `;
 
 const TitleWrapper = styled.div`

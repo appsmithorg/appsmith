@@ -14,7 +14,7 @@ import { useSelector } from "store";
 import { getEditorURL } from "selectors/appViewSelectors";
 
 const Container = styled.div`
-  background-color: #ffffff;
+  background-color: #ffefdb;
   padding: 20px 24px;
   width: 100%;
 `;
