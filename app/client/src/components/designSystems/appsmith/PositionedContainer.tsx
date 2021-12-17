@@ -64,15 +64,18 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const dragDetails = useSelector(
     (state: AppState) => state.ui.widgetDragResize.dragDetails,
   );
-  const isCurrentCanvasDragging =
-    dragDetails && dragDetails.draggedOn === props.parentId;
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const isCurrentCanvasReflowing =
+    (dragDetails && dragDetails.draggedOn === props.parentId) || isResizing;
   const containerStyle: CSSProperties = useMemo(() => {
     const reflowX = reflowedPosition?.X || 0;
     const reflowY = reflowedPosition?.Y || 0;
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
     const transformStyles =
-      isCurrentCanvasDragging && reflowedPosition
+      isCurrentCanvasReflowing && reflowedPosition
         ? {
             transform: `translate(${reflowX}px,${reflowY}px)`,
           }
@@ -95,7 +98,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
     return styles;
   }, [
     props.style,
-    isCurrentCanvasDragging,
+    isCurrentCanvasReflowing,
     onHoverZIndex,
     zIndex,
     reflowSelector,
