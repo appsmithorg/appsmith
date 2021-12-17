@@ -191,6 +191,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                unique: true,
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
@@ -239,6 +240,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                unique: true,
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
