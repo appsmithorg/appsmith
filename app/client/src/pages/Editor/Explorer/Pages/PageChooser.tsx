@@ -39,7 +39,7 @@ import { Colors } from "constants/Colors";
 const StyledEntity = styled(Entity)`
   &.pages {
     & > div:not(.t--entity-item) {
-      max-height: 148px !important;
+      max-height: 138px !important;
       overflow-y: auto !important;
     }
   }
