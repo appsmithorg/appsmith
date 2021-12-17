@@ -117,6 +117,17 @@ public class MongoPlugin extends BasePlugin {
      */
     private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))(@.+\\/(.+))$";
 
+    /**
+     * This regex matches the following two patterns:
+     *   - "ObjectId(someId)"  // will not match without outer double quotes
+     *     - Group 1 = "ObjectId(someId)"
+     *     - Group 2 = ObjectId(someId) // no quotes
+     *   - 'ObjectId(someId)'  // will not match without outer single quotes
+     *      - Group 3 = 'ObjectId(someId)'
+     *      - Group 4 = ObjectId(someId) // not quotes
+     */
+    private static final String OBJECT_ID_INSIDE_QUOTES_REGEX = "(\\\"(ObjectId\\(.*?\\))\\\")|('(ObjectId\\(.*?\\))')";
+
     private static final int REGEX_GROUP_HEAD = 1;
 
     private static final int REGEX_GROUP_USERNAME = 4;
@@ -404,6 +415,65 @@ public class MongoPlugin extends BasePlugin {
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * This method is part of the pre-processing of the replacement value before the final substitution that
+         * happens as part of smart substitution process.
+         *
+         * @param replacementValue - value to be substituted
+         * @return - updated replacement value
+         */
+        @Override
+        public String sanitizeReplacement(String replacementValue) {
+            replacementValue = removeQuotesAroundObjectId(replacementValue);
+
+            return replacementValue;
+        }
+
+        /**
+         * This method is meant to remove extra quotes around the `ObjectId(...)` string. E.g. if the input query is
+         * "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in: [ObjectId(\"123\")]}".
+         *
+         * @param query - input query
+         * @return - query obtained after removing quotes around ObjectId string.
+         */
+        private String removeQuotesAroundObjectId(String query) {
+            Map<String, String> objectIdMap = new HashMap();
+
+            Pattern pattern = Pattern.compile(OBJECT_ID_INSIDE_QUOTES_REGEX);
+            Matcher matcher = pattern.matcher(query);
+            while (matcher.find()) {
+                String objectIdWithQuotes;
+                String objectIdWithoutQuotes;
+
+                /**
+                 * `If` branch will match when ObjectId is wrapped within double quotes e.g. "ObjectId(someId)"
+                 *   - Group 1 = "ObjectId(someId)"
+                 *   - Group 2 = ObjectId(someId) // no quotes
+                 * `Else` branch will match when ObjectId is wrapped within single quotes e.g. 'ObjectId(someId)'
+                 *   - Group 3 = 'ObjectId(someId)'
+                 *   - Group 4 = ObjectId(someId) // no quotes
+                 */
+                if (matcher.group(1) != null) {
+                    objectIdWithQuotes = matcher.group(1);
+                    objectIdWithoutQuotes = matcher.group(2);
+                }
+                else {
+                    objectIdWithQuotes = matcher.group(3);
+                    objectIdWithoutQuotes = matcher.group(4);
+                }
+
+                objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
+            }
+
+            for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
+                String objectIdWithQuotes = (entry).getKey();
+                String objectIdWithoutQuotes = (entry).getValue();
+                query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
+            }
+
+            return query;
         }
 
         private String smartSubstituteBSON(String rawQuery,
@@ -878,7 +948,7 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, this);
         }
 
         @Override
