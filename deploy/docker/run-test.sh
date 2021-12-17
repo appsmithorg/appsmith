@@ -11,7 +11,7 @@ password=dummypass123
 
 # Backend API
 status_code="$(
-  curl --silent --show-error --output /dev/null --head --write-out "%{http_code}" "http://localhost/api/v1/users/me"
+  curl --silent --show-error --output /dev/null --write-out "%{http_code}" "http://localhost/api/v1/users/me"
 )"
 
 # Create account
