@@ -262,11 +262,11 @@ class SchemaParser {
     const { endTemplate, startTemplate } = getBindingTemplate(widgetName);
 
     const defaultValue = (() => {
-      if (isCustomField) return;
+      if (isCustomField) return "";
 
       const path = sourceDataPath
         ? `${startTemplate}sourceData.${sourceDataPath}${endTemplate}`
-        : undefined;
+        : "";
 
       return `${path}`;
     })();

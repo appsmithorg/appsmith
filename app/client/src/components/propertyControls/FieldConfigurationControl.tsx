@@ -41,7 +41,7 @@ const ItemWrapper = styled.div`
   align-items: center;
 `;
 
-const AddColumnButton = styled(StyledPropertyPaneButton)`
+const AddFieldButton = styled(StyledPropertyPaneButton)`
   width: 100%;
   display: flex;
   justify-content: center;
@@ -205,7 +205,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     }
   };
 
-  addNewColumn = () => {
+  addNewField = () => {
     if (this.isArrayItem()) return;
 
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
@@ -216,9 +216,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const schemaItem = SchemaParser.getSchemaItemFor(nextFieldKey, {
       currSourceData: "",
       widgetName,
+      isCustomField: true,
     });
 
-    schemaItem.isCustomField = true;
     schemaItem.position = existingKeys.length;
 
     this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
@@ -311,11 +311,11 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
           updateOption={this.updateOption}
         />
         {!this.isArrayItem() && (
-          <AddColumnButton
+          <AddFieldButton
             category={Category.tertiary}
             className="t--add-column-btn"
             icon="plus"
-            onClick={this.addNewColumn}
+            onClick={this.addNewField}
             size={Size.medium}
             tag="button"
             text="Add a new field"
