@@ -14,6 +14,13 @@ export const sourceDataValidationFn = (
   props: JSONFormWidgetProps,
   _?: any,
 ) => {
+  if (value === undefined) {
+    return {
+      isValid: true,
+      parsed: {},
+    };
+  }
+
   if (_.isPlainObject(value)) {
     return {
       isValid: true,
