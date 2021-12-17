@@ -63,7 +63,9 @@ export const useFilteredFileOperations = (query = "") => {
       fileOperations = [
         ...fileOperations,
         {
-          title: `DATASOURCE FROM ${currentUser?.name.toUpperCase()}'S ORGANIZATION`,
+          title: `DATASOURCE FROM ${
+            currentUser?.name ? currentUser?.name.toUpperCase() + "'S" : ""
+          } ORGANIZATION`,
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
         ...otherFilteredDS.map((ds: any) => ({
