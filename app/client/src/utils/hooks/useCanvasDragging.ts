@@ -18,6 +18,7 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { getAccessor } from "reflow/reflowUtils";
 
 export interface XYCord {
   x: number;
@@ -49,6 +50,7 @@ export const useCanvasDragging = (
     isNewWidget,
     isNewWidgetInitialTargetCanvas,
     isResizing,
+    lastDraggedCanvas,
     occSpaces,
     onDrop,
     parentDiff,
@@ -192,8 +194,8 @@ export const useCanvasDragging = (
       };
 
       const resetCanvasState = () => {
+        stopReflowing();
         if (canvasDrawRef.current && canvasRef.current) {
-          stopReflowing();
           const canvasCtx: any = canvasDrawRef.current.getContext("2d");
           canvasCtx.clearRect(
             0,
@@ -264,6 +266,7 @@ export const useCanvasDragging = (
         };
 
         const onFirstMoveOnCanvas = (e: any, over = false) => {
+          stopReflowing();
           if (
             !isResizing &&
             isDragging &&
@@ -297,13 +300,17 @@ export const useCanvasDragging = (
 
         const canReflowForCurrentMouseMove = (e: any) => {
           const { movementX = 0, movementY = 0 } = e;
-          const threshold = 10;
+          const threshold = 50;
           return !(
             movementX > threshold ||
             movementX < -threshold ||
             movementY > threshold ||
             movementY < -threshold
           );
+        };
+        const getOppositeDirection = (direction: ReflowDirection) => {
+          const directionalAccessors = getAccessor(direction);
+          return directionalAccessors.oppositeDirection.toUpperCase() as ReflowDirection;
         };
         const getMouseMoveDirection = (event: any) => {
           if (lastMousePosition) {
@@ -418,6 +425,12 @@ export const useCanvasDragging = (
                         bottom: 0,
                         id: currentBlock.widgetId,
                       };
+                  if (lastDraggedCanvas.current) {
+                    currentDirection.current = getOppositeDirection(
+                      currentDirection.current,
+                    );
+                    lastDraggedCanvas.current = undefined;
+                  }
                   currentReflowParams = reflow.current(
                     resizedPositions,
                     originalPositions,

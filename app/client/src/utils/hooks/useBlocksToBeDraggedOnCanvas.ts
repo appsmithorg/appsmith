@@ -54,6 +54,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const dispatch = useDispatch();
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
+  const lastDraggedCanvas = useRef<string | undefined>(undefined);
 
   // check any table filter is open or not
   // if filter pane open, close before property pane open
@@ -64,6 +65,14 @@ export const useBlocksToBeDraggedOnCanvas = ({
   // which widget is grabbed while dragging started,
   // relative position of mouse pointer wrt to the last grabbed widget.
   const dragDetails = useSelector(getDragDetails);
+  useEffect(() => {
+    if (
+      dragDetails.draggedOn &&
+      ![widgetId, MAIN_CONTAINER_WIDGET_ID].includes(dragDetails.draggedOn)
+    ) {
+      lastDraggedCanvas.current = dragDetails.draggedOn;
+    }
+  }, [dragDetails.draggedOn]);
   const defaultHandlePositions = {
     top: 20,
     left: 20,
@@ -372,6 +381,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     isNewWidget,
     isNewWidgetInitialTargetCanvas,
     isResizing,
+    lastDraggedCanvas,
     occSpaces,
     onDrop,
     parentDiff,

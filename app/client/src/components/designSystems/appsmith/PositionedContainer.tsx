@@ -10,6 +10,7 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { isEqual, memoize } from "lodash";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
+import { AppState } from "reducers";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -20,6 +21,7 @@ const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
 export type PositionedContainerProps = {
   style: BaseStyle;
   children: ReactNode;
+  parentId?: string;
   widgetId: string;
   widgetType: WidgetType;
   selected?: boolean;
@@ -59,16 +61,22 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const reflowSelector = getReflowSelector(props.widgetId);
 
   const reflowedPosition = useSelector(reflowSelector, isEqual);
-
-  const reflowX = reflowedPosition?.X || 0;
-  const reflowY = reflowedPosition?.Y || 0;
-  const reflowWidth = reflowedPosition?.width;
-  const reflowHeight = reflowedPosition?.height;
-
+  const dragDetails = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+  );
+  const isCurrentCanvasDragging =
+    dragDetails && dragDetails.draggedOn === props.parentId;
   const containerStyle: CSSProperties = useMemo(() => {
-    const transformStyles = {
-      transform: `translate(${reflowX}px,${reflowY}px)`,
-    };
+    const reflowX = reflowedPosition?.X || 0;
+    const reflowY = reflowedPosition?.Y || 0;
+    const reflowWidth = reflowedPosition?.width;
+    const reflowHeight = reflowedPosition?.height;
+    const transformStyles =
+      isCurrentCanvasDragging && reflowedPosition
+        ? {
+            transform: `translate(${reflowX}px,${reflowY}px)`,
+          }
+        : {};
     const styles: CSSProperties = {
       position: "absolute",
       left: x,
@@ -87,12 +95,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
     return styles;
   }, [
     props.style,
+    isCurrentCanvasDragging,
     onHoverZIndex,
     zIndex,
-    reflowX,
-    reflowY,
-    reflowWidth,
-    reflowHeight,
+    reflowSelector,
+    reflowedPosition,
   ]);
 
   const onClickFn = useCallback(

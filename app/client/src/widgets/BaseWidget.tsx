@@ -271,6 +271,7 @@ abstract class BaseWidget<
     return (
       <PositionedContainer
         focused={this.props.focused}
+        parentId={this.props.parentId}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         style={style}
