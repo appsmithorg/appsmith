@@ -12,7 +12,9 @@ describe("Datasource form related tests", function() {
 
     cy.get(".t--store-as-datasource").click();
 
-    cy.get(".t--add-field").click();
+    cy.get(".t--add-field")
+      .first()
+      .click();
     cy.get(".t--delete-field").should("attr", "color", "#A3B3BF");
   });
   it("Check if save button is disabled", function() {
