@@ -7,6 +7,7 @@ import ProgressBarComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
+import { BarType } from "../constants";
 
 class ProgressBarWidget extends BaseWidget<
   ProgressBarWidgetProps,
@@ -18,6 +19,25 @@ class ProgressBarWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Sets progress bar type",
+            propertyName: "barType",
+            label: "Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Indeterminate",
+                value: BarType.INDETERMINATE,
+              },
+              {
+                label: "Determinate",
+                value: BarType.DETERMINATE,
+              },
+            ],
+            defaultValue: BarType.INDETERMINATE,
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             helpText: "Provide progress value",
             propertyName: "progress",
             label: "Progress",
@@ -26,10 +46,28 @@ class ProgressBarWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: true,
+            defaultValue: 50,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 0, max: 100, default: 0 },
+              params: { min: 0, max: 100, default: 50 },
             },
+          },
+          {
+            helpText: "Sets a number of steps",
+            propertyName: "steps",
+            label: "Number of steps",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter number of steps",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: {
+              type: ValidationTypes.NUMBER,
+            },
+            hidden: (props: ProgressBarWidgetProps) => {
+              return props.barType !== BarType.DETERMINATE;
+            },
+            dependencies: ["barType"],
           },
           {
             helpText: "Controls the visibility of progress value",
@@ -40,6 +78,10 @@ class ProgressBarWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: ProgressBarWidgetProps) => {
+              return props.barType !== BarType.DETERMINATE;
+            },
+            dependencies: ["barType"],
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -86,9 +128,11 @@ class ProgressBarWidget extends BaseWidget<
   getPageView() {
     return (
       <ProgressBarComponent
+        barType={this.props.barType}
         fillColor={this.props.fillColor}
         progress={this.props.progress}
         showResult={this.props.showResult}
+        steps={this.props.steps}
       />
     );
   }
@@ -102,6 +146,8 @@ export interface ProgressBarWidgetProps extends WidgetProps {
   progress?: number;
   showResult: boolean;
   fillColor: string;
+  barType: BarType;
+  steps?: number;
 }
 
 export default ProgressBarWidget;
