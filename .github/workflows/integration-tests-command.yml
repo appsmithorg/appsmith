@@ -704,21 +704,14 @@ jobs:
         working-directory: app/client/perf
         run: chmod +x ./start-test.sh
 
-      - name: Use Node.js 14.15.4
-        uses: actions/setup-node@v1
-        with:
-          node-version: "14.15.4"
-
       - name: Run performance tests
         working-directory: app/client/perf
         shell: bash
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
           APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME9 }}
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD9 }}
-
           APPSMITH_DISABLE_TELEMETRY: true
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"
@@ -741,8 +734,7 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            Tests running at: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
-            Workflow: `${{ github.workflow }}`.
+            UI Performance test run logs and artifacts: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.sha }}`.
             Results: ${{ steps.read_summary.outputs.contents }}
         

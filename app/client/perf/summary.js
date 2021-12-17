@@ -6,7 +6,6 @@ exports.summaries = async (directory) => {
   const results = {};
   files.forEach((file) => {
     if (file.endsWith(".json")) {
-      console.log(file);
       const content = require(`${APP_ROOT}/traces/reports/${file}`);
       Object.keys(content).forEach((key) => {
         if (!results[key]) {
@@ -29,7 +28,6 @@ exports.summaries = async (directory) => {
       });
     }
   });
-  console.log(results);
   generateReport(results);
 };
 
@@ -45,14 +43,16 @@ const generateReport = (results) => {
     });
   });
 
-  generateMakdown(results, size);
+  generateMarkdown(results, size);
 };
 
-const generateMakdown = (results, size = 5) => {
+const generateMarkdown = (results, size = 5) => {
   let markdown = `<details><summary>Click to view performance test results</summary>\n\n| `;
-  for (let i = 0; i <= size; i++) {
+  for (let i = 0; i < size; i++) {
     markdown = markdown + `| Run #${i + 1} `;
   }
+  markdown = markdown + `| Avg `;
+
   markdown += "|\n";
 
   for (let i = 0; i <= size + 1; i++) {

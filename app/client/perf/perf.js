@@ -74,7 +74,6 @@ module.exports = class Perf {
 
     await this.page.evaluate(
       async ({ pageId, dsl }) => {
-        console.log(pageId, dsl);
         const layoutId = await fetch(`/api/v1/pages/${pageId}`)
           .then((response) => response.json())
           .then((data) => data.data.layouts[0].id);
@@ -92,9 +91,11 @@ module.exports = class Perf {
           mode: "cors",
           credentials: "include",
         })
-          .then((res) => console.log("-------------->", res.json()))
+          .then((res) =>
+            console.log("Save page with new DSL response:", res.json()),
+          )
           .catch((err) => {
-            console.log("==============>", err);
+            console.log("Save page with new DSL error:", err);
           });
       },
       { pageId, dsl },

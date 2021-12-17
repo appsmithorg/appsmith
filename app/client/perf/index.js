@@ -17,10 +17,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 async function testTyping() {
   const perf = new Perf({
-    ignoreHTTPSErrors: true,
-    executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  }); // @todo Remove it after initial testing
+    ignoreHTTPSErrors: true, // @todo Remove it after initial testing
+  });
   await perf.launch();
   const page = perf.getPage();
   await perf.loadDSL(dsl);

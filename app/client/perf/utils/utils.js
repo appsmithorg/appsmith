@@ -85,7 +85,6 @@ exports.saveProfile = async (reactProfiler, name) => {
     return text;
   }, url);
   const location = path.join(__dirname, `/profiles/${name}.json`);
-  console.log("---------------------------->", location);
   fs.writeFileSync(location, profile);
 };
 
