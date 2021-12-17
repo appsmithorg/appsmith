@@ -130,6 +130,7 @@ type Step = {
     text: string;
     onClick?: (dispatch: Dispatch<any>) => void;
     timed?: boolean;
+    buttonText?: string;
     duration?: number;
   };
   info?: {
@@ -177,6 +178,7 @@ export const Steps: StepsType = {
         dispatch(setExplorerPinnedAction(true));
         dispatch(setCurrentStep(2));
       },
+      buttonText: "PROCEED TO NEXT STEP",
     },
   },
   2: {

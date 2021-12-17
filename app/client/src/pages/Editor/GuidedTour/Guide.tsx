@@ -417,7 +417,7 @@ function CompletionContent(props: CompletionContentProps) {
               <GuideButton
                 onClick={onSuccessButtonClick}
                 tag="button"
-                text={"CONTINUE"}
+                text={success?.buttonText ?? "CONTINUE"}
               />
             )}
           </div>
