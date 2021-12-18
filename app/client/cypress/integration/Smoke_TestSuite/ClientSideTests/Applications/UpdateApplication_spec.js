@@ -25,7 +25,6 @@ describe("Update Application", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
-    cy.get(homePage.toastMessage).should("contain", "Application name updated");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -82,7 +81,6 @@ describe("Update Application", function() {
       "response.body.data.name",
       `${appname} updated`,
     );
-    cy.get(homePage.toastMessage).should("contain", "Application name updated");
   });
 
   it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {
