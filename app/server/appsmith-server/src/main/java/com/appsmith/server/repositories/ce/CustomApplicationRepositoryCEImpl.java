@@ -160,7 +160,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Long> findGitConnectedApplication(String organizationId) {
+    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         Query query = new Query();
         query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));

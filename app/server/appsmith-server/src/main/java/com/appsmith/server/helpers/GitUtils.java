@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import org.eclipse.jgit.util.StringUtils;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -21,6 +22,9 @@ public class GitUtils {
      * @return https url supported by curl command extracted from ssh repo url
      */
     public static String convertSshUrlToHttpsCurlSupportedUrl(String sshUrl) {
+        if (StringUtils.isEmptyOrNull(sshUrl)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
+        }
         return sshUrl
                 .replaceFirst("git@", "https://")
                 .replaceFirst("\\.com:", ".com/")

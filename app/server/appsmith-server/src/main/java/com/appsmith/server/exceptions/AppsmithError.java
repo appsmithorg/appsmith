@@ -84,12 +84,12 @@ public enum AppsmithError {
     DEFAULT_RESOURCES_UNAVAILABLE(400, 4034, "Unexpected state. Default resources are unavailable for {0} with id {1}. Please reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.BAD_REQUEST),
     GIT_FILE_SYSTEM_ERROR(400, 4035, "Error while accessing the file system. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
-    GIT_APPLICATION_LIMIT_ERROR(400, 4035, "You have reached the limit for number of private git repos connected for the organisation. Please reach out to Appsmith customer support", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     GIT_MERGE_FAILED_REMOTE_CHANGES(406, 4036, "Remote is ahead of local by {0} commits on branch {1}. Please pull remote changes first and try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     GIT_MERGE_FAILED_LOCAL_CHANGES(406, 4037, "There are uncommitted changes present in your local branch {0}. Please commit them first and try again", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4038, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     INVALID_CRUD_PAGE_REQUEST(400, 4039, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH(400, 4040, "This operation is not supported for remote branch {0}. Please use local branches only to proceed", AppsmithErrorAction.DEFAULT, "Unsupported Operation!", ErrorType.BAD_REQUEST),
+    GIT_APPLICATION_LIMIT_ERROR(400, 4041, "You have reached the maximum number of private git repo counts which can be  connected to the organization. Please reach out to Appsmith support to opt for commercial plan.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
 
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
