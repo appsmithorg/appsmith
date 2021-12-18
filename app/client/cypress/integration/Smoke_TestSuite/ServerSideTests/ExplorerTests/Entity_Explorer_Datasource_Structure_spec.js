@@ -11,7 +11,7 @@ describe("Entity explorer datasource structure", function() {
     cy.ClearSearch();
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -21,11 +21,9 @@ describe("Entity explorer datasource structure", function() {
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
-    cy.wait("@createNewApi").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    cy.wait("@createNewApi").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+    });
 
     cy.get(apiwidget.apiTxt)
       .clear()
@@ -35,11 +33,9 @@ describe("Entity explorer datasource structure", function() {
     cy.WaitAutoSave();
 
     cy.GlobalSearchEntity(datasourceName);
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@getDatasourceStructure").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.get(explorer.datasourceStructure)
       .first()
@@ -57,29 +53,23 @@ describe("Entity explorer datasource structure", function() {
       .last()
       .contains("SELECT")
       .click({ force: true });
-    cy.wait("@createNewApi").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    cy.wait("@createNewApi").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+    });
 
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@deleteAction").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@deleteAction").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
@@ -98,11 +88,9 @@ describe("Entity explorer datasource structure", function() {
       .find(explorer.collapse)
       .as("datasourceEntityCollapse");
 
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@getDatasourceStructure").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
@@ -125,11 +113,9 @@ describe("Entity explorer datasource structure", function() {
       .click({ force: true });
 
     cy.get(explorer.refreshStructure).click({ force: true });
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@getDatasourceStructure").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
 
     // TODO (Akash): Check for new table name to be visible in UI as well
     // cy.get(explorer.datasourceStructure)
@@ -144,12 +130,11 @@ describe("Entity explorer datasource structure", function() {
         cy.runQuery();
         cy.get(queryEditor.queryMoreAction).click();
         cy.get(queryEditor.deleteUsingContext).click();
-        cy.wait("@deleteAction").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-
+        cy.wait("@deleteAction").should((interception) => {
+          expect(interception.response.body.responseMeta.status).to.deep.eq(
+            200,
+          );
+        });
         cy.get(commonlocators.entityExplorersearch).clear({ force: true });
         cy.deleteDatasource(datasourceName);
       });

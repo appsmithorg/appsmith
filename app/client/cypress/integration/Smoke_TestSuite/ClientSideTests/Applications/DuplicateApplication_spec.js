@@ -34,11 +34,10 @@ describe("Duplicate application", function() {
     cy.get(homePage.duplicateApp).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
-    cy.wait("@getPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.intercept("GET", "/api/v1/pages/*").as("getPage");
+    cy.wait("@getPage").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     cy.get("@getPage").then((httpResponse) => {
       duplicateApplicationDsl = httpResponse.response.body.data.layouts[0].dsl;
       cy.log(JSON.stringify(duplicateApplicationDsl));

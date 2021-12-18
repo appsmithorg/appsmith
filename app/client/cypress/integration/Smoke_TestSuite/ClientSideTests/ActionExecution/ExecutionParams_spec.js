@@ -15,14 +15,10 @@ describe("API Panel Test Functionality", function() {
   it("Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
     cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
-
     cy.testSaveDatasource();
-
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });

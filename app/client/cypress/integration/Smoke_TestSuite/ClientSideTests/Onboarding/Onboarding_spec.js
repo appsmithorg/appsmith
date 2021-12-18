@@ -91,8 +91,8 @@ describe("Onboarding", function() {
 
   // Similar to PublishtheApp command with little changes
   it("Publish app", function() {
-    cy.server();
-    cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+    //cy.server();
+    cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
 
     // Wait before publish
     // eslint-disable-next-line cypress/no-unnecessary-waiting

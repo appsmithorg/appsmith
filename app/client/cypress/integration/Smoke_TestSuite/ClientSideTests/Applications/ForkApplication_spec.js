@@ -9,6 +9,7 @@ let parentApplicationDsl;
 describe("Fork application across orgs", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.intercept("GET", "/api/v1/pages/*").as("getPage");
   });
 
   it("Check if the forked application has the same dsl as the original", function() {
@@ -16,6 +17,10 @@ describe("Fork application across orgs", function() {
     cy.SearchEntityandOpen("Input1");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.testJsontext("defaulttext", "A");
+    cy.wait(4000);
+    cy.wait("@updateLayout").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
     cy.wait("@inputUpdate").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
     });
@@ -40,8 +45,8 @@ describe("Fork application across orgs", function() {
     cy.get(homePage.forkAppOrgButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
-    cy.wait("@postForkAppOrg").then((httpResponse) => {
-      expect(httpResponse.status).to.equal(200);
+    cy.wait("@postForkAppOrg").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
     });
     // check that forked application has same dsl
     cy.get("@getPage").then((httpResponse) => {
