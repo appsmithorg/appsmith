@@ -2751,6 +2751,12 @@ Cypress.Commands.add("isSelectRow", (index) => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("devSpecialCommand", (text, number) => {
+  cy.log(
+    `This is our special command lets printout the text ${text} and the number ${number}`,
+  );
+});
+
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
   const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div`;
