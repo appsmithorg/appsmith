@@ -7,7 +7,7 @@ type FormContextProps = React.PropsWithChildren<{
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   renderMode: RenderMode;
   updateWidgetProperty: (propertyName: string, propertyValues: any) => void;
-  updateWidgetMetaProperty: (propertName: string, propertyValue: any) => void;
+  updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
 }>;
 
 const FormContext = createContext<FormContextProps>({} as FormContextProps);

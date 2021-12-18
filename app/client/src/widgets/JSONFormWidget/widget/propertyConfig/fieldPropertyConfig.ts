@@ -22,12 +22,13 @@ function generatePanelPropertyConfig(
   return {
     editableTitle: true,
     titlePropertyName: "label",
-    panelIdPropertyName: "name",
+    panelIdPropertyName: "identifier",
     children: [
       {
         sectionName: "General",
         children: [
           ...COMMON_PROPERTIES.fieldType,
+          ...COMMON_PROPERTIES.customField,
           ...COMMON_PROPERTIES.options,
           ...CHECKBOX_PROPERTIES.general,
           ...DATE_PROPERTIES.general,

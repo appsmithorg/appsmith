@@ -1,10 +1,14 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { get } from "lodash";
 import {
   FieldType,
   FIELD_EXPECTING_OPTIONS,
   FIELD_SUPPORTING_FOCUS_EVENTS,
+  SchemaItem,
 } from "widgets/JSONFormWidget/constants";
+import { JSONFormWidgetProps } from "../..";
+import { getParentPropertyPath } from "../../helper";
 import {
   fieldTypeUpdateHook,
   HiddenFnParams,
@@ -72,6 +76,29 @@ const COMMON_PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(FIELD_EXPECTING_OPTIONS),
       dependencies: ["schema", "sourceData"],
+    },
+  ],
+  customField: [
+    {
+      helpText: "Sets the label text of the widget",
+      propertyName: "name",
+      label: "Key",
+      controlType: "INPUT_TEXT",
+      placeholderText: "name",
+      isBindProperty: false,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+        const isHidden = hiddenIfArrayItemIsObject(props, propertyPath);
+
+        if (isHidden) return true;
+
+        const parentPath = getParentPropertyPath(propertyPath);
+        const schemaItem: SchemaItem = get(props, parentPath);
+
+        return !schemaItem?.isCustomField;
+      },
+      dependencies: ["schema"],
     },
   ],
   accessibility: [

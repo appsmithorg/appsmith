@@ -77,6 +77,7 @@ export type SchemaItem = FieldComponentBaseProps & {
   isCustomField: boolean;
   name: string;
   position: number;
+  identifier: string;
 };
 
 // This defines a react component with componentDefaultValues property attached to it.

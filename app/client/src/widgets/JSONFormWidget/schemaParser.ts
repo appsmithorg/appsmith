@@ -294,6 +294,7 @@ class SchemaParser {
       isCustomField,
       label,
       name,
+      identifier: name,
       position: -1,
     };
   };
