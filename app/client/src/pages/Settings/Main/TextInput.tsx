@@ -5,7 +5,10 @@ import { FormGroup, SettingComponentProps } from "./Common";
 
 export default function TextInput({ setting }: SettingComponentProps) {
   return (
-    <FormGroup setting={setting}>
+    <FormGroup
+      className={`t--admin-settings-text-input t--admin-settings-${setting.name}`}
+      setting={setting}
+    >
       <FormTextField
         name={setting.name || ""}
         placeholder={createMessage(() => setting.placeholder || "")}

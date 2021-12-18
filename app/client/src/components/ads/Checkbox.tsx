@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type CheckboxProps = CommonComponentProps & {
   label: string;
@@ -143,6 +144,7 @@ function Checkbox(props: CheckboxProps) {
       />
       <Checkmark
         backgroundColor={props.backgroundColor}
+        className={replayHighlightClass}
         disabled={props.disabled}
         info={props.info}
         isChecked={checked}

@@ -13,7 +13,7 @@ import MultiSelectComponent from "../component";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -163,9 +163,31 @@ class MultiSelectWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
             label: "Server Side Filtering",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText:
+              "Controls the visibility of select all option in dropdown.",
+            propertyName: "allowSelectAll",
+            label: "Allow Select All",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -304,8 +326,12 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
+
     return (
       <MultiSelectComponent
+        allowSelectAll={this.props.allowSelectAll}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -314,6 +340,7 @@ class MultiSelectWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
+        dropDownWidth={dropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
@@ -329,6 +356,7 @@ class MultiSelectWidget extends BaseWidget<
         placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
+        width={componentWidth}
       />
     );
   }
@@ -388,6 +416,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   selectedOptionLabels: string[];
   serverSideFiltering: boolean;
   onFilterUpdate: string;
+  allowSelectAll?: boolean;
 }
 
 export default MultiSelectWidget;
