@@ -261,9 +261,6 @@ export const Entity = forwardRef(
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
 
-    // eslint-disable-next-line no-console
-    console.log(props.isSticky, "--00--");
-
     return (
       <Wrapper
         active={!!props.active}
