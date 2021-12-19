@@ -165,4 +165,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return this.count(List.of(orgIdCriteria));
     }
 
+    @Override
+    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+        Query query = new Query();
+        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
+        query.addCriteria(where(fieldName(QApplication.application.deleted)).is(Boolean.FALSE));
+        return mongoOperations.count(query, Application.class);
+    }
 }
