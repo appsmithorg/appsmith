@@ -1,4 +1,4 @@
-package com.appsmith.server.controllers;
+package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;

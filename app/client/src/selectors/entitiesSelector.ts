@@ -489,13 +489,57 @@ export const getExistingPageNames = createSelector(
 
 export const getExistingWidgetNames = createSelector(
   (state: AppState) => state.entities.canvasWidgets,
-  (widgets) => Object.values(widgets).map((widget) => widget.pageName),
+  (widgets) => Object.values(widgets).map((widget) => widget.widgetName),
 );
 
 export const getExistingActionNames = createSelector(
   (state: AppState) => state.entities.actions,
-  (actions) =>
-    actions.map((action: { config: { name: string } }) => action.config.name),
+  getCurrentPageId,
+  // editingEntityName is actually an id and not a name per say and it points to the id of an action being edited through the explorer.
+  (state: AppState) => state.ui.explorer.entity.editingEntityName,
+  (actions, currentPageId, editingEntityId) => {
+    // get the current action being edited
+    const editingAction =
+      editingEntityId &&
+      actions.filter(
+        (action: { config: { id: string } }) =>
+          action.config.id === editingEntityId,
+      );
+
+    // if the current action being edited is on the same page, filter the actions on the page and return their names.
+    // or if the there is no current action being edited (this happens when a widget, or any other entity is being edited), return the actions on the page.
+    if (
+      (editingAction &&
+        editingAction.length > 0 &&
+        editingAction[0].config.pageId === currentPageId) ||
+      (editingAction && editingAction.length < 1)
+    ) {
+      return actions.map(
+        (actionItem: { config: { name: string; pageId: string } }) => {
+          if (actionItem.config.pageId === currentPageId) {
+            return actionItem.config.name;
+          }
+          return undefined;
+        },
+      );
+    } else {
+      // if current action being edited is on another page, filter the actions not on the page and return their names.
+      return actions.map(
+        (actionItem: { config: { name: string; pageId: string } }) => {
+          if (actionItem.config.pageId !== currentPageId) {
+            return actionItem.config.name;
+          }
+          return undefined;
+        },
+      );
+    }
+  },
+);
+
+export const getExistingJSCollectionNames = createSelector(
+  getJSCollections,
+  (jsActions) =>
+    jsActions.map((action: { config: { name: string } }) => action.config.name),
 );
 
 export const getAppMode = (state: AppState) => state.entities.app.mode;
