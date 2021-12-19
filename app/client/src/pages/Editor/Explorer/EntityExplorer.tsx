@@ -30,7 +30,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { Datasources } from "./Datasources";
+import Datasources from "./Datasources";
 import ExplorerPageEntity from "./Pages/PageEntity";
 
 const Wrapper = styled.div`

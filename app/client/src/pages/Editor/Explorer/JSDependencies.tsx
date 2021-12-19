@@ -64,7 +64,7 @@ const Title = styled.div`
   }
 `;
 
-export function JSDependencies() {
+function JSDependencies() {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const dependencyList = extraLibraries.map((lib) => {
@@ -125,4 +125,4 @@ export function JSDependencies() {
   );
 }
 
-export default JSDependencies;
+export default React.memo(JSDependencies);

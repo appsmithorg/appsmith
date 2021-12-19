@@ -38,7 +38,7 @@ const ShowAll = styled.div`
   }
 `;
 
-export function Datasources() {
+const Datasources = React.memo(() => {
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
@@ -96,4 +96,8 @@ export function Datasources() {
       ) : null}
     </Entity>
   );
-}
+});
+
+Datasources.displayName = "Datasources";
+
+export default Datasources;
