@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
