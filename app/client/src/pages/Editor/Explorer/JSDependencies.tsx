@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
@@ -80,15 +80,18 @@ function JSDependencies() {
     );
   });
 
-  const toggleDependencies = () => setIsOpen(!isOpen);
-  const showDocs = (e: any) => {
+  const toggleDependencies = React.useCallback(
+    () => setIsOpen((open) => !open),
+    [],
+  );
+  const showDocs = React.useCallback((e: any) => {
     window.open(
       "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
       "appsmith-docs:working-with-js-libraries",
     );
     e.stopPropagation();
     e.preventDefault();
-  };
+  }, []);
 
   const TooltipContent = (
     <div>
