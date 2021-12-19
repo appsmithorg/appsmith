@@ -70,6 +70,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -951,6 +952,46 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testRefactorWidgetName_forDefaultWidgetsInList_updatesBothWidgetsAndTemplateReferences() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "List1");
+        dsl.put("type", "LIST_WIDGET");
+        JSONObject template = new JSONObject();
+        template.put("oldWidgetName", "irrelevantContent");
+        dsl.put("template", template);
+        final JSONArray children = new JSONArray();
+        final JSONObject defaultWidget = new JSONObject();
+        defaultWidget.put("widgetName", "oldWidgetName");
+        defaultWidget.put("type", "TEXT_WIDGET");
+        children.add(defaultWidget);
+        dsl.put("children", children);
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("oldWidgetName");
+        refactorNameDTO.setNewName("newWidgetName");
+
+        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
+
+        StepVerifier
+                .create(widgetRenameMono)
+                .assertNext(updatedLayout -> {
+                    assertTrue(((Map) updatedLayout.getDsl().get("template")).containsKey("newWidgetName"));
+                    assertEquals("newWidgetName",
+                            ((Map)(((List)updatedLayout.getDsl().get("children")).get(0))).get("widgetName"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1307,5 +1348,40 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @SneakyThrows(JsonProcessingException.class)
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateLayout_withSelfReferencingWidget_updatesLayout() {
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+
+        ArrayList children = (ArrayList) parentDsl.get("children");
+
+        JSONObject firstWidget = new JSONObject();
+        firstWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        firstWidget.put("dynamicBindingPathList", temp);
+        firstWidget.put("testField", "{{ firstWidget.testField }}");
+        children.add(firstWidget);
+
+        parentDsl.put("children", children);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(layoutDTO -> {
+                    final JSONObject dsl = layoutDTO.getDsl();
+                    final Object fieldValue = ((JSONObject) ((ArrayList) dsl.get("children")).get(0)).getAsString("testField");
+                    // Make sure the DSL got updated
+                    Assert.assertEquals("{{ firstWidget.testField }}", fieldValue);
+                })
+                .verifyComplete();
     }
 }

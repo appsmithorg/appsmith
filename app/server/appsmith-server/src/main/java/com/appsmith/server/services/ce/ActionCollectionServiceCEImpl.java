@@ -76,7 +76,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Flux<ActionCollection> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
-        return repository.findByApplicationIdAndViewMode(applicationId, viewMode, permission)
+        return repository.findByApplicationId(applicationId, permission, sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(collection -> {
                     if (Boolean.TRUE.equals(viewMode)) {
