@@ -89,7 +89,7 @@ export default class DataTreeEvaluator {
     }
   > = new Map();
   logs: any[] = [];
-
+  public hasCyclicalDependency = false;
   constructor(widgetConfigMap: WidgetTypeConfigMap) {
     this.widgetConfigMap = widgetConfigMap;
   }
@@ -726,6 +726,7 @@ export default class DataTreeEvaluator {
         },
       });
       logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
+      this.hasCyclicalDependency = true;
       throw new CrashingError(e.message);
     }
   }

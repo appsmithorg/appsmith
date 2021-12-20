@@ -32,9 +32,6 @@ let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
 
-// Use evaluator crash status to determine if canvas change history needs to be reset.
-let didEvaluatorCrash = false;
-
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
   fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
@@ -97,10 +94,7 @@ ctx.addEventListener(
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
-            if (!didEvaluatorCrash)
-              replayMap[CANVAS] = new ReplayCanvas(widgets);
-            else replayMap[CANVAS]?.update(widgets);
-            didEvaluatorCrash = false;
+            replayMap[CANVAS] = new ReplayCanvas(widgets);
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
@@ -110,6 +104,18 @@ ctx.addEventListener(
             jsUpdates = dataTreeResponse.jsUpdates;
             // We need to clean it to remove any possible functions inside the tree.
             // If functions exist, it will crash the web worker
+            dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+          } else if (dataTreeEvaluator.hasCyclicalDependency) {
+            if (shouldReplay) {
+              replayMap[CANVAS]?.update(widgets);
+            }
+            dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+            const dataTreeResponse = dataTreeEvaluator.createFirstTree(
+              unevalTree,
+            );
+            evaluationOrder = dataTreeEvaluator.sortedDependencies;
+            dataTree = dataTreeResponse.evalTree;
+            jsUpdates = dataTreeResponse.jsUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
@@ -144,7 +150,6 @@ ctx.addEventListener(
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
-          didEvaluatorCrash = true;
         }
         return {
           dataTree,
@@ -221,7 +226,6 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
-        didEvaluatorCrash = false;
         return true;
       }
       case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
