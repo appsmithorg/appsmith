@@ -9,6 +9,7 @@ import {
   setCurrentStep,
   addOnboardingWidget,
   forceShowContent,
+  focusWidget,
 } from "actions/onboardingActions";
 import { IconName } from "components/ads/Icon";
 import { highlightSection } from "./utils";
@@ -123,6 +124,7 @@ type Step = {
     image?: string;
     button?: {
       text: string;
+      onClick?: (dispatch: Dispatch<any>) => void;
     };
     steps?: ReactNode[];
   }[];
@@ -268,6 +270,9 @@ export const Steps: StepsType = {
         ),
         button: {
           text: "PROCEED",
+          onClick: (dispatch) => {
+            dispatch(focusWidget("Input1"));
+          },
         },
       },
       {

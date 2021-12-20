@@ -117,19 +117,21 @@ function WidgetsEditor() {
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />
       ) : (
-        <div
-          className="relative overflow-hidden flex flex-col"
-          data-testid="widgets-editor"
-          draggable
-          onClick={handleWrapperClick}
-          onDragStart={onDragStart}
-        >
+        <>
           {guidedTourEnabled && <Guide />}
-          <PageTabs />
-          <CanvasContainer />
-          <CrudInfoModal />
-          <Debugger />
-        </div>
+          <div
+            className="relative overflow-hidden flex flex-col"
+            data-testid="widgets-editor"
+            draggable
+            onClick={handleWrapperClick}
+            onDragStart={onDragStart}
+          >
+            <PageTabs />
+            <CanvasContainer />
+            <CrudInfoModal />
+            <Debugger />
+          </div>
+        </>
       )}
     </EditorContextProvider>
   );

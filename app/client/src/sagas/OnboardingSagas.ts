@@ -48,6 +48,7 @@ import { FlattenedWidgetProps } from "widgets/constants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { setExplorerPinnedAction } from "actions/explorerActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -204,6 +205,19 @@ function* updateWidgetTextSaga() {
   }
 }
 
+function* focusWidgetSaga(action: ReduxAction<string>) {
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const widget = Object.values(widgets).find((widget) => {
+    return widget.widgetName === action.payload;
+  });
+
+  if (widget) {
+    yield put(selectWidgetInitAction(widget.widgetId));
+  }
+}
+
 // Signposting sagas
 function* setEnableFirstTimeUserOnboarding(action: ReduxAction<boolean>) {
   yield storeEnableFirstTimeUserOnboarding(action.payload);
@@ -288,6 +302,7 @@ export default function* onboardingActionSagas() {
       ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
       updateWidgetTextSaga,
     ),
+    takeLatest(ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET, focusWidgetSaga),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,

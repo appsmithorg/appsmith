@@ -281,6 +281,7 @@ function GuideStepsContent(props: {
   const currentHint = content.hints[hintCount]
     ? content.hints[hintCount]
     : content.hints[0];
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setHintCount(0);
@@ -293,6 +294,9 @@ function GuideStepsContent(props: {
   const hintSteps = currentHint.steps;
 
   const hintButtonOnClick = () => {
+    if (currentHint.button && currentHint.button.onClick) {
+      currentHint.button.onClick(dispatch);
+    }
     setHintCount((count) => count + 1);
   };
 
