@@ -10,11 +10,18 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid transparent;
   background: ${(props) =>
     props.selected
       ? Colors.GREY_10
       : props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
   cursor: pointer;
+  & > div {
+    cursor: pointer;
+  }
+  &:hover {
+    border-color: var(--appsmith-input-focus-border-color);
+  }
   &&& svg {
     path {
       fill: ${(props) =>

@@ -116,6 +116,11 @@ const DropdownTarget = styled.div`
     display: flex;
     justify-content: space-between;
     padding: 5px 12px;
+
+    &:active,
+    &:focus {
+      border-color: var(--appsmith-input-focus-border-color);
+    }
   }
   &&&& .${Classes.ICON} {
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};

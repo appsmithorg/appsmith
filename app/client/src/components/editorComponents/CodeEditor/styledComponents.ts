@@ -115,7 +115,7 @@ export const EditorWrapper = styled.div<{
           case props.hasError:
             return "red";
           case props.isFocused:
-            return Colors.PRIMARY_ORANGE;
+            return "var(--appsmith-input-focus-border-color)";
           default:
             return Colors.GREY_5;
         }

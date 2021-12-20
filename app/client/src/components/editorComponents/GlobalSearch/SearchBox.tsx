@@ -34,12 +34,16 @@ const InputContainer = styled.div`
   align-items: center;
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
-  border: 1px solid
-    ${(props) => props.theme.colors.globalSearch.searchInputBorder};
+  border: 1px solid var(--appsmith-input-focus-border-color);
   .t--global-clear-input:hover {
     svg > path {
       fill: #4b4848;
     }
+  }
+  &:hover,
+  &:active,
+  &:focus {
+    border-color: var(--appsmith-input-focus-border-color);
   }
 `;
 

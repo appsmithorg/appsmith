@@ -50,7 +50,7 @@ const StyledInputGroup = styled(InputGroup)`
     color: ${(props) => props.theme.colors.propertyPane.label};
 
     &:focus {
-      border: 1px solid ${Colors.PRIMARY_ORANGE};
+      border: 1px solid var(--appsmith-input-focus-border-color);
     }
   }
 `;
