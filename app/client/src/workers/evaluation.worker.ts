@@ -149,7 +149,6 @@ ctx.addEventListener(
             log.error(e);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
-          dataTreeEvaluator = undefined;
         }
         return {
           dataTree,
