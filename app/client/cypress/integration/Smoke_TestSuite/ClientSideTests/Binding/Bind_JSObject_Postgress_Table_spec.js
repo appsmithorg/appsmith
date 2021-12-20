@@ -46,6 +46,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       });
       cy.get(homePage.shareApp).click();
       cy.enablePublicAccess();
+      cy.wait(3000);
       cy.PublishtheApp();
       cy.wait(3000);
       cy.url().then((url) => {
