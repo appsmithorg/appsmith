@@ -156,7 +156,10 @@ function DisconnectGitModal() {
             />
           </ButtonContainer>
         </BodyContainer>
-        <CloseBtnContainer onClick={handleClose}>
+        <CloseBtnContainer
+          className="t--close-disconnect-modal"
+          onClick={handleClose}
+        >
           <Icon
             fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
             name="close-modal"

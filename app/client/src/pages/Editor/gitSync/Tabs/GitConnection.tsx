@@ -420,6 +420,7 @@ function GitConnection({ isImport }: Props) {
               <TooltipWrapper>
                 <TooltipComponent content="Disconnect Git">
                   <Icon
+                    className="t--git-disconnect-icon"
                     fillColor={Colors.DARK_GRAY}
                     hoverFillColor={Colors.ERROR_RED}
                     name="delete"

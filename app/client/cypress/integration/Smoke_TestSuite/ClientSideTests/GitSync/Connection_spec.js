@@ -256,6 +256,13 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
+  it("Enabled disconnect git icon after connected git", function() {
+    cy.connectToGitRepo(repoName, false);
+    cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+    cy.get(gitSyncLocators.disconnectIcon).should("exist");
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+  });
+
   after(() => {
     cy.deleteTestGithubRepo(repoName);
   });

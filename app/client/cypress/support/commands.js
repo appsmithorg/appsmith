@@ -3356,6 +3356,7 @@ Cypress.Commands.add("connectToGitRepo", (repo, shouldCommit = true) => {
         key: generatedKey,
       },
     });
+
     cy.get(gitSyncLocators.gitConfigNameInput).type(
       `{selectall}${testUsername}`,
     );

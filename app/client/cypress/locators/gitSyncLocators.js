@@ -33,4 +33,13 @@ export default {
   readDocument: ".t--read-document",
   deployPreview: ".t--git-deploy-preview",
   mergeButton: ".t--git-merge-button",
+  disconnectIcon: ".t--git-disconnect-icon",
+  disconnectGitModal: ".disconnect-git-modal",
+  disconnectButton: ".t--git-revoke-button",
+  closeDisconnectModal: ".t--close-disconnect-modal",
+  disconnectAppNameInput: ".t--git-app-name-input",
+  repoLimitExceededErrorModal: ".t--git-repo-limited-modal",
+  contactSalesButton: ".t--contact-sales-button",
+  connectedApplication: "t--connected-app-wrapper",
+  diconnectLink: "t--disconnect-link",
 };

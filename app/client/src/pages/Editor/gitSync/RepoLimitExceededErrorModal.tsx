@@ -211,7 +211,10 @@ function RepoLimitExceededErrorModal() {
           {applications.map((application: ApplicationPayload) => {
             const { gitApplicationMetadata } = application;
             return (
-              <ApplicationWrapper key={application.id}>
+              <ApplicationWrapper
+                className="t--connected-app-wrapper"
+                key={application.id}
+              >
                 <div>
                   <TextWrapper>
                     <Text color={Colors.OXFORD_BLUE} type={TextType.H4}>
@@ -225,6 +228,7 @@ function RepoLimitExceededErrorModal() {
                   </TextWrapper>
                 </div>
                 <Link
+                  className="t--disconnect-link"
                   color={Colors.CRIMSON}
                   hasIcon
                   link=""

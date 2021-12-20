@@ -28,6 +28,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
+  setShowRepoLimitErrorModal,
   showConnectGitModal,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
@@ -39,6 +40,7 @@ import {
   getIsFetchingGitStatus,
   getPullFailed,
   getCountOfChangesToCommit,
+  getShouldShowRepoLimitError,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inOnboarding } from "sagas/OnboardingSagas";
@@ -229,6 +231,7 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInOnboarding = useSelector(inOnboarding);
+  const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
 
   const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
   const tooltipContent = !isInOnboarding ? (
@@ -263,7 +266,11 @@ function ConnectGitPlaceholder() {
                 AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
                   source: "Buttom bar connect to git button",
                 });
-                dispatch(showConnectGitModal());
+                if (isLimitExceeded) {
+                  dispatch(setShowRepoLimitErrorModal(true));
+                } else {
+                  dispatch(showConnectGitModal());
+                }
               }}
               size={Size.small}
               text={createMessage(CONNECT_GIT)}
