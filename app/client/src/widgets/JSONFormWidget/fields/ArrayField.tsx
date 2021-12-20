@@ -70,9 +70,9 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
       <FieldLabel label={label} tooltip={tooltip}>
         <StyledWrapper>
           {fields.map((field, index) => {
-            const fieldName = `${name}.${index}.__array_value__` as ControllerRenderProps["name"];
+            const fieldName = `${name}[${index}]__array_value__` as ControllerRenderProps["name"];
             const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
-            console.log("ARRAY FIELD", { fieldName });
+
             return (
               <StyledItemWrapper key={field.__id__}>
                 {fieldRenderer(

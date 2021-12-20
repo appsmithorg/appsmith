@@ -167,7 +167,7 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.MULTI_SELECT]: [],
   [FieldType.SELECT]: "",
   [FieldType.SWITCH]: true,
-  [FieldType.ARRAY]: [{}],
+  [FieldType.ARRAY]: [{ foo: "" }],
   [FieldType.OBJECT]: {},
 };
 

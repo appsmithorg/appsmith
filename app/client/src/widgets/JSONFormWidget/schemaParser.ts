@@ -366,6 +366,7 @@ class SchemaParser {
     prevSchema = {},
     sourceDataPath,
     widgetName,
+    ...rest
   }: ParserOptions): Schema => {
     const schema = cloneDeep(prevSchema);
     const currObj = currSourceData as Obj;
@@ -385,6 +386,7 @@ class SchemaParser {
         const prevSchemaItem = cloneDeep(schema[modifiedKey]);
 
         schema[modifiedKey] = SchemaParser.getSchemaItemFor(modifiedKey, {
+          ...rest,
           currSourceData: currObj[modifiedKey],
           prevSchema: schema[modifiedKey].children,
           sourceDataPath: getSourcePath(modifiedKey, sourceDataPath),
@@ -408,6 +410,7 @@ class SchemaParser {
 
     newKeys.forEach((newKey) => {
       schema[newKey] = SchemaParser.getSchemaItemFor(newKey, {
+        ...rest,
         currSourceData: currObj[newKey],
         sourceDataPath: getSourcePath(newKey, sourceDataPath),
         widgetName,

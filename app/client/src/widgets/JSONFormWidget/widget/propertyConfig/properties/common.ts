@@ -2,9 +2,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
 import {
-  FieldType,
+  ARRAY_ITEM_KEY,
   FIELD_EXPECTING_OPTIONS,
   FIELD_SUPPORTING_FOCUS_EVENTS,
+  FieldType,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
 import { JSONFormWidgetProps } from "../..";
@@ -89,12 +90,11 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
       hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-        const isHidden = hiddenIfArrayItemIsObject(props, propertyPath);
-
-        if (isHidden) return true;
-
         const parentPath = getParentPropertyPath(propertyPath);
         const schemaItem: SchemaItem = get(props, parentPath);
+        const isArrayItem = schemaItem.identifier === ARRAY_ITEM_KEY;
+
+        if (isArrayItem) return true;
 
         return !schemaItem?.isCustomField;
       },

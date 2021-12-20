@@ -254,8 +254,26 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const schema: Schema = propertyValue;
     const schemaItems = Object.values(schema);
 
+    const addNewFieldButton = (
+      <AddFieldButton
+        category={Category.tertiary}
+        className="t--add-column-btn"
+        icon="plus"
+        onClick={this.addNewField}
+        size={Size.medium}
+        tag="button"
+        text="Add a new field"
+        type="button"
+      />
+    );
+
     if (isEmpty(schema)) {
-      return <EmptyDataState />;
+      return (
+        <>
+          <EmptyDataState />
+          {addNewFieldButton}
+        </>
+      );
     }
 
     const sortedSchemaItems = sortBy(schemaItems, ({ position }) => position);
@@ -310,18 +328,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        {!this.isArrayItem() && (
-          <AddFieldButton
-            category={Category.tertiary}
-            className="t--add-column-btn"
-            icon="plus"
-            onClick={this.addNewField}
-            size={Size.medium}
-            tag="button"
-            text="Add a new field"
-            type="button"
-          />
-        )}
+        {!this.isArrayItem() && addNewFieldButton}
       </TabsWrapper>
     );
   }
