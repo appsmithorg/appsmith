@@ -67,7 +67,7 @@ describe("Switch datasource", function() {
       .first()
       .focus()
       .type("select * from public.users limit 10");
-
+    cy.wait(3000);
     cy.runQuery();
 
     cy.get(".t--switch-datasource").click();
@@ -80,18 +80,6 @@ describe("Switch datasource", function() {
       "response.body.data.isValid",
       true,
     );
-
-    //cy.validateNSelectDropdown("Commands", "Find Document(s)");
-
-    //cy.typeValueNValidate("listingsAndReviews", "Collection").wait(1000);
-
-    // cy.get(".CodeMirror")
-    //   .first()
-    //   .then((editor) => {
-    //     editor[0].CodeMirror.setValue('{"find": "planets"}');
-    //   });
-
-    cy.runQuery();
   });
 
   it("4. Delete the query and datasources", function() {
