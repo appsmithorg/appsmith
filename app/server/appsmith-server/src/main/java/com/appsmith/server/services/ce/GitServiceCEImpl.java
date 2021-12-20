@@ -347,7 +347,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 // check if the commit application will be allowed if the repo is made private
                                 return applicationService.save(defaultApplication)
                                         //Check the limit for number of private repo
-                                        .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
+                                        .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId(), false)
                                                 .flatMap(limitCount -> {
                                                     //get git connected apps count from db
                                                     return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
@@ -532,7 +532,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 )
                 .then(getApplicationById(defaultApplicationId))
                 //Check the limit for number of private repo
-                .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
+                .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
                         .flatMap(limitCount -> {
                             //get git connected apps count from db
                             return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
@@ -689,7 +689,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId) {
+    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId, boolean isClearCache) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         return configService.getInstanceId().map(instanceId -> {
             if (commonConfig.isCloudHosting()) {
@@ -699,7 +699,7 @@ public class GitServiceCEImpl implements GitServiceCE {
             }
         }).flatMap(key -> {
             // check the cache for the repo limit
-            if(gitLimitCache.containsKey(key)) {
+            if(Boolean.FALSE.equals(isClearCache) && gitLimitCache.containsKey(key)) {
                 return Mono.just(gitLimitCache.get(key).getRepoLimit());
             }
             // Call the cloud service API
