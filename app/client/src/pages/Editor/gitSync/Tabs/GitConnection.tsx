@@ -312,13 +312,10 @@ function GitConnection({ isImport }: Props) {
         }),
       );
     } else {
-      // TODO updated this currently the connect api need git config details
-      const updatedGitConfig = useGlobalConfigInputVal
-        ? globalGitConfig
-        : authorInfo;
+      const gitProfile = useGlobalConfigInputVal ? undefined : authorInfo;
       connectToGit({
         remoteUrl,
-        gitProfile: updatedGitConfig,
+        gitProfile,
         isImport,
         isDefaultProfile: useGlobalConfigInputVal,
       });
