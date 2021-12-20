@@ -179,12 +179,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.body[0].signedUrl).to.exist;
       expect(response.body.data.body[0].url).to.not.exist;
     });
-    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+    //cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
 
     //Read File
 
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.setQueryTimeout(30000);
+    //cy.NavigateToActiveDSQueryPane(datasourceName);
+    //cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "List files in bucket", "Read file");
 
     cy.onlyQueryRun();

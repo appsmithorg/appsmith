@@ -2439,12 +2439,12 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   );
 });
 
-Cypress.Commands.add("runQuery", () => {
+Cypress.Commands.add("runQuery", (expectedRes = true) => {
   cy.onlyQueryRun();
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.data.isExecutionSuccess",
-    true,
+    expectedRes,
   );
 
   // cy.wait("@postExecute").should(
