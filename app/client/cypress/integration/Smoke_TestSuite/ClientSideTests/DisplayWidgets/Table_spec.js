@@ -371,6 +371,7 @@ describe("Table Widget Functionality", function() {
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("tablewidget", { x: 200, y: 300 });
     cy.openPropertyPane("tablewidget");
+    cy.wait(3000);
     cy.testJsontext(
       "tabledata",
       `
@@ -388,6 +389,7 @@ describe("Table Widget Functionality", function() {
     `,
     );
     cy.wait("@updateLayout");
+    cy.wait(3000);
     cy.PublishtheApp();
     cy.getTableDataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
