@@ -2,7 +2,7 @@ const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import tinycolor from "tinycolor2";
 
-describe("Update Application", function() {
+describe("Update Application", () => {
   let appname;
   let iconname;
   let colorname;
@@ -10,7 +10,7 @@ describe("Update Application", function() {
     .toString(36)
     .slice(2, -1)}`;
 
-  it("Open the application menu and update name and then check whether update is reflected in the application card", function() {
+  it("Open the application menu and update name and then check whether update is reflected in the application card", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).clear();
@@ -33,7 +33,7 @@ describe("Update Application", function() {
     cy.get(homePage.applicationCardName).should("contain", appname);
   });
 
-  it("Open the application menu and update icon and then check whether update is reflected in the application card", function() {
+  it("Open the application menu and update icon and then check whether update is reflected in the application card", () => {
     cy.get(homePage.applicationIconSelector)
       .first()
       .click();
@@ -51,7 +51,7 @@ describe("Update Application", function() {
       });
   });
 
-  it("Check for errors in updating application name", function() {
+  it("Check for errors in updating application name", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
     cy.get(homePage.searchInput).type(appname);
@@ -83,7 +83,7 @@ describe("Update Application", function() {
     );
   });
 
-  it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {
+  it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
