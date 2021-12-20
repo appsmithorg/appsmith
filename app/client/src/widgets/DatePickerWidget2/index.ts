@@ -24,6 +24,7 @@ export const CONFIG = {
     closeOnSelection: false,
     shortcuts: false,
     isTimeEnabled: true,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

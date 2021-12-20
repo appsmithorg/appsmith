@@ -40,6 +40,7 @@ import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButton
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { migrateDatePickerForIsTimeEnabled } from "./migrations/DatePickerWidget2";
 import { DSLWidget } from "widgets/constants";
@@ -989,6 +990,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 46) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
+    currentDSL.version = 47;
+  }
+
+  if (currentDSL.version === 47) {
     currentDSL = migrateDatePickerForIsTimeEnabled(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
