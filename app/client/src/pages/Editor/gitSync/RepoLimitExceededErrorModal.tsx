@@ -95,7 +95,8 @@ function RepoLimitExceededErrorModal() {
             application.gitApplicationMetadata &&
             application.gitApplicationMetadata.remoteUrl &&
             application.gitApplicationMetadata.branchName &&
-            application.gitApplicationMetadata.repoName
+            application.gitApplicationMetadata.repoName &&
+            application.gitApplicationMetadata.isRepoPrivate
           );
         }) || []
       );
