@@ -469,14 +469,13 @@ function* gitPullSaga(
 }
 
 function* showConnectGitModal() {
-  const showRepoLimitError: boolean = yield select(getShouldShowRepoLimitError);
-  if (showRepoLimitError) {
-    yield put(setShowRepoLimitErrorModal(true));
-  } else {
-    yield put(
-      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
-    );
-  }
+  // This is done through a separate saga in case we fetch
+  // the flag to show to repo limit reached error modal in advance
+  // currently it just opens the git sync modal assuming the APIs would
+  // throw an error instead
+  yield put(
+    setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+  );
 }
 
 function* disconnectGitSaga() {
