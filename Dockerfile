@@ -11,7 +11,7 @@ ENV LC_ALL C.UTF-8
 
 # Update APT packages - Base Layer
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-  supervisor curl cron certbot nginx gnupg wget \
+  supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
   software-properties-common gettext openjdk-11-jre \
   python3-pip python-setuptools git \
   && add-apt-repository ppa:redislabs/redis \
@@ -64,7 +64,7 @@ COPY ./app/rts/package.json ./app/rts/dist/* rts/
 COPY ./app/rts/node_modules rts/node_modules
 
 # Nginx & MongoDB config template - Configuration layer
-COPY ./deploy/docker/templates/nginx_app.conf.sh ./deploy/docker/templates/mongo-init.js.sh ./deploy/docker/templates/docker.env.sh templates/
+COPY ./deploy/docker/templates/nginx/* ./deploy/docker/templates/mongo-init.js.sh ./deploy/docker/templates/docker.env.sh templates/
 
 # Add bootstrapfile
 COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./

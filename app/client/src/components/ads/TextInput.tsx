@@ -20,6 +20,7 @@ import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type InputType = "text" | "password" | "number" | "email" | "tel";
 
@@ -70,6 +71,7 @@ export type TextInputProps = CommonComponentProps & {
   onBlur?: EventHandler<FocusEvent<any>>;
   onFocus?: EventHandler<FocusEvent<any>>;
   errorMsg?: string;
+  trimValue?: boolean;
 };
 
 type boxReturnType = {
@@ -212,8 +214,9 @@ const InputWrapper = styled.div<{
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
-  border: 1.2px solid ${(props) =>
-    props.noBorder ? "transparent" : props.inputStyle.borderColor};
+  border: 1.2px solid
+    ${(props) =>
+      props.noBorder ? "transparent" : props.inputStyle.borderColor};
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
   ${(props) =>
@@ -291,6 +294,8 @@ const TextInput = forwardRef(
     const [isFocused, setIsFocused] = useState(false);
     const [inputValue, setInputValue] = useState(props.defaultValue);
 
+    const { trimValue = true } = props;
+
     const setRightSideRef = useCallback((ref: HTMLDivElement) => {
       if (ref) {
         const { width } = ref.getBoundingClientRect();
@@ -305,12 +310,14 @@ const TextInput = forwardRef(
 
     const memoizedChangeHandler = useCallback(
       (el) => {
-        const inputValue: string = el.target.value.trim();
+        const inputValue: string = trimValue
+          ? el.target.value.trim()
+          : el.target.value;
         setInputValue(inputValue);
         const inputValueValidation =
           props.validator && props.validator(inputValue);
         if (inputValueValidation) {
-          props.validator && setValidation(validation);
+          props.validator && setValidation(inputValueValidation);
           return (
             inputValueValidation.isValid &&
             props.onChange &&
@@ -320,7 +327,7 @@ const TextInput = forwardRef(
           return props.onChange && props.onChange(inputValue);
         }
       },
-      [props.onChange, setValidation],
+      [props.onChange, setValidation, trimValue],
     );
 
     const onBlurHandler = useCallback(
@@ -361,6 +368,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper
         $isLoading={props.isLoading}
+        className={replayHighlightClass}
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}
@@ -414,7 +422,7 @@ const TextInput = forwardRef(
           props.helperText.length > 0 &&
           HelperMessage}
         {ErrorMessage}
-        <RightSideContainer ref={setRightSideRef}>
+        <RightSideContainer className="right-icon" ref={setRightSideRef}>
           {props.rightSideComponent}
         </RightSideContainer>
       </InputWrapper>

@@ -31,6 +31,8 @@ type EditableTextProps = {
   minimal?: boolean;
   onBlur?: (value?: string) => void;
   beforeUnmount?: (value?: string) => void;
+  errorTooltipClass?: string;
+  maxLength?: number;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -84,10 +86,12 @@ export function EditableText(props: EditableTextProps) {
     className,
     defaultValue,
     editInteractionKind,
+    errorTooltipClass,
     forceDefault,
     hideEditIcon,
     isEditingDefault,
     isInvalid,
+    maxLength,
     minimal,
     onBlur,
     onTextChanged,
@@ -171,12 +175,17 @@ export function EditableText(props: EditableTextProps) {
         editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
       }
     >
-      <ErrorTooltip isOpen={!!error} message={errorMessage as string}>
+      <ErrorTooltip
+        customClass={errorTooltipClass}
+        isOpen={!!error}
+        message={errorMessage as string}
+      >
         <TextContainer isValid={!error} minimal={!!minimal}>
           <BlueprintEditableText
             className={className}
             disabled={!isEditing}
             isEditing={isEditing}
+            maxLength={maxLength}
             onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}

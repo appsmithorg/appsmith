@@ -1,7 +1,12 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.constants.ConditionalOperator;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -18,6 +23,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.appsmith.external.constants.FieldName.CHILDREN;
+import static com.appsmith.external.constants.FieldName.CONDITION;
+import static com.appsmith.external.constants.FieldName.KEY;
+import static com.appsmith.external.constants.FieldName.VALUE;
+
+@Slf4j
 public class PluginUtils {
 
     /**
@@ -78,6 +89,36 @@ public class PluginUtils {
 
     public static Boolean validConfigurationPresentInFormData(Map<String, Object> formData, String field) {
         return getValueSafelyFromFormData(formData, field) != null;
+    }
+
+    /**
+     * Get value from `formData` map and also type cast it to the class of type `T` before returning the value. In
+     * case the value is null, then the defaultValue is returned.
+     *
+     * @param formData
+     * @param field : key path used to fetch value from formData
+     * @param type : returned value is type casted to the type of this object before return.
+     * @param defaultValue : this value is returned if the obtained value is null
+     * @param <T> : type parameter to which the obtained value is cast to.
+     * @return : obtained value (post type cast) if non-null, otherwise defaultValue
+     */
+    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type,
+                                                   T defaultValue) {
+        Object formDataValue = getValueSafelyFromFormData(formData, field);
+        return formDataValue != null ? (T) formDataValue : defaultValue;
+    }
+
+    /**
+     * Get value from `formData` map and also type cast it to the class of type `T` before returning the value.
+     *
+     * @param formData
+     * @param field : key path used to fetch value from formData
+     * @param type : returned value is type casted to the type of this object before return.
+     * @param <T> : type parameter to which the obtained value is cast to.
+     * @return : obtained value (post type cast) if non-null, otherwise null.
+     */
+    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type) {
+        return (T) (getValueSafelyFromFormData(formData, field));
     }
 
     public static Object getValueSafelyFromFormData(Map<String, Object> formData, String field) {
@@ -196,5 +237,47 @@ public class PluginUtils {
         }
 
         return message;
+    }
+
+    public static Condition parseWhereClause(Map<String, Object> whereClause) {
+        Condition condition = new Condition();
+
+        Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.toString());
+
+        ConditionalOperator operator;
+        try {
+
+            operator = ConditionalOperator.valueOf(((String) unparsedOperator).trim().toUpperCase());
+
+        } catch (IllegalArgumentException e) {
+            // The operator could not be cast into a known type. Throw an exception
+            log.error(e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_UQI_WHERE_CONDITION_UNKNOWN, unparsedOperator);
+        }
+
+
+        if (operator != null) {
+
+            condition.setOperator(operator);
+
+            // For logical operators, we must walk all the children and add the same as values to this condition
+            if (operator.equals(ConditionalOperator.AND) || operator.equals(ConditionalOperator.OR)) {
+                List<Condition> children = new ArrayList<>();
+                List<Map<String, Object>> conditionList = (List) whereClause.get(CHILDREN);
+                for (Map<String, Object> unparsedCondition : conditionList) {
+                    Condition childCondition = parseWhereClause(unparsedCondition);
+                    children.add(childCondition);
+                }
+                condition.setValue(children);
+            } else {
+                // This is a comparison operator.
+                String key = (String) whereClause.get(KEY);
+                String value = (String) whereClause.get(VALUE);
+                condition.setPath(key);
+                condition.setValue(value);
+            }
+        }
+
+        return condition;
     }
 }

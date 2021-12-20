@@ -47,7 +47,6 @@ import {
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  APPLICATION_NAME_UPDATE,
   createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
@@ -210,6 +209,11 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
       payload: response.data,
     });
 
+    yield put({
+      type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+      payload: response.data?.evaluationVersion,
+    });
+
     if (action.onSuccessCallback) {
       action.onSuccessCallback(response);
     }
@@ -291,12 +295,6 @@ export function* updateApplicationSaga(
       yield put({
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
         payload: action.payload,
-      });
-    }
-    if (isValidResponse && request && request.name) {
-      Toaster.show({
-        text: createMessage(APPLICATION_NAME_UPDATE),
-        variant: Variant.success,
       });
     }
     if (isValidResponse && request.currentApp) {

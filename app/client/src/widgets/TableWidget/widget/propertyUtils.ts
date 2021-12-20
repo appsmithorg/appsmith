@@ -1,6 +1,7 @@
 import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
+import { Colors } from "constants/Colors";
 import { get } from "lodash";
 
 export enum ColumnTypes {
@@ -22,9 +23,6 @@ export function defaultSelectedRowValidation(
 ) {
   if (props) {
     if (props.multiRowSelection) {
-      if (props && !props.multiRowSelection)
-        return { isValid: true, parsed: undefined };
-
       if (_.isString(value)) {
         const trimmed = (value as string).trim();
         try {
@@ -74,6 +72,13 @@ export function defaultSelectedRowValidation(
     } else {
       try {
         const _value: string = value as string;
+
+        if (_value === "") {
+          return {
+            isValid: true,
+            parsed: undefined,
+          };
+        }
         if (Number.isInteger(parseInt(_value, 10)) && parseInt(_value, 10) > -1)
           return { isValid: true, parsed: parseInt(_value, 10) };
 
@@ -128,6 +133,30 @@ export function totalRecordsCountValidation(
   };
 }
 
+export function uniqueColumnNameValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  const tableColumns = _.map(value, "label");
+  const duplicates = tableColumns.filter(
+    (val: string, index: number, arr: string[]) => arr.indexOf(val) !== index,
+  );
+  const hasError = !!duplicates.length;
+  if (value && hasError) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Column names should be unique."],
+    };
+  }
+  return {
+    isValid: true,
+    parsed: value,
+    messages: [],
+  };
+}
+
 // A hook to update all column styles when global table styles are updated
 export const updateColumnStyles = (
   props: TableWidgetProps,
@@ -177,7 +206,7 @@ export const updateColumnStyles = (
   }
   return;
 };
-// Select a default Icon Alignment when an icon is chosen
+// Select default Icon Alignment when an icon is chosen
 export function updateIconAlignment(
   props: TableWidgetProps,
   propertyPath: string,
@@ -204,6 +233,7 @@ export function updateIconAlignment(
       propertyValue: Alignment.LEFT,
     });
   }
+
   return propertiesToUpdate;
 }
 
@@ -226,6 +256,11 @@ export const updateDerivedColumnsHook = (
     if (/^primaryColumns\.\w+$/.test(propertyPath)) {
       const newId = propertyValue.id;
       if (newId) {
+        // sets default value for some properties
+        propertyValue.buttonColor = Colors.GREEN;
+        propertyValue.menuColor = Colors.GREEN;
+        propertyValue.labelColor = Colors.WHITE;
+
         propertiesToUpdate = [
           {
             propertyPath: `derivedColumns.${newId}`,

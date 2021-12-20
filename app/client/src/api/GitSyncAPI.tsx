@@ -21,6 +21,12 @@ export type MergeBranchPayload = {
   destinationBranch: string;
 };
 
+export type MergeStatusPayload = {
+  applicationId: string;
+  sourceBranch: string;
+  destinationBranch: string;
+};
+
 export type ConnectToGitPayload = {
   remoteUrl: string;
   gitProfile: {
@@ -68,17 +74,29 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeBranchPayload): AxiosPromise<ApiResponse> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/merge/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
-    );
+    return Api.post(`${GitSyncAPI.baseURL}/merge/${applicationId}`, {
+      sourceBranch,
+      destinationBranch,
+    });
+  }
+
+  static getMergeStatus({
+    applicationId,
+    destinationBranch,
+    sourceBranch,
+  }: MergeStatusPayload) {
+    return Api.post(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
+      sourceBranch,
+      destinationBranch,
+    });
+  }
+
+  static pull({ applicationId }: { applicationId: string }) {
+    return Api.get(`${GitSyncAPI.baseURL}/pull/${applicationId}`);
   }
 
   static connect(payload: ConnectToGitPayload, applicationId: string) {
     return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
-  }
-
-  static disconnect(applicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 
   static getGlobalConfig() {
@@ -89,8 +107,13 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
-  static fetchBranches(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
+  static fetchBranches(applicationId: string, pruneBranches?: boolean) {
+    const queryParams = {} as { pruneBranches?: boolean };
+    if (pruneBranches) queryParams.pruneBranches = true;
+    return Api.get(
+      `${GitSyncAPI.baseURL}/branch/${applicationId}`,
+      queryParams,
+    );
   }
 
   static checkoutBranch(applicationId: string, branch: string) {
@@ -117,6 +140,10 @@ class GitSyncAPI extends Api {
     return Api.get(
       `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
+  }
+
+  static disconnectGit({ applicationId }: { applicationId: string }) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 }
 

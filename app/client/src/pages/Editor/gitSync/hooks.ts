@@ -5,6 +5,13 @@ import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import {
+  getGlobalGitConfig,
+  getLocalGitConfig,
+  getIsGlobalConfigDefined,
+  getIsLocalConfigDefined,
+} from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
@@ -62,6 +69,7 @@ export const useSSHKeyPair = () => {
           onErrorCallback: onGenerateSSHKeyFailure,
         }),
       );
+      AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
     }
   }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey, currentApplication?.id]);
 
@@ -81,22 +89,17 @@ export const useGitConnect = () => {
 
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
-  const [failedConnectingToGit, setFailedConnectingToGit] = useState(false);
-
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
   }, [setIsConnectingToGit]);
 
   const onGitConnectFailure = useCallback(() => {
     setIsConnectingToGit(false);
-    setFailedConnectingToGit(true);
   }, [setIsConnectingToGit]);
 
   const connectToGit = useCallback(
     (payload: ConnectToGitPayload) => {
       setIsConnectingToGit(true);
-      setFailedConnectingToGit(false);
-
       // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         connectToGitInit({
@@ -111,7 +114,44 @@ export const useGitConnect = () => {
 
   return {
     isConnectingToGit,
-    failedConnectingToGit,
     connectToGit,
+  };
+};
+
+export const useUserGitConfig = () => {
+  const globalGitConfig = useSelector(getGlobalGitConfig);
+  const localGitConfig = useSelector(getLocalGitConfig);
+  const isLocalConfigDefined = useSelector(getIsLocalConfigDefined);
+  const isGlobalConfigDefined = useSelector(getIsGlobalConfigDefined);
+
+  const getInitGitConfig = useCallback(() => {
+    let initialAuthInfo = {
+      authorName: "",
+      authorEmail: "",
+    };
+
+    if (isGlobalConfigDefined) {
+      initialAuthInfo = {
+        authorName: globalGitConfig.authorName || "",
+        authorEmail: globalGitConfig.authorEmail || "",
+      };
+    }
+    // when local config is defined we will only show local config
+    if (isLocalConfigDefined) {
+      initialAuthInfo = {
+        authorName: localGitConfig.authorName || "",
+        authorEmail: localGitConfig.authorEmail || "",
+      };
+    }
+
+    return initialAuthInfo;
+  }, [globalGitConfig, localGitConfig]);
+
+  return {
+    getInitGitConfig,
+    globalGitConfig,
+    isGlobalConfigDefined,
+    isLocalConfigDefined,
+    localGitConfig,
   };
 };

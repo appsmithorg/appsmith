@@ -11,6 +11,8 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
   if (customDataTree) {
     const customTreeDef = customTreeTypeDefCreator(customDataTree);
     TernServer.updateDef("customDataTree", customTreeDef);
+  } else {
+    TernServer.updateDef("customDataTree", {});
   }
 
   editor.setOption("extraKeys", {

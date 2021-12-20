@@ -85,6 +85,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return where("id").is(id);
     }
 
+    private Criteria getBranchCriteria(String branchName) {
+        return where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME).is(branchName);
+    }
+
     protected DBObject getDbObject(Object o) {
         BasicDBObject basicDBObject = new BasicDBObject();
         mongoConverter.write(o, basicDBObject);
@@ -158,6 +162,15 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
+    public Mono<UpdateResult> updateByCriteria(Criteria criteria, Update updateObj) {
+        if (criteria == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteria"));
+        }
+        Query query = new Query(criteria);
+        query.addCriteria(new Criteria().andOperator(notDeleted()));
+        return mongoOperations.updateMulti(query, updateObj, this.genericDomain);
+    }
+
     protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -166,6 +179,18 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(createQueryWithPermission(criterias, user, aclPermission))
                             .one()
+                            .map(obj -> (T) setUserPermissionsInObject(obj, user));
+                });
+    }
+
+    protected Mono<T> queryFirst(List<Criteria> criterias, AclPermission aclPermission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMap(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(createQueryWithPermission(criterias, user, aclPermission))
+                            .first()
                             .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
     }
@@ -190,6 +215,12 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                             createQueryWithPermission(criterias, (User) auth.getPrincipal(), aclPermission), this.genericDomain
                     )
                 );
+    }
+
+    protected Mono<Long> count(List<Criteria> criteriaList) {
+        return mongoOperations.count(
+                createQueryWithPermission(criteriaList, null, null), this.genericDomain
+        );
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
@@ -252,4 +283,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return obj;
     }
 
+    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
 }
