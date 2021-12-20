@@ -19,6 +19,9 @@ import {
   ButtonPlacementTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
+import { createGlobalStyle } from "styled-components";
+import { Classes } from "@blueprintjs/core";
+import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
 
 export function getDisplayName(WrappedComponent: {
   displayName: any;
@@ -224,8 +227,24 @@ export const lightenColor = (color = "#fff") => {
     .getBrightness();
 
   const percentageBrightness = (brightness / 255) * 100;
-  const nextPercentageBrightness = percentageBrightness / 4;
-  const nextBrightness = (nextPercentageBrightness * 255) / 100;
+  let nextBrightness = 0;
+
+  switch (true) {
+    case percentageBrightness > 70:
+      nextBrightness = 15;
+      break;
+    case percentageBrightness > 60:
+      nextBrightness = 25;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 35;
+      break;
+    case percentageBrightness > 40:
+      nextBrightness = 45;
+      break;
+    default:
+      nextBrightness = 65;
+  }
 
   if (brightness > 180) {
     return tinyAccentColor.darken(10).toString();
@@ -249,3 +268,43 @@ export const isDark = (color: string) => {
 
   return isDark;
 };
+
+export const PopoverStyles = createGlobalStyle<{
+  borderRadius: string;
+  portalClassName: string;
+  primaryColor: string;
+}>`
+  ${(props) => `
+    .${props.portalClassName} .${Classes.POPOVER} {
+      border-radius: ${props.borderRadius} !important;
+      overflow: hidden;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 4px !important;
+    }
+
+    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY},
+    .${props.portalClassName} .${Classes.BUTTON} {
+      border-radius: ${props.borderRadius} !important;
+    }
+    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY_SELECTED} {
+      background-color: ${props.primaryColor} !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT} {
+      border-radius: ${props.borderRadius} !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT}:focus, .${
+    props.portalClassName
+  }  .${Classes.INPUT}:active {
+      border: 1px solid ${props.primaryColor} !important;
+      box-shadow:  0px 0px 0px 2px ${lightenColor(
+        props.primaryColor,
+      )} !important;
+    }
+
+    .${props.portalClassName} .ads-dropdown-options-wrapper {
+      border: 0px solid !important;
+    }
+  `}
+`;

@@ -4,11 +4,7 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import { Color } from "constants/Colors";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";

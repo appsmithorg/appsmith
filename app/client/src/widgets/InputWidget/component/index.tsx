@@ -368,10 +368,13 @@ class InputComponent extends React.Component<
       );
       return (
         <ISDCodeDropdown
+          borderRadius={this.props.borderRadius}
           disabled={disabled}
           onISDCodeChange={this.props.onISDCodeChange}
           options={ISDCodeDropdownOptions}
+          primaryColor={this.props.primaryColor}
           selected={selectedISDCode}
+          widgetId={this.props.widgetId}
         />
       );
     } else if (inputType === InputTypes.CURRENCY) {
@@ -381,9 +384,12 @@ class InputComponent extends React.Component<
       return (
         <CurrencyTypeDropdown
           allowCurrencyChange={this.props.allowCurrencyChange && !disabled}
+          borderRadius={this.props.borderRadius}
           onCurrencyTypeChange={this.props.onCurrencyTypeChange}
           options={CurrencyDropdownOptions}
+          primaryColor={this.props.primaryColor}
           selected={selectedCurrencyCountryCode}
+          widgetId={this.props.widgetId}
         />
       );
     } else if (this.props.iconName && this.props.iconAlign === "left") {

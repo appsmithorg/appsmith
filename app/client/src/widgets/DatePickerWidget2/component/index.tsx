@@ -1,9 +1,9 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
-import { DateInput, Classes as DateTimeClasses } from "@blueprintjs/datetime";
+import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "../constants";
@@ -16,7 +16,7 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
-import { lightenColor } from "widgets/WidgetUtils";
+import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
 
@@ -78,30 +78,6 @@ const StyledControlGroup = styled(ControlGroup)<{
       max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
-`;
-
-const PopupStyles = createGlobalStyle<{
-  borderRadius: string;
-  widgetId: string;
-  primaryColor: string;
-}>`
-  ${(props) => `
-    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId}  .${Classes.POPOVER} {
-      border-radius: ${props.borderRadius} !important;
-      overflow: hidden;
-      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-      margin-top: 4px !important;
-    }
-
-    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId} .${DateTimeClasses.DATEPICKER_DAY},
-    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId} .${Classes.BUTTON} {
-      border-radius: ${props.borderRadius} !important;
-    }
-    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId} .${DateTimeClasses.DATEPICKER_DAY_SELECTED} {
-      background-color: ${props.primaryColor} !important;
-
-    }
-  `}
 `;
 
 /**
@@ -210,10 +186,10 @@ class DatePickerComponent extends React.Component<
             />
           </ErrorTooltip>
         }
-        <PopupStyles
+        <PopoverStyles
           borderRadius={this.props.borderRadius}
+          portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
           primaryColor={this.props.primaryColor}
-          widgetId={this.props.widgetId}
         />
       </StyledControlGroup>
     );

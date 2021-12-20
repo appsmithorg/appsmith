@@ -1,10 +1,12 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
 import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
+import { Classes } from "@blueprintjs/core";
+import { lightenColor } from "widgets/WidgetUtils";
 
 const DropdownTriggerIconWrapper = styled.div`
   display: flex;
@@ -42,6 +44,47 @@ const CurrencyIconWrapper = styled.span`
   line-height: 18px;
   letter-spacing: -0.24px;
   color: #090707;
+`;
+
+export const PopoverStyles = createGlobalStyle<{
+  borderRadius: string;
+  portalClassName: string;
+  primaryColor: string;
+}>`
+  ${(props) => `
+    .${props.portalClassName} .${Classes.POPOVER} {
+      border-radius: ${props.borderRadius} !important;
+      overflow: hidden;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 4px !important;
+    }
+
+    .${props.portalClassName} .${Classes.BUTTON} {
+      border-radius: ${props.borderRadius} !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT} {
+      border-radius: ${props.borderRadius} !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT}:focus, .${
+    props.portalClassName
+  }  .${Classes.INPUT}:active {
+      border: 1px solid ${props.primaryColor} !important;
+      box-shadow:  0px 0px 0px 2px ${lightenColor(
+        props.primaryColor,
+      )} !important;
+    }
+
+    .${props.portalClassName} .t--dropdown-option:hover,
+    .${props.portalClassName} .t--dropdown-option.selected {
+      background-color: ${lightenColor(props.primaryColor)} !important;
+    }
+
+    .${props.portalClassName} .ads-dropdown-options-wrapper {
+      border: 0px solid !important;
+    }
+  `}
 `;
 
 const getCurrencyOptions = (): Array<DropdownOption> => {
@@ -89,6 +132,9 @@ interface CurrencyDropdownProps {
   options: Array<DropdownOption>;
   selected: DropdownOption;
   allowCurrencyChange?: boolean;
+  borderRadius: string;
+  primaryColor: string;
+  widgetId: string;
 }
 
 export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
@@ -106,18 +152,25 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
     </DropdownTriggerIconWrapper>
   );
   return (
-    <Dropdown
-      containerClassName="currency-type-filter"
-      dropdownHeight="139px"
-      dropdownTriggerIcon={dropdownTriggerIcon}
-      enableSearch
-      height="36px"
-      onSelect={props.onCurrencyTypeChange}
-      optionWidth="340px"
-      options={props.options}
-      searchPlaceholder="Search by currency or country"
-      selected={props.selected}
-      showLabelOnly
-    />
+    <>
+      <Dropdown
+        containerClassName="currency-type-filter"
+        dropdownHeight="139px"
+        dropdownTriggerIcon={dropdownTriggerIcon}
+        enableSearch
+        height="36px"
+        onSelect={props.onCurrencyTypeChange}
+        optionWidth="340px"
+        options={props.options}
+        searchPlaceholder="Search by currency or country"
+        selected={props.selected}
+        showLabelOnly
+      />
+      <PopoverStyles
+        borderRadius={props.borderRadius}
+        portalClassName={`currency-type-filter-dropdown-${props.widgetId}`}
+        primaryColor={props.primaryColor}
+      />
+    </>
   );
 }

@@ -95,6 +95,7 @@ export type DropdownProps = CommonComponentProps &
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
+    portalClassName?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -233,7 +234,7 @@ export const DropdownWrapper = styled.div<{
 `;
 
 const SearchComponentWrapper = styled.div`
-  margin: 0px 5px;
+  margin: 0px 8px 8px 8px;
 `;
 
 const DropdownOptionsWrapper = styled.div<{
@@ -571,7 +572,9 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           }
           return !option.isSectionHeader ? (
             <OptionWrapper
-              className="t--dropdown-option"
+              className={`t--dropdown-option ${
+                props.selected.value === option.value ? "selected" : ""
+              }`}
               key={index}
               onClick={() => props.optionClickHandler(option)}
               selected={props.selected.value === option.value}
@@ -750,6 +753,7 @@ export default function Dropdown(props: DropdownProps) {
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={`${props.className} none-shadow-popover`}
+        portalClassName={props.portalClassName}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
       >

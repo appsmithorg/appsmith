@@ -1,10 +1,12 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "./utilities";
 import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
 import { Colors } from "constants/Colors";
+import { Classes } from "@blueprintjs/core";
+import { lightenColor } from "widgets/WidgetUtils";
 
 const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
   height: 100%;
@@ -32,6 +34,47 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
 const FlagWrapper = styled.span`
   font-size: 20px;
   line-height: 19px;
+`;
+
+export const PopoverStyles = createGlobalStyle<{
+  borderRadius: string;
+  portalClassName: string;
+  primaryColor: string;
+}>`
+  ${(props) => `
+    .${props.portalClassName} .${Classes.POPOVER} {
+      border-radius: ${props.borderRadius} !important;
+      overflow: hidden;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 4px !important;
+    }
+
+    .${props.portalClassName} .${Classes.BUTTON} {
+      border-radius: ${props.borderRadius} !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT} {
+      border-radius: ${props.borderRadius} !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT}:focus, .${
+    props.portalClassName
+  }  .${Classes.INPUT}:active {
+      border: 1px solid ${props.primaryColor} !important;
+      box-shadow:  0px 0px 0px 2px ${lightenColor(
+        props.primaryColor,
+      )} !important;
+    }
+
+    .${props.portalClassName} .t--dropdown-option:hover,
+    .${props.portalClassName} .t--dropdown-option.selected {
+      background-color: ${lightenColor(props.primaryColor)} !important;
+    }
+
+    .${props.portalClassName} .ads-dropdown-options-wrapper {
+      border: 0px solid !important;
+    }
+  `}
 `;
 
 const getISDCodeOptions = (): Array<DropdownOption> => {
@@ -75,6 +118,9 @@ interface ISDCodeDropdownProps {
   selected: DropdownOption;
   allowCountryCodeChange?: boolean;
   disabled: boolean;
+  borderRadius: string;
+  primaryColor: string;
+  widgetId: string;
 }
 
 export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
@@ -96,18 +142,26 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
     return dropdownTrigger;
   }
   return (
-    <Dropdown
-      containerClassName="country-type-filter"
-      dropdownHeight="139px"
-      dropdownTriggerIcon={dropdownTrigger}
-      enableSearch
-      height="36px"
-      onSelect={props.onISDCodeChange}
-      optionWidth="340px"
-      options={props.options}
-      searchPlaceholder="Search by ISD code or country"
-      selected={props.selected}
-      showLabelOnly
-    />
+    <>
+      <Dropdown
+        containerClassName="country-type-filter"
+        dropdownHeight="139px"
+        dropdownTriggerIcon={dropdownTrigger}
+        enableSearch
+        height="36px"
+        onSelect={props.onISDCodeChange}
+        optionWidth="340px"
+        options={props.options}
+        portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
+        searchPlaceholder="Search by ISD code or country"
+        selected={props.selected}
+        showLabelOnly
+      />
+      <PopoverStyles
+        borderRadius={props.borderRadius}
+        portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
+        primaryColor={props.primaryColor}
+      />
+    </>
   );
 }
