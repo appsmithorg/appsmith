@@ -69,8 +69,17 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                         }
                     });
 
-                    final Mono<List<Plugin>> updatedPluginsFlux = pluginService.saveAll(updatablePlugins)
+                    // Save new data for this plugin,
+                    // then make sure to install to organizations in case the default installation flag changed
+                    final Mono<List<Organization>> updatedPluginsOrganizationFlux = pluginService
+                            .saveAll(updatablePlugins)
+                            .filter(Plugin::getDefaultInstall)
+                            .collectList()
+                            .flatMapMany(pluginService::installDefaultPlugins)
                             .collectList();
+
+                    // Create plugin,
+                    // then install to all organizations if default installation is turned on
                     final Mono<List<Organization>> organizationFlux =
                             Flux.fromIterable(insertablePlugins)
                                     .flatMap(pluginService::create)
@@ -79,7 +88,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                                     .flatMapMany(pluginService::installDefaultPlugins)
                                     .collectList();
 
-                    return updatedPluginsFlux
+                    return updatedPluginsOrganizationFlux
                             .zipWith(organizationFlux)
                             .then();
                 })
