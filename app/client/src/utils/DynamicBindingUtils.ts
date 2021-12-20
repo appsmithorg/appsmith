@@ -398,6 +398,7 @@ export function getDynamicBindingsChangesSaga(
   let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
   if (
+    action.datasource &&
     "datasourceConfiguration" in action.datasource &&
     field === "datasource"
   ) {

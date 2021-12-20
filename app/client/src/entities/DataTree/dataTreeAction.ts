@@ -25,7 +25,10 @@ export const generateDataTreeAction = (
     }));
   }
 
-  if ("datasourceConfiguration" in action.config.datasource) {
+  if (
+    action.config.datasource &&
+    "datasourceConfiguration" in action.config.datasource
+  ) {
     datasourceUrl = action.config.datasource.datasourceConfiguration.url;
   }
 
