@@ -704,7 +704,7 @@ public class GitServiceCEImpl implements GitServiceCE {
             }
             // Call the cloud service API
             return WebClient
-                    .create(baseUrl + "api/v1/git/limit/" + key)
+                    .create(baseUrl + "/api/v1/git/limit/" + key)
                     .get()
                     .exchange()
                     .flatMap(response -> {
