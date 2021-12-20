@@ -10,7 +10,6 @@ import {
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
-import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
 import history from "utils/history";
@@ -22,6 +21,7 @@ import {
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -39,17 +39,6 @@ const InputContainer = styled.div<{ isValid: boolean }>`
     input {
       ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
     }
-  }
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  .${GitSyncClasses.OPTION_SELECTOR_WRAPPER} {
-    display: flex;
-    align-items: center;
-    padding-top: 5px;
   }
 `;
 
@@ -78,6 +67,12 @@ const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
   margin-top: ${(props) => props.theme.spaces[3]}px;
+`;
+
+const SectionTitle = styled.span`
+  ${(props) => getTypographyByKey(props, "u1")};
+  text-transform: uppercase;
+  color: ${Colors.GRAY_900};
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -178,11 +173,9 @@ function UserGitProfileSettings({
   const emailInvalid = !isValidEmail && !emailInputFocused && triedSubmit;
   return (
     <MainContainer>
-      <TitleWrapper>
-        <span className="label">
-          {createMessage(USER_PROFILE_SETTINGS_TITLE)}
-        </span>
-      </TitleWrapper>
+      <SectionTitle className="label">
+        {createMessage(USER_PROFILE_SETTINGS_TITLE)}
+      </SectionTitle>
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
