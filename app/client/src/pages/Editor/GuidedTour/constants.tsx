@@ -293,6 +293,7 @@ export const Steps: StepsType = {
       timed: true,
       onClick: (dispatch) => {
         dispatch(setCurrentStep(5));
+        dispatch(focusWidget("Input2"));
       },
       duration: 12,
     },
