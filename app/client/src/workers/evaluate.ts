@@ -115,7 +115,10 @@ export const createGlobalData = (
     }
   }
   //// Add internal functions to dataTree;
-  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+    dataTree,
+    context?.requestId,
+  );
   ///// Adding Data tree with functions
   Object.keys(dataTreeWithFunctions).forEach((datum) => {
     GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
@@ -149,6 +152,7 @@ export function sanitizeScript(js: string) {
 export type EvaluateContext = {
   thisContext?: Record<string, any>;
   globalContext?: Record<string, any>;
+  requestId?: string;
 };
 
 export const getUserScriptToEvaluate = (
@@ -239,7 +243,7 @@ export async function evaluateAsync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
-      context,
+      { ...context, requestId },
       evalArguments,
     );
     const { script } = getUserScriptToEvaluate(
@@ -248,7 +252,6 @@ export async function evaluateAsync(
       true,
       evalArguments,
     );
-    GLOBAL_DATA.REQUEST_ID = requestId;
     GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -272,7 +275,7 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     } finally {
-      completePromise({
+      completePromise(requestId, {
         result,
         errors,
         triggers: Array.from(self.TRIGGER_COLLECTOR),

@@ -137,20 +137,20 @@ type GeolocationOptions = {
   enableHighAccuracy?: boolean;
 };
 
+type GeolocationPayload = {
+  onSuccess?: string;
+  onError?: string;
+  options?: GeolocationOptions;
+};
+
 export type GetCurrentLocationDescription = {
   type: ActionTriggerType.GET_CURRENT_LOCATION;
-  payload: {
-    options?: GeolocationOptions;
-  };
+  payload: GeolocationPayload;
 };
 
 export type WatchCurrentLocationDescription = {
   type: ActionTriggerType.WATCH_CURRENT_LOCATION;
-  payload: {
-    onSuccess: string | undefined;
-    onError: string | undefined;
-    options?: GeolocationOptions;
-  };
+  payload: GeolocationPayload;
 };
 
 export type StopWatchingCurrentLocationDescription = {

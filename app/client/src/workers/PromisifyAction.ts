@@ -11,8 +11,12 @@ const ctx: Worker = self as any;
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
+import { enhanceDataTreeWithFunctions } from "workers/Actions";
 
-export const promisifyAction = (actionDescription: ActionDescription) => {
+export const promisifyAction = (
+  workerRequestId: string,
+  actionDescription: ActionDescription,
+) => {
   if (!self.ALLOW_ASYNC) {
     /**
      * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
@@ -22,9 +26,10 @@ export const promisifyAction = (actionDescription: ActionDescription) => {
     self.IS_ASYNC = true;
     throw new Error("Async function called in a sync field");
   }
+  const workerRequestIdCopy = workerRequestId.concat("");
   return new Promise((resolve, reject) => {
     // We create a new sub request id for each request going on so that we can resolve the correct one later on
-    const subRequestId = _.uniqueId(`${self.REQUEST_ID}_`);
+    const subRequestId = _.uniqueId(`${workerRequestIdCopy}_`);
     const responseData = {
       trigger: actionDescription,
       errors: [],
@@ -33,17 +38,28 @@ export const promisifyAction = (actionDescription: ActionDescription) => {
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
       responseData,
-      requestId: self.REQUEST_ID,
+      requestId: workerRequestIdCopy,
     });
     const processResponse = function(event: MessageEvent) {
       const { data, method, requestId, success } = event.data;
       if (
         method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER &&
-        requestId === self.REQUEST_ID &&
+        requestId === workerRequestIdCopy &&
         subRequestId === event.data.data.subRequestId
       ) {
-        self.ALLOW_ASYNC = true;
         // If we get a response for this same promise we will resolve or reject it
+
+        self.ALLOW_ASYNC = true;
+        const correctlyBoundFunctions = enhanceDataTreeWithFunctions(
+          {},
+          workerRequestIdCopy,
+        );
+        for (const boundFunc in correctlyBoundFunctions) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore: No types available
+          self[boundFunc] = correctlyBoundFunctions[boundFunc];
+        }
+
         if (success) {
           resolve.apply(self, data.resolve);
         } else {
@@ -57,13 +73,13 @@ export const promisifyAction = (actionDescription: ActionDescription) => {
 };
 // To indicate the main thread that the processing of the trigger is done
 // we send a finished message
-export const completePromise = (result: EvalResult) => {
+export const completePromise = (requestId: string, result: EvalResult) => {
   ctx.postMessage({
     type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
     responseData: {
       finished: true,
       result,
     },
-    requestId: self.REQUEST_ID,
+    requestId,
   });
 };

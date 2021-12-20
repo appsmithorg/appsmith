@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {
-  ActionDispatcher,
-  DataTree,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import {
@@ -15,19 +11,31 @@ import { promisifyAction } from "workers/PromisifyAction";
 
 declare global {
   interface Window {
-    REQUEST_ID?: string;
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
 
+enum ExecutionType {
+  PROMISE = "PROMISE",
+  TRIGGER = "TRIGGER",
+}
+
+type ActionDescriptionWithExecutionType = ActionDescription & {
+  executionType: ExecutionType;
+};
+
+type ActionDispatcherWithExecutionType = (
+  ...args: any[]
+) => ActionDescriptionWithExecutionType;
+
 const DATA_TREE_FUNCTIONS: Record<
   string,
-  | ActionDispatcher
+  | ActionDispatcherWithExecutionType
   | {
       qualifier: (entity: DataTreeEntity) => boolean;
-      func: (entity: DataTreeEntity) => ActionDispatcher;
+      func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
       path?: string;
     }
 > = {
@@ -36,63 +44,71 @@ const DATA_TREE_FUNCTIONS: Record<
     params: Record<string, string>,
     target?: NavigationTargetType,
   ) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.NAVIGATE_TO,
       payload: { pageNameOrUrl, params, target },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   showAlert: function(
     message: string,
     style: "info" | "success" | "warning" | "error" | "default",
   ) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.SHOW_ALERT,
       payload: { message, style },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   showModal: function(modalName: string) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.SHOW_MODAL_BY_NAME,
       payload: { modalName },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   closeModal: function(modalName: string) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.CLOSE_MODAL,
       payload: { modalName },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   storeValue: function(key: string, value: string, persist = true) {
     // momentarily store this value in local state to support loops
     _.set(self, `appsmith.store[${key}]`, value);
-    return promisifyAction({
+    return {
       type: ActionTriggerType.STORE_VALUE,
       payload: { key, value, persist },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   download: function(data: string, name: string, type: string) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.DOWNLOAD,
       payload: { data, name, type },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   copyToClipboard: function(
     data: string,
     options?: { debug?: boolean; format?: string },
   ) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.COPY_TO_CLIPBOARD,
       payload: {
         data,
         options: { debug: options?.debug, format: options?.format },
       },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   resetWidget: function(widgetName: string, resetChildren = true) {
-    return promisifyAction({
+    return {
       type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
       payload: { widgetName, resetChildren },
-    });
+      executionType: ExecutionType.PROMISE,
+    };
   },
   run: {
     qualifier: (entity) => isAction(entity),
@@ -103,7 +119,7 @@ const DATA_TREE_FUNCTIONS: Record<
         onSuccessOrParams?: () => unknown | Record<string, unknown>,
         onError?: () => unknown,
         params = {},
-      ) {
+      ): ActionDescriptionWithExecutionType {
         const isOldSignature =
           typeof onSuccessOrParams === "function" ||
           typeof onError === "function";
@@ -120,28 +136,32 @@ const DATA_TREE_FUNCTIONS: Record<
               onError: onError ? onError.toString() : undefined,
               params,
             },
+            executionType: ExecutionType.TRIGGER,
           };
         } else {
-          return promisifyAction({
+          return {
             type: ActionTriggerType.RUN_PLUGIN_ACTION,
             payload: {
               actionId: isAction(entity) ? entity.actionId : "",
               params: isTrueObject(onSuccessOrParams) ? onSuccessOrParams : {},
             },
-          });
+            executionType: ExecutionType.PROMISE,
+          };
         }
       },
   },
   clear: {
     qualifier: (entity) => isAction(entity),
-    func: (entity) => () => {
-      return promisifyAction({
-        type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
-        payload: {
-          actionId: isAction(entity) ? entity.actionId : "",
-        },
-      });
-    },
+    func: (entity) =>
+      function() {
+        return {
+          type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
+          payload: {
+            actionId: isAction(entity) ? entity.actionId : "",
+          },
+          executionType: ExecutionType.PROMISE,
+        };
+      },
   },
   setInterval: function(callback: Function, interval: number, id?: string) {
     return {
@@ -151,6 +171,7 @@ const DATA_TREE_FUNCTIONS: Record<
         interval,
         id,
       },
+      executionType: ExecutionType.TRIGGER,
     };
   },
   clearInterval: function(id: string) {
@@ -159,6 +180,7 @@ const DATA_TREE_FUNCTIONS: Record<
       payload: {
         id,
       },
+      executionType: ExecutionType.TRIGGER,
     };
   },
   getGeoLocation: {
@@ -174,19 +196,22 @@ const DATA_TREE_FUNCTIONS: Record<
           enableHighAccuracy?: boolean;
         },
       ) {
-        const mainRequest = promisifyAction({
+        return {
           type: ActionTriggerType.GET_CURRENT_LOCATION,
           payload: {
             options,
+            onError: errorCallback
+              ? `{{${errorCallback.toString()}}}`
+              : undefined,
+            onSuccess: successCallback
+              ? `{{${successCallback.toString()}}}`
+              : undefined,
           },
-        });
-        if (errorCallback) {
-          mainRequest.catch(errorCallback);
-        }
-        if (successCallback) {
-          mainRequest.then(successCallback);
-        }
-        return mainRequest;
+          executionType:
+            errorCallback || successCallback
+              ? ExecutionType.TRIGGER
+              : ExecutionType.PROMISE,
+        };
       },
   },
   watchGeoLocation: {
@@ -213,6 +238,10 @@ const DATA_TREE_FUNCTIONS: Record<
               ? `{{${onErrorCallback.toString()}}}`
               : undefined,
           },
+          executionType:
+            onErrorCallback || onSuccessCallback
+              ? ExecutionType.TRIGGER
+              : ExecutionType.PROMISE,
         };
       },
   },
@@ -223,6 +252,7 @@ const DATA_TREE_FUNCTIONS: Record<
       function() {
         return {
           type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
+          executionType: ExecutionType.PROMISE,
         };
       },
   },
@@ -230,6 +260,7 @@ const DATA_TREE_FUNCTIONS: Record<
 
 export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
+  requestId = "",
 ): DataTree => {
   const withFunction: DataTree = _.cloneDeep(dataTree);
 
@@ -241,12 +272,33 @@ export const enhanceDataTreeWithFunctions = (
       Object.entries(dataTree).forEach(([entityName, entity]) => {
         if (funcOrFuncCreator.qualifier(entity)) {
           const func = funcOrFuncCreator.func(entity);
-          const funcName = funcOrFuncCreator.path || `${entityName}.${name}`;
-          _.set(withFunction, funcName, pusher.bind(self, func));
+          const funcName = `${funcOrFuncCreator.path ||
+            `${entityName}.${name}`}`;
+          _.set(
+            withFunction,
+            funcName,
+            pusher.bind(
+              {
+                TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+                REQUEST_ID: requestId,
+              },
+              func,
+            ),
+          );
         }
       });
     } else {
-      _.set(withFunction, name, pusher.bind(self, funcOrFuncCreator));
+      _.set(
+        withFunction,
+        name,
+        pusher.bind(
+          {
+            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+            REQUEST_ID: requestId,
+          },
+          funcOrFuncCreator,
+        ),
+      );
     }
   });
 
@@ -254,14 +306,14 @@ export const enhanceDataTreeWithFunctions = (
 };
 
 export const pusher = function(
-  this: { TRIGGER_COLLECTOR: ActionDescription[] },
-  action: ActionDispatcher,
+  this: { TRIGGER_COLLECTOR: ActionDescription[]; REQUEST_ID: string },
+  action: ActionDispatcherWithExecutionType,
   ...payload: any[]
 ) {
   const actionPayload = action(...payload);
-  if (actionPayload && "type" in actionPayload) {
+  if (actionPayload && actionPayload.executionType === ExecutionType.TRIGGER) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
-    return actionPayload;
+    return promisifyAction(this.REQUEST_ID, actionPayload);
   }
 };
