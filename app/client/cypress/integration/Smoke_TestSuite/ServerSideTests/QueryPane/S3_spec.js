@@ -187,14 +187,14 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "List files in bucket", "Read file");
 
-    cy.onlyQueryRun();
-    cy.wait("@postExecute").should(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contains(
-        "Mandatory parameter 'Bucket Name' is missing.",
-      );
-    });
-    cy.typeValueNValidate("AutoTest", "Bucket Name");
+    // cy.onlyQueryRun();
+    // cy.wait("@postExecute").should(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(false);
+    //   expect(response.body.data.body).to.contains(
+    //     "Mandatory parameter 'Bucket Name' is missing.",
+    //   );
+    // });
+    // cy.typeValueNValidate("AutoTest", "Bucket Name");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -205,16 +205,16 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.typeValueNValidate("Auto", "File Path");
 
-    cy.onlyQueryRun();
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body.split("(")[0].trim()).to.be.oneOf([
-        "The specified bucket does not exist",
-        "The specified bucket is not valid.",
-      ]);
-    });
+    // cy.onlyQueryRun();
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(false);
+    //   expect(response.body.data.body.split("(")[0].trim()).to.be.oneOf([
+    //     "The specified bucket does not exist",
+    //     "The specified bucket is not valid.",
+    //   ]);
+    // });
 
-    cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
+    // cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
