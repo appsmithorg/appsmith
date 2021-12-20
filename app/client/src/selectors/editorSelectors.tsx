@@ -69,7 +69,10 @@ export const getIsPageSaving = (state: AppState) => {
   });
 
   return (
-    state.ui.editor.loadingStates.saving || areApisSaving || areJsObjectsSaving
+    state.ui.editor.loadingStates.saving ||
+    areApisSaving ||
+    areJsObjectsSaving ||
+    state.ui.editor.loadingStates.savingEntity
   );
 };
 
