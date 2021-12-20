@@ -32,6 +32,9 @@ let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
 
+// Use evaluator crash status to determine if canvas change history needs to be reset.
+let didEvaluatorCrash = false;
+
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
   fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
@@ -94,7 +97,10 @@ ctx.addEventListener(
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
-            replayMap[CANVAS] = new ReplayCanvas(widgets);
+            if (!didEvaluatorCrash)
+              replayMap[CANVAS] = new ReplayCanvas(widgets);
+            else replayMap[CANVAS]?.update(widgets);
+            didEvaluatorCrash = false;
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
@@ -138,6 +144,7 @@ ctx.addEventListener(
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
+          didEvaluatorCrash = true;
         }
         return {
           dataTree,
@@ -214,6 +221,7 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
+        didEvaluatorCrash = false;
         return true;
       }
       case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
