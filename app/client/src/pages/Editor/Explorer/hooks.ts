@@ -380,7 +380,7 @@ export const useFilesForExplorer = (sort = "type") => {
       );
       return groupedFiles.files;
     }
-  }, [sort, actions, jsActions]);
+  }, [sort, files]);
 };
 
 export function useActiveAction(actionId: string) {
