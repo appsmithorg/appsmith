@@ -100,12 +100,12 @@ function MapChartComponent(props: MapChartComponentProps) {
   useEffect(() => {
     // Attach event handlers
     const newChartConfigs: any = { ...chartConfigs };
-    newChartConfigs["events"]["entityClick"] = entityClick;
+    newChartConfigs["events"]["entityClick"] = onDataPointClick;
 
     return () => {
-      chart.removeEventListener("entityClick", entityClick);
+      chart.removeEventListener("entityClick", onDataPointClick);
     };
-  }, []);
+  }, [onDataPointClick]);
 
   useEffect(() => {
     const newHeight = height - WIDGET_PADDING * 2;
@@ -143,7 +143,7 @@ function MapChartComponent(props: MapChartComponentProps) {
     };
     newChartConfigs["dataSource"]["colorRange"]["color"] = colorRange;
     chart.setChartData(newChartConfigs.dataSource, "json");
-  }, [colorRange]);
+  }, [JSON.stringify(colorRange)]);
 
   useEffect(() => {
     const newChartConfigs = {
@@ -188,15 +188,11 @@ function MapChartComponent(props: MapChartComponentProps) {
     }
 
     initializeMap(newChartConfigs);
-  }, [data, type]);
+  }, [JSON.stringify(data), type]);
 
   // Called by FC-React component to return the rendered chart
   const renderComplete = (chart: FusionCharts.FusionCharts) => {
     setChart(chart);
-  };
-
-  const entityClick = (eventObj: any) => {
-    onDataPointClick(eventObj.data);
   };
 
   const initializeMap = (configs: ChartObject) => {
@@ -222,7 +218,7 @@ export interface MapChartComponentProps {
   data: MapData[];
   height: number;
   isVisible: boolean;
-  onDataPointClick: (data: EntityData) => void;
+  onDataPointClick: (evt: any) => void;
   showLabels: boolean;
   type: MapType;
   width: number;

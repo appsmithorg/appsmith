@@ -19,7 +19,7 @@ import {
   MapColorObject,
   MapTypes,
 } from "../constants";
-import { EntityData, MapType } from "../component";
+import { MapType } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const MapChartComponent = lazy(() =>
@@ -320,10 +320,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return "MAP_CHART_WIDGET";
   }
 
-  handleDataPointClick = (data: EntityData) => {
+  handleDataPointClick = (evt: any) => {
     const { onDataPointClick } = this.props;
 
-    this.props.updateWidgetMetaProperty("selectedDataPoint", data, {
+    this.props.updateWidgetMetaProperty("selectedDataPoint", evt.data, {
       triggerPropertyName: "onDataPointClick",
       dynamicString: onDataPointClick,
       event: {
