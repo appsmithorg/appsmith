@@ -650,7 +650,11 @@ export default class DataTreeEvaluator {
             }
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           } else if (isATriggerPath) {
-            const errors = this.lintTriggerPath(evalPropertyValue, entity);
+            const errors = this.lintTriggerPath(
+              evalPropertyValue,
+              entity,
+              currentTree,
+            );
             addErrorToEntityProperty(errors, currentTree, fullPropertyPath);
             return currentTree;
           } else if (isAction(entity)) {
@@ -1555,13 +1559,18 @@ export default class DataTreeEvaluator {
     this.logs = [];
   }
 
-  private lintTriggerPath(userScript: string, entity: DataTreeEntity) {
+  private lintTriggerPath(
+    userScript: string,
+    entity: DataTreeEntity,
+    currentTree: DataTree,
+  ) {
     const { jsSnippets } = getDynamicBindings(userScript, entity);
     const script = getScriptToEval(
       jsSnippets[0],
       EvaluationScriptType.TRIGGERS,
     );
-    const GLOBAL_DATA = createGlobalData(this.evalTree, this.resolvedFunctions);
+    const GLOBAL_DATA = createGlobalData(currentTree, this.resolvedFunctions);
+
     return getLintingErrors(
       script,
       GLOBAL_DATA,

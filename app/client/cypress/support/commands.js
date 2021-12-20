@@ -2899,6 +2899,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
   cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
+  cy.route("DELETE", "api/v1/organizations/*").as("deleteOrgApiCall");
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
@@ -2914,6 +2915,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
+  cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -3306,6 +3308,26 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("clearPropertyValue", (value) => {
+  cy.get(".CodeMirror textarea")
+    .eq(value)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents != "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(value)
+        .clear({
+          force: true,
+        });
+    }
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
 
 Cypress.Commands.add(
   "validateNSelectDropdown",
