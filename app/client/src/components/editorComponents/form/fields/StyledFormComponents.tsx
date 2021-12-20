@@ -98,8 +98,8 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   line-height: 16px;
   letter-spacing: 0.02em;
   color: ${Colors.CHARCOAL};
-  margin-bottom: 8px;
-
+  margin-bottom: ${(props) =>
+    props.config?.controlType === "CHECKBOX" ? "0px;" : "8px;"} 
   &:first-child {
     margin-left: 0px;
   }

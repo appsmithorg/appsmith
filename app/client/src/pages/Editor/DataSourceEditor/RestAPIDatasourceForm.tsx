@@ -385,13 +385,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             false,
           )}
         </FormInputContainer>
-
-        <FormInputContainer>
-          <KeyValueInputControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="queryParameters"
-            label="Query Parameters"
-          />
+        <FormInputContainer data-replay-id={btoa("queryParameters")}>
+          {this.renderKeyValueControlViaFormControl(
+            "queryParameters",
+            "Query Parameters",
+            "",
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("isSendSessionEnabled")}>
           {this.renderDropdownControlViaFormControl(
