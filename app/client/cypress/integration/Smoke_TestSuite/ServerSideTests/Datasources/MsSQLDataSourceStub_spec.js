@@ -9,7 +9,7 @@ describe("MsSQL datasource test cases", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create, test, save then delete a MsSQL datasource", function() {
+  it("1. Create, test, save then delete a MsSQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MsSQL).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -26,10 +26,10 @@ describe("MsSQL datasource test cases", function() {
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
     }).as("testDatasource");
-    cy.testSaveDatasource();
+    cy.testSaveDatasource(false);
   });
 
-  it("Create with trailing white spaces in host address and database name, test, save then delete a MsSQL datasource", function() {
+  it("2. Create with trailing white spaces in host address and database name, test, save then delete a MsSQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MsSQL).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -40,10 +40,10 @@ describe("MsSQL datasource test cases", function() {
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
     }).as("testDatasource");
-    cy.testSaveDatasource();
+    cy.testSaveDatasource(false);
   });
 
-  it("Create a new query from the datasource editor", function() {
+  it("3. Create a new query from the datasource editor", function() {
     cy.saveDatasource();
     // cy.get(datasource.createQuerty).click();
     cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)

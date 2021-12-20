@@ -281,6 +281,83 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         /*
+         * - Throws exception on upload failure.
+         * - Returns signed url of the created file on success.
+         */
+        List<String> uploadMultipleFilesFromBody(AmazonS3 connection,
+                                                 String bucketName,
+                                                 String path,
+                                                 String body,
+                                                 Boolean usingFilePicker,
+                                                 Date expiryDateTime)
+                throws InterruptedException, AppsmithPluginException {
+
+
+            List<MultipartFormDataDTO> multipartFormDataDTOs;
+            try {
+                multipartFormDataDTOs = Arrays.asList(objectMapper.readValue(
+                        body,
+                        MultipartFormDataDTO[].class));
+            } catch (IOException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Unable to parse content. Expected to receive an object with `data` and `type`"
+                );
+            }
+
+            ArrayList<String> listOfFiles = new ArrayList<>();
+            multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
+                final String filePath = path + multipartFormDataDTO.getName();
+                byte[] payload;
+                if (Boolean.TRUE.equals(usingFilePicker)) {
+
+                    String encodedPayload = (String) multipartFormDataDTO.getData();
+                    /*
+                     * - For files uploaded using Filepicker.xyz.base64, body format is "<content-type>;base64,<actual-
+                     *   base64-encoded-payload>".
+                     * - Strip off the redundant part in the beginning to get actual payload.
+                     */
+                    if (encodedPayload.contains(BASE64_DELIMITER)) {
+                        List<String> bodyArrayList = Arrays.asList(encodedPayload.split(BASE64_DELIMITER));
+                        encodedPayload = bodyArrayList.get(bodyArrayList.size() - 1);
+                    }
+
+                    try {
+                        payload = Base64.getDecoder().decode(encodedPayload);
+                    } catch (IllegalArgumentException e) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "File content is not base64 encoded. File content needs to be base64 encoded when the " +
+                                        "'File Data Type: Base64/Text' field is selected 'Yes'."
+                        );
+                    }
+                } else {
+                    payload = ((String) multipartFormDataDTO.getData()).getBytes();
+                }
+
+                InputStream inputStream = new ByteArrayInputStream(payload);
+                TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(connection).build();
+                final ObjectMetadata objectMetadata = new ObjectMetadata();
+                // Only add content type if the user has mentioned it in the body
+                if (multipartFormDataDTO.getType() != null) {
+                    objectMetadata.setContentType(multipartFormDataDTO.getType());
+                }
+                try {
+                    transferManager.upload(bucketName, filePath, inputStream, objectMetadata).waitForUploadResult();
+                } catch (InterruptedException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "File upload interrupted."
+                    );
+                }
+
+                listOfFiles.add(filePath);
+            });
+
+            return getSignedUrls(connection, bucketName, listOfFiles, expiryDateTime);
+        }
+
+        /*
          * - Exception thrown here needs to be handled by the caller.
          */
         String readFile(AmazonS3 connection, String bucketName, String path, Boolean encodeContent) throws IOException {
@@ -557,8 +634,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
 
                         break;
-                    case UPLOAD_FILE_FROM_BODY:
-
+                    case UPLOAD_FILE_FROM_BODY: {
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
                         int durationInMinutes;
@@ -603,8 +679,57 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         requestParams.add(new RequestParamDTO(CREATE_EXPIRY,
                                 expiryDateTimeString, null, null, null));
-                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null, null));
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
                         break;
+                    }
+                    case UPLOAD_MULTIPLE_FILES_FROM_BODY: {
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
+
+                        int durationInMinutes;
+
+                        try {
+                            durationInMinutes = Integer.parseInt((String) getValueSafelyFromFormDataOrDefault(formData,
+                                    CREATE_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES));
+                        } catch (NumberFormatException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
+                                            "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
+                                            "any non-negative integer. Please note that the maximum expiry " +
+                                            "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
+                            ));
+                        }
+
+                        requestProperties.put("expiry duration in minutes", String.valueOf(durationInMinutes));
+
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.add(Calendar.MINUTE, durationInMinutes);
+                        Date expiryDateTime = calendar.getTime();
+                        DateFormat dateTimeFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS z");
+                        String expiryDateTimeString = dateTimeFormat.format(expiryDateTime);
+
+                        List<String> signedUrls;
+
+                        String dataType = (String) getValueSafelyFromFormData(formData, CREATE_DATATYPE);
+
+                        if (YES.equals(dataType)) {
+                            requestParams.add(new RequestParamDTO(CREATE_DATATYPE, "Base64",
+                                    null, null, null));
+                            signedUrls = uploadMultipleFilesFromBody(connection, bucketName, path, body, true, expiryDateTime);
+                        } else {
+                            requestParams.add(new RequestParamDTO(CREATE_DATATYPE,
+                                    "Text / Binary", null, null, null));
+                            signedUrls = uploadMultipleFilesFromBody(connection, bucketName, path, body, false, expiryDateTime);
+                        }
+                        actionResult = new HashMap<String, Object>();
+                        ((HashMap<String, Object>) actionResult).put("signedUrls", signedUrls);
+                        ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
+
+                        requestParams.add(new RequestParamDTO(CREATE_EXPIRY,
+                                expiryDateTimeString, null, null, null));
+                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
+                        break;
+                    }
                     case READ_FILE:
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 

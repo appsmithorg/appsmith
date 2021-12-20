@@ -241,7 +241,19 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                     System.out.println(e.getMessage());
                                     return Mono.just(errorResult);
                                 });
-                    });
+                    })
+                    .switchIfEmpty(handleEmptyMono());
+        }
+
+        /**
+         * Method to handle empty Mono
+         * @return Mono<ActionExecutionResult>
+         */
+        private Mono<ActionExecutionResult> handleEmptyMono() {
+            final ActionExecutionResult result = new ActionExecutionResult();
+            result.setIsExecutionSuccess(true);
+            result.setBody(objectMapper.valueToTree(Map.of("message", "No operation was performed")));
+            return Mono.just(result);
         }
 
         @Override

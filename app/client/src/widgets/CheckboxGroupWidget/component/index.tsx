@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
@@ -13,19 +14,21 @@ import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
+  optionCount: number;
   valid?: boolean;
 }
 
 const CheckboxGroupContainer = styled.div<
   ThemeProp & CheckboxGroupContainerProps
 >`
-  display: flex;
+  display: ${({ inline }) => (inline ? "inline-flex" : "flex")};
   ${({ inline }) => `
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
   `}
-  justify-content: space-between;
+  justify-content: ${({ inline, optionCount }) =>
+    optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -44,6 +47,11 @@ const CheckboxGroupContainer = styled.div<
     margin: 0px 12px;
   }
 
+  & .bp3-control.bp3-checkbox {
+    margin-top: ${({ inline, optionCount }) =>
+      (inline || optionCount === 1) && `4px`};
+  }
+
   & .select-all {
     white-space: nowrap;
     color: ${Colors.GREY_9} !important;
@@ -57,6 +65,11 @@ export interface SelectAllProps {
   inline?: boolean;
   onChange: React.FormEventHandler<HTMLInputElement>;
   rowSpace: number;
+}
+export interface StyledCheckboxProps {
+  disabled?: boolean;
+  optionCount: number;
+  rowspace: number;
 }
 
 function SelectAll(props: SelectAllProps) {
@@ -119,7 +132,11 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     : SelectAllStates.UNCHECKED;
 
   return (
-    <CheckboxGroupContainer inline={isInline} valid={isValid}>
+    <CheckboxGroupContainer
+      inline={isInline}
+      optionCount={options.length}
+      valid={isValid}
+    >
       {isSelectAll && (
         <SelectAll
           checked={selectAllChecked}
@@ -136,6 +153,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           <StyledCheckbox
             checked={(selectedValues || []).includes(option.value)}
             disabled={isDisabled}
+            indeterminate={isDisabled ? true : undefined}
             inline={isInline}
             key={generateReactKey()}
             label={option.label}

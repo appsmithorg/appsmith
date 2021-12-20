@@ -159,5 +159,8 @@ export const Colors = {
   // error warning
   CRIMSON: "#D71010",
   ALTO_3: "#D6D6D6",
+  YELLOW_LIGHT: "#F4AF0A",
+
+  GRAY_900: "#101828",
 };
 export type Color = typeof Colors[keyof typeof Colors];

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.13.RELEASE</version>
+        <version>2.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -24,6 +24,7 @@
         <project.version>1.0-SNAPSHOT</project.version>
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
+        <log4j2.version>2.17.0</log4j2.version>
     </properties>
 
     <build>

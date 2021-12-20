@@ -1515,10 +1515,10 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     .then((ins) => {
       const input = ins[0].CodeMirror;
       input.focus();
-      cy.wait(100);
+      cy.wait(200);
       input.setValue(value);
       cy.wait(200); //time for value to set
-      input.focus();
+      //input.focus();
     });
 });
 
@@ -2188,16 +2188,13 @@ Cypress.Commands.add("ClickGotIt", () => {
   cy.get("span:contains('GOT IT')").click();
 });
 
-Cypress.Commands.add("testDatasource", () => {
+Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click();
-  cy.wait("@testDatasource");
-  /*
-   .should(
+  cy.wait("@testDatasource").should(
     "have.nested.property",
     "response.body.data.success",
-    true,
+    expectedRes,
   );
-  */
 });
 
 Cypress.Commands.add("saveDatasource", () => {
@@ -2209,12 +2206,12 @@ Cypress.Commands.add("saveDatasource", () => {
     .should("have.nested.property", "response.body.responseMeta.status", 200);
 });
 
-Cypress.Commands.add("testSaveDatasource", () => {
+Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
   cy.saveDatasource();
   cy.get(datasourceEditor.datasourceCard)
     .last()
     .click();
-  cy.testDatasource();
+  cy.testDatasource(expectedRes);
 });
 
 Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
@@ -2902,6 +2899,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
   cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
+  cy.route("DELETE", "api/v1/organizations/*").as("deleteOrgApiCall");
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
@@ -2917,6 +2915,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
+  cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -3157,9 +3156,20 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).click();
   cy.get(welcomePage.newsLetter).should("be.visible");
   cy.get(welcomePage.dataCollection).should("be.visible");
+  cy.get(welcomePage.dataCollection)
+    .trigger("mouseover")
+    .click();
+  cy.get(welcomePage.newsLetter)
+    .trigger("mouseover")
+    .click();
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click();
-  cy.wait("@createSuperUser");
+  cy.wait("@createSuperUser").then((interception) => {
+    expect(interception.request.body).not.contains(
+      "allowCollectingAnonymousData=true",
+    );
+    expect(interception.request.body).not.contains("signupForNewsletter=true");
+  });
   cy.LogOut();
   cy.wait(2000);
 });
@@ -3298,6 +3308,26 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("clearPropertyValue", (value) => {
+  cy.get(".CodeMirror textarea")
+    .eq(value)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents != "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(value)
+        .clear({
+          force: true,
+        });
+    }
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
 
 Cypress.Commands.add(
   "validateNSelectDropdown",
@@ -3441,11 +3471,29 @@ Cypress.Commands.add("renameWithInPane", (renameVal) => {
     .blur();
 });
 
-Cypress.Commands.add("verifyCyclicDependencyError", () => {
+Cypress.Commands.add("getEntityName", () => {
+  let entityName = cy.get(apiwidget.ApiName).invoke("text");
+  return entityName;
+});
+
+Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
   // Give this element 10 seconds to appear
-  cy.xpath(commonlocators.cyclicDependencyError, { timeout: 10000 }).should(
-    "not.exist",
-  );
+  //cy.wait(1000)
+  cy.xpath(
+    "//div[@class='Toastify']//span[contains(text(),'" +
+      errorMsgToVerifyAbsence +
+      "')]",
+    { timeout: 0 },
+  ).should("not.exist");
+});
+
+Cypress.Commands.add("setQueryTimeout", (timeout) => {
+  cy.get(queryLocators.settings).click();
+  cy.xpath(queryLocators.queryTimeout)
+    .clear()
+    .type(timeout);
+
+  cy.get(queryLocators.query).click();
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
