@@ -13,7 +13,7 @@ export const CONFIG = {
     widgetName: "PhoneInput",
     version: 1,
     countryCode: getDefaultISDCode().code,
-    allowDialCodeChange: true,
+    allowDialCodeChange: false,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

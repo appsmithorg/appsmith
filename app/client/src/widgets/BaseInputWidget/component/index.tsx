@@ -477,7 +477,7 @@ class BaseInputComponent extends React.Component<
         `#${this.props.widgetId} .bp3-button-group`,
       );
 
-      if (element !== null) {
+      if (element !== null && element.childNodes) {
         element.childNodes[0].addEventListener("click", this.onStepIncrement);
         element.childNodes[1].addEventListener(
           "click",
@@ -493,7 +493,7 @@ class BaseInputComponent extends React.Component<
         `#${this.props.widgetId} .bp3-button`,
       );
 
-      if (element !== null) {
+      if (element !== null && element.childNodes) {
         element.childNodes[0].removeEventListener(
           "click",
           this.onStepIncrement,

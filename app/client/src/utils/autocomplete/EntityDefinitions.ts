@@ -449,7 +449,7 @@ export const entityDefinitions: Record<string, unknown> = {
     videoDataURL: "string",
     videoRawBinary: "string",
   },
-  INPUT_WIDGET_V2: {
+  INPUT_WIDGET_v2: {
     "!doc":
       "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
     "!url": "https://docs.appsmith.com/widget-reference/input",

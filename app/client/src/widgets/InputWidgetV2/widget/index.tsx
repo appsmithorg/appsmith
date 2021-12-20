@@ -234,7 +234,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       case "NUMBER":
       case "INTEGER":
         try {
-          parsedValue = Number(value);
+          if (value === "") {
+            parsedValue = undefined;
+          } else {
+            parsedValue = Number(value);
+          }
           break;
         } catch (e) {
           parsedValue = value;
