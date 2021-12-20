@@ -13,6 +13,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -20,7 +21,6 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserOrganizationService;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +61,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     private final RoleGraph roleGraph;
     private final AssetRepository assetRepository;
     private final AssetService assetService;
+    private final ApplicationRepository applicationRepository;
 
     @Autowired
     public OrganizationServiceCEImpl(Scheduler scheduler,
@@ -75,7 +76,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                                      UserRepository userRepository,
                                      RoleGraph roleGraph,
                                      AssetRepository assetRepository,
-                                     AssetService assetService) {
+                                     AssetService assetService,
+                                     ApplicationRepository applicationRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
@@ -84,6 +86,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.roleGraph = roleGraph;
         this.assetRepository = assetRepository;
         this.assetService = assetService;
+        this.applicationRepository = applicationRepository;
     }
 
     @Override
@@ -346,6 +349,22 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Flux<Organization> getAll() {
         return repository.findAllOrganizations();
+    }
+
+    @Override
+    public Mono<Organization> delete(String organizationId) {
+        return applicationRepository.countByOrganizationId(organizationId).flatMap(appCount -> {
+            if(appCount == 0) { // no application found under this organization
+                // fetching the org first to make sure user has permission to archive
+                return repository.findById(organizationId, MANAGE_ORGANIZATIONS)
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId
+                        )))
+                        .flatMap(repository::archive);
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
+        });
     }
 
 }
