@@ -301,7 +301,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
 
                                                         actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
 
-                                                        // Replace all action Ids from map and replace with
+                                                        // Replace all action Ids from map and replace with newly created actionIds
                                                         final Map<String, String> newActionIds = new HashMap<>();
                                                         unpublishedCollection
                                                                 .getDefaultToBranchedActionIdsMap()
