@@ -325,6 +325,7 @@ function GitConnection({ isImport }: Props) {
     isAuthorInfoUpdated,
     connectToGit,
     useGlobalConfigInputVal,
+    remoteUrl,
   ]);
 
   const toggleHandler = useCallback(() => {
