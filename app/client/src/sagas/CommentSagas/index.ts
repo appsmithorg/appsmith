@@ -174,7 +174,7 @@ function* fetchApplicationComments() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_COMMENTS_ERROR,
-      payload: { error, logToSentry: true },
+      payload: { error, logToSentry: false },
     });
   }
 }
