@@ -24,9 +24,15 @@ import {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import getFeatureFlags from "utils/featureFlags";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import {
+  setIsGitSyncModalOpen,
+  setShowRepoLimitErrorModal,
+} from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  getIsGitConnected,
+  getShouldShowRepoLimitError,
+} from "selectors/gitSyncSelectors";
 import {
   createMessage,
   DEPLOY_MENU_OPTION,
@@ -36,6 +42,7 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -55,14 +62,24 @@ export const GetNavigationMenuData = ({
   const params = useParams<ExplorerURLParams>();
 
   const isGitConnected = useSelector(getIsGitConnected);
+  const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
 
-  const openGitConnectionPopup = () =>
-    dispatch(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.GIT_CONNECTION,
-      }),
-    );
+  const openGitConnectionPopup = () => {
+    AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+      source: "Application name menu (top left)",
+    });
+
+    if (isLimitExceeded) {
+      dispatch(setShowRepoLimitErrorModal(true));
+    } else {
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.GIT_CONNECTION,
+        }),
+      );
+    }
+  };
 
   const applicationId = useSelector(getCurrentApplicationId);
 
