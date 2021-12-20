@@ -13,15 +13,6 @@ describe("Update Organization", function() {
       cy.wait("@createOrg").then((interception) => {
         newOrganizationName = interception.response.body.data.name;
         cy.renameOrg(newOrganizationName, orgid);
-        cy.xpath(
-          '//a//span[contains(text(),"'.concat(orgid).concat('")]'),
-        ).click({ force: true });
-        cy.wait(3000);
-        cy.contains(orgid)
-          .closest(homePage.orgCompleteSection)
-          .find(homePage.orgNamePopover)
-          .find(homePage.optionsIcon)
-          .click({ force: true });
         cy.get(homePage.orgSettingOption).click({ force: true });
       });
     });
