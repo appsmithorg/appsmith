@@ -10,6 +10,7 @@ import { Colors } from "constants/Colors";
 type FieldHelperProps = {
   setting: Setting;
   children: React.ReactNode;
+  className?: string;
 };
 
 const StyledIcon = styled(Icon)`
@@ -50,18 +51,28 @@ export const StyledSubtext = styled.p`
   color: ${Colors.GRAY};
 `;
 
-export function FormGroup({ children, setting }: FieldHelperProps) {
+export function FormGroup({ children, className, setting }: FieldHelperProps) {
   return (
-    <StyledFormGroup>
-      <StyledLabel>{createMessage(() => setting.label || "")}</StyledLabel>
+    <StyledFormGroup
+      className={className}
+      data-testid="admin-settings-form-group"
+    >
+      <StyledLabel data-testid="admin-settings-form-group-label">
+        {createMessage(() => setting.label || "")}
+      </StyledLabel>
       {setting.helpText && (
         <Tooltip content={createMessage(() => setting.helpText || "")}>
-          <StyledIcon fillColor="#fff" name="help" size={IconSize.XXS} />
+          <StyledIcon
+            data-testid="admin-settings-form-group-helptext"
+            fillColor="#fff"
+            name="help"
+            size={IconSize.XXS}
+          />
         </Tooltip>
       )}
       {children}
       {setting.subText && (
-        <StyledSubtext>
+        <StyledSubtext data-testid="admin-settings-form-group-subtext">
           * {createMessage(() => setting.subText || "")}
         </StyledSubtext>
       )}

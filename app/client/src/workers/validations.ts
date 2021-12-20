@@ -439,7 +439,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       } else {
         return {
           isValid: false,
-          parsed: config.params?.default || 0,
+          parsed: value || config.params?.default || 0,
           messages: [
             `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
           ],
@@ -795,7 +795,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, {}, [
+        const { result } = evaluate(config.params.fnString, {}, {}, undefined, [
           value,
           props,
           _,
