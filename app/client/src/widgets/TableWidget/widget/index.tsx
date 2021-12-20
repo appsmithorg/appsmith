@@ -223,7 +223,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor || Colors.GREEN,
+              menuColor:
+                cellProperties.menuColor ||
+                this.props.primaryColor ||
+                Colors.GREEN,
               borderRadius:
                 cellProperties.borderRadius || this.props.borderRadius,
               boxShadow: cellProperties.boxShadow,

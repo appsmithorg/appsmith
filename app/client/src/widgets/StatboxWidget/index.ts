@@ -55,7 +55,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "2.6 M",
-                    fontSize: "HEADING1",
+                    fontSize: "1.5rem",
                     fontStyle: "BOLD",
                     version: 1,
                   },

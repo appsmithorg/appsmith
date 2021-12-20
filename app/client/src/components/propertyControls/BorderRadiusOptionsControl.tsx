@@ -11,6 +11,11 @@ import {
 } from "constants/ThemeContants";
 import { startCase } from "lodash";
 
+/**
+ * ----------------------------------------------------------------------------
+ * TYPES
+ *-----------------------------------------------------------------------------
+ */
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
@@ -19,6 +24,11 @@ interface BorderRadiusOptionsControlState {
   themeBorderOptions: Record<string, string>;
 }
 
+/**
+ * ----------------------------------------------------------------------------
+ * COMPONENT
+ *-----------------------------------------------------------------------------
+ */
 class BorderRadiusOptionsControl extends BaseControl<
   BorderRadiusOptionsControlProps,
   BorderRadiusOptionsControlState

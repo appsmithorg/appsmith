@@ -130,8 +130,8 @@ export const StyledButton = styled((props) => (
     }
 
     & > span > svg {
-      height: 60%;
-      width: 60%;
+      height: 100%;
+      width: 100%;
       min-height: 16px;
       min-width: 16px;
     }

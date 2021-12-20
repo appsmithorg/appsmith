@@ -76,7 +76,7 @@ export const StyledText = styled(Text)<{
     props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
+  font-size: ${({ fontSize }) => fontSize || "1rem"};
   word-break: break-word;
   span {
     width: 100%;

@@ -53,7 +53,7 @@ interface BaseStyleProps {
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   height: 100%;
   background-image: none !important;
-  font-weight: ${(props) => props.theme.fontWeights[2]};
+  font-weight: 400;
   outline: none;
   padding: 0px 10px;
   overflow: hidden;

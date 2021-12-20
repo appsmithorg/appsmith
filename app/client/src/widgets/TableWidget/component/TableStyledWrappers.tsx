@@ -19,7 +19,10 @@ export const TableWrapper = styled.div<{
   width: 100%;
   height: 100%;
   background: white;
-  border: 1px solid ${Colors.GEYSER_LIGHT};
+  border: ${({ boxShadow }) =>
+    boxShadow === "none"
+      ? `1px solid ${Colors.GEYSER_LIGHT}`
+      : `1px solid transparent`};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;

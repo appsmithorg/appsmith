@@ -32,6 +32,8 @@ const buttonStyles = css<Partial<ButtonProps>>`
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     width: ${(props) => (props.fluid ? "100%" : "auto")};
+    height: 100%;
+    padding: 0 10px;
   }
   &&&&&& {
     &.bp3-button span {

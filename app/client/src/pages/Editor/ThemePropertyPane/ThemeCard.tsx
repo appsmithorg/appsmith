@@ -39,7 +39,6 @@ interface ThemeCard {
  * STYLED
  *-----------------------------------------------------------------------------
  */
-
 const BlackButton = styled(Button)`
   border: 2px solid ${Colors.BLACK};
   background-color: ${Colors.BLACK};

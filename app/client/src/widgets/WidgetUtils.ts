@@ -224,24 +224,8 @@ export const lightenColor = (color = "#fff") => {
     .getBrightness();
 
   const percentageBrightness = (brightness / 255) * 100;
-  let nextBrightness = 0;
-
-  switch (true) {
-    case percentageBrightness > 70:
-      nextBrightness = 15;
-      break;
-    case percentageBrightness > 60:
-      nextBrightness = 25;
-      break;
-    case percentageBrightness > 50:
-      nextBrightness = 35;
-      break;
-    case percentageBrightness > 40:
-      nextBrightness = 40;
-      break;
-    default:
-      nextBrightness = 65;
-  }
+  const nextPercentageBrightness = percentageBrightness / 4;
+  const nextBrightness = (nextPercentageBrightness * 255) / 100;
 
   if (brightness > 180) {
     return tinyAccentColor.darken(10).toString();

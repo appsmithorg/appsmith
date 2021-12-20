@@ -8,7 +8,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     text: "Label",
-    fontSize: "PARAGRAPH",
+    fontSize: "1rem",
     fontStyle: "BOLD",
     textAlign: "LEFT",
     textColor: "#231F20",

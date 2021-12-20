@@ -10,7 +10,7 @@ body {
   background-color: #FFF !important;
 }
 
-body.dragging *{
+body.dragging * {
   cursor: grabbing !important;
 }
 

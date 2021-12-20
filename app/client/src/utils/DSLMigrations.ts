@@ -5,6 +5,7 @@ import {
   GridDefaults,
   LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
+  TextSizes,
 } from "constants/WidgetConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
@@ -1506,6 +1507,28 @@ export const migrateStylingPropertiesForTheming = (
       case BoxShadowTypes.VARIANT5:
         child.boxShadow = `-2px -2px 0px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
+        break;
+
+      default:
+        child.boxShadow = "none";
+    }
+
+    // migrate font size
+    switch (child.fontSize) {
+      case TextSizes.PARAGRAPH2:
+        child.fontSize = "0.75rem";
+        break;
+      case TextSizes.PARAGRAPH:
+        child.fontSize = "0.875rem";
+        break;
+      case TextSizes.HEADING3:
+        child.fontSize = "1rem";
+        break;
+      case TextSizes.HEADING2:
+        child.fontSize = "1.125rem";
+        break;
+      case TextSizes.HEADING1:
+        child.fontSize = "1.5rem";
         break;
 
       default:

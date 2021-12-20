@@ -48,6 +48,10 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: flex-start;
   align-items: center;
+  border: ${({ boxShadow }) =>
+    boxShadow === "none"
+      ? `1px solid ${Colors.GEYSER_LIGHT}`
+      : `1px solid transparent`};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   overflow: hidden;

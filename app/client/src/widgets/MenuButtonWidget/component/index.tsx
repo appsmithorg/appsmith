@@ -8,6 +8,7 @@ import {
   MenuItem,
   Classes as BClasses,
 } from "@blueprintjs/core";
+
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
@@ -27,6 +28,7 @@ import {
   getCustomJustifyContent,
   getAlignText,
   WidgetContainerDiff,
+  lightenColor,
 } from "widgets/WidgetUtils";
 import _ from "lodash";
 
@@ -221,11 +223,18 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   `}
 `;
 
-const StyledMenu = styled(Menu)<{ borderRadius?: string }>`
+const StyledMenu = styled(Menu)<{
+  borderRadius?: string;
+  backgroundColor?: string;
+}>`
   padding: 0;
   min-width: 0px;
   border-radius: ${({ borderRadius }) => borderRadius};
   overflow: hidden;
+
+  .${BClasses.MENU_ITEM}:hover {
+    background-color: ${({ backgroundColor }) => lightenColor(backgroundColor)};
+  }
 `;
 
 export interface PopoverContentProps {
@@ -249,10 +258,17 @@ export interface PopoverContentProps {
   onItemClicked: (onClick: string | undefined) => void;
   isCompact?: boolean;
   borderRadius?: string;
+  backgroundColor?: string;
 }
 
 function PopoverContent(props: PopoverContentProps) {
-  const { borderRadius, isCompact, menuItems: itemsObj, onItemClicked } = props;
+  const {
+    backgroundColor,
+    borderRadius,
+    isCompact,
+    menuItems: itemsObj,
+    onItemClicked,
+  } = props;
 
   if (!itemsObj) return <StyledMenu />;
   const items = Object.keys(itemsObj)
@@ -299,7 +315,11 @@ function PopoverContent(props: PopoverContentProps) {
     );
   });
 
-  return <StyledMenu borderRadius={borderRadius}>{listItems}</StyledMenu>;
+  return (
+    <StyledMenu backgroundColor={backgroundColor} borderRadius={borderRadius}>
+      {listItems}
+    </StyledMenu>
+  );
 }
 
 export interface PopoverTargetButtonProps {
@@ -428,6 +448,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
       <Popover2
         content={
           <PopoverContent
+            backgroundColor={menuColor}
             borderRadius={borderRadius}
             isCompact={isCompact}
             menuItems={menuItems}

@@ -16,7 +16,10 @@ import { Spinner } from "@blueprintjs/core";
 import Canvas from "../Canvas";
 import { useParams } from "react-router";
 import classNames from "classnames";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import {
+  getPreviewAppTheme,
+  getSelectedAppTheme,
+} from "selectors/appThemingSelectors";
 
 const Container = styled.section`
   width: 100%;
@@ -42,8 +45,17 @@ function CanvasContainer() {
   const pages = useSelector(getViewModePageList);
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
+  const previewTheme = useSelector(getPreviewAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
+
+  /**
+   * returns the current theme
+   * Note: preview theme will take priority over selected theme
+   */
+  const currentTheme = useMemo(() => {
+    return previewTheme ? previewTheme : selectedTheme;
+  }, [selectedTheme, previewTheme]);
 
   const pageLoading = (
     <Centered>
@@ -61,25 +73,27 @@ function CanvasContainer() {
 
   // loads font for canvas based on theme
   useEffect(() => {
-    if (selectedTheme.properties.fontFamily.appFont !== DEFAULT_FONT_NAME) {
+    if (currentTheme.properties.fontFamily.appFont !== DEFAULT_FONT_NAME) {
       webfontloader.load({
         google: {
-          families: [selectedTheme.properties.fontFamily.appFont],
+          families: [
+            `${currentTheme.properties.fontFamily.appFont}:300,400,500,700`,
+          ],
         },
       });
     }
-  }, [selectedTheme.properties.fontFamily.appFont]);
+  }, [currentTheme.properties.fontFamily.appFont]);
 
   /**
    * returns the font to be used for the canvas
    */
   const getAppFontFamily = useMemo(() => {
-    if (selectedTheme.properties.fontFamily.appFont === DEFAULT_FONT_NAME) {
+    if (currentTheme.properties.fontFamily.appFont === DEFAULT_FONT_NAME) {
       return "inherit";
     }
 
-    return selectedTheme.properties.fontFamily.appFont;
-  }, [selectedTheme.properties.fontFamily]);
+    return currentTheme.properties.fontFamily.appFont;
+  }, [currentTheme.properties.fontFamily]);
 
   return (
     <Container
@@ -93,7 +107,7 @@ function CanvasContainer() {
         height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
         fontFamily: getAppFontFamily,
         background: isPreviewMode
-          ? selectedTheme.properties.colors.backgroundColor
+          ? currentTheme.properties.colors.backgroundColor
           : "initial",
       }}
     >

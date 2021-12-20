@@ -1,9 +1,9 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
-import { DateInput } from "@blueprintjs/datetime";
+import { DateInput, Classes as DateTimeClasses } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "../constants";
@@ -18,6 +18,13 @@ import {
 } from "constants/messages";
 import { lightenColor } from "widgets/WidgetUtils";
 
+const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
+
+/**
+ * ----------------------------------------------------------------------------
+ * STYLED
+ *-----------------------------------------------------------------------------
+ */
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   backgroundColor: string;
@@ -25,12 +32,12 @@ const StyledControlGroup = styled(ControlGroup)<{
   boxShadow?: string;
   primaryColor: string;
 }>`
-  &&& {
+  & {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
       background: ${({ backgroundColor }) =>
         `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) => borderRadius};
+      border-radius: ${({ borderRadius }) => borderRadius} !important;
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
       border-color: ${({ isValid }) =>
@@ -73,6 +80,35 @@ const StyledControlGroup = styled(ControlGroup)<{
   }
 `;
 
+const PopupStyles = createGlobalStyle<{
+  borderRadius: string;
+  widgetId: string;
+  primaryColor: string;
+}>`
+  ${(props) => `
+    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId}  .${Classes.POPOVER} {
+      border-radius: ${props.borderRadius} !important;
+      overflow: hidden;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 4px !important;
+    }
+
+    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId} .${DateTimeClasses.DATEPICKER_DAY},
+    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId} .${Classes.BUTTON} {
+      border-radius: ${props.borderRadius} !important;
+    }
+    .${DATEPICKER_POPUP_CLASSNAME}-${props.widgetId} .${DateTimeClasses.DATEPICKER_DAY_SELECTED} {
+      background-color: ${props.primaryColor} !important;
+
+    }
+  `}
+`;
+
+/**
+ * ----------------------------------------------------------------------------
+ * COMPONENT
+ *-----------------------------------------------------------------------------
+ */
 class DatePickerComponent extends React.Component<
   DatePickerComponentProps,
   DatePickerComponentState
@@ -165,6 +201,7 @@ class DatePickerComponent extends React.Component<
               popoverProps={{
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
+                portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -173,6 +210,11 @@ class DatePickerComponent extends React.Component<
             />
           </ErrorTooltip>
         }
+        <PopupStyles
+          borderRadius={this.props.borderRadius}
+          primaryColor={this.props.primaryColor}
+          widgetId={this.props.widgetId}
+        />
       </StyledControlGroup>
     );
   }

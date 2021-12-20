@@ -20,6 +20,7 @@ import {
   createMessage,
 } from "constants/messages";
 import { ThemeProp, Variant } from "components/ads/common";
+import { Colors } from "constants/Colors";
 import { Toaster } from "components/ads/Toast";
 
 import ReCAPTCHA from "react-google-recaptcha";
@@ -123,12 +124,13 @@ const StyledButton = styled((props) => (
     }
 
     &:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
+      background-color: ${Colors.GREY_1} !important;
+      color: ${Colors.GREY_9} !important;
+      box-shadow: none !important;
       pointer-events: none;
-      border-color: ${theme.colors.button.disabled.bgColor} !important;
+      border-color: ${Colors.GREY_1} !important;
       > span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+        color: ${Colors.GREY_9} !important;
       }
     }
 

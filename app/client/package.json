@@ -148,7 +148,6 @@
     "toposort": "^2.0.2",
     "ts-loader": "^6.0.4",
     "tslib": "^2.1.0",
-    "twind": "^0.16.16",
     "typescript": "^4.1.3",
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",

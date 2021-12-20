@@ -7,6 +7,11 @@ export const FALLBACK_COLORS = {
   backgroundColor: Colors.GREEN,
 };
 
+/**
+ * mapping of tailwind colors
+ *
+ * NOTE: these are used in colorpicker
+ */
 export type TailwindColors = {
   [key: string]: {
     [key: string]: string;

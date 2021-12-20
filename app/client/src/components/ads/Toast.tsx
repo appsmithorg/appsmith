@@ -233,6 +233,7 @@ export const Toaster = {
         pauseOnFocusLoss: !config.dispatchableAction && !config.hideProgressBar,
         autoClose: false,
         closeOnClick: true,
+        position: "top-center",
         hideProgressBar: config.hideProgressBar,
       },
     );

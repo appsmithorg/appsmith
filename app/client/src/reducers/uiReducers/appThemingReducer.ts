@@ -90,6 +90,7 @@ const themeReducer = createImmerReducer(initialState, {
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {
+    state.previewTheme = undefined;
     state.selectedTheme = action.payload;
   },
 });
