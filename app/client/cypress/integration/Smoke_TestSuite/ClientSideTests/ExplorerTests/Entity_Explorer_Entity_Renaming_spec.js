@@ -4,14 +4,15 @@ const secondApiName = "Second";
 describe("Api Naming conflict on a page test", function() {
   it("expects actions on the same page cannot have identical names", function() {
     cy.log("Login Successful");
-    // cy.NavigateToQueryEditor();
+    // create an API
     cy.NavigateToAPI_Panel();
-    // cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI(firstApiName);
 
+    // create another API
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
 
+    // try to rename one of the APIs with an existing API name
     cy.GlobalSearchEntity(secondApiName);
     cy.RenameEntity(firstApiName);
     cy.validateMessage(firstApiName);
@@ -38,7 +39,7 @@ describe("Api Naming conflict on different pages test", function() {
 
     // delete API and Page2
     cy.DeleteAPIFromSideBar();
-    cy.DeletepageFromSideBar("Page2");
+    cy.DeletepageFromSideBar();
 
     // delete API created on Page 1
     cy.DeleteAPIFromSideBar();
