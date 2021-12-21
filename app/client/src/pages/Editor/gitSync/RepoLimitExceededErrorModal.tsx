@@ -125,6 +125,13 @@ function RepoLimitExceededErrorModal() {
       type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
     });
   }, []);
+
+  const openIntercom = () => {
+    if (window.Intercom) {
+      window.Intercom("showNewMessage", "myCustomMessage");
+    }
+  };
+
   return (
     <Dialog
       canEscapeKeyClose
@@ -173,6 +180,7 @@ function RepoLimitExceededErrorModal() {
             <Button
               category={Category.tertiary}
               className="t--contact-sales-button"
+              onClick={openIntercom}
               size={Size.large}
               tag="button"
               text={createMessage(CONTACT_SALES)}

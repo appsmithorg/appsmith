@@ -509,6 +509,7 @@ function* disconnectGitSaga() {
       id: string;
       name: string;
     } = yield select(getDisconnectingGitApplication);
+    const currentApplicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield GitSyncAPI.disconnectGit({
       applicationId: application.id,
     });
@@ -528,6 +529,16 @@ function* disconnectGitSaga() {
           isOpen: false,
         }),
       );
+
+      // while disconnecting another application, i.e. not the current one
+      if (currentApplicationId !== application.id) {
+        yield put(
+          setIsGitSyncModalOpen({
+            isOpen: true,
+            tab: GitSyncModalTab.GIT_CONNECTION,
+          }),
+        );
+      }
     }
   } catch (e) {
     yield put({
