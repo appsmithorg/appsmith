@@ -701,10 +701,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   getFormattedText = () => {
     if (this.props.isFocused || this.props.inputType !== InputTypes.CURRENCY) {
-      return this.props.text ? this.props.text : "";
+      return this.props.text || "";
     }
     if (this.props.text === "") return "";
-    const valueToFormat = "" + this.props.text;
+    const valueToFormat = String(this.props.text);
 
     const locale = getLocale();
     const decimalSeparator = getDecimalSeparator(locale);

@@ -37,7 +37,7 @@ export const formatCurrencyNumber = (
         .fill("0")
         .join("");
   }
-  const locale = navigator.languages?.[0] || "en-US";
+  const locale = getLocale();
   const formatter = new Intl.NumberFormat(locale, {
     style: "decimal",
     maximumFractionDigits: hasDecimal ? fractionDigits : 0,
