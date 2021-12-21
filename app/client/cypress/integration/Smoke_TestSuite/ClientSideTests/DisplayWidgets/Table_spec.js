@@ -370,8 +370,9 @@ describe("Table Widget Functionality", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("tablewidget", { x: 200, y: 300 });
-    cy.openPropertyPane("tablewidget");
     cy.wait(3000);
+    cy.openPropertyPane("tablewidget");
+    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext(
       "tabledata",
       `{{
