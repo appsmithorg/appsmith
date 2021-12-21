@@ -18,11 +18,9 @@ export const generateDataTreeJSAction = (
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
   const reg = /this\./g;
-  const removeThisReference = js.config.body.replaceAll(
-    reg,
-    `${js.config.name}.`,
-  );
+  const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];

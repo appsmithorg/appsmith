@@ -177,6 +177,12 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
         }
+        //Custom Token Parameters
+        if (oAuth2.getCustomTokenParameters() != null) {
+             oAuth2.getCustomTokenParameters().forEach(params ->
+               body.with(params.getKey(), params.getValue().toString())
+                    );
+        }
         return body;
     }
 

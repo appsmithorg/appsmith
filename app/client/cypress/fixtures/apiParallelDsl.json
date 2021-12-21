@@ -2,7 +2,7 @@
 	"dsl": {
 		"widgetName": "MainContainer",
 		"backgroundColor": "none",
-		"rightColumn": 800,
+		"rightColumn": 776,
 		"snapColumns": 64,
 		"detachFromLayout": true,
 		"widgetId": "0",
@@ -71,8 +71,16 @@
 				"type": "IMAGE_WIDGET",
 				"hideCard": false,
 				"parentColumnSpace": 16.921875,
+				"dynamicTriggerPathList": [
+
+				],
 				"imageShape": "RECTANGLE",
 				"leftColumn": 11,
+				"dynamicBindingPathList": [
+					{
+						"key": "image"
+					}
+				],
 				"defaultImage": "https://assets.appsmith.com/widgets/default.png",
 				"key": "khcxwti5gq",
 				"image": "{{CatImage.data[0].url}}",
@@ -86,15 +94,7 @@
 				"isLoading": false,
 				"maxZoomLevel": 1,
 				"enableDownload": false,
-				"enableRotation": false,
-				"dynamicBindingPathList": [
-					{
-						"key": "image"
-					}
-				],
-				"dynamicTriggerPathList": [
-
-				]
+				"enableRotation": false
 			},
 			{
 				"widgetName": "Image2",
@@ -106,8 +106,16 @@
 				"type": "IMAGE_WIDGET",
 				"hideCard": false,
 				"parentColumnSpace": 16.921875,
+				"dynamicTriggerPathList": [
+
+				],
 				"imageShape": "RECTANGLE",
 				"leftColumn": 33,
+				"dynamicBindingPathList": [
+					{
+						"key": "image"
+					}
+				],
 				"defaultImage": "https://assets.appsmith.com/widgets/default.png",
 				"key": "khcxwti5gq",
 				"image": "{{DogImage.data.message}}",
@@ -121,22 +129,14 @@
 				"isLoading": false,
 				"maxZoomLevel": 1,
 				"enableDownload": false,
-				"enableRotation": false,
-				"dynamicBindingPathList": [
-					{
-						"key": "image"
-					}
-				],
-				"dynamicTriggerPathList": [
-
-				]
+				"enableRotation": false
 			},
 			{
 				"widgetName": "Text1",
 				"displayName": "Text",
 				"iconSVG": "/static/media/icon.97c59b52.svg",
 				"topRow": 45,
-				"bottomRow": 57,
+				"bottomRow": 65,
 				"parentRowSpace": 10,
 				"type": "TEXT_WIDGET",
 				"hideCard": false,
@@ -169,7 +169,7 @@
 				"displayName": "Text",
 				"iconSVG": "/static/media/icon.97c59b52.svg",
 				"topRow": 45,
-				"bottomRow": 57,
+				"bottomRow": 65,
 				"parentRowSpace": 10,
 				"type": "TEXT_WIDGET",
 				"hideCard": false,

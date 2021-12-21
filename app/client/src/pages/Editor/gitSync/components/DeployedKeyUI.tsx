@@ -3,6 +3,7 @@ import {
   createMessage,
   DEPLOY_KEY_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  LEARN_MORE,
 } from "constants/messages";
 import React from "react";
 import styled from "styled-components";
@@ -12,6 +13,7 @@ import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "./StyledComponents";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const TooltipWrapper = styled.div`
   display: flex;
@@ -84,11 +86,12 @@ const KeyText = styled.span`
 
 const LintText = styled.a`
   :hover {
-    text-decoration: none;
     color: ${Colors.CRUSTA};
   }
   color: ${Colors.CRUSTA};
   cursor: pointer;
+  font-weight: 500;
+  margin-left: ${(props) => props.theme.spaces[1]}px;
 `;
 
 type DeployedKeyUIProps = {
@@ -100,14 +103,16 @@ type DeployedKeyUIProps = {
 
 function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { copyToClipboard, deployKeyDocUrl, showCopied, SSHKeyPair } = props;
+  const clickHandler = () => {
+    AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_SSH_CLICK");
+    window.open(deployKeyDocUrl, "_blank");
+  };
   return (
     <>
       <Space size={7} />
       <Text color={Colors.GREY_9} type={TextType.P3}>
         {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-        <LintText href={deployKeyDocUrl} target="_blank">
-          &nbsp;LEARN MORE
-        </LintText>
+        <LintText onClick={clickHandler}>{createMessage(LEARN_MORE)}</LintText>
       </Text>
       <FlexRow>
         <DeployedKeyContainer $marginTop={4}>
