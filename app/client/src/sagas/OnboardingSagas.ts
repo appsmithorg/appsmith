@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { all, put, select, takeLatest, delay } from "redux-saga/effects";
+import { all, put, select, takeLatest, delay, call } from "redux-saga/effects";
 import {
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
@@ -49,6 +49,7 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -205,6 +206,12 @@ function* updateWidgetTextSaga() {
   }
 }
 
+function* endGuidedTourSaga(action: ReduxAction<boolean>) {
+  if (!action.payload) {
+    yield call(hideIndicator);
+  }
+}
+
 function* focusWidgetSaga(action: ReduxAction<string>) {
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
@@ -302,6 +309,7 @@ export default function* onboardingActionSagas() {
       ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
       updateWidgetTextSaga,
     ),
+    takeLatest(ReduxActionTypes.ENABLE_GUIDED_TOUR, endGuidedTourSaga),
     takeLatest(ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET, focusWidgetSaga),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
