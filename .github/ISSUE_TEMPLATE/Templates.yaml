@@ -1,0 +1,52 @@
+name: 📓 Template request
+description: A large planned scope of work for the quarter
+title: "[Template]: "
+labels: [Template]
+assignees:
+- Kocharrahul8
+body:
+- type: textarea
+  id: Title
+  attributes:
+    label: Title
+    description: Name your templte, and make sure it is descriptive
+  validations:
+    required: true
+
+
+- type: textarea
+  id: Objective
+  attributes:
+    label: Objective
+    description: Let us know in as much detail what you want your template to do
+  validations:
+    required: true
+
+- type: textarea
+  id: Wireframes
+  attributes:
+    label: Wireframes
+    description: Share your templte outline/design. link to Wireframes you have created, existing applications/templates/tools which you would like to leverage
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Validation criteria
+    description: List of all Objectives your template must achieve. They can be functionality that the template must satisfy, or specific widgets/data sourecs you would like used
+    value: |
+      e.g. User should be able to upload a file
+      e.g. Data should be stored in a Firestore database
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Tags
+    description: |
+      List the tags you feel best categorise your template. Include functionality, widgets used, API or databases, industries in which this would be useful, and any other possible tags to help with discovery.
+    Value: |
+      - Tag 1
+      - Tag 2
+      - Tag 3
+  validations:
+    required: false
