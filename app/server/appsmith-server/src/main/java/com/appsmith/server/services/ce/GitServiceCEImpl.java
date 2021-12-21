@@ -10,6 +10,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -32,6 +33,7 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
@@ -69,6 +71,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -88,6 +91,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final CommonConfig commonConfig;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
+    private final AnalyticsService analyticsService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -686,7 +690,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
-                });
+                })
+                // Add BE analytics
+                .flatMap(application -> sessionUserService.getCurrentUser()
+                        .map(user -> {
+                            analyticsService.sendEvent(
+                                    AnalyticsEvents.GIT_CONNECT.getEventName(),
+                                    user.getUsername(),
+                                    Map.of(
+                                            "connectToGit", defaultIfNull("", ""),
+                                            "applicationId", defaultIfNull(application.getId(), ""),
+                                            "orgId", defaultIfNull(application.getOrganizationId(), "")
+                                    )
+                            );
+                            return application;
+                        }));
     }
 
     private Mono<Integer> getPrivateRepoLimitForOrg(String orgId) {

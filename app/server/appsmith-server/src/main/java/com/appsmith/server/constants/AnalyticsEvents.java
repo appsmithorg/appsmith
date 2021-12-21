@@ -17,6 +17,13 @@ public enum AnalyticsEvents {
     SUBSCRIBE_MARKETING_EMAILS,
     UNSUBSCRIBE_MARKETING_EMAILS,
     INSTALLATION_SETUP_COMPLETE("Installation Setup Complete"),
+    GIT_CONNECT,
+    GIT_COMMIT,
+    GIT_PUSH,
+    GIT_MERGE,
+    GIT_PULL,
+    GIT_PRUNE,
+    GIT_DISCONNECT
     ;
 
     private final String eventName;
