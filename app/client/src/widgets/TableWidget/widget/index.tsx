@@ -146,7 +146,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         Cell: (props: any) => {
           const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
-          const originalIndex = data?.__originalIndex__ || rowIndex;
+          const originalIndex = data.__originalIndex__ ?? rowIndex;
 
           // cellProperties order or size does not change when filter/sorting/grouping is applied
           // on the data thus original index is need to identify the column's cell property.
@@ -637,7 +637,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         // Use the selectedRowIndex if available as default selected index
         let selectedRowIndices: number[] = [];
         // Check if selectedRowIndex is valid
-        if (this.props.selectedRowIndex && this.props.selectedRowIndex > -1) {
+        if (
+          this.props.selectedRowIndex !== undefined &&
+          this.props.selectedRowIndex > -1 &&
+          !Array.isArray(this.props.selectedRowIndex)
+        ) {
           selectedRowIndices = [this.props.selectedRowIndex];
         }
         // Else use the defaultSelectedRow if available
@@ -649,6 +653,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             ? [this.props.defaultSelectedRow]
             : this.props.defaultSelectedRow;
         }
+
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,

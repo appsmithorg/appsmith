@@ -4,9 +4,11 @@ import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
-import { FieldArray } from "redux-form";
+import { FieldArray, getFormValues } from "redux-form";
 import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
+import _ from "lodash";
+import { useSelector } from "react-redux";
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -175,8 +177,22 @@ function ConditionComponent(props: any, index: number) {
 
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
+  const formValues: any = useSelector((state) =>
+    getFormValues(props.formName)(state),
+  );
+
+  const onDeletePressed = (index: number) => {
+    props.fields.remove(index);
+  };
+
+  // sometimes, this condition runs before the appropriate formValues has been initialized with the correct query values.
   useEffect(() => {
-    if (props.fields.length < 1) {
+    // so make sure the new formValue has been initialized with the where object,
+    // especially when switching between various queries across the same Query editor form.
+    const whereConfigValue = _.get(formValues, props.configProperty);
+    // if the where object exists then it means the initialization of the form has been completed.
+    // if the where object exists and the length of children field is less than one, add a new field.
+    if (props.fields.length < 1 && !!whereConfigValue) {
       if (props.currentNestingLevel === 0) {
         props.fields.push({
           condition: props.comparisonTypes[0].value,
@@ -186,9 +202,7 @@ function ConditionBlock(props: any) {
       }
     }
   }, [props.fields.length]);
-  const onDeletePressed = (index: number) => {
-    props.fields.remove(index);
-  };
+
   let marginTop = "8px";
   // In case the first component is a complex element, add extra margin
   // because the keys are not visible. Will not affect the outer most

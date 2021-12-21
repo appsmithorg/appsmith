@@ -903,7 +903,7 @@ public class MongoPlugin extends BasePlugin {
 
             } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
                 return DateTimeFormatter.ISO_INSTANT.format(
-                        Instant.ofEpochMilli(jsonObject.getLong("$date"))
+                        Instant.parse(jsonObject.getString("$date"))
                 );
 
             } else if (isSingleKey && "$numberDecimal".equals(jsonObject.keys().next())) {

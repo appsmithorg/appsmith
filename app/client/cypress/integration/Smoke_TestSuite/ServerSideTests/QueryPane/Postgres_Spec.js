@@ -244,12 +244,12 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.runAndDeleteQuery();
   });
 
-  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
+  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate("select * from public.users limit 10");
     cy.runQuery();
-    cy.typeValueNValidate("select * from users_crud limit 10");
+    cy.typeValueNValidate("select * from public.users_crud limit 10");
     cy.onlyQueryRun();
     cy.get(commonlocators.debugger)
       .should("be.visible")
@@ -262,6 +262,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .then(($text) => {
         expect($text).to.eq("Execution failed with status 5005");
       });
+    cy.deleteQueryUsingContext();
   });
 
   it("11. Deletes the datasource", () => {
