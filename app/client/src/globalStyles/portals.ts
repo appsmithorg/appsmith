@@ -58,6 +58,15 @@ export const PortalStyles = createGlobalStyle`
     pointer-events: none;
   }
 
+  .guided-tour-indicator {
+    position: fixed;
+    z-index: 3;
+    pointer-events: none;
+    height: 87px;
+    width: 116px;
+    transition: all 1s;
+  }
+
   .show {
     border-color: rgba(191, 65, 9, 1);
   }

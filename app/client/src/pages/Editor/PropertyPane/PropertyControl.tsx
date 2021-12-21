@@ -403,6 +403,7 @@ const PropertyControl = memo((props: Props) => {
       return (
         <ControlWrapper
           className={`t--property-control-${className}`}
+          data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
           orientation={

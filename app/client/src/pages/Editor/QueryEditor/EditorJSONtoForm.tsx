@@ -72,7 +72,6 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import Guide from "pages/Editor/GuidedTour/Guide";
-import Indicator from "../GuidedTour/Indicator";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
@@ -789,29 +788,16 @@ export function EditorJSONtoForm(props: Props) {
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
             />
-            <Indicator
-              location="RUN_QUERY"
-              modifiers={{
-                offset: {
-                  enabled: true,
-                  options: {
-                    offset: [0, -30],
-                  },
-                },
-              }}
-              position="top"
-              step={1}
-            >
-              <Button
-                className="t--run-query"
-                isLoading={isRunning}
-                onClick={onRunClick}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
-            </Indicator>
+            <Button
+              className="t--run-query"
+              data-guided-tour-iid="run-query"
+              isLoading={isRunning}
+              onClick={onRunClick}
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
+            />
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>

@@ -751,15 +751,15 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "SELECT * FROM user_data where email ilike '%{{CustomersTable.searchText}}%' ORDER BY id LIMIT 20;",
+            "body": "SELECT * FROM user_data ORDER BY id LIMIT 20;",
             "pluginSpecifiedTemplates": [{ "value": false }]
           },
           "executeOnLoad": true,
-          "dynamicBindingPathList": [{ "key": "body" }],
+          "dynamicBindingPathList": [],
+          "jsonPathKeys": [],
           "isValid": true,
           "invalids": [],
           "messages": [],
-          "jsonPathKeys": ["CustomersTable.searchText"],
           "confirmBeforeExecute": false,
           "userPermissions": [],
           "validName": "getCustomers"

@@ -31,7 +31,7 @@ import {
 } from "selectors/onboardingSelectors";
 import { Steps } from "./constants";
 import { GuideBody } from "./Guide";
-import { highlightSection } from "./utils";
+import { hideIndicator, highlightSection, showIndicator } from "./utils";
 
 function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   let step = 1;
@@ -174,10 +174,10 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   useEffect(() => {
     if (step === 1 && hadReachedStep <= 1) {
       if (!queryLimitUpdated) {
-        dispatch(setIndicatorLocation("QUERY_EDITOR"));
+        showIndicator(`span[role="presentation"]`);
       } else if (queryExecutedSuccessfully) {
         dispatch(forceShowContent(1));
-        dispatch(setIndicatorLocation("NONE"));
+        hideIndicator();
         dispatch(markStepComplete());
 
         setTimeout(() => {
@@ -187,7 +187,7 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
           // Adding a slight delay to wait for the table to be visible
         }, 1000);
       } else {
-        dispatch(setIndicatorLocation("RUN_QUERY"));
+        showIndicator(`[data-guided-tour-iid='run-query']`, "top");
       }
     }
   }, [queryExecutedSuccessfully, queryLimitUpdated, step, hadReachedStep]);
@@ -195,14 +195,14 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   useEffect(() => {
     if (tableWidgetSelected && step === 3 && hadReachedStep <= 3) {
       dispatch(tableWidgetWasSelected(true));
-      dispatch(setIndicatorLocation("PROPERTY_CONTROL"));
+      showIndicator(`[data-guided-tour-iid='tableData']`, "top");
     }
   }, [step, tableWidgetSelected]);
 
   useEffect(() => {
     if (!!isTableWidgetBound && step === 3 && hadReachedStep <= 3) {
       dispatch(setExplorerPinnedAction(false));
-      dispatch(setIndicatorLocation("NONE"));
+      hideIndicator();
       dispatch(markStepComplete());
     }
   }, [isTableWidgetBound, step, hadReachedStep]);
@@ -230,6 +230,7 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   useEffect(() => {
     if (step === 4 && hadReachedStep <= 4) {
       if (!!isNameInputBound) {
+        hideIndicator();
         dispatch(markStepComplete());
       }
     }
@@ -237,12 +238,14 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
 
   // 5
   useEffect(() => {
-    if (
-      step === 5 &&
-      meta.completedSubSteps.length === 3 &&
-      hadReachedStep <= 5
-    ) {
-      dispatch(markStepComplete());
+    if (step === 5 && hadReachedStep <= 5) {
+      if (meta.completedSubSteps.length === 1) {
+        hideIndicator();
+      }
+
+      if (meta.completedSubSteps.length === 3) {
+        dispatch(markStepComplete());
+      }
     }
   }, [step, meta.completedSubSteps.length, hadReachedStep]);
 
@@ -250,7 +253,6 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   useEffect(() => {
     if (step === 6 && hadReachedStep <= 6 && !showInfoMessage) {
       if (buttonWidgetPresent) {
-        dispatch(setIndicatorLocation("NONE"));
         dispatch(updateButtonWidgetText());
         dispatch(markStepComplete());
       }
@@ -258,25 +260,20 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   }, [step, buttonWidgetPresent, showInfoMessage]);
 
   useEffect(() => {
-    if (step === 7 && hadReachedStep <= 7) {
-      if (buttonWidgetonClickBinding) {
-        dispatch(setIndicatorLocation("ACTION_CREATOR"));
-      }
-    }
-  }, [step, buttonWidgetonClickBinding, hadReachedStep]);
-
-  useEffect(() => {
-    if (step === 8) {
+    if (step === 8 && hadReachedStep <= 8) {
       if (buttonWidgetSuccessBinding) {
         dispatch(markStepComplete());
-        dispatch(setIndicatorLocation("NONE"));
+        hideIndicator();
+      } else {
+        showIndicator(`[data-guided-tour-iid='onSuccess']`, "top");
       }
     }
-  }, [step, buttonWidgetSuccessBinding]);
+  }, [step, hadReachedStep, buttonWidgetSuccessBinding]);
 
   useEffect(() => {
     if (step === 9) {
       if (isDeployed) {
+        hideIndicator();
         dispatch(enableGuidedTour(false));
       }
     }

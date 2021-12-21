@@ -10,7 +10,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import Indicator from "../GuidedTour/Indicator";
 import Boxed from "../GuidedTour/Boxed";
 
 export type PropertyControlsGeneratorProps = {
@@ -57,30 +56,12 @@ export const generatePropertyControl = (
           }
           step={3}
         >
-          <Indicator
-            location="PROPERTY_CONTROL"
-            modifiers={{
-              offset: {
-                enabled: true,
-                options: {
-                  offset: [-15, -50],
-                },
-              },
-            }}
-            position={"top"}
-            show={
-              (config as PropertyPaneControlConfig).propertyName === "tableData"
-            }
-            step={3}
-            targetTagName="div"
-          >
-            <PropertyControl
-              key={config.id + props.id}
-              {...(config as PropertyPaneControlConfig)}
-              panel={props.panel}
-              theme={props.theme}
-            />
-          </Indicator>
+          <PropertyControl
+            key={config.id + props.id}
+            {...(config as PropertyPaneControlConfig)}
+            panel={props.panel}
+            theme={props.theme}
+          />
         </Boxed>
       );
     }

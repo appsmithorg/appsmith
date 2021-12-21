@@ -28,7 +28,6 @@ import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 import WidgetFactory from "utils/WidgetFactory";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
-import Indicator from "pages/Editor/GuidedTour/Indicator";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -234,30 +233,15 @@ export const EntityName = forwardRef(
             modifiers={{ arrow: { enabled: false } }}
             position={Position.TOP_LEFT}
           >
-            <Indicator
-              async
-              modifiers={{
-                offset: {
-                  enabled: true,
-                  options: {
-                    offset: [-20, -40],
-                  },
-                },
-              }}
-              position="right-top"
-              show={name === "CustomersTable"}
-              step={2}
-              targetTagName="div"
+            <Wrapper
+              className={props.className}
+              data-guided-tour-iid={name}
+              onDoubleClick={props.enterEditMode}
+              ref={targetRef}
             >
-              <Wrapper
-                className={props.className}
-                onDoubleClick={props.enterEditMode}
-                ref={targetRef}
-              >
-                {searchHighlightedName}
-                {props.isBeta ? <BetaIcon className="beta-icon" /> : ""}
-              </Wrapper>
-            </Indicator>
+              {searchHighlightedName}
+              {props.isBeta ? <BetaIcon className="beta-icon" /> : ""}
+            </Wrapper>
           </TooltipComponent>
         </Container>
       );

@@ -29,12 +29,4 @@ export const PopoverStyles = createGlobalStyle`
   .auth-type-dropdown .ads-dropdown-options-wrapper {
     padding: 0;
   }
-
-  .guided-tour-indicator {
-    box-shadow: none;
-  }
-
-  .guided-tour-indicator .${PopoverClasses.POPOVER2_CONTENT} {
-    background: transparent;
-  }
 `;

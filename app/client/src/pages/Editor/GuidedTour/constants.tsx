@@ -12,7 +12,7 @@ import {
   focusWidget,
 } from "actions/onboardingActions";
 import { IconName } from "components/ads/Icon";
-import { highlightSection } from "./utils";
+import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
@@ -179,6 +179,7 @@ export const Steps: StepsType = {
       onClick: (dispatch) => {
         dispatch(setExplorerPinnedAction(true));
         dispatch(setCurrentStep(2));
+        showIndicator(`[data-guided-tour-iid='CustomersTable']`);
       },
       buttonText: "PROCEED TO NEXT STEP",
     },
@@ -272,6 +273,9 @@ export const Steps: StepsType = {
           text: "PROCEED",
           onClick: (dispatch) => {
             dispatch(focusWidget("Input1"));
+            setTimeout(() => {
+              showIndicator(`[data-guided-tour-iid='defaultText']`, "top");
+            }, 1000);
           },
         },
       },
@@ -294,6 +298,9 @@ export const Steps: StepsType = {
       onClick: (dispatch) => {
         dispatch(setCurrentStep(5));
         dispatch(focusWidget("Input2"));
+        setTimeout(() => {
+          showIndicator(`[data-guided-tour-iid='defaultText']`, "top");
+        }, 1000);
       },
       duration: 12,
     },
@@ -376,6 +383,7 @@ export const Steps: StepsType = {
       ),
       onClick: (dispatch) => {
         dispatch(setCurrentStep(7));
+        showIndicator(`[data-guided-tour-iid='onClick']`, "top");
       },
     },
   },
@@ -411,6 +419,9 @@ export const Steps: StepsType = {
         "Exceptional work! You’ve now built a way to see customer data and update it.",
       onClick: (dispatch) => {
         dispatch(setCurrentStep(9));
+        setTimeout(() => {
+          showIndicator(`[data-guided-tour-iid='deploy']`, "bottom");
+        }, 1000);
       },
     },
   },
