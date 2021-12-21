@@ -68,7 +68,7 @@ function Accordion({
   }, [isCollapsible, isOpen, setIsOpen]);
 
   const toggleIsOpen = () => setIsOpen((prevState) => !prevState);
-  console.log("ACCORDION borderColor", { borderColor });
+
   return (
     <StyledWrapper
       backgroundColor={backgroundColor}
