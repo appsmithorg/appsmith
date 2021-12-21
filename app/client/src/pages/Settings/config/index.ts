@@ -5,7 +5,7 @@ import EmailConfig from "./email";
 import MapsConfig from "./googleMaps";
 import VersionConfig from "./version";
 import AdvancedConfig from "./advanced";
-import Authentication from "./authentication";
+import Authentication from "@appsmith/pages/AdminSettings/config/authentication";
 
 ConfigFactory.register(GeneralConfig);
 ConfigFactory.register(EmailConfig);
