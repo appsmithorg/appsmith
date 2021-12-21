@@ -203,6 +203,7 @@ function RepoLimitExceededErrorModal() {
                 {createMessage(DISCONNECT_CAUSE_APPLICATION_BREAK)}
               </Text>
               <Link
+                className="t--learn-more-repo-limit-modal"
                 color={Colors.CRIMSON}
                 link={DOCS_BASE_URL}
                 text={createMessage(LEARN_MORE)}

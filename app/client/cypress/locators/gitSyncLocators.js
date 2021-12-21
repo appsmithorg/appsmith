@@ -43,4 +43,5 @@ export default {
   connectedApplication: "t--connected-app-wrapper",
   diconnectLink: "t--disconnect-link",
   disconnectLearnMoreLink: ".t--disconnect-learn-more",
+  learnMoreOnRepoLimitModal: ".t--learn-more-repo-limit-modal",
 };

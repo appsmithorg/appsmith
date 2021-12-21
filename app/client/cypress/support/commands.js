@@ -3484,6 +3484,38 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(gitSyncLocators.closeGitSyncModal).click();
 });
 
+Cypress.Commands.add(
+  "createAppAndConnectGit",
+  (appname, shouldConnect = true) => {
+    cy.get(homePage.homeIcon).click({ force: true });
+    cy.get(homePage.createNew)
+      .first()
+      .click({ force: true });
+    cy.wait("@createNewApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+
+    cy.AppSetupForRename();
+    cy.get(homePage.applicationName).type(appname + "{enter}");
+    cy.wait("@updateApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.createTestGithubRepo(appname, true);
+    if (shouldConnect) {
+      cy.connectToGitRepo(appname, false);
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
+    }
+  },
+);
+
 Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
