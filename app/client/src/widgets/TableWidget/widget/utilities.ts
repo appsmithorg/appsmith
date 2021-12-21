@@ -7,11 +7,12 @@ export const getOriginalRowIndex = (
 ) => {
   const primaryKey =
     selectedRowIndex !== undefined &&
+    oldTableData &&
     oldTableData[selectedRowIndex] &&
     oldTableData[selectedRowIndex].__primaryKey__
       ? oldTableData[selectedRowIndex].__primaryKey__
       : null;
-  if (primaryKey) {
+  if (primaryKey && newTableData) {
     const selectedRow = newTableData.find(
       (item) => item.__primaryKey__ === primaryKey,
     );
