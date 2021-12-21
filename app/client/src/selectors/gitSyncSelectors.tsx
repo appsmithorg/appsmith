@@ -142,3 +142,6 @@ export const getShowRepoLimitErrorModal = (state: AppState) =>
 
 export const getDisconnectingGitApplication = (state: AppState) =>
   state.ui.gitSync.disconnectingGitApp;
+
+export const getUseGlobalProfile = (state: AppState) =>
+  state.ui.gitSync.useGlobalProfile;

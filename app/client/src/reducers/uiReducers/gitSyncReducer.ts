@@ -223,6 +223,7 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     localGitConfig: action.payload,
     isFetchingLocalGitConfig: false,
+    useGlobalProfile: action.payload?.useGlobalProfile,
   }),
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -453,6 +454,8 @@ export type GitSyncReducerState = {
     id: string;
     name: string;
   };
+
+  useGlobalProfile?: boolean;
 };
 
 export default gitSyncReducer;

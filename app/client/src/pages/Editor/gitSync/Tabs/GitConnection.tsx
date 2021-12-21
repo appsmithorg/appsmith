@@ -22,7 +22,7 @@ import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
-import { useGitConnect, useSSHKeyPair, useUserGitConfig } from "../hooks";
+import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
@@ -47,9 +47,12 @@ import {
   GENERATE_KEY,
 } from "constants/messages";
 import {
+  getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
+  getLocalGitConfig,
   getTempRemoteUrl,
+  getUseGlobalProfile,
 } from "selectors/gitSyncSelectors";
 import Statusbar, {
   StatusbarWrapper,
@@ -145,41 +148,18 @@ type Props = {
 };
 
 function GitConnection({ isImport }: Props) {
-  const { remoteUrl: remoteUrlInStore = "" } =
-    useSelector(getCurrentAppGitMetaData) || ({} as any);
-  const { tempRemoteUrl = "" } = useSelector(getTempRemoteUrl) || ({} as any);
-  const curApplication = useSelector(getCurrentApplication);
-
-  const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore || tempRemoteUrl);
-  const isGitConnected = !!remoteUrlInStore;
-  const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
-  const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
-  const [triedSubmit, setTriedSubmit] = useState(false);
+  const placeholderText = createMessage(REMOTE_URL_INPUT_PLACEHOLDER);
 
   const dispatch = useDispatch();
-
-  const {
-    getInitGitConfig,
-    globalGitConfig,
-    isGlobalConfigDefined,
-    isLocalConfigDefined,
-    localGitConfig,
-  } = useUserGitConfig();
-
-  const initialAuthorInfoRef = useRef(getInitGitConfig());
-
-  const [authorInfo, setAuthorInfo] = useState<AuthorInfo>({
-    authorName: initialAuthorInfoRef.current.authorName,
-    authorEmail: initialAuthorInfoRef.current.authorEmail,
-  });
-
-  const [useGlobalConfig, setUseGlobalConfig] = useState(
-    !isLocalConfigDefined && isGlobalConfigDefined,
-  );
-
-  const [isInvalidRemoteUrl, setIsValidRemoteUrl] = useState(false);
-  const [showCopied, setShowCopied] = useState(false);
-  const timerRef = useRef(0);
+  const useGlobalProfile = useSelector(getUseGlobalProfile);
+  const globalGitConfig = useSelector(getGlobalGitConfig);
+  const localGitConfig = useSelector(getLocalGitConfig);
+  const { tempRemoteUrl = "" } = useSelector(getTempRemoteUrl) || ({} as any);
+  const curApplication = useSelector(getCurrentApplication);
+  const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
+  const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
+  const { remoteUrl: remoteUrlInStore = "" } =
+    useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const {
     deployKeyDocUrl,
@@ -192,11 +172,19 @@ function GitConnection({ isImport }: Props) {
 
   const { connectToGit, isConnectingToGit } = useGitConnect();
 
-  const stopShowingCopiedAfterDelay = () => {
-    timerRef.current = setTimeout(() => {
-      setShowCopied(false);
-    }, 2000);
-  };
+  const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore || tempRemoteUrl);
+  const isGitConnected = !!remoteUrlInStore;
+
+  const [authorInfo, setAuthorInfo] = useState<AuthorInfo>({
+    authorName: "",
+    authorEmail: "",
+  });
+  const [useGlobalConfigInputVal, setUseGlobalConfigInputVal] = useState(false);
+
+  const [triedSubmit, setTriedSubmit] = useState(false);
+  const [isInvalidRemoteUrl, setIsValidRemoteUrl] = useState(false);
+  const [showCopied, setShowCopied] = useState(false);
+  const timerRef = useRef(0);
 
   useEffect(() => {
     // On unmount clear timer to avoid memory leak
@@ -207,6 +195,43 @@ function GitConnection({ isImport }: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    // when disconnected remoteURL becomes undefined
+    if (!remoteUrlInStore) {
+      setRemoteUrl(tempRemoteUrl || "");
+    }
+  }, [remoteUrlInStore]);
+
+  useEffect(() => {
+    const initialGlobalConfigInputVal = !isGitConnected
+      ? true
+      : useGlobalProfile;
+    setUseGlobalConfigInputVal(!!initialGlobalConfigInputVal);
+  }, [useGlobalProfile, isGitConnected]);
+
+  useEffect(() => {
+    setAuthorInfo(localGitConfig);
+  }, [localGitConfig, useGlobalConfigInputVal]);
+
+  useEffect(() => {
+    // OnMount fetch global and local config
+    dispatch(fetchGlobalGitConfigInit());
+    dispatch(fetchLocalGitConfigInit());
+  }, []);
+
+  useEffect(() => {
+    // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
+    if (!SSHKeyPair) {
+      fetchSSHKeyPair();
+    }
+  }, [SSHKeyPair]);
+
+  const stopShowingCopiedAfterDelay = () => {
+    timerRef.current = setTimeout(() => {
+      setShowCopied(false);
+    }, 2000);
+  };
+
   const copyToClipboard = () => {
     if (SSHKeyPair) {
       copy(SSHKeyPair);
@@ -216,75 +241,12 @@ function GitConnection({ isImport }: Props) {
     AnalyticsUtil.logEvent("COPY_SSH_KEY_BUTTON_CLICK");
   };
 
-  useEffect(() => {
-    // when disconnected remoteURL becomes undefined
-    if (!remoteUrlInStore) {
-      setRemoteUrl(tempRemoteUrl || "");
-    }
-  }, [remoteUrlInStore]);
-
-  const placeholderText = createMessage(REMOTE_URL_INPUT_PLACEHOLDER);
-
   const isAuthorInfoUpdated = useCallback(() => {
     return (
-      !isEqual(
-        authorInfo.authorEmail,
-        initialAuthorInfoRef.current.authorEmail,
-      ) ||
-      !isEqual(authorInfo.authorName, initialAuthorInfoRef.current.authorName)
+      !isEqual(localGitConfig?.authorEmail, authorInfo.authorEmail) ||
+      !isEqual(localGitConfig?.authorName, authorInfo.authorName)
     );
-  }, [
-    authorInfo.authorEmail,
-    authorInfo.authorName,
-    initialAuthorInfoRef.current.authorEmail,
-    initialAuthorInfoRef.current.authorName,
-  ]);
-
-  const isRemoteUrlUpdated = () => {
-    return remoteUrl !== remoteUrlInStore;
-  };
-
-  const onSubmit = useCallback(() => {
-    if (isConnectingToGit) return;
-    setTriedSubmit(true);
-    AnalyticsUtil.logEvent("CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
-
-    if (
-      authorInfo.authorName &&
-      authorInfo.authorEmail &&
-      emailValidator(authorInfo.authorEmail).isValid
-    ) {
-      // Also check if useDefaultConfig switch is changed
-      if (isGitConnected && !isRemoteUrlUpdated()) {
-        if (isAuthorInfoUpdated()) {
-          // just update local config
-          dispatch(updateLocalGitConfigInit(authorInfo));
-        }
-      } else {
-        if (!isInvalidRemoteUrl) {
-          connectToGit({
-            remoteUrl,
-            gitProfile: authorInfo,
-            isImport,
-            isDefaultProfile: useGlobalConfig,
-          });
-        }
-      }
-    }
-  }, [
-    updateLocalGitConfigInit,
-    isAuthorInfoUpdated,
-    isRemoteUrlUpdated,
-    connectToGit,
-    useGlobalConfig,
-  ]);
-
-  useEffect(() => {
-    // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
-    if (!SSHKeyPair) {
-      fetchSSHKeyPair();
-    }
-  }, [SSHKeyPair]);
+  }, [authorInfo.authorEmail, authorInfo.authorName, localGitConfig]);
 
   const remoteUrlChangeHandler = (value: string) => {
     const isInvalid = remoteUrlIsInvalid(value);
@@ -296,6 +258,9 @@ function GitConnection({ isImport }: Props) {
     });
   };
 
+  const isUseGlobalProfileFlagUpdated =
+    !!useGlobalConfigInputVal !== !!useGlobalProfile;
+
   const submitButtonDisabled = useMemo(() => {
     const isAuthInfoUpdated = isAuthorInfoUpdated();
     let buttonDisabled = false;
@@ -303,48 +268,72 @@ function GitConnection({ isImport }: Props) {
       const isFetchingConfig =
         isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
 
-      buttonDisabled = buttonDisabled || !isAuthInfoUpdated || isFetchingConfig;
+      buttonDisabled =
+        (!isAuthInfoUpdated && !isUseGlobalProfileFlagUpdated) ||
+        isFetchingConfig;
     } else {
       buttonDisabled = isInvalidRemoteUrl;
     }
     return buttonDisabled;
   }, [
-    authorInfo.authorEmail,
-    authorInfo.authorName,
     isAuthorInfoUpdated,
     isGitConnected,
     isFetchingGlobalGitConfig,
     isFetchingLocalGitConfig,
     isInvalidRemoteUrl,
+    isUseGlobalProfileFlagUpdated,
   ]);
 
   const submitButtonIsLoading = isConnectingToGit;
 
-  useEffect(() => {
-    // OnMount fetch global and local config
-    dispatch(fetchGlobalGitConfigInit());
-    dispatch(fetchLocalGitConfigInit());
-  }, []);
+  const isAuthorInfoValid = useMemo(() => {
+    return (
+      useGlobalConfigInputVal ||
+      (authorInfo.authorName &&
+        authorInfo.authorEmail &&
+        emailValidator(authorInfo.authorEmail).isValid)
+    );
+  }, [useGlobalConfigInputVal, authorInfo.authorName, authorInfo.authorEmail]);
 
-  useEffect(() => {
-    // on local config update
-    const newAuthConfig = getInitGitConfig();
-    setAuthorInfo(newAuthConfig);
-    initialAuthorInfoRef.current = newAuthConfig;
+  const onSubmit = useCallback(() => {
+    if (isConnectingToGit || submitButtonDisabled) return;
+    setTriedSubmit(true);
+    AnalyticsUtil.logEvent("CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
+    if (!isAuthorInfoValid) return;
+
+    if (isGitConnected) {
+      const updatedGitConfig = useGlobalConfigInputVal
+        ? localGitConfig
+        : authorInfo;
+      dispatch(
+        updateLocalGitConfigInit({
+          ...updatedGitConfig,
+          useGlobalProfile: useGlobalConfigInputVal,
+        }),
+      );
+    } else {
+      const gitProfile = useGlobalConfigInputVal ? undefined : authorInfo;
+      connectToGit({
+        remoteUrl,
+        gitProfile,
+        isImport,
+        isDefaultProfile: useGlobalConfigInputVal,
+      });
+    }
   }, [
-    localGitConfig.authorEmail,
-    localGitConfig.authorName,
-    setAuthorInfo,
-    globalGitConfig.authorEmail,
-    globalGitConfig.authorEmail,
+    updateLocalGitConfigInit,
+    isAuthorInfoUpdated,
+    connectToGit,
+    useGlobalConfigInputVal,
+    remoteUrl,
   ]);
 
   const toggleHandler = useCallback(() => {
-    setUseGlobalConfig(!useGlobalConfig);
+    setUseGlobalConfigInputVal(!useGlobalConfigInputVal);
     AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED", {
-      value: !useGlobalConfig,
+      value: !useGlobalConfigInputVal,
     });
-  }, [setUseGlobalConfig, useGlobalConfig]);
+  }, [setUseGlobalConfigInputVal, useGlobalConfigInputVal]);
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
 
@@ -458,13 +447,11 @@ function GitConnection({ isImport }: Props) {
           <Space size={7} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
-            authorInfo={useGlobalConfig ? globalGitConfig : authorInfo}
-            isGlobalConfigDefined={isGlobalConfigDefined}
-            isLocalConfigDefined={isLocalConfigDefined}
+            authorInfo={useGlobalConfigInputVal ? globalGitConfig : authorInfo}
             setAuthorInfo={setAuthorInfo}
             toggleUseDefaultConfig={toggleHandler}
             triedSubmit={triedSubmit}
-            useGlobalConfig={useGlobalConfig}
+            useGlobalConfig={!!useGlobalConfigInputVal}
           />
           <ButtonContainer topMargin={0}>
             {isConnectingToGit && (

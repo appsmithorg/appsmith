@@ -18,7 +18,6 @@ import {
   fetchBranchesInit,
   fetchBranchesSuccess,
   fetchGlobalGitConfigSuccess,
-  updateGlobalGitConfigSuccess,
   pushToRepoSuccess,
   fetchLocalGitConfigSuccess,
   updateLocalGitConfigSuccess,
@@ -32,6 +31,7 @@ import {
   setIsGitErrorPopupVisible,
   setShowRepoLimitErrorModal,
   setIsDisconnectGitModalOpen,
+  fetchGlobalGitConfigInit,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -188,7 +188,7 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(updateGlobalGitConfigSuccess(response.data));
+      yield put(fetchGlobalGitConfigInit());
       Toaster.show({
         text: createMessage(GIT_USER_UPDATED_SUCCESSFULLY),
         variant: Variant.success,
@@ -529,10 +529,6 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.SWITCH_GIT_BRANCH_INIT, switchBranch),
     takeLatest(ReduxActionTypes.FETCH_BRANCHES_INIT, fetchBranches),
     takeLatest(ReduxActionTypes.CREATE_NEW_BRANCH_INIT, createNewBranch),
-    takeLatest(
-      ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT,
-      updateGlobalGitConfig,
-    ),
     takeLatest(
       ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT,
       fetchLocalGitConfig,
