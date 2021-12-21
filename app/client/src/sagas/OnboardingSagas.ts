@@ -3,7 +3,15 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { all, put, select, takeLatest, delay, call } from "redux-saga/effects";
+import {
+  all,
+  put,
+  select,
+  takeLatest,
+  delay,
+  call,
+  take,
+} from "redux-saga/effects";
 import {
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
@@ -50,6 +58,7 @@ import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
+import { updateWidgetName } from "actions/propertyPaneActions";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -177,6 +186,35 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
       type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: newWidget,
     });
+
+    // Update widget names
+    yield take(ReduxActionTypes.UPDATE_LAYOUT);
+    const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+      getWidgets,
+    );
+    const nameInput = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Input1",
+    );
+    const emailInput = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Input2",
+    );
+    const countryInput = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Input3",
+    );
+    const imageWidget = Object.values(widgets).find(
+      (widget) => widget.widgetName === "Image1",
+    );
+
+    yield delay(2000);
+    if (nameInput && emailInput && countryInput && imageWidget) {
+      yield put(updateWidgetName(nameInput.widgetId, "NameInput"));
+      yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
+      yield put(updateWidgetName(emailInput.widgetId, "EmailInput"));
+      yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
+      yield put(updateWidgetName(countryInput.widgetId, "CountryInput"));
+      yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
+      yield put(updateWidgetName(imageWidget.widgetId, "ImageWidget"));
+    }
   } catch (error) {
     log.error(error);
   }
