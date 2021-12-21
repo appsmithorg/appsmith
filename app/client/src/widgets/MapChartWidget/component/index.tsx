@@ -21,33 +21,6 @@ import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
 // Adding the chart and theme as dependency to the core fusioncharts
 ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
 
-// Creating the JSON object to store the chart configurations
-const defaultChartConfigs: ChartObject = {
-  type: "maps/world", // The chart type
-  width: "100%", // Width of the chart
-  height: "100%", // Height of the chart
-  dataFormat: "json", // Data type
-  dataSource: {
-    // Map Configuration
-    chart: {
-      caption: "Average Annual Population Growth",
-      // subcaption: " 1955-2015",
-      // numbersuffix: "%",
-      includevalueinlabels: "1",
-      labelsepchar: ": ",
-      entityFillHoverColor: "#FFF9C4",
-      theme: "fusion",
-    },
-    // Aesthetics; ranges synced with the slider
-    colorRange: {
-      gradient: "0",
-    },
-    // Source data as JSON --> id represents countries of the world.
-    data: dataSetForWorld,
-  },
-  events: {},
-};
-
 const MapChartContainer = styled.div`
   display: flex;
   height: 100%;
@@ -94,12 +67,41 @@ function MapChartComponent(props: MapChartComponentProps) {
     width,
   } = props;
 
+  // Creating the JSON object to store the chart configurations
+  const defaultChartConfigs: ChartObject = {
+    type: "maps/world", // The chart type
+    width: "100%", // Width of the chart
+    height: "100%", // Height of the chart
+    dataFormat: "json", // Data type
+    dataSource: {
+      // Map Configuration
+      chart: {
+        caption: "Average Annual Population Growth",
+        // subcaption: " 1955-2015",
+        // numbersuffix: "%",
+        includevalueinlabels: "1",
+        labelsepchar: ": ",
+        entityFillHoverColor: "#FFF9C4",
+        theme: "fusion",
+      },
+      // Aesthetics; ranges synced with the slider
+      colorRange: {
+        gradient: "0",
+      },
+      // Source data as JSON --> id represents countries of the world.
+      data: dataSetForWorld,
+    },
+    events: {},
+  };
+
   const [chartConfigs, setChartConfigs] = useState(defaultChartConfigs);
   const [chart, setChart] = useState(new FusionCharts(defaultChartConfigs));
 
   useEffect(() => {
     // Attach event handlers
-    const newChartConfigs: any = { ...chartConfigs };
+    const newChartConfigs: any = {
+      ...chartConfigs,
+    };
     newChartConfigs["events"]["entityClick"] = onDataPointClick;
 
     return () => {
@@ -198,7 +200,7 @@ function MapChartComponent(props: MapChartComponentProps) {
   const initializeMap = (configs: ChartObject) => {
     const { type: mapType } = configs;
     if (mapType) {
-      const alias = mapType.substr(5);
+      const alias = mapType.substring(5);
       const mapDefinition = CUSTOM_MAP_PLUGINS[alias];
       ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
       setChartConfigs(configs);
