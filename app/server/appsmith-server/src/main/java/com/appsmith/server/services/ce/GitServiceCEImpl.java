@@ -94,7 +94,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
     private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please resolve merge conflicts in remote and pull again";
 
-    private final static Map<Mono<String>, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
+    private final static Map<String, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -703,9 +703,9 @@ public class GitServiceCEImpl implements GitServiceCE {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         return configService.getInstanceId().map(instanceId -> {
             if (commonConfig.isCloudHosting()) {
-                return Mono.just(instanceId + "_" + orgId);
+                return instanceId + "_" + orgId;
             } else {
-                return Mono.just(instanceId);
+                return instanceId;
             }
         }).flatMap(key -> {
             // check the cache for the repo limit
