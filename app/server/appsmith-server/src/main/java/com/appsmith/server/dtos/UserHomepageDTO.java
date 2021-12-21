@@ -1,7 +1,6 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.User;
-import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +21,6 @@ public class UserHomepageDTO {
     // This is a string so that it can hold values like `10+` if there's more than 10 new versions, for example.
     String newReleasesCount;
 
-    List<ReleaseNotesService.ReleaseNode> releaseItems;
+    List<ReleaseNode> releaseItems;
 
 }

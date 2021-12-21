@@ -69,6 +69,7 @@ export default function RestartBanner() {
     <Dialog
       canEscapeKeyClose={false}
       canOutsideClickClose={false}
+      className="t--admin-settings-restart-notice"
       getHeader={() => <Header />}
       isOpen
       showHeaderUnderline
