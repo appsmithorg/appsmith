@@ -37,7 +37,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    const result = userFunction.apply(THIS_CONTEXT, ARGUMENTS);
+    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
@@ -167,11 +167,22 @@ export default function evaluate(
   isTriggerBased = false,
 ): EvalResult {
   const sanitizedScript = sanitizeScript(js);
+
+  // If nothing is present to evaluate, return back instead of evaluating
+  if (!sanitizedScript.length) {
+    return {
+      errors: [],
+      result: undefined,
+      triggers: [],
+    };
+  }
+
   const scriptType = getScriptType(evalArguments, isTriggerBased);
   const script = getScriptToEval(sanitizedScript, scriptType);
   // We are linting original js binding,
   // This will make sure that the character count is not messed up when we do unescapejs
   const scriptToLint = getScriptToEval(js, scriptType);
+
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
