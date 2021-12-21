@@ -3,6 +3,8 @@ const testdata = require("../../../../fixtures/testdata.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
+const jsEditorLocators = require("../../../../locators/JSEditor.json");
 
 describe("Undo/Redo functionality", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -38,7 +40,7 @@ describe("Undo/Redo functionality", function() {
     cy.get(datasourceEditor.username).should("be.empty");
   });
 
-  it("checks undo/redo for Api pane", function() {
+  it("Checks undo/redo for Api pane", function() {
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
@@ -70,5 +72,92 @@ describe("Undo/Redo functionality", function() {
       "have.text",
       "Authorization",
     );
+  });
+
+  it("Checks undo/redo in query editor", () => {
+    cy.get(".bp3-icon-chevron-left").click();
+    cy.get(".t--create-query")
+      .last()
+      .click();
+    cy.get(queryLocators.templateMenu).click();
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type("{{FirstAPI}}", {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+    cy.get("body").click(0, 0);
+    // verifying Relationships is visible on dynamic binding
+    cy.get(".icon-text")
+      .eq(1)
+      .within(() => {
+        cy.get(".connection-type").should("have.text", "Incoming entities");
+      });
+    cy.get(".icon-text")
+      .eq(1)
+      .next()
+      .children()
+      .within(() => {
+        cy.get(".connection").should("have.text", "FirstAPI");
+      });
+    cy.get(".icon-text")
+      .last()
+      .within(() => {
+        cy.get(".connection-type").should("have.text", "Outgoing entities");
+      });
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
+    cy.get("body").click(0, 0);
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+    cy.get(".CodeMirror-code").should("have.text", "{{FirstAPI}}");
+    // undo/redo through app menu
+    cy.get(".t--application-name").click({ force: true });
+    cy.get("li:contains(Edit)").trigger("mouseover");
+    cy.get("li:contains(Undo)").click({ multiple: true });
+    cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
+  });
+
+  it("Checks undo/redo in JS Objects", () => {
+    cy.NavigateToJSEditor();
+    cy.wait(1000);
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type("{downarrow}{downarrow}{downarrow}  ")
+      .type("test:()=>{},");
+    cy.get("body").type(`{${modifierKey}}z{${modifierKey}}z{${modifierKey}}z`);
+    // verifying test function is not visible in response tab after undo
+    cy.get(".function-name").should("not.contain.text", "test");
+    cy.get("body").type(
+      `{${modifierKey}}{shift}z{${modifierKey}}{shift}z{${modifierKey}}{shift}z`,
+    );
+    // verifying test function is visible in response tab after redo
+    cy.get(".function-name").should("contain.text", "test");
+    // performing undo from app menu
+    cy.get(".t--application-name").click({ force: true });
+    cy.get("li:contains(Edit)").trigger("mouseover");
+    cy.get("li:contains(Undo)").click({ multiple: true });
+    // cy.get(".function-name").should("not.contain.text", "test");
+  });
+
+  it("Checks undo/redo for Authenticated APIs", () => {
+    cy.NavigateToAPI_Panel();
+    cy.get(apiwidget.createAuthApiDatasource).click({ force: true });
+    cy.wait(2000);
+    cy.get("input[name='url']").type(testdata.baseUrl);
+    cy.get("input[name='headers[0].key']").type(testdata.headerKey);
+    cy.get("body").click(0, 0);
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get("input[name='url']").should("have.value", "");
+    cy.get("input[name='headers[0].key']").should("have.value", "");
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+    cy.get("input[name='url']").should(
+      "have.value",
+      "https://mock-api.appsmith.com/",
+    );
+    cy.get("input[name='headers[0].key']").should("have.value", "Content-Type");
   });
 });
