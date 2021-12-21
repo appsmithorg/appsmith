@@ -4680,7 +4680,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "104", id = "create-system-themes", author = "")
+    @ChangeSet(order = "106", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
         Index uniqueApplicationIdIndex = new Index()
                 .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
