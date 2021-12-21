@@ -394,7 +394,7 @@ function* createOnboardingDatasource() {
           },
           endpoints: [
             {
-              host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+              host: "mockdb.internal.appsmith.com",
               port: 5432,
             },
           ],
