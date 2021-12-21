@@ -374,8 +374,7 @@ describe("Table Widget Functionality", function() {
     cy.wait(3000);
     cy.testJsontext(
       "tabledata",
-      `
-      {{
+      `{{
         Switch1.isSwitchedOn ? [
             {
               name: "joe"
@@ -385,8 +384,7 @@ describe("Table Widget Functionality", function() {
               employee_name: "john"
             },
           ];
-      }}
-    `,
+      }}`,
     );
     cy.wait("@updateLayout");
     cy.wait(3000);
