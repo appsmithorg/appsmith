@@ -8,11 +8,10 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
 
-import CameraComponent, { TimerProps } from "../component";
+import CameraComponent from "../component";
 import {
   CameraMode,
   CameraModeTypes,
-  MediaCaptureStatus,
   MediaCaptureStatusTypes,
 } from "../constants";
 
@@ -154,16 +153,13 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   getPageView() {
     const {
       bottomRow,
-      image,
       isDisabled,
       isMirrored,
       leftColumn,
-      mediaCaptureStatus,
       mode,
       parentColumnSpace,
       parentRowSpace,
       rightColumn,
-      timer,
       topRow,
       videoBlobURL,
     } = this.props;
@@ -176,39 +172,21 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       <CameraComponent
         disabled={isDisabled}
         height={height}
-        image={image}
-        mediaCaptureStatus={mediaCaptureStatus}
         mirrored={isMirrored}
         mode={mode}
         onImageCapture={this.handleImageCapture}
-        onMediaCaptureStatusChange={this.handleMediaCaptureStatusChange}
         onRecordingStart={this.handleRecordingStart}
         onRecordingStop={this.handleRecordingStop}
-        onTimerChange={this.handleTimerChange}
-        timer={timer}
         videoBlobURL={videoBlobURL}
         width={width}
       />
     );
   }
 
-  handleMediaCaptureStatusChange = (status: MediaCaptureStatus) => {
-    this.props.updateWidgetMetaProperty("mediaCaptureStatus", status);
-  };
-
-  handleTimerChange = (timer?: TimerProps) => {
-    if (!timer) {
-      this.props.updateWidgetMetaProperty("timer", undefined);
-      return;
-    }
-
-    this.props.updateWidgetMetaProperty("timer", timer);
-  };
-
   handleImageCapture = (image?: string | null) => {
     if (!image) {
       URL.revokeObjectURL(this.props.imageBlobURL);
-      this.props.updateWidgetMetaProperty("image", null);
+
       this.props.updateWidgetMetaProperty("imageBlobURL", undefined);
       this.props.updateWidgetMetaProperty("imageDataURL", undefined);
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
@@ -220,7 +198,6 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     const blobIdForBase64 = createBlobUrl(imageBlob, FileDataTypes.Base64);
     const blobIdForRaw = createBlobUrl(imageBlob, FileDataTypes.Binary);
 
-    this.props.updateWidgetMetaProperty("image", image);
     this.props.updateWidgetMetaProperty("imageBlobURL", blobURL);
     this.props.updateWidgetMetaProperty("imageDataURL", blobIdForBase64, {
       triggerPropertyName: "onImageCapture",
@@ -285,16 +262,13 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 }
 
 export interface CameraWidgetProps extends WidgetProps {
-  image: string | null;
   isDisabled: boolean;
   isMirrored: boolean;
   isVisible: boolean;
-  mediaCaptureStatus: MediaCaptureStatus;
   mode: CameraMode;
   onImageCapture?: string;
   onRecordingStart?: string;
   onRecordingStop?: string;
-  timer: TimerProps;
   videoBlobURL?: string;
 }
 
