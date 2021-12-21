@@ -603,6 +603,15 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.CSV,
+                      params: {
+                        allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "verticalAlignment",

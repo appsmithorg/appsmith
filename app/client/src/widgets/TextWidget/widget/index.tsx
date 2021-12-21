@@ -196,7 +196,12 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.CSV,
+              params: {
+                allowedValues: ["BOLD", "ITALIC"],
+              },
+            },
           },
           {
             propertyName: "textAlign",

@@ -291,6 +291,8 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       return `base64 encoded image | data uri | image url`;
     case ValidationTypes.SAFE_URL:
       return "URL";
+    case ValidationTypes.CSV:
+      return "CSV";
   }
 }
 
@@ -916,6 +918,52 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     return {
       isValid: true,
       parsed: resultValue,
+    };
+  },
+
+  [ValidationTypes.CSV]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ) => {
+    if (value === undefined || value === null || value === "") {
+      if (config?.params?.required) {
+        return {
+          isValid: false,
+          parsed: config.params?.default ?? "",
+          messages: [
+            `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+          ],
+        };
+      }
+
+      return {
+        isValid: true,
+        parsed: config.params?.default ?? "",
+      };
+    }
+    if (!isString(value))
+      return {
+        isValid: false,
+        parsed: config?.params?.default ?? "",
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+        ],
+      };
+    const csv = value.split(",").map((x) => x.trim());
+    if (config?.params?.allowedValues) {
+      for (const x of csv) {
+        if (!config.params.allowedValues.includes(x))
+          return {
+            isValid: false,
+            parsed: config?.params?.default ?? "",
+            messages: [`Disallowed value: ${x}`],
+          };
+      }
+    }
+    return {
+      isValid: true,
+      parsed: csv.join(","),
     };
   },
 };

@@ -1262,6 +1262,55 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected[i]);
     });
   });
+
+  it.only("correctly validates CSV validation", () => {
+    const inputs = ["a", ["a", "b"], "x", ["a", "b", "x"], "a,b", "a,b,x", ""];
+    const config = {
+      type: ValidationTypes.CSV,
+      params: {
+        allowedValues: ["a", "b", "c"],
+        default: "z",
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: "a",
+      },
+      {
+        isValid: false,
+        parsed: "z",
+        messages: ["This value does not evaluate to type CSV"],
+      },
+      {
+        isValid: false,
+        parsed: "z",
+        messages: ["Disallowed value: x"],
+      },
+      {
+        isValid: false,
+        parsed: "z",
+        messages: ["This value does not evaluate to type CSV"],
+      },
+      {
+        isValid: true,
+        parsed: "a,b",
+      },
+      {
+        isValid: false,
+        parsed: "z",
+        messages: ["Disallowed value: x"],
+      },
+      {
+        isValid: true,
+        parsed: "z",
+      },
+    ];
+    inputs.forEach((input, i) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[i]);
+    });
+  });
 });
 
 // describe("Color Picker Text validator", () => {

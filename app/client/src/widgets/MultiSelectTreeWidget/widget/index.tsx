@@ -315,7 +315,12 @@ class MultiSelectTreeWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.CSV,
+              params: {
+                allowedValues: ["BOLD", "ITALIC"],
+              },
+            },
           },
         ],
       },
