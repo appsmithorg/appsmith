@@ -29,7 +29,7 @@ export type MergeStatusPayload = {
 
 export type ConnectToGitPayload = {
   remoteUrl: string;
-  gitProfile: {
+  gitProfile?: {
     authorName: string;
     authorEmail: string;
   };
