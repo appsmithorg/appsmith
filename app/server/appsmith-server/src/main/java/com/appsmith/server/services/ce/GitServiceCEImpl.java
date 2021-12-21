@@ -457,9 +457,28 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // Push flow
                         result.append(".\nPush Result : ");
                         return pushApplication(childApplication.getId(), false)
-                                .map(pushResult -> result.append(pushResult).toString());
+                                .map(pushResult -> result.append(pushResult).toString())
+                                .zipWith(Mono.just(childApplication));
                     }
-                    return Mono.just(result.toString());
+                    return Mono.zip(Mono.just(result.toString()), Mono.just(childApplication));
+                })
+                // Add BE analytics
+                .flatMap(tuple -> {
+                    String status = tuple.getT1();
+                    Application application = tuple.getT2();
+                    return sessionUserService.getCurrentUser()
+                            .map(user -> {
+                                analyticsService.sendEvent(
+                                        AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                        user.getUsername(),
+                                        Map.of(
+                                                "defaultApplicationId", defaultIfNull(defaultApplicationId, ""),
+                                                "branchApplicationId", defaultIfNull(defaultApplicationId, ""),
+                                                "orgId", defaultIfNull(application.getOrganizationId(), "")
+                                        )
+                                );
+                                return status;
+                            });
                 });
     }
 
@@ -698,9 +717,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     AnalyticsEvents.GIT_CONNECT.getEventName(),
                                     user.getUsername(),
                                     Map.of(
-                                            "connectToGit", defaultIfNull("", ""),
                                             "applicationId", defaultIfNull(application.getId(), ""),
-                                            "orgId", defaultIfNull(application.getOrganizationId(), "")
+                                            "orgId", defaultIfNull(application.getOrganizationId(), ""),
+                                            "repoType", defaultIfNull(application.getGitApplicationMetadata().getIsRepoPrivate(), "")
                                     )
                             );
                             return application;
