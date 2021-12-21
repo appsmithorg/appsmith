@@ -1,11 +1,19 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.JSValue;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -18,12 +26,14 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -34,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,6 +58,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -111,6 +123,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LayoutCollectionService layoutCollectionService;
+
     private static String sourceAppId;
 
     private static String testUserOrgId;
@@ -119,13 +134,13 @@ public class ApplicationForkingServiceTests {
 
     @Before
     public void setup() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         // Run setup only once
         if (isSetupDone) {
             return;
         }
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Organization sourceOrganization = new Organization();
         sourceOrganization.setName("Source Organization");
@@ -135,8 +150,45 @@ public class ApplicationForkingServiceTests {
         app1.setName("1 - public app");
         app1.setOrganizationId(sourceOrganization.getId());
         app1.setForkingEnabled(true);
-        applicationPageService.createApplication(app1).block();
+        app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
+
+        // Save action
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setOrganizationId(app1.getOrganizationId());
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        ActionDTO action = new ActionDTO();
+        action.setName("forkActionByTest");
+        action.setPageId(app1.getPages().get(0).getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        layoutActionService.createSingleAction(action).block();
+
+        // Save actionCollection
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("deleteTestCollection1");
+        actionCollectionDTO.setPageId(app1.getPages().get(0).getId());
+        actionCollectionDTO.setApplicationId(sourceAppId);
+        actionCollectionDTO.setOrganizationId(sourceOrganization.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("deleteTestAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action1));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        layoutCollectionService.createCollection(actionCollectionDTO).block();
 
         // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceOrganization and we are
         // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
@@ -192,10 +244,57 @@ public class ApplicationForkingServiceTests {
                         applicationForkingService.forkApplicationToOrganization(sourceAppId, targetOrganizationId)
                 );
 
-        StepVerifier.create(resultMono)
-                .assertNext(application -> {
+        StepVerifier.create(resultMono
+                .zipWhen(application -> Mono.zip(
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
+                    )))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
+
                     assertThat(application).isNotNull();
                     assertThat(application.getName()).isEqualTo("1 - public app");
+                    assertThat(application.getPages().get(0).getDefaultPageId())
+                            .isEqualTo(application.getPages().get(0).getId());
+                    assertThat(application.getPublishedPages().get(0).getDefaultPageId())
+                            .isEqualTo(application.getPublishedPages().get(0).getId());
+
+                    assertThat(actionList).hasSize(2);
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getDefaultResources()).isNotNull();
+                        assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                        assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        ActionDTO action = newAction.getUnpublishedAction();
+                        assertThat(action.getDefaultResources()).isNotNull();
+                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getPages().get(0).getId());
+                        if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
+                            assertThat(action.getDefaultResources().getCollectionId()).isEqualTo(action.getCollectionId());
+                        }
+                    });
+
+                    assertThat(actionCollectionList).hasSize(1);
+                    actionCollectionList.forEach(actionCollection -> {
+                        assertThat(actionCollection.getDefaultResources()).isNotNull();
+                        assertThat(actionCollection.getDefaultResources().getCollectionId()).isEqualTo(actionCollection.getId());
+                        assertThat(actionCollection.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+
+                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
+                                .hasSize(1);
+                        unpublishedCollection.getDefaultToBranchedActionIdsMap().keySet()
+                                .forEach(key ->
+                                    assertThat(key).isEqualTo(unpublishedCollection.getDefaultToBranchedActionIdsMap().get(key))
+                                );
+
+                        assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
+                        assertThat(unpublishedCollection.getDefaultResources().getPageId())
+                                .isEqualTo(application.getPages().get(0).getId());
+                    });
+
                 })
                 .verifyComplete();
     }
