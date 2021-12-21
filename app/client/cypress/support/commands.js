@@ -59,11 +59,14 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
     .click({ force: true });
   cy.get(homePage.renameOrgInput)
     .should("be.visible")
-    .type(newOrgName);
-  cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.wait("@updateOrganization").should((interception) => {
-    assertApiResponseStatusCode(interception, 200);
-  });
+    .type(newOrgName.concat("{enter}"));
+  cy.wait(3000);
+  //cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.wait("@updateOrganization").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
   cy.contains(newOrgName);
 });
 
@@ -2851,6 +2854,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/users/leaveOrganization/*").as(
     "leaveOrgApiCall",
   );
+  cy.intercept("DELETE", "api/v1/organizations/*").as("deleteOrgApiCall");
 
   cy.intercept("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.intercept("POST", "/api/v1/comments?threadId=*").as("createNewComment");

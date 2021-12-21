@@ -467,7 +467,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             for (Property header : headers) {
-                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                if (StringUtils.isNotEmpty(header.getKey()) && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
                         MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
