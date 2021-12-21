@@ -706,7 +706,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderOauth2CommonAdvanced = () => {
     return (
       <>
-        <FormInputContainer data-replay-id={btoa("authentication.audience")}>
+        <FormInputContainer>
+          <KeyValueInputControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.customTokenParameters"
+            label="Custom Token Parameters"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.audience"
