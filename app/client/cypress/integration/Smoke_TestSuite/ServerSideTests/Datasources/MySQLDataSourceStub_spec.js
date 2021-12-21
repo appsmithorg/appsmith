@@ -20,7 +20,7 @@ describe("MySQL datasource test cases", function() {
       cy.renameDatasource(datasourceName);
     });
 
-    cy.wait("@saveDatasource").then((httpResponse) => {
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {
