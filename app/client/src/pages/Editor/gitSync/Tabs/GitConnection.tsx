@@ -393,7 +393,9 @@ function GitConnection({ isImport }: Props) {
               hasIcon={false}
               link={DOCS_BASE_URL}
               onClick={() => {
-                AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_REMOTEURL_CLICK");
+                AnalyticsUtil.logEvent("DOCUMENT_LINK_OF_GIT_CLICK", {
+                  source: "git remote url on git connection tab",
+                });
                 window.open(DOCS_BASE_URL, "_blank");
               }}
               text={createMessage(LEARN_MORE)}

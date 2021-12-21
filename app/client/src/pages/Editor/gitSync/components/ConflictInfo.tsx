@@ -86,7 +86,7 @@ export default function ConflictInfo(props: CIPropType) {
         <OpenRepoButton
           category={Category.tertiary}
           className="t--commit-button"
-          href={remoteUrl}
+          href={gitMetaData?.browserSupportedUrl || remoteUrl}
           size={Size.large}
           tag="a"
           target="_blank"
