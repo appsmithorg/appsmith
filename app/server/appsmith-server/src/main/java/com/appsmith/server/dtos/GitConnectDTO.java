@@ -11,6 +11,4 @@ public class GitConnectDTO {
     String remoteUrl;
 
     GitProfile gitProfile;
-
-    String defaultApplicationId;
 }
