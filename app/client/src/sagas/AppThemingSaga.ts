@@ -216,7 +216,7 @@ const dummyThemes: AppTheme[] = [
     config: {
       colors: {
         primaryColor: "#553DE9",
-        backgroundColor: "#F6F6F6",
+        backgroundColor: "#fff",
       },
       borderRadius: {
         appBorderRadius: {
@@ -388,7 +388,7 @@ const dummyThemes: AppTheme[] = [
     properties: {
       colors: {
         primaryColor: "#553DE9",
-        backgroundColor: "#F6F6F6",
+        backgroundColor: "#fff",
       },
       borderRadius: {
         appBorderRadius: "0.375rem",

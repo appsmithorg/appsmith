@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect } from "react";
+import React, { memo, useCallback, useEffect, useMemo } from "react";
 import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import log from "loglevel";
@@ -21,6 +21,7 @@ import {
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 interface CanvasProps {
   dsl: DSLWidget;
@@ -67,6 +68,7 @@ const useShareMousePointerEvent = () => {
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = props;
+  const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const previewTheme = useSelector(getPreviewAppTheme);
   const shareMousePointer = useShareMousePointerEvent();
@@ -81,6 +83,17 @@ const Canvas = memo((props: CanvasProps) => {
     }),
     [shareMousePointer, pageId],
   );
+
+  /**
+   * background for canvas
+   */
+  const backgroundForCanvas = useMemo(() => {
+    if (isPreviewMode) return "initial";
+
+    return previewTheme
+      ? previewTheme.properties.colors.backgroundColor
+      : selectedTheme.properties.colors.backgroundColor;
+  }, [selectedTheme, previewTheme, isPreviewMode]);
 
   try {
     return (
@@ -100,9 +113,7 @@ const Canvas = memo((props: CanvasProps) => {
         }}
         style={{
           width: props.dsl.rightColumn,
-          background: previewTheme
-            ? previewTheme.properties.colors.backgroundColor
-            : selectedTheme.properties.colors.backgroundColor,
+          background: backgroundForCanvas,
         }}
       >
         {props.dsl.widgetId &&

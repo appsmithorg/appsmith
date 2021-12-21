@@ -163,6 +163,31 @@ const InputComponentWrapper = styled((props) => (
         color: #5c7080;
       }
 
+      .${Classes.INPUT_ACTION} {
+        height: 100%;
+
+        .${Classes.TAG} {
+          height: 100%;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          align-items: center;
+        }
+      }
+
+      .${Classes.ICON} {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+
+        svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
         button {
           background: ${Colors.GREY_1};
@@ -272,13 +297,14 @@ const TextInputWrapper = styled.div<{
     hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  min-height: 32px;
 
   &:focus-within {
     outline: 0;
     border-color: ${({ hasError, primaryColor }) =>
       hasError ? Colors.DANGER_SOLID : primaryColor};
     box-shadow: ${({ hasError, primaryColor }) =>
-      `0px 0px 0px 2px ${lightenColor(
+      `0px 0px 0px 3px ${lightenColor(
         hasError ? Colors.DANGER_SOLID : primaryColor,
       )} !important;`};
   }

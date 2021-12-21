@@ -765,7 +765,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           !(
             (this.props.bottomRow - this.props.topRow) /
               GRID_DENSITY_MIGRATION_V1 >
-              1 && this.props.inputType === "TEXT"
+            1
           )
         }
         // show label and Input side by side if true

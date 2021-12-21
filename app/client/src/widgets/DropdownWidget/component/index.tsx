@@ -69,6 +69,9 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
         }
         &:focus {
           border: 1px solid ${props.primaryColor};
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.primaryColor,
+          )} !important;
           outline: 0;
         }
       `
@@ -202,15 +205,14 @@ ${({ dropDownWidth, id, parentWidth }) => `
         color: ${Colors.GREY_10};
         border-radius: ${({ borderRadius }) => borderRadius} !important;
         &:focus {
-          border: ${({ primaryColor }) => `1.2px solid ${primaryColor}`};
+          border: ${({ primaryColor }) => `1px solid ${primaryColor}`};
           box-shadow: ${({ primaryColor }) =>
-            `0px 0px 0px 2px ${lightenColor(primaryColor)}`};
+            `0px 0px 0px 3px ${lightenColor(primaryColor)} !important;`};
         }
       }
     }
 
     & .${Classes.MENU} {
-      margin-top: -3px;
       max-width: 100% !important;
       max-height: auto;
       min-width: 0px !important;
@@ -219,6 +221,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     & .${Classes.MENU_ITEM} {
       min-height: 38px;
       padding: 9px 12px;
+      border-radius: 0px;
       color: ${Colors.GREY_8};
       &:hover{
         background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};

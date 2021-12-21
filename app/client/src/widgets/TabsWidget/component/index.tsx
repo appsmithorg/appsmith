@@ -28,7 +28,7 @@ interface TabsComponentProps extends ComponentProps {
 
 type ChildrenWrapperProps = Pick<TabsComponentProps, "shouldShowTabs">;
 
-const TAB_CONTAINER_HEIGHT = "40px";
+const TAB_CONTAINER_HEIGHT = "44px";
 const CHILDREN_WRAPPER_HEIGHT_WITH_TABS = `calc(100% - ${TAB_CONTAINER_HEIGHT})`;
 const CHILDREN_WRAPPER_HEIGHT_WITHOUT_TABS = "100%";
 
@@ -48,10 +48,6 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: flex-start;
   align-items: center;
-  border: ${({ boxShadow }) =>
-    boxShadow === "none"
-      ? `1px solid ${Colors.GEYSER_LIGHT}`
-      : `1px solid transparent`};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   overflow: hidden;
@@ -83,13 +79,15 @@ const TabsContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  display: flex;
+  height: ${TAB_CONTAINER_HEIGHT};
   background: ${(props) => props.theme.colors.builderBodyBG};
   overflow: hidden;
   && {
     width: 100%;
     display: flex;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: flex-end;
   }
 `;
 
@@ -100,7 +98,7 @@ type TabProps = {
 };
 
 const StyledTab = styled.div`
-  height: 32px;
+  height: ${TAB_CONTAINER_HEIGHT};
   border-bottom: 1px solid ${(props) => props.theme.colors.bodyBG};
   border-color: ${(props) => props.theme.colors.bodyBG};
   width: 100%;
@@ -123,6 +121,9 @@ const StyledText = styled.div<TabProps>`
   cursor: pointer;
   position: relative;
   z-index: 1;
+  &:first-child {
+    margin-left: 10px;
+  }
   &:hover {
     background: ${(props) =>
       props.selected ? Colors.WHITE : lightenColor(props.primaryColor)};
