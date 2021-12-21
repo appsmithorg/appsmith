@@ -277,8 +277,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //   200,
     // );
 
-    cy.wait("@deleteDatasource").should((response) => {
-      expect(response.status).to.be.oneOf([200, 409]);
+    cy.wait("@deleteDatasource").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.be.oneOf([
+        200,
+        409,
+      ]);
     });
   });
 });

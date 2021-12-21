@@ -275,8 +275,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     //   "response.body.responseMeta.status",
     //   200,
     // );
-    cy.wait("@deleteDatasource").should((response) => {
-      expect(httpResponse.response.body.responseMeta.status).to.be.oneOf([
+    cy.wait("@deleteDatasource").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.be.oneOf([
         200,
         409,
       ]);
