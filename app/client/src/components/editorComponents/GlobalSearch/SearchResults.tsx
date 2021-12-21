@@ -14,9 +14,8 @@ import {
   SEARCH_ITEM_TYPES,
   SearchItem,
   SearchCategory,
-  isMenu,
   comboHelpText,
-  isActionOperation,
+  isSnippet,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -522,10 +521,7 @@ const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
     overflow: auto;
     height: 100%;
     width: 100%;
-    padding-bottom: ${(props) =>
-      isMenu(props.category) || isActionOperation(props.category)
-        ? "0"
-        : "50px"};
+    padding-bottom: ${(props) => (isSnippet(props.category) ? "50px" : "0")};
   }
 `;
 
