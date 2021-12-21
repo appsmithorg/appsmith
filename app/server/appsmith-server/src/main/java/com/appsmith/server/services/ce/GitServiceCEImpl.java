@@ -94,7 +94,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
     private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please resolve merge conflicts in remote and pull again";
 
-    private final static Map<Mono<String>, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
+    private final static Map<String, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -366,7 +366,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 // check if the commit application will be allowed if the repo is made private
                                 return applicationService.save(defaultApplication)
                                         //Check the limit for number of private repo
-                                        .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
+                                        .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId(), false)
                                                 .flatMap(limitCount -> {
                                                     //get git connected apps count from db
                                                     return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
@@ -554,9 +554,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                 )
                 .then(getApplicationById(defaultApplicationId))
                 //Check the limit for number of private repo
-                .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId())
+                .flatMap(application -> {
+                    // Check if the repo is public
+                    try {
+                        if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
+                            return Mono.just(application);
+                        }
+                    } catch (IOException e) {
+                        log.debug("Error while checking if the repo is private: ", e);
+                    }
+                    return getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
                         .flatMap(limitCount -> {
-                            //get git connected apps count from db
+                            // get git connected apps count from db
                             return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
                                     .flatMap(count -> {
                                         if (limitCount <= count) {
@@ -564,7 +573,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         }
                                         return Mono.just(application);
                                     });
-                        }))
+                        });
+                })
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
@@ -617,7 +627,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setBrowserSupportedRemoteUrl(
                                                 GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl())
                                         );
-
                                         try {
                                             gitApplicationMetadata.setIsRepoPrivate(
                                                     GitUtils.isRepoPrivate(gitApplicationMetadata.getBrowserSupportedRemoteUrl())
@@ -714,17 +723,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId) {
+    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId, boolean isClearCache) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         return configService.getInstanceId().map(instanceId -> {
             if (commonConfig.isCloudHosting()) {
-                return Mono.just(instanceId + "_" + orgId);
+                return instanceId + "_" + orgId;
             } else {
-                return Mono.just(instanceId);
+                return instanceId;
             }
         }).flatMap(key -> {
             // check the cache for the repo limit
-            if(gitLimitCache.containsKey(key)) {
+            if(Boolean.FALSE.equals(isClearCache) && gitLimitCache.containsKey(key)) {
                 return Mono.just(gitLimitCache.get(key).getRepoLimit());
             }
             // Call the cloud service API
