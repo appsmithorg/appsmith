@@ -245,7 +245,7 @@ function BranchesLoading() {
 }
 
 export const removeSpecialChars = (value: string) => {
-  const separatorRegex = /(?!\/)\W+/;
+  const separatorRegex = /(?![/-])\W+/;
   return value.split(separatorRegex).join("_");
 };
 
