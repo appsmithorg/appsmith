@@ -63,6 +63,7 @@ class ProgressBarWidget extends BaseWidget<
             isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
+              params: { min: 1, max: 100, default: 1 },
             },
             hidden: (props: ProgressBarWidgetProps) => {
               return props.barType !== BarType.DETERMINATE;
@@ -78,10 +79,6 @@ class ProgressBarWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: ProgressBarWidgetProps) => {
-              return props.barType !== BarType.DETERMINATE;
-            },
-            dependencies: ["barType"],
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -147,7 +144,7 @@ export interface ProgressBarWidgetProps extends WidgetProps {
   showResult: boolean;
   fillColor: string;
   barType: BarType;
-  steps?: number;
+  steps: number;
 }
 
 export default ProgressBarWidget;

@@ -19,6 +19,7 @@ export const CONFIG = {
     showResult: false,
     barType: BarType.INDETERMINATE,
     progress: 50,
+    steps: 1,
     version: 1,
   },
   properties: {

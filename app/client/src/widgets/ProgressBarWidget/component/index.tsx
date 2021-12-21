@@ -36,68 +36,70 @@ const Label = styled.div`
 `;
 
 const StepWrapper = styled.div`
+  display: flex;
   flex: 1;
   height: 6px;
-  background: #e8e8e8;
   position: relative;
+  margin: 0px -2px;
 `;
 
-const StepContainer = styled.div<{ steps: number; fillColor: string }>`
-  position: absolute;
-  content: "";
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  display: flex;
+const StepContainer = styled.div`
+  flex: 1;
+  background: #e8e8e8;
+  margin: 0px 1px;
+`;
 
-  & > .step {
-    width: ${(props) =>
-      Number(props.steps)
-        ? `calc(${100 / Number(props.steps)}% - 2px)`
-        : "100%"};
-    margin-right: 2px;
-    transition: width 0.4s ease;
-
-    :last-child {
-      width: ${(props) =>
-        Number(props.steps) ? `${100 / Number(props.steps)}%` : "100%"};
-      margin-right: 0px;
-    }
-
-    &.active {
-      background: ${({ fillColor }) => fillColor};
-    }
+const getProgressPosition = (
+  percentage: number,
+  stepSize: number,
+  currentStep: number,
+) => {
+  const currStepProgress = percentage - stepSize * currentStep;
+  if (currStepProgress > stepSize) {
+    return 100;
+  } else if (currStepProgress < 0) {
+    return 0;
+  } else if (currStepProgress <= stepSize) {
+    return (currStepProgress / stepSize) * 100;
+  } else {
+    // just placeholder for typescript
+    return 0;
   }
-`;
+};
+
+function StepProgressBar(props: ProgressBarComponentProps) {
+  const { steps } = props;
+  const stepSize = 100 / steps;
+
+  return (
+    <StepWrapper>
+      {[...Array(Number(props.steps))].map((_, index) => {
+        const width = getProgressPosition(
+          Number(props.progress),
+          stepSize,
+          index,
+        );
+        return (
+          <StepContainer key={index}>
+            <ProgressBar
+              data-cy={width}
+              fillColor={props.fillColor}
+              progress={width}
+            />
+          </StepContainer>
+        );
+      })}
+    </StepWrapper>
+  );
+}
 
 function ProgressBarComponent(props: ProgressBarComponentProps) {
   const isDeterminate =
     props.barType === BarType.DETERMINATE && !isNaN(Number(props.steps));
-  let current = 1;
-  if (
-    isDeterminate &&
-    !isNaN(Number(props.steps)) &&
-    !isNaN(Number(props.progress))
-  ) {
-    current = Math.round(Number(props.steps) * (Number(props.progress) / 100));
-  }
   return (
     <ProgressBarWrapper className="t--progressbar-widget">
       {isDeterminate ? (
-        <StepWrapper>
-          <StepContainer
-            fillColor={props.fillColor}
-            steps={Number(props.steps)}
-          >
-            {[...Array(Number(props.steps))].map((_, index) => (
-              <div
-                className={`step ${index < current ? "active" : ""}`}
-                key={index}
-              />
-            ))}
-          </StepContainer>
-        </StepWrapper>
+        <StepProgressBar {...props} />
       ) : (
         <ProgressBar
           data-cy={props.progress}
@@ -105,9 +107,7 @@ function ProgressBarComponent(props: ProgressBarComponentProps) {
           progress={props.progress}
         />
       )}
-      {props.barType === BarType.DETERMINATE && props.showResult && (
-        <Label>{props.progress}%</Label>
-      )}
+      {props.showResult && <Label>{props.progress}%</Label>}
     </ProgressBarWrapper>
   );
 }
@@ -116,7 +116,7 @@ export interface ProgressBarComponentProps {
   showResult: boolean;
   fillColor: string;
   barType: BarType;
-  steps?: number;
+  steps: number;
 }
 
 export default ProgressBarComponent;
