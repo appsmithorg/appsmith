@@ -58,4 +58,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Long> getGitConnectedApplicationCount(String organizationId);
 
+    String getRandomAppCardColor();
+
 }
