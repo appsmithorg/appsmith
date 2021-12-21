@@ -2751,14 +2751,12 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 
 Cypress.Commands.add("startRoutesForDatasource", () => {
-  cy.server();
   cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update intercept with intercept after working on alias wrt wait and alias
-  cy.server();
   cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");

@@ -20,8 +20,8 @@ describe("MsSQL datasource test cases", function() {
       cy.renameDatasource(datasourceName);
     });
 
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
+    cy.wait("@saveDatasource").then((interception) => {
+      datasourceName = interception.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
@@ -34,7 +34,7 @@ describe("MsSQL datasource test cases", function() {
     cy.get(datasource.MsSQL).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillMsSQLDatasourceForm(true);
-    cy.get("@saveDatasource").then((httpResponse) => {
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {
