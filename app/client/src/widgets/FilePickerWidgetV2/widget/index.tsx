@@ -117,16 +117,10 @@ class FilePickerWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                allowedValues: [
-                  "*",
-                  "image/*",
-                  "video/*",
-                  "audio/*",
-                  "text/*",
-                  ".doc",
-                  "image/jpeg",
-                  ".png",
-                ],
+                unique: true,
+                children: {
+                  type: ValidationTypes.TEXT,
+                },
               },
             },
             evaluationSubstitutionType:
