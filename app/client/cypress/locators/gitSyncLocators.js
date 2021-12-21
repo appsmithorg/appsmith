@@ -42,4 +42,5 @@ export default {
   contactSalesButton: ".t--contact-sales-button",
   connectedApplication: "t--connected-app-wrapper",
   diconnectLink: "t--disconnect-link",
+  disconnectLearnMoreLink: ".t--disconnect-learn-more",
 };

@@ -115,6 +115,7 @@ function DisconnectGitModal() {
                 {createMessage(NONE_REVERSIBLE_MESSAGE)}
               </Text>
               <Link
+                className="t--disconnect-learn-more"
                 color={Colors.CRIMSON}
                 link={DOCS_BASE_URL}
                 text={createMessage(LEARN_MORE)}

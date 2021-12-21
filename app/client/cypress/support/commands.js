@@ -3403,7 +3403,7 @@ Cypress.Commands.add("switchGitBranch", (branch) => {
   cy.get(".bp3-spinner").should("not.exist");
 });
 
-Cypress.Commands.add("createTestGithubRepo", (repo) => {
+Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
   cy.request({
     method: "POST",
     url: `${GITHUB_API_BASE}/user/repos`,
@@ -3412,6 +3412,7 @@ Cypress.Commands.add("createTestGithubRepo", (repo) => {
     },
     body: {
       name: repo,
+      private: privateFlag,
     },
   });
 });

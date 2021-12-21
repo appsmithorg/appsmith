@@ -1,6 +1,7 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 let repoName;
+let windowOpenSpy;
 describe("Git Disconnect modal", function() {
   before(() => {
     cy.generateUUID().then((uid) => {
@@ -27,6 +28,15 @@ describe("Git Disconnect modal", function() {
       Cypress.env("MESSAGES").NONE_REVERSIBLE_MESSAGE(),
     );
 
+    // Stubbing window.open
+    cy.window().then((window) => {
+      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
+        expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
+        windowOpenSpy.restore();
+      });
+    });
+    cy.get(gitSyncLocators.disconnectLearnMoreLink).click();
+
     cy.window()
       .its("store")
       .invoke("getState")
@@ -46,7 +56,7 @@ describe("Git Disconnect modal", function() {
   });
 
   it("Validate of disconnect button enabling", function() {
-    cy.connectToGitRepo(repoName, false);
+    cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
 
     // after clicked disconnect on connection modal,
@@ -90,6 +100,7 @@ describe("Git Disconnect modal", function() {
       });
 
     cy.get(gitSyncLocators.disconnectGitModal).should("not.exist");
+    cy.deleteTestGithubRepo(repoName);
   });
 
   after(() => {
