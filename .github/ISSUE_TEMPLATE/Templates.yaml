@@ -13,7 +13,6 @@ body:
   validations:
     required: true
 
-
 - type: textarea
   id: Objective
   attributes:
@@ -39,12 +38,13 @@ body:
       e.g. Data should be stored in a Firestore database
   validations:
     required: true
+    
 - type: textarea
   attributes:
     label: Tags
     description: |
       List the tags you feel best categorise your template. Include functionality, widgets used, API or databases, industries in which this would be useful, and any other possible tags to help with discovery.
-    Value: |
+    value: |
       - Tag 1
       - Tag 2
       - Tag 3
