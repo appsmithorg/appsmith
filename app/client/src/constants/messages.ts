@@ -888,3 +888,5 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
 export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
+
+export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
