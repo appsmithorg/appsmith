@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.Provider;
+import com.appsmith.server.repositories.ce.CustomProviderRepositoryCE;
 
-public interface CustomProviderRepository extends AppsmithRepository<Provider> {
+public interface CustomProviderRepository extends CustomProviderRepositoryCE {
+
 }

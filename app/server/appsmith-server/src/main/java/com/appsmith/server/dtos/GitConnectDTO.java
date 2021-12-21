@@ -12,7 +12,5 @@ public class GitConnectDTO {
 
     GitProfile gitProfile;
 
-    boolean isDefaultProfile;
-
     String defaultApplicationId;
 }

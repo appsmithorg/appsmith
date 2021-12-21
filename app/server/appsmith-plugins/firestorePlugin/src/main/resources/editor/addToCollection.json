@@ -1,0 +1,32 @@
+{
+  "identifier": "ADD_TO_COLLECTION",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'ADD_TO_COLLECTION'}}"
+  },
+  "children" : [
+    {
+      "label": "Collection/Document Path",
+      "configProperty": "actionConfiguration.path",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
+    },
+    {
+      "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+      "configProperty": "actionConfiguration.formData.timestampValuePath",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": "",
+      "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]"
+    },
+    {
+      "label": "Body",
+      "configProperty": "actionConfiguration.body",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "initialValue": ""
+    }
+  ]
+}

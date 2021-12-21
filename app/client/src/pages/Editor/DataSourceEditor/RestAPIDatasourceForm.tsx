@@ -284,9 +284,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     const headers =
       this.props.datasource?.datasourceConfiguration?.headers ?? [];
+    const queryParameters =
+      this.props.datasource?.datasourceConfiguration?.queryParameters ?? [];
     const defaultApiActionConfig: ApiActionConfig = {
       ...DEFAULT_API_ACTION_CONFIG,
       headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
+      queryParameters: queryParameters.length
+        ? queryParameters
+        : DEFAULT_API_ACTION_CONFIG.queryParameters,
     };
 
     this.save(
@@ -388,6 +393,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             configProperty="headers"
             label="Headers"
+          />
+        </FormInputContainer>
+
+        <FormInputContainer>
+          <KeyValueInputControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="queryParameters"
+            label="Query Parameters"
           />
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("isSendSessionEnabled")}>
@@ -693,7 +706,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderOauth2CommonAdvanced = () => {
     return (
       <>
-        <FormInputContainer data-replay-id={btoa("authentication.audience")}>
+        <FormInputContainer>
+          <KeyValueInputControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.customTokenParameters"
+            label="Custom Token Parameters"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.audience"

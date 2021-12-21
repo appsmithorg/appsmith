@@ -3,13 +3,16 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.UserChangedHandler;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +39,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +71,12 @@ public class UserDataServiceTest {
     @Autowired
     private ApplicationRepository applicationRepository;
 
+    @Autowired
+    private GitService gitService;
+
     private Mono<User> userMono;
+
+    private static final String DEFAULT_GIT_PROFILE = "default";
 
     @Before
     public void setup() {
@@ -350,4 +359,89 @@ public class UserDataServiceTest {
             assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.ONBOARDED);
         }).verifyComplete();
     }
+
+    // Git user profile tests
+    private GitProfile createGitProfile(String commitEmail, String author) {
+        GitProfile gitProfile = new GitProfile();
+        gitProfile.setAuthorEmail(commitEmail);
+        gitProfile.setAuthorName(author);
+        return gitProfile;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveConfig_AuthorEmailNull_ThrowInvalidParameterError() {
+        GitProfile gitGlobalConfigDTO = createGitProfile(null, "Test 1");
+
+        Mono<Map<String, GitProfile>> userDataMono = gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+        StepVerifier
+                .create(userDataMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Email")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveRepoLevelConfig_AuthorEmailNullAndName_SavesGitProfile() {
+        GitProfile gitProfileDTO = createGitProfile(null, null);
+
+        Mono<Map<String, GitProfile>> userDataMono = gitService.updateOrCreateGitProfileForCurrentUser(gitProfileDTO, "defaultAppId");
+        StepVerifier
+                .create(userDataMono)
+                .assertNext(gitProfileMap -> {
+                    AssertionsForClassTypes.assertThat(gitProfileMap).isNotNull();
+                    AssertionsForClassTypes.assertThat(gitProfileMap.get("defaultAppId").getAuthorEmail()).isNullOrEmpty();
+                    AssertionsForClassTypes.assertThat(gitProfileMap.get("defaultAppId").getAuthorName()).isNullOrEmpty();
+                    AssertionsForClassTypes.assertThat(gitProfileDTO.getUseGlobalProfile()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveConfig_AuthorNameEmptyString_ThrowInvalidParameterError() {
+        GitProfile gitGlobalConfigDTO = createGitProfile("test@appsmith.com", null);
+
+        Mono<Map<String, GitProfile>> userDataMono = gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+        StepVerifier
+                .create(userDataMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Name")))
+                .verify();
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAndUpdateDefaultGitProfile_fallbackValueFromUserProfileIfEmpty_updateWithProfile() {
+
+        Mono<GitProfile> gitConfigMono = gitService.getDefaultGitProfileOrCreateIfEmpty();
+
+        Mono<User> userData = userDataService.getForCurrentUser()
+                .flatMap(userData1 -> userService.getById(userData1.getUserId()));
+
+        StepVerifier
+                .create(gitConfigMono.zipWhen(gitProfile -> userData))
+                .assertNext(tuple -> {
+                    GitProfile gitProfile = tuple.getT1();
+                    User user = tuple.getT2();
+                    assertThat(gitProfile.getAuthorName()).isEqualTo(user.getName());
+                    assertThat(gitProfile.getAuthorEmail()).isEqualTo(user.getEmail());
+                })
+                .verifyComplete();
+
+        GitProfile gitGlobalConfigDTO = createGitProfile("test@appsmith.com", "Test 1");
+        Mono<Map<String, GitProfile>> gitProfilesMono = gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+
+        StepVerifier
+                .create(gitProfilesMono)
+                .assertNext(gitProfileMap -> {
+                    GitProfile defaultProfile = gitProfileMap.get(DEFAULT_GIT_PROFILE);
+                    AssertionsForClassTypes.assertThat(defaultProfile.getAuthorName()).isEqualTo(gitGlobalConfigDTO.getAuthorName());
+                    AssertionsForClassTypes.assertThat(defaultProfile.getAuthorEmail()).isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
+                })
+                .verifyComplete();
+    }
+
 }
