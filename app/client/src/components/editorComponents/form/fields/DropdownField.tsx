@@ -5,6 +5,7 @@ import {
   DropdownProps,
 } from "components/designSystems/appsmith/Dropdown";
 import { Field } from "redux-form";
+import { replayHighlightClass } from "globalStyles/portals";
 
 interface DropdownFieldProps {
   name: string;
@@ -23,7 +24,7 @@ interface DropdownFieldProps {
 function DropdownField(props: DropdownFieldProps & Partial<DropdownProps>) {
   return (
     <Field
-      className={props.className}
+      className={`${props.className} ${replayHighlightClass}`}
       component={BaseDropdown}
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
