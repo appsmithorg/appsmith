@@ -291,6 +291,9 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.DEPLOY,
         }),
       );
+      AnalyticsUtil.logEvent("DEPLOY_GIT_CLICK", {
+        source: "Buttom bar commit git button",
+      });
     },
     connect: () => {
       dispatch(
@@ -303,8 +306,16 @@ export default function QuickGitActions() {
         source: "Buttom bar connect to git button(from setting menu)",
       });
     },
-    pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
+    pull: () => {
+      AnalyticsUtil.logEvent("PULL_GIT_CLICK", {
+        source: "Buttom bar pull git button",
+      });
+      dispatch(gitPullInit({ triggeredFromBottomBar: true }));
+    },
     merge: () => {
+      AnalyticsUtil.logEvent("MERGE_GIT_CLICK", {
+        source: "Buttom bar merge git button",
+      });
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,
