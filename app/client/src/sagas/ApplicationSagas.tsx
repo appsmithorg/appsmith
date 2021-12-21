@@ -38,7 +38,6 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   generateSSHKeyPairSuccess,
-  generateSSHKeyPairError,
   getSSHKeyPairSuccess,
   getSSHKeyPairError,
   GenerateSSHKeyPairReduxAction,
@@ -75,6 +74,7 @@ import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
+import { handleRepoLimitReachedError } from "./GitSyncSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -636,24 +636,26 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
 }
 
 export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
+  let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.generateSSHKeyPair,
-      applicationId,
+    response = yield call(ApplicationApi.generateSSHKeyPair, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      true,
+      response?.responseMeta?.status === 500,
     );
-    const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response.data));
+      yield put(generateSSHKeyPairSuccess(response?.data));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
+        action.onSuccessCallback(response as ApiResponse);
       }
     }
   } catch (error) {
-    yield put(generateSSHKeyPairError(error));
     if (action.onErrorCallback) {
       action.onErrorCallback(error);
     }
+    yield call(handleRepoLimitReachedError, response);
   }
 }
 
