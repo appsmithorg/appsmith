@@ -840,6 +840,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", error));
                     }
                     return Mono.just(pushResult);
+                })
+                // Add BE analytics
+                .flatMap(pushStatus -> {
+                    return sessionUserService.getCurrentUser()
+                            .map(user -> {
+                                analyticsService.sendEvent(
+                                        AnalyticsEvents.GIT_PUSH.getEventName(),
+                                        user.getUsername(),
+                                        Map.of(
+                                                "applicationId", defaultIfNull(applicationId, "")
+                                        )
+                                );
+                                return pushStatus;
+                            });
                 });
     }
 
@@ -898,7 +912,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     )
                                     .then(applicationService.save(defaultApplication)));
                 })
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources)
+                // Add BE analytics
+                .flatMap(application -> sessionUserService.getCurrentUser()
+                        .map(user -> {
+                            analyticsService.sendEvent(
+                                    AnalyticsEvents.GIT_DISCONNECT.getEventName(),
+                                    user.getUsername(),
+                                    Map.of(
+                                            "applicationId", defaultIfNull(defaultApplicationId, "")
+                                    )
+                            );
+                            return application;
+                        }));
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
@@ -992,7 +1018,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .thenReturn(application);
                             });
                 })
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources)
+                // Add BE analytics
+                .flatMap(application -> {
+                    return sessionUserService.getCurrentUser()
+                            .map(user -> {
+                                analyticsService.sendEvent(
+                                        AnalyticsEvents.GIT_CREATE_BRANCH.getEventName(),
+                                        user.getUsername(),
+                                        Map.of(
+                                                "defaultApplicationId", defaultIfNull(defaultApplicationId, ""),
+                                                "branchApplicationId", defaultIfNull(application.getId(), "")
+                                        )
+                                );
+                                return application;
+                            });
+                });
     }
 
     public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
@@ -1221,6 +1262,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return this.commitApplication(commitDTO, application1.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
                                         .thenReturn(getPullDTO(application1, status));
                             });
+                })
+                // Add BE analytics
+                .flatMap(gitPullDTO -> {
+                    return sessionUserService.getCurrentUser()
+                            .map(user -> {
+                                analyticsService.sendEvent(
+                                        AnalyticsEvents.GIT_PULL.getEventName(),
+                                        user.getUsername(),
+                                        Map.of(
+                                                "applicationId", defaultIfNull(applicationId, "")
+                                        )
+                                );
+                                return gitPullDTO;
+                            });
                 });
     }
 
@@ -1309,6 +1364,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .ifPresent(branchDTO -> branchDTO.setDefault(true));
                         return Mono.just(gitBranchListDTOS);
                     }
+                })
+                // Add BE analytics
+                .flatMap(gitBranchDTOList -> {
+                    return sessionUserService.getCurrentUser()
+                            .map(user -> {
+                                analyticsService.sendEvent(
+                                        AnalyticsEvents.GIT_PRUNE.getEventName(),
+                                        user.getUsername(),
+                                        Map.of(
+                                                "applicationId", defaultIfNull(defaultApplicationId, ""),
+                                                "pruneBranches", defaultIfNull(pruneBranches, "")
+                                        )
+                                );
+                                return gitBranchDTOList;
+                            });
                 });
     }
 
@@ -1486,7 +1556,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             return gitPullDTO;
                                         });
                             });
-                });
+                })
+                // Add BE analytics
+                .flatMap(gitPullDTO -> sessionUserService.getCurrentUser()
+                        .map(user -> {
+                            analyticsService.sendEvent(
+                                    AnalyticsEvents.GIT_MERGE.getEventName(),
+                                    user.getUsername(),
+                                    Map.of(
+                                            "applicationId", defaultIfNull(defaultApplicationId, "")
+                                    )
+                            );
+                            return gitPullDTO;
+                        })
+                );
     }
 
     @Override
