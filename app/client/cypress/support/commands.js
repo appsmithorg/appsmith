@@ -55,8 +55,9 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
     .click({ force: true });
   cy.get(homePage.renameOrgInput)
     .should("be.visible")
-    .type(newOrgName);
-  cy.get(commonlocators.homeIcon).click({ force: true });
+    .type(newOrgName.concat("{enter}"));
+  cy.wait(3000);
+  //cy.get(commonlocators.homeIcon).click({ force: true });
   cy.wait("@updateOrganization").should(
     "have.nested.property",
     "response.body.responseMeta.status",
