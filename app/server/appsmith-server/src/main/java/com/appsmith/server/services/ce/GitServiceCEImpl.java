@@ -191,8 +191,23 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .flatMap(userData -> {
                             // GitProfiles will be null if the user has not created any git profile.
                             GitProfile savedProfile = userData.getGitProfileByKey(defaultApplicationId);
-                            if (savedProfile == null || !savedProfile.equals(gitProfile)) {
+                            GitProfile defaultGitProfile = userData.getGitProfileByKey(DEFAULT);
+
+                            if (savedProfile == null || !savedProfile.equals(gitProfile) || defaultGitProfile == null) {
                                 userData.setGitProfiles(userData.setGitProfileByKey(defaultApplicationId, gitProfile));
+
+                                // Assign appsmith user profile as a fallback git profile
+                                if (defaultGitProfile == null) {
+                                    GitProfile userProfile = new GitProfile();
+                                    String authorName = StringUtils.isEmptyOrNull(user.getName())
+                                            ? user.getUsername().split("@")[0]
+                                            : user.getName();
+                                    userProfile.setAuthorEmail(user.getEmail());
+                                    userProfile.setAuthorName(authorName);
+                                    userProfile.setUseGlobalProfile(null);
+                                    userData.setGitProfiles(userData.setGitProfileByKey(DEFAULT, userProfile));
+                                }
+
                                 // Update userData here
                                 UserData requiredUpdates = new UserData();
                                 requiredUpdates.setGitProfiles(userData.getGitProfiles());
@@ -204,7 +219,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .switchIfEmpty(Mono.defer(() -> {
                                     // If profiles are empty use Appsmith's user profile as git default profile
                                     GitProfile profile = new GitProfile();
-                                    String authorName = StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName();
+                                    String authorName = StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername().split("@")[0] : user.getName();
 
                                     profile.setAuthorName(authorName);
                                     profile.setAuthorEmail(user.getEmail());
@@ -263,7 +278,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(currentUser -> {
                     GitProfile gitProfile = new GitProfile();
                     String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
-                            ? currentUser.getUsername()
+                            ? currentUser.getUsername().split("@")[0]
                             : currentUser.getName();
                     gitProfile.setAuthorEmail(currentUser.getEmail());
                     gitProfile.setAuthorName(authorName);
@@ -317,10 +332,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .getCurrentUser()
                                 .flatMap(user -> {
                                     GitProfile gitProfile = new GitProfile();
-                                    gitProfile.setAuthorName(StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName());
+                                    gitProfile.setAuthorName(StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername().split("@")[0] : user.getName());
                                     gitProfile.setAuthorEmail(user.getEmail());
                                     Map<String, GitProfile> updateProfiles = userData.getGitProfiles();
-                                    updateProfiles.put(DEFAULT, gitProfile);
+                                    if (CollectionUtils.isNullOrEmpty(updateProfiles)) {
+                                        updateProfiles = Map.of(DEFAULT, gitProfile);
+                                    } else {
+                                        updateProfiles.put(DEFAULT, gitProfile);
+                                    }
 
                                     UserData update = new UserData();
                                     update.setGitProfiles(updateProfiles);
@@ -419,14 +438,17 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     GitProfile authorProfile = currentUserData.getGitProfileByKey(gitApplicationData.getDefaultApplicationId());
 
-                    if (authorProfile == null || Boolean.TRUE.equals(authorProfile.getUseGlobalProfile())) {
+                    if (authorProfile == null
+                            || StringUtils.isEmptyOrNull(authorProfile.getAuthorName())
+                            || Boolean.TRUE.equals(authorProfile.getUseGlobalProfile())) {
+
                         // Use default author profile as the fallback value
                         if (currentUserData.getGitProfileByKey(DEFAULT) != null) {
                             authorProfile = currentUserData.getGitProfileByKey(DEFAULT);
                         }
                     }
 
-                    if (authorProfile == null) {
+                    if (authorProfile == null || StringUtils.isEmptyOrNull(authorProfile.getAuthorName())) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
                                 " You can set up a git profile from the user profile section."
@@ -646,7 +668,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     UserData userData = tuple.getT2();
                                     // Commit and push application to check if the SSH key has the write access
                                     GitProfile profile = userData.getGitProfileByKey(defaultApplicationId);
-                                    if (profile == null) {
+                                    if (profile == null
+                                            || StringUtils.isEmptyOrNull(profile.getAuthorName())
+                                            || Boolean.TRUE.equals(profile.getUseGlobalProfile())) {
+
                                         profile = userData.getGitProfileByKey(DEFAULT);
                                     }
 
