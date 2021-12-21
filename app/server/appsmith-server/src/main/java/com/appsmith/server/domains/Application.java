@@ -94,8 +94,6 @@ public class Application extends BaseDomain {
     public String getLastUpdateTime() {
         if(lastEditedAt != null) {
             return ISO_FORMATTER.format(lastEditedAt);
-        } else if (updatedAt != null) { // last edit is null, return updatedAt in this case
-            return ISO_FORMATTER.format(updatedAt);
         }
         return null;
     }

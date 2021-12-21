@@ -24,7 +24,6 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import getFeatureFlags from "utils/featureFlags";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -105,7 +104,6 @@ export default function ProfileDropdown(props: TagProps) {
       />
     </TooltipComponent>
   );
-  const isAdminSettingsEnabled = getFeatureFlags().ADMIN_SETTINGS;
 
   return (
     <Menu
@@ -141,9 +139,9 @@ export default function ProfileDropdown(props: TagProps) {
         }}
         text="Edit Profile"
       />
-      {user?.isSuperUser && user?.isConfigurable && isAdminSettingsEnabled && (
+      {user?.isSuperUser && user?.isConfigurable && (
         <StyledMenuItem
-          className={`t--settings ${BlueprintClasses.POPOVER_DISMISS}`}
+          className={`t--admin-settings-menu ${BlueprintClasses.POPOVER_DISMISS}`}
           icon="setting"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {

@@ -40,4 +40,8 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Mono<List<String>> getAllApplicationId(String organizationId);
 
     Mono<UpdateResult> setAppTheme(String applicationId, String themeId, ApplicationMode applicationMode, AclPermission aclPermission);
+
+    Mono<Long> countByOrganizationId(String organizationId);
+
+    Mono<Long> getGitConnectedApplicationCount(String organizationId);
 }

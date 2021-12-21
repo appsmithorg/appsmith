@@ -100,7 +100,7 @@ const expectedSeriesName: CodeEditorExpected = {
   autocompleteDataType: AutocompleteDataType.STRING,
 };
 const expectedSeriesData: CodeEditorExpected = {
-  type: "Array<{ x: string, y: string | number }>",
+  type: "Array<{ x: string, y: number Required }>",
   example: [
     {
       x: "Mon",

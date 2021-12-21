@@ -13,13 +13,15 @@ const StyledText = styled(Text)`
   color: ${(props) => props.theme.colors.settings.link};
 `;
 
-export default function Link({ setting }: SettingComponentProps) {
+export default function TextComponent({ setting }: SettingComponentProps) {
   const settingsConfig = useSelector(getSettings);
   const value = setting.name && settingsConfig && settingsConfig[setting.name];
   return (
     <FormGroup setting={setting}>
       <TextWrapper>
-        <StyledText type={TextType.P1}>{value}</StyledText>
+        <StyledText data-testid="admin-settings-text" type={TextType.P1}>
+          {value}
+        </StyledText>
       </TextWrapper>
     </FormGroup>
   );
