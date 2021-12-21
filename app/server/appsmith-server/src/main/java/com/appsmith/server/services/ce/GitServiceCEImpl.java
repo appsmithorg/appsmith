@@ -534,7 +534,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                 //Check the limit for number of private repo
                 .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
                         .flatMap(limitCount -> {
-                            //get git connected apps count from db
+                            // Check if the repo is public
+                            try {
+                                if(GitUtils.isRepoPrivate(application.getGitApplicationMetadata().getBrowserSupportedRemoteUrl())) {
+                                    return Mono.just(application);
+                                }
+                            } catch (IOException e) {
+                                log.debug("Error while checking if the repo is private: ", e);
+                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            }
+
+                            // get git connected apps count from db
                             return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
                                     .flatMap(count -> {
                                         if (limitCount <= count) {
