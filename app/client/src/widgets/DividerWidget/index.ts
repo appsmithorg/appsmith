@@ -8,7 +8,7 @@ export const CONFIG = {
   name: "Divider",
   iconSVG: IconSVG,
   defaults: {
-    rows: 0.5 * GRID_DENSITY_MIGRATION_V1,
+    rows: GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Divider",
     orientation: "horizontal",
