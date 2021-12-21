@@ -24,18 +24,20 @@ export default function Link({
   color,
   hasIcon = true,
   link,
+  onClick,
   text,
 }: {
   color?: string;
   hasIcon?: boolean;
   link: string;
+  onClick?: () => void;
   text: string;
 }) {
-  const onClick = () => {
-    window.open(link, "_blank");
+  const clickHandler = () => {
+    onClick ? onClick() : window.open(link, "_blank");
   };
   return (
-    <LinkText color={color || Colors.CHARCOAL} onClick={onClick}>
+    <LinkText color={color || Colors.CHARCOAL} onClick={clickHandler}>
       <Text
         case={Case.UPPERCASE}
         color={color || Colors.CHARCOAL}

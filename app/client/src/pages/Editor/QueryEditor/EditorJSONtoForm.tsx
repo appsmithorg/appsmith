@@ -452,13 +452,25 @@ export function EditorJSONtoForm(props: Props) {
   );
   const { pageId } = useParams<ExplorerURLParams>();
 
+  // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
+      // Pass the error to be shown in the error tab
       error = executedQueryData.readableError
         ? getErrorAsString(executedQueryData.readableError)
         : getErrorAsString(executedQueryData.body);
     } else if (isString(executedQueryData.body)) {
-      output = JSON.parse(executedQueryData.body);
+      try {
+        // Try to parse response as JSON array to be displayed in the Response tab
+        output = JSON.parse(executedQueryData.body);
+      } catch (e) {
+        // In case the string is not a JSON, wrap it in a response object
+        output = [
+          {
+            response: executedQueryData.body,
+          },
+        ];
+      }
     } else {
       output = executedQueryData.body;
     }
@@ -736,6 +748,12 @@ export function EditorJSONtoForm(props: Props) {
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
+
+  // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
+  // the initialized prop below comes from redux-form.
+  if (!props.initialized) {
+    return null;
+  }
 
   return (
     <>
