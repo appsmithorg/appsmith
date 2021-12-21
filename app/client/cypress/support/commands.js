@@ -3353,12 +3353,14 @@ Cypress.Commands.add("connectToGitRepo", (repo, shouldCommit = true) => {
       req.headers["origin"] = "Cypress";
     },
   );
-  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+    `generateKey-${repo}`,
+  );
   cy.get(gitSyncLocators.gitRepoInput).type(
     `git@github.com:${owner}/${repo}.git`,
   );
   cy.get(gitSyncLocators.generateDeployKeyBtn).click();
-  cy.wait("@generateKey").then((result) => {
+  cy.wait(`@generateKey-${repo}`).then((result) => {
     generatedKey = result.response.body.data.publicKey;
     generatedKey = generatedKey.slice(0, generatedKey.length - 1);
     // fetch the generated key and post to the github repo
@@ -3375,6 +3377,8 @@ Cypress.Commands.add("connectToGitRepo", (repo, shouldCommit = true) => {
         key: generatedKey,
       },
     });
+
+    cy.get(gitSyncLocators.useGlobalGitConfig).click();
 
     cy.get(gitSyncLocators.gitConfigNameInput).type(
       `{selectall}${testUsername}`,
