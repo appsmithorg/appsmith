@@ -57,7 +57,6 @@ export const useSSHKeyPair = () => {
       setIsGeneratingSSHKey(true);
       setFailedGeneratingSSHKey(false);
 
-      // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         generateSSHKeyPair({
           onErrorCallback: onGenerateSSHKeyFailure,
