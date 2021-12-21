@@ -345,12 +345,13 @@ class InputComponent extends React.Component<
   }
 
   updateValueOnButtonClick = (type: number) => {
-    let deFormattedValue: string | number = this.props.value
+    const deFormattedValue: string | number = this.props.value
       .split(this.groupSeparator)
       .join("");
     const stepSize = this.props.stepSize || 1;
-    deFormattedValue = +deFormattedValue + stepSize * type;
-    this.props.onValueChange(deFormattedValue + "");
+    this.props.onValueChange(
+      String(Number(deFormattedValue) + stepSize * type),
+    );
   };
 
   onIncrementButtonClick = (e: React.MouseEvent) => {
