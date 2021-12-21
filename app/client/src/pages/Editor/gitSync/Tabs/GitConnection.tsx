@@ -361,6 +361,9 @@ function GitConnection({ isImport }: Props) {
   }, [scrollWrapperRef]);
 
   const openDisconnectGitModal = useCallback(() => {
+    AnalyticsUtil.logEvent("DISCONNECT_GIT_CLICK", {
+      source: "git connection modal",
+    });
     dispatch(
       setDisconnectingGitApplication({
         id: curApplication?.id || "",
