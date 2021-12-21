@@ -20,7 +20,7 @@ describe("Arango datasource test cases", function() {
       cy.renameDatasource(datasourceName);
     });
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {
@@ -34,7 +34,7 @@ describe("Arango datasource test cases", function() {
     cy.get(datasource.ArangoDB).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillArangoDBDatasourceForm(true);
-    cy.get("@saveDatasource").then((httpResponse) => {
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {

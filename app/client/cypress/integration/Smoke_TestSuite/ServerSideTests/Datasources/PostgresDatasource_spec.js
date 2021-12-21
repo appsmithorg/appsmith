@@ -14,7 +14,7 @@ describe("Postgres datasource test cases", function() {
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
-    cy.get("@saveDatasource").then((httpResponse) => {
+    cy.wait("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.testSaveDatasource();
@@ -25,7 +25,7 @@ describe("Postgres datasource test cases", function() {
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm(true);
-    cy.get("@saveDatasource").then((httpResponse) => {
+    cy.wait("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.testSaveDatasource();
