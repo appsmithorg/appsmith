@@ -33,6 +33,7 @@ import {
   ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   height: 600px;
@@ -101,6 +102,9 @@ function RepoLimitExceededErrorModal() {
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
+      AnalyticsUtil.logEvent("DISCONNECT_GIT_CLICK", {
+        source: "repo limit error modal",
+      });
       dispatch(setShowRepoLimitErrorModal(false));
       dispatch(
         setDisconnectingGitApplication({
@@ -145,6 +149,11 @@ function RepoLimitExceededErrorModal() {
             <Button
               category={Category.tertiary}
               className="t--contact-sales-button"
+              onClick={() => {
+                AnalyticsUtil.logEvent("CONTACT_SALES_CLICK", {
+                  source: "git remote url on git connection tab",
+                });
+              }}
               size={Size.large}
               tag="button"
               text={createMessage(CONTACT_SALES)}
