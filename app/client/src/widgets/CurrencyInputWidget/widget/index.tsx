@@ -175,8 +175,10 @@ class CurrencyInputWidget extends BaseInputWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
+      countryCode: undefined,
+      currencyCode: undefined,
       value: undefined,
-      text: "",
+      text: undefined,
     });
   }
 

@@ -124,7 +124,10 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return _.merge(super.getMetaPropertiesMap());
+    return _.merge(super.getMetaPropertiesMap(), {
+      dialCode: undefined,
+      countryCode: undefined,
+    });
   }
 
   onISDCodeChange = (code?: string) => {
