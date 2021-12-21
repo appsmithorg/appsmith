@@ -532,18 +532,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                 )
                 .then(getApplicationById(defaultApplicationId))
                 //Check the limit for number of private repo
-                .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
+                .flatMap(application -> {
+                    // Check if the repo is public
+                    try {
+                        if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
+                            return Mono.just(application);
+                        }
+                    } catch (IOException e) {
+                        log.debug("Error while checking if the repo is private: ", e);
+                    }
+                    return getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
                         .flatMap(limitCount -> {
-                            // Check if the repo is public
-                            try {
-                                if(GitUtils.isRepoPrivate(application.getGitApplicationMetadata().getBrowserSupportedRemoteUrl())) {
-                                    return Mono.just(application);
-                                }
-                            } catch (IOException e) {
-                                log.debug("Error while checking if the repo is private: ", e);
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                            }
-
                             // get git connected apps count from db
                             return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
                                     .flatMap(count -> {
@@ -552,7 +551,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         }
                                         return Mono.just(application);
                                     });
-                        }))
+                        });
+                })
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
@@ -605,7 +605,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setBrowserSupportedRemoteUrl(
                                                 GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl())
                                         );
-
                                         try {
                                             gitApplicationMetadata.setIsRepoPrivate(
                                                     GitUtils.isRepoPrivate(gitApplicationMetadata.getBrowserSupportedRemoteUrl())
