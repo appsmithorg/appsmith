@@ -141,20 +141,26 @@ export function highlightSection(
 
   if (!primaryReference) return;
 
+  const observer = new ResizeObserver((entries: any) => {
+    // Loop through all `entries` returned by the observer
+    for (const entry of entries) {
+      const coords = getCoords(entry.target);
+      highlightBorder.style.left = coords.left - positionOffset + "px";
+      highlightBorder.style.left = coords.left - positionOffset + "px";
+      highlightBorder.style.top = coords.top - positionOffset + "px";
+      highlightBorder.style.width = !!widthReference
+        ? widthReference.clientWidth + dimensionOffset + "px"
+        : coords.width + dimensionOffset + "px";
+      highlightBorder.style.height = coords.height + dimensionOffset + "px";
+    }
+  });
+  observer.observe(primaryReference);
+
   const highlightBorder = document.createElement("div");
   highlightBorder.classList.add("guided-tour-border");
 
-  const coords = getCoords(primaryReference);
-
   const positionOffset = 5;
   const dimensionOffset = positionOffset * 2;
-
-  highlightBorder.style.left = coords.left - positionOffset + "px";
-  highlightBorder.style.top = coords.top - positionOffset + "px";
-  highlightBorder.style.width = !!widthReference
-    ? widthReference.clientWidth + dimensionOffset + "px"
-    : coords.width + dimensionOffset + "px";
-  highlightBorder.style.height = coords.height + dimensionOffset + "px";
 
   document.body.append(highlightBorder);
 
@@ -172,6 +178,7 @@ export function highlightSection(
 
   setTimeout(() => {
     highlightBorder.remove();
+    observer.disconnect();
   }, removeElementDelay);
 }
 

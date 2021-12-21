@@ -53,7 +53,7 @@ export const PortalStyles = createGlobalStyle`
     border: 4px solid rgba(191, 65, 9, 0);
     border-radius: 4px;
     filter: drop-shadow(0px 1px 3px rgba(16, 24, 40, 0.1)) drop-shadow(0px 1px 2px rgba(16, 24, 40, 0.06));
-    transition: border-color 1s linear;
+    transition: all 1s;
     z-index: 3;
     pointer-events: none;
   }
