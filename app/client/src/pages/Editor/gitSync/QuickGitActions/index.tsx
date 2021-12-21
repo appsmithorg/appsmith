@@ -291,7 +291,7 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.DEPLOY,
         }),
       );
-      AnalyticsUtil.logEvent("DEPLOY_GIT_CLICK", {
+      AnalyticsUtil.logEvent("DEPLOY_GIT_MODAL_TRIGGERED", {
         source: "Buttom bar commit git button",
       });
     },
@@ -313,7 +313,7 @@ export default function QuickGitActions() {
       dispatch(gitPullInit({ triggeredFromBottomBar: true }));
     },
     merge: () => {
-      AnalyticsUtil.logEvent("MERGE_GIT_CLICK", {
+      AnalyticsUtil.logEvent("MERGE_GIT_MODAL_TRIGGERED", {
         source: "Buttom bar merge git button",
       });
       dispatch(
