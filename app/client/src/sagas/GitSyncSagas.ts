@@ -71,7 +71,7 @@ import * as Sentry from "@sentry/react";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
-  if (responseMeta?.error?.code === 4041) {
+  if (responseMeta?.error?.code === 4043) {
     yield put(setShowRepoLimitErrorModal(true));
     return true;
   }
