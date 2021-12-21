@@ -35,9 +35,20 @@ body:
     required: false
 - type: textarea
   attributes:
+    label: Documentation
+    description: |
+      List the documentation tasks that you are already aware of, and maintain this list as you go along
+    placeholder: |
+      - Item 1
+      - Item 2
+      - Item 3
+  validations:
+    required: false
+- type: textarea
+  attributes:
     label: Out of Scope
     description: |
-      List the things that are out of cope or might be revisited after the first release.
+      List the things that are out of scope or might be revisited after the first release.
     placeholder: |
       - Item 1
       - Item 2

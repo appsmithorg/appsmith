@@ -215,12 +215,44 @@ public class DataUtilsTest {
     public void testParseFormData_withoutEncodingParamsToggleTrue_returnsEncodedString() throws UnsupportedEncodingException {
         final String encoded_value = dataUtils.parseFormData(List.of(new Property("key", "valüe")),
                 false);
-        String expected_value = null;
+        String expected_value;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
         } catch (UnsupportedEncodingException e) {
             throw e;
         }
         assertNotEquals(expected_value, encoded_value);
+    }
+
+    @Test
+    public void testParseFormData_withNullKeys_skipsNullProperty() {
+        final String encoded_value = dataUtils.parseFormData(List.of(new Property(null, "v1"), new Property("k2", "v2")),
+                false);
+        assertEquals("k2=v2", encoded_value);
+    }
+
+    @Test
+    public void testParseMultipartFileData_withNullKeys_skipsNullProperty() {
+        List<Property> properties = new ArrayList<>();
+        final Property p1 = new Property(null, "irrelevantValue");
+        properties.add(p1);
+
+        final BodyInserter<Object, MockClientHttpRequest> bodyInserter =
+                (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
+        MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.POST, URI.create("https://example.com"));
+
+        Mono<Void> result = bodyInserter.insert(request, this.context);
+        StepVerifier.create(result).expectComplete().verify();
+        StepVerifier.create(DataBufferUtils.join(request.getBody()))
+                .consumeNextWith(dataBuffer -> {
+                    byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(resultBytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String content = new String(resultBytes, StandardCharsets.UTF_8);
+                    // Expect to not have any part
+                    Assert.assertFalse(content.contains("Content-Disposition: form-data"));
+                })
+                .expectComplete()
+                .verify();
     }
 }
