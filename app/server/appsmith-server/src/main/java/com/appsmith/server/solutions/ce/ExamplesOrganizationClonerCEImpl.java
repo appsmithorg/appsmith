@@ -7,6 +7,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
@@ -236,6 +237,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                             ActionDTO action = newAction.getUnpublishedAction();
                                             log.info("Preparing action for cloning {} {}.", action.getName(), newAction.getId());
                                             action.setPageId(savedPage.getId());
+                                            action.setDefaultResources(null);
                                             return newAction;
                                         })
                                         .flatMap(newAction -> {
@@ -244,7 +246,6 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                             makePristine(newAction);
                                             newAction.setOrganizationId(toOrganizationId);
                                             ActionDTO action = newAction.getUnpublishedAction();
-                                            final String originalCollectionId = action.getCollectionId();
                                             action.setCollectionId(null);
 
                                             Mono<ActionDTO> actionMono = Mono.just(action);
@@ -286,24 +287,55 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                         makePristine(actionCollection);
                                                         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                                                         unpublishedCollection.setPageId(savedPage.getId());
+
+                                                        DefaultResources defaultResources = new DefaultResources();
+                                                        defaultResources.setPageId(savedPage.getId());
+                                                        unpublishedCollection.setDefaultResources(defaultResources);
+
                                                         actionCollection.setOrganizationId(toOrganizationId);
                                                         actionCollection.setApplicationId(savedPage.getApplicationId());
+
+                                                        DefaultResources defaultResources1 = new DefaultResources();
+                                                        defaultResources1.setApplicationId(savedPage.getApplicationId());
+                                                        actionCollection.setDefaultResources(defaultResources1);
+
                                                         actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
 
-                                                        // Replace all action Ids from map
+                                                        // Replace all action Ids from map and replace with newly created actionIds
                                                         final Map<String, String> newActionIds = new HashMap<>();
                                                         unpublishedCollection
                                                                 .getDefaultToBranchedActionIdsMap()
-                                                                .forEach((defaultActionId, oldActionId) -> newActionIds
-                                                                        .put(defaultActionId, actionIdsMap.get(oldActionId)));
+                                                                .forEach((defaultActionId, oldActionId) -> {
+                                                                    if (!StringUtils.isEmpty(actionIdsMap.get(oldActionId))) {
+                                                                        newActionIds
+                                                                            // As this is a new application and not connected
+                                                                            // through git branch, the default and newly
+                                                                            // created actionId will be same
+                                                                            .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
+                                                                    } else {
+                                                                        log.debug("Unable to find action {} while forking inside ID map: {}", oldActionId, actionIdsMap);
+                                                                    }
+                                                                });
 
                                                         unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
                                                         return actionCollectionService.create(actionCollection)
+                                                                .flatMap(newActionCollection -> {
+                                                                    if (StringUtils.isEmpty(newActionCollection.getDefaultResources().getCollectionId())) {
+                                                                        ActionCollection updates = new ActionCollection();
+                                                                        DefaultResources defaultResources2 = newActionCollection.getDefaultResources();
+                                                                        defaultResources2.setCollectionId(newActionCollection.getId());
+                                                                        updates.setDefaultResources(defaultResources2);
+                                                                        return actionCollectionService.update(newActionCollection.getId(), updates);
+                                                                    }
+                                                                    return Mono.just(newActionCollection);
+                                                                })
                                                                 .flatMap(newlyCreatedActionCollection -> {
                                                                     return Flux.fromIterable(newActionIds.values())
                                                                             .flatMap(newActionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
-                                                                                newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
+                                                                                ActionDTO unpublishedAction = newlyCreatedAction.getUnpublishedAction();
+                                                                                unpublishedAction.setCollectionId(newlyCreatedActionCollection.getId());
+                                                                                unpublishedAction.getDefaultResources().setCollectionId(newlyCreatedActionCollection.getId());
                                                                                 return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                                                                             })
                                                                             .collectList();
