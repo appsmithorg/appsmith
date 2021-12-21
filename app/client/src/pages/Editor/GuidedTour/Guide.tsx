@@ -47,6 +47,8 @@ const Title = styled.span`
   letter-spacing: -0.24px;
   line-height: 24px;
   color: #000000;
+  display: flex;
+  flex: 1;
 `;
 
 const StepCount = styled.div`
@@ -107,6 +109,7 @@ const SubContentWrapper = styled.div`
     font-size: 14px;
     font-weight: 600;
     width: 105px;
+    text-align: center;
 
     .complete {
       font-weight: 400;
