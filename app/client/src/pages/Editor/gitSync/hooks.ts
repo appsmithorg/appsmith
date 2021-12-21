@@ -5,12 +5,6 @@ import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import {
-  getGlobalGitConfig,
-  getLocalGitConfig,
-  getIsGlobalConfigDefined,
-  getIsLocalConfigDefined,
-} from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const useSSHKeyPair = () => {
@@ -115,43 +109,5 @@ export const useGitConnect = () => {
   return {
     isConnectingToGit,
     connectToGit,
-  };
-};
-
-export const useUserGitConfig = () => {
-  const globalGitConfig = useSelector(getGlobalGitConfig);
-  const localGitConfig = useSelector(getLocalGitConfig);
-  const isLocalConfigDefined = useSelector(getIsLocalConfigDefined);
-  const isGlobalConfigDefined = useSelector(getIsGlobalConfigDefined);
-
-  const getInitGitConfig = useCallback(() => {
-    let initialAuthInfo = {
-      authorName: "",
-      authorEmail: "",
-    };
-
-    if (isGlobalConfigDefined) {
-      initialAuthInfo = {
-        authorName: globalGitConfig.authorName || "",
-        authorEmail: globalGitConfig.authorEmail || "",
-      };
-    }
-    // when local config is defined we will only show local config
-    if (isLocalConfigDefined) {
-      initialAuthInfo = {
-        authorName: localGitConfig.authorName || "",
-        authorEmail: localGitConfig.authorEmail || "",
-      };
-    }
-
-    return initialAuthInfo;
-  }, [globalGitConfig, localGitConfig]);
-
-  return {
-    getInitGitConfig,
-    globalGitConfig,
-    isGlobalConfigDefined,
-    isLocalConfigDefined,
-    localGitConfig,
   };
 };
