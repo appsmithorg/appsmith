@@ -200,10 +200,17 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                       {
                         name: "id",
                         type: ValidationTypes.TEXT,
+                        params: {
+                          unique: true,
+                          required: true,
+                        },
                       },
                       {
                         name: "value",
                         type: ValidationTypes.TEXT,
+                        params: {
+                          required: true,
+                        },
                       },
                     ],
                   },
