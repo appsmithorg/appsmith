@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
-import useDeepEffect from "utils/hooks/useDeepEffect";
 
 type FieldProps = {
   hideLabel?: boolean;
@@ -39,15 +38,24 @@ function Field({
   render,
   tooltip,
 }: FieldProps) {
+  const refDefaultValue = useRef(defaultValue);
   const { control, setValue } = useFormContext();
 
-  useDeepEffect(() => {
-    setValue(name, defaultValue);
+  useEffect(() => {
+    if (refDefaultValue.current !== defaultValue) {
+      refDefaultValue.current = defaultValue;
+      setValue(name, defaultValue);
+    }
   }, [defaultValue, setValue]);
 
   const controller = (
     <StyledControllerWrapper>
-      <Controller control={control} name={name} render={render} />
+      <Controller
+        control={control}
+        name={name}
+        render={render}
+        shouldUnregister
+      />
     </StyledControllerWrapper>
   );
 

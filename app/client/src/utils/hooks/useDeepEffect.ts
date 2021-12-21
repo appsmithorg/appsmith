@@ -8,7 +8,7 @@ import {
 } from "react";
 
 function isPrimitive(val: unknown) {
-  return val == null || /^[sbn]/.test(typeof val);
+  return val === null || /^[sbn]/.test(typeof val);
 }
 
 function checkDeps(deps?: DependencyList) {

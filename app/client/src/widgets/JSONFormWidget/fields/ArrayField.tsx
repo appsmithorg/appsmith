@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useFieldArray, ControllerRenderProps } from "react-hook-form";
+import { ControllerRenderProps, useFormContext } from "react-hook-form";
 
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
@@ -11,8 +11,8 @@ import {
   FieldComponentBaseProps,
   FIELD_PADDING_X,
   FIELD_PADDING_Y,
-  FIELD_TYPE_TO_POTENTIAL_DATA,
 } from "../constants";
+import { generateReactKey } from "utils/generators";
 
 type ArrayComponentProps = FieldComponentBaseProps;
 
@@ -42,19 +42,39 @@ const StyledDeleteButton = styled(StyledButton)`
   align-self: center;
 `;
 function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
-  const { append, fields, remove } = useFieldArray({
-    name,
-    keyName: "__id__",
-  });
+  const formMethods = useFormContext();
+  const [keys, setKeys] = useState<string[]>([]);
 
   const { children, isDisabled, isVisible = true, label, tooltip } = schemaItem;
   const arrayItemSchema = children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
-  const onAddClick = () => {
-    const data = FIELD_TYPE_TO_POTENTIAL_DATA[arrayItemSchema.fieldType];
+  const add = () => {
+    setKeys((prevKeys) => [...prevKeys, generateReactKey()]);
+  };
 
-    append(data);
+  useEffect(() => {
+    add();
+    add();
+  }, []);
+
+  const remove = (removedKey: string) => {
+    const removedIndex = keys.findIndex((key) => key === removedKey);
+    const values = formMethods.getValues(name);
+
+    if (values === undefined) {
+      return;
+    }
+
+    // Manually remove from the values and re-insert to maintain the position of the
+    // values
+    const newValues = values.filter(
+      (_val: any, index: number) => index !== removedIndex,
+    );
+
+    formMethods.setValue(name, newValues);
+
+    setKeys((prevKeys) => prevKeys.filter((prevKey) => prevKey !== removedKey));
   };
 
   const options = {
@@ -67,31 +87,30 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
 
   return (
     <Disabler isDisabled={isDisabled}>
-      <FieldLabel label={label} tooltip={tooltip}>
-        <StyledWrapper>
-          {fields.map((field, index) => {
-            const fieldName = `${name}[${index}]__array_value__` as ControllerRenderProps["name"];
-            const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
+      <FieldLabel label={label} tooltip={tooltip} />
+      <StyledWrapper>
+        {keys.map((key, index) => {
+          const fieldName = `${name}.${index}` as ControllerRenderProps["name"];
+          const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
 
-            return (
-              <StyledItemWrapper key={field.__id__}>
-                {fieldRenderer(
-                  fieldName,
-                  arrayItemSchema,
-                  fieldPropertyPath,
-                  options,
-                )}
-                <StyledDeleteButton onClick={() => remove(index)} type="button">
-                  Delete
-                </StyledDeleteButton>
-              </StyledItemWrapper>
-            );
-          })}
-          <StyledButton onClick={onAddClick} type="button">
-            Add
-          </StyledButton>
-        </StyledWrapper>
-      </FieldLabel>
+          return (
+            <StyledItemWrapper key={key}>
+              {fieldRenderer(
+                fieldName,
+                arrayItemSchema,
+                fieldPropertyPath,
+                options,
+              )}
+              <StyledDeleteButton onClick={() => remove(key)} type="button">
+                Delete
+              </StyledDeleteButton>
+            </StyledItemWrapper>
+          );
+        })}
+        <StyledButton onClick={() => add()} type="button">
+          Add
+        </StyledButton>
+      </StyledWrapper>
     </Disabler>
   );
 }

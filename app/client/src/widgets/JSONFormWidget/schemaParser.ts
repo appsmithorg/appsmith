@@ -234,10 +234,14 @@ class SchemaParser {
     });
 
     const oldSchemaItemProperties = pick(schemaItem, [
-      "defaultValue",
       "position",
       "label",
+      "defaultValue",
     ]);
+
+    if (schemaItem.isCustomField) {
+      oldSchemaItemProperties.defaultValue = currSourceData;
+    }
 
     return {
       ...newSchemaItem,

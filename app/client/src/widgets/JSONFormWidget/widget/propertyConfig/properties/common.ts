@@ -106,7 +106,7 @@ const COMMON_PROPERTIES = {
       helpText: "Sets the label text of the widget",
       propertyName: "label",
       label: "Label",
-      controlType: "JSON_FORM_COMPUTE_VALUE",
+      controlType: "INPUT_TEXT",
       placeholderText: "Name:",
       isBindProperty: true,
       isTriggerProperty: false,
