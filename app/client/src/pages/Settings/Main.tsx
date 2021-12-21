@@ -29,7 +29,8 @@ import styled from "styled-components";
 import history from "utils/history";
 import Group from "./Main/group";
 import RestartBanner from "./RestartBanner";
-import { SettingsFactory, SettingTypes } from "./SettingsConfig";
+import AdminConfig from "./config";
+import { CategoryType, SettingTypes } from "./config/types";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -109,17 +110,20 @@ function getSettingLabel(name = "") {
   return name.replace(/-/g, " ");
 }
 
-function useSettings(category: string) {
-  return SettingsFactory.get(category);
+function useSettings(category: string, subCategory?: string) {
+  return AdminConfig.get(subCategory ?? category);
 }
 
 export function Main(
   props: InjectedFormProps & RouteComponentProps & MainProps,
 ) {
-  const { category } = useParams() as any;
-  const settings = useSettings(category);
+  const params = useParams() as any;
+  const { category, subCategory } = params;
+  const settings = useSettings(category, subCategory);
   const dispatch = useDispatch();
-  const isSavable = SettingsFactory.savableCategories.has(category);
+  const isSavable = AdminConfig.savableCategories.includes(
+    subCategory ?? category,
+  );
   const onBack = () => {
     history.push(APPLICATIONS_URL);
   };
@@ -129,7 +133,7 @@ export function Main(
 
   const onClear = () => {
     _.forEach(props.settingsConfig, (value, settingName) => {
-      const setting = SettingsFactory.settingsMap[settingName];
+      const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
         props.settingsConfig[settingName] =
           props.settingsConfig[settingName].toString() == "true";
@@ -147,7 +151,10 @@ export function Main(
     });
   }, []);
 
-  if (!SettingsFactory.categories.has(category)) {
+  if (
+    !Object.values(CategoryType).includes(category) ||
+    (subCategory && !Object.values(CategoryType).includes(subCategory))
+  ) {
     return <Redirect to={ADMIN_SETTINGS_CATEGORY_DEFAULT_URL} />;
   }
 
@@ -158,8 +165,14 @@ export function Main(
         <BackButtonText>&nbsp;Back</BackButtonText>
       </BackButton>
       <SettingsFormWrapper>
-        <SettingsHeader>{getSettingLabel(category)} settings</SettingsHeader>
-        <Group settings={settings} />
+        <SettingsHeader>
+          {getSettingLabel(subCategory ?? category)} settings
+        </SettingsHeader>
+        <Group
+          category={category}
+          settings={settings}
+          subCategory={subCategory}
+        />
         {isSavable && (
           <SettingsButtonWrapper>
             <StyledSaveButton
@@ -194,7 +207,7 @@ export function Main(
 const validate = (values: Record<string, any>) => {
   const errors: any = {};
   _.filter(values, (value, name) => {
-    const message = SettingsFactory.validate(name, value);
+    const message = AdminConfig.validate(name, value);
     if (message) {
       errors[name] = message;
     }
@@ -212,7 +225,7 @@ export default withRouter(
       isSaving: getSettingsSavingState(state),
       showReleaseNotes: getShowReleaseNotes(state),
     };
-    _.forEach(SettingsFactory.settingsMap, (setting, name) => {
+    _.forEach(AdminConfig.settingsMap, (setting, name) => {
       const fieldValue = selector(state, name);
 
       if (fieldValue !== settingsConfig[name]) {

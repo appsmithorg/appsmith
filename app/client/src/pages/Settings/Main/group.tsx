@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Setting, SettingTypes } from "../SettingsConfig";
+import { Setting, SettingTypes } from "../config/types";
 import { StyledLabel } from "./Common";
 import Link from "./Link";
 import TextInput from "./TextInput";
@@ -16,6 +16,8 @@ type GroupProps = {
   name?: string;
   settings?: Setting[];
   isHidden?: boolean;
+  category?: string;
+  subCategory?: string;
 };
 
 const GroupWrapper = styled.div`
@@ -41,7 +43,13 @@ const GroupBody = styled.div`
 
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
-export default function Group({ name, settings }: GroupProps) {
+export default function Group({
+  category,
+  name,
+  settings,
+  subCategory,
+}: GroupProps) {
+  // console.log("[GROUP] : ", settings, name);
   const state = useSelector((state) => state);
   return (
     <GroupWrapper data-testid="admin-settings-group-wrapper">
@@ -50,8 +58,10 @@ export default function Group({ name, settings }: GroupProps) {
         {settings &&
           settings.map((setting) => {
             if (
-              setting.isVisible &&
-              !setting.isVisible(formValuesSelector(state))
+              (setting.isVisible &&
+                !setting.isVisible(formValuesSelector(state))) ||
+              (setting.category !== category &&
+                setting.category !== subCategory)
             ) {
               return null;
             }
@@ -113,7 +123,12 @@ export default function Group({ name, settings }: GroupProps) {
                     data-testid="admin-settings-group"
                     key={setting.name}
                   >
-                    <Group name={setting.name} settings={setting.children} />
+                    <Group
+                      category={category}
+                      name={setting.name}
+                      settings={setting.children}
+                      subCategory={subCategory}
+                    />
                   </div>
                 );
             }

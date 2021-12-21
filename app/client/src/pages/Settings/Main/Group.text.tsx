@@ -1,6 +1,6 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { SettingTypes } from "../SettingsConfig";
+import { SettingTypes } from "../config/types";
 import Group from "./group";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { reduxForm } from "redux-form";
@@ -8,6 +8,7 @@ import { reduxForm } from "redux-form";
 let container: any = null;
 const settings = [
   {
+    id: "test",
     name: "test",
     label: "formGroup",
     helpText: "",

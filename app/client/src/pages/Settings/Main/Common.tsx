@@ -4,7 +4,7 @@ import React from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Setting } from "../SettingsConfig";
+import { Setting } from "../config/types";
 import { Colors } from "constants/Colors";
 
 type FieldHelperProps = {
