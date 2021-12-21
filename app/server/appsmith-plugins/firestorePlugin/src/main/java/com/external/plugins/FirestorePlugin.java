@@ -230,7 +230,7 @@ public class FirestorePlugin extends BasePlugin {
                             return handleDocumentLevelMethod(connection, path, method, mapBody, query, requestParams);
                         } else {
                             return handleCollectionLevelMethod(connection, path, method, formData, mapBody,
-                                    paginationField, query, requestParams, hintMessages);
+                                    paginationField, query, requestParams, hintMessages, actionConfiguration);
                         }
                     })
                     .onErrorResume(error  -> {
@@ -517,12 +517,13 @@ public class FirestorePlugin extends BasePlugin {
                 PaginationField paginationField,
                 String query,
                 List<RequestParamDTO> requestParams,
-                Set<String> hintMessages) {
+                Set<String> hintMessages,
+                ActionConfiguration actionConfiguration) {
 
             final CollectionReference collection = connection.collection(path);
 
             if (method == Method.GET_COLLECTION) {
-                return methodGetCollection(collection, formData, paginationField, requestParams, hintMessages);
+                return methodGetCollection(collection, formData, paginationField, requestParams, hintMessages, actionConfiguration);
 
             } else if (method == Method.ADD_TO_COLLECTION) {
                 requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null, null, null));
@@ -538,7 +539,8 @@ public class FirestorePlugin extends BasePlugin {
 
         private Mono<ActionExecutionResult> methodGetCollection(CollectionReference query, Map<String, Object> formData,
                                                                 PaginationField paginationField,
-                                                                List<RequestParamDTO> requestParams, Set<String> hintMessages) {
+                                                                List<RequestParamDTO> requestParams,
+                                                                Set<String> hintMessages, ActionConfiguration actionConfiguration) {
             final String limitString = getValueSafelyFromFormData(formData, LIMIT_DOCUMENTS, String.class);
             final int limit = StringUtils.isEmpty(limitString) ? 10 : Integer.parseInt(limitString);
             final String orderByString = getValueSafelyFromFormData(formData, ORDER_BY, String.class, "");
@@ -553,7 +555,8 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             Map<String, Object> startAfterTemp = null;
-            final String startAfterJson = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+            final String startAfterJson = StringUtils.isBlank(actionConfiguration.getNext()) ? "{}" :
+                    actionConfiguration.getNext();
             requestParams.add(new RequestParamDTO(START_AFTER, startAfterJson, null, null, null));
             if (PaginationField.NEXT.equals(paginationField)) {
                 try {
@@ -564,7 +567,8 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             Map<String, Object> endBeforeTemp = null;
-            final String endBeforeJson = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+            final String endBeforeJson = StringUtils.isBlank(actionConfiguration.getPrev()) ? "{}" :
+                    actionConfiguration.getPrev();
             requestParams.add(new RequestParamDTO(END_BEFORE, endBeforeJson, null, null, null));
             if (PaginationField.PREV.equals(paginationField)) {
                 try {
