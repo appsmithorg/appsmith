@@ -1,5 +1,4 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { IndicatorLocation } from "pages/Editor/GuidedTour/Indicator";
 import { WidgetProps } from "widgets/BaseWidget";
 
 export const enableGuidedTour = (payload: boolean) => {
@@ -32,13 +31,6 @@ export const firstTimeUserOnboardingInit = (
 export const markStepComplete = () => {
   return {
     type: ReduxActionTypes.GUIDED_TOUR_MARK_STEP_COMPLETED,
-  };
-};
-
-export const setIndicatorLocation = (location: IndicatorLocation) => {
-  return {
-    type: ReduxActionTypes.SET_INDICATOR_LOCATION,
-    payload: location,
   };
 };
 

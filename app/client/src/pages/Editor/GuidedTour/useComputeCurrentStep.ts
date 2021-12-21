@@ -1,6 +1,5 @@
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import {
-  setIndicatorLocation,
   markStepComplete,
   tableWidgetWasSelected,
   enableGuidedTour,
@@ -195,7 +194,10 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   useEffect(() => {
     if (tableWidgetSelected && step === 3 && hadReachedStep <= 3) {
       dispatch(tableWidgetWasSelected(true));
-      showIndicator(`[data-guided-tour-iid='tableData']`, "top");
+      showIndicator(`[data-guided-tour-iid='tableData']`, "top", {
+        top: 20,
+        left: 0,
+      });
     }
   }, [step, tableWidgetSelected]);
 
@@ -265,7 +267,10 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
         dispatch(markStepComplete());
         hideIndicator();
       } else {
-        showIndicator(`[data-guided-tour-iid='onSuccess']`, "top");
+        showIndicator(`[data-guided-tour-iid='onSuccess']`, "left", {
+          top: 0,
+          left: -10,
+        });
       }
     }
   }, [step, hadReachedStep, buttonWidgetSuccessBinding]);

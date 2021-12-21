@@ -179,7 +179,9 @@ export const Steps: StepsType = {
       onClick: (dispatch) => {
         dispatch(setExplorerPinnedAction(true));
         dispatch(setCurrentStep(2));
-        showIndicator(`[data-guided-tour-iid='CustomersTable']`);
+        setTimeout(() => {
+          showIndicator(`[data-guided-tour-iid='CustomersTable']`);
+        }, 1000);
       },
       buttonText: "PROCEED TO NEXT STEP",
     },
@@ -274,7 +276,10 @@ export const Steps: StepsType = {
           onClick: (dispatch) => {
             dispatch(focusWidget("Input1"));
             setTimeout(() => {
-              showIndicator(`[data-guided-tour-iid='defaultText']`, "top");
+              showIndicator(`[data-guided-tour-iid='defaultText']`, "top", {
+                top: 20,
+                left: 0,
+              });
             }, 1000);
           },
         },
@@ -299,7 +304,10 @@ export const Steps: StepsType = {
         dispatch(setCurrentStep(5));
         dispatch(focusWidget("Input2"));
         setTimeout(() => {
-          showIndicator(`[data-guided-tour-iid='defaultText']`, "top");
+          showIndicator(`[data-guided-tour-iid='defaultText']`, "top", {
+            top: 20,
+            left: 0,
+          });
         }, 1000);
       },
       duration: 12,
@@ -383,7 +391,10 @@ export const Steps: StepsType = {
       ),
       onClick: (dispatch) => {
         dispatch(setCurrentStep(7));
-        showIndicator(`[data-guided-tour-iid='onClick']`, "top");
+        showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
+          top: 25,
+          left: 0,
+        });
       },
     },
   },
@@ -420,7 +431,10 @@ export const Steps: StepsType = {
       onClick: (dispatch) => {
         dispatch(setCurrentStep(9));
         setTimeout(() => {
-          showIndicator(`[data-guided-tour-iid='deploy']`, "bottom");
+          showIndicator(`[data-guided-tour-iid='deploy']`, "bottom", {
+            top: -5,
+            left: 0,
+          });
         }, 1000);
       },
     },

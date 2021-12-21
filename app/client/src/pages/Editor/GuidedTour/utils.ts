@@ -13,8 +13,67 @@ class IndicatorHelper {
     this.indicatorWidthOffset = 58;
   }
 
+  calculate(
+    primaryReference: Element | null,
+    position: string,
+    offset: {
+      top: number;
+      left: number;
+    },
+  ) {
+    if (!primaryReference) {
+      this.destroy();
+      return;
+    }
+    const coords = getCoords(primaryReference);
+
+    // Remove previous indicate if it is unable to find the
+    // correct position
+    if (coords.width === 0) {
+      this.destroy();
+      return;
+    }
+
+    if (position === "top") {
+      this.indicatorWrapper.style.top =
+        coords.top - this.indicatorHeightOffset * 2 + offset.top + "px";
+      this.indicatorWrapper.style.left =
+        coords.width / 2 + coords.left - this.indicatorWidthOffset + "px";
+    } else if (position === "bottom") {
+      this.indicatorWrapper.style.top = coords.height + offset.top + "px";
+      this.indicatorWrapper.style.left =
+        coords.width / 2 +
+        coords.left -
+        this.indicatorWidthOffset +
+        offset.left +
+        "px";
+    } else if (position === "left") {
+      this.indicatorWrapper.style.top =
+        coords.top + this.indicatorHeightOffset - 18 + offset.top + "px";
+      this.indicatorWrapper.style.left =
+        coords.left - this.indicatorWidthOffset + offset.left + "px";
+    } else {
+      this.indicatorWrapper.style.left =
+        coords.width +
+        coords.left +
+        18 -
+        this.indicatorWidthOffset +
+        offset.left +
+        "px";
+      this.indicatorWrapper.style.top =
+        coords.top - this.indicatorHeightOffset + offset.top + "px";
+    }
+  }
+
   // Remove previous indicator and create a new one
-  show(primaryReference: Element | null, position?: string) {
+  show(
+    primaryReference: Element | null,
+    position: string,
+    offset: {
+      top: number;
+      left: number;
+    },
+  ) {
     if (this.timerId || this.indicatorWrapper) this.destroy();
     if (!primaryReference) {
       this.destroy();
@@ -32,35 +91,10 @@ class IndicatorHelper {
       loop: true,
     });
 
+    // This is to invoke at the start and then recalculate every 4 seconds
+    this.calculate(primaryReference, position, offset);
     this.timerId = setInterval(() => {
-      if (!primaryReference) {
-        this.destroy();
-        return;
-      }
-      const coords = getCoords(primaryReference);
-
-      // Remove previous indicate if it is unable to find the
-      // correct position
-      if (coords.width === 0) {
-        this.destroy();
-        return;
-      }
-
-      if (position === "top") {
-        this.indicatorWrapper.style.top =
-          coords.top - this.indicatorHeightOffset * 2 + "px";
-        this.indicatorWrapper.style.left =
-          coords.width / 2 + coords.left - this.indicatorWidthOffset + "px";
-      } else if (position === "bottom") {
-        this.indicatorWrapper.style.top = coords.height + "px";
-        this.indicatorWrapper.style.left =
-          coords.width / 2 + coords.left - this.indicatorWidthOffset + "px";
-      } else {
-        this.indicatorWrapper.style.left =
-          coords.width + coords.left + 18 - this.indicatorWidthOffset + "px";
-        this.indicatorWrapper.style.top =
-          coords.top - this.indicatorHeightOffset + "px";
-      }
+      this.calculate(primaryReference, position, offset);
     }, 4000);
   }
 
@@ -141,11 +175,15 @@ export function highlightSection(
   }, removeElementDelay);
 }
 
-export function showIndicator(selector: string, position = "right") {
+export function showIndicator(
+  selector: string,
+  position = "right",
+  offset = { top: 0, left: 0 },
+) {
   let primaryReference: Element | null = null;
 
   primaryReference = document.querySelector(selector);
-  indicatorHelperInstance.show(primaryReference, position);
+  indicatorHelperInstance.show(primaryReference, position, offset);
 }
 
 export function hideIndicator() {

@@ -1,5 +1,4 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { IndicatorLocation } from "pages/Editor/GuidedTour/Indicator";
 import { createReducer } from "utils/AppsmithUtils";
 
 const initialState: OnboardingState = {
@@ -42,7 +41,6 @@ export interface OnboardingState {
   queryId: string;
   datasourceId: string;
   currentStep: number;
-  indicatorLocation?: IndicatorLocation;
   showSuccessMessage: boolean;
   showInfoMessage: boolean;
   tableWidgetWasSelected: boolean;
@@ -174,15 +172,6 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       showInfoMessage: true,
-    };
-  },
-  [ReduxActionTypes.SET_INDICATOR_LOCATION]: (
-    state: OnboardingState,
-    action: ReduxAction<IndicatorLocation>,
-  ) => {
-    return {
-      ...state,
-      indicatorLocation: action.payload,
     };
   },
   [ReduxActionTypes.GUIDED_TOUR_MARK_STEP_COMPLETED]: (

@@ -48,8 +48,6 @@ export const getGuidedTourTableWidget = (state: AppState) =>
   state.ui.onBoarding.tableWidgetId;
 export const getGuidedTourQuery = (state: AppState) =>
   state.ui.onBoarding.queryId;
-export const getIndicatorLocation = (state: AppState) =>
-  state.ui.onBoarding.indicatorLocation;
 export const wasTableWidgetSelected = (state: AppState) =>
   state.ui.onBoarding.tableWidgetWasSelected;
 export const showEndTourDialogSelector = (state: AppState) =>
