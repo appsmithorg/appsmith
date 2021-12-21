@@ -1,99 +1,96 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Collapse, Icon } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 type AccordionProps = React.PropsWithChildren<{
+  backgroundColor?: string;
+  borderColor?: string;
   className?: string;
-  collapsible: boolean;
-  onDelete?: () => void;
+  isCollapsible: boolean;
   title?: string;
 }>;
 
-type StyledToggleHeaderTextProps = {
+type StyledToggleHeaderProps = {
   isOpen: boolean;
 };
 
-type StyledCollapseProps = {
-  isHeaderVisible: boolean;
+type StyledWrapperProps = {
+  backgroundColor?: string;
+  borderColor?: string;
 };
 
-const HEADER_HEIGHT = 40;
-const COLLAPSE_PADDING_X = 8;
-const COLLAPSE_PADDING_Y = 16;
+const COLLAPSE_PADDING = 10;
+const WRAPPER_MARGIN_BOTTOM = 8;
+const DEFAULT_BORDER_COLOR = Colors.GREY_3;
+const DEFAULT_BACKGROUND_COLOR = "fff";
 
-const StyledToggleHeader = styled.div`
+const StyledToggleHeader = styled.div<StyledToggleHeaderProps>`
+  align-items: center;
   border-radius: 4px;
   display: flex;
-  height: ${HEADER_HEIGHT}px;
   justify-content: space-between;
-  left: 0;
-  padding: ${COLLAPSE_PADDING_Y}px ${COLLAPSE_PADDING_X}px;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  z-index: 10;
-`;
-
-const StyledToggleHeaderText = styled.span<StyledToggleHeaderTextProps>`
-  background: #fff;
-  color: ${({ isOpen }) => isOpen && "#fff"};
+  padding-bottom: ${({ isOpen }) => (isOpen ? COLLAPSE_PADDING : 0)}px;
   width: 100%;
 `;
 
-const StyledWrapper = styled.div`
-  border: 1px solid #ebebeb;
-  min-height: ${HEADER_HEIGHT}px;
-  padding: ${COLLAPSE_PADDING_Y}px ${COLLAPSE_PADDING_X}px;
+const StyledToggleHeaderText = styled.span`
+  width: 100%;
+`;
+
+const StyledWrapper = styled.div<StyledWrapperProps>`
+  border: 1px solid ${({ borderColor }) => borderColor || DEFAULT_BORDER_COLOR};
+  background-color: ${({ backgroundColor }) =>
+    backgroundColor || DEFAULT_BACKGROUND_COLOR};
+  padding: ${COLLAPSE_PADDING}px;
   position: relative;
-`;
+  margin-bottom: ${WRAPPER_MARGIN_BOTTOM}px;
 
-const StyledFixedHeader = styled.div`
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
-  margin-top: ${({ isHeaderVisible }) =>
-    isHeaderVisible ? `${HEADER_HEIGHT}px` : 0};
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 function Accordion({
+  backgroundColor,
+  borderColor,
   children,
   className,
-  collapsible,
-  onDelete,
+  isCollapsible,
   title,
 }: AccordionProps) {
   const [isOpen, setIsOpen] = useState(true);
 
+  useEffect(() => {
+    if (!isCollapsible && !isOpen) {
+      setIsOpen(true);
+    }
+  }, [isCollapsible, isOpen, setIsOpen]);
+
   const toggleIsOpen = () => setIsOpen((prevState) => !prevState);
-
-  const isHeaderVisible = collapsible || Boolean(onDelete);
-
-  const header = collapsible ? (
-    <StyledToggleHeader onClick={toggleIsOpen} role="button" tabIndex={0}>
-      <StyledToggleHeaderText isOpen={isOpen}>{title}</StyledToggleHeaderText>
-      <Icon
-        icon={isOpen ? "chevron-up" : "chevron-down"}
-        iconSize={16}
-        style={{ color: "#2E3D49" }}
-      />
-    </StyledToggleHeader>
-  ) : (
-    <StyledFixedHeader>
-      <button>
-        <Icon icon="trash" iconSize={16} style={{ color: "#D71010" }} />
-        <p>Delete</p>
-      </button>
-    </StyledFixedHeader>
-  );
-
+  console.log("ACCORDION borderColor", { borderColor });
   return (
-    <StyledWrapper className={className}>
-      {isHeaderVisible && header}
-      <StyledCollapse isHeaderVisible={isHeaderVisible} isOpen={isOpen}>
-        {children}
-      </StyledCollapse>
+    <StyledWrapper
+      backgroundColor={backgroundColor}
+      borderColor={borderColor}
+      className={className}
+    >
+      {isCollapsible && (
+        <StyledToggleHeader
+          isOpen={isOpen}
+          onClick={toggleIsOpen}
+          role="button"
+          tabIndex={0}
+        >
+          <StyledToggleHeaderText>{title}</StyledToggleHeaderText>
+          <Icon
+            icon={isOpen ? "chevron-up" : "chevron-down"}
+            iconSize={16}
+            style={{ color: "#2E3D49" }}
+          />
+        </StyledToggleHeader>
+      )}
+      <Collapse isOpen={isOpen}>{children}</Collapse>
     </StyledWrapper>
   );
 }

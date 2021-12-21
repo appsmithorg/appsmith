@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { ControllerRenderProps, useFormContext } from "react-hook-form";
+import { Icon } from "@blueprintjs/core";
+import { pick } from "lodash";
 
+import Accordion from "../component/Accordion";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
@@ -9,54 +12,81 @@ import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
-  FIELD_PADDING_X,
-  FIELD_PADDING_Y,
+  SchemaItem,
 } from "../constants";
+import { Colors } from "constants/Colors";
+import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 
-type ArrayComponentProps = FieldComponentBaseProps;
+type ArrayComponentProps = FieldComponentBaseProps & {
+  isCollapsible: boolean;
+};
+
+type ArrayItemSchemaItemProps = SchemaItem & {
+  backgroundColor?: string;
+  borderColor?: string;
+};
 
 type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentProps>;
 
 const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
+  isCollapsible: true,
   isDisabled: false,
-  label: "",
   isVisible: true,
+  label: "",
 };
 
 const StyledWrapper = styled.div`
-  padding: ${FIELD_PADDING_Y}px ${FIELD_PADDING_X}px;
+  margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
 `;
 
 const StyledItemWrapper = styled.div`
   display: flex;
   flex: 1;
+  flex-direction: column;
 `;
 
 const StyledButton = styled.button`
-  height: 30px;
+  align-items: center;
+  color: ${Colors.GREEN};
+  display: flex;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 10px;
   width: 80px;
+
+  span.bp3-icon {
+    margin-right: 6px;
+  }
 `;
 
 const StyledDeleteButton = styled(StyledButton)`
-  align-self: center;
+  align-self: flex-end;
+  color: ${Colors.CRIMSON};
 `;
 function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   const formMethods = useFormContext();
   const [keys, setKeys] = useState<string[]>([]);
 
   const { children, isDisabled, isVisible = true, label, tooltip } = schemaItem;
-  const arrayItemSchema = children[ARRAY_ITEM_KEY];
+  const arrayItemSchema: ArrayItemSchemaItemProps = children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
+
+  const options = {
+    hideLabel: true,
+    hideAccordion: true,
+  };
+
+  const labelStyles = pick(schemaItem, [
+    "labelStyle",
+    "labelTextColor",
+    "labelTextSize",
+  ]);
 
   const add = () => {
     setKeys((prevKeys) => [...prevKeys, generateReactKey()]);
   };
-
-  useEffect(() => {
-    add();
-    add();
-  }, []);
 
   const remove = (removedKey: string) => {
     const removedIndex = keys.findIndex((key) => key === removedKey);
@@ -77,38 +107,48 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
     setKeys((prevKeys) => prevKeys.filter((prevKey) => prevKey !== removedKey));
   };
 
-  const options = {
-    hideLabel: true,
-  };
-
   if (!isVisible) {
     return null;
   }
 
   return (
     <Disabler isDisabled={isDisabled}>
-      <FieldLabel label={label} tooltip={tooltip} />
+      <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip} />
       <StyledWrapper>
         {keys.map((key, index) => {
           const fieldName = `${name}.${index}` as ControllerRenderProps["name"];
           const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
 
           return (
-            <StyledItemWrapper key={key}>
-              {fieldRenderer(
-                fieldName,
-                arrayItemSchema,
-                fieldPropertyPath,
-                options,
-              )}
-              <StyledDeleteButton onClick={() => remove(key)} type="button">
-                Delete
-              </StyledDeleteButton>
-            </StyledItemWrapper>
+            <Accordion
+              backgroundColor={arrayItemSchema.backgroundColor}
+              borderColor={arrayItemSchema.borderColor}
+              isCollapsible={schemaItem.isCollapsible}
+              key={key}
+              title={`#${index}`}
+            >
+              <StyledItemWrapper>
+                {fieldRenderer(
+                  fieldName,
+                  arrayItemSchema,
+                  fieldPropertyPath,
+                  options,
+                )}
+                <StyledDeleteButton onClick={() => remove(key)} type="button">
+                  <Icon
+                    icon="trash"
+                    iconSize={10}
+                    style={{ color: Colors.CRIMSON }}
+                  />
+                  Delete
+                </StyledDeleteButton>
+              </StyledItemWrapper>
+            </Accordion>
           );
         })}
-        <StyledButton onClick={() => add()} type="button">
-          Add
+        <StyledButton onClick={add} type="button">
+          <Icon icon="add" iconSize={10} style={{ color: Colors.GREEN }} />
+          Add New
         </StyledButton>
       </StyledWrapper>
     </Disabler>

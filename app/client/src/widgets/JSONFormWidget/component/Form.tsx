@@ -8,8 +8,8 @@ import { Text } from "@blueprintjs/core";
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
-import { FIELD_PADDING_X } from "../constants";
 import { TEXT_SIZES } from "constants/WidgetConstants";
+import { FIELD_PADDING_X } from "./styleConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   fixedFooter: boolean;

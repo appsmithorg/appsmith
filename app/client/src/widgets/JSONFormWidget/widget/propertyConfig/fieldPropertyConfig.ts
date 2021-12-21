@@ -1,9 +1,14 @@
-import { isEmpty } from "lodash";
+import { get, isEmpty } from "lodash";
 
 import { PanelConfig } from "constants/PropertyControlConstants";
-import { FieldType } from "widgets/JSONFormWidget/constants";
+import {
+  ARRAY_ITEM_KEY,
+  FieldType,
+  SchemaItem,
+} from "widgets/JSONFormWidget/constants";
 import { getSchemaItem, HiddenFnParams } from "./helper";
 import {
+  ARRAY_PROPERTIES,
   CHECKBOX_PROPERTIES,
   COMMON_PROPERTIES,
   DATE_PROPERTIES,
@@ -13,6 +18,7 @@ import {
   SELECT_PROPERTIES,
   SWITCH_PROPERTIES,
 } from "./properties";
+import { JSONFormWidgetProps } from "..";
 
 function generatePanelPropertyConfig(
   nestingLevel: number,
@@ -38,6 +44,7 @@ function generatePanelPropertyConfig(
           ...SWITCH_PROPERTIES.general,
           ...MULTI_SELECT_PROPERTIES.general,
           ...COMMON_PROPERTIES.accessibility,
+          ...ARRAY_PROPERTIES.accessibility,
           {
             propertyName: "children",
             label: "Field Configuration",
@@ -58,8 +65,26 @@ function generatePanelPropertyConfig(
         ],
       },
       {
+        sectionName: "Styles",
+        children: [...COMMON_PROPERTIES.styles],
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const schemaItem: SchemaItem = get(props, propertyPath);
+
+          if (schemaItem.identifier === ARRAY_ITEM_KEY) {
+            return false;
+          }
+
+          return schemaItem.fieldType !== FieldType.OBJECT;
+        },
+      },
+      {
         sectionName: "Label Styles",
         children: [...COMMON_PROPERTIES.labelStyles],
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const schemaItem: SchemaItem = get(props, propertyPath);
+
+          return schemaItem.identifier === ARRAY_ITEM_KEY;
+        },
       },
       {
         sectionName: "Actions",
@@ -73,6 +98,15 @@ function generatePanelPropertyConfig(
           ...MULTI_SELECT_PROPERTIES.actions,
           ...COMMON_PROPERTIES.actions,
         ],
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const schemaItem: SchemaItem = get(props, propertyPath);
+
+          return (
+            schemaItem.fieldType === FieldType.OBJECT ||
+            schemaItem.fieldType === FieldType.ARRAY ||
+            schemaItem.identifier === ARRAY_ITEM_KEY
+          );
+        },
       },
     ],
   } as PanelConfig;

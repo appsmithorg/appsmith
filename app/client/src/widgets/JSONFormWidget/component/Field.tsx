@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
+import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 
 type FieldProps = {
   hideLabel?: boolean;
@@ -14,10 +15,8 @@ type FieldProps = {
   defaultValue: any;
 };
 
-const WRAPPER_MARGIN_BOTTOM = 16;
-
 const StyledWrapper = styled.div`
-  margin-bottom: ${WRAPPER_MARGIN_BOTTOM}px;
+  margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
 
   &:last-of-type {
     margin-bottom: 0;

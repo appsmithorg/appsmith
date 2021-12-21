@@ -1,18 +1,22 @@
 import React from "react";
 import styled from "styled-components";
 import { ControllerRenderProps } from "react-hook-form";
+import { sortBy } from "lodash";
 
 import Accordion from "../component/Accordion";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
+import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { FieldComponentBaseProps, SchemaItem } from "../constants";
-import { sortBy } from "lodash";
 
 type ObjectComponentProps = FieldComponentBaseProps;
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
+  backgroundColor?: string;
+  borderColor?: string;
+  hideAccordion?: boolean;
   hideLabel?: boolean;
   isRootField?: boolean;
   name: string;
@@ -21,7 +25,7 @@ type ObjectFieldProps = {
 };
 
 type StyledWrapperProps = {
-  padded: boolean;
+  withBottomMargin: boolean;
 };
 
 const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
@@ -30,12 +34,20 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isVisible: true,
 };
 
-const StyledWrapper = styled.div<StyledWrapperProps>`
+const StyledFieldsWrapper = styled.div`
   padding-top: 0;
   width: 100%;
 `;
 
+const StyledWrapper = styled.div<StyledWrapperProps>`
+  margin-bottom: ${({ withBottomMargin }) =>
+    withBottomMargin ? FIELD_MARGIN_BOTTOM : 0}px;
+`;
+
 function ObjectField({
+  backgroundColor,
+  borderColor,
+  hideAccordion = false,
   hideLabel,
   isRootField = false,
   name,
@@ -63,15 +75,25 @@ function ObjectField({
     });
   };
 
-  const field = (
-    <StyledWrapper padded={isRootField}>{renderFields()}</StyledWrapper>
-  );
+  const field = <StyledFieldsWrapper>{renderFields()}</StyledFieldsWrapper>;
 
   return (
-    <Disabler isDisabled={isDisabled}>
-      {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
-      {isRootField ? field : <Accordion collapsible={false}>{field}</Accordion>}
-    </Disabler>
+    <StyledWrapper withBottomMargin={!hideAccordion}>
+      <Disabler isDisabled={isDisabled}>
+        {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
+        {isRootField || hideAccordion ? (
+          field
+        ) : (
+          <Accordion
+            backgroundColor={backgroundColor}
+            borderColor={borderColor}
+            isCollapsible={false}
+          >
+            {field}
+          </Accordion>
+        )}
+      </Disabler>
+    </StyledWrapper>
   );
 }
 

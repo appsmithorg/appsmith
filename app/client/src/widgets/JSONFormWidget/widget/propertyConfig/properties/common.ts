@@ -277,6 +277,56 @@ const COMMON_PROPERTIES = {
         ),
     },
   ],
+  styles: [
+    {
+      propertyName: "backgroundColor",
+      label: "Background Color",
+      controlType: "COLOR_PICKER",
+      helpText:
+        "Changes the background color of each of the collapsable windows",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          regex: /^(?![<|{{]).+/,
+        },
+      },
+      dependencies: ["schema"],
+      hidden: (...args: HiddenFnParams) => {
+        return getSchemaItem(...args).then((schemaItem) => {
+          schemaItem.fieldType !== FieldType.OBJECT ||
+            schemaItem.identifier !== ARRAY_ITEM_KEY;
+        });
+      },
+    },
+    {
+      propertyName: "borderColor",
+      label: "Border Color",
+      helpText:
+        "Changes the color of the border for each of the collapsable windows",
+      controlType: "COLOR_PICKER",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          regex: /^(?![<|{{]).+/,
+        },
+      },
+      dependencies: ["schema"],
+      hidden: (...args: HiddenFnParams) => {
+        return getSchemaItem(...args).then((schemaItem) => {
+          schemaItem.fieldType !== FieldType.OBJECT ||
+            schemaItem.identifier !== ARRAY_ITEM_KEY;
+        });
+      },
+    },
+  ],
 };
 
 export default COMMON_PROPERTIES;

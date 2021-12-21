@@ -336,6 +336,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
           />
         );
       }}
+      tooltip={schemaItem.tooltip}
     />
   );
 }
