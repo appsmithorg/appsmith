@@ -423,7 +423,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     integrationDTO.setInstallationKey(installationKey);
                     integrationDTO.setAuthenticationResponse(oAuth2.getAuthenticationResponse());
                     integrationDTO.setScope(oAuth2.getScope());
-                    integrationDTO.setPluginName(plugin.getPackageName());
+                    integrationDTO.setPluginName(plugin.getPluginName());
+                    integrationDTO.setPluginVersion(plugin.getVersion());
 
                     WebClient.Builder builder = WebClient
                             .builder()
