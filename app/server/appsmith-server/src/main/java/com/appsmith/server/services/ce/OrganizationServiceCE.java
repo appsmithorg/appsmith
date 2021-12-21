@@ -42,4 +42,6 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
     Mono<Organization> deleteLogo(String organizationId);
 
     Flux<Organization> getAll();
+
+    Mono<Organization> delete(String s);
 }
