@@ -481,8 +481,8 @@ public class FirestorePluginTest {
 
         if (first != null && last != null) {
             try {
-                setValueSafelyInFormData(configMap, START_AFTER, objectMapper.writeValueAsString(last));
-                setValueSafelyInFormData(configMap, END_BEFORE, objectMapper.writeValueAsString(first));
+                actionConfiguration.setNext(objectMapper.writeValueAsString(last));
+                actionConfiguration.setPrev(objectMapper.writeValueAsString(first));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
