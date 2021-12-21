@@ -4,6 +4,7 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -212,6 +213,24 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         primaryColumnId: {
           type: "TEXT",
+        },
+        "primaryColumns.name.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.CSV,
+            params: {
+              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            },
+          },
+        },
+        "primaryColumns.createdAt.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.CSV,
+            params: {
+              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            },
+          },
         },
         tableData: {
           type: "OBJECT_ARRAY",
