@@ -20,7 +20,7 @@ import history from "utils/history";
 import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
-import { SettingTypes } from "./config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import SaveAdminSettings from "./SaveSettings";
 
 const Wrapper = styled.div`

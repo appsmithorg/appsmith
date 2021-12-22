@@ -1,6 +1,6 @@
 import AdminConfig from "./config";
 import { Redirect, useParams } from "react-router";
-import { CategoryType } from "./config/types";
+import { CategoryType } from "@appsmith/pages/AdminSettings/config/types";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_URL } from "../../constants/routes";
 import React from "react";
 import SettingsForm from "./SettingsForm";

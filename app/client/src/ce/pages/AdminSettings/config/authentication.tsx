@@ -1,10 +1,6 @@
 import React from "react";
 
-import {
-  CategoryType,
-  SettingTypes,
-  SettingSubtype,
-} from "pages/Settings/config/types";
+import { CategoryType, SettingTypes, SettingSubtype } from "./types";
 import {
   GOOGLE_SIGNUP_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,

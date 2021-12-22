@@ -4,7 +4,7 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "./config";
-import { Category } from "./config/types";
+import { Category } from "@appsmith/pages/AdminSettings/config/types";
 
 const Wrapper = styled.div`
   flex-basis: ${(props) =>

@@ -1,5 +1,9 @@
 import { GOOGLE_MAPS_SETUP_DOC } from "../../../constants/ThirdPartyConstants";
-import { CategoryType, SettingSubtype, SettingTypes } from "./types";
+import {
+  CategoryType,
+  SettingSubtype,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 
 export default {
   type: CategoryType.GOOGLE_MAPS,

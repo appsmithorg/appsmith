@@ -1,6 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { Setting, SettingTypes } from "../config/types";
+import {
+  Setting,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import { StyledLabel } from "./Common";
 import Link from "./Link";
 import TextInput from "./TextInput";

@@ -6,7 +6,11 @@ import {
   ReduxActionTypes,
 } from "../../../constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
-import { CategoryType, SettingSubtype, SettingTypes } from "./types";
+import {
+  CategoryType,
+  SettingSubtype,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 
 export default {
   type: CategoryType.EMAIL,

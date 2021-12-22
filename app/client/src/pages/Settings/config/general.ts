@@ -6,7 +6,7 @@ import {
   CategoryType,
   SettingSubtype,
   SettingTypes,
-} from "./types";
+} from "@appsmith/pages/AdminSettings/config/types";
 
 export default {
   type: CategoryType.GENERAL,

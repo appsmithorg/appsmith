@@ -3,7 +3,10 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "../../../constants/ReduxActionConstants";
-import { CategoryType, SettingTypes } from "./types";
+import {
+  CategoryType,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 
 export default {
   type: CategoryType.VERSION,

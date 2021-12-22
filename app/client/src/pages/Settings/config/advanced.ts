@@ -1,4 +1,8 @@
-import { CategoryType, SettingSubtype, SettingTypes } from "./types";
+import {
+  CategoryType,
+  SettingSubtype,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 export default {
   type: CategoryType.ADVANCED,
   controlType: SettingTypes.GROUP,
