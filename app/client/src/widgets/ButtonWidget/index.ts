@@ -10,6 +10,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
+    animateLoading: true,
     text: "Submit",
     buttonColor: Colors.GREEN,
     buttonVariant: ButtonVariantTypes.PRIMARY,
