@@ -55,8 +55,9 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
     .click({ force: true });
   cy.get(homePage.renameOrgInput)
     .should("be.visible")
-    .type(newOrgName);
-  cy.get(commonlocators.homeIcon).click({ force: true });
+    .type(newOrgName.concat("{enter}"));
+  cy.wait(3000);
+  //cy.get(commonlocators.homeIcon).click({ force: true });
   cy.wait("@updateOrganization").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1346,7 +1347,7 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
     //.should("be.visible")
     .click({ force: true })
     .then(($text) => {
-      expect($text.text()).to.eq(currentValue);
+      if ($text.text()) expect($text.text()).to.eq(currentValue);
     });
 });
 
@@ -2439,13 +2440,19 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   );
 });
 
-Cypress.Commands.add("runQuery", () => {
+Cypress.Commands.add("runQuery", (expectedRes = true) => {
   cy.onlyQueryRun();
   cy.wait("@postExecute").should(
     "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
+    "response.body.data.isExecutionSuccess",
+    expectedRes,
   );
+
+  // cy.wait("@postExecute").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   200,
+  // );
 });
 
 Cypress.Commands.add("onlyQueryRun", () => {
@@ -2950,6 +2957,16 @@ Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   return tabVal;
 });
 
+Cypress.Commands.add("tablefirstdataRow", () => {
+  let tabVal = cy
+    .xpath(
+      "//div[@class='tableWrap']//div[@class='table']//div[contains(@class, 'tbody')]/div[@class='tr']/div[@class ='td']",
+    )
+    .first()
+    .invoke("text");
+  return tabVal;
+});
+
 Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
   const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy
@@ -3400,6 +3417,7 @@ Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
       entityNameinLeftSidebar +
       "']",
   )
+    .last()
     .click({ force: true })
     .wait(2000);
 });
@@ -3478,7 +3496,7 @@ Cypress.Commands.add("getEntityName", () => {
 
 Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
   // Give this element 10 seconds to appear
-  //cy.wait(1000)
+  //cy.wait(10000)
   cy.xpath(
     "//div[@class='Toastify']//span[contains(text(),'" +
       errorMsgToVerifyAbsence +
@@ -3494,6 +3512,50 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
     .type(timeout);
 
   cy.get(queryLocators.query).click();
+});
+
+//Not Used!
+Cypress.Commands.add("VerifyNoDataDisplayAbsence", () => {
+  cy.xpath("//div[text()='No data to display']", { timeout: 0 }).should(
+    "not.exist",
+  );
+});
+
+// Cypress.Commands.add('isNotInViewport', element => {
+//   cy.xpath(element).then($el => {
+//     const bottom = Cypress.$(cy.state('window')).height()
+//     const rect = $el[0].getBoundingClientRect()
+
+//     expect(rect.top).to.be.greaterThan(bottom)
+//     expect(rect.bottom).to.be.greaterThan(bottom)
+//     expect(rect.top).to.be.greaterThan(bottom)
+//     expect(rect.bottom).to.be.greaterThan(bottom)
+//   })
+// })
+
+Cypress.Commands.add("isNotInViewport", (element) => {
+  cy.xpath(element).should(($el) => {
+    const bottom = Cypress.$(cy.state("window")).height();
+    const right = Cypress.$(cy.state("window")).width();
+    const rect = $el[0].getBoundingClientRect();
+
+    expect(rect).to.satisfy(
+      (rect) =>
+        rect.top < 0 || rect.top > bottom || rect.left < 0 || rect.left > right,
+    );
+  });
+});
+
+Cypress.Commands.add("isInViewport", (element) => {
+  cy.xpath(element).then(($el) => {
+    const bottom = Cypress.$(cy.state("window")).height();
+    const rect = $el[0].getBoundingClientRect();
+
+    expect(rect.top).not.to.be.greaterThan(bottom);
+    expect(rect.bottom).not.to.be.greaterThan(bottom);
+    expect(rect.top).not.to.be.greaterThan(bottom);
+    expect(rect.bottom).not.to.be.greaterThan(bottom);
+  });
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
