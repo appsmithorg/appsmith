@@ -939,7 +939,7 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
 });
 
 Cypress.Commands.add("selectDateFormat", (value) => {
-  cy.get(".t--property-control-dateformat .bp3-popover-target")
+  cy.get(".t--property-control-datetimeformat .bp3-popover-target")
     .last()
     .click({ force: true });
   cy.get(".t--dropdown-option")

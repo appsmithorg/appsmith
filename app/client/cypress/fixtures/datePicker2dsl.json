@@ -22,6 +22,7 @@
       {
         "isVisible": true,
         "isDisabled": false,
+        "isTimeEnabled": true,
         "closeOnSelection": false,
         "shortcuts": false,
         "datePickerType": "DATE_PICKER",
