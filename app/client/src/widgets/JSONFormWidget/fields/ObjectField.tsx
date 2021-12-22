@@ -4,9 +4,9 @@ import { ControllerRenderProps } from "react-hook-form";
 import { sortBy } from "lodash";
 
 import Accordion from "../component/Accordion";
-import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
+import useDisableChildren from "./useDisableChildren";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { FieldComponentBaseProps, SchemaItem } from "../constants";
 
@@ -22,6 +22,7 @@ type ObjectFieldProps = {
   name: string;
   propertyPath: string;
   schemaItem: SchemaItem & ObjectComponentProps;
+  skipUseDisableChildren?: boolean;
 };
 
 type StyledWrapperProps = {
@@ -53,10 +54,18 @@ function ObjectField({
   name,
   propertyPath,
   schemaItem,
+  skipUseDisableChildren,
 }: ObjectFieldProps) {
   const { isDisabled, isVisible = true, label, tooltip } = schemaItem;
   const children = Object.values(schemaItem.children);
   const sortedChildren = sortBy(children, ({ position }) => position);
+
+  useDisableChildren({
+    isDisabled,
+    propertyPath,
+    schemaItem,
+    skip: skipUseDisableChildren,
+  });
 
   if (!isVisible) {
     return null;
@@ -79,20 +88,18 @@ function ObjectField({
 
   return (
     <StyledWrapper withBottomMargin={!hideAccordion}>
-      <Disabler isDisabled={isDisabled}>
-        {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
-        {isRootField || hideAccordion ? (
-          field
-        ) : (
-          <Accordion
-            backgroundColor={backgroundColor}
-            borderColor={borderColor}
-            isCollapsible={false}
-          >
-            {field}
-          </Accordion>
-        )}
-      </Disabler>
+      {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
+      {isRootField || hideAccordion ? (
+        field
+      ) : (
+        <Accordion
+          backgroundColor={backgroundColor}
+          borderColor={borderColor}
+          isCollapsible={false}
+        >
+          {field}
+        </Accordion>
+      )}
     </StyledWrapper>
   );
 }

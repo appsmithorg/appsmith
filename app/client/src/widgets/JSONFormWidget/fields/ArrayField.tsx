@@ -5,9 +5,9 @@ import { Icon } from "@blueprintjs/core";
 import { pick } from "lodash";
 
 import Accordion from "../component/Accordion";
-import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
+import useDisableChildren from "./useDisableChildren";
 import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
@@ -73,9 +73,16 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   const arrayItemSchema: ArrayItemSchemaItemProps = children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
+  useDisableChildren({
+    isDisabled,
+    propertyPath: basePropertyPath,
+    schemaItem: arrayItemSchema,
+  });
+
   const options = {
     hideLabel: true,
     hideAccordion: true,
+    skipUseDisableChildren: true,
   };
 
   const labelStyles = pick(schemaItem, [
@@ -112,7 +119,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   }
 
   return (
-    <Disabler isDisabled={isDisabled}>
+    <>
       <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip} />
       <StyledWrapper>
         {keys.map((key, index) => {
@@ -151,7 +158,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
           Add New
         </StyledButton>
       </StyledWrapper>
-    </Disabler>
+    </>
   );
 }
 
