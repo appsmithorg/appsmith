@@ -66,8 +66,13 @@ export const StickyCanvasArena = forwardRef(
           stickyCanvasRef.current.style.width = "100%";
           stickyCanvasRef.current.style.position = "absolute";
           stickyCanvasRef.current.style.left = "0px";
-          stickyCanvasRef.current.style.top =
-            entry.intersectionRect.top - entry.boundingClientRect.top + "px";
+          const calculatedTopOffset =
+            entry.intersectionRect.top - entry.boundingClientRect.top;
+          const topOffset =
+            calculatedTopOffset > entry.intersectionRect.height
+              ? entry.boundingClientRect.height - entry.intersectionRect.height
+              : calculatedTopOffset;
+          stickyCanvasRef.current.style.top = topOffset + "px";
           stickyCanvasRef.current.style.height =
             entry.intersectionRect.height + "px";
         }
