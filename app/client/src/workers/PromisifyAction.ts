@@ -1,4 +1,4 @@
-import { EvalResult } from "workers/evaluate";
+import { createGlobalData, EvalResult } from "workers/evaluate";
 const ctx: Worker = self as any;
 
 /*
@@ -11,7 +11,7 @@ const ctx: Worker = self as any;
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
-import { updateRequestIdsOfFunctions } from "workers/Actions";
+import { dataTreeEvaluator } from "workers/evaluation.worker";
 
 export const promisifyAction = (
   workerRequestId: string,
@@ -50,12 +50,27 @@ export const promisifyAction = (
         // If we get a response for this same promise we will resolve or reject it
 
         self.ALLOW_ASYNC = true;
-        updateRequestIdsOfFunctions(workerRequestId);
-
-        if (success) {
-          resolve.apply(self, data.resolve);
+        if (!dataTreeEvaluator) {
+          reject("No Data Tree Evaluator found");
         } else {
-          reject(data.reason);
+          const globalData = createGlobalData(
+            dataTreeEvaluator.evalTree,
+            dataTreeEvaluator.resolvedFunctions,
+            {
+              requestId: workerRequestId,
+            },
+          );
+          for (const entity in globalData) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            self[entity] = globalData[entity];
+          }
+
+          if (success) {
+            resolve.apply(self, data.resolve);
+          } else {
+            reject(data.reason);
+          }
         }
         ctx.removeEventListener("message", processResponse);
       }

@@ -27,7 +27,7 @@ const CANVAS = "canvas";
 
 const ctx: Worker = self as any;
 
-let dataTreeEvaluator: DataTreeEvaluator | undefined;
+export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
 

@@ -165,20 +165,20 @@ describe("evaluateSync", () => {
   });
   it("handles TRIGGERS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("handles ANONYMOUS_FUNCTION with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("has access to this context", () => {

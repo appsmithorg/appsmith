@@ -259,8 +259,6 @@ const DATA_TREE_FUNCTIONS: Record<
   },
 };
 
-export const functionPaths = new Map();
-
 export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
   requestId = "",
@@ -289,7 +287,6 @@ export const enhanceDataTreeWithFunctions = (
               func,
             ),
           );
-          functionPaths.set(funcName, func);
         }
       });
     } else {
@@ -304,28 +301,10 @@ export const enhanceDataTreeWithFunctions = (
           funcOrFuncCreator,
         ),
       );
-      functionPaths.set(name, funcOrFuncCreator);
     }
   });
 
   return withFunction;
-};
-
-export const updateRequestIdsOfFunctions = (requestId: string) => {
-  self.TRIGGER_COLLECTOR = [];
-  functionPaths.forEach((value, key) => {
-    _.set(
-      self,
-      key,
-      pusher.bind(
-        {
-          TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-          REQUEST_ID: requestId,
-        },
-        value,
-      ),
-    );
-  });
 };
 
 export const pusher = function(
