@@ -1,0 +1,136 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 904,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1160,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 46,
+        "minHeight": 1140,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "multiRowSelection": false,
+                "widgetName": "Table1",
+                "defaultPageSize": 0,
+                "columnOrder": [
+                    "id",
+                    "color"
+                ],
+                "isVisibleDownload": true,
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "primaryColumns.color.textColor"
+                    },
+                    {
+                        "key": "primaryColumns.color.fontStyle"
+                    }
+                ],
+                "displayName": "Table",
+                "iconSVG": "/static/media/icon.db8a9cbd.svg",
+                "topRow": 52,
+                "bottomRow": 94,
+                "isSortable": true,
+                "parentRowSpace": 10,
+                "type": "TABLE_WIDGET",
+                "defaultSelectedRow": "0",
+                "hideCard": false,
+                "parentColumnSpace": 25.6875,
+                "dynamicTriggerPathList": [],
+                "dynamicBindingPathList": [
+                    {
+                        "key": "primaryColumns.id.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.color.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.color.textColor"
+                    },
+                    {
+                        "key": "primaryColumns.color.fontStyle"
+                    }
+                ],
+                "leftColumn": 3,
+                "primaryColumns": {
+                    "id": {
+                        "index": 0,
+                        "width": 150,
+                        "id": "id",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textColor": "",
+                        "textSize": "PARAGRAPH",
+                        "fontStyle": "BOLD",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "id",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.id))}}"
+                    },
+                    "color": {
+                        "index": 1,
+                        "width": 150,
+                        "id": "color",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textColor": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.color))}}",
+                        "textSize": "PARAGRAPH",
+                        "fontStyle": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.color === \"blue\" ? \"BOLD\" : \"ITALIC\"))}}",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "color",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.color))}}"
+                    }
+                },
+                "delimiter": ",",
+                "key": "fzi9jh5j7j",
+                "derivedColumns": {},
+                "rightColumn": 43,
+                "textSize": "PARAGRAPH",
+                "widgetId": "2tk8bgzwaz",
+                "isVisibleFilters": true,
+                "tableData": "[{\n\"id\":\"1\",\n\"color\": \"blue\"\n},\n{\n\"id\":\"2\",\n\"color\": \"red\"\n},\n{\n\"id\":\"3\",\n\"color\": \"magenta\"\n},\n{\n\"id\":\"4\",\n\"color\": \"green\"\n}\n]",
+                "isVisible": true,
+                "label": "Data",
+                "searchKey": "",
+                "fontStyle": "BOLD",
+                "version": 3,
+                "enableClientSideSearch": false,
+                "textColor": "",
+                "totalRecordsCount": 0,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "horizontalAlignment": "LEFT",
+                "isVisibleSearch": true,
+                "isVisiblePagination": true,
+                "verticalAlignment": "CENTER",
+                "columnSizeMap": {
+                    "task": 245,
+                    "step": 62,
+                    "status": 75
+                }
+            }
+        ]
+    }
+}

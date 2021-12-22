@@ -5,6 +5,7 @@
     "mongo-username": "cypress-test",
     "mongo-password": "RaopEmky505xYV4p",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
+    "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
     "postgres-host": "localhost",
     "postgres-port": 5432,
     "postgres-databaseName": "fakeapi",
@@ -41,5 +42,6 @@
     "mockHostAddress":"fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
     "mockDatabaseName": "fakeapi",
     "mockDatabaseUsername": "fakeapi",
-    "mockDatabasePassword": "LimitedAccess123#"
+    "mockDatabasePassword": "LimitedAccess123#",
+    "readonly":"readonly"
 }

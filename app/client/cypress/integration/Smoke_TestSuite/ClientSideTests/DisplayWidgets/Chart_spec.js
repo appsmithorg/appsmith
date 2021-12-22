@@ -62,8 +62,6 @@ describe("Chart Widget Functionality", function() {
       .click({ force: true })
       .type(this.data.ylabel);
 
-    //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
 
@@ -292,13 +290,13 @@ describe("Chart Widget Functionality", function() {
   });
 
   it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
-    cy.togglebarDisable(commonlocators.horizontalScroll);
+    cy.togglebarDisable(commonlocators.allowScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab).should("not.exist");
   });
 
   it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {
-    cy.togglebar(commonlocators.horizontalScroll);
+    cy.togglebar(commonlocators.allowScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab)
       .eq(1)

@@ -153,8 +153,10 @@ export function getExpectedValue(
     case ValidationTypes.SAFE_URL:
       return {
         type: "URL",
-        example: `https://wikipedia.org`,
+        example: `https://www.example.com`,
         autocompleteDataType: AutocompleteDataType.STRING,
       };
+    case ValidationTypes.TABLE_PROPERTY:
+      return getExpectedValue(config.params as ValidationConfig);
   }
 }

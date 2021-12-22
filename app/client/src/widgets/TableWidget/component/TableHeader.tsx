@@ -21,7 +21,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
     box-shadow: none;
-    border: 1px solid ${Colors.DANUBE};
+    border: 1px solid ${Colors.ALTO2};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
     border-radius: none;
@@ -33,10 +33,18 @@ const PageNumberInputWrapper = styled(NumericInput)`
     text-align: center;
     font-size: 12px;
   }
+  &&& input:focus {
+    border: 1px solid ${Colors.FERN_GREEN};
+  }
   &&&.bp3-control-group > :only-child {
     border-radius: 0;
   }
   margin: 0 8px;
+`;
+
+const SearchComponentWrapper = styled.div`
+  margin: 3px 10px;
+  flex: 0 0 200px;
 `;
 
 function PageNumberInput(props: {
@@ -125,11 +133,13 @@ function TableHeader(props: TableHeaderProps) {
   return (
     <>
       {props.isVisibleSearch && (
-        <SearchComponent
-          onSearch={props.searchTableData}
-          placeholder="Search..."
-          value={props.searchKey}
-        />
+        <SearchComponentWrapper>
+          <SearchComponent
+            onSearch={props.searchTableData}
+            placeholder="Search..."
+            value={props.searchKey}
+          />
+        </SearchComponentWrapper>
       )}
       {(props.isVisibleFilters || props.isVisibleDownload) && (
         <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>

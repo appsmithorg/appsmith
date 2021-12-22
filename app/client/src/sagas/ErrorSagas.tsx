@@ -25,6 +25,7 @@ import {
 } from "constants/messages";
 
 import * as Sentry from "@sentry/react";
+import { axiosConnectionAbortedCode } from "../api/ApiUtils";
 
 /**
  * making with error message with action name
@@ -66,10 +67,20 @@ export class IncorrectBindingError extends Error {}
  * @param response
  * @param show
  */
-export function* validateResponse(response: ApiResponse | any, show = true) {
+export function* validateResponse(
+  response: ApiResponse | any,
+  show = true,
+  logToSentry = false,
+) {
   if (!response) {
     throw Error("");
   }
+
+  // letting `apiFailureResponseInterceptor` handle it this case
+  if (response?.code === axiosConnectionAbortedCode) {
+    return false;
+  }
+
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
@@ -90,6 +101,7 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
       error: response.responseMeta.error,
+      logToSentry,
       show,
     },
   });

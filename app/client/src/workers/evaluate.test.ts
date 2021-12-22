@@ -1,4 +1,4 @@
-import evaluate from "workers/evaluate";
+import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import {
   DataTree,
   DataTreeWidget,
@@ -30,10 +30,24 @@ describe("evaluate", () => {
   const dataTree: DataTree = {
     Input1: widget,
   };
+  beforeAll(() => {
+    setupEvaluationEnvironment();
+  });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
     const response = evaluate(js, {}, {});
     expect(response.result).toBe("Hello!");
+  });
+  it("evaluate string post unescape in v1", () => {
+    const js = '[1, 2, 3].join("\\\\n")';
+    const response = evaluate(js, {}, {});
+    expect(response.result).toBe("1\n2\n3");
+  });
+  it("evaluate string without unescape in v2", () => {
+    self.evaluationVersion = 2;
+    const js = '[1, 2, 3].join("\\n")';
+    const response = evaluate(js, {}, {});
+    expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -58,7 +72,7 @@ describe("evaluate", () => {
     const result = wrongJS
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -72,7 +86,7 @@ describe("evaluate", () => {
     const result = wrongJS
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -92,7 +106,7 @@ describe("evaluate", () => {
     const result = {}.map()
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "{}.map()",
@@ -107,7 +121,7 @@ describe("evaluate", () => {
   });
   it("gets triggers from a function", () => {
     const js = "showAlert('message', 'info')";
-    const response = evaluate(js, dataTree, {}, undefined, true);
+    const response = evaluate(js, dataTree, {}, undefined, undefined, true);
     //this will be changed again in new implemenation for promises
     const data = {
       action: {
@@ -158,7 +172,7 @@ describe("evaluate", () => {
     const result = setTimeout(() => {}, 100)
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "setTimeout(() => {}, 100)",
@@ -174,7 +188,50 @@ describe("evaluate", () => {
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, {}, callbackData);
+    const response = evaluate(js, dataTree, {}, {}, callbackData);
     expect(response.result).toBe("test1");
+  });
+  it("handles EXPRESSIONS with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {});
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {});
+    expect(response.errors.length).toBe(0);
+  });
+  it("handles TRIGGERS with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+  });
+  it("handles ANONYMOUS_FUNCTION with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+  });
+  it("has access to this context", () => {
+    const js = "this.contextVariable";
+    const thisContext = { contextVariable: "test" };
+    const response = evaluate(js, dataTree, {}, { thisContext });
+    expect(response.result).toBe("test");
+    // there should not be any error when accessing "this" variables
+    expect(response.errors).toHaveLength(0);
+  });
+
+  it("has access to additional global context", () => {
+    const js = "contextVariable";
+    const globalContext = { contextVariable: "test" };
+    const response = evaluate(js, dataTree, {}, { globalContext });
+    expect(response.result).toBe("test");
+    expect(response.errors).toHaveLength(0);
   });
 });
