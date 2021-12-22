@@ -29,8 +29,8 @@ import {
   fetchGitStatusInit,
   setIsGitSyncModalOpen,
   setIsGitErrorPopupVisible,
-  setShowRepoLimitErrorModal,
   setIsDisconnectGitModalOpen,
+  setShowRepoLimitErrorModal,
   fetchGlobalGitConfigInit,
 } from "actions/gitSyncActions";
 import {
@@ -63,10 +63,20 @@ import {
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
-  getShouldShowRepoLimitError,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
+
+import * as Sentry from "@sentry/react";
+
+export function* handleRepoLimitReachedError(response?: ApiResponse) {
+  const { responseMeta } = response || {};
+  if (responseMeta?.error?.code === 4043) {
+    yield put(setShowRepoLimitErrorModal(true));
+    return true;
+  }
+  return false;
+}
 
 function* commitToGitRepoSaga(
   action: ReduxAction<{
@@ -74,27 +84,23 @@ function* commitToGitRepoSaga(
     doPush: boolean;
   }>,
 ) {
+  let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
-    const response: ApiResponse = yield GitSyncAPI.commit({
+    response = yield GitSyncAPI.commit({
       ...action.payload,
       branch: gitMetaData?.branchName || "",
       applicationId,
     });
 
-    if (!response?.responseMeta?.success) {
-      yield put({
-        type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-          show: false,
-        },
-      });
-    }
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      response?.responseMeta?.status === 500,
+    );
 
     if (isValidResponse) {
       yield put(commitToRepoSuccess());
@@ -111,37 +117,44 @@ function* commitToGitRepoSaga(
       yield put(fetchGitStatusInit());
     }
   } catch (error) {
-    // yield put({
-    //   type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
-    //   payload: { error, logToSentry: true },
-    // });
+    const isRepoLimitReachedError: boolean = yield call(
+      handleRepoLimitReachedError,
+      response,
+    );
+    if (isRepoLimitReachedError) return;
+
+    if (!response?.responseMeta?.success) {
+      yield put({
+        type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
+        payload: {
+          error: response?.responseMeta?.error,
+          show: false,
+        },
+      });
+    } else {
+      Sentry.captureException(error);
+    }
   }
 }
 
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
+  let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
-    const response: ApiResponse = yield GitSyncAPI.connect(
-      action.payload,
-      applicationId,
+    response = yield GitSyncAPI.connect(action.payload, applicationId);
+
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      response?.responseMeta?.status === 500,
     );
-    if (!response?.responseMeta?.success) {
-      yield put({
-        type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-          show: false,
-        },
-      });
-    }
-    const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (isValidResponse) {
-      yield put(connectToGitSuccess(response.data));
+      yield put(connectToGitSuccess(response?.data));
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response.data);
+        action.onSuccessCallback(response?.data);
       }
       const branch = response?.data?.gitApplicationMetadata?.branchName;
 
@@ -149,18 +162,30 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       history.replace(updatedPath);
     }
   } catch (error) {
-    if ((error as any).message === "REPO_LIMIT_REACHED") {
-      yield put(setIsGitSyncModalOpen({ isOpen: false }));
-      yield put(setShowRepoLimitErrorModal(true));
-    } else {
-      if (action.onErrorCallback) {
-        action.onErrorCallback(error as string);
-      }
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error as string);
     }
-    // yield put({
-    //   type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
-    //   payload: { gitError: error, logToSentry: true },
-    // });
+
+    const isRepoLimitReachedError: boolean = yield call(
+      handleRepoLimitReachedError,
+      response,
+    );
+    if (isRepoLimitReachedError) return;
+
+    // Api error, status !== 500
+    // Display on the UI
+    if (!response?.responseMeta?.success) {
+      yield put({
+        type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
+        payload: {
+          error: response?.responseMeta.error,
+          show: false,
+        },
+      });
+    } else {
+      // Unexpected non api error: report to sentry
+      Sentry.captureException(error);
+    }
   }
 }
 
@@ -469,14 +494,13 @@ function* gitPullSaga(
 }
 
 function* showConnectGitModal() {
-  const showRepoLimitError: boolean = yield select(getShouldShowRepoLimitError);
-  if (showRepoLimitError) {
-    yield put(setShowRepoLimitErrorModal(true));
-  } else {
-    yield put(
-      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
-    );
-  }
+  // This is done through a separate saga in case we fetch
+  // the flag to show to repo limit reached error modal in advance
+  // currently it just opens the git sync modal assuming the APIs would
+  // throw an error instead
+  yield put(
+    setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+  );
 }
 
 function* disconnectGitSaga() {
@@ -485,6 +509,7 @@ function* disconnectGitSaga() {
       id: string;
       name: string;
     } = yield select(getDisconnectingGitApplication);
+    const currentApplicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield GitSyncAPI.disconnectGit({
       applicationId: application.id,
     });
@@ -504,6 +529,16 @@ function* disconnectGitSaga() {
           isOpen: false,
         }),
       );
+
+      // while disconnecting another application, i.e. not the current one
+      if (currentApplicationId !== application.id) {
+        yield put(
+          setIsGitSyncModalOpen({
+            isOpen: true,
+            tab: GitSyncModalTab.GIT_CONNECTION,
+          }),
+        );
+      }
     }
   } catch (e) {
     yield put({
