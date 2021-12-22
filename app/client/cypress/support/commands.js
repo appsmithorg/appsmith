@@ -3565,3 +3565,4 @@ Cypress.Commands.add("isInViewport", (element) => {
 
 //   return originalFn(element, clearedText, options);
 // });
+addMatchImageSnapshotCommand();
