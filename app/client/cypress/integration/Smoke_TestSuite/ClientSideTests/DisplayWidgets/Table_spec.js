@@ -388,8 +388,8 @@ describe("Table Widget Functionality", function() {
       }}`,
     );
     cy.wait("@updateLayout");
-    cy.wait(3000);
     cy.PublishtheApp();
+    cy.wait(3000);
     cy.getTableDataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
     });
