@@ -8,11 +8,11 @@ API Support: CURL importer for REST APIs Database Support: PostgreSQL, MongoDB, 
 ## TL;DR
 ---
 ```
-helm repo add appsmith https://appsmithorg.github.io/appsmith
+helm repo add stable-appsmith http://helm.appsmith.com
 
 helm repo update
 
-helm install appsmith/appsmith --generate-name
+helm install stable-appsmith/appsmith --generate-name
 ```
 
 ## Introduction
@@ -43,7 +43,7 @@ This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) depl
 ---
 To install the chart with the release `appsmith`
 ```
-helm install appsmith/appsmith --generate-name
+helm install stable-appsmith/appsmith --generate-name
 ```
 The command deploys Appsmith application on Kubernetes cluster in the default configuration. The [Parameters](https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#paramters) section lists the parameters that can be configured during installation.
 ## Uninstalling the Chart
@@ -157,15 +157,15 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 Specify each parameter using `--set key=value[,key=value]` argument to helm install. For example:
 ```
-helm install appsmith \
+helm install \
 --set persistence.storageClass=appsmith-pv \
-  deploy/helm
+  stable-appsmith/appsmith --generate-name
 ```
 The above command deploys Appsmith application and configure application to use storage class name `appsmith-pv`
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 ```
-helm install -f values.yaml appsmith/appsmith --generate-name
+helm install -f values.yaml stable-appsmith/appsmith --generate-name
 ```
 
 *Tip: You can use the default [values.yaml](https://github.com/appsmithorg/appsmith/blob/release/deploy/helm/values.yaml)*
