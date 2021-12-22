@@ -30,11 +30,8 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
-import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
-import classNames from "classnames";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
-import { Colors } from "constants/Colors";
 import { getAllPages } from "selectors/entitiesSelector";
 
 const StyledEntity = styled(Entity)`
@@ -53,31 +50,6 @@ const StyledEntity = styled(Entity)`
     & .${EntityClassNames.PRE_RIGHT_ICON} {
       display: none;
     }
-  }
-`;
-
-const PinButtonWrapper = styled.div`
-  & {
-    svg {
-      path {
-        fill: ${Colors.CODE_GRAY};
-      }
-    }
-  }
-  &:hover {
-    background-color: ${Colors.SHARK2};
-    svg {
-      path {
-        fill: ${Colors.WHITE};
-      }
-    }
-  }
-`;
-
-const StyledPinIcon = styled(PinIcon)`
-  && {
-    width: 12px;
-    height: 12px;
   }
 `;
 
@@ -133,28 +105,6 @@ function PagesContainer() {
   const onClickRightIcon = useCallback(() => {
     history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId));
   }, [applicationId, currentPageId]);
-
-  const sidebarCloseIcon = React.useMemo(
-    () => (
-      <PinButtonWrapper
-        className={classNames({
-          "h-full items-center transition-all duration-300 transform px-2 flex justify-center": true,
-        })}
-      >
-        <TooltipComponent
-          content={
-            <div className="flex items-center justify-between">
-              <span>Close sidebar</span>
-              <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
-            </div>
-          }
-        >
-          <StyledPinIcon />
-        </TooltipComponent>
-      </PinButtonWrapper>
-    ),
-    [],
-  );
 
   const onPageListSelection = React.useCallback(
     () => history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId)),
@@ -217,7 +167,6 @@ function PagesContainer() {
       onClickPreRightIcon={onPin}
       onClickRightIcon={onClickRightIcon}
       onCreate={createPageCallback}
-      preRightIcon={sidebarCloseIcon}
       rightIcon={settingsIconWithTooltip}
       searchKeyword={""}
       step={0}
