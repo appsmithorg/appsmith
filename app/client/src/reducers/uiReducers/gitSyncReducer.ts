@@ -24,6 +24,16 @@ const initialState: GitSyncReducerState = {
 
   isFetchingLocalGitConfig: false,
   isFetchingGitConfig: false,
+
+  isMerging: false,
+  tempRemoteUrl: "",
+
+  showRepoLimitErrorModal: false,
+  isDisconnectGitModalOpen: false,
+  disconnectingGitApp: {
+    id: "",
+    name: "",
+  },
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -212,6 +222,7 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     localGitConfig: action.payload,
     isFetchingLocalGitConfig: false,
+    useGlobalProfile: action.payload?.useGlobalProfile,
   }),
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -346,6 +357,27 @@ const gitSyncReducer = createReducer(initialState, {
       tempRemoteUrl: action.payload,
     };
   },
+  [ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    showRepoLimitErrorModal: action.payload,
+  }),
+  [ReduxActionTypes.SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    isDisconnectGitModalOpen: action.payload,
+  }),
+  [ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
+    ...state,
+    disconnectingGitApp: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -406,6 +438,15 @@ export type GitSyncReducerState = {
 
   isMerging?: boolean;
   tempRemoteUrl?: string;
+
+  showRepoLimitErrorModal: boolean;
+  isDisconnectGitModalOpen: boolean;
+  disconnectingGitApp: {
+    id: string;
+    name: string;
+  };
+
+  useGlobalProfile?: boolean;
 };
 
 export default gitSyncReducer;

@@ -446,7 +446,7 @@ public class ActionCollectionServiceTest {
         assert createdActionCollectionDTO != null;
 
         final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = applicationPageService.publish(testApp.getId(), true)
-                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId()))
+                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId(), null))
                 .collectList();
 
         StepVerifier.create(viewModeCollectionsMono)
@@ -472,6 +472,51 @@ public class ActionCollectionServiceTest {
                     assertThat(actionCollectionViewDTO.getPageId()).isEqualTo(testPage.getId());
                     assertThat(actionCollectionViewDTO.getBody()).isEqualTo("collectionBody");
 
+                })
+                .verifyComplete();
+
+    }
+
+    /**
+     * For a given collection testCollection1,
+     * When the page with this collection is published,
+     * After the testCollection is deleted in edit mode and application is published again,
+     * Then the view mode should not contain testCollection
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDeleteActionCollection_afterApplicationPublish_clearsActionCollection() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("deleteTestCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("deleteTestAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action1));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+
+        final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = applicationPageService.publish(testApp.getId(), true)
+                .then(actionCollectionService.deleteUnpublishedActionCollection(createdActionCollectionDTO.getId()))
+                .then(applicationPageService.publish(testApp.getId(), true))
+                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId(), null))
+                .collectList();
+
+        StepVerifier.create(viewModeCollectionsMono)
+                .assertNext(viewModeCollections -> {
+                    assertThat(viewModeCollections).isEmpty();
                 })
                 .verifyComplete();
 

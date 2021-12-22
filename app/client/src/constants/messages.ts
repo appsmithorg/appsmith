@@ -539,6 +539,7 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
+export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, make commits, add deploy your application";
@@ -609,6 +610,28 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
+export const DISCONNECT_EXISTING_REPOSITORIES = () =>
+  "Disconnect existing Repositories";
+export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+  "To make space for newer repositories you can remove existing repositories.";
+export const CONTACT_SALES = () => "Contact Sales";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
+export const REPOSITORY_LIMIT_REACHED_INFO = () =>
+  "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
+export const NONE_REVERSIBLE_MESSAGE = () =>
+  "This action is non reversible. Proceed with caution";
+export const CONTACT_SUPPORT_TO_UPGRADE = () =>
+  "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
+export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
+  "Disconnect might cause the application to break.";
+export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT = () => "DISCONNECT";
+export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
+export const DISCONNECT_FROM_GIT = (name: string) =>
+  `Disconnect ${name} from Git`;
+export const TYPE_PROMO_CODE = (name: string) =>
+  `Type “${name}” in the input box to disconnect.`;
+export const APPLICATION_NAME = () => "Application Name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
@@ -634,6 +657,7 @@ export const COMING_SOON = () => "Coming Soon!";
 export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
+export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -863,3 +887,5 @@ export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+
+export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";

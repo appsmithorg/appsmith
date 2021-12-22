@@ -115,6 +115,19 @@ describe("getOriginalRowIndex", () => {
     const expected = undefined;
     expect(result).toStrictEqual(expected);
   });
+
+  it("With no data", () => {
+    const oldTableData = undefined;
+    const newTableData = undefined;
+    const selectedRowIndex = 1;
+    const result = getOriginalRowIndex(
+      (oldTableData as any) as Array<Record<string, unknown>>,
+      (newTableData as any) as Array<Record<string, unknown>>,
+      selectedRowIndex,
+    );
+    const expected = undefined;
+    expect(result).toStrictEqual(expected);
+  });
 });
 
 describe("selectRowIndex", () => {

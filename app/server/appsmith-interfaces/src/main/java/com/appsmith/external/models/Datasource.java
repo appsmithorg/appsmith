@@ -59,11 +59,6 @@ public class Datasource extends BaseDomain {
     @JsonIgnore
     DatasourceStructure structure;
 
-    // This field will only be used for git related functionality to sync the action object across different instances.
-    // Once created no-one has access to update this field
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    String gitSyncId;
-
     /**
      * This method is here so that the JSON version of this class' instances have a `isValid` field, for backwards
      * compatibility. It may be removed, when sure that no API received is relying on this field.
