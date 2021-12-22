@@ -584,3 +584,7 @@ export const getWidgetsForCurrentPage = createSelector(
   getCurrentPageId,
   (canvasStructure, pageId) => (pageId ? canvasStructure[pageId] : null),
 );
+
+export const getAllPages = (state: AppState) => {
+  return state.entities.pageList.pages;
+};

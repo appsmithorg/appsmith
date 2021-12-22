@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -35,6 +35,7 @@ import classNames from "classnames";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { Colors } from "constants/Colors";
+import { getAllPages } from "selectors/entitiesSelector";
 
 const StyledEntity = styled(Entity)`
   &.pages {
@@ -82,9 +83,7 @@ const StyledPinIcon = styled(PinIcon)`
 
 function PagesContainer() {
   const applicationId = useSelector(getCurrentApplicationId);
-  const pages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages;
-  });
+  const pages = useSelector(getAllPages);
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
@@ -110,15 +109,18 @@ function PagesContainer() {
     dispatch(createPage(applicationId, name, defaultPageLayouts));
   }, [dispatch, pages, applicationId]);
 
-  const settingsIconWithTooltip = (
-    <TooltipComponent
-      boundary="viewport"
-      content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
-      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      position={Position.BOTTOM}
-    >
-      {settingsIcon}
-    </TooltipComponent>
+  const settingsIconWithTooltip = React.useMemo(
+    () => (
+      <TooltipComponent
+        boundary="viewport"
+        content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position={Position.BOTTOM}
+      >
+        {settingsIcon}
+      </TooltipComponent>
+    ),
+    [],
   );
 
   /**
@@ -128,49 +130,40 @@ function PagesContainer() {
     dispatch(setExplorerPinnedAction(!pinned));
   }, [pinned, dispatch, setExplorerPinnedAction]);
 
-  const sidebarCloseIcon = (
-    <PinButtonWrapper
-      className={classNames({
-        "h-full items-center transition-all duration-300 transform px-2 flex justify-center": true,
-      })}
-    >
-      <TooltipComponent
-        content={
-          <div className="flex items-center justify-between">
-            <span>Close sidebar</span>
-            <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
-          </div>
-        }
+  const onClickRightIcon = useCallback(() => {
+    history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId));
+  }, [applicationId, currentPageId]);
+
+  const sidebarCloseIcon = React.useMemo(
+    () => (
+      <PinButtonWrapper
+        className={classNames({
+          "h-full items-center transition-all duration-300 transform px-2 flex justify-center": true,
+        })}
       >
-        <StyledPinIcon />
-      </TooltipComponent>
-    </PinButtonWrapper>
+        <TooltipComponent
+          content={
+            <div className="flex items-center justify-between">
+              <span>Close sidebar</span>
+              <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+            </div>
+          }
+        >
+          <StyledPinIcon />
+        </TooltipComponent>
+      </PinButtonWrapper>
+    ),
+    [],
   );
 
-  return (
-    <StyledEntity
-      action={() =>
-        history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId))
-      }
-      addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
-      alwaysShowRightIcon
-      className="group pages"
-      disabled
-      entityId="Pages"
-      icon={""}
-      isDefaultExpanded
-      name="PAGES"
-      onClickPreRightIcon={onPin}
-      onClickRightIcon={() => {
-        history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId));
-      }}
-      onCreate={createPageCallback}
-      preRightIcon={sidebarCloseIcon}
-      rightIcon={settingsIconWithTooltip}
-      searchKeyword={""}
-      step={0}
-    >
-      {pages.map((page) => {
+  const onPageListSelection = React.useCallback(
+    () => history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId)),
+    [applicationId, currentPageId],
+  );
+
+  const pageElements = useMemo(
+    () =>
+      pages.map((page) => {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
         const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
         const isCurrentPage = currentPageId === page.pageId;
@@ -206,11 +199,34 @@ function PagesContainer() {
             }
           />
         );
-      })}
+      }),
+    [pages, currentPageId, applicationId],
+  );
+
+  return (
+    <StyledEntity
+      action={onPageListSelection}
+      addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
+      alwaysShowRightIcon
+      className="group pages"
+      disabled
+      entityId="Pages"
+      icon={""}
+      isDefaultExpanded
+      name="PAGES"
+      onClickPreRightIcon={onPin}
+      onClickRightIcon={onClickRightIcon}
+      onCreate={createPageCallback}
+      preRightIcon={sidebarCloseIcon}
+      rightIcon={settingsIconWithTooltip}
+      searchKeyword={""}
+      step={0}
+    >
+      {pageElements}
     </StyledEntity>
   );
 }
 
 PagesContainer.displayName = "PagesContainer";
 
-export default PagesContainer;
+export default React.memo(PagesContainer);

@@ -8,10 +8,10 @@ import { getWidgetIcon } from "../ExplorerIcons";
 
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+// import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 // import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
+// import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 // import { getCurrentPageId } from "selectors/editorSelectors";
@@ -162,14 +162,14 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
             widgetsInStep={widgetsInStep}
           />
         ))}
-      {!(props.childWidgets && props.childWidgets.length > 0) && (
+      {/* {!(props.childWidgets && props.childWidgets.length > 0) && (
         <CurrentPageEntityProperties
           entityName={props.widgetName}
           entityType={ENTITY_TYPE.WIDGET}
           key={props.widgetId}
           step={props.step + 1}
         />
-      )}
+      )} */}
       {/* {!(props.childWidgets && props.childWidgets.length > 0) &&
         !isCurrentPage && (
           <EntityProperties

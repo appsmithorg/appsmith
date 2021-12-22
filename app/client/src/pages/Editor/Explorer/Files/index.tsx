@@ -96,4 +96,4 @@ function Files() {
 
 Files.displayName = "Files";
 
-export default Files;
+export default React.memo(Files);

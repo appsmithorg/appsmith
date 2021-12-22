@@ -110,8 +110,8 @@ export interface EntityNameProps {
   nameTransformFn?: (input: string, limit?: number) => string;
   isBeta?: boolean;
 }
-export const EntityName = forwardRef(
-  (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
+export const EntityName = React.memo(
+  forwardRef((props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
     const tabs:
       | Array<{ id: string; widgetId: string; label: string }>
@@ -149,7 +149,7 @@ export const EntityName = forwardRef(
     const existingWidgetNames: string[] = useSelector(getExistingWidgetNames);
 
     const dispatch = useDispatch();
-
+    console.log("Name rerender: ", name);
     const existingActionNames: string[] | [] = _.compact(
       useSelector(getExistingActionNames),
     );
@@ -262,7 +262,10 @@ export const EntityName = forwardRef(
         />
       </EditableWrapper>
     );
-  },
+  }),
+  (prevProps: any, nextProps: any) =>
+    prevProps.name === nextProps.name &&
+    prevProps.isEditing === nextProps.isEditing,
 );
 
 EntityName.displayName = "EntityName";
