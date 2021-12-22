@@ -46,7 +46,7 @@ sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-m
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
-sudo docker run -p 127.0.0.1:28017:27017 --name Cypress-mongodb -e MONGO_INITDB_DATABASE=appsmith -v `pwd`/cypress/mongodb:/data/db mongo
+sudo docker run -d -p 127.0.0.1:28017:27017 --name Cypress-mongodb -e MONGO_INITDB_DATABASE=appsmith -v `pwd`/cypress/mongodb:/data/db mongo
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
