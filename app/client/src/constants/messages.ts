@@ -663,7 +663,7 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
-  `Create a new Query, API or JSObject`;
+  `Create a new Query, API or JS Object`;
 
 export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 
