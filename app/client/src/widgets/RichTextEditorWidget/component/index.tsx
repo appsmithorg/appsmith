@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
@@ -26,12 +26,13 @@ export interface RichtextEditorComponentProps {
   placeholder?: string;
   widgetId: string;
   isDisabled?: boolean;
+  defaultText?: string;
   isVisible?: boolean;
   isToolbarHidden: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
-  const [value, setValue] = React.useState(props.defaultValue);
+  const [value, setValue] = React.useState<string>();
   const editorRef = useRef<any>(null);
   const editorContent = useRef("");
 
@@ -43,8 +44,11 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     props.onValueChange(content);
   }, 200);
 
+  useEffect(() => {
+    setValue(props.defaultText);
+  }, [props.defaultText]);
   return (
-    <StyledRTEditor>
+    <StyledRTEditor className={`container-${props.widgetId}`}>
       <Editor
         disabled={props.isDisabled}
         id={`rte-${props.widgetId}`}
@@ -60,9 +64,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             "searchreplace visualblocks code fullscreen",
             "insertdatetime media table paste code help",
           ],
-          toolbar: props.isToolbarHidden ? false : toolbarConfig,
         }}
+        key={`editor_${props.isToolbarHidden}`}
         onEditorChange={(newValue) => {
+          if (newValue === value) return;
           setValue(newValue);
           onChange(newValue);
         }}
@@ -70,10 +75,11 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           editorRef.current = editor;
         }}
         tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
+        toolbar={props.isToolbarHidden ? false : toolbarConfig}
         value={value}
       />
     </StyledRTEditor>
   );
 }
 
-export default React.memo(RichtextEditorComponent);
+export default RichtextEditorComponent;

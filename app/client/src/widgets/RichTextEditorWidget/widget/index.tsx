@@ -165,6 +165,7 @@ class RichTextEditorWidget extends BaseWidget<
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
+          defaultText={this.props.defaultText}
           defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
           isToolbarHidden={!!this.props.isToolbarHidden}

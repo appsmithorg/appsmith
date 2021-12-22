@@ -81,7 +81,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(publishPage.richTextEditorWidget).should("be.visible");
   });
 
-  it("RichTextEditor-check Hide toolbar field validaton", function() {
+  it("RichTextEditor-check Hide toolbar field validation", function() {
     // Check the Hide toolbar checkbox
     cy.CheckWidgetProperties(commonlocators.hideToolbarCheckbox);
     cy.validateToolbarHidden(
@@ -95,7 +95,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("RichTextEditor-uncheck Hide toolbar field validaton", function() {
+  it("RichTextEditor-uncheck Hide toolbar field validation", function() {
     // Uncheck the Hide toolbar checkbox
     cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
     cy.validateToolbarVisible(
