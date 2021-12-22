@@ -354,7 +354,7 @@ export const Steps: StepsType = {
           highlightSection("widget-card-buttonwidget");
         }, 2000);
       },
-      duration: 12,
+      duration: 6,
     },
   },
   6: {

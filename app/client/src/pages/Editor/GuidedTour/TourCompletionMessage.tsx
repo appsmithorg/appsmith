@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
 import { useSelector } from "store";
 import { getEditorURL } from "selectors/appViewSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   background-color: #ffefdb;
@@ -66,7 +67,10 @@ function CongratulationsView() {
   const dispatch = useDispatch();
   const editorUrl = useSelector(getEditorURL);
 
-  const onValueChanged = () => {
+  const onValueChanged = (value: number) => {
+    AnalyticsUtil.logEvent("GUIDED_TOUR_RATING", {
+      rating: value,
+    });
     setRatingComplete(true);
   };
 
@@ -119,7 +123,7 @@ function CongratulationsView() {
               }
               fullSymbol={
                 <Icon
-                  fillColor={"yellow"}
+                  fillColor={"#FFCB45"}
                   name="star-fill"
                   size={IconSize.XXXXL}
                 />
