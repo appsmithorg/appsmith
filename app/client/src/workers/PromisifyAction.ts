@@ -11,7 +11,7 @@ const ctx: Worker = self as any;
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
-import { enhanceDataTreeWithFunctions } from "workers/Actions";
+import { updateRequestIdsOfFunctions } from "workers/Actions";
 
 export const promisifyAction = (
   workerRequestId: string,
@@ -50,15 +50,7 @@ export const promisifyAction = (
         // If we get a response for this same promise we will resolve or reject it
 
         self.ALLOW_ASYNC = true;
-        const correctlyBoundFunctions = enhanceDataTreeWithFunctions(
-          {},
-          workerRequestIdCopy,
-        );
-        for (const boundFunc in correctlyBoundFunctions) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore: No types available
-          self[boundFunc] = correctlyBoundFunctions[boundFunc];
-        }
+        updateRequestIdsOfFunctions(workerRequestId);
 
         if (success) {
           resolve.apply(self, data.resolve);

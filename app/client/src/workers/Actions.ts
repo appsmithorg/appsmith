@@ -252,11 +252,14 @@ const DATA_TREE_FUNCTIONS: Record<
       function() {
         return {
           type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
+          payload: {},
           executionType: ExecutionType.PROMISE,
         };
       },
   },
 };
+
+export const functionPaths = new Map();
 
 export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
@@ -285,6 +288,7 @@ export const enhanceDataTreeWithFunctions = (
               func,
             ),
           );
+          functionPaths.set(funcName, func);
         }
       });
     } else {
@@ -299,10 +303,27 @@ export const enhanceDataTreeWithFunctions = (
           funcOrFuncCreator,
         ),
       );
+      functionPaths.set(name, funcOrFuncCreator);
     }
   });
 
   return withFunction;
+};
+
+export const updateRequestIdsOfFunctions = (requestId: string) => {
+  functionPaths.forEach((value, key) => {
+    _.set(
+      self,
+      key,
+      pusher.bind(
+        {
+          TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+          REQUEST_ID: requestId,
+        },
+        value,
+      ),
+    );
+  });
 };
 
 export const pusher = function(
@@ -310,8 +331,15 @@ export const pusher = function(
   action: ActionDispatcherWithExecutionType,
   ...payload: any[]
 ) {
-  const actionPayload = action(...payload);
-  if (actionPayload && actionPayload.executionType === ExecutionType.TRIGGER) {
+  const actionDescription = action(...payload);
+  const actionPayload = {
+    type: actionDescription.type,
+    payload: actionDescription.payload,
+  } as ActionDescription;
+  if (
+    actionDescription &&
+    actionDescription.executionType === ExecutionType.TRIGGER
+  ) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
     return promisifyAction(this.REQUEST_ID, actionPayload);

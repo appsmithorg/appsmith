@@ -155,6 +155,7 @@ export type WatchCurrentLocationDescription = {
 
 export type StopWatchingCurrentLocationDescription = {
   type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION;
+  payload?: Record<string, never>;
 };
 
 export type ActionDescription =

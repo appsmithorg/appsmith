@@ -186,7 +186,6 @@ describe("evaluateAsync", () => {
       type: "PROCESS_TRIGGER",
     });
     expect(self.ALLOW_ASYNC).toBe(true);
-    expect(self.REQUEST_ID).toBe("TEST_REQUEST");
   });
   it("runs and returns errors", async () => {
     jest.restoreAllMocks();
@@ -216,7 +215,6 @@ describe("evaluateAsync", () => {
       type: "PROCESS_TRIGGER",
     });
     expect(self.ALLOW_ASYNC).toBe(true);
-    expect(self.REQUEST_ID).toBe("TEST_REQUEST_1");
   });
 });
 
