@@ -16,7 +16,7 @@ describe("FilePicker Widget Functionality", function() {
     cy.get(".t--property-control-allowedfiletypes .t--js-toggle").click({
       force: true,
     });
-    cy.testJsontext("allowedfiletypes", "['.csv']");
+    cy.testJsontext("allowedfiletypes", `[".csv"]`);
     cy.get(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
     ).should("not.exist");
@@ -24,7 +24,7 @@ describe("FilePicker Widget Functionality", function() {
     cy.get(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
     ).should("exist");
-    cy.testJsontext("allowedfiletypes", "['.csv', '.doc']");
+    cy.testJsontext("allowedfiletypes", `[".csv", ".doc"]`);
     cy.get(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
     ).should("not.exist");
