@@ -53,7 +53,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     private ObjectMapper objectMapper;
     private Connection connection;
 
-    private static final String URL = "jdbc:h2:mem:filterDb";
+    private static final String URL = "jdbc:h2:mem:filterDb;DATABASE_TO_UPPER=FALSE";
 
     private static final Map<DataType, String> SQL_DATATYPE_MAP = Map.of(
             DataType.INTEGER, "INT",
