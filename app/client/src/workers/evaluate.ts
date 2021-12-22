@@ -162,6 +162,13 @@ export const getUserScriptToEvaluate = (
   evalArguments?: Array<any>,
 ) => {
   const unescapedJS = sanitizeScript(userScript);
+  // If nothing is present to evaluate, return instead of linting
+  if (!unescapedJS.length) {
+    return {
+      lintErrors: [],
+      script: "",
+    };
+  }
   const scriptType = getScriptType(!!evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
@@ -200,15 +207,16 @@ export default function evaluateSync(
       false,
       evalArguments,
     );
-    errors = lintErrors;
-    // If nothing is present to evaluate, return back instead of evaluating
+    // If nothing is present to evaluate, return instead of evaluating
     if (!script.length) {
       return {
-        errors,
+        errors: [],
         result: undefined,
         triggers: [],
       };
     }
+
+    errors = lintErrors;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
