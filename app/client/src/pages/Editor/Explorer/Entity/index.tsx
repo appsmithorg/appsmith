@@ -36,7 +36,6 @@ export enum EntityClassNames {
 
 const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
-  margin: 4px 0;
 `;
 
 export const entityTooltipCSS = css`
@@ -66,6 +65,8 @@ export const EntityItem = styled.div<{
   font-size: 14px;
   user-select: none;
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
+  padding-top: 4px;
+  padding-bottom: 4px;
   background: ${(props) =>
     props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
   height: 34px;
@@ -160,7 +161,7 @@ const IconWrapper = styled.span`
 `;
 
 const ContextMenuWrapper = styled.div`
-  width: 30px;
+  min-width: 30px;
   height: 100%;
 `;
 
@@ -308,12 +309,14 @@ export const Entity = forwardRef(
               {props.preRightIcon}
             </IconWrapper>
           )}
-          <IconWrapper
-            className={EntityClassNames.RIGHT_ICON}
-            onClick={props.onClickRightIcon}
-          >
-            {props.rightIcon}
-          </IconWrapper>
+          {props.rightIcon && (
+            <IconWrapper
+              className={EntityClassNames.RIGHT_ICON}
+              onClick={props.onClickRightIcon}
+            >
+              {props.rightIcon}
+            </IconWrapper>
+          )}
           {props.addButtonHelptext ? (
             <TooltipComponent
               boundary="viewport"
