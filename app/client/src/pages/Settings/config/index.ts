@@ -1,11 +1,11 @@
 import { ConfigFactory } from "./ConfigFactory";
 
-import GeneralConfig from "./general";
-import EmailConfig from "./email";
-import MapsConfig from "./googleMaps";
-import VersionConfig from "./version";
-import AdvancedConfig from "./advanced";
-import Authentication from "@appsmith/pages/AdminSettings/config/authentication";
+import { config as GeneralConfig } from "./general";
+import { config as EmailConfig } from "./email";
+import { config as MapsConfig } from "./googleMaps";
+import { config as VersionConfig } from "./version";
+import { config as AdvancedConfig } from "./advanced";
+import { config as Authentication } from "@appsmith/pages/AdminSettings/config/authentication";
 
 ConfigFactory.register(GeneralConfig);
 ConfigFactory.register(EmailConfig);

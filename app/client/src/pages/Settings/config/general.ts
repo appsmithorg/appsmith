@@ -3,13 +3,13 @@ import { apiRequestConfig } from "../../../api/Api";
 import UserApi from "../../../api/UserApi";
 import {
   AdminConfigType,
-  CategoryType,
+  SettingCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
 
-export default {
-  type: CategoryType.GENERAL,
+export const config: AdminConfigType = {
+  type: SettingCategories.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "General",
   canSave: true,

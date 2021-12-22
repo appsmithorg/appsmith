@@ -1,15 +1,13 @@
 import { Dispatch } from "react";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "../../../constants/ReduxActionConstants";
-import {
-  CategoryType,
+  AdminConfigType,
+  SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
 
-export default {
-  type: CategoryType.VERSION,
+export const config: AdminConfigType = {
+  type: SettingCategories.VERSION,
   controlType: SettingTypes.GROUP,
   title: "Version",
   canSave: false,

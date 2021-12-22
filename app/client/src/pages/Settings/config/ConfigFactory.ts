@@ -1,7 +1,6 @@
 import {
   AdminConfigType,
   Category,
-  CategoryType,
   Setting,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
@@ -10,8 +9,8 @@ export class ConfigFactory {
   static settingsMap: Record<string, Setting> = {};
   static settings: Setting[] = [];
   static categories: Category[] = [];
-  static wrapperCategories: CategoryType[] = [];
-  static savableCategories: CategoryType[] = [];
+  static wrapperCategories: string[] = [];
+  static savableCategories: string[] = [];
 
   static registerSettings(config: AdminConfigType): void {
     config?.settings?.forEach((item) => {

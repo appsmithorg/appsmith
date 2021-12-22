@@ -1,10 +1,11 @@
 import {
-  CategoryType,
+  AdminConfigType,
+  SettingCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-export default {
-  type: CategoryType.ADVANCED,
+export const config: AdminConfigType = {
+  type: SettingCategories.ADVANCED,
   controlType: SettingTypes.GROUP,
   title: "Advanced",
   canSave: true,

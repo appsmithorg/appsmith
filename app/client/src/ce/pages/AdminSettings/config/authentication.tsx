@@ -1,20 +1,25 @@
 import React from "react";
 
-import { CategoryType, SettingTypes, SettingSubtype } from "./types";
 import {
   GOOGLE_SIGNUP_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
+import {
+  SettingCategories,
+  SettingTypes,
+  SettingSubtype,
+  AdminConfigType,
+} from "@appsmith/pages/AdminSettings/config/types";
 
-const Form_Auth = {
-  type: CategoryType.FORM_AUTH,
+const Form_Auth: AdminConfigType = {
+  type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Form Login",
   canSave: true,
   settings: [
     {
       id: "APPSMITH_SIGNUP_DISABLED",
-      category: CategoryType.FORM_AUTH,
+      category: SettingCategories.FORM_AUTH,
       subCategory: "form signup",
       controlType: SettingTypes.TOGGLE,
       label: "Signup",
@@ -29,15 +34,15 @@ const Form_Auth = {
   ],
 };
 
-const Google_Auth = {
-  type: CategoryType.GOOGLE_AUTH,
+const Google_Auth: AdminConfigType = {
+  type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Google Auth",
   canSave: true,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GOOGLE_READ_MORE",
-      category: CategoryType.GOOGLE_AUTH,
+      category: SettingCategories.GOOGLE_AUTH,
       subCategory: "google signup",
       controlType: SettingTypes.LINK,
       label: "How to configure?",
@@ -45,7 +50,7 @@ const Google_Auth = {
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",
-      category: CategoryType.GOOGLE_AUTH,
+      category: SettingCategories.GOOGLE_AUTH,
       subCategory: "google signup",
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
@@ -53,7 +58,7 @@ const Google_Auth = {
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
-      category: CategoryType.GOOGLE_AUTH,
+      category: SettingCategories.GOOGLE_AUTH,
       subCategory: "google signup",
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
@@ -61,7 +66,7 @@ const Google_Auth = {
     },
     {
       id: "APPSMITH_SIGNUP_ALLOWED_DOMAINS",
-      category: CategoryType.GOOGLE_AUTH,
+      category: SettingCategories.GOOGLE_AUTH,
       subCategory: "google signup",
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
@@ -71,15 +76,15 @@ const Google_Auth = {
   ],
 };
 
-const Github_Auth = {
-  type: CategoryType.GITHUB_AUTH,
+const Github_Auth: AdminConfigType = {
+  type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Github Auth",
   canSave: true,
   settings: [
     {
       id: "APPSMITH_OAUTH2_GITHUB_READ_MORE",
-      category: CategoryType.GITHUB_AUTH,
+      category: SettingCategories.GITHUB_AUTH,
       subCategory: "github signup",
       controlType: SettingTypes.LINK,
       label: "How to configure?",
@@ -87,7 +92,7 @@ const Github_Auth = {
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
-      category: CategoryType.GITHUB_AUTH,
+      category: SettingCategories.GITHUB_AUTH,
       subCategory: "github signup",
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
@@ -95,7 +100,7 @@ const Github_Auth = {
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET",
-      category: CategoryType.GITHUB_AUTH,
+      category: SettingCategories.GITHUB_AUTH,
       subCategory: "github signup",
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
@@ -104,8 +109,8 @@ const Github_Auth = {
   ],
 };
 
-export default {
-  type: CategoryType.AUTHENTICATION,
+export const config: AdminConfigType = {
+  type: SettingCategories.AUTHENTICATION,
   controlType: SettingTypes.PAGE,
   title: "Authentication",
   canSave: false,

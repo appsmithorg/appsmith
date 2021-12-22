@@ -7,13 +7,14 @@ import {
 } from "../../../constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
 import {
-  CategoryType,
+  AdminConfigType,
+  SettingCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
 
-export default {
-  type: CategoryType.EMAIL,
+export const config: AdminConfigType = {
+  type: SettingCategories.EMAIL,
   controlType: SettingTypes.GROUP,
   title: "Email",
   canSave: true,

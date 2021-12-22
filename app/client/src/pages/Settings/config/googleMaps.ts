@@ -1,12 +1,13 @@
-import { GOOGLE_MAPS_SETUP_DOC } from "../../../constants/ThirdPartyConstants";
+import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
 import {
-  CategoryType,
+  AdminConfigType,
+  SettingCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
 
-export default {
-  type: CategoryType.GOOGLE_MAPS,
+export const config: AdminConfigType = {
+  type: SettingCategories.GOOGLE_MAPS,
   controlType: SettingTypes.GROUP,
   title: "Google Maps",
   canSave: true,

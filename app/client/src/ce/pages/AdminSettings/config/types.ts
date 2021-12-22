@@ -19,7 +19,7 @@ export enum SettingSubtype {
   PASSWORD = "password",
 }
 
-export type Setting = {
+export interface Setting {
   id: string;
   category?: string;
   controlType: SettingTypes;
@@ -44,28 +44,28 @@ export type Setting = {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
-};
+}
 
-export type Category = {
+export interface Category {
   title: string;
   slug: string;
   children?: Category[];
-};
-
-export enum CategoryType {
-  GENERAL = "general",
-  EMAIL = "email",
-  GOOGLE_MAPS = "google-maps",
-  VERSION = "version",
-  ADVANCED = "advanced",
-  AUTHENTICATION = "authentication",
-  FORM_AUTH = "form-login",
-  GOOGLE_AUTH = "google-auth",
-  GITHUB_AUTH = "github-auth",
 }
 
+export const SettingCategories = {
+  GENERAL: "general",
+  EMAIL: "email",
+  GOOGLE_MAPS: "google-maps",
+  VERSION: "version",
+  ADVANCED: "advanced",
+  AUTHENTICATION: "authentication",
+  FORM_AUTH: "form-login",
+  GOOGLE_AUTH: "google-auth",
+  GITHUB_AUTH: "github-auth",
+};
+
 export type AdminConfigType = {
-  type: CategoryType;
+  type: string;
   controlType: SettingTypes;
   title: string;
   settings?: Setting[];
