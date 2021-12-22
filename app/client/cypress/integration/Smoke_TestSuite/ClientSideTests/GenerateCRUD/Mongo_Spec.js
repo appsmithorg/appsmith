@@ -18,7 +18,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     } else cy.log("Mongo DB is found, hence using actual DB");
   });
 
-  it("Add new Page and generate CRUD template using existing supported datasource", function() {
+  it("1. Add new Page and generate CRUD template using existing supported datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click({ force: true });
 
@@ -91,11 +91,10 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       "response.body.responseMeta.status",
       200,
     );
-
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Create new app and Generate CRUD page using a new datasource", function() {
+  it("2. Create new app and Generate CRUD page using a new datasource", function() {
     cy.NavigateToHome();
 
     cy.get(homePage.createNew)
@@ -131,7 +130,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     //Save source
     cy.get(".t--save-datasource").click();
 
-    //Generate Stud for tables dropdown values also
+    //Generate Stub for tables dropdown values also
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -163,7 +162,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Generate CRUD page from datasource ACTIVE section", function() {
+  it("3. Generate CRUD page from datasource ACTIVE section", function() {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.wait(1000);

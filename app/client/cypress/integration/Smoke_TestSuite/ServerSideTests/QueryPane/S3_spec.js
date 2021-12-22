@@ -2,6 +2,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 let datasourceName;
 
@@ -429,7 +430,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // }))
 
     cy.NavigateToDSGeneratePage(datasourceName);
-
+    cy.wait(3000);
     //Verifying List of Files from UI
     cy.get(generatePage.selectTableDropdown).click();
     cy.get(generatePage.dropdownOption)
@@ -505,7 +506,139 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteEntitybyName("Assets-test.appsmith.com");
   });
 
-  it("11. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
+  it("11. Bug 9069, 9201, 6975, 9922: Upload/Update query is failing in S3 crud pages", function() {
+    cy.NavigateToDSGeneratePage(datasourceName);
+    cy.wait(3000);
+    //Verifying List of Files from UI
+    cy.get(generatePage.selectTableDropdown).click();
+    cy.get(generatePage.dropdownOption)
+      .contains("assets-test.appsmith.com")
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+    cy.get(generatePage.generatePageFormSubmitBtn).click();
+    cy.wait("@replaceLayoutWithCRUDPage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.wait("@getActions");
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
+    cy.ClickGotIt();
+
+    //Upload: 1
+    let fixturePath = "GlobeChristmas.jpeg";
+    cy.wait(3000);
+    cy.clickButton("Select Files"); //1 files selected
+    cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
+    cy.wait(2000);
+    cy.get(generatePage.uploadBtn).click();
+    cy.wait(1000);
+    cy.clickButton("Upload");
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.data.isExecutionSuccess",
+      true,
+    );
+
+    cy.get(commonlocators.toastAction)
+      .should("have.length", 1)
+      .should("contain.text", "File Uploaded"); //Verifies bug # 6975
+
+    //Verifying Searching File from UI
+    cy.xpath(queryLocators.searchFilefield)
+      .type("GlobeChri")
+      .wait(3000); //for search to finish
+    expect(
+      cy.xpath(
+        "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+          fixturePath +
+          "']",
+      ),
+    ).to.exist;
+
+    cy.xpath(
+      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+        fixturePath +
+        "']",
+    ).scrollIntoView();
+
+    //Verifying DeleteFile icon from UI
+    cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
+    cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
+
+    expect(
+      cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
+    ).to.exist; //verify Delete File dialog appears
+    cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+    });
+    cy.get("span:contains('" + fixturePath + "')", { timeout: 10000 }).should(
+      "not.exist",
+    ); //verify Deletion of file is success from UI also
+
+    //Upload: 2 - Bug verification 9201
+    fixturePath = "Vase.jpeg";
+    cy.wait(3000);
+    cy.clickButton("Select Files"); //1 files selected
+    cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
+    cy.wait(2000);
+    cy.get(generatePage.uploadBtn).click();
+    cy.wait(1000);
+    cy.clickButton("Upload");
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.data.isExecutionSuccess",
+      true,
+    );
+
+    cy.get(commonlocators.toastAction)
+      .should("have.length", 1)
+      .should("contain.text", "File Uploaded"); //Verifies bug # 6975
+
+    //Commenting below since bug # 9922 is open
+    // //Verifying Searching File from UI
+    // cy.xpath(queryLocators.searchFilefield)
+    //   .clear()
+    //   .type("VVase")
+    //   .wait(3000); //for search to finish
+    // expect(
+    //   cy.xpath(
+    //     "//div[@data-cy='overlay-comments-wrapper']//span[text()='" + fixturePath + "']",
+    //   ),
+    // ).to.exist; //Verifies bug # 9922
+
+    // cy.xpath(
+    //   "//div[@data-cy='overlay-comments-wrapper']//span[text()='" + fixturePath + "']",
+    // ).scrollIntoView();
+
+    // //Verifying DeleteFile icon from UI
+    // cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
+    // cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
+
+    // expect(
+    //   cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
+    // ).to.exist; //verify Delete File dialog appears
+    // cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    // });
+    // cy.get("span:contains('" + fixturePath + "')", { timeout: 10000 }).should(
+    //   "not.exist",
+    // ); //verify Deletion of file is success from UI also
+
+    //Deleting the page:
+    cy.deleteEntitybyName("Assets-test.appsmith.com");
+  });
+
+  it("12. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.validateNSelectDropdown("Commands", "List files in bucket");
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
@@ -538,7 +671,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
-  it("12. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
+  it("13. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
     cy.addDsl(dsl);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.getEntityName().then((entity) => {
@@ -564,7 +697,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
 
-  it("11. Deletes the datasource", () => {
+  it("14. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });

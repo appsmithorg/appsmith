@@ -2143,7 +2143,7 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {
   cy.get(explorer.addDBQueryEntity)
-    .first()
+    .last()
     .click({ force: true });
 });
 
@@ -3390,9 +3390,9 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
 });
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
-  cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button").click({
-    force: true,
-  });
+  cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
+    .scrollIntoView()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {

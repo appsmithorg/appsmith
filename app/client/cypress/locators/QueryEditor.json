@@ -29,6 +29,7 @@
     "snipeableTable":"//input[@type='search']",
     "suggestedWidgetDropdown": "//div[contains(@class, 't--suggested-widget-DROP_DOWN_WIDGET')]",
     "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
+    "suggestedWidgetChart": "//div[contains(@class, 't--suggested-widget-CHART_WIDGET')]",
     "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
     "mongoFormFind": "//div[text()='listingsAndReviews']/ancestor::div/following-sibling::div[contains(@class, 'entity-context-menu')]"
 }
