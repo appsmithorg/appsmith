@@ -67,7 +67,11 @@ export class IncorrectBindingError extends Error {}
  * @param response
  * @param show
  */
-export function* validateResponse(response: ApiResponse | any, show = true) {
+export function* validateResponse(
+  response: ApiResponse | any,
+  show = true,
+  logToSentry = false,
+) {
   if (!response) {
     throw Error("");
   }
@@ -93,17 +97,11 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
     throw new IncorrectBindingError(response.responseMeta.error.message);
   }
 
-  if (response?.gitRequest) {
-    yield put({
-      type: ReduxActionErrorTypes.GIT_SYNC_ERROR,
-      payload: response.responseMeta.error,
-    });
-  }
-
   yield put({
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
       error: response.responseMeta.error,
+      logToSentry,
       show,
     },
   });
