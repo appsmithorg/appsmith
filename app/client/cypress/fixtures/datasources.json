@@ -1,9 +1,7 @@
 {
-    "mongo-host": "cypress-test.zljea.mongodb.net",
-    "mongo-port": 19422,
-    "mongo-databaseName": "admin",
-    "mongo-username": "cypress-test",
-    "mongo-password": "RaopEmky505xYV4p",
+    "mongo-host": "host.docker.internal",
+    "mongo-port": 28017,
+    "mongo-databaseName": "sample_airbnb",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
     "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
     "postgres-host": "localhost",
