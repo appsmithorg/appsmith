@@ -70,6 +70,7 @@ import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
+  CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
   LOCK_ENTITY_EXPLORER_MESSAGE,
@@ -81,7 +82,6 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
@@ -340,15 +340,17 @@ export function EditorHeader(props: EditorHeaderProps) {
         <HeaderSection className="space-x-3">
           <div
             className={classNames({
-              "text-gray-800 transform transition-all duration-400 pl-3 relative": true,
-              "ml-0": !pinned,
-              "-ml-7": pinned,
+              "text-gray-800 transform transition-all duration-400 pl-3 relative ml-0": true,
             })}
           >
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">
-                  <span>{createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)}</span>
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
                   <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
                 </div>
               }
@@ -358,9 +360,8 @@ export function EditorHeader(props: EditorHeaderProps) {
                 className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
                 onMouseEnter={onMenuHover}
               >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
-                <UnpinIcon
-                  className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                <MenuIcon
+                  className="absolute w-4 h-4 transition-opacity opacity-100 fill-current cursor-pointer"
                   onClick={onPin}
                 />
               </div>
