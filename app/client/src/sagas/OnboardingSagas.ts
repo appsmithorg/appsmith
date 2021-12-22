@@ -129,7 +129,7 @@ function* setUpTourAppSaga() {
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
   let body = (query?.config as QueryAction).actionConfiguration.body;
-  body = body?.replace("10", "100");
+  body = body?.replace("10", "20");
   yield put(
     setActionProperty({
       actionId: query?.config.id ?? "",
