@@ -71,8 +71,6 @@ function DraggableList(props: any) {
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const listRef = useRef<HTMLDivElement | null>(null);
-
   const onDrop = (originalIndex: number, newIndex: number) => {
     onUpdate(order.current, originalIndex, newIndex);
 
