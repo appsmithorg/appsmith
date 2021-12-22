@@ -6,6 +6,7 @@ import com.appsmith.external.constants.SortType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.UQIDataFilterParams;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -130,35 +131,29 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
-    public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
-        return filterDataNew(items, condition, null, null, null);
-    }
-
     /**
-     * This filter method is using the new UQI format of
-     * @param items
-     * @param condition
-     * @return
+     * This filter method is using the new UQI format.
+     * @param items - data
+     * @param uqiDataFilterParams - filter conditions to apply on data
+     * @return filtered data
      */
-    public ArrayNode filterDataNew(ArrayNode items, Condition condition, List<String> projectionColumns,
-                                   List<Map<String, Object>> sortBy, Map<String, String> paginateBy) {
-
+    public ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams) {
         if (items == null || items.size() == 0) {
             return items;
         }
 
-        Map<String, DataType> schema = generateSchema(items);
-
+        Condition condition = uqiDataFilterParams.getCondition();
         Condition updatedCondition = addValueDataType(condition);
+        uqiDataFilterParams.setCondition(updatedCondition);
 
+        Map<String, DataType> schema = generateSchema(items);
         String tableName = generateTable(schema);
 
         // insert the data
         insertAllData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, updatedCondition, schema,
-                projectionColumns, sortBy, paginateBy);
+        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, schema, uqiDataFilterParams);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -168,9 +163,14 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
-    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Condition condition, Map<String,
-            DataType> schema, List<String> projectionColumns, List<Map<String, Object>> sortBy,
-                                                            Map<String, String> paginateBy) {
+    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Map<String, DataType> schema,
+                                                            UQIDataFilterParams uqiDataFilterParams) {
+
+        Condition condition = uqiDataFilterParams.getCondition();
+        List<String> projectionColumns = uqiDataFilterParams.getProjectionColumns();
+        List<Map<String, Object>> sortBy = uqiDataFilterParams.getSortBy();
+        Map<String, String> paginateBy = uqiDataFilterParams.getPaginateBy();
+
         Connection conn = checkAndGetConnection();
 
         StringBuilder sb = new StringBuilder();

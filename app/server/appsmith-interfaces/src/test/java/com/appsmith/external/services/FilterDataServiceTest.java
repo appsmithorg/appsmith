@@ -4,6 +4,7 @@ import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.UQIDataFilterParams;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.Test;
@@ -629,7 +630,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -692,7 +694,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 1);
 
@@ -756,7 +759,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -820,7 +824,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 1);
 
@@ -883,7 +888,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -942,7 +948,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1010,7 +1017,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1072,7 +1080,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1133,7 +1142,7 @@ public class FilterDataServiceTest {
 
             // Since the data type expected for orderAmount is float, but the value given is String, assert exception
             assertThrows(AppsmithPluginException.class,
-                    () -> filterDataService.filterDataNew(items, condition));
+                    () -> filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null)));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1183,7 +1192,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 3);
 
@@ -1241,7 +1251,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             // Since there are no null orderAmounts, the filtered data would be empty.
             assertEquals(filteredData.size(), 0);
@@ -1300,7 +1311,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1358,7 +1370,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items,new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1416,8 +1429,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition, List.of("id", "email"), null,
-                    null);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
+                    List.of("id", "email"), null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1485,7 +1498,8 @@ public class FilterDataServiceTest {
             sortCondition.put("type", "DESCENDING");
             sortBy.add(sortCondition);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition, null, sortBy, null);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    sortBy, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1552,7 +1566,8 @@ public class FilterDataServiceTest {
             paginateBy.put("limit", "2");
             paginateBy.put("offset", "1");
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition, null, null, paginateBy);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, paginateBy));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1627,8 +1642,8 @@ public class FilterDataServiceTest {
             paginateBy.put("limit", "1");
             paginateBy.put("offset", "1");
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition, projectColumns, sortBy,
-                    paginateBy);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
+                    projectColumns, sortBy,paginateBy));
 
             assertEquals(filteredData.size(), 1);
 
