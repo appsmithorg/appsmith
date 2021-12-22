@@ -41,6 +41,7 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -1002,6 +1003,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
             return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
+                    .doOnSuccess(application -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists")))
                     .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName));
         }
 
@@ -1066,7 +1068,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     ApplicationJson applicationJson = tuple.getT1();
                     Application application = tuple.getT2();
                     return importExportApplicationService
-                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), branchName);
+                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), branchName)
+                            .map(responseUtils::updateApplicationWithDefaultResources);
                 });
     }
 
