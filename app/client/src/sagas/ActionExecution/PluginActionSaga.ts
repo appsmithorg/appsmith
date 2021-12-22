@@ -581,7 +581,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
-  if (pageAction.hasOwnProperty("clientSideExecution")) {
+  if (pageAction.hasOwnProperty("collectionId")) {
     yield call(executeOnPageLoadJSAction, pageAction);
   } else {
     const pageId = yield select(getCurrentPageId);

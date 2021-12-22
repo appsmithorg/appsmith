@@ -559,7 +559,7 @@ export const updateJSCollectionInDataTree = (
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
-            action.body,
+            new String(action.body),
           );
 
           _.set(
@@ -573,17 +573,25 @@ export const updateJSCollectionInDataTree = (
         bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
         bindingPaths[`${action.name}.data`] =
           EvaluationSubstitutionType.TEMPLATE;
-        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.bindingPaths`,
+          bindingPaths,
+        );
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
         _.set(
           modifiedDataTree,
-          `${jsCollection}.dynamicBindingPathList`,
+          `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
         const dependencyMap = jsCollection.dependencyMap;
         dependencyMap["body"].push(action.name);
-        _.set(modifiedDataTree, `${jsCollection}.dependencyMap`, dependencyMap);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dependencyMap`,
+          dependencyMap,
+        );
         const meta = jsCollection.meta;
         meta[action.name] = { arguments: action.arguments };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
@@ -595,9 +603,8 @@ export const updateJSCollectionInDataTree = (
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
-          action.body,
+          new String(action.body.toString()),
         );
-
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}.data`,
@@ -645,6 +652,7 @@ export const updateJSCollectionInDataTree = (
         delete meta[preAction];
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
         delete modifiedDataTree[`${jsCollection.name}`][`${preAction}`];
+        delete modifiedDataTree[`${jsCollection.name}`][`${preAction}.data`];
       }
     }
   }

@@ -6,6 +6,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { set, keyBy } from "lodash";
+import produce from "immer";
 
 const initialState: JSCollectionDataState = [];
 export interface JSCollectionData {
@@ -13,7 +14,6 @@ export interface JSCollectionData {
   config: JSCollection;
   data?: Record<string, unknown>;
   isExecuting?: Record<string, boolean>;
-  [propName: string]: any;
 }
 export type JSCollectionDataState = JSCollectionData[];
 export interface PartialActionData {
@@ -32,18 +32,10 @@ const jsActionsReducer = createReducer(initialState, {
       const foundAction = state.find((currentAction) => {
         return currentAction.config.id === action.id;
       });
-      const actionsList = action?.actions;
-      const actionResultsData: Record<string, any> = {};
-      const actionListData = actionsList?.map((subAction) => {
-        actionResultsData[subAction.name] = {
-          data: {},
-        };
-      });
       return {
         isLoading: false,
         config: action,
         data: foundAction?.data,
-        ...actionResultsData,
       };
     });
   },
@@ -295,9 +287,6 @@ const jsActionsReducer = createReducer(initialState, {
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
-        const executedAction =
-          a.config.actions &&
-          a.config.actions.find((d) => d.id === action.payload.actionId);
         return {
           ...a,
           data: {
@@ -361,27 +350,22 @@ const jsActionsReducer = createReducer(initialState, {
         collectionId: string;
       }>
     >,
-  ) =>
-    action.payload.forEach((action) => {
-      state.map((a) => {
-        if (a.config.id === action.collectionId) {
-          const updatedActions = a.config.actions.map((jsAction) => {
-            if (jsAction.id === action.id) {
-              set(jsAction, `executeOnLoad`, action.executeOnLoad);
+  ) => {
+    return produce(state, (draft) => {
+      const CollectionUpdateSearch = keyBy(action.payload, "collectionId");
+      const actionUpdateSearch = keyBy(action.payload, "id");
+      draft.forEach((action, index) => {
+        if (action.config.id in CollectionUpdateSearch) {
+          const allActions = draft[index].config.actions;
+          allActions.forEach((js) => {
+            if (js.id in actionUpdateSearch) {
+              js.executeOnLoad = actionUpdateSearch[js.id].executeOnLoad;
             }
-            return jsAction;
           });
-          return {
-            ...a,
-            config: {
-              ...a.config,
-              actions: updatedActions,
-            },
-          };
         }
-        return a;
       });
-    }),
+    });
+  },
 });
 
 export default jsActionsReducer;

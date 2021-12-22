@@ -70,8 +70,6 @@ import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
-import { JSCollection } from "entities/JSCollection";
-
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -182,9 +180,11 @@ export default class DataTreeEvaluator {
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
           const data = _.get(dataTree, `${update}.${key}.data`, undefined);
-          _.set(dataTree, `${update}.${key}`, updates[key]);
           if (this.isJSObjectFunction(dataTree, update, key)) {
+            _.set(dataTree, `${update}.${key}`, new String(updates[key]));
             _.set(dataTree, `${update}.${key}.data`, data);
+          } else {
+            _.set(dataTree, `${update}.${key}`, updates[key]);
           }
         });
       }
@@ -536,7 +536,8 @@ export default class DataTreeEvaluator {
           // dependencies[`${entityName}.${path}`] = [];
           const existingDeps =
             dependencies[`${entityName}.${propertyPath}`] || [];
-          const jsSnippets = [_.get(entity, propertyPath)];
+          const unevalPropValue = _.get(entity, propertyPath);
+          const { jsSnippets } = getDynamicBindings(unevalPropValue);
           dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
             jsSnippets.filter((jsSnippet) => !!jsSnippet),
           );

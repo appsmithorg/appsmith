@@ -360,7 +360,7 @@ function* handleUpdateJSCollectionBody(
   actionPayload: ReduxAction<{ body: string; id: string }>,
 ) {
   const jsCollection = yield select(getJSCollection, actionPayload.payload.id);
-  jsCollection.body = actionPayload.payload.body;
+  jsCollection["body"] = actionPayload.payload.body;
   try {
     if (jsCollection) {
       const response = yield JSActionAPI.updateJSCollection(jsCollection);
