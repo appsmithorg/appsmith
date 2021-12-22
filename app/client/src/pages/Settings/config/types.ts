@@ -62,7 +62,6 @@ export enum CategoryType {
   FORM_AUTH = "form-login",
   GOOGLE_AUTH = "google-auth",
   GITHUB_AUTH = "github-auth",
-  SSO_AUTH = "sso-auth",
 }
 
 export type AdminConfigType = {
