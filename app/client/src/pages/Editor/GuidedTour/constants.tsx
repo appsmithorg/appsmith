@@ -310,7 +310,7 @@ export const Steps: StepsType = {
           });
         }, 1000);
       },
-      duration: 12,
+      duration: 6,
     },
   },
   5: {
