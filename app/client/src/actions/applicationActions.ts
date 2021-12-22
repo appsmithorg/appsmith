@@ -167,13 +167,6 @@ export const generateSSHKeyPairSuccess = (
   };
 };
 
-export const generateSSHKeyPairError = (error: string) => {
-  return {
-    type: ReduxActionErrorTypes.GENERATE_SSH_KEY_PAIR_ERROR,
-    error,
-  };
-};
-
 export type GetSSHKeyPairResponsePayload<T> = {
   responseMeta: ResponseMeta;
   data: T;
