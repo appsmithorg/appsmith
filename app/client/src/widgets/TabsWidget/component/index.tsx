@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import styled, { css } from "styled-components";
 import { Button, MaybeElement } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
 import {
@@ -18,7 +19,6 @@ import {
 } from "../constants";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import { IconName } from "@blueprintjs/icons";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -100,9 +100,7 @@ const TabsContainer = styled.div<TabsContainerProps>`
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
   ${({ isScrollable }) =>
-    isScrollable
-      ? `padding-left: ${SCROLL_NAV_CONTROL_CONTAINER_WIDTH}px`
-      : `padding-left: 0`};
+    isScrollable && `padding: 0 ${SCROLL_NAV_CONTROL_CONTAINER_WIDTH}px`};
 
   && {
     height: ${TAB_CONTAINER_HEIGHT};
@@ -149,11 +147,19 @@ const StyledText = styled.div<TabProps>`
   }
 `;
 
-const ScrollNavControlContainer = styled.div`
+const ScrollNavControlLeftContainer = styled.div`
   display: flex;
   position: absolute;
   top: 0;
   left: 0;
+  background: white;
+`;
+
+const ScrollNavControlRightContainer = styled.div`
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
   background: white;
 `;
 
@@ -165,7 +171,7 @@ export interface ScrollNavControlProps {
 
 function ScrollNavControl(props: ScrollNavControlProps) {
   const { disabled, icon, onClick } = props;
-  return <Button disabled={disabled} icon={icon} onClick={onClick} />;
+  return <Button disabled={disabled} icon={icon} minimal onClick={onClick} />;
 }
 
 function TabsComponent(props: TabsComponentProps) {
@@ -237,18 +243,22 @@ function TabsComponent(props: TabsComponentProps) {
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
       {isScrollable && (
-        <ScrollNavControlContainer>
-          <ScrollNavControl
-            disabled={isZeroScrolled}
-            icon="caret-left"
-            onClick={handleScrollLeft}
-          />
-          <ScrollNavControl
-            disabled={isMaxScrolled}
-            icon="caret-right"
-            onClick={handleScrollRight}
-          />
-        </ScrollNavControlContainer>
+        <>
+          <ScrollNavControlLeftContainer>
+            <ScrollNavControl
+              disabled={isZeroScrolled}
+              icon="caret-left"
+              onClick={handleScrollLeft}
+            />
+          </ScrollNavControlLeftContainer>
+          <ScrollNavControlRightContainer>
+            <ScrollNavControl
+              disabled={isMaxScrolled}
+              icon="caret-right"
+              onClick={handleScrollRight}
+            />
+          </ScrollNavControlRightContainer>
+        </>
       )}
       {props.shouldShowTabs ? (
         <TabsContainer
