@@ -243,11 +243,6 @@ export const remoteUrlInputValue = (payload?: { tempRemoteUrl?: string }) => ({
   payload,
 });
 
-export const setShouldShowRepoLimitError = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR,
-  payload,
-});
-
 export const setShowRepoLimitErrorModal = (payload: boolean) => ({
   type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL,
   payload,
