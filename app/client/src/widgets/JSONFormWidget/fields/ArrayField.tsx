@@ -36,6 +36,8 @@ const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   label: "",
 };
 
+const ACTION_ICON_SIZE = 10;
+
 const StyledWrapper = styled.div`
   margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
 `;
@@ -144,7 +146,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
                 <StyledDeleteButton onClick={() => remove(key)} type="button">
                   <Icon
                     icon="trash"
-                    iconSize={10}
+                    iconSize={ACTION_ICON_SIZE}
                     style={{ color: Colors.CRIMSON }}
                   />
                   Delete
@@ -154,7 +156,11 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
           );
         })}
         <StyledButton onClick={add} type="button">
-          <Icon icon="add" iconSize={10} style={{ color: Colors.GREEN }} />
+          <Icon
+            icon="add"
+            iconSize={ACTION_ICON_SIZE}
+            style={{ color: Colors.GREEN }}
+          />
           Add New
         </StyledButton>
       </StyledWrapper>

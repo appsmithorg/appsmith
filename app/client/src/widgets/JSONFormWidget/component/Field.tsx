@@ -37,7 +37,7 @@ function Field({
   render,
   tooltip,
 }: FieldProps) {
-  const refDefaultValue = useRef(defaultValue);
+  const refDefaultValue = useRef();
   const { control, setValue } = useFormContext();
 
   useEffect(() => {
