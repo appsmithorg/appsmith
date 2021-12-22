@@ -149,7 +149,6 @@ export const EntityName = React.memo(
     const existingWidgetNames: string[] = useSelector(getExistingWidgetNames);
 
     const dispatch = useDispatch();
-    console.log("Name rerender: ", name);
     const existingActionNames: string[] | [] = _.compact(
       useSelector(getExistingActionNames),
     );

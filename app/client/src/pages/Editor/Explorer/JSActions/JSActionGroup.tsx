@@ -7,6 +7,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { ADD_JS_ACTION, createMessage } from "constants/messages";
+import { PluginType } from "entities/Action";
 
 type ExplorerJSCollectionGroupProps = {
   pageId: string;
@@ -33,6 +34,7 @@ export const ExplorerJSCollectionGroup = memo(
               key={js.config.id}
               searchKeyword={props.searchKeyword}
               step={props.step + 1}
+              type={PluginType.JS}
             />
           );
         })}
