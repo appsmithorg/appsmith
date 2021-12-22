@@ -4,14 +4,12 @@
 ## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
 ##
 
-## @param global.imageRegistry Global Docker image registry
-## @param global.imagePullSecrets Global Docker registry secret names as an array
 ## @param global.storageClass Global StorageClass for Persistent Volume(s)
 ## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
 ##
 global:
   storageClass: ""
-  namespaceOverride: "appsmith"
+  namespaceOverride: ""
 ## @param fullnameOverride String to fully override appsmith.fullname template
 ##
 fullnameOverride: ""
@@ -82,6 +80,9 @@ service:
   ## @param service.port; service port
   ##
   port: 80
+  ## @param service.nodePort; Node port to expose if service type is "LoadBalancer" or "NodePort"
+  ##
+  nodePort: 8000
   ## @param service.portName Appsmith; service port name
   ##
   portName: appsmith
@@ -156,6 +157,11 @@ ingress:
   ##       - appsmith-domain.me
   ##     secretName: appsmith-tls
   certManagerTls: []
+  ## @parm ingress.className Configure Ingress class that being used in ingress resource
+  ## e.g:
+  ## className: "nginx"
+  ##
+  className: ""
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -191,6 +197,9 @@ persistence:
   ## @param persistence.storageClass PVC Storage Class
   ##
   storageClass: ""
+  ## @param persistence.annotations Additional custom annotations for the PVC
+  ##
+  annotations: {}
   ## @param persistence.localStorage - Use local storage for PVC
   ##
   localStorage: false
