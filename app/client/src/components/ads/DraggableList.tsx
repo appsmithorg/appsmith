@@ -64,6 +64,10 @@ const DraggableListWrapper = styled.div`
 
 function DraggableList(props: any) {
   const { fixedHeight, itemHeight, ItemRenderer, items, onUpdate } = props;
+  const listContainerHeight =
+    fixedHeight && fixedHeight < items.length * itemHeight
+      ? fixedHeight
+      : items.length * itemHeight;
   const shouldReRender = get(props, "shouldReRender", true);
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
@@ -163,7 +167,7 @@ function DraggableList(props: any) {
     <div
       ref={listRef}
       style={{
-        height: fixedHeight ? fixedHeight : items.length * itemHeight,
+        height: listContainerHeight,
         overflowY: "auto",
         zIndex: 1,
       }}
