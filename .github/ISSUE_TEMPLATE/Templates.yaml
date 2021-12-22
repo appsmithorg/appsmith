@@ -44,21 +44,21 @@ body:
   attributes:
     label: Version
     options:
-      -Support
-      -Martketing
-      -Sales
-      -Finance
-      -Information Technology (I
-      -Human Resources (HR)
-      -Communications
-      -Legal
-      -PR & Communications
-      -Product, design, and UX
-      -Project Management
-      -Personal
-      -Remote work
-      -Software Development
-      -None of the above
+      - Support
+      - Martketing
+      - Sales
+      - Finance
+      - Information Technology (I
+      - Human Resources (HR)
+      - Communications
+      - Legal
+      - PR & Communications
+      - Product, design, and UX
+      - Project Management
+      - Personal
+      - Remote work
+      - Software Development
+      - None of the above
   validations:
     required: true
     
