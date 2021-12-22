@@ -23,3 +23,6 @@ export enum FileDataTypes {
 }
 
 export type AlignWidget = "LEFT" | "RIGHT";
+
+// Minimum Rows for Widget Popups
+export const MinimumPopupRows = 12;

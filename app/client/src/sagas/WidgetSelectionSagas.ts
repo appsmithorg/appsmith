@@ -133,7 +133,7 @@ function* getAllSelectableChildren() {
   const canvasId: string = yield call(getLastSelectedCanvas);
   let allChildren: string[] = [];
   const selectGrandChildren: boolean = lastSelectedWidget
-    ? widgetLastSelected.type === WidgetTypes.LIST_WIDGET
+    ? widgetLastSelected && widgetLastSelected.type === WidgetTypes.LIST_WIDGET
     : false;
   if (selectGrandChildren) {
     allChildren = yield call(

@@ -1,6 +1,9 @@
 import { AppState } from "reducers";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import { useSelector } from "store";
 
 export const useAllowEditorDragToSelect = () => {
@@ -30,10 +33,12 @@ export const useAllowEditorDragToSelect = () => {
   const isResizingOrDragging = !!isResizing || !!isDragging || !!isSelecting;
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
   return (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !isCommentMode &&
-    !isSnipingMode
+    !isSnipingMode &&
+    !isPreviewMode
   );
 };

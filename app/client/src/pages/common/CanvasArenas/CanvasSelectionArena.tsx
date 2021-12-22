@@ -12,6 +12,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
@@ -21,6 +22,7 @@ import { theme } from "constants/DefaultTheme";
 import { commentModeSelector } from "../../../selectors/commentsSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getCanvasTopOffset } from "./utils";
+import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -58,6 +60,7 @@ export function CanvasSelectionArena({
     (parentWidget && parentWidget.detachFromLayout)
   );
   const appMode = useSelector(getAppMode);
+  const isPreviewMode = useSelector(previewModeSelector);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
@@ -98,9 +101,7 @@ export function CanvasSelectionArena({
     ),
     [widgetId, snapColumnSpace, snapRowSpace],
   );
-  const isDraggingForSelection = useSelector((state: AppState) => {
-    return state.ui.canvasSelection.isDraggingForSelection;
-  });
+  const isDraggingForSelection = useSelector(getIsDraggingForSelection);
   const isCurrentWidgetDrawing = useSelector((state: AppState) => {
     return state.ui.canvasSelection.widgetId === widgetId;
   });
@@ -471,13 +472,15 @@ export function CanvasSelectionArena({
     mainContainer,
     isDragging,
     isResizing,
+    isCommentMode,
     snapRows,
     snapColumnSpace,
     snapRowSpace,
   ]);
 
   const shouldShow =
-    appMode === APP_MODE.EDIT && !(isDragging || isResizing || isCommentMode);
+    appMode === APP_MODE.EDIT &&
+    !(isDragging || isResizing || isCommentMode || isPreviewMode);
 
   const canvasRef = React.useRef({
     slidingArenaRef,

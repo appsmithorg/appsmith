@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -36,6 +37,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ComponentScan("com.appsmith.server.solutions")
 public class EmailEventHandlerTest {
 
     private static final String COMMENT_ADDED_EMAIL_TEMPLATE = "email/commentAddedTemplate.html";
@@ -52,11 +54,11 @@ public class EmailEventHandlerTest {
     private NewPageRepository newPageRepository;
     @MockBean
     private EmailConfig emailConfig;
-
     @MockBean
     private PolicyUtils policyUtils;
 
     EmailEventHandler emailEventHandler;
+
     private Application application;
     private Organization organization;
 
@@ -68,15 +70,10 @@ public class EmailEventHandlerTest {
 
     @Before
     public void setUp() {
-        emailEventHandler = new EmailEventHandler(
-                applicationEventPublisher,
-                emailSender,
-                organizationRepository,
-                applicationRepository,
-                newPageRepository,
-                policyUtils,
-                emailConfig
-        );
+
+        emailEventHandler = new EmailEventHandlerImpl(applicationEventPublisher, emailSender, organizationRepository,
+                applicationRepository, newPageRepository, policyUtils, emailConfig);
+
         application = new Application();
         application.setName("Test application for comment");
         application.setOrganizationId(organizationId);

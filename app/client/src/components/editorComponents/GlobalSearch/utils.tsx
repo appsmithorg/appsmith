@@ -91,6 +91,7 @@ export type FilterEntity = WidgetType | ENTITY_TYPE;
 export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
   ACTION: "All Queries",
   WIDGET: "All Widgets",
+  JSACTION: "JS Objects",
 };
 
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
@@ -296,6 +297,7 @@ export const getEntityId = (entity: any) => {
     case "widget":
       return entity.widgetId;
     case "action":
+    case "jsAction":
       return entity.config?.id;
   }
 };

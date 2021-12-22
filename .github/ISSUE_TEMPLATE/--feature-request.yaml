@@ -21,16 +21,10 @@ body:
     label: Summary
     description: One paragraph description of the feature.
   validations:
-    required: false
+    required: true
 - type: textarea
   attributes:
-    label: Why should this be worked on? What problems or use cases does it solve or improve?
-    description: A concise description of the problem you are facing or the motivation behind this feature request. 
+    label: Why should this be worked on?
+    description: A concise description of the problems or use cases for this feature request. 
   validations:
-    required: false
-- type: textarea
-  attributes:
-    label: Anything else?
-    description: Any other context or screenshots or API request payload/responses that you pertain to the feature.
-  validations:
-    required: false
+    required: true

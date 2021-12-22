@@ -19,7 +19,7 @@
   </h3>
 
 <p align="center">
-Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
+Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop UI components to build pages, connect to any API, database or GraphQL source and write logic with JavaScript objects.  
 <br />
 <br />
 <img src="static/images/integrations.png" width="320px">
@@ -112,7 +112,7 @@ Check out some real applications that can be built with Appsmith:
 
 Here are the latest tutorials and videos for you to learn more about Appsmith:
 
-1. [Build an Investor CRM using Appsmith on Google Sheets](https://blog.appsmith.com/build-an-investor-crm-using-appsmith-on-google-sheets-1)
+1. [Build an Investor CRM using Appsmith on Google Sheets](https://www.appsmith.com/blog/build-an-investor-crm-using-appsmith-on-google-sheets)
 2. [Building an Admin Panel on MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith) ([Video](https://www.youtube.com/watch?v=tisUaIgI86k))
 3. [Building a Discount Management Dashboard With Postgres](https://blog.appsmith.com/building-a-discount-management-dashboard-with-postgres)
 4. [Building a Customer Support Dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo)
@@ -191,6 +191,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
     <td align="center"><a href="http://appsmith.com"><img src="https://avatars.githubusercontent.com/u/11089579?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Somangshu Goswami</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Asomangshu" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=somangshu" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/akshayrangasaid"><img src="https://avatars.githubusercontent.com/u/76783810?v=4?s=100" width="100px;" alt=""/><br /><sub><b>akshayrangasaid</b></sub></a><br /><a href="#content-akshayrangasaid" title="Content">🖋</a> <a href="#ideas-akshayrangasaid" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/marks0351"><img src="https://avatars.githubusercontent.com/u/35134347?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ashok Kumar M</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=marks0351" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.rafaaudibert.dev"><img src="https://avatars.githubusercontent.com/u/32079912?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Rafael Baldasso Audibert</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=rafaeelaudibert" title="Code">💻</a></td>
   </tr>
 </table>
 

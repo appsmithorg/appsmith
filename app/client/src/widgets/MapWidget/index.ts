@@ -19,7 +19,9 @@ export const CONFIG = {
     allowZoom: true,
     mapCenter: { lat: 25.122, long: 50.132 },
     defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Location1" }],
+    isClickedMarkerCentered: true,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

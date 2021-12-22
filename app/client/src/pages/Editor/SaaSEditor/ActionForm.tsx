@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { Action, SaaSAction } from "entities/Action";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getPluginResponseTypes,
@@ -29,11 +29,15 @@ import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { updateReplayEntity } from "actions/pageActions";
+import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
 } & RouteComponentProps<{
-    applicationId: string;
     pageId: string;
     pluginPackageName: string;
     apiId: string;
@@ -45,8 +49,9 @@ function ActionForm(props: Props) {
   const {
     actionName,
     match: {
-      params: { apiId, applicationId, pageId },
+      params: { apiId, pageId },
     },
+    pluginId,
   } = props;
 
   const dispatch = useDispatch();
@@ -54,50 +59,29 @@ function ActionForm(props: Props) {
     dispatch(deleteAction({ id: apiId, name: actionName }));
   };
 
-  //Following if block is the fix for the missing where key
-  /**
-   * NOTE:
-   * Action object returned by getAction comes from state.entities.action
-   * action api's payload is created from state.entities.action and response is saved in the same key
-   * Data passed to redux form is the merge of values present in state.entities.action, editorConfig, settingsConfig and has the correct datastrucure
-   * Data structure in state.entities.action is not correct
-   * Q. What does the following fix do?
-   * A. It calculates the diff between merged values and state.entities.action and saves the same in state.entities.action
-   * There is another key form that holds the formData
-   */
-  if (!!props.actionObjectDiff) {
-    let path = "";
-    let value = "";
-    // Loop through the diff objects in difference Array
-    for (let i = 0; i < props.actionObjectDiff.length; i++) {
-      //kind = N indicates a newly added property/element
-      //This property is present in initialValues but not in action object
-      if (props.actionObjectDiff[i]?.kind === "N") {
-        // Calculate path from path[] in diff
-        path = props.actionObjectDiff[i].path.reduce(
-          (acc: string, item: number | string) => {
-            if (typeof item === "string" && acc) {
-              acc += `${path}.${item}`;
-            } else if (typeof item === "string" && !acc) {
-              acc += `${item}`;
-            } else acc += `${path}[${item}]`;
-            return acc;
-          },
-          "",
-        );
-        // get value from diff object
-        value = props.actionObjectDiff[i]?.rhs;
-      }
-    }
-    if (value && path) {
-      dispatch(
-        setActionProperty({
-          actionId: apiId,
-          propertyName: path,
-          value: value,
-        }),
-      );
-    }
+  useEffect(() => {
+    dispatch(
+      updateReplayEntity(
+        props.initialValues.id as string,
+        props.initialValues,
+        ENTITY_TYPE.ACTION,
+      ),
+    );
+  }, []);
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
+  const { path = "", value = "" } = {
+    ...getPathAndValueFromActionDiffObject(props.actionObjectDiff),
+  };
+  if (value && path) {
+    dispatch(
+      setActionProperty({
+        actionId: apiId,
+        propertyName: path,
+        value: value,
+      }),
+    );
   }
 
   const onRunClick = () => {
@@ -109,6 +93,17 @@ function ActionForm(props: Props) {
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
     );
   };
+
+  // custom function to return user to integrations page if action is not found
+  const goToDatasourcePage = () =>
+    history.push(
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+    );
+
+  // if the action can not be found, generate a entity not found page
+  if (!pluginId && apiId) {
+    return <EntityNotFoundPane goBackFn={goToDatasourcePage} />;
+  }
 
   const childProps: any = {
     ...props,
@@ -122,6 +117,7 @@ function ActionForm(props: Props) {
 const mapStateToProps = (state: AppState, props: any) => {
   const { apiId } = props.match.params;
   const { runErrorMessage } = state.ui.queryPane;
+  const currentPageId = state.ui.editor.currentPageId;
   const { plugins } = state.entities;
   const { editorConfigs, settingConfigs } = plugins;
   const pluginImages = getPluginImages(state);
@@ -170,6 +166,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     editorConfig,
     settingConfig,
     actionName,
+    currentPageId,
     pluginId,
     plugin,
     responseType: responseTypes[pluginId],

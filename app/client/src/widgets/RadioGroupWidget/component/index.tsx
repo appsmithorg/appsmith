@@ -11,6 +11,7 @@ import {
 } from "@blueprintjs/core";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { BlueprintControlTransform, labelStyle } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
@@ -27,8 +28,22 @@ const StyledControlGroup = styled(ControlGroup)`
 
 const StyledRadioGroup = styled(RadioGroup)`
   ${BlueprintControlTransform};
-  label {
-    margin: 7px ${WIDGET_PADDING * 2}px 0 0;
+  .${Classes.CONTROL} {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    min-height: 36px;
+    margin: 0px 12px;
+    color: ${Colors.GREY_10};
+
+    &:hover {
+      & input:not(:checked) ~ .bp3-control-indicator {
+        border: 1px solid ${Colors.GREY_5} !important;
+      }
+    }
+    & .bp3-control-indicator {
+      border: 1px solid ${Colors.GREY_3};
+    }
   }
 `;
 
@@ -52,11 +67,11 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
           onChange={this.onRadioSelectionChange}
           selectedValue={this.props.selectedOptionValue}
         >
-          {this.props.options.map((option) => {
+          {this.props.options.map((option, optInd) => {
             return (
               <Radio
                 className={this.props.isLoading ? "bp3-skeleton" : ""}
-                key={option.value}
+                key={optInd}
                 label={option.label}
                 value={option.value}
               />

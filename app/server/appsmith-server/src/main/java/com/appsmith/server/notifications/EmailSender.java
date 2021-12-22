@@ -28,16 +28,17 @@ public class EmailSender {
 
     private final EmailConfig emailConfig;
 
-    private final InternetAddress MAIL_FROM;
-
     private final InternetAddress REPLY_TO;
 
     public EmailSender(JavaMailSender javaMailSender, EmailConfig emailConfig) {
         this.javaMailSender = javaMailSender;
         this.emailConfig = emailConfig;
 
-        MAIL_FROM = makeFromAddress();
         REPLY_TO = makeReplyTo();
+    }
+
+    public Mono<Boolean> sendMail(String to, String subject, String text) {
+        return sendMail(to, subject, text, null);
     }
 
     public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
@@ -51,7 +52,7 @@ public class EmailSender {
          */
         Mono.fromCallable(() -> {
                     try {
-                        return TemplateUtils.parseTemplate(text, params);
+                        return params == null ? text : TemplateUtils.parseTemplate(text, params);
                     } catch (IOException e) {
                         throw Exceptions.propagate(e);
                     }
@@ -92,8 +93,8 @@ public class EmailSender {
 
         try {
             helper.setTo(to);
-            if (MAIL_FROM != null) {
-                helper.setFrom(MAIL_FROM);
+            if (emailConfig.getMailFrom() != null) {
+                helper.setFrom(emailConfig.getMailFrom());
             }
             if (REPLY_TO != null) {
                 helper.setReplyTo(REPLY_TO);
@@ -107,15 +108,6 @@ public class EmailSender {
             log.error("Unable to create the mime message while sending an email to {} with subject: {}. Cause: ", to, subject, e);
         } catch (MailException e) {
             log.error("Unable to send email. Cause: ", e);
-        }
-    }
-
-    private InternetAddress makeFromAddress() {
-        try {
-            return new InternetAddress(this.emailConfig.getMailFrom(), "Appsmith");
-        } catch (UnsupportedEncodingException e) {
-            log.error("Encoding error creating Appsmith mail from address.", e);
-            return null;
         }
     }
 
