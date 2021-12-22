@@ -5,7 +5,7 @@ labels: [Template]
 assignees:
 - Kocharrahul8
 body:
-- type: textarea
+- type: input
   id: Title
   attributes:
     label: Title
@@ -21,7 +21,7 @@ body:
   validations:
     required: true
 
-- type: textarea
+- type: input
   id: Wireframes
   attributes:
     label: Wireframes
