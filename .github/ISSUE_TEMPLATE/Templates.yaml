@@ -25,7 +25,7 @@ body:
   id: Wireframes
   attributes:
     label: Wireframes
-    description: Share your app templte outline/design. link to Wireframes you have created, existing applications/templates/tools which you would like to leverage
+    description: Share your app template outline/design. link to Wireframes you have created, existing applications/templates/tools which you would like to leverage
   validations:
     required: true
 
@@ -39,6 +39,89 @@ body:
   validations:
     required: true
     
+- type: dropdown
+  id: Use case
+  attributes:
+    label: Use case tag
+    options:
+      - Cloud
+      - Self-Hosted
+  validations:
+    required: true
+
+- type: dropdown
+  id: Use case
+  attributes:
+    label: Version
+    options:
+      -Support
+      -Martketing
+      -Sales
+      -Finance
+      -Information Technology (IT)
+      -Human Resources (HR)
+      -Communications
+      -Legal
+      -PR & Communications
+      -Product, design, and UX
+      -Project Management
+      -Personal
+      -Remote work
+      -Software Development
+      -None of the above
+  validations:
+    required: true
+    
+    
+- type: dropdown
+  id: Industry
+  attributes:
+    label: Industry tag
+    options:
+      -Technology
+      -Health Care
+      -Financials
+      -Consumer Discretionary
+      -Communication Services
+      -Industrials
+      -Consumer goods
+      -Energy
+      -Utilities
+      -Real Estate
+      -Materials
+      -Aggriculture
+      -Services
+      -Other
+      -None of the above
+  validations:
+    required: true
+
+- type: dropdown
+  id: Data sources
+  attributes:
+    label: Data sources tag
+    options:
+      -Any
+      -API
+      -CURL import
+      -Authenticated API
+      -Google Sheets
+      -PostgreSQL
+      -MongoDB
+      -Mysql
+      -ElasticSearch
+      -DynamoDB
+      -Redis
+      -MsSQL
+      -Firestore
+      -Redshift
+      -S3
+      -Snowflake
+      -ArangoDB
+  validations:
+    required: true
+
+
 - type: textarea
   attributes:
     label: Tags
