@@ -483,6 +483,13 @@ jobs:
         with:
           name: cypress-coverage-${{ matrix.job }}
           path: app/client/cypress/snapshots/    
+    
+     # Upload the screenshot as artifacts 
+      - uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: cypress-coverage-${{ matrix.job }}
+          path: app/client/cypress/snapshots/  
 
       # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
