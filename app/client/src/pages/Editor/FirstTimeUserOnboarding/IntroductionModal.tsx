@@ -1,18 +1,20 @@
 import { Icon, Overlay } from "@blueprintjs/core";
-import Button, { Category } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
 import {
   HOW_APPSMITH_WORKS,
   BUILD_MY_FIRST_APP,
   createMessage,
 } from "constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
+import Database from "assets/images/first-time-onboarding-database.svg";
+import Drag from "assets/images/first-time-onboarding-dragndrop.svg";
+import Publish from "assets/images/first-time-onboarding-publish.svg";
 
 const Wrapper = styled.div`
   display: flex;
@@ -101,8 +103,6 @@ const ModalFooterText = styled.span`
 `;
 
 const StyledButton = styled(Button)`
-  width: 145px;
-  height: 38px;
   display: inline-block;
 `;
 
@@ -116,10 +116,6 @@ const StyledClose = styled(Icon)`
 type IntroductionModalProps = {
   close: () => void;
 };
-
-const getConnectDataImg = () => `${ASSETS_CDN_URL}/ConnectData.svg`;
-const getQueryDataImg = () => `${ASSETS_CDN_URL}/QueryData.svg`;
-const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps.svg`;
 
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const dispatch = useDispatch();
@@ -164,7 +160,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getConnectDataImg()} />
+                  <StyledImg src={Database} />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow border>
@@ -181,7 +177,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getQueryDataImg()} />
+                  <StyledImg src={Drag} />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow className="border-b-0">
@@ -198,7 +194,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getPublishAppsImg()} />
+                  <StyledImg src={Publish} />
                 </StyledImgWrapper>
               </ModalContentRow>
             </ModalContentWrapper>
@@ -212,6 +208,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 category={Category.tertiary}
                 className="t--introduction-modal-build-button my-6"
                 onClick={() => triggerWelcomeTour(dispatch)}
+                size={Size.large}
                 tag="button"
                 text={"START TUTORIAL"}
               />
@@ -219,6 +216,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 category={Category.primary}
                 className="t--introduction-modal-build-button my-6 ml-5"
                 onClick={onBuildApp}
+                size={Size.large}
                 tag="button"
                 text={createMessage(BUILD_MY_FIRST_APP)}
               />
