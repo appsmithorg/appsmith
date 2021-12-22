@@ -60,6 +60,7 @@ import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import {
   fetchGitStatusInit,
+  remoteUrlInputValue,
   resetPullMergeStatus,
   updateBranchLocally,
 } from "actions/gitSyncActions";
@@ -105,7 +106,7 @@ function* initializeEditorSaga(
   yield put(resetEditorSuccess());
   const { applicationId, branch, pageId } = initializeEditorAction.payload;
   try {
-    if (branch) yield put(updateBranchLocally(branch));
+    yield put(updateBranchLocally(branch || ""));
 
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
@@ -217,6 +218,9 @@ function* initializeEditorSaga(
       appId: appId,
       appName: appName,
     });
+
+    // init of temporay remote url from old application
+    yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,

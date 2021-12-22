@@ -2,13 +2,13 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/checkboxgroupDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Checkbox Group Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Checkbox Group Widget Functionality", function() {
+
+  it("1. Checkbox Group Widget Functionality", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     /**
      * @param{Text} Random Text
@@ -59,7 +59,8 @@ describe("Checkbox Group Widget Functionality", function() {
       .type("2");
     cy.PublishtheApp();
   });
-  it("Checkbox Group Functionality To Unchecked Visible Widget", function() {
+
+  it("2. Checkbox Group Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -67,7 +68,8 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(publish.checkboxGroupWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it("Checkbox Group Functionality To Check Visible Widget", function() {
+
+  it("3. Checkbox Group Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -75,7 +77,8 @@ describe("Checkbox Group Widget Functionality", function() {
       .eq(0)
       .should("exist");
   });
-  it("Checkbox Group Functionality To Button Text", function() {
+
+  it("4. Checkbox Group Functionality To Button Text", function() {
     cy.get(publish.checkboxGroupWidget + " " + "label")
       .eq(1)
       .should("have.text", "test2");
