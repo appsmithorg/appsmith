@@ -826,7 +826,7 @@ export function* fetchAppSelectedTheme(
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: dummyThemes[0],
+      payload: dummyThemes[1],
     });
   } catch (error) {
     yield put({

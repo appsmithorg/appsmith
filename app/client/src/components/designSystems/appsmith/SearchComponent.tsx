@@ -10,6 +10,7 @@ interface SearchProps {
   placeholder: string;
   value: string;
   className?: string;
+  autoFocus?: boolean;
 }
 
 const SearchComponentWrapper = styled.div`
@@ -107,6 +108,7 @@ class SearchComponent extends React.Component<
     return (
       <SearchComponentWrapper>
         <SearchInputWrapper
+          autoFocus={this.props.autoFocus}
           className={`${this.props.className} t--search-input`}
           leftIcon="search"
           onChange={this.handleSearch}

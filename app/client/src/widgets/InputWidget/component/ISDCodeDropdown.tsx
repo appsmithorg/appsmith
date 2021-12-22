@@ -17,6 +17,7 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
   line-height: ${(props) => (props.disabled ? 36 : 18)}px;
   letter-spacing: -0.24px;
   color: #090707;
+  cursor: pointer;
   position: ${(props) => props.disabled && "absolute"};
 
   .dropdown {
@@ -55,13 +56,14 @@ export const PopoverStyles = createGlobalStyle<{
 
     .${props.portalClassName}  .${Classes.INPUT} {
       border-radius: ${props.borderRadius} !important;
+      min-height: 32px;
     }
 
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
     props.portalClassName
   }  .${Classes.INPUT}:active {
       border: 1px solid ${props.primaryColor} !important;
-      box-shadow:  0px 0px 0px 2px ${lightenColor(
+      box-shadow:  0px 0px 0px 3px ${lightenColor(
         props.primaryColor,
       )} !important;
     }
@@ -153,6 +155,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         optionWidth="340px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
+        searchAutoFocus
         searchPlaceholder="Search by ISD code or country"
         selected={props.selected}
         showLabelOnly

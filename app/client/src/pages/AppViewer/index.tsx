@@ -36,6 +36,8 @@ import GlobalHotKeys from "./GlobalHotKeys";
 
 import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { AppTheme } from "entities/AppTheming";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -58,10 +60,14 @@ const ContainerWithComments = styled.div`
   background: ${(props) => props.theme.colors.artboard};
 `;
 
-const AppViewerBodyContainer = styled.div<{ width?: string }>`
+const AppViewerBodyContainer = styled.div<{
+  width?: string;
+  backgroundColor: string;
+}>`
   flex: 1;
   overflow: auto;
   margin: 0 auto;
+  background: ${({ backgroundColor }) => backgroundColor};
 `;
 
 export type AppViewerProps = {
@@ -86,6 +92,7 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
+  selectedTheme: AppTheme;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -154,7 +161,11 @@ class AppViewer extends Component<Props> {
           >
             <ContainerWithComments>
               <AppViewerCommentsSidebar />
-              <AppViewerBodyContainer>
+              <AppViewerBodyContainer
+                backgroundColor={
+                  this.props.selectedTheme.properties.colors.backgroundColor
+                }
+              >
                 <AppViewerBody hasPages={this.props.pages.length > 1}>
                   {isInitialized && this.state.registered && (
                     <Switch>
@@ -186,6 +197,7 @@ const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  selectedTheme: getSelectedAppTheme(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

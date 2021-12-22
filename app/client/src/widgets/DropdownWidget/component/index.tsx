@@ -59,6 +59,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     padding: 0px 10px;
     border: 1px solid;
     line-height: 30px;
+    min-height: 32px;
     border-color: ${({ isValid }) =>
       isValid ? Colors.GREY_3 : Colors.DANGER_SOLID};
     ${(props) =>
@@ -80,14 +81,8 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
 
   & .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
     outline: 0;
-    ${(props) =>
-      props.isValid
-        ? `
-        border: 1px solid ${props.primaryColor};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
-      `
-        : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
   }
+
   & .${Classes.DISABLED} {
     background-color: ${Colors.GREY_1};
     border: 1px solid ${Colors.GREY_3};
@@ -103,6 +98,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     color: ${(props) => (props.isSelected ? Colors.GREY_10 : Colors.GREY_6)};
+    line-height: normal;
   }
   & {
     .${Classes.ICON} {
@@ -164,13 +160,15 @@ ${({ dropDownWidth, id, parentWidth }) => `
     }
 
     & .${Classes.INPUT_GROUP} {
-      padding: 12px 12px 8px 12px;
+      padding: 0;
+      margin: 10px !important;
 
       & > .${Classes.ICON} {
         &:first-child {
-          left: 12px;
-          top: 14px;
-          margin: 9px;
+          margin: 0 10px;
+          height: 100%;
+          display: flex;
+          align-items: center;
           color: ${Colors.GREY_7};
 
           & > svg {
@@ -182,11 +180,14 @@ ${({ dropDownWidth, id, parentWidth }) => `
 
       & > .${Classes.INPUT_ACTION} {
         &:last-child {
-          right: 13px;
-          top: 13px;
+          margin: 0 10px;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          color: ${Colors.GREY_7};
 
           .${Classes.BUTTON} {
-            min-width: 35px;
+            min-width: auto;
             margin: 0px;
             color: ${Colors.GREY_6} !important;
 
@@ -200,7 +201,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
       }
 
       .${Classes.INPUT} {
-        height: 36px;
+        height: 32px;
+        padding-left: 32px;
         border: 1px solid ${Colors.GREY_3};
         color: ${Colors.GREY_10};
         border-radius: ${({ borderRadius }) => borderRadius} !important;
@@ -216,6 +218,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
       max-width: 100% !important;
       max-height: auto;
       min-width: 0px !important;
+      padding-top: 0px !important;
+      border-radius: 0px;
     }
 
     & .${Classes.MENU_ITEM} {

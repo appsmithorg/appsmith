@@ -40,6 +40,7 @@ export interface DropdownSearchProps {
   enableSearch?: boolean;
   searchPlaceholder?: string;
   onSearch?: (value: any) => void;
+  searchAutoFocus?: boolean;
 }
 
 export interface RenderDropdownOptionType {
@@ -550,6 +551,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
       {props.enableSearch && (
         <SearchComponentWrapper>
           <SearchComponent
+            autoFocus={props.searchAutoFocus}
             onSearch={onOptionSearch}
             placeholder={props.searchPlaceholder || ""}
             value={searchValue}

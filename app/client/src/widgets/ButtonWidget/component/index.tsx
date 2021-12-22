@@ -84,7 +84,7 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
   }
 `;
 
-const StyledButton = styled((props) => (
+export const StyledButton = styled((props) => (
   <Button
     {..._.omit(props, [
       "borderRadius",
