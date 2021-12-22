@@ -52,7 +52,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       url,
     });
     url && history.push(url);
-  }, [url, pageId]);
+  }, [url]);
 
   const contextMenu = (
     <ActionEntityContextMenu

@@ -1,12 +1,11 @@
 import React, { useCallback, useMemo } from "react";
-import { useActiveAction, useFilesForExplorer } from "../hooks";
+import { useActiveAction } from "../hooks";
 import { Entity } from "../Entity/index";
 import { createMessage, ADD_QUERY_JS_TOOLTIP } from "constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { PluginType } from "entities/Action";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
 import {
@@ -14,6 +13,7 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 import EntityPlaceholder from "../Entity/Placeholder";
+import { selectFilesForExplorer } from "selectors/entitiesSelector";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -24,7 +24,7 @@ const emptyNode = (
 
 function Files() {
   const pageId = useSelector(getCurrentPageId) as string;
-  const files = useFilesForExplorer("type");
+  const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
   const onCreate = useCallback(() => {
     dispatch(
@@ -47,7 +47,7 @@ function Files() {
               {entity.name}
             </div>
           );
-        } else if (type === PluginType.JS) {
+        } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
               id={entity.id}
@@ -55,6 +55,7 @@ function Files() {
               key={entity.id}
               searchKeyword={""}
               step={2}
+              type={type}
             />
           );
         } else {

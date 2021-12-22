@@ -7,26 +7,17 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { compact, get, groupBy, sortBy } from "lodash";
+import { compact, get, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
-import { isStoredDatasource, PluginType } from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import {
-  getActions,
-  getDatasourceIdToNameMap,
-  getDatasources,
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-} from "selectors/entitiesSelector";
+import { getActions, getDatasources } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import getFeatureFlags from "utils/featureFlags";
-import { ExplorerFileEntity } from "./helpers";
 import { matchPath, useLocation } from "react-router";
-import { isEmbeddedRestDatasource } from "entities/Datasource";
 import {
   API_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
@@ -321,74 +312,6 @@ export const useEntityEditState = (entityId: string) => {
     (state: AppState) =>
       get(state, "ui.explorer.entity.editingEntityName") === entityId,
   );
-};
-
-export const useFilesForExplorer = (sort = "type") => {
-  const actions = useSelector(getActionsForCurrentPage);
-  const jsActions = useSelector(getJSCollectionsForCurrentPage);
-  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
-  const datasourceIdToNameMap = useSelector(getDatasourceIdToNameMap);
-
-  const files = useMemo(
-    () =>
-      [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
-        (acc, file) => {
-          let group = "";
-          if (file.config.pluginType === PluginType.JS) {
-            group = "JS Objects";
-          } else if (file.config.pluginType === PluginType.API) {
-            group = isEmbeddedRestDatasource(file.config.datasource)
-              ? "APIs"
-              : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-          } else {
-            group = datasourceIdToNameMap[file.config.datasource.id];
-          }
-          acc = acc.concat({
-            type: file.config.pluginType,
-            entity: file,
-            group,
-          });
-          return acc;
-        },
-        [] as Array<ExplorerFileEntity>,
-      ),
-    [actions, jsActions, datasourceIdToNameMap],
-  );
-
-  return useMemo(() => {
-    if (sort === "name") {
-      return sortBy(files, "entity.config.name");
-    } else if (sort === "type") {
-      const filesSortedByGroupName = sortBy(
-        files,
-        "group",
-        "entity.config.name",
-      );
-      const groupedFiles = filesSortedByGroupName.reduce(
-        (acc, file) => {
-          if (acc.group !== file.group) {
-            acc.files = acc.files.concat({
-              type: "group",
-              entity: {
-                name: file.group,
-              },
-            });
-            acc.group = file.group;
-          }
-          acc.files = acc.files.concat({
-            ...file,
-            entity: { id: file.entity.config.id },
-          });
-          return acc;
-        },
-        {
-          group: "" as any,
-          files: [] as any,
-        },
-      );
-      return groupedFiles.files;
-    }
-  }, [sort, files]);
 };
 
 export function useActiveAction() {

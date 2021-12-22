@@ -13,12 +13,14 @@ import { getJSCollection } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import { JSCollection } from "entities/JSCollection";
 import { jsFileIcon } from "../ExplorerIcons";
+import { PluginType } from "entities/Action";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
   searchKeyword?: string;
   id: string;
   isActive: boolean;
+  type: PluginType;
 };
 
 const getUpdateJSObjectName = (id: string, name: string) => {
