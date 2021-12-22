@@ -10,7 +10,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { getDragDetails, getWidgets } from "sagas/selectors";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
   WidgetOperationParams,
@@ -27,6 +27,7 @@ import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflow } from "actions/reflowActions";
+import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -64,13 +65,18 @@ export const useBlocksToBeDraggedOnCanvas = ({
   // which canvas is active(being dragged on),
   // which widget is grabbed while dragging started,
   // relative position of mouse pointer wrt to the last grabbed widget.
-  const dragDetails = useSelector(getDragDetails);
+  const dragDetails: DragDetails = useSelector(getDragDetails);
+  const draggingCanvas = useSelector(
+    getWidgetByID(dragDetails.draggedOn || ""),
+  );
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
+      draggingCanvas &&
+      draggingCanvas.parentId &&
       ![widgetId, MAIN_CONTAINER_WIDGET_ID].includes(dragDetails.draggedOn)
     ) {
-      lastDraggedCanvas.current = dragDetails.draggedOn;
+      lastDraggedCanvas.current = draggingCanvas.parentId;
     }
   }, [dragDetails.draggedOn]);
   const defaultHandlePositions = {

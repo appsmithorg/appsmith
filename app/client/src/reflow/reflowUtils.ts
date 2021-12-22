@@ -16,6 +16,13 @@ import {
   VERTICAL_RESIZE_LIMIT,
 } from "./reflowTypes";
 
+/**
+ * Get if the space moved horizontally
+ *
+ * @param newPositions
+ * @param prevPositions
+ * @returns boolean
+ */
 export function getIsHorizontalMove(
   newPositions: OccupiedSpace,
   prevPositions?: OccupiedSpace,
@@ -29,6 +36,14 @@ export function getIsHorizontalMove(
   return false;
 }
 
+/**
+ * method to determine if the newly calculated MovementValue should replace an old value of the same Space Id
+ *
+ * @param oldMovement
+ * @param newMovement
+ * @param direction
+ * @returns boolean
+ */
 export function shouldReplaceOldMovement(
   oldMovement: ReflowedSpace,
   newMovement: ReflowedSpace,
@@ -44,7 +59,7 @@ export function shouldReplaceOldMovement(
     oldMovement[distanceKey] === undefined ||
     newMovement[distanceKey] === undefined
   )
-    return;
+    return false;
 
   return compareNumbers(
     //eslint-disable-next-line
@@ -55,6 +70,15 @@ export function shouldReplaceOldMovement(
   );
 }
 
+/**
+ * method to get resized dimensions of the Space to determine the Spaces colliding with this Space
+ *
+ * @param collisionTree
+ * @param distanceBeforeCollision
+ * @param emptySpaces
+ * @param accessors
+ * @returns resized Direction
+ */
 export function getResizedDimensions(
   collisionTree: CollisionTree,
   distanceBeforeCollision: number,
@@ -69,17 +93,31 @@ export function getResizedDimensions(
   return reflowedPosition;
 }
 
+/**
+ * sort the collidingSpaces with respect to the distance from the staticPosition
+ *
+ * @param collidingSpaces
+ * @param staticPosition
+ * @param isAscending
+ */
 export function sortCollidingSpacesByDistance(
-  occupiedSpaces: CollidingSpace[],
-  newPositions: OccupiedSpace,
+  collidingSpaces: CollidingSpace[],
+  staticPosition: OccupiedSpace,
   isAscending = true,
 ) {
-  const distanceComparator = getDistanceComparator(newPositions, isAscending);
-  occupiedSpaces.sort(distanceComparator);
+  const distanceComparator = getDistanceComparator(staticPosition, isAscending);
+  collidingSpaces.sort(distanceComparator);
 }
 
-export function getDistanceComparator(
-  newPositions: OccupiedSpace,
+/**
+ * Returns a comparator bound to the
+ *
+ * @param staticPosition
+ * @param isAscending
+ * @returns negative or positive indicator
+ */
+function getDistanceComparator(
+  staticPosition: OccupiedSpace,
   isAscending = true,
 ) {
   return function(spaceA: CollidingSpace, spaceB: CollidingSpace) {
@@ -87,21 +125,29 @@ export function getDistanceComparator(
     const accessorB = getAccessor(spaceB.direction);
 
     const distanceA = Math.abs(
-      newPositions[accessorA.direction] - spaceA[accessorA.oppositeDirection],
+      staticPosition[accessorA.direction] - spaceA[accessorA.oppositeDirection],
     );
     const distanceB = Math.abs(
-      newPositions[accessorB.direction] - spaceB[accessorB.oppositeDirection],
+      staticPosition[accessorB.direction] - spaceB[accessorB.oppositeDirection],
     );
     return isAscending ? distanceA - distanceB : distanceB - distanceA;
   };
 }
 
-export function getShouldResize(
-  newPositions: SpaceMovement | undefined,
+/**
+ * To Get Indicators if the static widget can continue to reflow without Overlapping
+ *
+ * @param staticPosition
+ * @param delta
+ * @param beforeLimit
+ * @returns object with a boolean each for vertical and horizontal direction
+ */
+export function getShouldReflow(
+  staticPosition: SpaceMovement | undefined,
   delta = { X: 0, Y: 0 },
   beforeLimit = false,
 ): { canVerticalMove: boolean; canHorizontalMove: boolean } {
-  if (!newPositions)
+  if (!staticPosition)
     return {
       canHorizontalMove: false,
       canVerticalMove: false,
@@ -109,7 +155,7 @@ export function getShouldResize(
 
   let canHorizontalMove = true,
     canVerticalMove = true;
-  const { directionalMovements } = newPositions;
+  const { directionalMovements } = staticPosition;
   for (const movementLimit of directionalMovements) {
     const {
       coordinateKey,
@@ -136,6 +182,15 @@ export function getShouldResize(
     canVerticalMove,
   };
 }
+/**
+ * Should return X and Y coordinates of movement from OGPositions to newPositions
+ * in a particular direction
+ *
+ * @param OGPositions
+ * @param newPositions
+ * @param direction
+ * @returns
+ */
 export function getDelta(
   OGPositions: OccupiedSpace,
   newPositions: OccupiedSpace,
@@ -143,7 +198,7 @@ export function getDelta(
 ) {
   let X = OGPositions.left - newPositions.left,
     Y = OGPositions.top - newPositions.top;
-  if (direction.indexOf("|") < 0) {
+  if (direction.indexOf("|") > 0) {
     const [verticalDirection, horizontalDirection] = direction.split("|");
     const { direction: xDirection } = getAccessor(
       horizontalDirection as ReflowDirection,
@@ -168,8 +223,20 @@ export function getDelta(
   return { X, Y };
 }
 
+/**
+ * returns Collising Spaces map with the direction of collision
+ *
+ * @param staticPosition
+ * @param direction
+ * @param occupiedSpaces
+ * @param isHorizontalMove
+ * @param prevPositions
+ * @param prevCollidingSpaces
+ * @param forceDirection
+ * @returns collision spaces Map
+ */
 export function getCollidingSpaces(
-  newPositions: OccupiedSpace,
+  staticPosition: OccupiedSpace,
   direction: ReflowDirection,
   occupiedSpaces?: OccupiedSpace[],
   isHorizontalMove?: boolean,
@@ -180,12 +247,12 @@ export function getCollidingSpaces(
   let isColliding = false;
   const collidingSpaceMap: CollidingSpaceMap = {};
   const filteredOccupiedSpaces = filterSpaceById(
-    newPositions.id,
+    staticPosition.id,
     occupiedSpaces,
   );
 
   for (const occupiedSpace of filteredOccupiedSpaces) {
-    if (areIntersecting(occupiedSpace, newPositions)) {
+    if (areIntersecting(occupiedSpace, staticPosition)) {
       isColliding = true;
       const currentSpaceId = occupiedSpace.id;
 
@@ -211,20 +278,27 @@ export function getCollidingSpaces(
   };
 }
 
+/**
+ * returns Collising Spaces map in a particular direction
+ * @param staticPosition
+ * @param direction
+ * @param occupiedSpaces
+ * @returns Colliding Spaces Array
+ */
 export function getCollidingSpacesInDirection(
-  newPositions: OccupiedSpace,
+  staticPosition: OccupiedSpace,
   direction: ReflowDirection,
   occupiedSpaces?: OccupiedSpace[],
 ) {
   const collidingSpaces: CollidingSpace[] = [];
   const occupiedSpacesInDirection = filterSpaceByDirection(
-    newPositions,
+    staticPosition,
     occupiedSpaces,
     direction,
   );
 
   for (const occupiedSpace of occupiedSpacesInDirection) {
-    if (areIntersecting(occupiedSpace, newPositions)) {
+    if (areIntersecting(occupiedSpace, staticPosition)) {
       collidingSpaces.push({
         ...occupiedSpace,
         direction,
@@ -235,8 +309,8 @@ export function getCollidingSpacesInDirection(
   return { collidingSpaces, occupiedSpacesInDirection };
 }
 
-export function filterSpaceByDirection(
-  newPositions: OccupiedSpace,
+function filterSpaceByDirection(
+  staticPosition: OccupiedSpace,
   occupiedSpaces: OccupiedSpace[] | undefined,
   direction: ReflowDirection,
 ): OccupiedSpace[] {
@@ -246,14 +320,14 @@ export function filterSpaceByDirection(
   if (occupiedSpaces) {
     filteredSpaces = occupiedSpaces.filter((occupiedSpace) => {
       if (
-        occupiedSpace.id === newPositions.id ||
-        occupiedSpace.parentId === newPositions.id
+        occupiedSpace.id === staticPosition.id ||
+        occupiedSpace.parentId === staticPosition.id
       )
         return false;
 
       return compareNumbers(
         occupiedSpace[oppositeDirection],
-        newPositions[oppositeDirection],
+        staticPosition[oppositeDirection],
         directionIndicator > 0,
       );
     });
@@ -262,6 +336,12 @@ export function filterSpaceByDirection(
   return filteredSpaces;
 }
 
+/**
+ * filters out a space with an id and returns the filtered Spaces
+ * @param id
+ * @param occupiedSpaces
+ * @returns filtered occupied spaces
+ */
 export function filterSpaceById(
   id: string,
   occupiedSpaces: OccupiedSpace[] | undefined,
@@ -292,10 +372,10 @@ function getCorrectedDirection(
   isHorizontalMove?: boolean,
   prevCollidingSpaces?: CollidingSpaceMap,
 ): ReflowDirection {
-  if (forceDirection) return direction;
-
   if (prevCollidingSpaces && prevCollidingSpaces[collidingSpace.id])
     return prevCollidingSpaces[collidingSpace.id].direction;
+
+  if (forceDirection) return direction;
 
   let primaryDirection: ReflowDirection = direction,
     secondaryDirection: ReflowDirection | undefined = undefined;
@@ -372,7 +452,14 @@ function getVerifiedDirection(
 
   return direction;
 }
-
+/**
+ * compares numbers and returns boolean
+ * @param numberA
+ * @param numberB
+ * @param isGreaterThan
+ * @param isEqual
+ * @returns boolean
+ */
 export function compareNumbers(
   numberA: number,
   numberB: number,
@@ -393,6 +480,23 @@ export function compareNumbers(
   return numberA < numberB;
 }
 
+/**
+ * gets opposite direction
+ * @param direction
+ * @returns ReflowDirection
+ */
+export function getOppositeDirection(
+  direction: ReflowDirection,
+): ReflowDirection {
+  const directionalAccessors = getAccessor(direction);
+  return directionalAccessors.oppositeDirection.toUpperCase() as ReflowDirection;
+}
+
+/**
+ *
+ * @param direction
+ * @returns accessors
+ */
 export function getAccessor(direction: ReflowDirection): CollisionAccessors {
   switch (direction) {
     case ReflowDirection.LEFT:
@@ -457,6 +561,17 @@ export function getAccessor(direction: ReflowDirection): CollisionAccessors {
   };
 }
 
+/**
+ * get Max X coordinate of the the space
+ *
+ * @param collisionTree
+ * @param gridProps
+ * @param direction
+ * @param depth
+ * @param maxOccupiedSpace
+ * @param shouldResize
+ * @returns number
+ */
 export function getMaxX(
   collisionTree: CollisionTree,
   gridProps: GridProps,
@@ -481,6 +596,17 @@ export function getMaxX(
   return accessors.directionIndicator * maxX * gridProps.parentColumnSpace;
 }
 
+/**
+ * get Max Y coordinate of the the space
+ *
+ * @param collisionTree
+ * @param gridProps
+ * @param direction
+ * @param depth
+ * @param maxOccupiedSpace
+ * @param shouldResize
+ * @returns number
+ */
 export function getMaxY(
   collisionTree: CollisionTree,
   gridProps: GridProps,
@@ -503,6 +629,19 @@ export function getMaxY(
   return accessors.directionIndicator * maxY;
 }
 
+/**
+ * get X or Y coordinate distance for space
+ *
+ * @param collisionTree
+ * @param direction
+ * @param maxDistance
+ * @param distanceBeforeCollision
+ * @param actualDimension
+ * @param emptySpaces
+ * @param snapGridSpace
+ * @param expandableCanvas
+ * @returns distance in number
+ */
 export function getReflowDistance(
   collisionTree: CollisionTree,
   direction: ReflowDirection,
@@ -533,6 +672,20 @@ export function getReflowDistance(
     : maxValue + originalDimension - actualDimension;
 }
 
+/**
+ * gets the resized dimension of the space along a direction
+ *
+ * @param collisionTree
+ * @param direction
+ * @param travelDistance
+ * @param maxDistance
+ * @param distanceBeforeCollision
+ * @param snapGridSpace
+ * @param emptySpaces
+ * @param minDimension
+ * @param shouldResize
+ * @returns resized width or height of space
+ */
 export function getResizedDimension(
   collisionTree: CollisionTree,
   direction: ReflowDirection,
@@ -578,6 +731,13 @@ export function getResizedDimension(
   return originalDimension * snapGridSpace - Math.abs(shrink);
 }
 
+/**
+ *
+ * @param movementMap
+ * @param prevMovementMap
+ * @param movementLimit
+ * @returns
+ */
 export function getLimitedMovementMap(
   movementMap: ReflowedSpaceMap | undefined,
   prevMovementMap: ReflowedSpaceMap,

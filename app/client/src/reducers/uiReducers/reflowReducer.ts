@@ -8,7 +8,7 @@ import { ReflowedSpaceMap } from "reflow/reflowTypes";
 const initialState: widgetReflow = {
   isReflowing: false,
   reflowingWidgets: {},
-  shouldResize: false,
+  shouldResize: true,
 };
 
 export const widgetReflowReducer = createReducer(initialState, {

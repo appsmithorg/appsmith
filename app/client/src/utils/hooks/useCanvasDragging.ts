@@ -18,7 +18,6 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { getAccessor } from "reflow/reflowUtils";
 
 export interface XYCord {
   x: number;
@@ -308,10 +307,6 @@ export const useCanvasDragging = (
             movementY < -threshold
           );
         };
-        const getOppositeDirection = (direction: ReflowDirection) => {
-          const directionalAccessors = getAccessor(direction);
-          return directionalAccessors.oppositeDirection.toUpperCase() as ReflowDirection;
-        };
         const getMouseMoveDirection = (event: any) => {
           if (lastMousePosition) {
             const deltaX = lastMousePosition.x - event.clientX,
@@ -425,10 +420,8 @@ export const useCanvasDragging = (
                         id: currentBlock.widgetId,
                       };
                   currentDirection.current = getMouseMoveDirection(e);
+                  const immediateExitContainer = lastDraggedCanvas.current;
                   if (lastDraggedCanvas.current) {
-                    currentDirection.current = getOppositeDirection(
-                      currentDirection.current,
-                    );
                     lastDraggedCanvas.current = undefined;
                   }
                   currentReflowParams = reflow.current(
@@ -438,6 +431,7 @@ export const useCanvasDragging = (
                     false,
                     !canReflowBasedOnMouseSpeed,
                     firstMove,
+                    immediateExitContainer,
                   );
                 }
 

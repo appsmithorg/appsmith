@@ -56,9 +56,8 @@ export const useReflow = (
     stopMoveAfterLimit = false,
     shouldSkipContainerReflow = false,
     forceDirection = false,
+    immediateExitContainer?: string,
   ) {
-    //eslint-disable-next-line
-    console.log("reflow New Positions", newPositions, direction);
     const { collidingSpaceMap, movementLimit, movementMap } = reflow(
       newPositions,
       OGPositions,
@@ -67,6 +66,7 @@ export const useReflow = (
       gridProps,
       forceDirection,
       shouldResize,
+      immediateExitContainer,
       prevPositions.current,
       prevCollidingSpaces.current,
     );
@@ -98,7 +98,8 @@ export const useReflow = (
 
     if (!isEmpty(correctedMovementMap)) {
       isReflowing.current = true;
-      throttledDispatch(reflowMove(correctedMovementMap));
+      if (forceDirection) dispatch(reflowMove(correctedMovementMap));
+      else throttledDispatch(reflowMove(correctedMovementMap));
     } else if (isReflowing.current) {
       isReflowing.current = false;
       throttledDispatch.cancel();

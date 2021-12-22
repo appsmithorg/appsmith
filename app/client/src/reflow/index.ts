@@ -1,4 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { cloneDeep } from "lodash";
 import { getMovementMap } from "./reflowHelpers";
 import { CollidingSpaceMap, GridProps, ReflowDirection } from "./reflowTypes";
 import {
@@ -6,7 +7,8 @@ import {
   getCollidingSpaces,
   getDelta,
   getIsHorizontalMove,
-  getShouldResize,
+  getOppositeDirection,
+  getShouldReflow,
 } from "./reflowUtils";
 
 export function reflow(
@@ -17,6 +19,7 @@ export function reflow(
   gridProps: GridProps,
   forceDirection = false,
   shouldResize = false,
+  immediateExitContainer?: string,
   prevPositions?: OccupiedSpace,
   prevCollidingSpaces?: CollidingSpaceMap,
 ) {
@@ -25,6 +28,18 @@ export function reflow(
     newPositions.id,
     occupiedSpaces,
   );
+  const consolelog = cloneDeep({
+    newPositions,
+    OGPositions,
+    occupiedSpaces,
+    direction,
+    gridProps,
+    forceDirection,
+    shouldResize,
+    immediateExitContainer,
+    prevPositions,
+    prevCollidingSpaces,
+  });
 
   const { collidingSpaceMap, isColliding } = getCollidingSpaces(
     newPositions,
@@ -44,6 +59,14 @@ export function reflow(
       },
     };
   }
+  //eslint-disable-next-line
+  console.log("reflow input", consolelog);
+
+  if (immediateExitContainer && collidingSpaceMap[immediateExitContainer]) {
+    collidingSpaceMap[immediateExitContainer].direction = getOppositeDirection(
+      direction,
+    );
+  }
 
   const delta = getDelta(OGPositions, newPositions, direction);
 
@@ -56,7 +79,7 @@ export function reflow(
     shouldResize,
   );
 
-  const movementLimit = getShouldResize(newPositionsMovement, delta);
+  const movementLimit = getShouldReflow(newPositionsMovement, delta);
 
   return {
     movementLimit,

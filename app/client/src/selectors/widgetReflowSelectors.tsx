@@ -8,6 +8,9 @@ export const getReflow = (state: AppState): widgetReflowState =>
 export const getShouldResize = (state: any): boolean =>
   state.ui.widgetReflow.shouldResize;
 
+export const getIsReflowing = (state: AppState): boolean =>
+  state.ui.widgetReflow.isReflowing;
+
 export const getReflowSelector = (widgetId: string) => {
   return createSelector(getReflow, (reflowState: widgetReflowState) => {
     if (reflowState?.reflowingWidgets) {
