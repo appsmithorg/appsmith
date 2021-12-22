@@ -66,8 +66,18 @@ export const dataTreeTypeDefCreator = (
       const metaObj: Record<string, MetaArgs> = entity.meta;
       const jsOptions: Record<string, unknown> = {};
       for (const key in metaObj) {
-        jsOptions[key] =
-          "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+        const functionParams = metaObj[key].arguments.reduce(
+          (prev, current, currentIndex) => {
+            return currentIndex === 0
+              ? `${current.name}: any`
+              : `${prev}, ${current.name}: any`;
+          },
+          "",
+        );
+        jsOptions[key] = `fn(${functionParams}) -> void`;
+
+        // jsOptions[key] =
+        //   "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
       }
 
       for (let i = 0; i < entity.variables.length; i++) {

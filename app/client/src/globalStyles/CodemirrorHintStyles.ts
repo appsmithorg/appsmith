@@ -24,7 +24,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   }
 
   .CodeMirror-hint {
-    height: 24px;
+    max-height: 150px;
+    height: unset;
+    min-height: 24px;
     color: ${(props) =>
       props.editorTheme === EditorTheme.LIGHT ? "#090707" : "#FFFFFF"};
     cursor: pointer;
@@ -136,7 +138,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   }
   .CodeMirror-Tern-completion {
     display: flex;
-    padding-left: ${(props) => props.theme.spaces[11]}px !important;
+    padding-left: 8px !important;
     &:hover{
       background: ${(props) =>
         props.editorTheme === EditorTheme.LIGHT ? "#E8E8E8" : "#157A96"};
@@ -147,17 +149,15 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
   }
   .CodeMirror-Tern-completion:before {
-    left: 7px;
-    bottom: 6px;
-    height: 12px;
-    width: 12px;
+    position: static;
+    margin-right: 4px;
+    min-width: 15px;
     border-radius: 0;
     font-size: 10px;
     line-height: 12px;
     font-weight: normal;
     text-align: center;
     color: ${(props) => props.theme.colors.codeMirror.dataType.shortForm};
-    margin-right: ${(props) => props.theme.spaces[13]}px;
   }
   .CodeMirror-Tern-completion-fn:before {
     background: ${(props) => props.theme.colors.dataTypeBg.function};
