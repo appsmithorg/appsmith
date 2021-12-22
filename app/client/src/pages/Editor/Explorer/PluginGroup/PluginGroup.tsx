@@ -98,6 +98,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
             return (
               <ExplorerDatasourceEntity
                 datasource={datasource}
+                isActive={false}
                 key={datasource.id}
                 pageId={props.page.pageId}
                 plugin={pluginGroups[datasource.pluginId]}

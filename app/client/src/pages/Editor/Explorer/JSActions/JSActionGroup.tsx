@@ -1,7 +1,7 @@
 import React, { memo, ReactElement } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
-import { jsIcon, jsFileIcon } from "../ExplorerIcons";
+import { jsIcon } from "../ExplorerIcons";
 import ExplorerJSCollectionEntity from "./JSActionEntity";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
@@ -28,10 +28,9 @@ export const ExplorerJSCollectionGroup = memo(
         {jsActions.map((js: JSCollectionData) => {
           return (
             <ExplorerJSCollectionEntity
-              action={js}
-              icon={jsFileIcon}
+              id={js.config.id}
+              isActive={false}
               key={js.config.id}
-              pageId={props.pageId}
               searchKeyword={props.searchKeyword}
               step={props.step + 1}
             />

@@ -17,6 +17,7 @@ import { createMessage, CREATE_DATASOURCE_TOOLTIP } from "constants/messages";
 import styled from "styled-components";
 import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";
+import { useDatasourceIdFromURL } from "./helpers";
 
 const emptyNode = (
   <EntityPlaceholder step={0}>
@@ -49,6 +50,7 @@ const Datasources = React.memo(() => {
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
     );
   }, [applicationId, pageId]);
+  const activeDatasourceId = useDatasourceIdFromURL();
 
   const listDatasource = useCallback(() => {
     history.push(
@@ -62,6 +64,7 @@ const Datasources = React.memo(() => {
         return (
           <ExplorerDatasourceEntity
             datasource={datasource}
+            isActive={datasource.id === activeDatasourceId}
             key={datasource.id}
             pageId={pageId}
             plugin={pluginGroups[datasource.pluginId]}

@@ -218,7 +218,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <PagesContainer />
         {/* SWITCHER */}
         <div
-          className={`px-3 mt-1 mb-3 py-2 border-t border-b border-[${Colors.Gallery}]`}
+          className={`px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}
         >
           <Switcher activeObj={activeSwitch} switches={switches} />
         </div>

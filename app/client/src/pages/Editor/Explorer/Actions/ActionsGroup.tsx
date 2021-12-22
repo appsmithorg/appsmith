@@ -3,8 +3,6 @@ import ExplorerActionEntity from "./ActionEntity";
 import { Page } from "constants/ReduxActionConstants";
 import { ActionGroupConfig } from "./helpers";
 import { Plugin } from "api/PluginApi";
-import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerActionsGroupProps = {
   actions: any[];
@@ -15,34 +13,17 @@ type ExplorerActionsGroupProps = {
   plugins: Record<string, Plugin>;
 };
 export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
-  const applicationId = useSelector(getCurrentApplicationId);
   const childNode: ReactElement<ExplorerActionsGroupProps> = (
     <>
       {props.actions.map((action: any) => {
-        const url = props.config?.getURL(
-          applicationId,
-          props.page.pageId,
-          action.config.id,
-          action.config.pluginType,
-          props.plugins[
-            action.config.pluginId || action.config.datasource.pluginId
-          ],
-        );
-        const icon = props.config?.getIcon(
-          action.config,
-          props.plugins[
-            action.config.pluginId || action.config.datasource.pluginId
-          ],
-        );
         return (
           <ExplorerActionEntity
-            action={action}
-            icon={icon}
+            id={action.config.id}
+            isActive={false}
             key={action.config.id}
-            pageId={props.page.pageId}
             searchKeyword={props.searchKeyword}
             step={props.step + 1}
-            url={url}
+            type={action.config.pluginType}
           />
         );
       })}

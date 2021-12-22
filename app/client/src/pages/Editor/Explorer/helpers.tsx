@@ -1,5 +1,5 @@
 import { IPopoverSharedProps } from "@blueprintjs/core";
-import { matchPath } from "react-router";
+import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -82,8 +82,9 @@ export const getQueryIdFromURL = () => {
   }
 };
 
-export const getDatasourceIdFromURL = () => {
-  const match = matchPath<{ datasourceId: string }>(window.location.pathname, {
+export const useDatasourceIdFromURL = () => {
+  const location = useLocation();
+  const match = matchPath<{ datasourceId: string }>(location.pathname, {
     path: DATA_SOURCES_EDITOR_ID_PATH,
   });
   if (match?.params?.datasourceId) {

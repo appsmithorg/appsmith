@@ -1,20 +1,13 @@
 import React, { useCallback, useMemo } from "react";
-import { useFilesForExplorer } from "../hooks";
+import { useActiveAction, useFilesForExplorer } from "../hooks";
 import { Entity } from "../Entity/index";
 import { createMessage, ADD_QUERY_JS_TOOLTIP } from "constants/messages";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { keyBy } from "lodash";
-import { getPlugins } from "selectors/entitiesSelector";
-import { getActionConfig } from "../Actions/helpers";
 import { PluginType } from "entities/Action";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { jsFileIcon } from "../ExplorerIcons";
 import { Colors } from "constants/Colors";
 import {
   filterCategories,
@@ -30,11 +23,8 @@ const emptyNode = (
 );
 
 function Files() {
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
   const files = useFilesForExplorer("type");
-  const currentApplicationId = useSelector(getCurrentApplicationId);
-  const plugins = useSelector(getPlugins);
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const dispatch = useDispatch();
   const onCreate = useCallback(() => {
     dispatch(
@@ -43,6 +33,8 @@ function Files() {
       ),
     );
   }, [dispatch]);
+
+  const activeActionId = useActiveAction();
 
   const fileEntities = useMemo(
     () =>
@@ -55,49 +47,30 @@ function Files() {
               {entity.name}
             </div>
           );
-        } else if (type === "JS") {
+        } else if (type === PluginType.JS) {
           return (
             <ExplorerJSCollectionEntity
-              action={entity}
-              icon={jsFileIcon}
-              key={entity.config.id}
-              pageId={pageId as string}
+              id={entity.id}
+              isActive={entity.id === activeActionId}
+              key={entity.id}
               searchKeyword={""}
               step={2}
             />
           );
         } else {
-          const config = getActionConfig(type as PluginType);
-          const url = config?.getURL(
-            currentApplicationId,
-            pageId as string,
-            entity.config.id,
-            entity.config.pluginType,
-            pluginGroups[
-              entity.config.pluginId || entity.config.datasource.pluginId
-            ],
-          );
-          const icon = config?.getIcon(
-            entity.config,
-            pluginGroups[
-              entity.config.pluginId || entity.config.datasource.pluginId
-            ],
-          );
-
           return (
             <ExplorerActionEntity
-              action={entity}
-              icon={icon}
-              key={entity.config.id}
-              pageId={pageId as string}
+              id={entity.id}
+              isActive={entity.id === activeActionId}
+              key={entity.id}
               searchKeyword={""}
               step={2}
-              url={url || ""}
+              type={type}
             />
           );
         }
       }),
-    [files],
+    [files, activeActionId],
   );
 
   return (

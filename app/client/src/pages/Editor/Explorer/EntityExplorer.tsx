@@ -92,7 +92,6 @@ function EntityExplorer(props: IPanelProps) {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
-
   const noResults = false;
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {

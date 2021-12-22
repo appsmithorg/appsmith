@@ -25,8 +25,13 @@ import {
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "./helpers";
-import { useLocation } from "react-router";
+import { matchPath, useLocation } from "react-router";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
+import {
+  API_EDITOR_ID_PATH,
+  JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
+} from "constants/routes";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -370,7 +375,10 @@ export const useFilesForExplorer = (sort = "type") => {
             });
             acc.group = file.group;
           }
-          acc.files = acc.files.concat(file);
+          acc.files = acc.files.concat({
+            ...file,
+            entity: { id: file.entity.config.id },
+          });
           return acc;
         },
         {
@@ -383,7 +391,27 @@ export const useFilesForExplorer = (sort = "type") => {
   }, [sort, files]);
 };
 
-export function useActiveAction(actionId: string) {
+export function useActiveAction() {
   const location = useLocation();
-  return location.pathname.includes(actionId);
+  const apiMatch = matchPath<{ apiId: string }>(location.pathname, {
+    path: API_EDITOR_ID_PATH,
+  });
+  if (apiMatch?.params?.apiId) {
+    return apiMatch.params.apiId;
+  }
+  const queryMatch = matchPath<{ queryId: string }>(window.location.pathname, {
+    path: QUERIES_EDITOR_ID_PATH,
+  });
+  if (queryMatch?.params?.queryId) {
+    return queryMatch.params.queryId;
+  }
+  const jsMatch = matchPath<{ collectionId: string }>(
+    window.location.pathname,
+    {
+      path: JS_COLLECTION_ID_PATH,
+    },
+  );
+  if (jsMatch?.params?.collectionId) {
+    return jsMatch.params.collectionId;
+  }
 }
