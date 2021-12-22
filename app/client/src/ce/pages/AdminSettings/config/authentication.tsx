@@ -109,14 +109,15 @@ const Github_Auth: AdminConfigType = {
   ],
 };
 
+const authMain = () => {
+  return <h1>Test Auth Community Component</h1>;
+};
+
 export const config: AdminConfigType = {
   type: SettingCategories.AUTHENTICATION,
   controlType: SettingTypes.PAGE,
   title: "Authentication",
   canSave: false,
   children: [Form_Auth, Google_Auth, Github_Auth],
-};
-
-export const authMain = () => {
-  return <h1>Test Auth Community Component</h1>;
+  component: authMain,
 };

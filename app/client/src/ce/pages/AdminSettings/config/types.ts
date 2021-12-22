@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React from "react";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { Dispatch } from "react";
 
@@ -69,7 +69,7 @@ export type AdminConfigType = {
   controlType: SettingTypes;
   title: string;
   settings?: Setting[];
-  component?: ReactNode;
+  component?: React.ElementType;
   children?: AdminConfigType[];
   canSave: boolean;
 };

@@ -9,7 +9,7 @@ export class ConfigFactory {
   static settingsMap: Record<string, Setting> = {};
   static settings: Setting[] = [];
   static categories: Category[] = [];
-  static wrapperCategories: string[] = [];
+  static wrapperCategories: Record<string, AdminConfigType> = {};
   static savableCategories: string[] = [];
 
   static registerSettings(config: AdminConfigType): void {
@@ -27,7 +27,7 @@ export class ConfigFactory {
 
   static getCategory(config: AdminConfigType): Category {
     if (config.controlType === SettingTypes.PAGE) {
-      ConfigFactory.wrapperCategories.push(config.type);
+      ConfigFactory.wrapperCategories[config.type] = config;
     }
     if (config.canSave) {
       ConfigFactory.savableCategories.push(config.type);
