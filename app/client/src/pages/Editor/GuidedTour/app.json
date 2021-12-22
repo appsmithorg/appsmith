@@ -699,7 +699,7 @@
             "timeoutInMillisecond": 10000,
             "paginationType": "NONE",
             "encodeParamsToggle": true,
-            "body": "UPDATE user_data SET name = '{{Input1.text}}', country = '{{Input2.text}}', email = '{{Input3.text}}' WHERE id = {{CustomersTable.selectedRow.id}}",
+            "body": "UPDATE user_data SET name = '{{Input1.text}}', email = '{{Input2.text}}', country = '{{Input3.text}}' WHERE id = {{CustomersTable.selectedRow.id}}",
             "pluginSpecifiedTemplates": [{ "value": false }]
           },
           "executeOnLoad": false,
