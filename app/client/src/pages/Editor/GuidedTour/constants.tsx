@@ -274,7 +274,7 @@ export const Steps: StepsType = {
         button: {
           text: "PROCEED",
           onClick: (dispatch) => {
-            dispatch(focusWidget("Input1"));
+            dispatch(focusWidget("NameInput"));
             setTimeout(() => {
               showIndicator(`[data-guided-tour-iid='defaultText']`, "top", {
                 top: 20,
@@ -302,7 +302,7 @@ export const Steps: StepsType = {
       timed: true,
       onClick: (dispatch) => {
         dispatch(setCurrentStep(5));
-        dispatch(focusWidget("Input2"));
+        dispatch(focusWidget("EmailInput"));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='defaultText']`, "top", {
             top: 20,
