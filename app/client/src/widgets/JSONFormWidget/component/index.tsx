@@ -3,11 +3,15 @@ import styled from "styled-components";
 import { Text } from "@blueprintjs/core";
 
 import Form from "./Form";
+import WidgetStyleContainer, {
+  BoxShadow,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
+import { Color } from "constants/Colors";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { FIELD_MAP, ROOT_SCHEMA_KEY, Schema } from "../constants";
-import { isEmpty } from "lodash";
-import { RenderMode, TEXT_SIZES } from "constants/WidgetConstants";
 import { FormContextProvider } from "../FormContext";
+import { isEmpty, pick } from "lodash";
+import { RenderMode, TEXT_SIZES } from "constants/WidgetConstants";
 
 type StyledContainerProps = {
   backgroundColor?: string;
@@ -15,21 +19,27 @@ type StyledContainerProps = {
 
 export type JSONFormComponentProps<TValues> = {
   backgroundColor?: string;
+  borderColor?: Color;
+  borderRadius?: number;
+  borderWidth?: number;
+  boxShadow?: BoxShadow;
+  boxShadowColor?: string;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   fixedFooter: boolean;
-  sourceData?: TValues;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode: RenderMode;
   schema: Schema;
   scrollContents: boolean;
   showReset: boolean;
+  sourceData?: TValues;
   title: string;
   updateFormValues: (values: TValues) => void;
-  updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
+  updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
+  widgetId: string;
 };
 
-const StyledContainer = styled.div<StyledContainerProps>`
+const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
   background: ${({ backgroundColor }) => backgroundColor || "#fff"};
   overflow-y: auto;
 `;
@@ -52,7 +62,6 @@ const StyledZeroTitle = styled(Text)`
 `;
 
 function JSONFormComponent<TValues>({
-  backgroundColor,
   executeAction,
   renderMode,
   schema,
@@ -62,6 +71,16 @@ function JSONFormComponent<TValues>({
   ...rest
 }: JSONFormComponentProps<TValues>) {
   const isSchemaEmpty = isEmpty(schema);
+  const styleProps = pick(rest, [
+    "backgroundColor",
+    "borderColor",
+    "borderWidth",
+    "borderRadius",
+    "boxShadow",
+    "boxShadowColor",
+    "widgetId",
+  ]);
+
   const zeroState = (
     <StyledZeroStateWrapper>
       <StyledZeroTitle>
@@ -92,7 +111,7 @@ function JSONFormComponent<TValues>({
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
-      <StyledContainer backgroundColor={backgroundColor}>
+      <StyledContainer {...styleProps}>
         <Form
           {...rest}
           sourceData={sourceData}
