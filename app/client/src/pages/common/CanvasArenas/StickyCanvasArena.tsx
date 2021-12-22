@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
 import styled from "constants/DefaultTheme";
-import React, { forwardRef, RefObject, useEffect } from "react";
-import { intersectionAPI } from "./hooks/useIntersectionAPI";
-import { getCanvasTopOffset } from "./utils";
+import React, { forwardRef, RefObject, useEffect, useRef } from "react";
 
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
@@ -50,59 +48,12 @@ export const StickyCanvasArena = forwardRef(
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
 
-    const updateCanvasStyles = (snapRowChange = false) => {
-      if (slidingArenaRef.current) {
-        const parentCanvas: Element | null = getRelativeScrollingParent(
-          slidingArenaRef.current,
-        );
+    const observer = useRef(
+      new IntersectionObserver((entries) => {
+        entries.forEach(updateCanvasStylesIntersection);
+      }),
+    );
 
-        if (parentCanvas && stickyCanvasRef.current) {
-          const {
-            height: scrollParentTopHeight,
-          } = parentCanvas.getBoundingClientRect();
-          const sliderBounds = slidingArenaRef.current.getBoundingClientRect();
-          const snapRowsHeight = snapRows * snapRowSpace + canvasPadding;
-          // recalculating height when widget is deleted or copy pasted.
-          // this is done coz we do a ref style update in DropTargetComponent which is not updating slider in time.
-          // ToDo(Ashok): Might need a better understanding of refs and forwardRefs to handle this without creating exceptions.
-          const sliderHeight = snapRowChange
-            ? snapRowsHeight
-            : sliderBounds.height;
-          const isProjectorBiggerThanSlider =
-            sliderHeight > scrollParentTopHeight;
-          const calculatedTopPosition = getCanvasTopOffset(
-            slidingArenaRef,
-            stickyCanvasRef,
-            canExtend,
-          );
-          stickyCanvasRef.current.style.width = "100%";
-          stickyCanvasRef.current.style.position = canExtend
-            ? "absolute"
-            : "sticky";
-          stickyCanvasRef.current.style.left = "0px";
-          if (canExtend) {
-            stickyCanvasRef.current.style.top =
-              (isProjectorBiggerThanSlider
-                ? Math.min(
-                    calculatedTopPosition,
-                    sliderHeight - scrollParentTopHeight,
-                  )
-                : calculatedTopPosition) + "px";
-          } else {
-            stickyCanvasRef.current.style.top =
-              (isProjectorBiggerThanSlider
-                ? Math.min(
-                    calculatedTopPosition,
-                    sliderHeight - scrollParentTopHeight,
-                  )
-                : calculatedTopPosition) + "px";
-          }
-          stickyCanvasRef.current.style.height =
-            Math.min(window.innerHeight, scrollParentTopHeight, sliderHeight) +
-            "px";
-        }
-      }
-    };
     const updateCanvasStylesIntersection = (
       entry: IntersectionObserverEntry,
     ) => {
@@ -116,27 +67,21 @@ export const StickyCanvasArena = forwardRef(
           stickyCanvasRef.current.style.position = "absolute";
           stickyCanvasRef.current.style.left = "0px";
           stickyCanvasRef.current.style.top =
-            ((entry.rootBounds && entry.rootBounds.top) || 0) -
-            entry.boundingClientRect.top +
-            "px";
+            entry.intersectionRect.top - entry.boundingClientRect.top + "px";
           stickyCanvasRef.current.style.height =
             entry.intersectionRect.height + "px";
         }
       }
     };
-    const updateIntersection = (entries: IntersectionObserverEntry[]) => {
-      if (entries && entries.length) {
-        updateCanvasStylesIntersection(entries[0]);
-      }
-    };
+
     const onScroll = () => {
-      const parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
-      intersectionAPI(updateIntersection, id, parentCanvas);
+      observer.current.disconnect();
+      observer.current.observe(slidingArenaRef.current);
     };
 
     useEffect(() => {
       if (showCanvas) {
-        updateCanvasStyles(true);
+        onScroll();
       }
     }, [showCanvas, snapRows, canExtend, snapColSpace, snapRowSpace]);
 
