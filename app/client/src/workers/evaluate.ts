@@ -279,7 +279,6 @@ export async function evaluateAsync(
     });
 
     try {
-      self.TRIGGER_COLLECTOR = [];
       result = await eval(script);
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${error.message}`;

@@ -266,6 +266,7 @@ export const enhanceDataTreeWithFunctions = (
   requestId = "",
 ): DataTree => {
   const withFunction: DataTree = _.cloneDeep(dataTree);
+  self.TRIGGER_COLLECTOR = [];
 
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
@@ -311,6 +312,7 @@ export const enhanceDataTreeWithFunctions = (
 };
 
 export const updateRequestIdsOfFunctions = (requestId: string) => {
+  self.TRIGGER_COLLECTOR = [];
   functionPaths.forEach((value, key) => {
     _.set(
       self,
