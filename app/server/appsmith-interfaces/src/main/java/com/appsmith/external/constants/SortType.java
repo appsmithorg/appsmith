@@ -2,7 +2,7 @@ package com.appsmith.external.constants;
 
 /**
  * This enum is used to encapsulate the Sort type used in UQI Sort feature. For more info please check out
- * `FilterDataService.java`
+ * `FilterDataServiceCE.java`
  */
 public enum SortType {
     ASCENDING{
