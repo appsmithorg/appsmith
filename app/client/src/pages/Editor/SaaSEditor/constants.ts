@@ -1,16 +1,28 @@
-import { BUILDER_PAGE_URL, convertToQueryParams } from "constants/routes";
+import { BUILDER_PAGE_URL, BUILDER_URL } from "constants/routes";
+const { match } = require("path-to-regexp");
+
+export const SAAS_BASE_PATH = `${BUILDER_URL}/saas`;
+export const SAAS_EDITOR_PATH = `${SAAS_BASE_PATH}/:pluginPackageName`;
+export const SAAS_EDITOR_DATASOURCE_ID_PATH = `${SAAS_EDITOR_PATH}/datasources/:datasourceId`;
+export const SAAS_EDITOR_API_ID_PATH = `${SAAS_EDITOR_PATH}/api/:apiId`;
+
+export const matchSaasPath = match(SAAS_EDITOR_API_ID_PATH);
 
 export const SAAS_BASE_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
-) => `${BUILDER_PAGE_URL(applicationId, pageId)}/saas`;
+) => BUILDER_PAGE_URL({ applicationId, pageId, suffix: "saas" });
 
 export const SAAS_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   pluginPackageName = ":pluginPackageName",
 ): string => {
-  return `${SAAS_BASE_URL(applicationId, pageId)}/${pluginPackageName}`;
+  return BUILDER_PAGE_URL({
+    applicationId,
+    pageId,
+    suffix: `saas/${pluginPackageName}`,
+  });
 };
 
 export const SAAS_EDITOR_DATASOURCE_ID_URL = (
@@ -19,14 +31,13 @@ export const SAAS_EDITOR_DATASOURCE_ID_URL = (
   pluginPackageName = ":pluginPackageName",
   datasourceId = ":datasourceId",
   params = {},
-): string => {
-  const queryParams = convertToQueryParams(params);
-  return `${SAAS_EDITOR_URL(
+): string =>
+  BUILDER_PAGE_URL({
     applicationId,
     pageId,
-    pluginPackageName,
-  )}/datasources/${datasourceId}${queryParams}`;
-};
+    suffix: `saas/${pluginPackageName}/datasources/${datasourceId}`,
+    params,
+  });
 
 export const SAAS_EDITOR_API_ID_URL = (
   applicationId = ":applicationId",
@@ -34,13 +45,12 @@ export const SAAS_EDITOR_API_ID_URL = (
   pluginPackageName = ":pluginPackageName",
   apiId = ":apiId",
   params = {},
-): string => {
-  const queryParams = convertToQueryParams(params);
-  return `${SAAS_EDITOR_URL(
+): string =>
+  BUILDER_PAGE_URL({
     applicationId,
     pageId,
-    pluginPackageName,
-  )}api/${apiId}${queryParams}`;
-};
+    suffix: `saas/${pluginPackageName}/api/${apiId}`,
+    params,
+  });
 
 export const APPSMITH_TOKEN_STORAGE_KEY = "APPSMITH_AUTH_TOKEN";

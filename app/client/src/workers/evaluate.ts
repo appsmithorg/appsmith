@@ -32,12 +32,12 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = ${ScriptTemplate}
     return result;
   }
-  closedFunction()
+  closedFunction.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    const result = userFunction.apply(self, ARGUMENTS);
+    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
@@ -47,7 +47,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = ${ScriptTemplate}
     return result
   }
-  closedFunction();
+  closedFunction.call(THIS_CONTEXT);
   `,
 };
 
@@ -73,17 +73,46 @@ export const getScriptToEval = (
   return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
+export function setupEvaluationEnvironment() {
+  ///// Adding extra libraries separately
+  extraLibraries.forEach((library) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[library.accessor] = library.lib;
+  });
+
+  ///// Remove all unsafe functions
+  unsafeFunctionForEval.forEach((func) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[func] = undefined;
+  });
+}
+
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export const createGlobalData = (
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
   isTriggerBased: boolean,
+  context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) => {
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
+  //// Adding contextual data not part of data tree
+  GLOBAL_DATA.THIS_CONTEXT = {};
+  if (context) {
+    if (context.thisContext) {
+      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
+    }
+    if (context.globalContext) {
+      Object.entries(context.globalContext).forEach(([key, value]) => {
+        GLOBAL_DATA[key] = value;
+      });
+    }
+  }
   ///// Mocking Promise class
   GLOBAL_DATA.Promise = AppsmithPromise;
   if (isTriggerBased) {
@@ -102,29 +131,58 @@ export const createGlobalData = (
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
       Object.keys(resolvedObject).forEach((key: any) => {
-        GLOBAL_DATA[datum][key] = resolvedObject[key];
+        const dataTreeKey = GLOBAL_DATA[datum];
+        if (dataTreeKey) {
+          dataTreeKey[key] = resolvedObject[key];
+        }
       });
     });
   }
   return GLOBAL_DATA;
 };
 
+export function sanitizeScript(js: string) {
+  // We remove any line breaks from the beginning of the script because that
+  // makes the final function invalid. We also unescape any escaped characters
+  // so that eval can happen
+  const trimmedJS = js.replace(beginsWithLineBreakRegex, "");
+  return self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
+}
+
+/** Define a context just for this script
+ * thisContext will define it on the `this`
+ * globalContext will define it globally
+ */
+export type EvaluateContext = {
+  thisContext?: Record<string, any>;
+  globalContext?: Record<string, any>;
+};
+
 export default function evaluate(
   js: string,
   data: DataTree,
   resolvedFunctions: Record<string, any>,
+  context?: EvaluateContext,
   evalArguments?: Array<any>,
   isTriggerBased = false,
 ): EvalResult {
-  // We remove any line breaks from the beginning of the script because that
-  // makes the final function invalid. We also unescape any escaped characters
-  // so that eval can happen
-  const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
+  const sanitizedScript = sanitizeScript(js);
+
+  // If nothing is present to evaluate, return back instead of evaluating
+  if (!sanitizedScript.length) {
+    return {
+      errors: [],
+      result: undefined,
+      triggers: [],
+    };
+  }
+
   const scriptType = getScriptType(evalArguments, isTriggerBased);
-  const script = getScriptToEval(unescapedJS, scriptType);
+  const script = getScriptToEval(sanitizedScript, scriptType);
   // We are linting original js binding,
   // This will make sure that the character count is not messed up when we do unescapejs
   const scriptToLint = getScriptToEval(js, scriptType);
+
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
@@ -134,6 +192,7 @@ export default function evaluate(
       data,
       resolvedFunctions,
       isTriggerBased,
+      context,
       evalArguments,
     );
 
@@ -147,23 +206,10 @@ export default function evaluate(
     }
     errors = getLintingErrors(scriptToLint, GLOBAL_DATA, js, scriptType);
 
-    ///// Adding extra libraries separately
-    extraLibraries.forEach((library) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[library.accessor] = library.lib;
-    });
-
-    ///// Remove all unsafe functions
-    unsafeFunctionForEval.forEach((func) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[func] = undefined;
-    });
     try {
       result = eval(script);
       if (isTriggerBased) {
-        triggers = [...self.triggers];
+        triggers = self.triggers.slice();
         self.triggers = [];
       }
     } catch (e) {

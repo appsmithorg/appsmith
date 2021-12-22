@@ -38,17 +38,14 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   generateSSHKeyPairSuccess,
-  generateSSHKeyPairError,
   getSSHKeyPairSuccess,
   getSSHKeyPairError,
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
   FetchApplicationReduxAction,
 } from "actions/applicationActions";
-import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  APPLICATION_NAME_UPDATE,
   createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
@@ -77,6 +74,7 @@ import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
+import { handleRepoLimitReachedError } from "./GitSyncSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -111,14 +109,18 @@ export function* publishApplicationSaga(
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
 
-      let appicationViewPageUrl = getApplicationViewerPageURL(
+      let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
-        currentPageId,
-      );
+        pageId: currentPageId,
+      });
 
       const showOnboardingCompletionDialog = yield select(showCompletionDialog);
       if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl += "?onboardingComplete=true";
+        appicationViewPageUrl = getApplicationViewerPageURL({
+          applicationId,
+          pageId: currentPageId,
+          params: { onboardingComplete: "true" },
+        });
       }
 
       yield put({
@@ -207,11 +209,10 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
       payload: response.data,
     });
 
-    yield put(
-      fetchUnreadCommentThreadsCountSuccess(
-        response.data?.unreadCommentThreads,
-      ),
-    );
+    yield put({
+      type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+      payload: response.data?.evaluationVersion,
+    });
 
     if (action.onSuccessCallback) {
       action.onSuccessCallback(response);
@@ -296,12 +297,6 @@ export function* updateApplicationSaga(
         payload: action.payload,
       });
     }
-    if (isValidResponse && request && request.name) {
-      Toaster.show({
-        text: createMessage(APPLICATION_NAME_UPDATE),
-        variant: Variant.success,
-      });
-    }
     if (isValidResponse && request.currentApp) {
       yield put({
         type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -370,10 +365,10 @@ export function* duplicateApplicationSaga(
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+      const pageURL = BUILDER_PAGE_URL({
+        applicationId: application.id,
+        pageId: application.defaultPageId,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -499,7 +494,10 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);
+          pageURL = BUILDER_PAGE_URL({
+            applicationId: application.id,
+            pageId: application.defaultPageId,
+          });
         } else {
           pageURL = getGenerateTemplateURL(
             application.id,
@@ -549,10 +547,10 @@ export function* forkApplicationSaga(
           application,
         },
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+      const pageURL = BUILDER_PAGE_URL({
+        applicationId: application.id,
+        pageId: application.defaultPageId,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -594,7 +592,10 @@ export function* importApplicationSaga(
           },
         });
         const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL(appId, defaultPage[0].id);
+        const pageURL = BUILDER_PAGE_URL({
+          applicationId: appId,
+          pageId: defaultPage[0].id,
+        });
         history.push(pageURL);
         Toaster.show({
           text: "Application imported successfully",
@@ -635,24 +636,49 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
 }
 
 export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
+  let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.generateSSHKeyPair,
-      applicationId,
+    response = yield call(ApplicationApi.generateSSHKeyPair, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      true,
+      response?.responseMeta?.status === 500,
     );
-    const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response.data));
+      yield put(generateSSHKeyPairSuccess(response?.data));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
+        action.onSuccessCallback(response as ApiResponse);
       }
     }
   } catch (error) {
-    yield put(generateSSHKeyPairError(error));
     if (action.onErrorCallback) {
       action.onErrorCallback(error);
     }
+    yield call(handleRepoLimitReachedError, response);
+  }
+}
+
+function* fetchReleases() {
+  try {
+    const response: FetchUsersApplicationsOrgsResponse = yield call(
+      ApplicationApi.getAllApplication,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const { newReleasesCount, releaseItems } = response.data || {};
+      yield put({
+        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
+        payload: { newReleasesCount, releaseItems },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_RELEASES_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
@@ -690,5 +716,6 @@ export default function* applicationSagas() {
       generateSSHKeyPairSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
+    takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
   ]);
 }

@@ -1,0 +1,75 @@
+name: 📓 Epic
+description: A large planned scope of work for the quarter
+title: "[Epic]: "
+labels: [Epic]
+assignees:
+- Nikhil-Nandagopal
+body:
+- type: textarea
+  id: objective
+  attributes:
+    label: Objective
+    description: Here you fill in the objective of the product/feature that you are writing about.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Success Metrics
+    description: List of all metrics you are tracking and the desired goal.
+    value: |
+      | Goal          | Metric         |
+      | ------------- | -------------- |
+      | e.g. Simplify user experience  | Customer satisfaction score increases  |
+      | e.g. Simplify onboarding flow  | Decrease churn rate down to 30%        |
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Requirements 
+    value: |
+      | Requirement   | User Story    |
+      | ------------- | ------------- |
+      | e.g. Must be mobile responsive  | e.g. as a user, I want to be able to access the platform via mobile phone  |
+      | e.g. The user should be able to leave a comment | e.g as a user, I want to be able to communicate with the other members on the canvas  |
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Documentation
+    description: |
+      List the documentation tasks that you are already aware of, and maintain this list as you go along
+    placeholder: |
+      - Item 1
+      - Item 2
+      - Item 3
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Out of Scope
+    description: |
+      List the things that are out of scope or might be revisited after the first release.
+    placeholder: |
+      - Item 1
+      - Item 2
+      - Item 3
+  validations:
+    required: false
+- type: input
+  attributes:
+    label: Developer Handoff Document in Figma
+    description: Link to the developer Handoff Document. 
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: RACI matrix
+    description: Please fill the table below.
+    value: |
+      | ------------- | ------------- |
+      | Responsible   |               |
+      | Accountable   |               |
+      | Consulted     | @Nikhil-Nandagopal, @mohanarpit, @areyabhishek|
+      | Informed      |               |
+  validations:
+    required: true

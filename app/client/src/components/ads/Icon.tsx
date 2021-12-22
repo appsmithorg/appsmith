@@ -18,8 +18,8 @@ import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
 import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
-import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
-import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
+// import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
+// import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
 // import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 // import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
@@ -46,7 +46,7 @@ import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
+// import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
 import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
 import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
@@ -63,9 +63,10 @@ import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
 import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
-import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
+import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
+import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -77,6 +78,7 @@ import { ControlIcons } from "icons/ControlIcons";
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
+import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
 import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
@@ -91,6 +93,7 @@ import DownArrow from "remixicon-react/ArrowDownSFillIcon";
 import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
+import EditLineIcon from "remixicon-react/EditLineIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
 import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
@@ -99,13 +102,21 @@ import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
+import GitCommit from "remixicon-react/GitCommitLineIcon";
+import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import InfoIcon from "remixicon-react/InformationLineIcon";
+import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
+import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
+import NewsPaperLine from "remixicon-react/NewspaperLineIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
+import QueryIcon from "remixicon-react/CodeSSlashLineIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
+import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
 import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
@@ -117,6 +128,10 @@ import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
 import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
+import WidgetIcon from "remixicon-react/FunctionLineIcon";
+import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
+import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
+import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -127,6 +142,7 @@ export enum IconSize {
   XL = "extraLarge",
   XXL = "extraExtraLarge",
   XXXL = "extraExtraExtraLarge",
+  XXXXL = "extraExtraExtraExtraLarge",
 }
 
 export const sizeHandler = (size?: IconSize) => {
@@ -155,6 +171,9 @@ export const sizeHandler = (size?: IconSize) => {
       break;
     case IconSize.XXXL:
       iconSize = theme.iconSizes.XXXL;
+      break;
+    case IconSize.XXXXL:
+      iconSize = theme.iconSizes.XXXXL;
       break;
     default:
       iconSize = theme.iconSizes.SMALL;
@@ -203,6 +222,7 @@ export const IconCollection = [
   "download",
   "duplicate",
   "edit",
+  "edit-line",
   "emoji",
   "error",
   "expand-less",
@@ -216,9 +236,14 @@ export const IconCollection = [
   "gear",
   "general",
   "git-branch",
+  "git-commit",
+  "git-pull-request",
   "guide",
   "help",
+  "info",
   "invite-user",
+  "left-arrow",
+  "left-arrow-2",
   "lightning",
   "line-dashed",
   "line-dotted",
@@ -227,6 +252,7 @@ export const IconCollection = [
   "logout",
   "manage",
   "mobile",
+  "news-paper",
   "no-response",
   "open",
   "oval-check",
@@ -235,13 +261,16 @@ export const IconCollection = [
   "pin-3",
   "play",
   "plus",
+  "query",
   "reaction",
   "reaction-2",
   "read-pin",
   "right-arrow",
+  "right-arrow-2",
   "rocket",
   "search",
   "send-button",
+  "settings-2-line",
   "share",
   "share-2",
   "share-box",
@@ -271,6 +300,10 @@ export const IconCollection = [
   "edit-underline",
   "down-arrow",
   "loader",
+  "setting",
+  "widget",
+  "dropdown",
+  "refresh",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -287,21 +320,28 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.fillColor || ""};
-    circle {
-      fill: ${props.fillColor || ""};
+          fill: ${props.fillColor || ""};
+          circle {
+            fill: ${props.fillColor || ""};
+          }
+          path {
+            fill: ${props.fillColor || ""};
+          }
+          `
+        : ""};
+    ${(props) => (props.invisible ? `visibility: hidden;` : null)};
+    &:hover {
+      cursor: ${(props) => (props.clickable ? "pointer" : "default")};
+      ${(props) =>
+        !props.keepColors
+          ? `
+            fill: ${props.hoverFillColor || ""};
+            path {
+              fill: ${props.hoverFillColor || ""};
+            }
+          `
+          : ""}
     }
-    `
-        : ""}
-  ${(props) => (props.invisible ? `visibility: hidden;` : null)};
-  &:hover {
-    cursor: ${(props) => (props.clickable ? "pointer" : "default")};
-    ${(props) =>
-      !props.keepColors
-        ? `
-    fill: ${props.hoverFillColor || ""};
-    `
-        : ""}
   }
 `;
 
@@ -416,7 +456,7 @@ const Icon = forwardRef(
         returnIcon = <DiscordIcon />;
         break;
       case "down-arrow-2":
-        returnIcon = <DownArrow2 />;
+        returnIcon = <ArrowDownLineIcon />;
         break;
       case "downArrow":
         returnIcon = <DownArrow />;
@@ -429,6 +469,9 @@ const Icon = forwardRef(
         break;
       case "edit":
         returnIcon = <EditIcon />;
+        break;
+      case "edit-line":
+        returnIcon = <EditLineIcon />;
         break;
       case "emoji":
         returnIcon = <Emoji />;
@@ -467,7 +510,13 @@ const Icon = forwardRef(
         returnIcon = <GeneralIcon />;
         break;
       case "git-branch":
-        returnIcon = <GitBranch />;
+        returnIcon = <GitBranchLineIcon />;
+        break;
+      case "git-commit":
+        returnIcon = <GitCommit />;
+        break;
+      case "git-pull-request":
+        returnIcon = <GitPullRequst />;
         break;
       case "guide":
         returnIcon = <GuideIcon />;
@@ -475,8 +524,14 @@ const Icon = forwardRef(
       case "help":
         returnIcon = <HelpIcon />;
         break;
+      case "info":
+        returnIcon = <InfoIcon />;
+        break;
       case "invite-user":
         returnIcon = <InviteUserIcon />;
+        break;
+      case "left-arrow-2":
+        returnIcon = <LeftArrowIcon2 />;
         break;
       case "lightning":
         returnIcon = <LightningIcon />;
@@ -502,6 +557,9 @@ const Icon = forwardRef(
       case "mobile":
         returnIcon = <MobileIcon />;
         break;
+      case "news-paper":
+        returnIcon = <NewsPaperLine />;
+        break;
       case "no-response":
         returnIcon = <NoResponseIcon />;
         break;
@@ -526,6 +584,9 @@ const Icon = forwardRef(
       case "plus":
         returnIcon = <CreateNewIcon />;
         break;
+      case "query":
+        returnIcon = <QueryIcon />;
+        break;
       case "reaction":
         returnIcon = <Reaction />;
         break;
@@ -538,6 +599,9 @@ const Icon = forwardRef(
       case "right-arrow":
         returnIcon = <RightArrowIcon />;
         break;
+      case "right-arrow-2":
+        returnIcon = <RightArrowIcon2 />;
+        break;
       case "rocket":
         returnIcon = <RocketIcon />;
         break;
@@ -546,6 +610,9 @@ const Icon = forwardRef(
         break;
       case "send-button":
         returnIcon = <SendButton />;
+        break;
+      case "settings-2-line":
+        returnIcon = <Settings2LineIcon />;
         break;
       case "share":
         returnIcon = <ShareForwardIcon />;
@@ -602,10 +669,10 @@ const Icon = forwardRef(
         returnIcon = <UserV2Icon />;
         break;
       case "view-all":
-        returnIcon = <ViewAllIcon />;
+        returnIcon = <RightArrowIcon />;
         break;
       case "view-less":
-        returnIcon = <ViewLessIcon />;
+        returnIcon = <LeftArrowIcon />;
         break;
       case "wand":
         returnIcon = <WandIcon />;
@@ -615,6 +682,9 @@ const Icon = forwardRef(
         break;
       case "warning-triangle":
         returnIcon = <WarningTriangleIcon />;
+        break;
+      case "setting":
+        returnIcon = <SettingIcon />;
         break;
       case "workspace":
         returnIcon = <WorkspaceIcon />;
@@ -630,6 +700,15 @@ const Icon = forwardRef(
         break;
       case "loader":
         returnIcon = <LoaderLineIcon />;
+        break;
+      case "widget":
+        returnIcon = <WidgetIcon />;
+        break;
+      case "dropdown":
+        returnIcon = <DropdownIcon />;
+        break;
+      case "refresh":
+        returnIcon = <RefreshLineIcon />;
         break;
       default:
         returnIcon = null;

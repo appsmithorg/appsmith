@@ -1,11 +1,13 @@
 import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
-import { UserRoles } from "api/ApplicationApi";
 import UserApi from "api/UserApi";
-import React from "react";
+import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
+import ScrollIndicator from "components/ads/ScrollIndicator";
+import { OrgUser } from "constants/orgConstants";
+import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 
 const UserImageContainer = styled.div`
   display: flex;
@@ -35,6 +37,14 @@ const ProfileImageListPopover = styled.ul`
   font-size: 14px;
   margin: 0;
   padding: 5px;
+  max-height: 40vh;
+  overflow-y: auto;
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
 `;
 
 const ProfileImageListItem = styled.li`
@@ -47,17 +57,30 @@ const ProfileImageListName = styled.span`
   margin-left: 12px;
 `;
 
-type SharedUserListProps = {
-  userRoles: UserRoles[];
-};
+const ProfileImageMore = styled(ProfileImage)`
+  &.org-share-user-icons {
+    cursor: pointer;
+  }
+`;
 
-export default function SharedUserList({ userRoles }: SharedUserListProps) {
+export default function SharedUserList(props: any) {
   const currentUser = useSelector(getCurrentUser);
+  const scrollWrapperRef = React.createRef<HTMLUListElement>();
+  const userOrgs = useSelector(getUserApplicationsOrgsList);
+  const allUsers = useMemo(() => {
+    const org: any = userOrgs.find((organizationObject: any) => {
+      const { organization } = organizationObject;
+      return organization.id === props.orgId;
+    });
 
+    const { userRoles } = org;
+    return userRoles || [];
+  }, [userOrgs]);
   return (
     <UserImageContainer>
-      {userRoles.slice(0, 5).map((el: UserRoles) => (
+      {allUsers.slice(0, 5).map((el: OrgUser) => (
         <Popover
+          boundary="viewport"
           hoverCloseDelay={100}
           interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
           key={el.username}
@@ -75,19 +98,19 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
           </ProfileImagePopover>
         </Popover>
       ))}
-      {userRoles.length > 5 ? (
+      {allUsers.length > 5 ? (
         <Popover
           hoverCloseDelay={0}
-          interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+          interactionKind={PopoverInteractionKind.CLICK}
           position={Position.BOTTOM}
           usePortal={false}
         >
-          <ProfileImage
+          <ProfileImageMore
             className="org-share-user-icons"
-            commonName={`+${userRoles.length - 5}`}
+            commonName={`+${allUsers.length - 5}`}
           />
-          <ProfileImageListPopover>
-            {userRoles.slice(5).map((el) => (
+          <ProfileImageListPopover ref={scrollWrapperRef}>
+            {allUsers.slice(5).map((el: OrgUser) => (
               <ProfileImageListItem key={el.username}>
                 <ProfileImage
                   className="org-share-user-icons"
@@ -97,6 +120,11 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
                 <ProfileImageListName>{el.username}</ProfileImageListName>
               </ProfileImageListItem>
             ))}
+            <ScrollIndicator
+              alwaysShowScrollbar
+              containerRef={scrollWrapperRef}
+              mode="DARK"
+            />
           </ProfileImageListPopover>
         </Popover>
       ) : null}

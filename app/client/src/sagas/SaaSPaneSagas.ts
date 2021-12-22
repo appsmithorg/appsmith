@@ -22,15 +22,18 @@ import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";
 import { setActionProperty } from "actions/pluginActionActions";
 import { autofill } from "redux-form";
+
 import { get } from "lodash";
+import { updateReplayEntity } from "actions/pageActions";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
   // Only look at SAAS plugins
   if (plugin.type !== PluginType.SAAS) return;
 
-  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
 
   history.push(
     SAAS_EDITOR_DATASOURCE_ID_URL(
@@ -106,6 +109,7 @@ function* formValueChangeSaga(
       }),
     );
   }
+  yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
 }
 
 export default function* root() {

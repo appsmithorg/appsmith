@@ -8,6 +8,11 @@ import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { Classes } from "components/ads/common";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { CLEAR_LOG_TOOLTIP, createMessage } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -43,6 +48,11 @@ const Wrapper = styled.div`
       right: 9px;
     }
   }
+
+  .${BlueprintClasses.POPOVER_WRAPPER} {
+    display: flex;
+    align-items: center;
+  }
 `;
 
 type FilterHeaderProps = {
@@ -60,11 +70,17 @@ function FilterHeader(props: FilterHeaderProps) {
   const theme = useTheme();
   return (
     <Wrapper>
-      <Icon
-        name="cancel"
-        onClick={() => dispatch(clearLogs())}
-        size={IconSize.XL}
-      />
+      <TooltipComponent
+        content={createMessage(CLEAR_LOG_TOOLTIP)}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position={Position.BOTTOM}
+      >
+        <Icon
+          name="cancel"
+          onClick={() => dispatch(clearLogs())}
+          size={IconSize.XL}
+        />
+      </TooltipComponent>
       <div className="input-container">
         <TextInput
           className="debugger-search"

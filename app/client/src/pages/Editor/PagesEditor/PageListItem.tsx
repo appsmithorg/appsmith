@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
 import React, { useCallback } from "react";
 
@@ -18,6 +18,18 @@ import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { MenuIcons } from "icons/MenuIcons";
+import TooltipComponent from "components/ads/Tooltip";
+import {
+  CLONE_TOOLTIP,
+  createMessage,
+  DEFAULT_PAGE_TOOLTIP,
+  DELETE_TOOLTIP,
+  HIDDEN_TOOLTIP,
+} from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Position } from "@blueprintjs/core";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export const Container = styled.div`
   display: flex;
@@ -69,13 +81,13 @@ const HideIcon = ControlIcons.HIDE_COLUMN;
 
 export interface PageListItemProps {
   item: Page;
-  applicationId: string;
 }
 
 function PageListItem(props: PageListItemProps) {
   const theme = useTheme();
-  const { applicationId, item } = props;
+  const { item } = props;
   const dispatch = useDispatch();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   /**
    * clones the page
@@ -84,7 +96,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const clonePageCallback = useCallback((): void => {
     dispatch(clonePageInit(item.pageId, true));
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   /**
    * delete the page
@@ -97,7 +109,7 @@ function PageListItem(props: PageListItemProps) {
     AnalyticsUtil.logEvent("DELETE_PAGE", {
       pageName: item.pageName,
     });
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   /**
    * sets the page as default
@@ -105,8 +117,8 @@ function PageListItem(props: PageListItemProps) {
    * @return void
    */
   const setPageAsDefaultCallback = useCallback((): void => {
-    dispatch(setPageAsDefault(item.pageId, props.applicationId));
-  }, [dispatch]);
+    dispatch(setPageAsDefault(item.pageId, applicationId));
+  }, [dispatch, item, applicationId]);
 
   /**
    * sets the page hidden
@@ -115,7 +127,7 @@ function PageListItem(props: PageListItemProps) {
    */
   const setPageHidden = useCallback(() => {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
-  }, [dispatch]);
+  }, [dispatch, item]);
 
   return (
     <Container>
@@ -126,47 +138,70 @@ function PageListItem(props: PageListItemProps) {
           height={20}
           width={20}
         />
-        <EditName applicationId={applicationId} page={item} />
+        <EditName page={item} />
         <Actions>
           {item.isDefault && (
-            <Action disabled title="Default page">
-              <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
-            </Action>
+            <TooltipComponent
+              content={createMessage(DEFAULT_PAGE_TOOLTIP)}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.BOTTOM}
+            >
+              <Action>
+                <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
+              </Action>
+            </TooltipComponent>
           )}
           {item.isHidden && (
-            <Action disabled title="Hidden">
-              <HideIcon color={Colors.GREY_9} height={16} width={16} />
-            </Action>
+            <TooltipComponent
+              content={createMessage(HIDDEN_TOOLTIP)}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.BOTTOM}
+            >
+              <Action>
+                <HideIcon color={Colors.GREY_9} height={16} width={16} />
+              </Action>
+            </TooltipComponent>
           )}
           <ContextMenu
-            applicationId={applicationId}
             onCopy={clonePageCallback}
             onDelete={deletePageCallback}
             onSetPageDefault={setPageAsDefaultCallback}
             onSetPageHidden={setPageHidden}
             page={item}
           />
-          <Action title="Clone" type="button">
-            <CopyIcon
-              color={Colors.GREY_9}
-              height={16}
-              onClick={clonePageCallback}
-              width={16}
-            />
-          </Action>
-          <Action title="Delete" type="button">
-            <DeleteIcon
-              color={
-                item.isDefault
-                  ? get(theme, "colors.propertyPane.deleteIconColor")
-                  : Colors.GREY_9
-              }
-              disabled={item.isDefault}
-              height={16}
-              onClick={deletePageCallback}
-              width={16}
-            />
-          </Action>
+          <TooltipComponent
+            content={createMessage(CLONE_TOOLTIP)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM}
+          >
+            <Action type="button">
+              <CopyIcon
+                color={Colors.GREY_9}
+                height={16}
+                onClick={clonePageCallback}
+                width={16}
+              />
+            </Action>
+          </TooltipComponent>
+          <TooltipComponent
+            content={createMessage(DELETE_TOOLTIP)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM}
+          >
+            <Action type="button">
+              <DeleteIcon
+                color={
+                  item.isDefault
+                    ? get(theme, "colors.propertyPane.deleteIconColor")
+                    : Colors.GREY_9
+                }
+                disabled={item.isDefault}
+                height={16}
+                onClick={deletePageCallback}
+                width={16}
+              />
+            </Action>
+          </TooltipComponent>
         </Actions>
       </ListItem>
     </Container>

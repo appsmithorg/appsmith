@@ -7,7 +7,7 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { compact, groupBy } from "lodash";
+import { compact, get, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
 import { debounce } from "lodash";
@@ -267,12 +267,14 @@ export const useFilteredEntities = (
 
 export const useEntityUpdateState = (entityId: string) => {
   return useSelector(
-    (state: AppState) => state.ui.explorer.updatingEntity === entityId,
+    (state: AppState) =>
+      get(state, "ui.explorer.entity.updatingEntity") === entityId,
   );
 };
 
 export const useEntityEditState = (entityId: string) => {
   return useSelector(
-    (state: AppState) => state.ui.explorer.editingEntityName === entityId,
+    (state: AppState) =>
+      get(state, "ui.explorer.entity.editingEntityName") === entityId,
   );
 };

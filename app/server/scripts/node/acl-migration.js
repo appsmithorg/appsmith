@@ -338,7 +338,7 @@ async function purgeSuperUser(db, isSilent) {
 
 async function runChecks(db) {
 	for (const collection of await db.collections()) {
-		if (0 !== await collection.countDocuments({ "policies.users": SUPER_EMAIL })) {
+		if (await collection.countDocuments({ "policies.users": SUPER_EMAIL }) !== 0 ) {
 			console.error(`Super user lives on in the '${collection.collectionName}' collection.`);
 		}
 	}

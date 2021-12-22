@@ -37,7 +37,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
                 expected: {
                   type: "Video URL",
-                  example: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+                  example: "https://assets.appsmith.com/widgets/bird.mp4",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -46,7 +46,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           {
             propertyName: "autoPlay",
             label: "Auto Play",
-            helpText: "Video will be automatically played",
+            helpText:
+              "Video will be automatically played, by enabling this feature, video will be muted by default.",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -63,10 +64,21 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the video is played",

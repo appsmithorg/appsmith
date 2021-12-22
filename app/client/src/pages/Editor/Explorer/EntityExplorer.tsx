@@ -1,8 +1,13 @@
-import React, { useRef, MutableRefObject, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import {
-  useFilteredEntities,
   useWidgets,
   useActions,
   useFilteredDatasources,
@@ -14,8 +19,6 @@ import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "./helpers";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -23,11 +26,15 @@ import PerformanceTracker, {
 import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
+
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -70,7 +77,9 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 function EntityExplorer(props: IPanelProps) {
-  const { applicationId } = useParams<ExplorerURLParams>();
+  const dispatch = useDispatch();
+  const [searchKeyword, setSearchhKeyword] = useState("");
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -80,15 +89,12 @@ function EntityExplorer(props: IPanelProps) {
     PerformanceTracker.stopTracking();
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
-  const { clearSearch, searchKeyword } = useFilteredEntities(searchInputRef);
-  const datasources = useFilteredDatasources(searchKeyword);
 
   const plugins = useSelector(getPlugins);
-
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
   const jsActions = useJSCollections(searchKeyword);
-  const dispatch = useDispatch();
+  const datasources = useFilteredDatasources(searchKeyword);
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
@@ -112,7 +118,7 @@ function EntityExplorer(props: IPanelProps) {
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
-      history.push(BUILDER_PAGE_URL(applicationId, pageId));
+      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
       openPanel({ component: WidgetSidebar });
       dispatch(forceOpenWidgetPanel(true));
       if (isFirstTimeUserOnboardingEnabled) {
@@ -122,9 +128,31 @@ function EntityExplorer(props: IPanelProps) {
     [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
   );
 
+  /**
+   * filter entitites
+   */
+  const search = (e: any) => {
+    setSearchhKeyword(e.target.value);
+  };
+
+  const clearSearchInput = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.value = "";
+    }
+
+    setSearchhKeyword("");
+  };
+
   return (
-    <Wrapper ref={explorerRef}>
-      <Search clear={clearSearch} isHidden ref={searchInputRef} />
+    <Wrapper className={"relative"} ref={explorerRef}>
+      {/* SEARCH */}
+      <Search
+        clear={clearSearchInput}
+        isHidden
+        onChange={search}
+        ref={searchInputRef}
+      />
+
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}

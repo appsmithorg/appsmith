@@ -5,6 +5,8 @@ import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
+export type EvaluationVersion = number;
+
 export interface PublishApplicationRequest {
   applicationId: string;
 }
@@ -24,22 +26,25 @@ export interface ApplicationPagePayload {
   isDefault: boolean;
 }
 
-export type GitApplicationMetadata = {
-  branchName?: string;
-  remoteUrl?: string;
-  repoName?: string;
-  defaultApplicationId: string;
-};
+export type GitApplicationMetadata =
+  | {
+      branchName: string;
+      remoteUrl: string;
+      repoName: string;
+      isRepoPrivate?: boolean;
+    }
+  | undefined;
 
 export interface ApplicationResponsePayload {
   id: string;
   name: string;
   organizationId: string;
+  evaluationVersion?: EvaluationVersion;
   pages?: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
-  gitApplicationMetadata?: GitApplicationMetadata;
+  gitApplicationMetadata: GitApplicationMetadata;
 }
 
 export interface FetchApplicationResponse extends ApiResponse {
