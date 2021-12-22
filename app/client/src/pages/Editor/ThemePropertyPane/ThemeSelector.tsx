@@ -46,7 +46,7 @@ function ThemeSelector() {
     <>
       <header className="flex items-center justify-between px-3 ">
         <button
-          className="inline-flex items-center h-5 space-x-1 text-gray-500 cursor-pointer "
+          className="inline-flex items-center h-5 space-x-1 text-gray-500 cursor-pointer t--theme-select-back-btn"
           onClick={onClickBack}
           type="button"
         >
@@ -55,6 +55,7 @@ function ThemeSelector() {
         </button>
 
         <Button
+          className="t--save-theme-btn"
           disabled={!previewTheme}
           onClick={onClickSave}
           text="Save Changes"

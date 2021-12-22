@@ -68,7 +68,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BORDER RADIUS */}
-        <SettingSection className="border-t" title="Border Radius">
+        <SettingSection className="border-t" isOpen title="Border Radius">
           {Object.keys(selectedTheme.config.borderRadius).map(
             (borderRadiusSectionName: string, index: number) => {
               return (
@@ -95,7 +95,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BOX SHADOW */}
-        <SettingSection className="border-t" title="Box Shadow">
+        <SettingSection className="border-t" isOpen title="Box Shadow">
           {Object.keys(selectedTheme.config.boxShadow).map(
             (boxShadowSectionName: string, index: number) => {
               return (
@@ -122,7 +122,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* FONT  */}
-        <SettingSection className="border-t" title="Font">
+        <SettingSection className="border-t" isOpen title="Font">
           {Object.keys(selectedTheme.config.fontFamily).map(
             (fontFamilySectionName: string, index: number) => {
               return (

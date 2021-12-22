@@ -43,11 +43,12 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
             className={classNames({
               "flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-gray-800 cursor-pointer hover:bg-trueGray-50": true,
               "ring-1": selectedOption === options[optionKey],
+              [`t--theme-${sectionName}`]: true,
             })}
             onClick={() => onChangeBorder(optionKey)}
           >
             <div
-              className="w-4 h-4 border-t-2 border-l-2 border-gray-600 rounded-"
+              className="w-4 h-4 border-t-2 border-l-2 border-gray-600"
               style={{
                 borderTopLeftRadius: options[optionKey],
               }}

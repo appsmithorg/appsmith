@@ -147,7 +147,7 @@ export function ThemeCard(props: ThemeCard) {
   return (
     <div
       className={classNames({
-        "ring-1 p-0.5 relative group hover:shadow-xl transition-all cursor-pointer": true,
+        "ring-1 p-0.5 relative group hover:shadow-xl transition-all cursor-pointer t--theme-card": true,
         "ring-gray-700 ring-2": props.isSelected,
         "ring-gray-200": !props.isSelected,
         "overflow-hidden": !selectable,
@@ -211,11 +211,16 @@ export function ThemeCard(props: ThemeCard) {
       >
         <div className="space-y-2">
           {changeable && (
-            <Button onClick={onClickChangeThemeButton} text="Change Theme" />
+            <Button
+              className="t--change-theme-btn"
+              onClick={onClickChangeThemeButton}
+              text="Change Theme"
+            />
           )}
           {editable && (
             <BlackButton
               category={Category.tertiary}
+              className="t--edit-theme-btn"
               fill
               onClick={onClickEditThemeButton}
               text="Edit Theme"
