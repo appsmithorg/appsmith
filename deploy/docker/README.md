@@ -55,7 +55,7 @@ services:
     image: containrrr/watchtower:latest-dev
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # Update check interval in seconds.
+    # Update check every hour.
     command: --schedule "0 0 * ? * *" --label-enable --cleanup
 ```
 
