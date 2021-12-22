@@ -46,6 +46,16 @@ sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-m
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
+sudo docker run -p 127.0.0.1:28017:27017 --name Cypress-mongodb -e MONGO_INITDB_DATABASE=appsmith -v `pwd`/cypress/mongodb:/data/db mongo
+echo "Sleeping for 30 seconds to let the servers start"
+sleep 30
+
+sudo docker cp `pwd`/cypress/sample_airbnb Cypress-mongodb:/sample_airbnb
+
+sudo docker exec -i Cypress-mongodb /usr/bin/mongorestore --db sample_airbnb /sample_airbnb/sample_airbnb
+
+sleep 10
+
 echo "Checking if the containers have started"
 sudo docker ps -a
 for fcid in $(sudo docker ps -a | awk '/Exited/ { print $1 }'); do
