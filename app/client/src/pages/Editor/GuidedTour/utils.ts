@@ -27,7 +27,7 @@ class IndicatorHelper {
     }
     const coords = getCoords(primaryReference);
 
-    // Remove previous indicate if it is unable to find the
+    // Remove previous indicator if it is unable to find the
     // correct position
     if (coords.width === 0) {
       this.destroy();

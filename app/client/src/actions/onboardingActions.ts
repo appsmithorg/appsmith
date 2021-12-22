@@ -108,9 +108,19 @@ export const showInfoMessage = () => {
   };
 };
 
-export const focusWidget = (widgetName: string) => {
+export const focusWidget = (widgetName: string, propertyName?: string) => {
   return {
     type: ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET,
+    payload: {
+      widgetName,
+      propertyName,
+    },
+  };
+};
+
+export const focusWidgetProperty = (widgetName: string) => {
+  return {
+    type: ReduxActionTypes.FOCUS_WIDGET_PROPERTY,
     payload: widgetName,
   };
 };

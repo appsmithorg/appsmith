@@ -32,7 +32,11 @@ import {
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { Organization } from "constants/orgConstants";
-import { enableGuidedTour, toggleLoader } from "actions/onboardingActions";
+import {
+  enableGuidedTour,
+  focusWidgetProperty,
+  toggleLoader,
+} from "actions/onboardingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
@@ -244,22 +248,36 @@ function* updateWidgetTextSaga() {
   }
 }
 
+function* focusWidgetPropertySaga(action: ReduxAction<string>) {
+  const input: HTMLElement | null = document.querySelector(
+    `[data-guided-tour-iid=${action.payload}] .CodeEditorTarget textarea`,
+  );
+  input?.focus();
+}
+
 function* endGuidedTourSaga(action: ReduxAction<boolean>) {
   if (!action.payload) {
     yield call(hideIndicator);
   }
 }
 
-function* focusWidgetSaga(action: ReduxAction<string>) {
+function* selectWidgetSaga(
+  action: ReduxAction<{ widgetName: string; propertyName?: string }>,
+) {
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
   const widget = Object.values(widgets).find((widget) => {
-    return widget.widgetName === action.payload;
+    return widget.widgetName === action.payload.widgetName;
   });
 
   if (widget) {
     yield put(selectWidgetInitAction(widget.widgetId));
+    // Delay to wait for the fields to render
+    yield delay(1000);
+    // If the propertyName exist then we focus the respective input field as well
+    if (action.payload.propertyName)
+      yield put(focusWidgetProperty(action.payload.propertyName));
   }
 }
 
@@ -348,7 +366,8 @@ export default function* onboardingActionSagas() {
       updateWidgetTextSaga,
     ),
     takeLatest(ReduxActionTypes.ENABLE_GUIDED_TOUR, endGuidedTourSaga),
-    takeLatest(ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET, focusWidgetSaga),
+    takeLatest(ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET, selectWidgetSaga),
+    takeLatest(ReduxActionTypes.FOCUS_WIDGET_PROPERTY, focusWidgetPropertySaga),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,

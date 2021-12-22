@@ -5,6 +5,7 @@ import {
   enableGuidedTour,
   updateButtonWidgetText,
   forceShowContent,
+  focusWidgetProperty,
 } from "actions/onboardingActions";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -198,6 +199,8 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
         top: 20,
         left: 0,
       });
+      // Focus the tableData input field
+      dispatch(focusWidgetProperty("tableData"));
     }
   }, [step, tableWidgetSelected]);
 
