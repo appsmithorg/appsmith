@@ -610,23 +610,27 @@ export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
-export const REVOKE_EXISTING_REPOSITORIES = () =>
-  "Revoke existing Repositories";
-export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
-  "You can remove existing repositories to add more. Revoking access might break your application. Be careful!";
+export const DISCONNECT_EXISTING_REPOSITORIES = () =>
+  "Disconnect existing Repositories";
+export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+  "To make space for newer repositories you can remove existing repositories.";
 export const CONTACT_SALES = () => "Contact Sales";
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
   "This action is non reversible. Proceed with caution";
-export const REVOKE_ACCESS = () => "REVOKE ACCESS";
-export const REVOKE = () => "REVOKE";
-export const GIT_CONNECTION_REVOKE_ACCESS = () =>
-  "Git Connection > Revoke Access";
-export const REVOKE_ACCESS_TO_PROMO_CODE = () => "Revoke Access to";
+export const CONTACT_SUPPORT_TO_UPGRADE = () =>
+  "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
+export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
+  "Disconnect might cause the application to break.";
+export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT = () => "DISCONNECT";
+export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
+export const DISCONNECT_FROM_GIT = (name: string) =>
+  `Disconnect ${name} from Git`;
 export const TYPE_PROMO_CODE = (name: string) =>
-  `Type “${name}” in the input box to revoke access.`;
+  `Type “${name}” in the input box to disconnect.`;
 export const APPLICATION_NAME = () => "Application Name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";

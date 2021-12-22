@@ -31,6 +31,7 @@ export type GitApplicationMetadata =
       branchName: string;
       remoteUrl: string;
       repoName: string;
+      isRepoPrivate?: boolean;
     }
   | undefined;
 

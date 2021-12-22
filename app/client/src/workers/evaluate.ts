@@ -39,7 +39,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    const result = userFunction.apply(THIS_CONTEXT, ARGUMENTS);
+    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
@@ -201,6 +201,14 @@ export default function evaluateSync(
       evalArguments,
     );
     errors = lintErrors;
+    // If nothing is present to evaluate, return back instead of evaluating
+    if (!script.length) {
+      return {
+        errors,
+        result: undefined,
+        triggers: [],
+      };
+    }
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
