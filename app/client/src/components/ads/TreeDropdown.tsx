@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { find, noop } from "lodash";
+import React, { useRef, useState } from "react";
+import { find, findIndex, noop } from "lodash";
 import {
   PopoverInteractionKind,
   PopoverPosition,
@@ -117,6 +117,9 @@ const DropdownTarget = styled.div`
     justify-content: space-between;
     padding: 5px 12px;
   }
+  &&&& .${Classes.BUTTON}:focus-visible {
+    border: 1px solid #191919;
+  }
   &&&& .${Classes.ICON} {
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
   }
@@ -159,10 +162,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     selectedValue,
     toggle,
   } = props;
-  const selectedOption = getSelectedOption(
-    selectedValue,
-    defaultText,
-    optionTree,
+  const [selectedOption, setSelectedOption] = useState<TreeDropdownOption>(
+    getSelectedOption(selectedValue, defaultText, optionTree),
   );
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -176,6 +177,17 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     }
   };
 
+  const handleOptionClick = (option: TreeDropdownOption) => {
+    return option.children
+      ? noop
+      : (e: any) => {
+          handleSelect(option);
+          setIsOpen(false);
+          props.onMenuToggle && props.onMenuToggle(false);
+          e?.stopPropagation && e.stopPropagation();
+        };
+  };
+
   function renderTreeOption(option: TreeDropdownOption) {
     const isSelected =
       selectedOption.value === option.value ||
@@ -187,16 +199,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         icon={option.icon}
         intent={option.intent}
         key={option.value}
-        onClick={
-          option.children
-            ? noop
-            : (e: any) => {
-                handleSelect(option);
-                setIsOpen(false);
-                props.onMenuToggle && props.onMenuToggle(false);
-                e.stopPropagation();
-              }
-        }
+        onClick={handleOptionClick(option)}
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
@@ -210,6 +213,73 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     );
   }
 
+  /**
+   * shouldOpen flag is used to differentiate between a Keyboard
+   * induced (Enter or space key) 'click' event vs a mouse 'click' event
+   * for the button
+   */
+  const shouldOpen = useRef(true);
+
+  const handleKeydown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case "Escape":
+        if (isOpen) {
+          setIsOpen(false);
+          // reset selected option
+          setSelectedOption(
+            getSelectedOption(selectedValue, defaultText, optionTree),
+          );
+          e.nativeEvent.stopImmediatePropagation();
+        }
+        break;
+      case " ":
+      case "Enter":
+        if (isOpen) {
+          handleOptionClick(selectedOption)(e);
+          shouldOpen.current = false;
+        } else {
+          setIsOpen(true);
+          shouldOpen.current = true;
+        }
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        if (isOpen) {
+          setSelectedOption((prevSelected: TreeDropdownOption) => {
+            let index = findIndex(optionTree, prevSelected);
+            if (index === 0) index = optionTree.length - 1;
+            else index--;
+            return optionTree[index];
+          });
+        } else {
+          setIsOpen(true);
+        }
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        if (isOpen) {
+          setSelectedOption((prevSelected: TreeDropdownOption) => {
+            let index = findIndex(optionTree, prevSelected);
+            if (index === optionTree.length - 1) index = 0;
+            else index++;
+            return optionTree[index];
+          });
+        } else {
+          setIsOpen(true);
+        }
+        break;
+      case "Tab":
+        if (isOpen) {
+          setIsOpen(false);
+          // reset selected option
+          setSelectedOption(
+            getSelectedOption(selectedValue, defaultText, optionTree),
+          );
+        }
+        break;
+    }
+  };
+
   const list = optionTree.map(renderTreeOption);
   const menuItems = <StyledMenu>{list}</StyledMenu>;
   const defaultToggle = (
@@ -220,6 +290,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             ? "code-highlight " + replayHighlightClass
             : replayHighlightClass
         }`}
+        onKeyDown={handleKeydown}
         rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={
           selectedLabelModifier
@@ -243,7 +314,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       position={PopoverPosition.LEFT}
       targetProps={{
         onClick: (e: any) => {
-          setIsOpen(true);
+          // e.detail will be 1 if the event is a mouse click
+          if (e.detail === 1) shouldOpen.current = true;
+          if (shouldOpen.current) setIsOpen(true);
           props.onMenuToggle && props.onMenuToggle(true);
           e.stopPropagation();
         },
