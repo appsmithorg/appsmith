@@ -38,19 +38,9 @@ body:
       e.g. Data should be stored in a Firestore database
   validations:
     required: true
-    
-- type: dropdown
-  id: Use case
-  attributes:
-    label: Use case tag
-    options:
-      - Cloud
-      - Self-Hosted
-  validations:
-    required: true
 
 - type: dropdown
-  id: Use case
+  id: Use_case
   attributes:
     label: Version
     options:
@@ -58,7 +48,7 @@ body:
       -Martketing
       -Sales
       -Finance
-      -Information Technology (IT)
+      -Information Technology (I
       -Human Resources (HR)
       -Communications
       -Legal
@@ -78,58 +68,46 @@ body:
   attributes:
     label: Industry tag
     options:
-      -Technology
-      -Health Care
-      -Financials
-      -Consumer Discretionary
-      -Communication Services
-      -Industrials
-      -Consumer goods
-      -Energy
-      -Utilities
-      -Real Estate
-      -Materials
-      -Aggriculture
-      -Services
-      -Other
-      -None of the above
+      - Technology
+      - Health Care
+      - Financials
+      - Consumer Discretionary
+      - Communication Services
+      - Industrials
+      - Consumer goods
+      - Energy
+      - Utilities
+      - Real Estate
+      - Materials
+      - Aggriculture
+      - Services
+      - Other
+      - None of the above
   validations:
     required: true
 
 - type: dropdown
-  id: Data sources
+  id: Data_sources
   attributes:
     label: Data sources tag
     options:
-      -Any
-      -API
-      -CURL import
-      -Authenticated API
-      -Google Sheets
-      -PostgreSQL
-      -MongoDB
-      -Mysql
-      -ElasticSearch
-      -DynamoDB
-      -Redis
-      -MsSQL
-      -Firestore
-      -Redshift
-      -S3
-      -Snowflake
-      -ArangoDB
+      - Any
+      - API
+      - CURL import
+      - Authenticated API
+      - Google Sheets
+      - PostgreSQL
+      - MongoDB
+      - Mysql
+      - ElasticSearch
+      - DynamoDB
+      - Redis
+      - MsSQL
+      - Firestore
+      - Redshift
+      - S3
+      - Snowflake
+      - ArangoDB
   validations:
     required: true
 
-
-- type: textarea
-  attributes:
-    label: Tags
-    description: |
-      List the tags you feel best categorise your template. Include functionality, widgets used, API or databases, industries in which this would be useful, and any other possible tags to help with discovery.
-    value: |
-      - Tag 1
-      - Tag 2
-      - Tag 3
-  validations:
-    required: false
