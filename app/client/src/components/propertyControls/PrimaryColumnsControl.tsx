@@ -292,7 +292,6 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
             onEdit={this.onEdit}
             renderComponent={ColumnControlComponent}
             toggleVisibility={this.toggleVisibility}
-            updateFocus={this.updateFocus}
             updateItems={this.updateItems}
             updateOption={this.updateOption}
           />

@@ -67,6 +67,9 @@ function DraggableList(props: any) {
   const shouldReRender = get(props, "shouldReRender", true);
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
+  const displacement = useRef<number>(0);
+
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -95,7 +98,6 @@ function DraggableList(props: any) {
   const bind: any = useDrag<any>((props: any) => {
     const originalIndex = props.args[0];
     const curIndex = order.current.indexOf(originalIndex);
-    let displacement = props.movement[1];
     const pointerFromTop = props.xy[1];
     if (listRef && listRef.current) {
       const containerCoordinates = listRef?.current.getBoundingClientRect();
@@ -103,107 +105,58 @@ function DraggableList(props: any) {
       if (containerCoordinates) {
         const containerDistanceFromTop = containerCoordinates.top;
         if (props.dragging) {
-          // eslint-disable-next-line no-console
-          // console.log({
-          //   displacement: displacement,
-          //   pointerFromTop: pointerFromTop,
-          //   containerScrollTop: container.scrollTop,
-          //   containerScrollHeight: container.scrollHeight,
-          //   containerClientHeight: container.clientHeight,
-          // });
           if (pointerFromTop < containerDistanceFromTop + itemHeight / 2) {
-            //Scroll inside container till first element in list is completely visible
+            // Scroll inside container till first element in list is completely visible
             if (container.scrollTop > 0) {
               container.scrollTop -= itemHeight / 10;
             }
-            displacement = container.scrollTop - curIndex * itemHeight;
-            // eslint-disable-next-line no-console
-            console.log({
-              message: "above container",
-            });
           } else if (
             pointerFromTop >=
             containerDistanceFromTop + container.clientHeight - itemHeight / 2
           ) {
-            //Scroll inside container till container cannnot be scrolled more towards bottom
+            // Scroll inside container till container cannnot be scrolled more towards bottom
             if (
               container.scrollTop <
               container.scrollHeight - container.clientHeight
             ) {
               container.scrollTop += itemHeight / 10;
             }
-            displacement += container.scrollTop;
-            // eslint-disable-next-line no-console
-            console.log({
-              message: "below container",
-            });
-          } else if (
-            pointerFromTop > containerDistanceFromTop &&
-            pointerFromTop <
-              containerDistanceFromTop + container.clientHeight &&
-            container.scrollTop > 0 &&
-            container.scrollTop <
-              container.scrollHeight - container.clientHeight
-          ) {
-            // eslint-disable-next-line no-console
-            console.log({
-              message: "inside container",
-              displacement: displacement,
-              pointerFromTop: pointerFromTop,
-              containerScrollTop: container.scrollTop,
-              containerScrollHeight: container.scrollHeight,
-              containerClientHeight: container.clientHeight,
-            });
-            if (displacement > 0) {
-              displacement += container.scrollTop;
-            } else {
-              displacement = container.scrollTop - curIndex * itemHeight;
-            }
           }
-          // else if (
-          //   container.scrollTop !==
-          //   container.scrollHeight - container.clientHeight
-          // ) {
-          //   // container is scrolled but pointer is within list area
-          //   if (props.movement[1] > 0) {
-          //     displacement += container.scrollTop;
-          //   } else {
-          //     displacement = container.scrollTop - curIndex * itemHeight;
-          //   }
-          // }
-        } else {
-          /*calculated actual displacemenet of dragged element based on positive/negative 
-          movement and container scroll position with respect to inital position of 
-          dragged elemet */
-          if (displacement > 0) {
-            displacement += container.scrollTop;
-          } else {
-            displacement = container.scrollTop - curIndex * itemHeight;
+          // finding distance of current pointer from the top of the container to find the final position
+          // currIndex *  itemHeight for the initial position
+          // subtraction formar with latter for displacement
+          displacement.current =
+            pointerFromTop -
+            containerDistanceFromTop +
+            container.scrollTop -
+            curIndex * itemHeight;
+        }
+
+        const curRow = clamp(
+          Math.round(
+            (curIndex * itemHeight + displacement.current) / itemHeight,
+          ),
+          0,
+          items.length - 1,
+        );
+        const newOrder = swap(order.current, curIndex, curRow);
+        setSprings(
+          dragIdleSpringStyles(newOrder, {
+            down: props.down,
+            originalIndex,
+            curIndex,
+            y: displacement.current,
+            itemHeight,
+          }),
+        );
+        if (curRow !== curIndex) {
+          // Feed springs new style data, they'll animate the view without causing a single render
+          if (!props.down) {
+            order.current = newOrder;
+            setSprings(updateSpringStyles(order.current, itemHeight));
+            debounce(onDrop, 400)(curIndex, curRow);
           }
         }
-      }
-    }
-    const curRow = clamp(
-      Math.round((curIndex * itemHeight + displacement) / itemHeight),
-      0,
-      items.length - 1,
-    );
-    const newOrder = swap(order.current, curIndex, curRow);
-    setSprings(
-      dragIdleSpringStyles(newOrder, {
-        down: props.down,
-        originalIndex,
-        curIndex,
-        y: displacement,
-        itemHeight,
-      }),
-    );
-    if (curRow !== curIndex) {
-      // Feed springs new style data, they'll animate the view without causing a single render
-      if (!props.down) {
-        order.current = newOrder;
-        setSprings(updateSpringStyles(order.current, itemHeight));
-        debounce(onDrop, 400)(curIndex, curRow);
       }
     }
   });
