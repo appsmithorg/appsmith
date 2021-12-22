@@ -16,9 +16,27 @@ export const updateJSCollection = (
   payload: { body, id },
 });
 
+export const updateJSCollectionBody = (
+  body: string,
+  id: string,
+  isReplay = false,
+): ReduxAction<{ body: string; id: string; isReplay?: boolean }> => ({
+  type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT,
+  payload: { body, id, isReplay },
+});
+
 export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
+    payload,
+  };
+};
+
+export const updateJSCollectionBodySuccess = (payload: {
+  data: JSCollection;
+}) => {
+  return {
+    type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
     payload,
   };
 };

@@ -1,13 +1,24 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  ReactElement,
+  useRef,
+} from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
-import Text, { TextType } from "./Text";
+import Text, { TextProps, TextType } from "./Text";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
+import { replayHighlightClass } from "globalStyles/portals";
+import Tooltip from "components/ads/Tooltip";
+import { isEllipsisActive } from "utils/helpers";
+import SegmentHeader from "components/ads/ListSegmentHeader";
+import { useTheme } from "styled-components";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -23,6 +34,7 @@ export type DropdownOption = {
   iconColor?: string;
   onSelect?: DropdownOnSelect;
   data?: any;
+  isSectionHeader?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -36,12 +48,12 @@ export interface RenderDropdownOptionType {
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
   isSelectedNode?: boolean;
   extraProps?: any;
-  errorMsg?: string;
+  hasError?: boolean;
   optionWidth: string;
 }
 
 type RenderOption = ({
-  errorMsg,
+  hasError,
   index,
   option,
   optionClickHandler,
@@ -67,6 +79,7 @@ export type DropdownProps = CommonComponentProps &
     bgColor?: string;
     renderOption?: RenderOption;
     isLoading?: boolean;
+    hasError?: boolean; // should be displayed as error status without error message
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     placeholder?: string;
     helperText?: string;
@@ -79,12 +92,14 @@ export type DropdownProps = CommonComponentProps &
     dontUsePortal?: boolean;
     hideSubText?: boolean;
     boundary?: PopperBoundary;
+    defaultIcon?: IconName;
+    truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
   showLabelOnly?: boolean;
   isOpen?: boolean;
-  errorMsg?: string;
+  hasError?: boolean;
   renderNode?: RenderOption;
   placeholder?: string;
   showDropIcon?: boolean;
@@ -101,6 +116,9 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `38px`};
   position: relative;
+  span.bp3-popover-target {
+    display: inline-block;
+  }
 `;
 
 const DropdownTriggerWrapper = styled.div<{
@@ -116,7 +134,8 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid #80bdff;
+      border: 1px solid ${Colors.GREEN_1};
+      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
     `
       : null};
   .${Classes.TEXT} {
@@ -202,14 +221,42 @@ export const DropdownWrapper = styled.div<{
   width: ${(props) => props.width};
   height: fit-content;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.dropdown.menuBg};
-  box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
-  margin-top: ${(props) => -props.theme.spaces[3]}px;
+  background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
+  border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
   .dropdown-search {
     margin: 4px 12px 8px;
     width: calc(100% - 24px);
+
+    input {
+      height: 36px;
+      font-size: 14px !important;
+      color: ${Colors.GREY_10} !important;
+      padding-left: 36px !important;
+
+      &:focus {
+        border: 1.2px solid ${Colors.GREEN_1};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+      }
+    }
+
+    .bp3-icon-search {
+      width: 36px;
+      height: 36px;
+      margin: 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 14px;
+      }
+    }
   }
+`;
+
+const SearchComponentWrapper = styled.div`
+  margin: 0px 5px;
 `;
 
 const DropdownOptionsWrapper = styled.div<{
@@ -232,14 +279,17 @@ const OptionWrapper = styled.div<{
   cursor: pointer;
   display: flex;
   align-items: center;
-
-  background-color: ${(props) =>
-    props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
+  min-height: 36px;
+  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
 
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
     }
+  }
+
+  .bp3-popover-wrapper {
+    width: 100%;
   }
 
   .${Classes.TEXT} {
@@ -262,7 +312,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.dropdown.menu.hover};
+    background-color: ${Colors.GREEN_3};
 
     &&& svg {
       rect {
@@ -307,13 +357,15 @@ const StyledSubText = styled(Text)<{
   }
   &.sub-text {
     color: ${(props) => props.theme.colors.dropdown.selected.subtext};
-    position: absolute;
-    right: ${(props) => (props.showDropIcon ? "39px" : "12px")};
+    text-align: end;
+    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
   }
 `;
 
 const LeftIconWrapper = styled.span`
-  margin-right: 15px;
+  font-size: 20px;
+  line-height: 19px;
+  margin-right: 10px;
   height: 100%;
   position: relative;
   top: 1px;
@@ -394,8 +446,35 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
+const StyledText = styled(Text)`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+function TooltipWrappedText(
+  props: TextProps & {
+    label: string;
+  },
+) {
+  const { label, ...textProps } = props;
+  const targetRef = useRef<HTMLDivElement | null>(null);
+  return (
+    <Tooltip
+      boundary="window"
+      content={label}
+      disabled={!isEllipsisActive(targetRef.current)}
+      position={Position.TOP}
+    >
+      <StyledText ref={targetRef} {...textProps}>
+        {label}
+      </StyledText>
+    </Tooltip>
+  );
+}
+
 function DefaultDropDownValueNode({
-  errorMsg,
+  hasError,
   hideSubText,
   optionWidth,
   placeholder,
@@ -412,7 +491,7 @@ function DefaultDropDownValueNode({
     ? placeholder
     : "Please select a option.";
   function Label() {
-    return errorMsg ? (
+    return hasError ? (
       <ErrorLabel>{LabelText}</ErrorLabel>
     ) : (
       <Text type={TextType.P1}>{LabelText}</Text>
@@ -425,16 +504,16 @@ function DefaultDropDownValueNode({
         renderNode({
           isSelectedNode: true,
           option: selected,
-          errorMsg,
+          hasError,
           optionWidth,
         })
       ) : (
         <>
           {selected?.icon ? (
             <SelectedIcon
-              fillColor={errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor}
+              fillColor={hasError ? Colors.POMEGRANATE2 : selected?.iconColor}
               hoverFillColor={
-                errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor
+                hasError ? Colors.POMEGRANATE2 : selected?.iconColor
               }
               name={selected.icon}
               size={selected.iconSize || IconSize.XL}
@@ -482,19 +561,21 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
   };
+  const theme = useTheme() as Theme;
 
-  return options.length > 0 ? (
+  return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
       width={optionWidth}
     >
       {props.enableSearch && (
-        <SearchComponent
-          className="dropdown-search"
-          onSearch={onOptionSearch}
-          placeholder={props.searchPlaceholder || ""}
-          value={searchValue}
-        />
+        <SearchComponentWrapper>
+          <SearchComponent
+            onSearch={onOptionSearch}
+            placeholder={props.searchPlaceholder || ""}
+            value={searchValue}
+          />
+        </SearchComponentWrapper>
       )}
       {props.headerLabel && <HeaderWrapper>{props.headerLabel}</HeaderWrapper>}
       <DropdownOptionsWrapper
@@ -510,7 +591,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               optionWidth,
             });
           }
-          return (
+          return !option.isSectionHeader ? (
             <OptionWrapper
               className="t--dropdown-option"
               key={index}
@@ -530,12 +611,24 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
 
               {props.showLabelOnly ? (
-                <Text type={TextType.P1}>{option.label}</Text>
+                props.truncateOption ? (
+                  <TooltipWrappedText
+                    label={option.label || ""}
+                    type={TextType.P1}
+                  />
+                ) : (
+                  <Text type={TextType.P1}>{option.label}</Text>
+                )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
                   <Text type={TextType.H5}>{option.value}</Text>
                   <Text type={TextType.P1}>{option.label}</Text>
                 </LabelWrapper>
+              ) : props.truncateOption ? (
+                <TooltipWrappedText
+                  label={option.value || ""}
+                  type={TextType.P1}
+                />
               ) : (
                 <Text type={TextType.P1}>{option.value}</Text>
               )}
@@ -546,11 +639,16 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 </StyledSubText>
               ) : null}
             </OptionWrapper>
+          ) : (
+            <SegmentHeader
+              style={{ paddingRight: theme.spaces[5] }}
+              title={option.label || ""}
+            />
           );
         })}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
-  ) : null;
+  );
 }
 
 export default function Dropdown(props: DropdownProps) {
@@ -563,6 +661,7 @@ export default function Dropdown(props: DropdownProps) {
     errorMsg = "",
     placeholder,
     helperText,
+    hasError,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -588,8 +687,9 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
+  const errorFlag = hasError || errorMsg.length > 0;
   const disabled = props.disabled || isLoading;
-  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
+  const downIconColor = errorFlag ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
   const onClickHandler = () => {
     if (!props.disabled) {
@@ -630,14 +730,14 @@ export default function Dropdown(props: DropdownProps) {
         bgColor={props.bgColor}
         className={props.className}
         disabled={props.disabled}
-        hasError={!!errorMsg}
+        hasError={errorFlag}
         height={props.height || "38px"}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         selected={!!selected}
       >
         <SelectedValueNode
-          errorMsg={errorMsg}
+          hasError={errorFlag}
           hideSubText={props.hideSubText}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
@@ -654,7 +754,7 @@ export default function Dropdown(props: DropdownProps) {
             <DropdownIcon
               fillColor={downIconColor}
               hoverFillColor={downIconColor}
-              name="expand-more"
+              name={props.defaultIcon || "expand-more"}
               size={IconSize.XXL}
             />
           )
@@ -671,9 +771,9 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
-      className={props.containerClassName}
+      className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
+      height={props.height || "36px"}
       tabIndex={0}
       width={dropdownWidth}
     >
@@ -683,7 +783,7 @@ export default function Dropdown(props: DropdownProps) {
         minimal
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
-        popoverClassName={props.className}
+        popoverClassName={`${props.className} none-shadow-popover`}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
       >

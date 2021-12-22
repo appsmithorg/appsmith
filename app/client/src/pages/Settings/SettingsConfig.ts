@@ -7,6 +7,7 @@ import {
   GOOGLE_MAPS_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
+import { isNil, omitBy } from "lodash";
 import { Dispatch } from "react";
 import { isEmail } from "utils/formhelpers";
 
@@ -40,12 +41,16 @@ export type Setting = {
   subCategory?: string;
   value?: string;
   text?: string;
-  action?: (dispatch?: Dispatch<ReduxAction<any>>) => void;
+  action?: (
+    dispatch?: Dispatch<ReduxAction<any>>,
+    settings?: Record<string, any>,
+  ) => void;
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
+  isDisabled?: (values: Record<string, any>) => boolean;
 };
 
 export class SettingsFactory {
@@ -136,14 +141,6 @@ SettingsFactory.register("APPSMITH_MAIL_HOST", {
   controlSubType: SettingSubtype.TEXT,
   label: "SMTP Host",
   placeholder: "email-smtp.us-east-2.amazonaws.com",
-  validate: (value: string) => {
-    if (
-      value &&
-      !/^(smtps?):\/\/([\d.a-z-]+\.[a-z]{2,63}):(\d{1,5})/.test(value)
-    ) {
-      return "please enter a valid SMTP host";
-    }
-  },
 });
 
 SettingsFactory.register("APPSMITH_MAIL_PORT", {
@@ -201,6 +198,35 @@ SettingsFactory.register("APPSMITH_MAIL_PASSWORD", {
   },
 });
 
+SettingsFactory.register("APPSMITH_MAIL_TEST_EMAIL", {
+  action: (dispatch, settings = {}) => {
+    dispatch &&
+      dispatch({
+        type: ReduxActionTypes.SEND_TEST_EMAIL,
+        payload: omitBy(
+          {
+            smtpHost: settings["APPSMITH_MAIL_HOST"],
+            smtpPort: settings["APPSMITH_MAIL_PORT"],
+            fromEmail: settings["APPSMITH_MAIL_FROM"],
+            username: settings["APPSMITH_MAIL_USERNAME"],
+            password: settings["APPSMITH_MAIL_PASSWORD"],
+          },
+          isNil,
+        ),
+      });
+  },
+  category: "email",
+  controlType: SettingTypes.BUTTON,
+  isDisabled: (settings: Record<string, any>) => {
+    return (
+      !settings ||
+      !settings["APPSMITH_MAIL_HOST"] ||
+      !settings["APPSMITH_MAIL_FROM"]
+    );
+  },
+  text: "Send Test Email",
+});
+
 //General
 SettingsFactory.register("APPSMITH_INSTANCE_NAME", {
   category: "general",
@@ -247,13 +273,13 @@ SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
 SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
   category: "general",
   controlType: SettingTypes.TOGGLE,
-  label: "Share Anonymous Usage Data",
+  label: "Disable Sharing Anonymous Usage Data",
   subText: "Share anonymous usage data to help improve the product",
   toggleText: (value: boolean) => {
     if (value) {
-      return "Share data & make appsmith better!";
-    } else {
       return "Don't share any data";
+    } else {
+      return "Share data & make appsmith better!";
     }
   },
 });
@@ -281,9 +307,9 @@ SettingsFactory.register("APPSMITH_SIGNUP_DISABLED", {
   label: "Signup",
   toggleText: (value: boolean) => {
     if (value) {
-      return " Allow all users to signup";
-    } else {
       return "Allow invited users to signup";
+    } else {
+      return " Allow all users to signup";
     }
   },
 });
@@ -304,20 +330,21 @@ SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID", {
   label: "Client ID",
 });
 
-SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
-  category: "authentication",
-  subCategory: "google signup",
-  controlType: SettingTypes.TEXTINPUT,
-  controlSubType: SettingSubtype.TEXT,
-  label: "Allowed Domains",
-});
-
 SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET", {
   category: "authentication",
   subCategory: "google signup",
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Client Secret",
+});
+
+SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
+  category: "authentication",
+  subCategory: "google signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Allowed Domains",
+  placeholder: "domain1.com, domain2.com",
 });
 
 SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_READ_MORE", {
@@ -334,6 +361,14 @@ SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_ID", {
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Client ID",
+});
+
+SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET", {
+  category: "authentication",
+  subCategory: "github signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Client Secret",
 });
 
 //version
@@ -373,4 +408,12 @@ SettingsFactory.register("APPSMITH_REDIS_URL", {
   label: "Redis URL",
   subText:
     "Appsmith internally uses redis for session storage. Change this to an external redis for Clustering",
+});
+
+SettingsFactory.register("APPSMITH_CUSTOM_DOMAIN", {
+  category: "advanced",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Custom Domain",
+  subText: "Custom domain for your Appsmith instance",
 });

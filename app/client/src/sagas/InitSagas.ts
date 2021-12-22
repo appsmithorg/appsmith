@@ -58,7 +58,12 @@ import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { updateBranchLocally } from "actions/gitSyncActions";
+import {
+  fetchGitStatusInit,
+  remoteUrlInputValue,
+  resetPullMergeStatus,
+  updateBranchLocally,
+} from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* failFastApiCalls(
@@ -101,7 +106,7 @@ function* initializeEditorSaga(
   yield put(resetEditorSuccess());
   const { applicationId, branch, pageId } = initializeEditorAction.payload;
   try {
-    if (branch) yield put(updateBranchLocally(branch));
+    yield put(updateBranchLocally(branch || ""));
 
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
@@ -131,7 +136,12 @@ function* initializeEditorSaga(
       ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
     ];
-
+    const jsActionsCall = yield failFastApiCalls(
+      [fetchJSCollections({ applicationId })],
+      [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
+    );
+    if (!jsActionsCall) return;
     if (pageId) {
       initCalls.push(fetchPage(pageId, true) as any);
       successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
@@ -149,6 +159,7 @@ function* initializeEditorSaga(
     let fetchPageCallResult;
     const defaultPageId = yield select(getDefaultPageId);
     const toLoadPageId = pageId || defaultPageId;
+
     if (!pageId) {
       if (!toLoadPageId) return;
 
@@ -159,13 +170,6 @@ function* initializeEditorSaga(
       );
       if (!fetchPageCallResult) return;
     }
-
-    const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollections({ applicationId })],
-      [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
-      [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
-    );
-    if (!jsActionsCall) return;
 
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
       [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
@@ -215,6 +219,9 @@ function* initializeEditorSaga(
       appName: appName,
     });
 
+    // init of temporay remote url from old application
+    yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
+
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
@@ -234,10 +241,13 @@ function* initializeEditorSaga(
       history.replace(pathname);
     }
 
-    // add branch query to path
+    // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
+      yield put(fetchGitStatusInit());
     }
+
+    yield put(resetPullMergeStatus());
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
@@ -270,13 +280,13 @@ export function* initializeAppViewerSaga(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
-
+  const jsActionsCall = yield failFastApiCalls(
+    [fetchJSCollectionsForView({ applicationId })],
+    [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
+  );
+  if (!jsActionsCall) return;
   const initCalls = [
-    put(
-      fetchJSCollectionsForView({
-        applicationId,
-      }),
-    ),
     // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView({ applicationId })),
     put(fetchPageList({ applicationId }, APP_MODE.PUBLISHED)),
@@ -291,13 +301,11 @@ export function* initializeAppViewerSaga(
   ];
 
   const initSuccessEffects = [
-    take(ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
     take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
   ];
   const initFailureEffects = [
-    ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
     ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
     ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
     ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,

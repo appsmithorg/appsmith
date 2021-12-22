@@ -32,6 +32,7 @@ function Settings() {
       type: ReduxActionTypes.FETCH_RELEASES,
     });
   }, []);
+
   return (
     <PageWrapper>
       <FlexContainer>

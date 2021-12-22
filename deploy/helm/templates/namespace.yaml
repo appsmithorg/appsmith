@@ -1,4 +1,6 @@
+{{- if .Values.namespace.create }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ include "appsmith.namespace" . }}
+{{- end }}

@@ -43,7 +43,6 @@ import {
   HintHelper,
   isCloseKey,
   isModifierKey,
-  isNavKey,
   MarkHelper,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -85,6 +84,7 @@ import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
+import { replayHighlightClass } from "globalStyles/portals";
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -300,6 +300,9 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    // return if component unmounts before editor is created
+    if (!this.editor) return;
+
     this.editor.off("beforeChange", this.handleBeforeChange);
     this.editor.off("change", _.debounce(this.handleChange, 600));
     this.editor.off("keyup", this.handleAutocompleteKeyup);
@@ -461,9 +464,26 @@ class CodeEditor extends Component<Props, State> {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       cm.closeHint();
-    } else if (!isNavKey(event.code)) {
-      this.handleAutocompleteVisibility(cm);
+      return;
     }
+    const cursor = cm.getCursor();
+    const line = cm.getLine(cursor.line);
+    let showAutocomplete = false;
+    /* Check if the character before cursor is completable to show autocomplete which backspacing */
+    if (key === "/") {
+      showAutocomplete = true;
+    } else if (event.code === "Backspace") {
+      const prevChar = line[cursor.ch - 1];
+      showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
+    } else if (key === "{") {
+      /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
+      const prevChar = line[cursor.ch - 2];
+      showAutocomplete = prevChar === "{";
+    } else if (key.length == 1) {
+      showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
+      /* Autocomplete should be triggered only for characters that make up valid variable names */
+    }
+    showAutocomplete && this.handleAutocompleteVisibility(cm);
   };
 
   lintCode(editor: CodeMirror.Editor) {
@@ -626,7 +646,7 @@ class CodeEditor extends Component<Props, State> {
           <EditorWrapper
             border={border}
             borderLess={borderLess}
-            className={className}
+            className={`${className} ${replayHighlightClass}`}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}

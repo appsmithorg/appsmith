@@ -34,6 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   AddCommentToCommentThreadRequestPayload,
+  CommentThread,
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
   DraggedCommentThread,
@@ -162,12 +163,18 @@ function* fetchApplicationComments() {
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(fetchApplicationCommentsSuccess(response.data));
+      const commentThreads = response.data as CommentThread[];
+      yield put(
+        fetchApplicationCommentsSuccess({
+          commentThreads,
+          applicationId,
+        }),
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_COMMENTS_ERROR,
-      payload: { error, logToSentry: true },
+      payload: { error, logToSentry: false },
     });
   }
 }

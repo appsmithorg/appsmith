@@ -6,11 +6,13 @@ import {
   select,
   take,
   all,
+  delay,
 } from "redux-saga/effects";
 
 import {
   EvaluationReduxAction,
   ReduxAction,
+  ReduxActionType,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
@@ -46,16 +48,9 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import { JSCollection, JSAction } from "entities/JSCollection";
+import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import {
-  UndoRedoPayload,
-  openPropertyPaneSaga,
-  postUndoRedoSaga,
-} from "./ReplaySaga";
-
-import { updateAndSaveLayout } from "actions/pageActions";
 import { get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
@@ -73,10 +68,11 @@ import {
 } from "constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
-
-import AnalyticsUtil from "../utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import { REPLAY_DELAY } from "entities/Replay/replayUtils";
+import { EvaluationVersion } from "api/ApplicationApi";
+import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -107,6 +103,7 @@ function* evaluateTreeSaga(
     dependencies,
     errors,
     evaluationOrder,
+    jsUpdates,
     logs,
     unEvalUpdates,
   } = workerResponse;
@@ -126,12 +123,13 @@ function* evaluateTreeSaga(
   );
 
   const updatedDataTree = yield select(getDataTree);
-
+  log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
-  logs.forEach((evalLog: any) => log.debug(evalLog));
+  logs?.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
   const appMode = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
+    yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
       unevalTree,
@@ -192,77 +190,10 @@ export function* clearEvalCache() {
   return true;
 }
 
-/**
- * saga that listen for UNDO_REDO_OPERATION
- * it won't do anything in case of sniping/comment mode
- *
- * @param action
- * @returns
- */
-export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode: boolean = yield select(commentModeSelector);
-  const isSnipingMode: boolean = yield select(snipingModeSelector);
-
-  // if the app is in snipping or comments mode, don't do anything
-  if (isCommentMode || isSnipingMode) return;
-  try {
-    const workerResponse: any = yield call(
-      worker.request,
-      action.payload.operation,
-      {},
-    );
-
-    // if there is no change, then don't do anything
-    if (!workerResponse) return;
-
-    const {
-      event,
-      logs,
-      paths,
-      replay,
-      replayWidgetDSL,
-      timeTaken,
-    } = workerResponse;
-
-    logs && logs.forEach((evalLog: any) => log.debug(evalLog));
-
-    const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
-
-    AnalyticsUtil.logEvent(event, { paths, timeTaken });
-
-    if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-
-    yield put(updateAndSaveLayout(replayWidgetDSL, false, false));
-
-    if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
-  } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
-  }
-}
-
 export function* clearEvalPropertyCache(propertyPath: string) {
   yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE, {
     propertyPath,
   });
-}
-
-export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const path = jsAction.name + ".body";
-  const workerResponse = yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
-    {
-      body,
-      jsAction,
-    },
-  );
-  const { evalTree, result } = workerResponse;
-  const dataTree = yield select(getDataTree);
-  const updates = diff(dataTree, evalTree) || [];
-  yield put(setEvaluatedTree(evalTree, updates));
-  yield call(evalErrorHandler, [], evalTree, [path]);
-  return result;
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
@@ -489,6 +420,45 @@ export function* evaluateArgumentSaga(action: any) {
     log.error(e);
     Sentry.captureException(e);
   }
+}
+
+export function* updateReplayEntitySaga(
+  actionPayload: ReduxAction<{
+    entityId: string;
+    entity: Replayable;
+    entityType: ENTITY_TYPE;
+  }>,
+) {
+  //Delay updates to replay object to not persist every keystroke
+  yield delay(REPLAY_DELAY);
+  const { entity, entityId, entityType } = actionPayload.payload;
+  const workerResponse = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
+    {
+      entityId,
+      entity,
+      entityType,
+    },
+  );
+  return workerResponse;
+}
+
+export function* workerComputeUndoRedo(operation: string, entityId: string) {
+  const workerResponse: any = yield call(worker.request, operation, {
+    entityId,
+  });
+  return workerResponse;
+}
+
+export function* setAppVersionOnWorkerSaga(action: {
+  type: ReduxActionType;
+  payload: EvaluationVersion;
+}) {
+  const version: EvaluationVersion = action.payload;
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
+    version,
+  });
 }
 
 export default function* evaluationSagaListeners() {

@@ -62,6 +62,14 @@ export interface CommentsOnboardingStateRequest {
   commentOnboardingState: CommentsOnboardingState;
 }
 
+export interface SendTestEmailPayload {
+  smtpHost: string;
+  fromEmail: string;
+  smtpPort?: string;
+  username?: string;
+  password?: string;
+}
+
 export interface CreateSuperUserRequest {
   email: string;
   name: string;
@@ -94,6 +102,7 @@ class UserApi extends Api {
   static adminSettingsURL = "v1/admin/env";
   static restartServerURL = "v1/admin/restart";
   static downloadConfigURL = "v1/admin/env/download";
+  static sendTestEmailURL = "/v1/admin/send-test-email";
 
   static createUser(
     request: CreateUserRequest,
@@ -151,7 +160,14 @@ class UserApi extends Api {
     return Api.post(UserApi.logoutURL);
   }
 
-  static uploadPhoto(request: { file: File }): AxiosPromise<ApiResponse> {
+  static uploadPhoto(request: {
+    file: File;
+  }): AxiosPromise<{
+    id: string;
+    new: boolean;
+    profilePhotoAssetId: string;
+    recentlyUsedOrgIds: string[];
+  }> {
     const formData = new FormData();
     if (request.file) {
       formData.append("file", request.file);
@@ -204,6 +220,12 @@ class UserApi extends Api {
 
   static restartServer(): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.restartServerURL);
+  }
+
+  static sendTestEmail(
+    payload: SendTestEmailPayload,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.sendTestEmailURL, payload);
   }
 }
 
