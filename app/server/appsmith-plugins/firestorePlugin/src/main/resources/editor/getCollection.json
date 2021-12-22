@@ -1,0 +1,92 @@
+{
+  "identifier": "GET_COLLECTION",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'GET_COLLECTION'}}"
+  },
+  "children" : [
+    {
+      "label": "Collection/Document Path",
+      "configProperty": "actionConfiguration.path",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
+    },
+    {
+      "label": "Order By (JSON array of field names to order by)",
+      "configProperty": "actionConfiguration.formData.orderBy",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": "",
+      "placeholderText": "[\"ascendingField\", \"-descendingField\", \"nestedObj.field\"]"
+    },
+    {
+      "label": "Start After",
+      "configProperty": "actionConfiguration.next",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
+    },
+    {
+      "label": "End Before",
+      "configProperty": "actionConfiguration.prev",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
+    },
+    {
+      "label": "Limit Documents",
+      "configProperty": "actionConfiguration.formData.limitDocuments",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": "10"
+    },
+    {
+      "label": "Where",
+      "configProperty": "actionConfiguration.formData.where",
+      "nestedLevels": 1,
+      "controlType": "WHERE_CLAUSE",
+      "logicalTypes": [
+        {
+          "label": "AND",
+          "value": "AND"
+        }
+      ],
+      "comparisonTypes": [
+        {
+          "label": "==",
+          "value": "EQ"
+        },
+        {
+          "label": "<",
+          "value": "LT"
+        },
+        {
+          "label": "<=",
+          "value": "LTE"
+        },
+        {
+          "label": ">=",
+          "value": "GTE"
+        },
+        {
+          "label": ">",
+          "value": "GT"
+        },
+        {
+          "label": "in",
+          "value": "IN"
+        },
+        {
+          "label": "not in",
+          "value": "NOT_IN"
+        }
+      ]
+    }
+  ]
+}

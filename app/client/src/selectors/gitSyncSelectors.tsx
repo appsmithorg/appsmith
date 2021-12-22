@@ -13,6 +13,9 @@ export const getGitSyncState = (state: AppState): GitSyncReducerState =>
 export const getIsGitSyncModalOpen = (state: AppState) =>
   state.ui.gitSync.isGitSyncModalOpen;
 
+export const getIsDisconnectGitModalOpen = (state: AppState) =>
+  state.ui.gitSync.isDisconnectGitModalOpen;
+
 export const getIsGitRepoSetup = (state: AppState) => {
   const gitMetadata = getCurrentAppGitMetaData(state);
   return gitMetadata?.remoteUrl;
@@ -130,3 +133,12 @@ export const getCountOfChangesToCommit = (state: AppState) => {
   const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};
   return modifiedPages + modifiedQueries;
 };
+
+export const getShowRepoLimitErrorModal = (state: AppState) =>
+  state.ui.gitSync.showRepoLimitErrorModal;
+
+export const getDisconnectingGitApplication = (state: AppState) =>
+  state.ui.gitSync.disconnectingGitApp;
+
+export const getUseGlobalProfile = (state: AppState) =>
+  state.ui.gitSync.useGlobalProfile;
