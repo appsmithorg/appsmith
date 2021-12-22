@@ -18,8 +18,8 @@ const DropdownSelect = styled.div`
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
     let width = "50vh";
-    if (this.props.customStyles && this.props.customStyles.width) {
-      width = this.props.customStyles.width;
+    if (this.props.customStyles && this.props?.customStyles?.width) {
+      width = this.props?.customStyles?.width;
     }
 
     return (

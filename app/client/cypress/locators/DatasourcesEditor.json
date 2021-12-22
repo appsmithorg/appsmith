@@ -38,7 +38,7 @@
   "Redshift": ".t--plugin-name:contains('Redshift')",
   "AmazonS3": ".t--plugin-name:contains('S3')",
   "authType": "[data-cy=authType]",
-  "OAuth2": "//div[contains(@class,'option') and text()='OAuth 2.0']",
+  "OAuth2": ".t--dropdown-option:contains('OAuth 2.0')",
   "accessTokenUrl": "[data-cy='authentication.accessTokenUrl'] input",
   "clienID": "[data-cy='authentication.clientId'] input",
   "clientSecret": "[data-cy='authentication.clientSecret'] input",

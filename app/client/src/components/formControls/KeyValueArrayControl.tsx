@@ -149,6 +149,7 @@ function KeyValueRow(
                   />
                   {showAddIcon(index) ? (
                     <Icon
+                      className="t--add-field"
                       color={Colors["CADET_BLUE"]}
                       icon="plus"
                       iconSize={20}
@@ -159,6 +160,7 @@ function KeyValueRow(
                     />
                   ) : (
                     <FormIcons.DELETE_ICON
+                      className="t--delete-field"
                       color={Colors["CADET_BLUE"]}
                       height={20}
                       onClick={() => props.fields.remove(index)}
