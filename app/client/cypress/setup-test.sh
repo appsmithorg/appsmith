@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port

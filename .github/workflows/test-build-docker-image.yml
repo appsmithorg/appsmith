@@ -293,6 +293,7 @@ jobs:
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
+
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
@@ -423,6 +424,7 @@ jobs:
       - name: Installing Yarn serve
         run: |
           yarn global add serve
+          yarn add --dev @cypress/code-coverage
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
       - name: Setting up the cypress tests
@@ -469,18 +471,26 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: "cypress/integration/Smoke_TestSuite/**/*.js"
+          spec: "client/cypress/integration/Smoke_TestSuite/LayoutWidgets/*.js"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
+      # Upload the coverage as artifacts 
+      - uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: cypress-coverage-${{ matrix.job }}
+          path: app/client/cypress/snapshots/    
+
       # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
+             
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

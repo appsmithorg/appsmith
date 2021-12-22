@@ -21,7 +21,9 @@ let appId;
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
+
 import * as MESSAGES from "../../../client/src/constants/messages.ts";
+
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from
