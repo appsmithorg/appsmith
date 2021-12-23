@@ -482,13 +482,6 @@ function* gitPullSaga(
     // todo check based on error type
     if (triggeredFromBottomBar) {
       yield put(setIsGitErrorPopupVisible({ isVisible: true }));
-    } else {
-      yield put(
-        setIsGitSyncModalOpen({
-          isOpen: true,
-          tab: GitSyncModalTab.DEPLOY,
-        }),
-      );
     }
   }
 }

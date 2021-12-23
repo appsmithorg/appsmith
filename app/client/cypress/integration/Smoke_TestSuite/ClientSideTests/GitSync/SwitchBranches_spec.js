@@ -18,27 +18,28 @@ describe("Git sync connect to repo", function() {
     });
   });
 
-  // it("connects successfully", function() {
-  //   cy.connectToGitRepo();
-  // });
-
-  it("prune branch name", function() {
+  it("create branch input", function() {
     cy.get(commonLocators.canvas).click({ force: true });
     cy.get(gitSyncLocators.branchButton).click();
 
     // validate of the branch name
-    const hypenBranchName = "bypen-branch-name";
+    const hypenBranchName = "hypen-branch-name";
     cy.get(gitSyncLocators.branchSearchInput).type(
       `{selectall}${hypenBranchName}`,
     );
     cy.get(gitSyncLocators.branchSearchInput).should(
       "have.value",
-      removeSpecialChars(hypenBranchName),
+      "hypen-branch-name",
     );
 
     const specialBranchName = "special&branch-name~@#$%^&*()_+={}[]><,.";
     cy.get(gitSyncLocators.branchSearchInput).type(
       `{selectall}${specialBranchName}`,
+    );
+
+    cy.get(gitSyncLocators.branchSearchInput).should(
+      "have.value",
+      "special_branch-name_____________________",
     );
 
     cy.wait(200);
@@ -200,53 +201,58 @@ describe("Git sync connect to repo", function() {
   });
 
   // Validate the error faced when user switches between the branches
-  it("error faced when user switechs branched with new page", function() {
-    cy.createGitBranch(childBranchKey);
-    cy.Createpage("ChildPage1");
-    cy.switchGitBranch("master");
-
-    cy.contains("Unable to find page");
+  it("error faced when user switches branch with new page", function() {
+    cy.generateUUID().then((uuid) => {
+      cy.goToEditFromPublish();
+      cy.createGitBranch(childBranchKey);
+      cy.Createpage(uuid);
+      cy.switchGitBranch("master");
+      cy.contains("Unable to find page");
+    });
   });
 
-  // Validate the error faced when user switches between the branches
-  it("error faced when user switechs branched with new page", function() {
+  it("branch list search", function() {
+    cy.go("back");
+    cy.reload();
+    cy.get(".bp3-spinner").should("not.exist");
     cy.get(commonLocators.canvas).click({ force: true });
-    cy.createGitBranch(parentBranchKey);
-    cy.createGitBranch(childBranchKey);
+    cy.generateUUID().then((uuid1) => {
+      cy.generateUUID().then((uuid2) => {
+        const parentBranchKey = `${uuid1}branch`;
+        const childBranchKey = `${uuid2}branch`;
+        cy.createGitBranch(parentBranchKey);
+        cy.createGitBranch(childBranchKey);
 
-    cy.get(gitSyncLocators.branchButton).click();
-    cy.get(gitSyncLocators.branchSearchInput).type(
-      `{selectall}${parentBranchKey.slice(0, 3)}`,
-    );
-    cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
+        cy.get(gitSyncLocators.branchButton).click();
+        cy.get(gitSyncLocators.branchSearchInput).type(
+          `{selectall}${parentBranchKey.slice(0, 3)}`,
+        );
+        cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
 
-    cy.get(gitSyncLocators.branchSearchInput).type(
-      `{selectall}${childBranchKey.slice(0, 3)}`,
-    );
-    cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
+        cy.get(gitSyncLocators.branchSearchInput).type(
+          `{selectall}${childBranchKey.slice(0, 3)}`,
+        );
+        cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
 
-    cy.get(gitSyncLocators.branchSearchInput).type(
-      `{selectall}${branchQueryKey}`,
-    );
-    cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
-    cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
+        cy.get(gitSyncLocators.branchSearchInput).type(
+          `{selectall}${branchQueryKey}`,
+        );
+        cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
+        cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
 
-    cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}abcd`);
-    cy.get(gitSyncLocators.branchListItem).should("not.exist");
+        cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}abcd`);
+        cy.get(gitSyncLocators.branchListItem).should("not.exist");
 
-    cy.get(gitSyncLocators.branchSearchInput).clear();
-    cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
-    cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
+        cy.get(gitSyncLocators.branchSearchInput).clear();
+        cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
+        cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
 
-    cy.get(gitSyncLocators.closeBranchList).click();
+        cy.get(gitSyncLocators.closeBranchList).click();
+      });
+    });
   });
 
   after(() => {
     cy.deleteTestGithubRepo(repoName);
   });
 });
-
-const removeSpecialChars = (value) => {
-  const separatorRegex = /(?!\/)\W+/;
-  return value.split(separatorRegex).join("_");
-};

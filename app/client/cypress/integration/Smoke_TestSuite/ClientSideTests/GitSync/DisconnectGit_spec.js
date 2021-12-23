@@ -100,7 +100,6 @@ describe("Git Disconnect modal", function() {
       });
 
     cy.get(gitSyncLocators.disconnectGitModal).should("not.exist");
-    cy.deleteTestGithubRepo(repoName);
   });
 
   after(() => {

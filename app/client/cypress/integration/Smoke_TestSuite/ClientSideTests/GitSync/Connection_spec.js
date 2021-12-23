@@ -129,6 +129,8 @@ describe("Git sync modal: connect tab", function() {
   });
 
   it("validates git user config", function() {
+    cy.get(gitSyncLocators.useGlobalGitConfig).click();
+
     // name empty invalid
     cy.get(gitSyncLocators.gitConfigNameInput).clear();
     cy.get(gitSyncLocators.gitConfigEmailInput).clear();
@@ -195,6 +197,12 @@ describe("Git sync modal: connect tab", function() {
   });
 
   it("validates submit errors", function() {
+    cy.get(gitSyncLocators.useGlobalGitConfig).click();
+    cy.get(gitSyncLocators.gitConfigNameInput).type(`{selectAll}${owner}`);
+    cy.get(gitSyncLocators.gitConfigEmailInput).type(
+      `{selectAll}${Cypress.env("USERNAME")}`,
+    );
+
     cy.get(gitSyncLocators.gitRepoInput)
       .click({ force: true })
       .type(`{selectAll}${invalidURLDetectedOnTheBackend}`);
@@ -248,18 +256,11 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.readDocument).should("exist");
     cy.window().then((window) => {
       windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-        expect(url.startsWith("https://docs.github.com")).to.be.true;
+        expect(url.startsWith("https://docs.appsmith.com")).to.be.true;
         windowOpenSpy.restore();
       });
     });
     cy.get(gitSyncLocators.readDocument).click();
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
-  });
-
-  it("Enabled disconnect git icon after connected git", function() {
-    cy.connectToGitRepo(repoName, false);
-    cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
-    cy.get(gitSyncLocators.disconnectIcon).should("exist");
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 

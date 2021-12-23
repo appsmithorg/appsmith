@@ -19,7 +19,7 @@ export default {
   bottomBarMergeButton: ".t--bottom-bar-merge",
   bottomBarPullButton: ".t--bottom-bar-pull",
   mergeBranchDropdownDestination: ".t--merge-branch-dropdown-destination",
-  mergeCTA: ".t--merge",
+  mergeCTA: ".t--git-merge-button",
   loaderQuickGitAction: ".t--loader-quick-git-action",
   copySshKey: ".t--copy-ssh-key",
   connetStatusbar: ".t--connect-statusbar",
@@ -44,4 +44,5 @@ export default {
   diconnectLink: "t--disconnect-link",
   disconnectLearnMoreLink: ".t--disconnect-learn-more",
   learnMoreOnRepoLimitModal: ".t--learn-more-repo-limit-modal",
+  gitSyncModalDeployTab: "[data-cy=t--tab-DEPLOY]",
 };

@@ -5,18 +5,19 @@ import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import homePage from "../../../../locators/HomePage";
 
 const tempBranch = "tempBranch";
+const tempBranch0 = "tempBranch0";
 const tempBranch1 = "tempBranch1";
 const tempBranch2 = "tempBranch2";
 const tempBranch3 = "tempBranch3";
-const tempBranch3Page = "tempBranch3Page";
-const tempBranch3PageRenamed = "tempBranch3PageRenamed";
-const tempBranch3PageRenamed1 = "tempBranch3PageRenamed1";
 
 const buttonNameMainBranch = "buttonMainBranch";
 const buttonNameMainBranchEdited = "buttonMainBranchEdited";
-const buttonNameTempBranch = "buttonTempBranch";
+const buttonNameTemp0Branch = "buttonTemp0Branch";
 const buttonNameTempBranch1 = "buttonTempBranch1";
 const mainBranch = "master";
+
+const inputNameTempBranch3 = "inputNameTempBranch3";
+const inputNameTempBranch31 = "inputNameTempBranch31";
 
 let repoName;
 describe("Git", function() {
@@ -29,21 +30,22 @@ describe("Git", function() {
   });
 
   it("shows remote is ahead warning and conflict error during commit and push", function() {
+    cy.createGitBranch(tempBranch);
     cy.get(explorerLocators.addWidget).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-    cy.createGitBranch(tempBranch);
+    cy.createGitBranch(tempBranch0);
     cy.widgetText(
-      buttonNameTempBranch,
+      buttonNameTemp0Branch,
       widgetsPage.buttonWidget,
       commonlocators.buttonInner,
     );
     cy.commitAndPush();
     cy.mergeViaGithubApi({
       repo: repoName,
-      base: mainBranch,
-      head: tempBranch,
+      base: tempBranch,
+      head: tempBranch0,
     });
-    cy.switchGitBranch(mainBranch);
+    cy.switchGitBranch(tempBranch);
     cy.widgetText(
       buttonNameMainBranch,
       widgetsPage.buttonWidget,
@@ -64,40 +66,53 @@ describe("Git", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("supports merging head to base branch", function() {
-    cy.widgetText(
-      buttonNameMainBranchEdited,
-      widgetsPage.buttonWidget,
-      commonlocators.buttonInner,
-    );
+  it("detect conflicts when merging head to base branch", function() {
+    cy.switchGitBranch(mainBranch);
+    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.createGitBranch(tempBranch1);
     cy.widgetText(
       buttonNameTempBranch1,
       widgetsPage.buttonWidget,
       commonlocators.buttonInner,
     );
+    cy.commitAndPush();
+
+    cy.switchGitBranch(mainBranch);
+    cy.widgetText(
+      buttonNameMainBranchEdited,
+      widgetsPage.buttonWidget,
+      commonlocators.buttonInner,
+    );
+    cy.commitAndPush();
+
+    cy.switchGitBranch(tempBranch1);
+
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
     cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
     cy.get(commonlocators.dropdownmenu)
       .contains(mainBranch)
       .click();
     // assert conflicting status
-    // cy.contains(Cypress.env("MESSAGES").MERGE_CONFLICT_ERROR());
+    cy.contains("Please resolve the conflicts manually");
     cy.get(gitSyncLocators.closeGitSyncModal).click();
+  });
+
+  it("supports merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     cy.get(explorerLocators.explorerSwitchId).click({ force: true });
     cy.Createpage("NewPage");
-    // cy.merge(mainBranch);
+    cy.commitAndPush();
+    cy.merge(mainBranch);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.switchGitBranch(mainBranch);
-    // cy.contains("NewPage");
+    cy.contains("NewPage");
   });
 
-  it("enables pulling remote changes, shows conflicts if any", function() {
-    // normal pull
-    cy.switchGitBranch(mainBranch);
+  it("enables pulling remote changes from bottom bar", function() {
     cy.createGitBranch(tempBranch3);
-    cy.Createpage(tempBranch3Page);
+    cy.get(explorerLocators.addWidget).click();
+    cy.dragAndDropToCanvas("inputwidget", { x: 300, y: 300 });
 
     cy.commitAndPush();
 
@@ -107,10 +122,46 @@ describe("Git", function() {
       head: tempBranch3,
     });
 
-    cy.contains("Page1").click();
+    cy.switchGitBranch(mainBranch);
+
+    cy.get(gitSyncLocators.loaderQuickGitAction).should("exist");
+    cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
+
+    cy.get(gitSyncLocators.bottomBarPullButton).click();
+    cy.get(gitSyncLocators.loaderQuickGitAction).should("exist");
+    cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
+
+    cy.get(".bp3-spinner").should("exist");
+    cy.get(".bp3-spinner").should("not.exist");
+
+    cy.get(widgetsPage.inputWidget);
+
+    cy.switchGitBranch(tempBranch3);
+
+    cy.widgetText(
+      inputNameTempBranch3,
+      widgetsPage.inputWidget,
+      commonlocators.inputWidgetInner,
+    );
+
+    cy.commitAndPush();
+
+    cy.mergeViaGithubApi({
+      repo: repoName,
+      base: mainBranch,
+      head: tempBranch3,
+    });
 
     cy.switchGitBranch(mainBranch);
 
+    cy.widgetText(
+      inputNameTempBranch31,
+      widgetsPage.inputWidget,
+      commonlocators.inputWidgetInner,
+    );
+
+    cy.commitAndPush(true);
+    1;
     // reset git status
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
@@ -119,33 +170,11 @@ describe("Git", function() {
     cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
 
     cy.get(gitSyncLocators.bottomBarPullButton).click();
-
-    cy.contains(tempBranch3Page);
-
-    cy.GlobalSearchEntity(tempBranch3Page);
-    cy.RenameEntity(tempBranch3PageRenamed, true);
-
-    cy.switchGitBranch(tempBranch3);
-
-    cy.GlobalSearchEntity(tempBranch3Page);
-    cy.RenameEntity(tempBranch3PageRenamed1, true);
-
-    cy.commitAndPush();
-
-    cy.mergeViaGithubApi({
-      repo: repoName,
-      base: mainBranch,
-      head: tempBranch3,
-    });
-
-    cy.switchGitBranch(mainBranch);
-
     cy.get(gitSyncLocators.loaderQuickGitAction).should("exist");
     cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
 
-    cy.get(gitSyncLocators.bottomBarPullButton).click();
-
     cy.contains(Cypress.env("MESSAGES").GIT_CONFLICTING_INFO());
+    cy.get("body").type("{esc}");
   });
 
   it("clicking '+' icon on bottom bar should open deploy popup", function() {

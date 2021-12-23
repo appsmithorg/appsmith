@@ -68,7 +68,7 @@ export default function GitSyncError({
       <Text color={Colors.ERROR_RED} type={TextType.P2}>
         {error?.message}
       </Text>
-      <LintText href={DOCS_BASE_URL} target="_blank">
+      <LintText onClick={() => window.open(DOCS_BASE_URL, "_blank")}>
         <Text
           case={Case.UPPERCASE}
           className="t--read-document"

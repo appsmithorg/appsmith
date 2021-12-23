@@ -1,4 +1,6 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
+const homePage = require("../../../../locators/HomePage");
+const commonLocators = require("../../../../locators/commonlocators.json");
 
 let repoName;
 describe("Git sync modal: deploy tab", function() {
@@ -37,6 +39,35 @@ describe("Git sync modal: deploy tab", function() {
     cy.get(gitSyncLocators.deployPreview).contains(`secs ago`);
 
     cy.get(gitSyncLocators.closeGitSyncModal).click();
+  });
+
+  it("post connection app name deploy menu", function() {
+    cy.get(homePage.applicationName).click();
+    cy.get(commonLocators.appNameDeployMenu).click();
+    cy.get(commonLocators.appNameDeployMenuPublish).click();
+    cy.get(gitSyncLocators.gitSyncModal);
+    cy.get(gitSyncLocators.gitSyncModalDeployTab).should(
+      "have.class",
+      "react-tabs__tab--selected",
+    );
+
+    cy.window().then((window) => {
+      cy.stub(window, "open").callsFake((url) => {
+        expect(url.indexOf("branch=master")).to.be.at.least(0);
+        const viewerPathMatch = matchViewerPath(trimQueryString(url));
+        expect(!!viewerPathMatch).to.be.true;
+      });
+    });
+
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+
+    cy.get(homePage.applicationName).click();
+    cy.get(commonLocators.appNameDeployMenu).click();
+    cy.get(commonLocators.appNameDeployMenuCurrentVersion).click();
+
+    cy.get(homePage.applicationName).click();
+    cy.get(commonLocators.appNameDeployMenu).click();
+    cy.get(commonLocators.appNameDeployMenuConnectToGit).should("not.exist");
   });
 
   after(() => {

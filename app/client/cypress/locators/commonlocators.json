@@ -46,6 +46,7 @@
   "allowScroll": ".t--property-control-allowscroll input",
   "tableInner": ".t--draggable-tablewidget span.t--widget-name",
   "buttonInner": ".t--draggable-buttonwidget span.t--widget-name",
+  "inputWidgetInner": ".t--draggable-inputwidget span.t--widget-name",
   "pdfSupport": ".t--property-control-pdfexport input",
   "ExcelSupport": ".t--property-control-excelexport input",
   "dropDownBtn": ".bp3-popover-target",
