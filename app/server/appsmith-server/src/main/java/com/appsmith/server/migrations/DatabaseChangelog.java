@@ -4710,10 +4710,12 @@ public class DatabaseChangelog {
      */
     @ChangeSet(order = "107", id = "migrate-firestore-to-uqi-3", author = "")
     public void migrateFirestorePluginToUqi3(MongockTemplate mongockTemplate) {
+        // Update Firestore plugin to indicate use of UQI schema
         Plugin firestorePlugin = mongockTemplate.findOne(
                 query(where("packageName").is("firestore-plugin")),
                 Plugin.class
         );
+        firestorePlugin.setUiComponent("UQIDbEditorForm");
 
         // Find all Firestore actions
         final Query firestoreActionQuery = query(
@@ -4728,6 +4730,8 @@ public class DatabaseChangelog {
         );
 
         migrateFirestoreToUQI(mongockTemplate, firestoreActions);
-    }
 
+        // Update plugin data.
+        mongockTemplate.save(firestorePlugin);
+    }
 }
