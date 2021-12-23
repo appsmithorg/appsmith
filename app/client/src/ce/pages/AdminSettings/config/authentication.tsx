@@ -96,6 +96,7 @@ const Github_Auth: AdminConfigType = {
       subCategory: "github signup",
       controlType: SettingTypes.LINK,
       label: "How to configure?",
+      url: GITHUB_SIGNUP_SETUP_DOC,
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
