@@ -8,6 +8,7 @@ export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<Variable>;
+  isAsync: boolean;
 };
 
 export type ParsedBody = {
@@ -43,6 +44,7 @@ export const getDifferenceInJSCollection = (
               ...preExisted.actionConfiguration,
               body: action.body,
               jsArguments: action.arguments,
+              isAsync: action.isAsync,
             },
           });
         }
