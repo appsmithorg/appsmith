@@ -47,11 +47,11 @@ export const useFilteredFileOperations = (query = "") => {
       fileOperations = [
         ...fileOperations,
         {
-          title: "DATASOURCES FROM THIS APP",
+          title: "CREATE A QUERY",
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
         ...filteredAppWideDS.map((ds: any) => ({
-          title: ds.name,
+          title: `New ${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
           pluginId: ds.pluginId,
           action: (pageId: string, from: EventLocation) =>
@@ -63,13 +63,13 @@ export const useFilteredFileOperations = (query = "") => {
       fileOperations = [
         ...fileOperations,
         {
-          title: `DATASOURCES FROM ${
+          title: `CREATE A QUERY ON DATASOURCES FROM ${
             currentUser?.name ? currentUser?.name.toUpperCase() + "'S" : ""
           } ORGANIZATION`,
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
         ...otherFilteredDS.map((ds: any) => ({
-          title: ds.name,
+          title: `New ${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
           pluginId: ds.pluginId,
           action: (pageId: string, from: EventLocation) =>

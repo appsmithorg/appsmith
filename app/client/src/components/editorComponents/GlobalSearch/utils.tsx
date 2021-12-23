@@ -327,14 +327,14 @@ export const getEntityId = (entity: any) => {
 
 export const actionOperations = [
   {
-    title: "Blank API",
+    title: "New Blank API",
     desc: "Create a new API",
     icon: apiIcon,
     action: (pageId: string, location: EventLocation) =>
       createNewApiAction(pageId, location),
   },
   {
-    title: "JS Object",
+    title: "New JS Object",
     desc: "Create a new JS Object",
     icon: jsIcon,
     action: (pageId: string) => createNewJSCollection(pageId),
