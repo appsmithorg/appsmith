@@ -1,5 +1,13 @@
 import { createGlobalData } from "workers/evaluate";
 import _ from "lodash";
+jest.mock("./evaluation.worker.ts", () => {
+  return {
+    dataTreeEvaluator: {
+      evalTree: {},
+      resolvedFunctions: {},
+    },
+  };
+});
 
 describe("promise execution", () => {
   const postMessageMock = jest.fn();

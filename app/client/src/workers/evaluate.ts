@@ -340,13 +340,13 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
       }
     } catch (e) {
       //
-    } finally {
-      for (const entity in GLOBAL_DATA) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
-        delete self[entity];
-      }
     }
-    return self.IS_ASYNC;
+    const isAsync = !!self.IS_ASYNC;
+    for (const entity in GLOBAL_DATA) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      delete self[entity];
+    }
+    return isAsync;
   })();
 }

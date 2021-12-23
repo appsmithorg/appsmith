@@ -212,7 +212,6 @@ describe("evaluateAsync", () => {
       },
       type: "PROCESS_TRIGGER",
     });
-    expect(self.ALLOW_ASYNC).toBe(true);
   });
   it("runs and returns errors", async () => {
     jest.restoreAllMocks();
@@ -241,7 +240,6 @@ describe("evaluateAsync", () => {
       },
       type: "PROCESS_TRIGGER",
     });
-    expect(self.ALLOW_ASYNC).toBe(true);
   });
 });
 
