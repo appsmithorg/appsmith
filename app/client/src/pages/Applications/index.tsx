@@ -1,5 +1,6 @@
 import React, {
   Component,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -67,7 +68,7 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
-import { saveOrg } from "actions/orgActions";
+import { deleteOrg, saveOrg } from "actions/orgActions";
 import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
@@ -420,15 +421,6 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <OrgMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={org.organization.slug}
-                org={org}
-                selected={urlHash === org.organization.slug}
-              />
-            ))}
           {!isFetchingApplications && fetchedUserOrgs && (
             <MenuItem
               cypressSelector="t--org-new-organization-auto-create"
@@ -447,6 +439,15 @@ function LeftPane() {
               text={CREATE_ORGANIZATION_FORM_NAME}
             />
           )}
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <OrgMenuItem
+                isFetchingApplications={isFetchingApplications}
+                key={org.organization.slug}
+                org={org}
+                selected={urlHash === org.organization.slug}
+              />
+            ))}
         </WorkpsacesNavigator>
         <LeftPaneBottomSection>
           <MenuItem
@@ -511,21 +512,21 @@ const OrgNameHolder = styled(Text)`
 `;
 
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
-${(props) => {
-  const color = props.disabled
-    ? props.theme.colors.applications.orgColor
-    : props.theme.colors.applications.hover.orgColor[9];
-  return `${textIconStyles({
-    color: color,
-    hover: color,
-  })}`;
-}}
+  ${(props) => {
+    const color = props.disabled
+      ? props.theme.colors.applications.orgColor
+      : props.theme.colors.applications.hover.orgColor[9];
+    return `${textIconStyles({
+      color: color,
+      hover: color,
+    })}`;
+  }}
 
-.${Classes.ICON} {
-  display: ${(props) => (!props.disabled ? "inline" : "none")};;
-  margin-left: 8px;
-  color: ${(props) => props.theme.colors.applications.iconColor};
-}
+  .${Classes.ICON} {
+    display: ${(props) => (!props.disabled ? "inline" : "none")};
+    margin-left: 8px;
+    color: ${(props) => props.theme.colors.applications.iconColor};
+  }
 `;
 const OrgRename = styled(EditableText)`
   padding: 0 2px;
@@ -555,6 +556,7 @@ function ApplicationsSection(props: any) {
     }
   };
   const [warnLeavingOrganization, setWarnLeavingOrganization] = useState(false);
+  const [warnDeleteOrg, setWarnDeleteOrg] = useState(false);
   const [orgToOpenMenu, setOrgToOpenMenu] = useState<string | null>(null);
   const updateApplicationDispatch = (
     id: string,
@@ -579,6 +581,15 @@ function ApplicationsSection(props: any) {
     setOrgToOpenMenu(null);
     dispatch(leaveOrganization(orgId));
   };
+
+  const handleDeleteOrg = useCallback(
+    (orgId: string) => {
+      setWarnDeleteOrg(false);
+      setOrgToOpenMenu(null);
+      dispatch(deleteOrg(orgId));
+    },
+    [dispatch],
+  );
 
   const OrgNameChange = (newName: string, orgId: string) => {
     dispatch(
@@ -761,6 +772,7 @@ function ApplicationsSection(props: any) {
                         }}
                         onClosing={() => {
                           setWarnLeavingOrganization(false);
+                          setWarnDeleteOrg(false);
                         }}
                         position={Position.BOTTOM_RIGHT}
                         target={
@@ -774,27 +786,29 @@ function ApplicationsSection(props: any) {
                       >
                         {hasManageOrgPermissions && (
                           <>
-                            <OrgRename
-                              cypressSelector="t--org-rename-input"
-                              defaultValue={organization.name}
-                              editInteractionKind={EditInteractionKind.SINGLE}
-                              fill
-                              hideEditIcon={false}
-                              isEditingDefault={false}
-                              isInvalid={(value: string) => {
-                                return notEmptyValidator(value).message;
-                              }}
-                              onBlur={(value: string) => {
-                                OrgNameChange(value, organization.id);
-                              }}
-                              placeholder="Workspace name"
-                              savingState={
-                                isSavingOrgInfo
-                                  ? SavingState.STARTED
-                                  : SavingState.NOT_STARTED
-                              }
-                              underline
-                            />
+                            <div className="px-3 py-2">
+                              <OrgRename
+                                cypressSelector="t--org-rename-input"
+                                defaultValue={organization.name}
+                                editInteractionKind={EditInteractionKind.SINGLE}
+                                fill
+                                hideEditIcon={false}
+                                isEditingDefault={false}
+                                isInvalid={(value: string) => {
+                                  return notEmptyValidator(value).message;
+                                }}
+                                onBlur={(value: string) => {
+                                  OrgNameChange(value, organization.id);
+                                }}
+                                placeholder="Workspace name"
+                                savingState={
+                                  isSavingOrgInfo
+                                    ? SavingState.STARTED
+                                    : SavingState.NOT_STARTED
+                                }
+                                underline
+                              />
+                            </div>
                             <MenuItem
                               cypressSelector="t--org-setting"
                               icon="general"
@@ -820,7 +834,7 @@ function ApplicationsSection(props: any) {
                                 text="Import Application"
                               />
                             )}
-                            {getFeatureFlags().GIT && (
+                            {getFeatureFlags().GIT_IMPORT && (
                               <MenuItem
                                 cypressSelector="t--org-import-app-git"
                                 icon="upload"
@@ -870,6 +884,22 @@ function ApplicationsSection(props: any) {
                             !warnLeavingOrganization ? undefined : "warning"
                           }
                         />
+                        {applications.length === 0 && hasManageOrgPermissions && (
+                          <MenuItem
+                            icon="trash"
+                            onSelect={() => {
+                              warnDeleteOrg
+                                ? handleDeleteOrg(organization.id)
+                                : setWarnDeleteOrg(true);
+                            }}
+                            text={
+                              !warnDeleteOrg
+                                ? "Delete Organization"
+                                : "Are you sure?"
+                            }
+                            type={!warnDeleteOrg ? undefined : "warning"}
+                          />
+                        )}
                       </Menu>
                     )}
                   </OrgShareUsers>
@@ -934,7 +964,7 @@ function ApplicationsSection(props: any) {
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       <WelcomeHelper />
-      {getFeatureFlags().GIT && <ImportAppViaGitModal />}
+      {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );
 }

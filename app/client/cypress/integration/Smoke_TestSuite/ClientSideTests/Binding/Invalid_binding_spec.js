@@ -15,13 +15,11 @@ describe("Binding the multiple widgets and validating default data", function() 
     cy.openPropertyPane("dropdownwidget");
     cy.testJsontext("options", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.dropdownErrorMsg);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Table widget test with invalid binding value", function() {
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.tableWidgetErrorMsg);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 });

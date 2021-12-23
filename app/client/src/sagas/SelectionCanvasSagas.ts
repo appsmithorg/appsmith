@@ -1,5 +1,5 @@
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { isEqual } from "lodash";

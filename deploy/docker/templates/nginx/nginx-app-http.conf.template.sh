@@ -9,6 +9,11 @@ if [ -z $CUSTOM_DOMAIN ]; then
 fi
 
 cat <<EOF
+map \$http_x_forwarded_proto \$origin_scheme {
+  default \$http_x_forwarded_proto;
+  '' \$scheme;
+}
+
 server {
   listen ${PORT:-80} default_server;
   server_name $CUSTOM_DOMAIN;
@@ -19,7 +24,7 @@ server {
 
   root /opt/appsmith/editor;
   index index.html index.htm;
-  
+
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
   }

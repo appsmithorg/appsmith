@@ -1,4 +1,4 @@
-import { Variant } from "components/ads/common";
+import { ToastTypeOptions, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ShowAlertActionDescription } from "entities/DataTree/actionTriggers";
@@ -32,7 +32,9 @@ export default function* showAlertSaga(
   }
   if (payload.style && !variant) {
     throw new TriggerFailureError(
-      `Toast type needs to be a one of ${Object.values(Variant).join(", ")}`,
+      `Toast type needs to be a one of ${Object.values(ToastTypeOptions).join(
+        ", ",
+      )}`,
       triggerMeta,
     );
   }

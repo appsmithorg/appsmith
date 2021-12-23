@@ -15,6 +15,9 @@ export enum ActionTriggerType {
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
   SET_INTERVAL = "SET_INTERVAL",
   CLEAR_INTERVAL = "CLEAR_INTERVAL",
+  GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
+  WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
+  STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
 }
 
 export type PromiseActionDescription = {
@@ -119,6 +122,32 @@ export type ClearIntervalDescription = {
   };
 };
 
+type GeolocationOptions = {
+  maximumAge?: number;
+  timeout?: number;
+  enableHighAccuracy?: boolean;
+};
+
+export type GetCurrentLocationDescription = {
+  type: ActionTriggerType.GET_CURRENT_LOCATION;
+  payload: {
+    options?: GeolocationOptions;
+  };
+};
+
+export type WatchCurrentLocationDescription = {
+  type: ActionTriggerType.WATCH_CURRENT_LOCATION;
+  payload: {
+    onSuccess: string | undefined;
+    onError: string | undefined;
+    options?: GeolocationOptions;
+  };
+};
+
+export type StopWatchingCurrentLocationDescription = {
+  type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION;
+};
+
 export type ActionDescription =
   | PromiseActionDescription
   | RunPluginActionDescription
@@ -132,4 +161,7 @@ export type ActionDescription =
   | CopyToClipboardDescription
   | ResetWidgetDescription
   | SetIntervalDescription
-  | ClearIntervalDescription;
+  | ClearIntervalDescription
+  | GetCurrentLocationDescription
+  | WatchCurrentLocationDescription
+  | StopWatchingCurrentLocationDescription;

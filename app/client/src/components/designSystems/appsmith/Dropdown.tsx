@@ -79,6 +79,7 @@ export function BaseDropdown(props: DropdownProps) {
       onChange={(value) => input.onChange(value)}
       width={props.width}
       {...props}
+      classNamePrefix="appsmith-select"
       menuPlacement="auto"
     />
   );

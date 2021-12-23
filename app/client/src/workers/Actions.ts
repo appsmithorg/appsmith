@@ -45,6 +45,7 @@ import _ from "lodash";
 import {
   getEntityNameAndPropertyPath,
   isAction,
+  isAppsmithEntity,
   isTrueObject,
 } from "./evaluationUtils";
 import {
@@ -177,6 +178,7 @@ const DATA_TREE_FUNCTIONS: Record<
   | {
       qualifier: (entity: DataTreeEntity) => boolean;
       func: (entity: DataTreeEntity) => ActionDispatcher;
+      path?: string;
     }
 > = {
   navigateTo: function(
@@ -319,6 +321,77 @@ const DATA_TREE_FUNCTIONS: Record<
       },
     ]);
   },
+  getGeoLocation: {
+    qualifier: (entity) => isAppsmithEntity(entity),
+    path: "appsmith.geolocation.getCurrentPosition",
+    func: () =>
+      function(
+        successCallback?: Function,
+        errorCallback?: Function,
+        options?: {
+          maximumAge?: number;
+          timeout?: number;
+          enableHighAccuracy?: boolean;
+        },
+      ) {
+        const mainRequest = new AppsmithPromise([
+          {
+            type: ActionTriggerType.GET_CURRENT_LOCATION,
+            payload: {
+              options,
+            },
+          },
+        ]);
+        if (errorCallback) {
+          mainRequest.catch(errorCallback);
+        }
+        if (successCallback) {
+          mainRequest.then(successCallback);
+        }
+        return mainRequest;
+      },
+  },
+  watchGeoLocation: {
+    qualifier: (entity) => isAppsmithEntity(entity),
+    path: "appsmith.geolocation.watchPosition",
+    func: () =>
+      function(
+        onSuccessCallback?: Function,
+        onErrorCallback?: Function,
+        options?: {
+          maximumAge?: number;
+          timeout?: number;
+          enableHighAccuracy?: boolean;
+        },
+      ) {
+        return new AppsmithPromise([
+          {
+            type: ActionTriggerType.WATCH_CURRENT_LOCATION,
+            payload: {
+              options,
+              onSuccess: onSuccessCallback
+                ? `{{${onSuccessCallback.toString()}}}`
+                : undefined,
+              onError: onErrorCallback
+                ? `{{${onErrorCallback.toString()}}}`
+                : undefined,
+            },
+          },
+        ]);
+      },
+  },
+  stopWatchGeoLocation: {
+    qualifier: (entity) => isAppsmithEntity(entity),
+    path: "appsmith.geolocation.clearWatch",
+    func: () =>
+      function() {
+        return new AppsmithPromise([
+          {
+            type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
+          },
+        ]);
+      },
+  },
 };
 
 declare global {
@@ -343,7 +416,7 @@ export const enhanceDataTreeWithFunctions = (
       Object.entries(dataTree).forEach(([entityName, entity]) => {
         if (funcOrFuncCreator.qualifier(entity)) {
           const func = funcOrFuncCreator.func(entity);
-          const funcName = `${entityName}.${name}`;
+          const funcName = funcOrFuncCreator.path || `${entityName}.${name}`;
           _.set(
             withFunction,
             funcName,

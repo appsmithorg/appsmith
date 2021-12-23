@@ -45,8 +45,8 @@ export default function DetailsForm(
 
   return (
     <DetailsFormWrapper ref={ref}>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>1.</FormHeaderIndex>
+      <FormHeaderWrapper className="relative flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">1.</FormHeaderIndex>
         <FormHeaderLabel>{createMessage(WELCOME_FORM_HEADER)}</FormHeaderLabel>
       </FormHeaderWrapper>
       <StyledFormBodyWrapper>

@@ -62,6 +62,7 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { updateReplayEntity } from "actions/pageActions";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -353,7 +354,7 @@ function* handleExecuteJSFunctionSaga(
 }
 
 function* handleUpdateJSCollectionBody(
-  actionPayload: ReduxAction<{ body: string; id: string }>,
+  actionPayload: ReduxAction<{ body: string; id: string; isReplay: boolean }>,
 ) {
   const jsCollection = yield select(getJSCollection, actionPayload.payload.id);
   jsCollection.body = actionPayload.payload.body;
@@ -371,6 +372,17 @@ function* handleUpdateJSCollectionBody(
       payload: { error, data: jsCollection },
     });
   }
+  if (!actionPayload.payload.isReplay)
+    yield put(
+      updateReplayEntity(
+        actionPayload.payload.id,
+        {
+          id: actionPayload.payload.id,
+          body: actionPayload.payload.body,
+        },
+        ENTITY_TYPE.JSACTION,
+      ),
+    );
 }
 
 function* handleRefactorJSActionNameSaga(

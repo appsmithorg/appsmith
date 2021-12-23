@@ -44,6 +44,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "../../selectors/editorSelectors";
 import { getAppMode } from "../../selectors/applicationSelectors";
+import { setPreviewModeAction } from "actions/editorActions";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
@@ -99,7 +101,6 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   z-index: ${Indices.Layer1};
-  margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
 /**
@@ -319,7 +320,9 @@ export const useHasUnreadCommentThread = (applicationId: string) => {
 function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
+  const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
   const currentUser = useSelector(getCurrentUser);
   const appId = useSelector(getCurrentApplicationId) || "";
   const appMode = useSelector(getAppMode);
@@ -355,15 +358,26 @@ function ToggleCommentModeButton({
       source: "CLICK",
     });
     setCommentModeInUrl(true);
+    dispatch(setPreviewModeAction(false));
     proceedToNextTourStep();
   }, [proceedToNextTourStep]);
+
+  // Show comment mode button only on the canvas editor and viewer
+  const isHideComments = useHideComments();
+
+  const onClickPreviewModeButton = useCallback(() => {
+    dispatch(setPreviewModeAction(true));
+    setCommentModeInUrl(false);
+  }, [dispatch, setPreviewModeAction]);
+
+  if (isHideComments) return null;
 
   return (
     <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
-            active={!isCommentMode}
+            active={!isCommentMode && !isPreviewMode}
             className="t--switch-comment-mode-off"
             onClick={() => {
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
@@ -371,6 +385,7 @@ function ToggleCommentModeButton({
                 source: "CLICK",
               });
               setCommentModeInUrl(false);
+              dispatch(setPreviewModeAction(false));
             }}
             showSelectedMode={showSelectedMode}
             type="fill"
@@ -383,6 +398,28 @@ function ToggleCommentModeButton({
             showSelectedMode={showSelectedMode}
             showUnreadIndicator={showUnreadIndicator}
           />
+          {appMode === APP_MODE.EDIT && (
+            <TooltipComponent
+              content={
+                <>
+                  Preview Mode
+                  <span style={{ color: "#fff", marginLeft: 20 }}>P</span>
+                </>
+              }
+              hoverOpenDelay={1000}
+              position={Position.BOTTOM}
+            >
+              <ModeButton
+                active={isPreviewMode}
+                className="t--switch-preview-mode-toggle"
+                onClick={onClickPreviewModeButton}
+                showSelectedMode={showSelectedMode}
+                type="fill"
+              >
+                <Eye size={20} />
+              </ModeButton>
+            </TooltipComponent>
+          )}
         </div>
       </TourTooltipWrapper>
     </Container>

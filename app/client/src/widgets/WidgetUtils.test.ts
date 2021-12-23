@@ -1,5 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
+import { escapeSpecialChars } from "./WidgetUtils";
 import {
   getCustomTextColor,
   getCustomBackgroundColor,
@@ -120,5 +121,14 @@ describe("validate widget utils button style functions", () => {
     const expected6 = theme.colors.button.primary.tertiary.hoverColor;
     const result6 = getCustomHoverColor(theme, ButtonVariantTypes.TERTIARY);
     expect(result6).toStrictEqual(expected6);
+  });
+
+  it("validate escaping special characters", () => {
+    const testString = `a\nb\nc
+hello! how are you?
+`;
+    const result = escapeSpecialChars(testString);
+    const expectedResult = "a\nb\nc\nhello! how are you?\n";
+    expect(result).toStrictEqual(expectedResult);
   });
 });

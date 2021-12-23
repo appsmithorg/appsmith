@@ -28,7 +28,6 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
-import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -36,6 +35,7 @@ import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 
 import { getSearchQuery } from "utils/helpers";
+import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -153,7 +153,7 @@ class AppViewer extends Component<Props> {
             }}
           >
             <ContainerWithComments>
-              <AppComments isInline />
+              <AppViewerCommentsSidebar />
               <AppViewerBodyContainer>
                 <AppViewerBody hasPages={this.props.pages.length > 1}>
                   {isInitialized && this.state.registered && (

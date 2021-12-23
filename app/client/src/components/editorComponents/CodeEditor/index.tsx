@@ -84,6 +84,7 @@ import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
+import { replayHighlightClass } from "globalStyles/portals";
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -645,7 +646,7 @@ class CodeEditor extends Component<Props, State> {
           <EditorWrapper
             border={border}
             borderLess={borderLess}
-            className={className}
+            className={`${className} ${replayHighlightClass}`}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}

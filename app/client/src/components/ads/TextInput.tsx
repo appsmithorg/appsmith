@@ -20,6 +20,7 @@ import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type InputType = "text" | "password" | "number" | "email" | "tel";
 
@@ -213,8 +214,9 @@ const InputWrapper = styled.div<{
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
-  border: 1.2px solid ${(props) =>
-    props.noBorder ? "transparent" : props.inputStyle.borderColor};
+  border: 1.2px solid
+    ${(props) =>
+      props.noBorder ? "transparent" : props.inputStyle.borderColor};
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
   ${(props) =>
@@ -315,7 +317,7 @@ const TextInput = forwardRef(
         const inputValueValidation =
           props.validator && props.validator(inputValue);
         if (inputValueValidation) {
-          props.validator && setValidation(validation);
+          props.validator && setValidation(inputValueValidation);
           return (
             inputValueValidation.isValid &&
             props.onChange &&
@@ -366,6 +368,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper
         $isLoading={props.isLoading}
+        className={replayHighlightClass}
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}

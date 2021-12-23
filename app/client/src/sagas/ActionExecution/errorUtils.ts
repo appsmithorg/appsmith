@@ -58,15 +58,11 @@ export const logActionExecutionError = (
   });
 };
 
-export class PluginTriggerFailureError extends TriggerFailureError {
+export class PluginTriggerFailureError extends Error {
   responseData: unknown[] = [];
 
-  constructor(
-    reason: string,
-    responseData: unknown[],
-    triggerMeta: TriggerMeta,
-  ) {
-    super(reason, triggerMeta);
+  constructor(reason: string, responseData: unknown[]) {
+    super(reason);
     this.responseData = responseData;
   }
 }

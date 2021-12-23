@@ -15,10 +15,15 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "entities/Datasource";
 
 const ActionButton = styled(Button)`
-  padding: 10px 20px;
+  padding: 10px 10px;
+  font-size: 12px;
   &&&& {
     height: 36px;
     width: 136px;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
   }
   .${Classes.ICON} {
     svg {
@@ -67,10 +72,10 @@ function NewActionButton(props: NewActionButtonProps) {
             ? createNewQueryName(actions, currentPageId || "")
             : createNewApiName(actions, currentPageId || "");
 
-        const headers = datasource?.datasourceConfiguration?.headers ?? [];
+        /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
         const defaultApiActionConfig: ApiActionConfig = {
           ...DEFAULT_API_ACTION_CONFIG,
-          headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
+          headers: DEFAULT_API_ACTION_CONFIG.headers,
         };
         let payload = {
           name: newActionName,

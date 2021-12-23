@@ -288,12 +288,12 @@ export function* evalErrorHandler(
         });
         break;
       }
-      // case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
-      //   Sentry.captureException(new Error(error.message), {
-      //     extra: error.context,
-      //   });
-      //   break;
-      // }
+      case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
+        Sentry.captureException(new Error(error.message), {
+          extra: error.context,
+        });
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);

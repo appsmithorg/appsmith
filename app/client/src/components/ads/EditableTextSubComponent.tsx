@@ -101,16 +101,6 @@ const TextContainer = styled.div<{
     display: none;
   }
 
-  &&&
-    .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
-    &&&
-    .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
-    font-size: ${(props) => props.theme.typography.p1.fontSize}px;
-    line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
-    letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
-    font-weight: ${(props) => props.theme.typography.p1.fontWeight};
-  }
-
   &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT} {
     cursor: pointer;
     color: ${(props) => props.theme.colors.editableText.color};
@@ -119,6 +109,7 @@ const TextContainer = styled.div<{
     ${(props) => (props.isEditing ? "display: none" : "display: block")};
     width: fit-content !important;
     min-width: auto !important;
+    line-height: inherit !important;
   }
 
   &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT}:hover {
@@ -142,9 +133,6 @@ const TextContainer = styled.div<{
 
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
-    height: ${(props) => props.theme.spaces[14] + 1}px;
-    padding: ${(props) => props.theme.spaces[4]}px
-      ${(props) => props.theme.spaces[5]}px;
     background-color: ${(props) => props.bgColor};
     width: calc(100% - 40px);
   }

@@ -28,7 +28,12 @@ div.bp3-select-popover .bp3-popover-content {
 }
 
 span.bp3-popover-target {
-  display: block;
+  display: flex;
+  width: 100%;
+}
+
+span.bp3-popover-target > * {
+  flex-grow: 1;
 }
 
 div.bp3-popover-arrow {

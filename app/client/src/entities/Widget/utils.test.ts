@@ -123,8 +123,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
-        primaryColumns: "TEMPLATE",
         isSortable: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
@@ -181,6 +182,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
+        animateLoading: {
+          type: "BOOLEAN",
+        },
         defaultSearchText: {
           type: "TEXT",
         },
@@ -200,21 +204,14 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: {
           type: "BOOLEAN",
         },
-        primaryColumns: {
-          params: {
-            expected: {
-              autocompleteDataType: AutocompleteDataType.STRING,
-              example: "abc",
-              type: "Unique Column Names",
-            },
-          },
-          type: "FUNCTION",
-        },
         isSortable: {
           type: "BOOLEAN",
           params: {
             default: true,
           },
+        },
+        primaryColumnId: {
+          type: "TEXT",
         },
         tableData: {
           type: "OBJECT_ARRAY",
@@ -233,7 +230,6 @@ describe("getAllPathsFromPropertyConfig", () => {
 
     // Note: Removing until we figure out how functions are represented here.
     delete result.validationPaths.defaultSelectedRow.params?.fn;
-    delete result.validationPaths.primaryColumns.params?.fn;
 
     expect(result).toStrictEqual(expected);
   });
@@ -282,6 +278,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
         setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
@@ -337,6 +334,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "TEXT",
         },
         isVisible: {
+          type: "BOOLEAN",
+        },
+        animateLoading: {
           type: "BOOLEAN",
         },
         setAdaptiveYMin: {

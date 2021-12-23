@@ -214,7 +214,7 @@ function JSResponseView(props: Props) {
           </HelpSection>
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
             {sortedActionList && !sortedActionList?.length ? (
-              <NoResponseContainer>
+              <NoResponseContainer className="flex items-center">
                 {createMessage(EMPTY_JS_OBJECT)}
               </NoResponseContainer>
             ) : (
@@ -248,7 +248,7 @@ function JSResponseView(props: Props) {
                   ) : !responses.hasOwnProperty(selectActionId) ? (
                     <NoResponseContainer className="empty">
                       <Icon name="no-response" />
-                      <Text type={TextType.P1}>
+                      <Text className="flex items-center" type={TextType.P1}>
                         {EMPTY_RESPONSE_FIRST_HALF()}
                         <RunFunction className="response-run" />
                         {EMPTY_RESPONSE_LAST_HALF()}

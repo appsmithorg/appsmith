@@ -14,9 +14,10 @@ function get_maximum_heap(){
 
 function setup_backend_cmd(){
     if [[ ! -z ${maximum_heap} ]]; then
-        backend_start_command="java -Xmx${maximum_heap}m -Dserver.port=8080 -Djava.security.egd='file:/dev/./urandom' -jar server.jar"
+        # Ref -Dlog4j2.formatMsgNoLookups=true https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot
+        backend_start_command="java -Xmx${maximum_heap}m -Dserver.port=8080 -Djava.security.egd='file:/dev/./urandom' -Dlog4j2.formatMsgNoLookups=true -jar server.jar"
     else
-        backend_start_command="java -Dserver.port=8080 -Djava.security.egd='file:/dev/./urandom' -jar server.jar"
+        backend_start_command="java -Dserver.port=8080 -Djava.security.egd='file:/dev/./urandom' -Dlog4j2.formatMsgNoLookups=true -jar server.jar"
     fi
     export BACKEND_CMD=$backend_start_command
 }
@@ -79,7 +80,7 @@ mount_letsencrypt_directory() {
 
 configure_supervisord() {
   SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
-  if [[ -z "$(ls -A /etc/supervisor/conf.d)" ]]; then
+  if [[ -n "$(ls -A /etc/supervisor/conf.d)" ]]; then
     rm -f "/etc/supervisor/conf.d/"*
   fi
 

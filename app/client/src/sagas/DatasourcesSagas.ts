@@ -49,12 +49,15 @@ import {
   INTEGRATION_TABS,
 } from "constants/routes";
 import history from "utils/history";
-import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
+import {
+  API_EDITOR_FORM_NAME,
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+} from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { AppState } from "reducers";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -85,8 +88,8 @@ import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
-
 import { trimQueryString } from "utils/helpers";
+import { updateReplayEntity } from "actions/pageActions";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -639,19 +642,22 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
       payload: { id: values.id, draft: values },
     });
+    yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
   }
 }
 
-function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const { id } = actionPayload.payload;
-  const datasource = actionPayload.payload;
+function* changeDatasourceSaga(
+  actionPayload: ReduxAction<{ datasource: Datasource }>,
+) {
+  const { datasource } = actionPayload.payload;
+  const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
   let data;
 
   if (_.isEmpty(draft)) {
-    data = actionPayload.payload;
+    data = datasource;
   } else {
     data = draft;
   }
@@ -671,17 +677,16 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         getQueryParams(),
       ),
     );
+  yield put(
+    updateReplayEntity(data.id, _.omit(data, ["name"]), ENTITY_TYPE.DATASOURCE),
+  );
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
   const { datasourceId } = action.payload;
-  const datasource = yield select((state: AppState) =>
-    state.entities.datasources.list.find(
-      (datasource: Datasource) => datasource.id === datasourceId,
-    ),
-  );
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
   if (datasource) {
-    yield put(changeDatasource(datasource));
+    yield put(changeDatasource({ datasource }));
   }
 }
 
@@ -689,6 +694,12 @@ function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { field, form } = actionPayload.meta;
+  if (form === DATASOURCE_REST_API_FORM) {
+    const { values } = yield select(getFormData, DATASOURCE_REST_API_FORM);
+    yield put(
+      updateReplayEntity(values.datasourceId, values, ENTITY_TYPE.DATASOURCE),
+    );
+  }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga)]);
@@ -749,7 +760,7 @@ function* storeAsDatasourceSaga() {
     },
   });
 
-  yield put(changeDatasource(createdDatasource));
+  yield put(changeDatasource({ datasource: createdDatasource }));
 }
 
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
@@ -993,7 +1004,9 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
       executeDatasourceQuerySaga,
     ),
-    // Intercepting the redux-form change actionType
+    // Intercepting the redux-form change actionType to update drafts and track change history
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
   ]);
 }

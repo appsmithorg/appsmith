@@ -1,11 +1,6 @@
 #!/bin/bash
 
 NGINX_SSL_CMNT="#"
-ENV_PATH="/appsmith-stacks/configuration/docker.env"
-echo 'Load environment configuration'
-set -o allexport
-. "$ENV_PATH"
-set +o allexport
 
 TEMPLATE_DIR="/opt/appsmith/templates"
 APP_TEMPLATE="$TEMPLATE_DIR/nginx-app-http.conf.template.sh"
@@ -16,6 +11,11 @@ if [[ -n $APPSMITH_CUSTOM_DOMAIN ]] && [[ -z $DYNO ]]; then
   if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
     source "/opt/appsmith/init_ssl_cert.sh"
     init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"
+    
+    if (($? != 0)); then
+      echo $?
+      APP_TEMPLATE="$TEMPLATE_DIR/nginx-app-http.conf.template.sh"
+    fi
   fi
 fi
 

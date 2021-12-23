@@ -23,6 +23,8 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import _ from "lodash";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 
@@ -47,6 +49,8 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  dropDownWidth: number;
+  width: number;
   isValid: boolean;
 }
 
@@ -90,6 +94,7 @@ function MultiTreeSelectComponent({
   compactMode,
   disabled,
   dropdownStyle,
+  dropDownWidth,
   expandAll,
   isValid,
   labelStyle,
@@ -102,6 +107,7 @@ function MultiTreeSelectComponent({
   options,
   placeholder,
   value,
+  width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const _menu = useRef<HTMLElement | null>(null);
@@ -123,7 +129,7 @@ function MultiTreeSelectComponent({
   }, []);
 
   const onClear = useCallback(() => onChange([], []), []);
-
+  const id = _.uniqueId();
   return (
     <TreeSelectContainer
       allowClear={allowClear}
@@ -131,7 +137,11 @@ function MultiTreeSelectComponent({
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
@@ -163,7 +173,7 @@ function MultiTreeSelectComponent({
           />
         }
         disabled={disabled}
-        dropdownClassName="tree-multiselect-dropdown"
+        dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${id}`}
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
         inputIcon={

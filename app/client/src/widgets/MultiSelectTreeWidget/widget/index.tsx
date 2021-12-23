@@ -11,7 +11,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import MultiTreeSelectComponent from "../component";
 
@@ -214,6 +214,17 @@ class MultiSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "allowClear",
             label: "Clear all Selections",
             helpText: "Enables Icon to clear all Selections",
@@ -309,7 +320,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when a user selects an option",
@@ -359,6 +370,8 @@ class MultiSelectTreeWidget extends BaseWidget<
       : [];
 
     const filteredValue = this.filterValues(values);
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
 
     return (
       <MultiTreeSelectComponent
@@ -371,6 +384,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
+        dropDownWidth={dropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
@@ -386,6 +400,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         value={filteredValue}
+        width={componentWidth}
       />
     );
   }
