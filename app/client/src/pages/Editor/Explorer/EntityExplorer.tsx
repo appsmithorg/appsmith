@@ -72,8 +72,6 @@ const NoResult = styled(NonIdealState)`
 
 const StyledDivider = styled(Divider)`
   border-bottom-color: #f0f0f0;
-  margin-top: 0;
-  margin-bottom: 5px;
 `;
 
 function EntityExplorer(props: IPanelProps) {
