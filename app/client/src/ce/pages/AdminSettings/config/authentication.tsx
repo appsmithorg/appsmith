@@ -127,15 +127,6 @@ const PageSettings = {
       subText: "Enable your organization to sign in with Google (OAuth).",
       image: Google,
     },
-    /*{
-      id: "APPSMITH_SAML_AUTH",
-      category: "saml-auth",
-      controlType: SettingTypes.BUTTON,
-      label: "SAML 2.0",
-      subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
-      Identity, Google SAML, Keycloak, or VMware Identity Manager.`,
-      image: "",
-    },*/
     {
       id: "APPSMITH_GITHUB_AUTH",
       category: "github-auth",
