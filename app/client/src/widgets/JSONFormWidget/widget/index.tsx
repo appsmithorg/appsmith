@@ -1,7 +1,7 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
-import { isEmpty } from "lodash";
+import { isEmpty, merge } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
@@ -17,14 +17,16 @@ import { AppState } from "reducers";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   canvasWidgets: Record<string, WidgetProps>;
+  disabledWhenInvalid?: boolean;
+  fieldState: Record<string, any>;
   fixedFooter: boolean;
-  sourceData?: Record<string, any>;
   isVisible: boolean;
   onSubmit?: string;
   schema: Schema;
   scrollContent: boolean;
   scrollContents: boolean;
   showReset: boolean;
+  sourceData?: Record<string, any>;
   title: string;
 }
 
@@ -125,7 +127,7 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
       return { isDisabled, isVisible, isRequired };
     };
 
-    let fieldState;
+    let fieldState = {};
 
     if (this.props.schema) {
       Object.values(this.props.schema).forEach((schemaItem) => {
@@ -133,8 +135,16 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
       });
     }
 
-    if (!equal(fieldState, this.props.fieldState)) {
-      this.props.updateWidgetMetaProperty("fieldState", fieldState);
+    /**
+     * Reason for fieldState into this.props.fieldState:
+     * fieldState value is derived from schemaItem which gives us "isDisabled", "isVisible" etc
+     * but it does not give us isValid which is directly updated into the meta property "fieldState"
+     * by individual fields, hence we merge to keep the extra properties intact.
+     * */
+    const mergedFieldState = merge(this.props.fieldState, fieldState);
+
+    if (!equal(mergedFieldState, this.props.fieldState)) {
+      this.props.updateWidgetMetaProperty("fieldState", mergedFieldState);
     }
   };
 

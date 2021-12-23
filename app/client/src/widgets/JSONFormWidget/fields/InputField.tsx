@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
-import { pick } from "lodash";
+import { useFormContext } from "react-hook-form";
+import { cloneDeep, pick, set } from "lodash";
 
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
@@ -91,6 +92,10 @@ function isValid(value: string, schemaItem: InputFieldProps["schemaItem"]) {
     return false;
   }
 
+  if (schemaItem.isRequired && !value?.trim()) {
+    return false;
+  }
+
   const parsedRegex = parseRegex(regex);
 
   if (
@@ -137,13 +142,14 @@ function isValid(value: string, schemaItem: InputFieldProps["schemaItem"]) {
 
 function parseValue(
   schemaItem: InputFieldProps["schemaItem"],
+  isValid: boolean,
   value?: string | number,
 ) {
   if (
     value !== undefined &&
     typeof value === "string" &&
     schemaItem.fieldType === FieldType.NUMBER &&
-    isValid(value, schemaItem)
+    isValid
   ) {
     if (value === "") return undefined;
     return parseFloat(value);
@@ -154,23 +160,30 @@ function parseValue(
 
 function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   const {
-    onBlur: onBlurDynamicString,
-    onFocus: onFocusDynamicString,
-  } = schemaItem;
+    executeAction,
+    fieldState,
+    renderMode,
+    updateWidgetMetaProperty,
+    updateWidgetProperty,
+  } = useContext(FormContext);
 
-  const { executeAction, renderMode, updateWidgetProperty } = useContext(
-    FormContext,
-  );
+  const { clearErrors, setError } = useFormContext();
 
   const [metaCurrencyCountryCode, setMetaCurrencyCountryCode] = useState<
     string | undefined
   >();
-
   const [metaPhoneNumberCountryCode, setMetaPhoneNumberCountryCode] = useState<
     string | undefined
   >();
-
   const [isFocused, setIsFocused] = useState(false);
+
+  const currentIsValueValidRef = useRef<boolean>();
+
+  const {
+    onBlur: onBlurDynamicString,
+    onFocus: onFocusDynamicString,
+  } = schemaItem;
+
   const { inputRef, registerFieldOnBlurHandler } = useEvents<
     HTMLInputElement | HTMLTextAreaElement
   >({
@@ -215,19 +228,20 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
         event: {
           type: EventType.ON_ENTER_KEY_PRESS,
           callback: () =>
-            onTextChangeHandler("", onChangeHandler, "onEnterKeyPress"),
+            onTextChangeHandler("", onChangeHandler, true, "onEnterKeyPress"),
         },
       });
     }
   };
 
   const onTextChangeHandler = (
-    value: number | string,
+    value: string,
     onChangeHandler: (...event: any[]) => void,
+    isValueValid: boolean,
     triggerPropertyName = "onTextChange",
   ) => {
+    const parsedValue = parseValue(schemaItem, isValueValid, value);
     const { onTextChanged } = schemaItem;
-    const parsedValue = parseValue(schemaItem, value);
 
     onChangeHandler(parsedValue);
 
@@ -261,8 +275,9 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
       name={name}
       render={({
         field: { onBlur, onChange, value },
-        fieldState: { isTouched },
+        fieldState: { isDirty },
       }) => {
+        const isValueValid = isValid(value, schemaItem);
         const conditionalProps = (() => {
           const {
             defaultValue,
@@ -271,14 +286,14 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             maxChars,
           } = schemaItem;
 
-          const isInvalid = !isValid(value, schemaItem); // valid property in property pane
+          const isInvalid = !isValueValid; // valid property in property pane
           const props = {
             errorMessage,
-            isInvalid,
+            isInvalid: false,
             maxChars: undefined as number | undefined,
           };
 
-          if (isRequired && isTouched && isInvalid) {
+          if (isDirty && isRequired && isInvalid) {
             props.isInvalid = true;
             props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
           }
@@ -300,6 +315,26 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
         })();
 
         registerFieldOnBlurHandler(onBlur);
+
+        if (currentIsValueValidRef.current !== isValueValid) {
+          currentIsValueValidRef.current = isValueValid;
+
+          isValueValid
+            ? clearErrors(name)
+            : setError(name, { type: "manual", message: "Invalid field" });
+
+          const newFieldState = cloneDeep(fieldState);
+          set(newFieldState, `${name}.isValid`, isValueValid);
+
+          // Added setTimeout to resolve a race condition where in the metaHOC,
+          // the old value gets updated in the meta property
+          // If initially the value of isValid was true and new value false is passed
+          // then the value will remain true, now if the value true is passed, metaHOC will
+          // update the value as false (previous value).
+          setTimeout(() => {
+            updateWidgetMetaProperty("fieldState", newFieldState);
+          }, 0);
+        }
 
         return (
           <InputComponent
@@ -325,7 +360,9 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             onFocusChange={setIsFocused}
             onISDCodeChange={onISDCodeChange}
             onKeyDown={(e) => keyDownHandler(e, onChange)}
-            onValueChange={(value) => onTextChangeHandler(value, onChange)}
+            onValueChange={(value) =>
+              onTextChangeHandler(value, onChange, isValueValid)
+            }
             phoneNumberCountryCode={selectedPhoneNumberCountryCode}
             placeholder={schemaItem.placeholderText}
             showError={isFocused}

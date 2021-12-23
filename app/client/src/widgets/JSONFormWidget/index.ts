@@ -9,6 +9,7 @@ export const CONFIG = {
   defaults: {
     backgroundColor: "#fff",
     columns: 25,
+    disabledWhenInvalid: true,
     fixedFooter: true,
     rows: 40,
     schema: {},

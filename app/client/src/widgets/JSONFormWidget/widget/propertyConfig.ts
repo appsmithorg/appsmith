@@ -87,6 +87,17 @@ export default [
         panelConfig,
       },
       {
+        helpText:
+          "Disables the submit button when the parent form has a required widget that is not filled",
+        propertyName: "disabledWhenInvalid",
+        label: "Disabled Invalid Forms",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         propertyName: "fixedFooter",
         helpText: "Makes the footer always stick to the bottom of the form",
         label: "Fixed Footer",

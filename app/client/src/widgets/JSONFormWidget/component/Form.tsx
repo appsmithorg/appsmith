@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import React, { PropsWithChildren, useRef } from "react";
 import styled from "styled-components";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
@@ -12,11 +12,12 @@ import { TEXT_SIZES } from "constants/WidgetConstants";
 import { FIELD_PADDING_X } from "./styleConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
+  disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
-  sourceData?: TValues;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   scrollContents: boolean;
   showReset: boolean;
+  sourceData?: TValues;
   stretchBodyVertically: boolean;
   title: string;
   updateFormValues: (values: TValues) => void;
@@ -77,6 +78,7 @@ const StyledFormBody = styled.div<StyledFormBodyProps>`
 
 function Form<TValues = any>({
   children,
+  disabledWhenInvalid,
   fixedFooter,
   onSubmit,
   scrollContents,
@@ -88,7 +90,9 @@ function Form<TValues = any>({
 }: FormProps<TValues>) {
   const valuesRef = useRef({});
   const methods = useForm();
-  const { reset, watch } = methods;
+  const { formState, reset, watch } = methods;
+  const { errors } = formState;
+  const isFormInValid = !isEmpty(errors);
 
   React.useEffect(() => {
     // TODO: find a better way if possible to set the form values
@@ -132,6 +136,7 @@ function Form<TValues = any>({
           <Button
             buttonColor={Colors.GREEN}
             buttonVariant={ButtonVariantTypes.PRIMARY}
+            disabled={disabledWhenInvalid && isFormInValid}
             onClick={onSubmit}
             text="Submit"
             type="submit"

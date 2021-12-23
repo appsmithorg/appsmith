@@ -8,6 +8,7 @@ type FormContextProps = React.PropsWithChildren<{
   renderMode: RenderMode;
   updateWidgetProperty: (propertyName: string, propertyValues: any) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
+  fieldState: Record<string, any>;
 }>;
 
 const FormContext = createContext<FormContextProps>({} as FormContextProps);
@@ -15,6 +16,7 @@ const FormContext = createContext<FormContextProps>({} as FormContextProps);
 export function FormContextProvider({
   children,
   executeAction,
+  fieldState,
   renderMode,
   updateWidgetMetaProperty,
   updateWidgetProperty,
@@ -23,9 +25,10 @@ export function FormContextProvider({
     <FormContext.Provider
       value={{
         executeAction,
+        fieldState,
         renderMode,
-        updateWidgetProperty,
         updateWidgetMetaProperty,
+        updateWidgetProperty,
       }}
     >
       {children}

@@ -15,6 +15,7 @@ import {
   HiddenFnParams,
   getSchemaItem,
   hiddenIfArrayItemIsObject,
+  updateChildrenDisabledStateHook,
 } from "../helper";
 
 const COMMON_PROPERTIES = {
@@ -124,7 +125,16 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: false,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
-      hidden: hiddenIfArrayItemIsObject,
+      hidden: (...args: HiddenFnParams) => {
+        const isHidden = hiddenIfArrayItemIsObject(...args);
+        if (isHidden) return true;
+
+        return getSchemaItem(...args).then(
+          (schemaItem) =>
+            schemaItem.fieldType === FieldType.OBJECT ||
+            schemaItem.fieldType === FieldType.ARRAY,
+        );
+      },
       dependencies: ["schema", "sourceData"],
     },
     {
@@ -153,6 +163,7 @@ const COMMON_PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: hiddenIfArrayItemIsObject,
       dependencies: ["schema", "sourceData"],
+      updateHook: updateChildrenDisabledStateHook,
     },
     {
       helpText: "Show help text or details about current input",

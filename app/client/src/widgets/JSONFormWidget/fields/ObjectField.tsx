@@ -6,7 +6,6 @@ import { sortBy } from "lodash";
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import useDisableChildren from "./useDisableChildren";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { FieldComponentBaseProps, SchemaItem } from "../constants";
 
@@ -22,7 +21,6 @@ type ObjectFieldProps = {
   name: string;
   propertyPath: string;
   schemaItem: SchemaItem & ObjectComponentProps;
-  skipUseDisableChildren?: boolean;
 };
 
 type StyledWrapperProps = {
@@ -54,18 +52,10 @@ function ObjectField({
   name,
   propertyPath,
   schemaItem,
-  skipUseDisableChildren,
 }: ObjectFieldProps) {
-  const { isDisabled, isVisible = true, label, tooltip } = schemaItem;
+  const { isVisible = true, label, tooltip } = schemaItem;
   const children = Object.values(schemaItem.children);
   const sortedChildren = sortBy(children, ({ position }) => position);
-
-  useDisableChildren({
-    isDisabled,
-    propertyPath,
-    schemaItem,
-    skip: skipUseDisableChildren,
-  });
 
   if (!isVisible) {
     return null;

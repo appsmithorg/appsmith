@@ -1,7 +1,7 @@
 import { get } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";
-import { FieldType, SchemaItem, ARRAY_ITEM_KEY } from "../../constants";
+import { FieldType, SchemaItem, ARRAY_ITEM_KEY, Schema } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
 
@@ -76,4 +76,56 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     fieldTypeNotIncludes,
     then,
   };
+};
+
+const getUpdatedSchemaFor = (
+  schema: Schema,
+  propertyName: string,
+  propertyValue: any,
+) => {
+  const keys = Object.keys(schema);
+  const newSchema: Schema = {};
+
+  keys.forEach((key) => {
+    newSchema[key] = {
+      ...schema[key],
+      children: getUpdatedSchemaFor(
+        schema[key]?.children || {},
+        propertyName,
+        propertyValue,
+      ),
+      [propertyName]: propertyValue,
+    };
+  });
+
+  return newSchema;
+};
+
+export const updateChildrenDisabledStateHook = (
+  props: JSONFormWidgetProps,
+  propertyPath: string,
+  isDisabled: boolean,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const schemaItemPath = getParentPropertyPath(propertyPath);
+  const schemaItem: SchemaItem = get(props, schemaItemPath, {});
+
+  if (
+    schemaItem.fieldType === FieldType.ARRAY ||
+    schemaItem.fieldType === FieldType.OBJECT
+  ) {
+    const newChildrenSchema = getUpdatedSchemaFor(
+      schemaItem.children,
+      "isDisabled",
+      isDisabled,
+    );
+
+    return [
+      {
+        propertyPath: `${schemaItemPath}.children`,
+        propertyValue: newChildrenSchema,
+      },
+    ];
+  }
+
+  return [];
 };

@@ -24,7 +24,9 @@ export type JSONFormComponentProps<TValues> = {
   borderWidth?: number;
   boxShadow?: BoxShadow;
   boxShadowColor?: string;
+  disabledWhenInvalid?: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
+  fieldState: Record<string, any>;
   fixedFooter: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode: RenderMode;
@@ -63,6 +65,7 @@ const StyledZeroTitle = styled(Text)`
 
 function JSONFormComponent<TValues>({
   executeAction,
+  fieldState,
   renderMode,
   schema,
   sourceData,
@@ -107,6 +110,7 @@ function JSONFormComponent<TValues>({
   return (
     <FormContextProvider
       executeAction={executeAction}
+      fieldState={fieldState}
       renderMode={renderMode}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}

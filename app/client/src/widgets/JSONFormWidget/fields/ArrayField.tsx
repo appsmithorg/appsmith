@@ -7,7 +7,6 @@ import { pick } from "lodash";
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import useDisableChildren from "./useDisableChildren";
 import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
@@ -71,20 +70,13 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   const formMethods = useFormContext();
   const [keys, setKeys] = useState<string[]>([]);
 
-  const { children, isDisabled, isVisible = true, label, tooltip } = schemaItem;
+  const { children, isVisible = true, label, tooltip } = schemaItem;
   const arrayItemSchema: ArrayItemSchemaItemProps = children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
-
-  useDisableChildren({
-    isDisabled,
-    propertyPath: basePropertyPath,
-    schemaItem: arrayItemSchema,
-  });
 
   const options = {
     hideLabel: true,
     hideAccordion: true,
-    skipUseDisableChildren: true,
   };
 
   const labelStyles = pick(schemaItem, [
@@ -125,7 +117,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
       <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip} />
       <StyledWrapper>
         {keys.map((key, index) => {
-          const fieldName = `${name}.${index}` as ControllerRenderProps["name"];
+          const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
           const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
 
           return (
