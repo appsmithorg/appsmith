@@ -12,6 +12,7 @@ export type CheckboxProps = CommonComponentProps & {
   info?: string;
   backgroundColor?: string;
   fill?: boolean;
+  name?: string;
 };
 
 export const Checkmark = styled.span<{
@@ -137,6 +138,7 @@ function Checkbox(props: CheckboxProps) {
       <input
         checked={checked}
         disabled={props.disabled}
+        name={props?.name}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)
         }

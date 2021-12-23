@@ -43,6 +43,7 @@ function renderComponent(props: renderComponentProps) {
       {...props}
       info={undefined}
       label={""}
+      name={props?.input?.name}
       onCheckChange={onChangeHandler}
     />
   );

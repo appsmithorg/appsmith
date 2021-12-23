@@ -388,9 +388,9 @@ Cypress.Commands.add(
   "addOauthAuthDetails",
   (accessTokenUrl, clientId, clientSecret, authURL) => {
     cy.get(datasource.authType).click();
-    cy.xpath(datasource.OAuth2).click();
+    cy.get(datasource.OAuth2).click();
     cy.get(datasource.grantType).click();
-    cy.xpath(datasource.authorisecode).click();
+    cy.get(datasource.authorisecode).click();
     cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
     cy.get(datasource.clienID).type(clientId);
     cy.get(datasource.clientSecret).type(clientSecret);
@@ -3350,6 +3350,7 @@ Cypress.Commands.add(
   "validateNSelectDropdown",
   (ddTitle, currentValue, newValue) => {
     let toChange = false;
+    cy.log(currentValue);
     cy.xpath('//div[contains(text(),"' + currentValue + '")]').should(
       "exist",
       currentValue + " dropdown value not present",
