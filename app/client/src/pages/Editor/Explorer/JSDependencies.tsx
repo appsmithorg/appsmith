@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 const ListItem = styled.li`
   list-style: none;
   color: ${Colors.GREY_8};
-  height: 30px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -50,7 +50,7 @@ const Title = styled.div`
   display: grid;
   grid-template-columns: 20px auto 20px;
   cursor: pointer;
-  height: 30px;
+  height: 36px;
   align-items: center;
   padding-right: 4px;
   padding-left: 0.25rem;
@@ -75,7 +75,7 @@ function JSDependencies() {
       >
         <Name>{lib.displayName}</Name>
         <Version className="t--package-version">{lib.version}</Version>
-        <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xs} />
+        <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} />
       </ListItem>
     );
   });
