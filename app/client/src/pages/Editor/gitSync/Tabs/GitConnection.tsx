@@ -362,7 +362,7 @@ function GitConnection({ isImport }: Props) {
 
   const openDisconnectGitModal = useCallback(() => {
     AnalyticsUtil.logEvent("DISCONNECT_GIT_CLICK", {
-      source: "git connection modal",
+      source: "GIT_CONNECTION_MODAL",
     });
     dispatch(
       setDisconnectingGitApplication({
@@ -397,7 +397,7 @@ function GitConnection({ isImport }: Props) {
               link={DOCS_BASE_URL}
               onClick={() => {
                 AnalyticsUtil.logEvent("DOCUMENT_LINK_OF_GIT_CLICK", {
-                  source: "git remote url on git connection tab",
+                  source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
                 });
                 window.open(DOCS_BASE_URL, "_blank");
               }}

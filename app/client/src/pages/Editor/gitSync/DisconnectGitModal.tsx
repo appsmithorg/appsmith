@@ -130,7 +130,7 @@ function DisconnectGitModal() {
                 link={DOCS_BASE_URL}
                 onClick={() => {
                   AnalyticsUtil.logEvent("DOCUMENT_LINK_OF_GIT_CLICK", {
-                    source: "on git disconnection modal",
+                    source: "GIT_DISCONNECTION_MODAL",
                   });
                   window.open(DOCS_BASE_URL, "_blank");
                 }}
@@ -144,16 +144,16 @@ function DisconnectGitModal() {
           <TextInput
             className="t--git-app-name-input"
             fill
-            onChange={(value) => {
+            onBlur={(event) => {
               AnalyticsUtil.logEvent(
                 "MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
                 {
-                  value: value,
+                  value: event.target.value,
                   expecting: disconnectingApp.name,
                 },
               );
-              setAppName(value);
             }}
+            onChange={(value) => setAppName(value)}
             trimValue={false}
             value={appName}
           />

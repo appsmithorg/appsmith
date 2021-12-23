@@ -103,7 +103,7 @@ function RepoLimitExceededErrorModal() {
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
       AnalyticsUtil.logEvent("DISCONNECT_GIT_CLICK", {
-        source: "repo limit error modal",
+        source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
       });
       dispatch(setShowRepoLimitErrorModal(false));
       dispatch(
@@ -151,7 +151,7 @@ function RepoLimitExceededErrorModal() {
               className="t--contact-sales-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("CONTACT_SALES_CLICK", {
-                  source: "git remote url on git connection tab",
+                  source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
                 });
               }}
               size={Size.large}

@@ -56,6 +56,9 @@ const ComponentsByTab = {
 };
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
+const TabKeys: string[] = Object.values(GitSyncModalTab)
+  .filter((value) => typeof value === "string")
+  .map((value) => value as string);
 
 function GitSyncModal() {
   const theme = useTheme();
@@ -127,11 +130,11 @@ function GitSyncModal() {
               onSelect={(tabIndex: number) => {
                 if (tabIndex === GitSyncModalTab.DEPLOY) {
                   AnalyticsUtil.logEvent("DEPLOY_GIT_MODAL_TRIGGERED", {
-                    source: "Commit tab",
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
                   });
                 } else if (tabIndex === GitSyncModalTab.MERGE) {
                   AnalyticsUtil.logEvent("MERGE_GIT_MODAL_TRIGGERED", {
-                    source: "Merge tab",
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
                   });
                 }
                 setActiveTabIndex(tabIndex);
