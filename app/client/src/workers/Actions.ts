@@ -1,183 +1,41 @@
 /* eslint-disable @typescript-eslint/ban-types */
-/*
- * An AppsmithPromise is a mock promise class to replicate promise functionalities
- * in the Appsmith world.
- *
- * To mimic the async nature of promises, we will return back
- * action descriptors that get resolved in the main thread and then go back to action
- * execution flow as the workflow is designed.
- *
- * Whenever an async call needs to run, it is wrapped around this promise descriptor
- * and sent to the main thread to execute.
- *
- * new Promise(() => {
- *  return Api1.run()
- * })
- * .then(() => {
- *  return Api2.run()
- * })
- * .catch(() => {
- *  return showMessage('An Error Occurred', 'error')
- * })
- *
- * {
- *  type: "APPSMITH_PROMISE",
- *  payload: {
- *   executor: [{
- *    type: "EXECUTE_ACTION",
- *    payload: { actionId: "..." }
- *   }]
- *   then: ["() => { return Api2.run() }"],
- *   catch: "() => { return showMessage('An Error Occurred', 'error) }"
- *  }
- * }
- *
- *
- *
- * */
-
-import {
-  ActionDispatcher,
-  DataTree,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import {
-  getEntityNameAndPropertyPath,
-  isAction,
-  isAppsmithEntity,
-  isTrueObject,
-} from "./evaluationUtils";
+import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import {
   ActionDescription,
   ActionTriggerType,
-  PromiseActionDescription,
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
+import { promisifyAction } from "workers/PromisifyAction";
 
-export type AppsmithPromisePayload = {
-  executor: ActionDescription[];
-  then: string[];
-  catch?: string;
-  finally?: string;
-};
-
-export const pusher: ActionDispatcher = function(
-  this: { triggers: ActionDescription[]; isPromise: boolean },
-  action: any,
-  ...payload: any[]
-) {
-  const actionPayload = action(...payload);
-  if (actionPayload instanceof AppsmithPromise) {
-    this.triggers.push(actionPayload.action);
-    return actionPayload;
-  }
-  return action;
-};
-
-export const pusherOverride = (revert = false) => {
-  self.actionPaths.forEach((actionPath) => {
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      actionPath,
-    );
-    const promiseThis = { triggers: promiseTriggers, isPromise: true };
-    const globalThis = { triggers: self.triggers, isPromise: false };
-    const overrideThis = revert ? globalThis : promiseThis;
-    if (entityName === actionPath) {
-      const action = _.get(DATA_TREE_FUNCTIONS, actionPath);
-      if (action) {
-        _.set(self, actionPath, pusher.bind(overrideThis, action));
-      }
-    } else {
-      const entity = _.get(self, entityName);
-      const funcCreator = DATA_TREE_FUNCTIONS[propertyPath];
-      if (typeof funcCreator === "object" && "qualifier" in funcCreator) {
-        const func = funcCreator.func(entity);
-        _.set(self, actionPath, pusher.bind(overrideThis, func));
-      }
-    }
-  });
-};
-
-let promiseTriggers: ActionDescription[] = [];
-
-export class AppsmithPromise {
-  action: PromiseActionDescription = {
-    type: ActionTriggerType.PROMISE,
-    payload: {
-      executor: [],
-      then: [],
-    },
-  };
-  triggerReference?: number;
-
-  constructor(executor: ActionDescription[] | (() => ActionDescription[])) {
-    if (typeof executor === "function") {
-      pusherOverride();
-      executor();
-      this.action.payload.executor = [...promiseTriggers];
-      promiseTriggers = [];
-      pusherOverride(true);
-    } else {
-      this.action.payload.executor = executor;
-    }
-    this._attachToSelfTriggers();
-    return this;
-  }
-
-  private removeDuplicates() {
-    self.triggers = self.triggers.filter((trigger) => {
-      return !this.action.payload.executor.includes(trigger);
-    });
-  }
-
-  private _attachToSelfTriggers() {
-    if (self.triggers) {
-      this.removeDuplicates();
-      if (_.isNumber(this.triggerReference)) {
-        self.triggers[this.triggerReference] = this.action;
-      } else {
-        self.triggers.push(this.action);
-        this.triggerReference = self.triggers.length - 1;
-      }
-    }
-  }
-
-  then(executor?: Function) {
-    if (executor) {
-      this.action.payload.then.push(`{{ ${executor.toString()} }}`);
-      this._attachToSelfTriggers();
-    }
-    return this;
-  }
-
-  catch(executor: Function) {
-    if (executor) {
-      this.action.payload.catch = `{{ ${executor.toString()} }}`;
-      this._attachToSelfTriggers();
-    }
-    return this;
-  }
-
-  finally(executor: Function) {
-    if (executor) {
-      this.action.payload.finally = `{{ ${executor.toString()} }}`;
-      this._attachToSelfTriggers();
-    }
-    return this;
-  }
-
-  static all(actions: ActionDescription[]) {
-    return new AppsmithPromise(actions);
+declare global {
+  interface Window {
+    ALLOW_ASYNC?: boolean;
+    IS_ASYNC?: boolean;
+    TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
 
+enum ExecutionType {
+  PROMISE = "PROMISE",
+  TRIGGER = "TRIGGER",
+}
+
+type ActionDescriptionWithExecutionType = ActionDescription & {
+  executionType: ExecutionType;
+};
+
+type ActionDispatcherWithExecutionType = (
+  ...args: any[]
+) => ActionDescriptionWithExecutionType;
+
 const DATA_TREE_FUNCTIONS: Record<
   string,
-  | ActionDispatcher
+  | ActionDispatcherWithExecutionType
   | {
       qualifier: (entity: DataTreeEntity) => boolean;
-      func: (entity: DataTreeEntity) => ActionDispatcher;
+      func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
       path?: string;
     }
 > = {
@@ -186,169 +44,174 @@ const DATA_TREE_FUNCTIONS: Record<
     params: Record<string, string>,
     target?: NavigationTargetType,
   ) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.NAVIGATE_TO,
-        payload: { pageNameOrUrl, params, target },
-      },
-    ]);
+    return {
+      type: ActionTriggerType.NAVIGATE_TO,
+      payload: { pageNameOrUrl, params, target },
+      executionType: ExecutionType.PROMISE,
+    };
   },
   showAlert: function(
     message: string,
     style: "info" | "success" | "warning" | "error" | "default",
   ) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.SHOW_ALERT,
-        payload: { message, style },
-      },
-    ]);
+    return {
+      type: ActionTriggerType.SHOW_ALERT,
+      payload: { message, style },
+      executionType: ExecutionType.PROMISE,
+    };
   },
   showModal: function(modalName: string) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.SHOW_MODAL_BY_NAME,
-        payload: { modalName },
-      },
-    ]);
+    return {
+      type: ActionTriggerType.SHOW_MODAL_BY_NAME,
+      payload: { modalName },
+      executionType: ExecutionType.PROMISE,
+    };
   },
   closeModal: function(modalName: string) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.CLOSE_MODAL,
-        payload: { modalName },
-      },
-    ]);
+    return {
+      type: ActionTriggerType.CLOSE_MODAL,
+      payload: { modalName },
+      executionType: ExecutionType.PROMISE,
+    };
   },
   storeValue: function(key: string, value: string, persist = true) {
     // momentarily store this value in local state to support loops
     _.set(self, `appsmith.store[${key}]`, value);
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.STORE_VALUE,
-        payload: { key, value, persist },
-      },
-    ]);
+    return {
+      type: ActionTriggerType.STORE_VALUE,
+      payload: { key, value, persist },
+      executionType: ExecutionType.PROMISE,
+    };
   },
   download: function(data: string, name: string, type: string) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.DOWNLOAD,
-        payload: { data, name, type },
-      },
-    ]);
+    return {
+      type: ActionTriggerType.DOWNLOAD,
+      payload: { data, name, type },
+      executionType: ExecutionType.PROMISE,
+    };
   },
   copyToClipboard: function(
     data: string,
     options?: { debug?: boolean; format?: string },
   ) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.COPY_TO_CLIPBOARD,
-        payload: {
-          data,
-          options: { debug: options?.debug, format: options?.format },
-        },
+    return {
+      type: ActionTriggerType.COPY_TO_CLIPBOARD,
+      payload: {
+        data,
+        options: { debug: options?.debug, format: options?.format },
       },
-    ]);
+      executionType: ExecutionType.PROMISE,
+    };
   },
   resetWidget: function(widgetName: string, resetChildren = true) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
-        payload: { widgetName, resetChildren },
-      },
-    ]);
+    return {
+      type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
+      payload: { widgetName, resetChildren },
+      executionType: ExecutionType.PROMISE,
+    };
   },
   run: {
     qualifier: (entity) => isAction(entity),
     func: (entity) =>
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       function(
-        onSuccessOrParams?: Function | Record<string, unknown>,
-        onError?: Function,
+        onSuccessOrParams?: () => unknown | Record<string, unknown>,
+        onError?: () => unknown,
         params = {},
-      ) {
-        const isOldSignature = typeof onSuccessOrParams === "function";
-        const isNewSignature = isTrueObject(onSuccessOrParams);
-        const runActionPromise = new AppsmithPromise([
-          {
+      ): ActionDescriptionWithExecutionType {
+        const isOldSignature =
+          typeof onSuccessOrParams === "function" ||
+          typeof onError === "function";
+
+        if (isOldSignature) {
+          // Backwards compatibility
+          return {
             type: ActionTriggerType.RUN_PLUGIN_ACTION,
             payload: {
               actionId: isAction(entity) ? entity.actionId : "",
-              params: isNewSignature ? onSuccessOrParams : params,
+              onSuccess: onSuccessOrParams
+                ? onSuccessOrParams.toString()
+                : undefined,
+              onError: onError ? onError.toString() : undefined,
+              params,
             },
-          },
-        ]);
-        if (isOldSignature && typeof onSuccessOrParams === "function") {
-          if (onSuccessOrParams) runActionPromise.then(onSuccessOrParams);
-          if (onError) runActionPromise.catch(onError);
+            executionType: ExecutionType.TRIGGER,
+          };
+        } else {
+          return {
+            type: ActionTriggerType.RUN_PLUGIN_ACTION,
+            payload: {
+              actionId: isAction(entity) ? entity.actionId : "",
+              params: isTrueObject(onSuccessOrParams) ? onSuccessOrParams : {},
+            },
+            executionType: ExecutionType.PROMISE,
+          };
         }
-        return runActionPromise;
       },
   },
   clear: {
     qualifier: (entity) => isAction(entity),
-    func: (entity) => () => {
-      return new AppsmithPromise([
-        {
+    func: (entity) =>
+      function() {
+        return {
           type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
           payload: {
             actionId: isAction(entity) ? entity.actionId : "",
           },
-        },
-      ]);
-    },
+          executionType: ExecutionType.PROMISE,
+        };
+      },
   },
   setInterval: function(callback: Function, interval: number, id?: string) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.SET_INTERVAL,
-        payload: {
-          callback: callback.toString(),
-          interval,
-          id,
-        },
+    return {
+      type: ActionTriggerType.SET_INTERVAL,
+      payload: {
+        callback: callback.toString(),
+        interval,
+        id,
       },
-    ]);
+      executionType: ExecutionType.TRIGGER,
+    };
   },
   clearInterval: function(id: string) {
-    return new AppsmithPromise([
-      {
-        type: ActionTriggerType.CLEAR_INTERVAL,
-        payload: {
-          id,
-        },
+    return {
+      type: ActionTriggerType.CLEAR_INTERVAL,
+      payload: {
+        id,
       },
-    ]);
+      executionType: ExecutionType.TRIGGER,
+    };
   },
   getGeoLocation: {
     qualifier: (entity) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.getCurrentPosition",
     func: () =>
       function(
-        successCallback?: Function,
-        errorCallback?: Function,
+        successCallback?: () => unknown,
+        errorCallback?: () => unknown,
         options?: {
           maximumAge?: number;
           timeout?: number;
           enableHighAccuracy?: boolean;
         },
       ) {
-        const mainRequest = new AppsmithPromise([
-          {
-            type: ActionTriggerType.GET_CURRENT_LOCATION,
-            payload: {
-              options,
-            },
+        return {
+          type: ActionTriggerType.GET_CURRENT_LOCATION,
+          payload: {
+            options,
+            onError: errorCallback
+              ? `{{${errorCallback.toString()}}}`
+              : undefined,
+            onSuccess: successCallback
+              ? `{{${successCallback.toString()}}}`
+              : undefined,
           },
-        ]);
-        if (errorCallback) {
-          mainRequest.catch(errorCallback);
-        }
-        if (successCallback) {
-          mainRequest.then(successCallback);
-        }
-        return mainRequest;
+          executionType:
+            errorCallback || successCallback
+              ? ExecutionType.TRIGGER
+              : ExecutionType.PROMISE,
+        };
       },
   },
   watchGeoLocation: {
@@ -364,20 +227,19 @@ const DATA_TREE_FUNCTIONS: Record<
           enableHighAccuracy?: boolean;
         },
       ) {
-        return new AppsmithPromise([
-          {
-            type: ActionTriggerType.WATCH_CURRENT_LOCATION,
-            payload: {
-              options,
-              onSuccess: onSuccessCallback
-                ? `{{${onSuccessCallback.toString()}}}`
-                : undefined,
-              onError: onErrorCallback
-                ? `{{${onErrorCallback.toString()}}}`
-                : undefined,
-            },
+        return {
+          type: ActionTriggerType.WATCH_CURRENT_LOCATION,
+          payload: {
+            options,
+            onSuccess: onSuccessCallback
+              ? `{{${onSuccessCallback.toString()}}}`
+              : undefined,
+            onError: onErrorCallback
+              ? `{{${onErrorCallback.toString()}}}`
+              : undefined,
           },
-        ]);
+          executionType: ExecutionType.TRIGGER,
+        };
       },
   },
   stopWatchGeoLocation: {
@@ -385,28 +247,21 @@ const DATA_TREE_FUNCTIONS: Record<
     path: "appsmith.geolocation.clearWatch",
     func: () =>
       function() {
-        return new AppsmithPromise([
-          {
-            type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
-          },
-        ]);
+        return {
+          type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
+          payload: {},
+          executionType: ExecutionType.PROMISE,
+        };
       },
   },
 };
 
-declare global {
-  interface Window {
-    triggers: ActionDescription[];
-    actionPaths: string[];
-  }
-}
-
 export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
+  requestId = "",
 ): DataTree => {
   const withFunction: DataTree = _.cloneDeep(dataTree);
-  self.triggers = [];
-  self.actionPaths = [];
+  self.TRIGGER_COLLECTOR = [];
 
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
@@ -416,23 +271,68 @@ export const enhanceDataTreeWithFunctions = (
       Object.entries(dataTree).forEach(([entityName, entity]) => {
         if (funcOrFuncCreator.qualifier(entity)) {
           const func = funcOrFuncCreator.func(entity);
-          const funcName = funcOrFuncCreator.path || `${entityName}.${name}`;
+          const funcName = `${funcOrFuncCreator.path ||
+            `${entityName}.${name}`}`;
           _.set(
             withFunction,
             funcName,
-            pusher.bind({ triggers: self.triggers, isPromise: false }, func),
+            pusher.bind(
+              {
+                TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+                REQUEST_ID: requestId,
+              },
+              func,
+            ),
           );
-          self.actionPaths.push(funcName);
         }
       });
     } else {
-      withFunction[name] = pusher.bind(
-        { triggers: self.triggers, isPromise: false },
-        funcOrFuncCreator,
+      _.set(
+        withFunction,
+        name,
+        pusher.bind(
+          {
+            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+            REQUEST_ID: requestId,
+          },
+          funcOrFuncCreator,
+        ),
       );
-      self.actionPaths.push(name);
     }
   });
 
   return withFunction;
+};
+
+/**
+ * The Pusher function is created to decide the proper execution method
+ * and payload of a platform action. It is bound to the platform functions and
+ * get a requestId and TriggerCollector array in its "this" context.
+ * Depending on the executionType of an action, it will add the action trigger description
+ * in the correct place.
+ *
+ * For old trigger based functions, it will add it to the trigger collector to be executed in parallel
+ * like the old way of action execution and end the evaluation.
+ *
+ * For new promise based functions, it will promisify the action so that it can wait for an execution
+ * before resolving and moving on with the promise workflow
+ *
+ * **/
+export const pusher = function(
+  this: { TRIGGER_COLLECTOR: ActionDescription[]; REQUEST_ID: string },
+  action: ActionDispatcherWithExecutionType,
+  ...args: any[]
+) {
+  const actionDescription = action(...args);
+  const { executionType, payload, type } = actionDescription;
+  const actionPayload = {
+    type,
+    payload,
+  } as ActionDescription;
+
+  if (executionType && executionType === ExecutionType.TRIGGER) {
+    this.TRIGGER_COLLECTOR.push(actionPayload);
+  } else {
+    return promisifyAction(this.REQUEST_ID, actionPayload);
+  }
 };
