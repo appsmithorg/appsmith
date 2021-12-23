@@ -16,7 +16,6 @@ const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
     z-index: ${(props) => props.zIndexOnHover} !important;
   }
-  transition: transform 100ms linear;
 `;
 export type PositionedContainerProps = {
   style: BaseStyle;
@@ -81,7 +80,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
     const transformStyles: CSSProperties = effectedByReflow
       ? {
           transform: `translate(${reflowX}px,${reflowY}px)`,
-          // boxShadow: `0 0 0 1px green`,
+          transition: `transform 100ms linear`,
+          boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }
       : {};
     const styles: CSSProperties = {
