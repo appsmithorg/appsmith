@@ -150,6 +150,7 @@ export const StyledButton = styled((props) => (
       display: -webkit-box;
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
+      line-height: 1.2;
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY

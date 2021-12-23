@@ -72,7 +72,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
 
   if (isFetchingPage) {
     return (
-      <Centered>
+      <Centered style={{ height: `calc(100vh - 85px)` }}>
         <Spinner />
       </Centered>
     );

@@ -139,11 +139,11 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     <ThemeProvider theme={props.lightTheme}>
       <HeaderWrapper hasPages={pages.length > 1}>
         <HtmlTitle name={currentApplicationDetails?.name} />
-        <HeaderRow className="justify-between px-6 py-1">
+        <HeaderRow className="justify-between px-6 py-2">
           <HeaderSection className="justify-start space-x-3">
             <div className="text-base">{currentApplicationDetails?.name}</div>
           </HeaderSection>
-          <HeaderSection className="justify-end space-x-3">
+          <HeaderSection className="justify-end space-x-2">
             {currentApplicationDetails && (
               <>
                 {!shouldHideComments && (

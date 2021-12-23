@@ -52,7 +52,7 @@ const AppViewerBody = styled.section<{ hasPages: boolean }>`
         // NOTE: we need to substract the header height from app body otherwise you will two scrollbars
         return !props.hasPages
           ? `${props.theme.smallHeaderHeight} - 1px`
-          : "79px";
+          : "85px";
       }}
   );
 `;
