@@ -134,11 +134,11 @@ export const getCountOfChangesToCommit = (state: AppState) => {
   return modifiedPages + modifiedQueries;
 };
 
-export const getShouldShowRepoLimitError = (state: AppState) =>
-  state.ui.gitSync.showRepoLimitError;
-
 export const getShowRepoLimitErrorModal = (state: AppState) =>
   state.ui.gitSync.showRepoLimitErrorModal;
 
 export const getDisconnectingGitApplication = (state: AppState) =>
   state.ui.gitSync.disconnectingGitApp;
+
+export const getUseGlobalProfile = (state: AppState) =>
+  state.ui.gitSync.useGlobalProfile;

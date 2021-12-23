@@ -9,7 +9,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // input text in search bar
     cy.get(".t--widget-tablewidget .t--search-input")
       .first()
-      .type("#2");
+      .type("2");
     cy.wait(5000);
     // Verify it filtered the table
     cy.readTabledataPublish("0", "0").then((tabData) => {
