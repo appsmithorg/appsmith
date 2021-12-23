@@ -18,6 +18,7 @@ public class FieldName {
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
+    public static final String DEFAULT_RESOURCES = "defaultResources";
     public static String PLUGIN_ID = "pluginId";
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
@@ -68,6 +69,7 @@ public class FieldName {
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
     public static String COMMENT = "comment";
+    public static String COMMENT_THREAD = "commentThread";
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";
@@ -90,7 +92,10 @@ public class FieldName {
     public static final String IS_REQUIRED = "isRequired";
     public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
     public static final String BRANCH_NAME = "branchName";
+    public static final String SOURCE_BRANCH = "sourceBranch";
+    public static final String DESTINATION_BRANCH = "destinationBranch";
     public static final String DEFAULT = "default";
+    public static final String GIT_SYNC_ID = "gitSyncId";
     public static final String DYNAMIC_TRIGGER_PATH_LIST = "dynamicTriggerPathList";
     public static final String REQUEST_TYPE = "requestType";
     public static final String DISPLAY_TYPE = "displayType";

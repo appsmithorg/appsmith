@@ -1,8 +1,6 @@
 [
   {
     "name": "Classic",
-    "slug": "classic",
-    "created_by": "@appsmith",
     "config": {
       "colors": {
         "primaryColor": "#50AF6C",
@@ -10,35 +8,32 @@
       },
       "borderRadius": {
         "appBorderRadius": {
-          "noneValue": "0px",
-          "defaultValue": "0.25rem",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem",
-          "xlValue": "0.75rem",
-          "doubleXlValue": "1rem",
-          "tripleXlValue": "1.5rem",
-          "fullValue": "9999px"
-        },
-        "buttonBorderRadius": {
-          "noneValue": "0px",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem"
+          "none": "0px",
+          "md": "0.375rem",
+          "lg": "1.5rem",
+          "full": "9999px"
         }
       },
       "boxShadow": {
         "appBoxShadow": {
-          "noneValue": "none",
-          "smValue": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-          "defaultValue": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-          "mdValue": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-          "lgValue": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+          "none": "none",
+          "sm": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+          "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
         }
       },
       "fontFamily": {
         "appFont": [
-          "Roboto",
+          "System Default",
           "Nunito Sans",
-          "Poppins"
+          "Poppins",
+          "Inter",
+          "Montserrat",
+          "Noto Sans",
+          "Open Sans",
+          "Roboto",
+          "Rubik",
+          "Ubuntu"
         ]
       }
     },
@@ -49,7 +44,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -82,7 +77,7 @@
         "boxShadow": "none"
       },
       "FILE_PICKER_WIDGET_V2": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -91,7 +86,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "FORM_BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -166,13 +161,13 @@
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {
-      },
+      "TEXT_WIDGET": {},
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "SINGLE_SELECT_TREE_WIDGET": {
+        "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       }
     },
@@ -182,57 +177,51 @@
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
-        "appBorderRadius": "0px",
-        "buttonBorderRadius": "0px"
+        "appBorderRadius": "0px"
       },
       "boxShadow": {
         "appBoxShadow": "none"
       },
       "fontFamily": {
-        "appFont": "Roboto"
+        "appFont": "System Default"
       }
     }
   },
   {
     "name": "Default",
-    "slug": "default",
-    "created_by": "@appsmith",
     "config": {
       "colors": {
-        "primaryColor": "#50AF6C",
+        "primaryColor": "#553DE9",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
         "appBorderRadius": {
-          "noneValue": "0px",
-          "defaultValue": "0.25rem",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem",
-          "xlValue": "0.75rem",
-          "doubleXlValue": "1rem",
-          "tripleXlValue": "1.5rem",
-          "fullValue": "9999px"
-        },
-        "buttonBorderRadius": {
-          "noneValue": "0px",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem"
+          "none": "0px",
+          "md": "0.375rem",
+          "lg": "1.5rem",
+          "full": "9999px"
         }
       },
       "boxShadow": {
         "appBoxShadow": {
-          "noneValue": "none",
-          "smValue": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-          "defaultValue": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-          "mdValue": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-          "lgValue": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+          "none": "none",
+          "sm": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+          "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
         }
       },
       "fontFamily": {
         "appFont": [
-          "Roboto",
+          "System Default",
           "Nunito Sans",
-          "Poppins"
+          "Poppins",
+          "Inter",
+          "Montserrat",
+          "Noto Sans",
+          "Open Sans",
+          "Roboto",
+          "Rubik",
+          "Ubuntu"
         ]
       }
     },
@@ -243,7 +232,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -276,7 +265,7 @@
         "boxShadow": "none"
       },
       "FILE_PICKER_WIDGET_V2": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -285,7 +274,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "FORM_BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -360,73 +349,67 @@
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {
-      },
+      "TEXT_WIDGET": {},
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "SINGLE_SELECT_TREE_WIDGET": {
+        "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       }
     },
     "properties": {
       "colors": {
-        "primaryColor": "#50AF6C",
+        "primaryColor": "#553DE9",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
-        "appBorderRadius": "0px",
-        "buttonBorderRadius": "0px"
+        "appBorderRadius": "0.375rem"
       },
       "boxShadow": {
-        "appBoxShadow": "none"
+        "appBoxShadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
       },
       "fontFamily": {
-        "appFont": "Roboto"
+        "appFont": "Nunito Sans"
       }
     }
   },
   {
     "name": "Sharp",
-    "slug": "sharp",
-    "created_by": "@appsmith",
     "config": {
       "colors": {
-        "primaryColor": "#50AF6C",
-        "backgroundColor": "#F6F6F6"
+        "primaryColor": "#3B7DDD",
+        "backgroundColor": "#153D77"
       },
       "borderRadius": {
         "appBorderRadius": {
-          "noneValue": "0px",
-          "defaultValue": "0.25rem",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem",
-          "xlValue": "0.75rem",
-          "doubleXlValue": "1rem",
-          "tripleXlValue": "1.5rem",
-          "fullValue": "9999px"
-        },
-        "buttonBorderRadius": {
-          "noneValue": "0px",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem"
+          "none": "0px",
+          "md": "0.375rem",
+          "lg": "1.5rem",
+          "full": "9999px"
         }
       },
       "boxShadow": {
         "appBoxShadow": {
-          "noneValue": "none",
-          "smValue": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-          "defaultValue": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-          "mdValue": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-          "lgValue": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+          "none": "none",
+          "sm": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+          "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
         }
       },
       "fontFamily": {
         "appFont": [
-          "Roboto",
+          "System Default",
           "Nunito Sans",
-          "Poppins"
+          "Poppins",
+          "Inter",
+          "Montserrat",
+          "Noto Sans",
+          "Open Sans",
+          "Roboto",
+          "Rubik",
+          "Ubuntu"
         ]
       }
     },
@@ -437,7 +420,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -470,7 +453,7 @@
         "boxShadow": "none"
       },
       "FILE_PICKER_WIDGET_V2": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -479,7 +462,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "FORM_BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -554,24 +537,23 @@
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {
-      },
+      "TEXT_WIDGET": {},
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "SINGLE_SELECT_TREE_WIDGET": {
+        "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       }
     },
     "properties": {
       "colors": {
-        "primaryColor": "#50AF6C",
-        "backgroundColor": "#F6F6F6"
+        "primaryColor": "#3B7DDD",
+        "backgroundColor": "#153D77"
       },
       "borderRadius": {
-        "appBorderRadius": "0px",
-        "buttonBorderRadius": "0px"
+        "appBorderRadius": "0px"
       },
       "boxShadow": {
         "appBoxShadow": "none"
@@ -583,44 +565,39 @@
   },
   {
     "name": "Rounded",
-    "slug": "rounded",
-    "created_by": "@appsmith",
     "config": {
       "colors": {
-        "primaryColor": "#50AF6C",
+        "primaryColor": "#DE1593",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
         "appBorderRadius": {
-          "noneValue": "0px",
-          "defaultValue": "0.25rem",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem",
-          "xlValue": "0.75rem",
-          "doubleXlValue": "1rem",
-          "tripleXlValue": "1.5rem",
-          "fullValue": "9999px"
-        },
-        "buttonBorderRadius": {
-          "noneValue": "0px",
-          "mdValue": "0.375rem",
-          "lgValue": "0.5rem"
+          "none": "0px",
+          "md": "0.375rem",
+          "lg": "1.5rem",
+          "full": "9999px"
         }
       },
       "boxShadow": {
         "appBoxShadow": {
-          "noneValue": "none",
-          "smValue": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-          "defaultValue": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-          "mdValue": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-          "lgValue": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+          "none": "none",
+          "sm": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+          "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
         }
       },
       "fontFamily": {
         "appFont": [
-          "Roboto",
+          "System Default",
           "Nunito Sans",
-          "Poppins"
+          "Poppins",
+          "Inter",
+          "Montserrat",
+          "Noto Sans",
+          "Open Sans",
+          "Roboto",
+          "Rubik",
+          "Ubuntu"
         ]
       }
     },
@@ -631,7 +608,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -664,7 +641,7 @@
         "boxShadow": "none"
       },
       "FILE_PICKER_WIDGET_V2": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -673,7 +650,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "FORM_BUTTON_WIDGET": {
-        "backgroundColor": "{{appsmith.theme.colors.primaryColor}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
@@ -748,27 +725,26 @@
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {
-      },
+      "TEXT_WIDGET": {},
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "SINGLE_SELECT_TREE_WIDGET": {
+        "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       }
     },
     "properties": {
       "colors": {
-        "primaryColor": "#50AF6C",
+        "primaryColor": "#DE1593",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
-        "appBorderRadius": "0px",
-        "buttonBorderRadius": "0px"
+        "appBorderRadius": "1rem"
       },
       "boxShadow": {
-        "appBoxShadow": "none"
+        "appBoxShadow": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
       },
       "fontFamily": {
         "appFont": "Roboto"

@@ -94,8 +94,6 @@ public class Application extends BaseDomain {
     public String getLastUpdateTime() {
         if(lastEditedAt != null) {
             return ISO_FORMATTER.format(lastEditedAt);
-        } else if (updatedAt != null) { // last edit is null, return updatedAt in this case
-            return ISO_FORMATTER.format(updatedAt);
         }
         return null;
     }
@@ -110,7 +108,10 @@ public class Application extends BaseDomain {
     Boolean forkingEnabled;
 
     @JsonIgnore
-    AppTheme appTheme = new AppTheme();
+    String publishedModeThemeId;
+
+    @JsonIgnore
+    String editModeThemeId;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
@@ -168,11 +169,4 @@ public class Application extends BaseDomain {
             FLUID,
         }
     }
-
-    @Data
-    public static class AppTheme {
-        private String currentTheme = "default"; // slug of the theme, it'll be set to default by default
-        private boolean isCustomized = false;
-    }
-
 }

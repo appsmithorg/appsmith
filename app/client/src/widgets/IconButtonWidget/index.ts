@@ -17,6 +17,7 @@ export const CONFIG = {
     columns: 1 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "IconButton",
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

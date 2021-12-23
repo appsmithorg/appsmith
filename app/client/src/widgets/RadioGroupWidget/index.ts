@@ -10,6 +10,7 @@ export const CONFIG = {
   defaults: {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     label: "",
     options: [
       { label: "Yes", value: "Y" },

@@ -41,15 +41,6 @@
       return result;
     }
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-
-    // Initialize plausible
-    if (CLOUD_HOSTING) {
-      const script = document.createElement('script');
-      script.defer = true;
-      script.dataset.domain = location.hostname;
-      script.src = "https://plausible.io/js/plausible.js";
-      document.getElementsByTagName('head')[0].appendChild(script);
-    }
   </script>
 </head>
 

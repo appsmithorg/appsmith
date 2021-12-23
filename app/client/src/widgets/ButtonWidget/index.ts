@@ -9,6 +9,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
+    animateLoading: true,
     text: "Submit",
     buttonVariant: ButtonVariantTypes.PRIMARY,
     rows: 1 * GRID_DENSITY_MIGRATION_V1,

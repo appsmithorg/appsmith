@@ -18,6 +18,13 @@ export const setIsGitSyncModalOpen = (payload: {
   };
 };
 
+export const setIsDisconnectGitModalOpen = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL,
+    payload,
+  };
+};
+
 export const commitToRepoInit = (payload: {
   commitMessage: string;
   doPush: boolean;
@@ -177,9 +184,12 @@ export const updateBranchLocally = (payload: string) => ({
 
 type MergeBranchPayload = { sourceBranch: string; destinationBranch: string };
 
-export const mergeBranchInit = (payload: MergeBranchPayload) => ({
+export const mergeBranchInit = (params: {
+  payload: { sourceBranch: string; destinationBranch: string };
+  onSuccessCallback: () => void;
+}) => ({
   type: ReduxActionTypes.MERGE_BRANCH_INIT,
-  payload,
+  ...params,
 });
 
 export const mergeBranchSuccess = () => ({
@@ -230,5 +240,31 @@ export const resetPullMergeStatus = () => ({
 
 export const remoteUrlInputValue = (payload?: { tempRemoteUrl?: string }) => ({
   type: ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE,
+  payload,
+});
+
+export const setShouldShowRepoLimitError = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR,
+  payload,
+});
+
+export const setShowRepoLimitErrorModal = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL,
+  payload,
+});
+
+export const showConnectGitModal = () => ({
+  type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
+});
+
+export const disconnectGit = () => ({
+  type: ReduxActionTypes.DISCONNECT_GIT,
+});
+
+export const setDisconnectingGitApplication = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION,
   payload,
 });

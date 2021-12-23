@@ -18,6 +18,7 @@ export const CONFIG = {
     borderColor: "transparent",
     borderWidth: "0",
     boxShadow: ButtonBoxShadowTypes.NONE,
+    animateLoading: true,
     children: [],
     blueprint: {
       view: [

@@ -25,6 +25,7 @@ export const CONFIG = {
     isFilterable: false,
     isRequired: false,
     isDisabled: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

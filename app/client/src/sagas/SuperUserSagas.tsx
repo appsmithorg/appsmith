@@ -1,5 +1,5 @@
 import React from "react";
-import UserApi from "api/UserApi";
+import UserApi, { SendTestEmailPayload } from "api/UserApi";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -106,9 +106,9 @@ function* RestartServerPoll() {
   });
 }
 
-function* SendTestEmail() {
+function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
-    const response = yield call(UserApi.sendTestEmail);
+    const response = yield call(UserApi.sendTestEmail, action.payload);
     const currentUser = yield select(getCurrentUser);
     let actionElement;
     if (response.data) {

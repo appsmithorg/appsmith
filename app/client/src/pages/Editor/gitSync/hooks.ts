@@ -11,6 +11,7 @@ import {
   getIsGlobalConfigDefined,
   getIsLocalConfigDefined,
 } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
@@ -68,6 +69,7 @@ export const useSSHKeyPair = () => {
           onErrorCallback: onGenerateSSHKeyFailure,
         }),
       );
+      AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
     }
   }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey, currentApplication?.id]);
 

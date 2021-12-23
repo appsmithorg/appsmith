@@ -1,9 +1,8 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Theme;
+import com.appsmith.server.repositories.ce.ThemeRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ThemeRepository extends BaseRepository<Theme, String>, CustomThemeRepository {
-
+public interface ThemeRepository extends ThemeRepositoryCE, CustomThemeRepository {
 }

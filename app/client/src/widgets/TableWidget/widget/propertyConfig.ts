@@ -1,5 +1,4 @@
 import { get } from "lodash";
-import { Colors } from "constants/Colors";
 import { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -833,14 +832,17 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: ButtonVariantTypes.PRIMARY,
-                      allowedValues: [
-                        ButtonVariantTypes.PRIMARY,
-                        ButtonVariantTypes.SECONDARY,
-                        ButtonVariantTypes.TERTIARY,
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        default: ButtonVariantTypes.PRIMARY,
+                        allowedValues: [
+                          ButtonVariantTypes.PRIMARY,
+                          ButtonVariantTypes.SECONDARY,
+                          ButtonVariantTypes.TERTIARY,
+                        ],
+                      },
                     },
                   },
                 },
@@ -896,7 +898,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.WHITE,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
@@ -1319,6 +1320,17 @@ export default [
         validation: {
           type: ValidationTypes.BOOLEAN,
         },
+      },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "Controls sorting in View Mode",

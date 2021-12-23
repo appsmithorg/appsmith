@@ -3,7 +3,6 @@ type FeatureFlag = {
   MULTIPLAYER: boolean;
   SNIPPET: boolean;
   GIT: boolean;
-  ADMIN_SETTINGS: boolean;
   GIT_IMPORT: boolean;
 };
 

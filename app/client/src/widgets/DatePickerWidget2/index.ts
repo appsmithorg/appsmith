@@ -23,6 +23,7 @@ export const CONFIG = {
     isRequired: false,
     closeOnSelection: false,
     shortcuts: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

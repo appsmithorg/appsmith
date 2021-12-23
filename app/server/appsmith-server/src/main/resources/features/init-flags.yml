@@ -44,15 +44,6 @@ ff4j:
           - name: emailDomains
             value: appsmith.com
 
-    - uid: ADMIN_SETTINGS
-      enable: true
-      description: Enable admin settings for apps
-      flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
-        param:
-          - name: emailDomains
-            value: appsmith.com
-    
     - uid: GIT_IMPORT
       enable: true
       description: Enable git import for apps
