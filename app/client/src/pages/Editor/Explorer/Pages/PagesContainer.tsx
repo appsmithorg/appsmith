@@ -60,8 +60,7 @@ function PagesContainer() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    document.getElementsByClassName("activePage") &&
-      document.getElementsByClassName("activePage")[0].scrollIntoView();
+    document.getElementsByClassName("activePage")[0]?.scrollIntoView();
   }, [currentPageId]);
 
   const switchPage = useCallback(
