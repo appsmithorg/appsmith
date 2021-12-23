@@ -131,7 +131,7 @@ function SuggestionComponent(props: EntryComponentProps) {
     <StyledSuggestionsComponent ref={mentionRef} {...parentProps}>
       <div style={{ flexShrink: 0 }}>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${USER_PHOTO_URL}/${user?.username}`}
           userName={user?.username || ""}
         />

@@ -80,7 +80,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
 
   return (
     <Section>
-      {!(widgets.children && widgets.children.length > 0) && (
+      {!(widgets.children && widgets?.children.length > 0) && (
         <Centered>
           <NonIdealState
             description={appsmithEditorLink}

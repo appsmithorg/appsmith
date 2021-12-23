@@ -7,6 +7,7 @@ import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
 import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
 import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
+import CommentIcon from "remixicon-react/MessageLineIcon";
 import { Indices } from "constants/Layers";
 
 import {
@@ -268,7 +269,7 @@ function CommentModeBtn({
       className={`t--switch-comment-mode-on ${commentModeClassName}`}
       onClick={handleSetCommentModeButton}
       showSelectedMode={showSelectedMode}
-      type="stroke"
+      type="fill"
     >
       <TooltipComponent
         content={
@@ -280,7 +281,9 @@ function CommentModeBtn({
         hoverOpenDelay={1000}
         position={Position.BOTTOM}
       >
-        <CommentModeIcon />
+        <div className="relative">
+          <CommentIcon className="w-6 h-6 text-gray-900" />
+        </div>
       </TooltipComponent>
     </ModeButton>
   );
@@ -375,23 +378,25 @@ function ToggleCommentModeButton({
   return (
     <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
-        <div style={{ display: "flex" }}>
-          <ModeButton
-            active={!isCommentMode && !isPreviewMode}
-            className="t--switch-comment-mode-off"
-            onClick={() => {
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode,
-                source: "CLICK",
-              });
-              setCommentModeInUrl(false);
-              dispatch(setPreviewModeAction(false));
-            }}
-            showSelectedMode={showSelectedMode}
-            type="fill"
-          >
-            <ViewOrEditMode mode={mode} />
-          </ModeButton>
+        <div className="flex">
+          {appMode === APP_MODE.EDIT && (
+            <ModeButton
+              active={!isCommentMode && !isPreviewMode}
+              className="t--switch-comment-mode-off"
+              onClick={() => {
+                AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                  mode,
+                  source: "CLICK",
+                });
+                setCommentModeInUrl(false);
+                dispatch(setPreviewModeAction(false));
+              }}
+              showSelectedMode={showSelectedMode}
+              type="fill"
+            >
+              <ViewOrEditMode mode={mode} />
+            </ModeButton>
+          )}
           <CommentModeBtn
             handleSetCommentModeButton={handleSetCommentModeButton}
             isCommentMode={isCommentMode || isTourStepActive} // Highlight the button during the tour

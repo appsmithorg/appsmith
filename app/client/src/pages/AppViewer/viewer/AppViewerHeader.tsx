@@ -80,8 +80,8 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   }
 
   & ${Profile} {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
 
     span {
       font-size: 12px;
@@ -141,7 +141,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     <ThemeProvider theme={props.lightTheme}>
       <HeaderWrapper hasPages={pages.length > 1}>
         <HtmlTitle name={currentApplicationDetails?.name} />
-        <HeaderRow className="justify-between px-3 py-1">
+        <HeaderRow className="justify-between px-6 py-1">
           <HeaderSection className="justify-start space-x-3">
             <div className="text-base">{currentApplicationDetails?.name}</div>
           </HeaderSection>

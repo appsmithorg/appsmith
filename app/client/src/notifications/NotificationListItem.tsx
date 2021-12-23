@@ -159,7 +159,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />
@@ -240,7 +240,7 @@ function CommentThreadNotification(props: {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />

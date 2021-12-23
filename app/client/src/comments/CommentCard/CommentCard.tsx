@@ -445,7 +445,7 @@ function CommentCard({
       <CommentHeader data-cy="comments-card-header">
         <HeaderSection>
           <ProfileImage
-            side={25}
+            size={25}
             source={profilePhotoUrl}
             userName={authorName || ""}
           />

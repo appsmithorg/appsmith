@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 
 import { trimQueryString } from "utils/helpers";
 import { getPageURL } from "utils/AppsmithUtils";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -23,20 +24,18 @@ const PageTab = styled(NavLink)`
   align-self: flex-end;
   cursor: pointer;
   text-decoration: none;
-  padding: 0px ${(props) => props.theme.spaces[7]}px;
   &:hover {
     text-decoration: none;
   }
 `;
 
-const StyledBottomBorder = styled.div`
+const StyledBottomBorder = styled.div<{ primaryColor: string }>`
   position: relative;
   transition: all 0.3s ease-in-out;
   height: 2px;
   width: 100%;
   left: -100%;
-  background-color: ${(props) =>
-    props.theme.colors.header.activeTabBorderBottom};
+  background-color: ${({ primaryColor }) => primaryColor};
   ${PageTab}:hover & {
     position: relative;
     width: 100%;
@@ -72,13 +71,16 @@ const StyleTabText = styled.div`
 
 function PageTabName({ name }: { name: string }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
+  const selectedTheme = useSelector(getSelectedAppTheme);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
       <div className="relative flex items-center justify-center flex-grow">
         <span ref={tabNameRef}>{name}</span>
       </div>
-      <StyledBottomBorder />
+      <StyledBottomBorder
+        primaryColor={selectedTheme.properties.colors.primaryColor}
+      />
     </StyleTabText>
   );
 
@@ -146,7 +148,7 @@ export function PageTabs(props: Props) {
 
   return (
     <div
-      className="flex w-full overflow-auto scrollbar-none"
+      className="flex w-full overflow-hidden gap-x-8"
       ref={props.measuredTabsRef}
     >
       {appPages.map((page) => (
