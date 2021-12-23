@@ -118,6 +118,7 @@ function JSONFormComponent<TValues>({
       <StyledContainer {...styleProps}>
         <Form
           {...rest}
+          schema={schema}
           sourceData={sourceData}
           stretchBodyVertically={isSchemaEmpty}
         >

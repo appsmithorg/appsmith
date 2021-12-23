@@ -8,13 +8,15 @@ import { Text } from "@blueprintjs/core";
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
-import { TEXT_SIZES } from "constants/WidgetConstants";
 import { FIELD_PADDING_X } from "./styleConstants";
+import { ARRAY_ITEM_KEY, DataType, Schema, SchemaItem } from "../constants";
+import { TEXT_SIZES } from "constants/WidgetConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   disabledWhenInvalid?: boolean;
   fixedFooter: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  schema: Schema;
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: TValues;
@@ -76,14 +78,54 @@ const StyledFormBody = styled.div<StyledFormBodyProps>`
     stretchBodyVertically ? "100%" : "auto"};
 `;
 
+const processObject = (schema: Schema) => {
+  const obj: Record<string, any> = {};
+
+  Object.values(schema).forEach((schemaItem) => {
+    obj[schemaItem.name] = processSchemaItem(schemaItem);
+  });
+
+  return obj;
+};
+
+const processArray = (schema: Schema): any[] => {
+  if (schema[ARRAY_ITEM_KEY]) {
+    return [processSchemaItem(schema[ARRAY_ITEM_KEY])];
+  }
+
+  return [];
+};
+
+const processSchemaItem = (schemaItem: SchemaItem) => {
+  if (schemaItem.dataType === DataType.OBJECT) {
+    return processObject(schemaItem.children);
+  }
+
+  if (schemaItem.dataType === DataType.ARRAY) {
+    return processArray(schemaItem.children);
+  }
+
+  const { defaultValue } = schemaItem;
+  return defaultValue;
+};
+
+const getDefaultValues = (schema: Schema) => {
+  let defaultValues: any;
+  Object.values(schema).forEach((schemaItem) => {
+    defaultValues = processSchemaItem(schemaItem);
+  });
+
+  return defaultValues;
+};
+
 function Form<TValues = any>({
   children,
   disabledWhenInvalid,
   fixedFooter,
   onSubmit,
+  schema,
   scrollContents,
   showReset,
-  sourceData,
   stretchBodyVertically,
   title,
   updateFormValues,
@@ -112,8 +154,9 @@ function Form<TValues = any>({
 
   const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault();
+    const defaultValues = getDefaultValues(schema);
 
-    reset(sourceData);
+    reset(defaultValues);
   };
 
   return (
