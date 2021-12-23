@@ -20,6 +20,17 @@
             <artifactId>pf4j-spring</artifactId>
             <version>0.7.0</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.17.0</version>
         </dependency>
         <dependency>
             <groupId>com.appsmith</groupId>

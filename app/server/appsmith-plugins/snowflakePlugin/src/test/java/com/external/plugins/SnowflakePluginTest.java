@@ -43,7 +43,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@Log4j
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ExecutionUtils.class)
 public class SnowflakePluginTest {
