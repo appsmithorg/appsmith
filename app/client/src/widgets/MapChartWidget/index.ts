@@ -1,6 +1,5 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { dataSetForWorld, MapTypes } from "./constants";
 
 export const CONFIG = {
@@ -10,8 +9,8 @@ export const CONFIG = {
   needsMeta: true, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
-    rows: 8 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 32,
+    columns: 24,
     widgetName: "MapChart",
     version: 1,
     mapType: MapTypes.WORLD,

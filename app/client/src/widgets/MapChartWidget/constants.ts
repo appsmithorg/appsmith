@@ -9,7 +9,6 @@ export enum MapTypes {
   ASIA = "ASIA",
   OCEANIA = "OCEANIA",
   AFRICA = "AFRICA",
-  CUSTOM = "CUSTOM",
 }
 
 export interface MapColorObject {

@@ -32,61 +32,27 @@ const MapChartComponent = lazy(() =>
 const updateDataSet = (
   props: MapChartWidgetProps,
   propertyPath: string,
-  propertyValue: any,
+  propertyValue: MapType,
 ) => {
   const propertiesToUpdate = [{ propertyPath, propertyValue }];
 
-  switch (propertyValue) {
-    case MapTypes.WORLD_WITH_ANTARCTICA:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForWorldWithAntarctica,
-      });
-      break;
-    case MapTypes.EUROPE:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForEurope,
-      });
-      break;
-    case MapTypes.NORTH_AMERICA:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForNorthAmerica,
-      });
-      break;
-    case MapTypes.SOURTH_AMERICA:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForSouthAmerica,
-      });
-      break;
-    case MapTypes.ASIA:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForAsia,
-      });
-      break;
-    case MapTypes.OCEANIA:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForOceania,
-      });
-      break;
-    case MapTypes.AFRICA:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForAfrica,
-      });
-      break;
+  const dataSetMapping: Record<MapType, any> = {
+    [MapTypes.WORLD]: dataSetForWorld,
+    [MapTypes.WORLD_WITH_ANTARCTICA]: dataSetForWorldWithAntarctica,
+    [MapTypes.EUROPE]: dataSetForEurope,
+    [MapTypes.NORTH_AMERICA]: dataSetForNorthAmerica,
+    [MapTypes.SOURTH_AMERICA]: dataSetForSouthAmerica,
+    [MapTypes.ASIA]: dataSetForAsia,
+    [MapTypes.OCEANIA]: dataSetForOceania,
+    [MapTypes.AFRICA]: dataSetForAfrica,
+  };
 
-    default:
-      propertiesToUpdate.push({
-        propertyPath: "data",
-        propertyValue: dataSetForWorld,
-      });
-      break;
-  }
+  const targetDataSet = dataSetMapping[propertyValue];
+
+  propertiesToUpdate.push({
+    propertyPath: "data",
+    propertyValue: targetDataSet,
+  });
 
   return propertiesToUpdate;
 };
