@@ -10,5 +10,6 @@ maintainers:
     name: Appsmith
 sources:
   - https://github.com/appsmithorg/appsmith
-  - https://www.appsmith.com/
+home: https://www.appsmith.com/
+icon: https://assets.appsmith.com/appsmith-icon.png
 version: 1.4.1
