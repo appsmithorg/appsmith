@@ -1,5 +1,5 @@
 {
-    "mongo-host": "host.docker.internal",
+    "mongo-host": "localhost",
     "mongo-port": 28017,
     "mongo-databaseName": "sample_airbnb",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
