@@ -11,15 +11,13 @@ describe("Repo Limit Exceeded Error Modal", function() {
   });
 
   it.only("modal should be opened with proper components", function() {
-    cy.createAppAndConnectGit(repoName1, true);
-    cy.wait(2000);
-    cy.createAppAndConnectGit(repoName2, true, true);
-    cy.wait(2000);
-    cy.createAppAndConnectGit(repoName3, true, true);
-    cy.wait(2000);
-    cy.createAppAndConnectGit(repoName4, false);
-
-    cy.get(gitSyncLocators.connectGitBottomBar).click({ force: true });
+    cy.createAppAndConnectGit(repoName1, false);
+    // cy.wait(2000);
+    cy.createAppAndConnectGit(repoName2, false);
+    // cy.wait(2000);
+    cy.createAppAndConnectGit(repoName3, false);
+    // cy.wait(2000);
+    cy.createAppAndConnectGit(repoName4, false, true);
 
     cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("exist");
 
@@ -48,7 +46,9 @@ describe("Repo Limit Exceeded Error Modal", function() {
     cy.get(gitSyncLocators.learnMoreOnRepoLimitModal).click();
 
     cy.get(gitSyncLocators.connectedApplication).should("have.length", 3);
-    cy.get(gitSyncLocators.diconnectLink).click();
+    cy.get(gitSyncLocators.diconnectLink)
+      .first()
+      .click();
 
     cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
     cy.get(gitSyncLocators.disconnectGitModal).should("exist");
@@ -88,8 +88,6 @@ describe("Repo Limit Exceeded Error Modal", function() {
     cy.deleteTestGithubRepo(repoName1);
     cy.deleteTestGithubRepo(repoName2);
     cy.deleteTestGithubRepo(repoName3);
-    // cy.deleteTestGithubRepo(repoName4);
+    cy.deleteTestGithubRepo(repoName4);
   });
-
-  // after(() => {});
 });

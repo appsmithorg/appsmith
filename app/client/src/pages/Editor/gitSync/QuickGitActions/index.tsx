@@ -266,11 +266,12 @@ function ConnectGitPlaceholder() {
                 AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
                   source: "Buttom bar connect to git button",
                 });
-                if (isLimitExceeded) {
-                  dispatch(setShowRepoLimitErrorModal(true));
-                } else {
-                  dispatch(showConnectGitModal());
-                }
+                // if (isLimitExceeded) {
+                //   dispatch(setShowRepoLimitErrorModal(true));
+                // } else {
+                //   dispatch(showConnectGitModal());
+                // }
+                dispatch(showConnectGitModal());
               }}
               size={Size.small}
               text={createMessage(CONNECT_GIT)}

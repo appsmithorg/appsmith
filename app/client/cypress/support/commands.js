@@ -3330,84 +3330,97 @@ Cypress.Commands.add("skipCommentsOnboarding", () => {
   cy.get("button[type='submit']").click();
 });
 
-Cypress.Commands.add("connectToGitRepo", (repo, shouldCommit = true) => {
-  const testEmail = "test@test.com";
-  const testUsername = "testusername";
-  const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+Cypress.Commands.add(
+  "connectToGitRepo",
+  (repo, shouldCommit = true, assertConnectFailure) => {
+    const testEmail = "test@test.com";
+    const testUsername = "testusername";
+    const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 
-  let generatedKey;
-  // open gitSync modal
-  cy.get(homePage.deployPopupOptionTrigger).click();
-  cy.get(homePage.connectToGitBtn).click({ force: true });
+    let generatedKey;
+    // open gitSync modal
+    cy.get(homePage.deployPopupOptionTrigger).click();
+    cy.get(homePage.connectToGitBtn).click({ force: true });
 
-  // todo: check for the initial state: init git connection button, regular deploy button
-  // add the test repo and click on submit btn
-  // intercept just the connect api
+    // todo: check for the initial state: init git connection button, regular deploy button
+    // add the test repo and click on submit btn
+    // intercept just the connect api
 
-  cy.intercept(
-    {
-      url: "api/v1/git/connect/*",
-      hostname: window.location.host,
-    },
-    (req) => {
-      req.headers["origin"] = "Cypress";
-    },
-  );
-  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-    `generateKey-${repo}`,
-  );
-  cy.get(gitSyncLocators.gitRepoInput).type(
-    `git@github.com:${owner}/${repo}.git`,
-  );
-  cy.get(gitSyncLocators.generateDeployKeyBtn).click();
-  cy.wait(`@generateKey-${repo}`).then((result) => {
-    generatedKey = result.response.body.data.publicKey;
-    generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-    // fetch the generated key and post to the github repo
-    cy.request({
-      method: "POST",
-      url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-        "TEST_GITHUB_USER_NAME",
-      )}/${repo}/keys`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+    cy.intercept(
+      {
+        url: "api/v1/git/connect/*",
+        hostname: window.location.host,
       },
-      body: {
-        title: "key0",
-        key: generatedKey,
+      (req) => {
+        req.headers["origin"] = "Cypress";
       },
-    });
-
-    cy.get(gitSyncLocators.useGlobalGitConfig).click();
-
-    cy.get(gitSyncLocators.gitConfigNameInput).type(
-      `{selectall}${testUsername}`,
     );
-    cy.get(gitSyncLocators.gitConfigEmailInput).type(`{selectall}${testEmail}`);
-    // click on the connect button and verify
-    cy.get(gitSyncLocators.connectSubmitBtn).click();
-
-    // check for connect success
-    cy.wait("@connectGitRepo").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+      `generateKey-${repo}`,
     );
+    cy.get(gitSyncLocators.gitRepoInput).type(
+      `git@github.com:${owner}/${repo}.git`,
+    );
+    cy.get(gitSyncLocators.generateDeployKeyBtn).click();
+    cy.wait(`@generateKey-${repo}`).then((result) => {
+      generatedKey = result.response.body.data.publicKey;
+      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+      // fetch the generated key and post to the github repo
+      cy.request({
+        method: "POST",
+        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+          "TEST_GITHUB_USER_NAME",
+        )}/${repo}/keys`,
+        headers: {
+          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+        },
+        body: {
+          title: "key0",
+          key: generatedKey,
+        },
+      });
 
-    // click commit button
-    if (shouldCommit) {
-      cy.get(gitSyncLocators.commitButton).click();
-      // check for commit success
-      cy.wait("@commit").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
+      cy.get(gitSyncLocators.useGlobalGitConfig).click();
+
+      cy.get(gitSyncLocators.gitConfigNameInput).type(
+        `{selectall}${testUsername}`,
       );
+      cy.get(gitSyncLocators.gitConfigEmailInput).type(
+        `{selectall}${testEmail}`,
+      );
+      // click on the connect button and verify
+      cy.get(gitSyncLocators.connectSubmitBtn).click();
 
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
-    }
-  });
-});
+      if (!assertConnectFailure) {
+        // check for connect success
+        cy.wait("@connectGitRepo").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+
+        // click commit button
+        if (shouldCommit) {
+          cy.get(gitSyncLocators.commitButton).click();
+          // check for commit success
+          cy.wait("@commit").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            201,
+          );
+
+          cy.get(gitSyncLocators.closeGitSyncModal).click();
+        }
+      } else {
+        cy.wait("@connectGitRepo").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          400,
+        );
+      }
+    });
+  },
+);
 
 Cypress.Commands.add("createGitBranch", (branch) => {
   cy.get(gitSyncLocators.branchButton).click();
@@ -3507,9 +3520,10 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(gitSyncLocators.closeGitSyncModal).click();
 });
 
+// todo rishabh s: refactor
 Cypress.Commands.add(
   "createAppAndConnectGit",
-  (appname, shouldConnect = true) => {
+  (appname, shouldConnect = true, assertConnectFailure) => {
     cy.get(homePage.homeIcon).click({ force: true });
     cy.get(homePage.createNew)
       .first()
@@ -3532,10 +3546,8 @@ Cypress.Commands.add(
     );
 
     cy.createTestGithubRepo(appname, true);
-    if (shouldConnect) {
-      cy.connectToGitRepo(appname, false);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
-    }
+    cy.connectToGitRepo(appname, false, assertConnectFailure);
+    cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
   },
 );
 

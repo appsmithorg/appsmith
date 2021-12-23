@@ -26,12 +26,12 @@ import { Colors } from "constants/Colors";
 import getFeatureFlags from "utils/featureFlags";
 import {
   setIsGitSyncModalOpen,
-  setShowRepoLimitErrorModal,
+  // setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import {
   getIsGitConnected,
-  getShouldShowRepoLimitError,
+  // getShouldShowRepoLimitError,
 } from "selectors/gitSyncSelectors";
 import {
   createMessage,
@@ -62,23 +62,24 @@ export const GetNavigationMenuData = ({
   const params = useParams<ExplorerURLParams>();
 
   const isGitConnected = useSelector(getIsGitConnected);
-  const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
+  // const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
 
   const openGitConnectionPopup = () => {
     AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
       source: "Application name menu (top left)",
     });
 
-    if (isLimitExceeded) {
-      dispatch(setShowRepoLimitErrorModal(true));
-    } else {
-      dispatch(
-        setIsGitSyncModalOpen({
-          isOpen: true,
-          tab: GitSyncModalTab.GIT_CONNECTION,
-        }),
-      );
-    }
+    // if (isLimitExceeded) {
+    //   dispatch(setShowRepoLimitErrorModal(true));
+    // } else {
+
+    // }
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
   };
 
   const applicationId = useSelector(getCurrentApplicationId);
