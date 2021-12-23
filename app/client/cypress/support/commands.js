@@ -2232,8 +2232,8 @@ Cypress.Commands.add(
     cy.get(datasourceEditor["host"]).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
-    // cy.get(datasourceEditor["selConnectionType"]).click();
-    // cy.contains(datasourceFormData["connection-type"]).click();
+    //cy.get(datasourceEditor["selConnectionType"]).click();
+    //cy.contains(datasourceFormData["connection-type"]).click();
     cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);
 
     cy.get(datasourceEditor.sectionAuthentication).click();
@@ -2961,6 +2961,7 @@ Cypress.Commands.add("tablefirstdataRow", () => {
   let tabVal = cy
     .xpath(
       "//div[@class='tableWrap']//div[@class='table']//div[contains(@class, 'tbody')]/div[@class='tr']/div[@class ='td']",
+      { timeout: 10000 },
     )
     .first()
     .invoke("text");
@@ -3391,8 +3392,8 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
-    .scrollIntoView()
-    .click({ force: true });
+  .scrollIntoView()
+  .click({force: true});
 });
 
 Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
