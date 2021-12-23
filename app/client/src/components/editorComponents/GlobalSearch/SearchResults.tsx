@@ -431,10 +431,17 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
   width: 100%;
   .operation-title {
     padding: 0 10px;
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .operation-desc {
     color: gray;
     font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     opacity: ${(props) => (props.isActive ? 1 : 0)};
   }
 `;
@@ -517,6 +524,7 @@ const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
   flex: 1;
   background: white;
   position: relative;
+  width: 100%;
   .container {
     overflow: auto;
     height: 100%;
