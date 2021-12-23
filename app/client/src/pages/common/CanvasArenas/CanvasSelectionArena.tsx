@@ -154,13 +154,11 @@ export function CanvasSelectionArena({
       slidingArenaRef.current &&
       stickyCanvasRef.current
     ) {
-      const { devicePixelRatio: scale = 1 } = window;
-
       const scrollParent: Element | null = getNearestParentCanvas(
         slidingArenaRef.current,
       );
       const scrollObj: any = {};
-      let canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+      const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
       const initRectangle = (): SelectedArenaDimensions => ({
         top: 0,
         left: 0,
@@ -444,19 +442,6 @@ export function CanvasSelectionArena({
           stickyCanvasRef.current &&
           slidingArenaRef.current
         ) {
-          const {
-            height: scrollParentTopHeight,
-          } = scrollParent.getBoundingClientRect();
-          const height = snapRows * snapRowSpace + canvasPadding;
-          const { width } = slidingArenaRef.current.getBoundingClientRect();
-          canvasCtx = stickyCanvasRef.current.getContext("2d");
-
-          if (height && width) {
-            stickyCanvasRef.current.width = width * scale;
-            stickyCanvasRef.current.height =
-              Math.min(scrollParentTopHeight, height) * scale;
-          }
-          canvasCtx.scale(scale, scale);
           removeEventListeners();
           addEventListeners();
         }
