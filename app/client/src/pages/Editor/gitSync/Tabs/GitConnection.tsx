@@ -396,7 +396,7 @@ function GitConnection({ isImport }: Props) {
               hasIcon={false}
               link={DOCS_BASE_URL}
               onClick={() => {
-                AnalyticsUtil.logEvent("DOCUMENT_LINK_OF_GIT_CLICK", {
+                AnalyticsUtil.logEvent("GIT_DOCUMENTATION_LINK_CLICK", {
                   source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
                 });
                 window.open(DOCS_BASE_URL, "_blank");

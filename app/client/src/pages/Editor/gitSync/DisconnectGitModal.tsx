@@ -129,7 +129,7 @@ function DisconnectGitModal() {
                 color={Colors.CRIMSON}
                 link={DOCS_BASE_URL}
                 onClick={() => {
-                  AnalyticsUtil.logEvent("DOCUMENT_LINK_OF_GIT_CLICK", {
+                  AnalyticsUtil.logEvent("GIT_DOCUMENTATION_LINK_CLICK", {
                     source: "GIT_DISCONNECTION_MODAL",
                   });
                   window.open(DOCS_BASE_URL, "_blank");
