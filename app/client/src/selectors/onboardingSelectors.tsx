@@ -231,7 +231,7 @@ export const nameInputSelector = createSelector(getWidgets, (widgets) => {
   const widgetValues = Object.values(widgets);
   const nameInput = widgetValues.find((widget) => {
     if (widget.type === "INPUT_WIDGET") {
-      return widget.label === "Name";
+      return widget.widgetName === "NameInput";
     }
   });
 

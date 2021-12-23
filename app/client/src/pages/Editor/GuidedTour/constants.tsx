@@ -31,81 +31,136 @@ export const onboardingContainerBlueprint = {
           view: [
             {
               type: "TEXT_WIDGET",
+              position: {
+                left: 1,
+                top: 1,
+              },
               size: {
                 rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 8 * GRID_DENSITY_MIGRATION_V1,
-              },
-              position: {
-                top: 0,
-                left: 0,
+                cols: 12 * GRID_DENSITY_MIGRATION_V1,
               },
               props: {
-                text: "🧑‍🦱 Customer Update Form",
-                version: 1,
+                textAlign: "LEFT",
                 fontStyle: "BOLD",
+                version: 1,
+                textColor: "#231F20",
+                fontSize: "HEADING2",
+                text: "\uD83D\uDC68‍\uD83D\uDCBC Customer Update Form",
               },
             },
             {
               type: "IMAGE_WIDGET",
-              size: {
-                rows: 4 * GRID_DENSITY_MIGRATION_V1,
-                cols: 6 * GRID_DENSITY_MIGRATION_V1,
-              },
               position: {
-                top: 1.5 * GRID_DENSITY_MIGRATION_V1,
-                left: 0 * GRID_DENSITY_MIGRATION_V1,
+                left: 1,
+                top: 6,
+              },
+              size: {
+                rows: 3 * GRID_DENSITY_MIGRATION_V1,
+                cols: 4 * GRID_DENSITY_MIGRATION_V1,
               },
               props: {
+                imageShape: "RECTANGLE",
+                defaultImage: "https://assets.appsmith.com/widgets/default.png",
+                objectFit: "contain",
+              },
+            },
+            {
+              type: "TEXT_WIDGET",
+              position: {
+                top: 6,
+                left: 19,
+              },
+              size: {
+                rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                cols: 2 * GRID_DENSITY_MIGRATION_V1,
+              },
+              props: {
+                text: "Name",
+                textAlign: "LEFT",
+                fontStyle: "BOLD",
+                textColor: "#231F20",
                 version: 1,
-                objectFit: "cover",
+                fontSize: "PARAGRAPH",
               },
             },
             {
               type: "INPUT_WIDGET",
+              position: {
+                top: 6,
+                left: 30,
+              },
               size: {
                 rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 9.1 * GRID_DENSITY_MIGRATION_V1,
-              },
-              position: {
-                top: 2 * GRID_DENSITY_MIGRATION_V1,
-                left: 6.9 * GRID_DENSITY_MIGRATION_V1,
+                cols: 8 * GRID_DENSITY_MIGRATION_V1,
               },
               props: {
-                label: "Name",
+                inputType: "TEXT",
+              },
+            },
+            {
+              type: "TEXT_WIDGET",
+              position: {
+                top: 10,
+                left: 19,
+              },
+              size: {
+                rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                cols: 2 * GRID_DENSITY_MIGRATION_V1,
+              },
+              props: {
+                text: "Email",
+                textAlign: "LEFT",
+                fontStyle: "BOLD",
+                textColor: "#231F20",
                 version: 1,
-                labelStyle: "bold,BOLD",
+                fontSize: "PARAGRAPH",
               },
             },
             {
               type: "INPUT_WIDGET",
+              position: {
+                top: 10,
+                left: 30,
+              },
               size: {
                 rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 9 * GRID_DENSITY_MIGRATION_V1,
-              },
-              position: {
-                top: 3.5 * GRID_DENSITY_MIGRATION_V1,
-                left: 7 * GRID_DENSITY_MIGRATION_V1,
+                cols: 8 * GRID_DENSITY_MIGRATION_V1,
               },
               props: {
-                label: "Email",
+                inputType: "TEXT",
+              },
+            },
+            {
+              type: "TEXT_WIDGET",
+              position: {
+                top: 14,
+                left: 19,
+              },
+              size: {
+                rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                cols: 2.5 * GRID_DENSITY_MIGRATION_V1,
+              },
+              props: {
+                text: "Country",
+                textAlign: "LEFT",
+                fontStyle: "BOLD",
+                textColor: "#231F20",
                 version: 1,
-                labelStyle: "bold,BOLD",
+                fontSize: "PARAGRAPH",
               },
             },
             {
               type: "INPUT_WIDGET",
+              position: {
+                top: 14,
+                left: 30,
+              },
               size: {
                 rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                cols: 9.6 * GRID_DENSITY_MIGRATION_V1,
-              },
-              position: {
-                top: 5 * GRID_DENSITY_MIGRATION_V1,
-                left: 6.3 * GRID_DENSITY_MIGRATION_V1,
+                cols: 8 * GRID_DENSITY_MIGRATION_V1,
               },
               props: {
-                label: "Country",
-                version: 1,
-                labelStyle: "bold,BOLD",
+                inputType: "TEXT",
               },
             },
           ],
@@ -247,16 +302,13 @@ export const Steps: StepsType = {
           addOnboardingWidget({
             type: "CONTAINER_WIDGET",
             widgetName: "CustomersInfo",
+            topRow: 7,
+            rows: 30,
+            columns: 29,
+            leftColumn: 35,
             props: {
               blueprint: onboardingContainerBlueprint,
             },
-            bottomRow: 100,
-            rightColumn: 64,
-            columns: 30,
-            leftColumn: 34,
-            topRow: 7,
-            parentColumnSpace: 18,
-            parentRowSpace: 0,
           }),
         );
       },
