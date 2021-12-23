@@ -42,7 +42,7 @@ function Files() {
         if (type === "group") {
           return (
             <div
-              className={`text-sm text-[${Colors.CODE_GRAY}] px-4 my-2 bg-trueGray-100 overflow-hidden overflow-ellipsis whitespace-nowrap`}
+              className={`text-sm text-[${Colors.CODE_GRAY}] px-4 bg-trueGray-100 overflow-hidden overflow-ellipsis whitespace-nowrap`}
             >
               {entity.name}
             </div>
