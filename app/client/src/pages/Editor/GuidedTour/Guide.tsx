@@ -26,6 +26,10 @@ import useComputeCurrentStep from "./useComputeCurrentStep";
 const GuideWrapper = styled.div`
   margin-bottom: 10px;
   user-select: text;
+
+  code {
+    font-size: 16px;
+  }
 `;
 
 const CardWrapper = styled.div`

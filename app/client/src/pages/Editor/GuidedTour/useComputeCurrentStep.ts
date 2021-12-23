@@ -174,7 +174,10 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   useEffect(() => {
     if (step === 1 && hadReachedStep <= 1) {
       if (!queryLimitUpdated) {
-        showIndicator(`span[role="presentation"]`);
+        showIndicator(`span[role="presentation"]`, "right", {
+          top: -4,
+          left: 0,
+        });
       } else if (queryExecutedSuccessfully) {
         dispatch(forceShowContent(1));
         hideIndicator();

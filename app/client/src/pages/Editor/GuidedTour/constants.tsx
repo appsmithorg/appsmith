@@ -180,7 +180,10 @@ export const Steps: StepsType = {
         dispatch(setExplorerPinnedAction(true));
         dispatch(setCurrentStep(2));
         setTimeout(() => {
-          showIndicator(`[data-guided-tour-iid='CustomersTable']`);
+          showIndicator(`[data-guided-tour-iid='CustomersTable']`, "right", {
+            top: 1,
+            left: 0,
+          });
         }, 1000);
       },
       buttonText: "PROCEED TO NEXT STEP",
@@ -208,8 +211,10 @@ export const Steps: StepsType = {
           <>
             Bind the response by typing{" "}
             <b>
-              &#123;&#123;
-              {"getCustomers.data"}&#125;&#125;
+              <code>
+                &#123;&#123;
+                {"getCustomers.data"}&#125;&#125;
+              </code>
             </b>{" "}
             in the Table Data input field on the right pane.
           </>
@@ -289,7 +294,11 @@ export const Steps: StepsType = {
         text: (
           <>
             In the property pane of Name input, add the{" "}
-            <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>{" "}
+            <b>
+              <code>
+                &#123;&#123;CustomersTable.selectedRow.name&#125;&#125;
+              </code>
+            </b>{" "}
             binding to the <b>Default Text</b> property
           </>
         ),
@@ -328,18 +337,24 @@ export const Steps: StepsType = {
         steps: [
           <>
             Connect <b>{`"Email Input"`}</b>
-            {"'"}s Default Text Property to
-            &#123;&#123;CustomersTable.selectedRow.email&#125;&#125;
+            {"'"}s Default Text Property to{" "}
+            <code>
+              &#123;&#123;CustomersTable.selectedRow.email&#125;&#125;
+            </code>
           </>,
           <>
             Connect <b>{`"Country Input"`}</b>
-            {"'"}s Default Text Property to
-            &#123;&#123;CustomersTable.selectedRow.country&#125;&#125;
+            {"'"}s Default Text Property to{" "}
+            <code>
+              &#123;&#123;CustomersTable.selectedRow.country&#125;&#125;
+            </code>
           </>,
           <>
             Connect <b>{`"Display Image"`}</b>
-            {"'"}s Image Property to
-            &#123;&#123;CustomersTable.selectedRow.image&#125;&#125;
+            {"'"}s Image Property to{" "}
+            <code>
+              &#123;&#123;CustomersTable.selectedRow.image&#125;&#125;
+            </code>
           </>,
         ],
       },
@@ -433,7 +448,7 @@ export const Steps: StepsType = {
         dispatch(setCurrentStep(9));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='deploy']`, "bottom", {
-            top: -5,
+            top: -6,
             left: 0,
           });
         }, 1000);
