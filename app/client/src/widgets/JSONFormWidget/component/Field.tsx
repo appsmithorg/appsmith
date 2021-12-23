@@ -1,3 +1,4 @@
+import equal from "fast-deep-equal/es6";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
@@ -41,7 +42,7 @@ function Field({
   const { control, setValue } = useFormContext();
 
   useEffect(() => {
-    if (refDefaultValue.current !== defaultValue) {
+    if (!equal(refDefaultValue.current, defaultValue)) {
       refDefaultValue.current = defaultValue;
       setValue(name, defaultValue);
     }

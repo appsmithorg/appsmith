@@ -5,6 +5,7 @@ import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import {
   FieldComponentBaseProps,
   BaseFieldComponentProps,
@@ -36,6 +37,9 @@ const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
 
 type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
 
+const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
+  schemaItem.isRequired ? Boolean(value?.trim()) : true;
+
 function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
   const {
     onBlur: onBlurDynamicString,
@@ -45,6 +49,11 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
   const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
     onFocusDynamicString,
     onBlurDynamicString,
+  });
+
+  const { onFieldValidityChange } = useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
   });
 
   const labelStyles = pick(schemaItem, [
@@ -75,7 +84,10 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
           }
         };
 
+        const isValueValid = isValid(schemaItem, value);
+
         registerFieldOnBlurHandler(onBlur);
+        onFieldValidityChange(isValueValid);
 
         return (
           <DateComponent

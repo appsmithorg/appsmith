@@ -90,10 +90,20 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
     const checkboxAlignClass =
       this.props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
+    // If the prop isValid has a value true/false (it was explicitly passed to this component),
+    // it take priority over the internal logic to determine if the field is valid or not.
+    const isValid = (() => {
+      if (this.props.isValid !== undefined) {
+        return this.props.isValid;
+      }
+
+      return !(this.props.isRequired && !this.props.isChecked);
+    })();
+
     return (
       <CheckboxContainer
         className={checkboxAlignClass}
-        isValid={!(this.props.isRequired && !this.props.isChecked)}
+        isValid={isValid}
         noContainerPadding={this.props.noContainerPadding}
       >
         <StyledCheckbox
@@ -123,6 +133,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   isChecked: boolean;
   isLoading: boolean;
   isRequired?: boolean;
+  isValid?: boolean;
   label: string;
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;

@@ -127,5 +127,5 @@ export const updateChildrenDisabledStateHook = (
     ];
   }
 
-  return [];
+  return;
 };

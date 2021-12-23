@@ -1,11 +1,12 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
-import { useFormContext } from "react-hook-form";
-import { cloneDeep, pick, set } from "lodash";
+import { pick } from "lodash";
 
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import InputComponent from "widgets/InputWidget/component";
+import useEvents from "./useEvents";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import {
@@ -21,7 +22,6 @@ import {
   INPUT_FIELD_TYPE,
   INPUT_TYPES,
 } from "../constants";
-import useEvents from "./useEvents";
 
 type InputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -85,7 +85,7 @@ const parseRegex = (regex?: string) => {
   return null;
 };
 
-function isValid(value: string, schemaItem: InputFieldProps["schemaItem"]) {
+const isValid = (schemaItem: InputFieldProps["schemaItem"], value?: string) => {
   const { fieldType, isRequired, regex, validation } = schemaItem;
   // If the validation expression fails return invalid
   if (typeof validation === "boolean" && !validation) {
@@ -106,7 +106,7 @@ function isValid(value: string, schemaItem: InputFieldProps["schemaItem"]) {
     if (isRequired && !value) return false;
     if (!isRequired && !value) return true;
 
-    if (fieldType === FieldType.EMAIL) {
+    if (fieldType === FieldType.EMAIL && value) {
       return EMAIL_REGEX.test(value);
     }
 
@@ -114,31 +114,31 @@ function isValid(value: string, schemaItem: InputFieldProps["schemaItem"]) {
       fieldType === FieldType.CURRENCY ||
       fieldType === FieldType.PHONE_NUMBER
     ) {
-      const cleanValue = value.split(",").join("");
-      if (parsedRegex) {
+      const cleanValue = value?.split(",")?.join("");
+      if (parsedRegex && cleanValue) {
         return parsedRegex.test(cleanValue);
       }
     }
   }
 
-  if (fieldType === FieldType.NUMBER) {
+  if (fieldType === FieldType.NUMBER && value) {
     const isValidNumber = Number.isFinite(parseFloat(value));
     if (isRequired && !isValidNumber) return false;
     if (!isRequired && (value === "" || value === undefined)) return true;
 
-    if (parsedRegex) {
+    if (parsedRegex && value) {
       return parsedRegex.test(value);
     }
 
     return isValidNumber;
   }
 
-  if (parsedRegex) {
+  if (parsedRegex && value) {
     return parsedRegex.test(value);
   }
 
   return true;
-}
+};
 
 function parseValue(
   schemaItem: InputFieldProps["schemaItem"],
@@ -159,15 +159,9 @@ function parseValue(
 }
 
 function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
-  const {
-    executeAction,
-    fieldState,
-    renderMode,
-    updateWidgetMetaProperty,
-    updateWidgetProperty,
-  } = useContext(FormContext);
-
-  const { clearErrors, setError } = useFormContext();
+  const { executeAction, renderMode, updateWidgetProperty } = useContext(
+    FormContext,
+  );
 
   const [metaCurrencyCountryCode, setMetaCurrencyCountryCode] = useState<
     string | undefined
@@ -177,7 +171,10 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   >();
   const [isFocused, setIsFocused] = useState(false);
 
-  const currentIsValueValidRef = useRef<boolean>();
+  const { onFieldValidityChange } = useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
+  });
 
   const {
     onBlur: onBlurDynamicString,
@@ -277,7 +274,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
         field: { onBlur, onChange, value },
         fieldState: { isDirty },
       }) => {
-        const isValueValid = isValid(value, schemaItem);
+        const isValueValid = isValid(schemaItem, value);
         const conditionalProps = (() => {
           const {
             defaultValue,
@@ -315,26 +312,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
         })();
 
         registerFieldOnBlurHandler(onBlur);
-
-        if (currentIsValueValidRef.current !== isValueValid) {
-          currentIsValueValidRef.current = isValueValid;
-
-          isValueValid
-            ? clearErrors(name)
-            : setError(name, { type: "manual", message: "Invalid field" });
-
-          const newFieldState = cloneDeep(fieldState);
-          set(newFieldState, `${name}.isValid`, isValueValid);
-
-          // Added setTimeout to resolve a race condition where in the metaHOC,
-          // the old value gets updated in the meta property
-          // If initially the value of isValid was true and new value false is passed
-          // then the value will remain true, now if the value true is passed, metaHOC will
-          // update the value as false (previous value).
-          setTimeout(() => {
-            updateWidgetMetaProperty("fieldState", newFieldState);
-          }, 0);
-        }
+        onFieldValidityChange(isValueValid);
 
         return (
           <InputComponent

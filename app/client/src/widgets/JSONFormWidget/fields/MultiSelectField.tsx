@@ -6,6 +6,7 @@ import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import MultiSelect from "widgets/MultiSelectWidget/component";
 import useEvents from "./useEvents";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { Layers } from "constants/Layers";
 import {
   BaseFieldComponentProps,
@@ -46,6 +47,10 @@ const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
 const StyledMultiSelectWrapper = styled.div`
   width: 100%;
 `;
+
+const isValid = (schemaItem: MultiSelectFieldProps["schemaItem"], value = []) =>
+  schemaItem.isRequired ? Boolean(value.length) : true;
+
 function MultiSelectField({
   name,
   propertyPath,
@@ -64,6 +69,11 @@ function MultiSelectField({
   } = useEvents<HTMLInputElement>({
     onFocusDynamicString,
     onBlurDynamicString,
+  });
+
+  const { onFieldValidityChange } = useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
   });
 
   const labelStyles = pick(schemaItem, [
@@ -93,7 +103,10 @@ function MultiSelectField({
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
-      render={({ field: { onChange, value = [], onBlur } }) => {
+      render={({
+        field: { onChange, value = [], onBlur },
+        fieldState: { isDirty },
+      }) => {
         const onOptionChange = (values: DefaultValueType) => {
           onChange(values);
 
@@ -108,7 +121,10 @@ function MultiSelectField({
           }
         };
 
+        const isValueValid = isValid(schemaItem, value);
+
         registerFieldOnBlurHandler(onBlur);
+        onFieldValidityChange(isValueValid);
 
         return (
           <StyledMultiSelectWrapper>
@@ -119,7 +135,7 @@ function MultiSelectField({
               dropdownStyle={{
                 zIndex: Layers.dropdownModalWidget,
               }}
-              isValid
+              isValid={isDirty ? isValueValid : true}
               loading={false}
               onBlur={onBlurHandler}
               onChange={onOptionChange}

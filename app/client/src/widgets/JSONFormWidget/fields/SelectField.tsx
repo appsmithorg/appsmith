@@ -2,9 +2,10 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import { pick } from "lodash";
 
+import DropDownComponent from "widgets/DropdownWidget/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
-import DropDownComponent from "widgets/DropdownWidget/component";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -43,6 +44,9 @@ const StyledSelectWrapper = styled.div`
   width: 100%;
 `;
 
+const isValid = (schemaItem: SelectFieldProps["schemaItem"], value?: string) =>
+  schemaItem.isRequired ? Boolean(value?.trim()) : true;
+
 function SelectField({
   name,
   propertyPath,
@@ -50,6 +54,12 @@ function SelectField({
   ...rest
 }: SelectFieldProps) {
   const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
+
+  const { onFieldValidityChange } = useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
+  });
+
   const labelStyles = pick(schemaItem, [
     "labelStyle",
     "labelTextColor",
@@ -77,7 +87,7 @@ function SelectField({
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
-      render={({ field: { onChange, value } }) => {
+      render={({ field: { onChange, value }, fieldState: { isDirty } }) => {
         const selectedOptionIndex = schemaItem.options.findIndex(
           (option) => option.value === value,
         );
@@ -98,6 +108,10 @@ function SelectField({
           }
         };
 
+        const isValueValid = isValid(schemaItem, value);
+
+        onFieldValidityChange(isValueValid);
+
         return (
           <StyledSelectWrapper>
             <DropDownComponent
@@ -107,8 +121,7 @@ function SelectField({
               height={10}
               isFilterable={schemaItem.isFilterable}
               isLoading={false}
-              // TODO: Fix isValid with 'state' derived props
-              isValid
+              isValid={isDirty ? isValueValid : true}
               onFilterChange={onFilterChange}
               onOptionSelected={onOptionSelected}
               options={schemaItem.options}

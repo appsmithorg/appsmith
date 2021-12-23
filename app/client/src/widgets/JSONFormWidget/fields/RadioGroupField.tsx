@@ -3,6 +3,7 @@ import { pick } from "lodash";
 
 import Field from "widgets/JSONFormWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 
@@ -25,7 +26,17 @@ const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
   ],
 };
 
+const isValid = (
+  schemaItem: RadioGroupFieldProps["schemaItem"],
+  value?: string,
+) => (schemaItem.isRequired ? Boolean(value) : true);
+
 function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
+  const { onFieldValidityChange } = useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
+  });
+
   const labelStyles = pick(schemaItem, [
     "labelStyle",
     "labelTextColor",
@@ -39,16 +50,22 @@ function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
-      render={({ field: { onChange, value } }) => (
-        <RadioGroupComponent
-          isLoading={false}
-          label=""
-          onRadioSelectionChange={onChange}
-          options={schemaItem.options || []}
-          selectedOptionValue={value}
-          widgetId=""
-        />
-      )}
+      render={({ field: { onChange, value } }) => {
+        const isValueValid = isValid(schemaItem, value);
+
+        onFieldValidityChange(isValueValid);
+
+        return (
+          <RadioGroupComponent
+            isLoading={false}
+            label=""
+            onRadioSelectionChange={onChange}
+            options={schemaItem.options || []}
+            selectedOptionValue={value}
+            widgetId=""
+          />
+        );
+      }}
     />
   );
 }

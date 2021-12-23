@@ -5,6 +5,7 @@ import CheckboxComponent from "widgets/CheckboxWidget/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useEvents";
+import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { AlignWidget } from "widgets/constants";
 import {
   BaseFieldComponentProps,
@@ -28,6 +29,11 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
   label: "",
 };
 
+const isValid = (
+  value: boolean,
+  schemaItem: CheckboxFieldProps["schemaItem"],
+) => (schemaItem.isRequired ? Boolean(value) : true);
+
 function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
   const {
     isRequired,
@@ -39,6 +45,11 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
   const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
     onFocusDynamicString,
     onBlurDynamicString,
+  });
+
+  const { onFieldValidityChange } = useRegisterFieldValidity({
+    fieldName: name,
+    fieldType: schemaItem.fieldType,
   });
 
   const labelStyles = pick(schemaItem, [
@@ -54,7 +65,10 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
       label={label}
       labelStyles={labelStyles}
       name={name}
-      render={({ field: { onBlur, onChange, value } }) => {
+      render={({
+        field: { onBlur, onChange, value },
+        fieldState: { isDirty },
+      }) => {
         const onCheckChange = (isChecked: boolean) => {
           onChange(isChecked);
 
@@ -69,7 +83,10 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
           }
         };
 
+        const isValueValid = isValid(value, schemaItem);
+
         registerFieldOnBlurHandler(onBlur);
+        onFieldValidityChange(isValueValid);
 
         return (
           <CheckboxComponent
@@ -79,6 +96,7 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
             isDisabled={schemaItem.isDisabled}
             isLoading={false}
             isRequired={isRequired}
+            isValid={isDirty ? isValueValid : true}
             label=""
             noContainerPadding
             onCheckChange={onCheckChange}
