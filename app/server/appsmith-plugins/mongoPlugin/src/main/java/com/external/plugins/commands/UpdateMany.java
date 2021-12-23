@@ -84,9 +84,12 @@ public class UpdateMany extends MongoCommand {
 
         Document updateDocument = parseSafely("Update", this.update);
 
+        Document updateDocumentSet = new Document();
+        updateDocumentSet.put("$set", updateDocument);
+
         Document update = new Document();
         update.put("q", queryDocument);
-        update.put("u", updateDocument);
+        update.put("u", updateDocumentSet);
         update.put("multi", multi);
 
         List<Document> updates = new ArrayList<>();
