@@ -1,7 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { CheckboxGroupAlignmentTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -23,7 +22,6 @@ export const CONFIG = {
     isRequired: false,
     isVisible: true,
     widgetName: "CheckboxGroup",
-    optionAlignment: CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
     version: 2,
   },
   properties: {

@@ -27,8 +27,14 @@ const CheckboxGroupContainer = styled.div<
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
   `}
-  justify-content: ${({ inline, optionCount }) =>
-    optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
+  justify-content: ${({ inline, optionAlignment, optionCount }) =>
+    !!optionAlignment
+      ? optionAlignment
+      : optionCount > 1
+      ? `space-between`
+      : inline
+      ? `flex-start`
+      : `center`};
   width: 100%;
   height: 100%;
   overflow: auto;
