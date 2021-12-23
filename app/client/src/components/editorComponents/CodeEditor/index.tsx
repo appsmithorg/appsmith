@@ -646,7 +646,9 @@ class CodeEditor extends Component<Props, State> {
           <EditorWrapper
             border={border}
             borderLess={borderLess}
-            className={`${className} ${replayHighlightClass}`}
+            className={`${className} ${replayHighlightClass} ${
+              isInvalid ? "t--codemirror-has-error" : ""
+            }`}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
