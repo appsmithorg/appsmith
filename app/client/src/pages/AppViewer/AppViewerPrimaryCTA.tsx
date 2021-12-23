@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL, getApplicationViewerPageURL } from "constants/routes";
@@ -16,6 +16,7 @@ import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import { getAllApplications } from "actions/applicationActions";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -35,6 +36,7 @@ const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
 function AppViewerPrimaryCTA(props: Props) {
   const { url } = props;
+  const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -68,6 +70,9 @@ function AppViewerPrimaryCTA(props: Props) {
           buttonColor={selectedTheme.properties.colors.primaryColor}
           buttonVariant="PRIMARY"
           className="t--back-to-editor"
+          onClick={() => {
+            window.location.href = url;
+          }}
           text={createMessage(EDIT_APP)}
         />
       );
@@ -99,6 +104,7 @@ function AppViewerPrimaryCTA(props: Props) {
               <Button
                 className="t--fork-app"
                 icon="fork"
+                onClick={() => dispatch(getAllApplications())}
                 text={createMessage(FORK_APP)}
               />
             }
@@ -114,7 +120,9 @@ function AppViewerPrimaryCTA(props: Props) {
       return (
         <Button
           className="t--sign-in"
-          href={LOGIN_URL}
+          onClick={() => {
+            window.location.href = LOGIN_URL;
+          }}
           text={createMessage(SIGN_IN)}
         />
       );

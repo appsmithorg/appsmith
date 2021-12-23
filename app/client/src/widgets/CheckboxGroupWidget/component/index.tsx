@@ -127,8 +127,6 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
         options.length > 0 &&
         [...options].map((option: OptionProps) => (
           <StyledCheckbox
-            backgroundColor={props.backgroundColor}
-            borderRadius={props.borderRadius}
             checked={(selectedValues || []).includes(option.value)}
             disabled={isDisabled}
             indeterminate={isDisabled ? true : undefined}

@@ -5,8 +5,6 @@ import TooltipComponent from "components/ads/Tooltip";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
-import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
-import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
 import CommentIcon from "remixicon-react/MessageLineIcon";
 import { Indices } from "constants/Layers";
 
@@ -258,7 +256,6 @@ function CommentModeBtn({
   showUnreadIndicator: boolean;
   showSelectedMode: boolean;
 }) {
-  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
   const commentModeClassName = showUnreadIndicator
     ? `t--toggle-comment-mode-on--unread`
     : `t--toggle-comment-mode-on`;
@@ -283,6 +280,9 @@ function CommentModeBtn({
       >
         <div className="relative">
           <CommentIcon className="w-6 h-6 text-gray-900" />
+          {showUnreadIndicator && (
+            <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
+          )}
         </div>
       </TooltipComponent>
     </ModeButton>
