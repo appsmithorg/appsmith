@@ -1191,7 +1191,7 @@ describe("Validates Derived Properties", () => {
           "🙁sad🙁": "sad 1",
           "@user": "user 1",
           "@name": "name 1",
-          "ÜserÑame": "john",
+          ÜserÑame: "john",
         },
         {
           "1": "asd",
@@ -1207,7 +1207,7 @@ describe("Validates Derived Properties", () => {
           "🙁sad🙁": "sad 2",
           "@user": "user 2",
           "@name": "name 2",
-          "ÜserÑame": "mike",
+          ÜserÑame: "mike",
         },
       ],
     };
