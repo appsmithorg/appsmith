@@ -92,25 +92,23 @@ export const StickyCanvasArena = forwardRef(
       }
     };
 
-    const onScroll = () => {
+    const observeSlider = () => {
       observer.current.disconnect();
       observer.current.observe(slidingArenaRef.current);
     };
 
     useEffect(() => {
-      if (showCanvas) {
-        onScroll();
-      }
+      observeSlider();
     }, [showCanvas, snapRows, canExtend, snapColSpace, snapRowSpace]);
 
     useEffect(() => {
       let parentCanvas: Element | null;
       if (slidingArenaRef.current) {
         parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
-        parentCanvas?.addEventListener("scroll", onScroll, false);
+        parentCanvas?.addEventListener("scroll", observeSlider, false);
       }
       return () => {
-        parentCanvas?.removeEventListener("scroll", onScroll);
+        parentCanvas?.removeEventListener("scroll", observeSlider);
       };
     }, []);
 
