@@ -1,0 +1,266 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 816,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 5016,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 47,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+        {
+            "widgetName": "Table1",
+            "defaultPageSize": 0,
+            "columnOrder": [
+                "1",
+                "2",
+                "3",
+                "Dec",
+                "demo",
+                "demo_1",
+                "test_one",
+                "test_3_4_9",
+                "rowIndex"
+            ],
+            "isVisibleDownload": true,
+            "dynamicPropertyPathList": [],
+            "displayName": "Table",
+            "iconSVG": "/static/media/icon.db8a9cbd.svg",
+            "topRow": 1,
+            "bottomRow": 29,
+            "isSortable": true,
+            "parentRowSpace": 10,
+            "type": "TABLE_WIDGET",
+            "defaultSelectedRow": "0",
+            "hideCard": false,
+            "animateLoading": true,
+            "dynamicTriggerPathList": [],
+            "dynamicBindingPathList": [
+                {
+                    "key": "tableData"
+                },
+                {
+                    "key": "primaryColumns.1.computedValue"
+                },
+                {
+                    "key": "primaryColumns.2.computedValue"
+                },
+                {
+                    "key": "primaryColumns.3.computedValue"
+                },
+                {
+                    "key": "primaryColumns.Dec.computedValue"
+                },
+                {
+                    "key": "primaryColumns.demo.computedValue"
+                },
+                {
+                    "key": "primaryColumns.demo_1.computedValue"
+                },
+                {
+                    "key": "primaryColumns.test_one.computedValue"
+                },
+                {
+                    "key": "primaryColumns.test_3_4_9.computedValue"
+                },
+                {
+                    "key": "primaryColumns.rowIndex.computedValue"
+                }
+            ],
+            "leftColumn": 0,
+            "primaryColumns": {
+                "1": {
+                    "index": 0,
+                    "width": 150,
+                    "id": "1",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "1",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.1))}}"
+                },
+                "2": {
+                    "index": 1,
+                    "width": 150,
+                    "id": "2",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "2",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.2))}}"
+                },
+                "3": {
+                    "index": 2,
+                    "width": 150,
+                    "id": "3",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "3",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.3))}}"
+                },
+                "Dec": {
+                    "index": 3,
+                    "width": 150,
+                    "id": "Dec",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "Dec",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.Dec))}}"
+                },
+                "demo": {
+                    "index": 4,
+                    "width": 150,
+                    "id": "demo",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "demo",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.demo))}}"
+                },
+                "demo_1": {
+                    "index": 5,
+                    "width": 150,
+                    "id": "demo_1",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "demo_1",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.demo_1))}}"
+                },
+                "test_one": {
+                    "index": 6,
+                    "width": 150,
+                    "id": "test_one",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "test_one",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.test_one))}}"
+                },
+                "test_3_4_9": {
+                    "index": 7,
+                    "width": 150,
+                    "id": "test_3_4_9",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "test_3_4_9",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.test_3_4_9))}}"
+                },
+                "rowIndex": {
+                    "index": 8,
+                    "width": 150,
+                    "id": "rowIndex",
+                    "horizontalAlignment": "LEFT",
+                    "verticalAlignment": "CENTER",
+                    "columnType": "text",
+                    "textSize": "PARAGRAPH",
+                    "enableFilter": true,
+                    "enableSort": true,
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "isCellVisible": true,
+                    "isDerived": false,
+                    "label": "rowIndex",
+                    "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.rowIndex))}}"
+                }
+            },
+            "delimiter": ",",
+            "key": "zda7sm6on1",
+            "derivedColumns": {},
+            "rightColumn": 34,
+            "textSize": "PARAGRAPH",
+            "widgetId": "rqduejqa7w",
+            "isVisibleFilters": true,
+            "tableData": "{{Api1.data}}",
+            "isVisible": true,
+            "label": "Data",
+            "searchKey": "",
+            "enableClientSideSearch": true,
+            "version": 3,
+            "totalRecordsCount": 0,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "horizontalAlignment": "LEFT",
+            "isVisibleSearch": true,
+            "isVisiblePagination": true,
+            "verticalAlignment": "CENTER",
+            "columnSizeMap": {
+                "task": 245,
+                "step": 62,
+                "status": 75
+            }
+        }
+    ]
+  }
+}

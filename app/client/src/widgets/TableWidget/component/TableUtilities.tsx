@@ -50,6 +50,7 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import { generateTableColumnId } from "./TableHelpers";
 
 export const renderCell = (
   value: any,
@@ -632,7 +633,7 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
 ): ColumnProperties {
-  const id = isNaN(Number(accessor)) ? accessor : `_${accessor}`;
+  const id = generateTableColumnId(accessor);
   const columnProps = {
     index: index,
     width: 150,
