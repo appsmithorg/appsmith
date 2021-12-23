@@ -772,7 +772,7 @@ public class ExamplesOrganizationClonerTests {
                             "run"
                     );
                     assertThat(data.actionCollections).hasSize(1);
-                    assertThat(data.actionCollections.get(0).getActionIds()).hasSize(1);
+                    assertThat(data.actionCollections.get(0).getDefaultToBranchedActionIdsMap()).hasSize(1);
                 })
                 .verifyComplete();
 

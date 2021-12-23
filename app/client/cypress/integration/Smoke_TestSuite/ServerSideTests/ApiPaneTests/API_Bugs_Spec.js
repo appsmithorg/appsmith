@@ -38,7 +38,7 @@ describe("Rest Bugs tests", function() {
 
     cy.contains(commonlocators.entityName, "Page1").click();
     cy.clickButton("Get Facts!");
-    cy.wait(6000); // for all api calls to complete!
+    cy.wait(8000); // for all api calls to complete!
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);

@@ -167,7 +167,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         </Header>
         {messages &&
           messages.map((msg, i) => (
-            <Callout fill key={i} text={msg} variant={Variant.warning} />
+            <Callout
+              addMarginTop
+              fill
+              key={i}
+              text={msg}
+              variant={Variant.warning}
+            />
           ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>

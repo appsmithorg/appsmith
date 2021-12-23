@@ -1,8 +1,8 @@
 import { Colors } from "constants/Colors";
 import {
   createMessage,
-  DEPLOY_KEY_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  LEARN_MORE,
 } from "constants/messages";
 import React from "react";
 import styled from "styled-components";
@@ -12,6 +12,7 @@ import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "./StyledComponents";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const TooltipWrapper = styled.div`
   display: flex;
@@ -64,13 +65,6 @@ const FlexRow = styled.div`
   width: 100%;
 `;
 
-const LabelText = styled.span`
-  margin-left: ${(props) => `${props.theme.spaces[2]}px`};
-  font-size: 14px;
-  color: ${Colors.CODE_GRAY};
-  white-space: nowrap;
-`;
-
 const KeyText = styled.span`
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -101,26 +95,25 @@ type DeployedKeyUIProps = {
 
 function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { copyToClipboard, deployKeyDocUrl, showCopied, SSHKeyPair } = props;
+  const clickHandler = () => {
+    AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_SSH_CLICK");
+    window.open(deployKeyDocUrl, "_blank");
+  };
   return (
     <>
       <Space size={7} />
       <Text color={Colors.GREY_9} type={TextType.P3}>
         {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-        <LintText href={deployKeyDocUrl} target="_blank">
-          LEARN MORE
-        </LintText>
+        <LintText onClick={clickHandler}>{createMessage(LEARN_MORE)}</LintText>
       </Text>
       <FlexRow>
         <DeployedKeyContainer $marginTop={4}>
           <FlexRow>
             <Key2LineIcon
               color={Colors.DOVE_GRAY2}
-              size={28}
-              style={{ marginTop: -4 }}
+              size={20}
+              style={{ marginTop: -1, marginRight: 4 }}
             />
-            <LabelText>
-              {createMessage(DEPLOY_KEY_TITLE)}&nbsp;:&nbsp;
-            </LabelText>
             <KeyText>{SSHKeyPair}</KeyText>
           </FlexRow>
         </DeployedKeyContainer>

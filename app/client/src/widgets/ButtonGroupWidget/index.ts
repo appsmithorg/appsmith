@@ -18,6 +18,7 @@ export const CONFIG = {
     buttonVariant: ButtonVariantTypes.PRIMARY,
     isVisible: true,
     version: 1,
+    animateLoading: true,
     groupButtons: {
       groupButton1: {
         label: "Favorite",

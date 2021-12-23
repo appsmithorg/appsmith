@@ -8,11 +8,14 @@ import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DatasourceStructure.TableType;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
@@ -25,8 +28,10 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -48,7 +53,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -64,6 +71,9 @@ public class CreateDBTablePageSolutionTests {
     NewActionService newActionService;
 
     @Autowired
+    NewPageService newPageService;
+
+    @Autowired
     OrganizationService organizationService;
 
     @Autowired
@@ -75,20 +85,26 @@ public class CreateDBTablePageSolutionTests {
     @Autowired
     PluginRepository pluginRepository;
 
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+
+    @Autowired
+    ApplicationService applicationService;
+
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
     private CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
-    private Datasource testDatasource = new Datasource();
+    private static Datasource testDatasource = new Datasource();
 
-    private Organization testOrg;
+    private static Organization testOrg;
 
-    private Application testApp;
+    private static Application testApp;
 
-    private Plugin postgreSQLPlugin;
+    private static Plugin postgreSQLPlugin;
 
-    private DatasourceStructure structure = new DatasourceStructure();
+    private static DatasourceStructure structure = new DatasourceStructure();
 
     // Regex to break string in separate words
     final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
@@ -158,17 +174,22 @@ public class CreateDBTablePageSolutionTests {
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
 
-        Organization organization = new Organization();
-        organization.setName("Create-DB-Table-Page-Org");
-        testOrg = organizationService.create(organization).block();
+        if (testOrg == null) {
+            Organization organization = new Organization();
+            organization.setName("Create-DB-Table-Page-Org");
+            testOrg = organizationService.create(organization).block();
+        }
 
-        Application testApplication = new Application();
-        testApplication.setName("DB-Table-Page-Test-Application");
-        testApplication.setOrganizationId(testOrg.getId());
-        testApp = applicationPageService.createApplication(testApplication, testOrg.getId()).block();
+        if (testApp == null) {
+            Application testApplication = new Application();
+            testApplication.setName("DB-Table-Page-Test-Application");
+            testApplication.setOrganizationId(testOrg.getId());
+            testApp = applicationPageService.createApplication(testApplication, testOrg.getId()).block();
+        }
 
+        if (StringUtils.isEmpty(testDatasource.getId())) {
+            postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
         // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where template table
         // have more number of columns than the user provided table which leads to deleting the column names from action configuration
 
@@ -176,42 +197,41 @@ public class CreateDBTablePageSolutionTests {
                 new Column("primaryKey", "type1", null, true),
                 new Column("field1.something", "VARCHAR(23)", null, false)
         );
-
-        List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
-        List<Column> columns = List.of(
-            new Column("primaryKey", "type1", null, true),
-            new Column("field1.something", "VARCHAR(23)", null, false),
-            new Column("field2", "type3", null, false),
-            new Column("field3", "type4", null, false),
-            new Column("field4", "type5", null, false)
-        );
+            List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
+            List<Column> columns = List.of(
+                new Column("primaryKey", "type1", null, true),
+                new Column("field1.something", "VARCHAR(23)", null, false),
+                new Column("field2", "type3", null, false),
+                new Column("field3", "type4", null, false),
+                new Column("field4", "type5", null, false)
+            );
         List<Table> tables = List.of(
                 new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
                 new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>())
         );
-        structure.setTables(tables);
-        testDatasource.setPluginId(postgreSQLPlugin.getId());
-        testDatasource.setOrganizationId(testOrg.getId());
-        testDatasource.setName("CRUD-Page-Table-DS");
-        testDatasource.setStructure(structure);
-        datasourceConfiguration.setUrl("http://test.com");
-        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasourceService.create(testDatasource).block();
-
+            structure.setTables(tables);
+            testDatasource.setPluginId(postgreSQLPlugin.getId());
+            testDatasource.setOrganizationId(testOrg.getId());
+            testDatasource.setName("CRUD-Page-Table-DS");
+            testDatasource.setStructure(structure);
+            datasourceConfiguration.setUrl("http://test.com");
+            testDatasource.setDatasourceConfiguration(datasourceConfiguration);
+            datasourceService.create(testDatasource).block();
+        }
         resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
         resource.setDatasourceId(testDatasource.getId());
-
     }
 
     Mono<List<NewAction>> getActions(String pageId) {
         return newActionService.findByPageId(pageId).collectList();
     }
 
+
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithInvalidApplicationIdTest() {
         
-        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource, "");
 
         StepVerifier
             .create(resultMono)
@@ -235,7 +255,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(datasource -> {
                 resource.setApplicationId(testApp.getId());
                 resource.setDatasourceId(datasource.getId());
-                return solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+                return solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource, null);
             });
 
         StepVerifier
@@ -249,13 +269,27 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithInvalidRequestBodyTest() {
-        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO());
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO(), "");
 
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(", tableName and datasourceId must be present")))
+                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("tableName and datasourceId")))
             .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPage_withInvalidBranchName_throwException() {
+        final String pageId = testApp.getPages().get(0).getId();
+        resource.setApplicationId(testApp.getId());
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(pageId, resource, "invalidBranch");
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGE, pageId + ", " + "invalidBranch")))
+                .verify();
     }
 
     @Test
@@ -263,14 +297,14 @@ public class CreateDBTablePageSolutionTests {
     public void createPageWithNullPageId() {
 
         resource.setApplicationId(testApp.getId());
-        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(null, resource);
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(null, resource, null);
 
         StepVerifier
             .create(resultMono)
             .assertNext(crudPage -> {
                 PageDTO page = crudPage.getPage();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).isEqualTo("SampleTable");
+                assertThat(page.getName()).contains("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -287,6 +321,65 @@ public class CreateDBTablePageSolutionTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createPage_withValidBranch_validDefaultIds() {
+
+        Application gitConnectedApp = new Application();
+        gitConnectedApp.setName(UUID.randomUUID().toString());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("crudTestBranch");
+        gitConnectedApp.setGitApplicationMetadata(gitData);
+        applicationPageService.createApplication(gitConnectedApp, testOrg.getId())
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    gitData.setDefaultApplicationId(application.getId());
+                    return applicationService.save(application)
+                            .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
+                })
+                // Assign the branchName to all the resources connected to the application
+                .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(testOrg.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .block();
+
+        resource.setApplicationId(gitData.getDefaultApplicationId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(gitData.getDefaultApplicationId());
+        newPage.setName("crud-admin-page-with-git-connected-app");
+
+        Mono<NewPage> resultMono = applicationPageService.createPageWithBranchName(newPage, gitData.getBranchName())
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, gitData.getBranchName()))
+                .flatMap(crudPageResponseDTO ->
+                        newPageService.findByBranchNameAndDefaultPageId(gitData.getBranchName(), crudPageResponseDTO.getPage().getId(), READ_PAGES));
+
+        StepVerifier
+                .create(resultMono.zipWhen(newPage1 -> getActions(newPage1.getId())))
+                .assertNext(tuple -> {
+                    NewPage newPage1 = tuple.getT1();
+                    List<NewAction> actionList = tuple.getT2();
+
+                    PageDTO page = newPage1.getUnpublishedPage();
+                    Layout layout = page.getLayouts().get(0);
+                    assertThat(page.getName()).isEqualTo("crud-admin-page-with-git-connected-app");
+                    assertThat(layout.getDsl().get("children").toString().replaceAll(specialCharactersRegex, ""))
+                            .containsIgnoringCase(dropdownOptions.replaceAll(specialCharactersRegex, ""));
+
+                    assertThat(newPage1.getDefaultResources()).isNotNull();
+                    assertThat(newPage1.getDefaultResources().getBranchName()).isEqualTo(gitData.getBranchName());
+                    assertThat(newPage1.getDefaultResources().getPageId()).isEqualTo(newPage1.getId());
+                    assertThat(newPage1.getDefaultResources().getApplicationId()).isEqualTo(newPage1.getApplicationId());
+
+                    assertThat(actionList).hasSize(4);
+                    DefaultResources newActionResources = actionList.get(0).getDefaultResources();
+                    DefaultResources actionDTOResources = actionList.get(0).getUnpublishedAction().getDefaultResources();
+                    assertThat(newActionResources.getActionId()).isEqualTo(actionList.get(0).getId());
+                    assertThat(newActionResources.getApplicationId()).isEqualTo(newPage1.getDefaultResources().getApplicationId());
+                    assertThat(newActionResources.getPageId()).isNull();
+                    assertThat(newActionResources.getBranchName()).isEqualTo(gitData.getBranchName());
+                    assertThat(actionDTOResources.getPageId()).isEqualTo(newPage1.getDefaultResources().getPageId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createPageWithValidPageIdForPostgresqlDS() {
 
         resource.setApplicationId(testApp.getId());
@@ -295,7 +388,7 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page");
 
         Mono<PageDTO> resultMono = applicationPageService.createPage(newPage)
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, ""))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
@@ -345,7 +438,7 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page-postgres-with-less-columns");
 
         Mono<CRUDPageResponseDTO> resultMono = applicationPageService.createPage(newPage)
-                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO));
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO, ""));
 
         StepVerifier
                 .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
@@ -419,7 +512,7 @@ public class CreateDBTablePageSolutionTests {
                     resourceDTO.setDatasourceId(datasource1.getId());
                     return applicationPageService.createPage(newPage);
                 })
-                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO));
+                .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resourceDTO, null));
 
         StepVerifier
                 .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
@@ -490,7 +583,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, null));
 
         StepVerifier
             .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
@@ -554,7 +647,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, ""))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
@@ -607,7 +700,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<PageDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
-                return solution.createPageFromDBTable(null, resource);
+                return solution.createPageFromDBTable(null, resource, null);
             })
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
@@ -617,7 +710,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = tuple.getT1();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).isEqualTo("SampleTable");
+                assertThat(page.getName()).contains("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -661,7 +754,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<PageDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
-                return solution.createPageFromDBTable(null, resource);
+                return solution.createPageFromDBTable(null, resource, "");
             })
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
@@ -715,7 +808,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<CRUDPageResponseDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
-                return solution.createPageFromDBTable(null, resource);
+                return solution.createPageFromDBTable(null, resource, "");
             });
 
         StepVerifier
@@ -725,7 +818,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = crudPage.getPage();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).isEqualTo("SampleTable");
+                assertThat(page.getName()).contains("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
@@ -784,7 +877,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, null))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
@@ -845,7 +938,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, null))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier

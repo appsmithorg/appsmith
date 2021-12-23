@@ -16,6 +16,7 @@ export const CONFIG = {
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "AudioRecorder",
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

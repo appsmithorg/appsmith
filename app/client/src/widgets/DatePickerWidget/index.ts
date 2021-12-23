@@ -19,6 +19,7 @@ export const CONFIG = {
     widgetName: "DatePicker",
     defaultDate: moment().format("YYYY-MM-DD HH:mm"),
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

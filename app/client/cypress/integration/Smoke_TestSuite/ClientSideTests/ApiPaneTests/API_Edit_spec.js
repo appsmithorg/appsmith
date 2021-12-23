@@ -28,6 +28,27 @@ describe("API Panel Test Functionality", function() {
     cy.ClearSearch();
   });
 
+  it("Should update loading state after cancellation of confirmation for run query", function() {
+    cy.NavigateToAPI_Panel();
+    cy.log("Navigation to API Panel screen successful");
+    cy.CreateAPI("FirstAPI");
+    cy.get(".CodeMirror-placeholder")
+      .first()
+      .should("have.text", "https://mock-api.appsmith.com/users");
+    cy.log("Creation of FirstAPI Action successful");
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    cy.get(apiwidget.settings).click({ force: true });
+    cy.get(apiwidget.confirmBeforeExecute).click();
+    cy.get(apiwidget.runQueryButton).click();
+    cy.get(".bp3-dialog")
+      .find("button")
+      .contains("Cancel")
+      .click();
+    cy.get(apiwidget.runQueryButton)
+      .children()
+      .should("have.length", 1);
+  });
+
   it("Should not crash on key delete", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("CrashTestAPI");
