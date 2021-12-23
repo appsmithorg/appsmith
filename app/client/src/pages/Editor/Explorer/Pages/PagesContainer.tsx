@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -58,6 +58,11 @@ function PagesContainer() {
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    document.getElementsByClassName("activePage") &&
+      document.getElementsByClassName("activePage")[0].scrollIntoView();
+  }, [currentPageId]);
 
   const switchPage = useCallback(
     (pageId) => {
@@ -131,7 +136,7 @@ function PagesContainer() {
         return (
           <StyledEntity
             action={() => switchPage(page.pageId)}
-            className="page"
+            className={`page ${isCurrentPage && "activePage"}`}
             contextMenu={contextMenu}
             entityId={page.pageId}
             icon={icon}
