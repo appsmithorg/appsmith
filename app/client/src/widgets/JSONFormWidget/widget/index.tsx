@@ -92,6 +92,7 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
   };
 
   updateFormValues = (values: any) => {
+    console.log("updateFormValues - called");
     this.props.updateWidgetMetaProperty("data", values);
   };
 
@@ -136,7 +137,7 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
     }
 
     /**
-     * Reason for fieldState into this.props.fieldState:
+     * Reason for merging fieldState into this.props.fieldState:
      * fieldState value is derived from schemaItem which gives us "isDisabled", "isVisible" etc
      * but it does not give us isValid which is directly updated into the meta property "fieldState"
      * by individual fields, hence we merge to keep the extra properties intact.
