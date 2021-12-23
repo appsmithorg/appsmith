@@ -191,6 +191,33 @@ describe("evaluate", () => {
     const response = evaluate(js, dataTree, {}, {}, callbackData);
     expect(response.result).toBe("test1");
   });
+  it("handles EXPRESSIONS with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {});
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {});
+    expect(response.errors.length).toBe(0);
+  });
+  it("handles TRIGGERS with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+  });
+  it("handles ANONYMOUS_FUNCTION with new lines", () => {
+    let js = "\n";
+    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+
+    js = "\n\n\n";
+    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    expect(response.errors.length).toBe(0);
+  });
   it("has access to this context", () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
