@@ -4677,4 +4677,19 @@ public class DatabaseChangelog {
             mongockTemplate.save(firestoreAction);
         }
     }
+
+    @ChangeSet(order = "106", id = "update-mongodb-mockdb-endpoint", author = "")
+    public void updateMongoMockdbEndpoint(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.endpoints.host").is("mockdb.swrsq.mongodb.net")),
+                update("datasourceConfiguration.endpoints.$.host", "mockdb.kce5o.mongodb.net"),
+                Datasource.class
+        );
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.properties.value").is("mongodb+srv://mockdb_super:****@mockdb.swrsq.mongodb.net/movies")),
+                update("datasourceConfiguration.properties.$.value", "mongodb+srv://mockdb_super:****@mockdb.kce5o.mongodb.net/movies"),
+                Datasource.class
+        );
+    }
+
 }
