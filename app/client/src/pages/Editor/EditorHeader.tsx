@@ -209,6 +209,15 @@ const StyledSharedIcon = styled(Icon)`
   display: inline-block;
 `;
 
+const HamburgerContainer = styled.div`
+  height: 34px;
+  width: 34px;
+
+  :hover {
+    background-color: ${Colors.GEYSER_LIGHT};
+  }
+`;
+
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -338,11 +347,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3">
         <HeaderSection className="space-x-3">
-          <div
-            className={classNames({
-              "text-gray-800 transform transition-all duration-400 pl-3 relative ml-0": true,
-            })}
-          >
+          <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">
@@ -366,7 +371,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 />
               </div>
             </TooltipComponent>
-          </div>
+          </HamburgerContainer>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
