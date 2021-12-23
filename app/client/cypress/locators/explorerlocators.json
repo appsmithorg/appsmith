@@ -30,5 +30,7 @@
     "editEntity": ".t--entity-name input",
     "explorerSwitchId": "#switcher--explorer",
     "widgetSwitchId": "#switcher--widgets",
-    "activeTab": "span:contains('Active')"
+    "activeTab": "span:contains('Active')",
+    "createNew": ".t--entity-add-btn.group.files",
+    "blankAPI": "span:contains('Blank API')"
 }

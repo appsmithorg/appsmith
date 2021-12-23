@@ -455,7 +455,7 @@ function ActionOperationItem({ isActiveItem, item }: any) {
   return (
     <ActionOperation isActive={isActiveItem}>
       {item.icon || icon}
-      <span className="operation-title">{item.title}</span>
+      <span className="operation-title t--file-operation">{item.title}</span>
       {item.desc && <span className="operation-desc"> ~ {item.desc}</span>}
     </ActionOperation>
   );

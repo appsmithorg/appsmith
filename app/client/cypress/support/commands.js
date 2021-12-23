@@ -648,7 +648,8 @@ Cypress.Commands.add("NavigateToEntityExplorer", () => {
 });
 
 Cypress.Commands.add("CreateAPI", (apiname) => {
-  cy.get(apiwidget.createapi).click({ force: true });
+  cy.get(explorer.createNew).click({ force: true });
+  cy.get(explorer.blankAPI).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.renameWithInPane(apiname);
@@ -2077,7 +2078,10 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
 });
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
-  cy.get(explorer.addEntityJSEditor).click({ force: true });
+  cy.get(explorer.createNew).click({ force: true });
+  cy.get(".t--file-operation")
+    .eq(1)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("testCreateApiButton", () => {

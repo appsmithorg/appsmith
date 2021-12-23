@@ -78,7 +78,7 @@ function Files() {
     <Entity
       addButtonHelptext={createMessage(ADD_QUERY_JS_TOOLTIP)}
       alwaysShowRightIcon
-      className={`group`}
+      className={`group files`}
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
