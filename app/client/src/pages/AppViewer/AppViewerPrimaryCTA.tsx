@@ -85,6 +85,9 @@ function AppViewerPrimaryCTA(props: Props) {
     ) {
       return (
         <Button
+          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+          buttonColor={selectedTheme.properties.colors.primaryColor}
+          buttonVariant="PRIMARY"
           className="t--fork-app"
           icon="fork"
           onClick={() => {
@@ -102,6 +105,11 @@ function AppViewerPrimaryCTA(props: Props) {
             applicationId={currentApplication?.id || ""}
             trigger={
               <Button
+                borderRadius={
+                  selectedTheme.properties.borderRadius.appBorderRadius
+                }
+                buttonColor={selectedTheme.properties.colors.primaryColor}
+                buttonVariant="PRIMARY"
                 className="t--fork-app"
                 icon="fork"
                 onClick={() => dispatch(getAllApplications())}
@@ -119,6 +127,9 @@ function AppViewerPrimaryCTA(props: Props) {
     ) {
       return (
         <Button
+          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+          buttonColor={selectedTheme.properties.colors.primaryColor}
+          buttonVariant="PRIMARY"
           className="t--sign-in"
           onClick={() => {
             window.location.href = LOGIN_URL;
