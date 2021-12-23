@@ -83,7 +83,13 @@ public class BulkAppendMethod implements Method {
 
         List<RowObject> rowObjectListFromBody = null;
         try {
-            rowObjectListFromBody = this.getRowObjectListFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
+            JsonNode body = this.objectMapper.readTree(methodConfig.getRowObjects());
+
+            if ( body.isEmpty()) {
+                return Mono.empty();
+            }
+
+            rowObjectListFromBody = this.getRowObjectListFromBody(body);
         } catch (JsonProcessingException e) {
             // Should never enter here
         }

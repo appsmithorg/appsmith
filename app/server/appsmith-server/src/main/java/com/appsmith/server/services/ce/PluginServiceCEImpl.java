@@ -200,8 +200,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 .collect(Collectors.toList());
         return organizationService.getAll()
                 .flatMap(organization -> {
-                    organization.getPlugins().addAll(newOrganizationPlugins);
-                    return organizationService.save(organization);
+                    // Only perform a DB op if plugins associated to this org have changed
+                    if (organization.getPlugins().containsAll(newOrganizationPlugins)) {
+                        return Mono.just(organization);
+                    } else {
+                        organization.getPlugins().addAll(newOrganizationPlugins);
+                        return organizationService.save(organization);
+                    }
                 });
     }
 

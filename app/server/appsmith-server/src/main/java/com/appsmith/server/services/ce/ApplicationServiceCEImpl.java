@@ -550,4 +550,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
     }
 
+    @Override
+    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
+        return repository.getGitConnectedApplicationCount(organizationId);
+    }
+
 }
