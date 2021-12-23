@@ -18,6 +18,7 @@ import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Google from "assets/images/Google.png";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
+import { useHistory } from "react-router-dom";
 
 const Form_Auth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
@@ -121,7 +122,7 @@ const PageSettings = {
   settings: [
     {
       id: "APPSMITH_GOOGLE_AUTH",
-      category: "google-auth",
+      category: SettingCategories.GOOGLE_AUTH,
       controlType: SettingTypes.BUTTON,
       label: "Google",
       subText: "Enable your organization to sign in with Google (OAuth).",
@@ -129,7 +130,7 @@ const PageSettings = {
     },
     {
       id: "APPSMITH_GITHUB_AUTH",
-      category: "github-auth",
+      category: SettingCategories.GITHUB_AUTH,
       controlType: SettingTypes.BUTTON,
       label: "Github",
       subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
@@ -138,7 +139,7 @@ const PageSettings = {
     },
     {
       id: "APPSMITH_FORM_LOGIN_AUTH",
-      category: "form-login-auth",
+      category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.BUTTON,
       label: "Form Login",
       subText: "Enable your organization to sign in with Google (OAuth).",
@@ -149,9 +150,7 @@ const PageSettings = {
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding-left: ${(props) =>
-    props.theme.homePage.leftPane.rightMargin +
-    props.theme.homePage.leftPane.leftPadding}px;
+  padding-left: 112px;
   padding-top: 40px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
@@ -204,11 +203,12 @@ const MethodDets = styled.div`
   line-height: 16px;
 `;
 
-const authMain = () => {
+function AuthMain() {
+  const history = useHistory();
   return (
     <Wrapper>
       <SettingsFormWrapper>
-        <SettingsHeader>Select Authetication Method</SettingsHeader>
+        <SettingsHeader>Select Authentication Method</SettingsHeader>
         <SettingsSubHeader>
           Select a protocol you want to authenticate users with
         </SettingsSubHeader>
@@ -227,10 +227,14 @@ const authMain = () => {
                   category={Category.tertiary}
                   className={"add-button"}
                   data-cy="add-auth-account"
-                  href={getAdminSettingsCategoryUrl(
-                    SettingCategories.AUTHENTICATION,
-                    method.category,
-                  )}
+                  onClick={() =>
+                    history.push(
+                      getAdminSettingsCategoryUrl(
+                        SettingCategories.AUTHENTICATION,
+                        method.category,
+                      ),
+                    )
+                  }
                   text={createMessage(ADD)}
                 />
               </MethodCard>
@@ -239,7 +243,7 @@ const authMain = () => {
       </SettingsFormWrapper>
     </Wrapper>
   );
-};
+}
 
 export const config: AdminConfigType = {
   type: SettingCategories.AUTHENTICATION,
@@ -247,5 +251,5 @@ export const config: AdminConfigType = {
   title: "Authentication",
   canSave: false,
   children: [Form_Auth, Google_Auth, Github_Auth],
-  component: authMain,
+  component: AuthMain,
 };
