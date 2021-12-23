@@ -35,7 +35,7 @@ describe("Api Naming conflict on different pages test", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
     cy.RenameEntity(firstApiName);
-    cy.get(".bp3-popover-content").should("not.exist");
+    cy.VerifyPopOverMessage(firstApiName + " is already being used.");
 
     // delete API and Page2
     cy.DeleteAPIFromSideBar();
@@ -60,7 +60,7 @@ describe("Entity Naming conflict test", function() {
 
     cy.GlobalSearchEntity(secondApiName);
     cy.RenameEntity(firstApiName);
-    cy.validateMessage(firstApiName);
+    cy.VerifyPopOverMessage(firstApiName + " is already being used.", true);
     cy.ClearSearch();
 
     cy.deleteJSObject();
