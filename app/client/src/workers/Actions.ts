@@ -238,10 +238,7 @@ const DATA_TREE_FUNCTIONS: Record<
               ? `{{${onErrorCallback.toString()}}}`
               : undefined,
           },
-          executionType:
-            onErrorCallback || onSuccessCallback
-              ? ExecutionType.TRIGGER
-              : ExecutionType.PROMISE,
+          executionType: ExecutionType.TRIGGER,
         };
       },
   },
@@ -307,20 +304,33 @@ export const enhanceDataTreeWithFunctions = (
   return withFunction;
 };
 
+/**
+ * The Pusher function is created to decide the proper execution method
+ * and payload of a platform action. It is bound to the platform functions and
+ * get a requestId and TriggerCollector array in its "this" context.
+ * Depending on the executionType of an action, it will add the action trigger description
+ * in the correct place.
+ *
+ * For old trigger based functions, it will add it to the trigger collector to be executed in parallel
+ * like the old way of action execution and end the evaluation.
+ *
+ * For new promise based functions, it will promisify the action so that it can wait for an execution
+ * before resolving and moving on with the promise workflow
+ *
+ * **/
 export const pusher = function(
   this: { TRIGGER_COLLECTOR: ActionDescription[]; REQUEST_ID: string },
   action: ActionDispatcherWithExecutionType,
-  ...payload: any[]
+  ...args: any[]
 ) {
-  const actionDescription = action(...payload);
+  const actionDescription = action(...args);
+  const { executionType, payload, type } = actionDescription;
   const actionPayload = {
-    type: actionDescription.type,
-    payload: actionDescription.payload,
+    type,
+    payload,
   } as ActionDescription;
-  if (
-    actionDescription &&
-    actionDescription.executionType === ExecutionType.TRIGGER
-  ) {
+
+  if (executionType && executionType === ExecutionType.TRIGGER) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
     return promisifyAction(this.REQUEST_ID, actionPayload);

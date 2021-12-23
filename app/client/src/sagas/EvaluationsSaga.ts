@@ -213,7 +213,19 @@ export function* evaluateAndExecuteDynamicTrigger(
           requestData.result.errors[0].errorMessage,
         );
       }
-      // This is returned to be stored in the data property of async js object actions
+      // It is possible to get a few triggers here if the user
+      // still uses the old way of action runs and not promises. For that we
+      // need to manually execute these triggers outside the promise flow
+      const { triggers } = requestData.result;
+      if (triggers && triggers.length) {
+        log.debug({ triggers });
+        yield all(
+          triggers.map((trigger: ActionDescription) =>
+            call(executeActionTriggers, trigger, eventType, triggerMeta),
+          ),
+        );
+      }
+      // Return value of a promise is returned
       return requestData.result;
     }
     yield call(evalErrorHandler, requestData.errors);

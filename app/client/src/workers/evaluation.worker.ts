@@ -42,33 +42,35 @@ function messageEventListener(
   return (e: MessageEvent) => {
     const startTime = performance.now();
     const { method, requestData, requestId } = e.data;
-    const responseData = fn(method, requestData, requestId);
-    if (responseData) {
-      const endTime = performance.now();
-      try {
-        ctx.postMessage({
-          requestId,
-          responseData,
-          timeTaken: (endTime - startTime).toFixed(2),
-        });
-      } catch (e) {
-        console.error(e);
-        // we dont want to log dataTree because it is huge.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { dataTree, ...rest } = requestData;
-        ctx.postMessage({
-          requestId,
-          responseData: {
-            errors: [
-              {
-                type: EvalErrorTypes.CLONE_ERROR,
-                message: e,
-                context: JSON.stringify(rest),
-              },
-            ],
-          },
-          timeTaken: (endTime - startTime).toFixed(2),
-        });
+    if (method) {
+      const responseData = fn(method, requestData, requestId);
+      if (responseData) {
+        const endTime = performance.now();
+        try {
+          ctx.postMessage({
+            requestId,
+            responseData,
+            timeTaken: (endTime - startTime).toFixed(2),
+          });
+        } catch (e) {
+          console.error(e);
+          // we dont want to log dataTree because it is huge.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { dataTree, ...rest } = requestData;
+          ctx.postMessage({
+            requestId,
+            responseData: {
+              errors: [
+                {
+                  type: EvalErrorTypes.CLONE_ERROR,
+                  message: e,
+                  context: JSON.stringify(rest),
+                },
+              ],
+            },
+            timeTaken: (endTime - startTime).toFixed(2),
+          });
+        }
       }
     }
   };

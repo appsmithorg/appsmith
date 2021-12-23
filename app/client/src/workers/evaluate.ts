@@ -334,12 +334,15 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();
-        if (!!returnValue && typeof returnValue.then === "function") {
+        if (!!returnValue && returnValue instanceof Promise) {
+          self.IS_ASYNC = true;
+        }
+        if (self.TRIGGER_COLLECTOR.length) {
           self.IS_ASYNC = true;
         }
       }
     } catch (e) {
-      //
+      console.error("Error when determining async function", e);
     }
     const isAsync = !!self.IS_ASYNC;
     for (const entity in GLOBAL_DATA) {

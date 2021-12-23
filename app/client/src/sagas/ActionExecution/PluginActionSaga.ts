@@ -316,6 +316,8 @@ export default function* executePluginActionTriggerSaga(
       state: payload.request,
       messages: [
         {
+          // Need to stringify cause this gets rendered directly
+          // and rendering objects can crash the app
           message: !isString(payload.body)
             ? JSON.stringify(payload.body)
             : payload.body,
