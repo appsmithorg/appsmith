@@ -28,31 +28,30 @@ const MapChartComponent = lazy(() =>
   ),
 );
 
+const dataSetMapping: Record<MapType, any> = {
+  [MapTypes.WORLD]: dataSetForWorld,
+  [MapTypes.WORLD_WITH_ANTARCTICA]: dataSetForWorldWithAntarctica,
+  [MapTypes.EUROPE]: dataSetForEurope,
+  [MapTypes.NORTH_AMERICA]: dataSetForNorthAmerica,
+  [MapTypes.SOURTH_AMERICA]: dataSetForSouthAmerica,
+  [MapTypes.ASIA]: dataSetForAsia,
+  [MapTypes.OCEANIA]: dataSetForOceania,
+  [MapTypes.AFRICA]: dataSetForAfrica,
+};
+
 // A hook to update the corresponding dataset when map type is changed
 const updateDataSet = (
   props: MapChartWidgetProps,
   propertyPath: string,
   propertyValue: MapType,
 ) => {
-  const propertiesToUpdate = [{ propertyPath, propertyValue }];
-
-  const dataSetMapping: Record<MapType, any> = {
-    [MapTypes.WORLD]: dataSetForWorld,
-    [MapTypes.WORLD_WITH_ANTARCTICA]: dataSetForWorldWithAntarctica,
-    [MapTypes.EUROPE]: dataSetForEurope,
-    [MapTypes.NORTH_AMERICA]: dataSetForNorthAmerica,
-    [MapTypes.SOURTH_AMERICA]: dataSetForSouthAmerica,
-    [MapTypes.ASIA]: dataSetForAsia,
-    [MapTypes.OCEANIA]: dataSetForOceania,
-    [MapTypes.AFRICA]: dataSetForAfrica,
-  };
-
-  const targetDataSet = dataSetMapping[propertyValue];
-
-  propertiesToUpdate.push({
-    propertyPath: "data",
-    propertyValue: targetDataSet,
-  });
+  const propertiesToUpdate = [
+    { propertyPath, propertyValue },
+    {
+      propertyPath: "data",
+      propertyValue: dataSetMapping[propertyValue],
+    },
+  ];
 
   return propertiesToUpdate;
 };
