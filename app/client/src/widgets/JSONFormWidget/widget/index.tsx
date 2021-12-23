@@ -92,7 +92,6 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
   };
 
   updateFormValues = (values: any) => {
-    console.log("updateFormValues - called");
     this.props.updateWidgetMetaProperty("data", values);
   };
 
