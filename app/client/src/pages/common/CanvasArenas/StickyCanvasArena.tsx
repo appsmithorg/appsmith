@@ -53,6 +53,29 @@ export const StickyCanvasArena = forwardRef(
         entries.forEach(updateCanvasStylesIntersection);
       }),
     );
+    const { devicePixelRatio: scale = 1 } = window;
+
+    const repositionSliderCanvas = (entry: IntersectionObserverEntry) => {
+      stickyCanvasRef.current.style.width = "100%";
+      stickyCanvasRef.current.style.position = "absolute";
+      stickyCanvasRef.current.style.left = "0px";
+      const calculatedTopOffset =
+        entry.intersectionRect.top - entry.boundingClientRect.top;
+      const topOffset =
+        calculatedTopOffset > entry.intersectionRect.height
+          ? entry.boundingClientRect.height - entry.intersectionRect.height
+          : calculatedTopOffset;
+      stickyCanvasRef.current.style.top = topOffset + "px";
+      stickyCanvasRef.current.style.height =
+        entry.intersectionRect.height + "px";
+    };
+
+    const rescaleSliderCanvas = (entry: IntersectionObserverEntry) => {
+      stickyCanvasRef.current.height = entry.intersectionRect.height * scale;
+      stickyCanvasRef.current.width = entry.intersectionRect.width * scale;
+      const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+      canvasCtx.scale(scale, scale);
+    };
 
     const updateCanvasStylesIntersection = (
       entry: IntersectionObserverEntry,
@@ -63,18 +86,8 @@ export const StickyCanvasArena = forwardRef(
         );
 
         if (parentCanvas && stickyCanvasRef.current) {
-          stickyCanvasRef.current.style.width = "100%";
-          stickyCanvasRef.current.style.position = "absolute";
-          stickyCanvasRef.current.style.left = "0px";
-          const calculatedTopOffset =
-            entry.intersectionRect.top - entry.boundingClientRect.top;
-          const topOffset =
-            calculatedTopOffset > entry.intersectionRect.height
-              ? entry.boundingClientRect.height - entry.intersectionRect.height
-              : calculatedTopOffset;
-          stickyCanvasRef.current.style.top = topOffset + "px";
-          stickyCanvasRef.current.style.height =
-            entry.intersectionRect.height + "px";
+          repositionSliderCanvas(entry);
+          rescaleSliderCanvas(entry);
         }
       }
     };
