@@ -65,11 +65,9 @@ export const EntityItem = styled.div<{
   font-size: 14px;
   user-select: none;
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
-  padding-top: 4px;
-  padding-bottom: 4px;
   background: ${(props) =>
     props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
-  height: 34px;
+  height: 38px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: ${(props) =>
