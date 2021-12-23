@@ -52,7 +52,7 @@ describe("Switch datasource", function() {
     );
 
     cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource(false);
+    cy.testSaveDatasource();
   });
 
   it("3. By switching datasources execute a query with both the datasources", function() {
