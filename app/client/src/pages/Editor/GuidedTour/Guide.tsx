@@ -91,11 +91,12 @@ const ContentWrapper = styled.div`
   align-items: center;
 `;
 
-const GuideButton = styled(Button)`
+const GuideButton = styled(Button)<{ isVisible?: boolean }>`
   padding: ${(props) => props.theme.spaces[0]}px
     ${(props) => props.theme.spaces[6]}px;
   height: 38px;
   ${(props) => getTypographyByKey(props, "btnMedium")};
+  visibility: ${({ isVisible = true }) => (isVisible ? "visible" : "hidden")};
 `;
 
 const SubContentWrapper = styled.div`
@@ -215,28 +216,6 @@ const SuccessMessageWrapper = styled.div`
     margin-top: 0px;
     line-height: 24px;
     font-size: 18px;
-  }
-`;
-
-const ProgressBar = styled.div<{ duration: number }>`
-  height: 7px;
-  position: relative;
-  background: #e5edfd;
-  width: 100%;
-  .progress {
-    height: 100%;
-    width: 100%;
-    background-color: #5a92f9;
-    animation: progressBar ${(props) => props.duration}s linear;
-  }
-
-  @keyframes progressBar {
-    from {
-      width: 0%;
-    }
-    to {
-      width: 100%;
-    }
   }
 `;
 
@@ -369,10 +348,10 @@ type CompletionContentProps = {
 
 function CompletionContent(props: CompletionContentProps) {
   const [showSuccess, setShowSuccess] = useState(!props.showInfoMessage);
+  const [showSuccessButton, setShowSuccessButton] = useState(false);
   const info = Steps[props.step].info;
   const success = Steps[props.step].success;
   const dispatch = useDispatch();
-  const duration = success?.duration ?? 5;
 
   const tickMarkRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -405,8 +384,8 @@ function CompletionContent(props: CompletionContentProps) {
   useEffect(() => {
     if (success?.timed && showSuccess) {
       setTimeout(() => {
-        onSuccessButtonClick();
-      }, duration * 1000);
+        setShowSuccessButton(true);
+      }, 2000);
     }
   }, [success?.timed, showSuccess]);
 
@@ -417,22 +396,17 @@ function CompletionContent(props: CompletionContentProps) {
   if (showSuccess) {
     return (
       <SuccessMessageWrapper>
-        {success?.timed && (
-          <ProgressBar duration={duration}>
-            <div className="progress" />
-          </ProgressBar>
-        )}
         <div className="wrapper">
           <div className="lottie-wrapper" ref={tickMarkRef} />
           <div className="title-wrapper">
             <Title>{Steps[props.step].success?.text}</Title>
-            {!success?.timed && (
-              <GuideButton
-                onClick={onSuccessButtonClick}
-                tag="button"
-                text={success?.buttonText ?? "CONTINUE"}
-              />
-            )}
+            {/* Show the button after a delay */}
+            <GuideButton
+              isVisible={showSuccessButton}
+              onClick={onSuccessButtonClick}
+              tag="button"
+              text={success?.buttonText ?? "CONTINUE"}
+            />
           </div>
         </div>
       </SuccessMessageWrapper>
@@ -447,7 +421,7 @@ function CompletionContent(props: CompletionContentProps) {
           <GuideButton
             onClick={onInfoButtonClick}
             tag="button"
-            text="PROCEED TO NEXT STEP"
+            text={info?.buttonText ?? "PROCEED TO NEXT STEP"}
           />
         </div>
       </SuccessMessageWrapper>

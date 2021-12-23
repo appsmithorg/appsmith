@@ -188,12 +188,12 @@ type Step = {
     onClick?: (dispatch: Dispatch<any>) => void;
     timed?: boolean;
     buttonText?: string;
-    duration?: number;
   };
   info?: {
     icon: IconName;
     text: ReactNode;
     onClick: (dispatch: Dispatch<any>) => void;
+    buttonText?: string;
   };
 };
 type StepsType = Record<number, Step>;
@@ -242,6 +242,7 @@ export const Steps: StepsType = {
         }, 1000);
       },
       buttonText: "PROCEED TO NEXT STEP",
+      timed: true,
     },
   },
   2: {
@@ -287,6 +288,7 @@ export const Steps: StepsType = {
         }, 1000);
       },
       timed: true,
+      buttonText: "PROCEED TO NEXT STEP",
     },
     info: {
       icon: "lightbulb-flash-line",
@@ -312,6 +314,7 @@ export const Steps: StepsType = {
           }),
         );
       },
+      buttonText: "GOT IT",
     },
   },
   4: {
@@ -372,7 +375,7 @@ export const Steps: StepsType = {
           });
         }, 1000);
       },
-      duration: 6,
+      buttonText: "PROCEED TO NEXT STEP",
     },
   },
   5: {
@@ -422,7 +425,8 @@ export const Steps: StepsType = {
           highlightSection("widget-card-buttonwidget");
         }, 2000);
       },
-      duration: 6,
+      timed: true,
+      buttonText: "PROCEED TO NEXT STEP",
     },
   },
   6: {
@@ -447,7 +451,7 @@ export const Steps: StepsType = {
           highlightSection("explorer-entity-updateCustomerInfo");
         }, 1000);
       },
-      duration: 6,
+      buttonText: "PROCEED TO NEXT STEP",
     },
     info: {
       icon: "lightbulb-flash-line",
@@ -505,6 +509,7 @@ export const Steps: StepsType = {
           });
         }, 1000);
       },
+      timed: true,
     },
   },
   9: {
