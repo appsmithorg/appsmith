@@ -1,6 +1,7 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+import homePage from "../../../../locators/HomePage.json";
 
 let datasourceName;
 
@@ -281,4 +282,91 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       expect(response.status).to.be.oneOf([200, 409]);
     });
   });
+
+  // it("11. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {
+  //   cy.NavigateToHome();
+  //   cy.get(homePage.createNew)
+  //     .first()
+  //     .click({ force: true });
+  //   cy.wait("@createNewApplication").should(
+  //     "have.nested.property",
+  //     "response.body.responseMeta.status",
+  //     201,
+  //   );
+
+  //   cy.NavigateToDatasourceEditor();
+  //   cy.get(datasource.MongoDB).click({ force: true });
+  //   // if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
+  //   // else cy.fillMongoDatasourceForm();
+  //   cy.fillMongoDatasourceFormWithURI();
+
+  //   cy.generateUUID().then((uid) => {
+  //     datasourceName = `Mongo Documents ${uid}`;
+  //     cy.renameDatasource(datasourceName);
+  //     cy.wrap(datasourceName).as("dSName");
+  //   });
+  //   cy.testSaveDatasource(false);
+
+  //   //Insert documents
+
+  //   cy.get("@dSName").then((dbName) => {
+  //     cy.NavigateToActiveDSQueryPane(dbName);
+  //   });
+
+  //   cy.setQueryTimeout(30000);
+  //   cy.validateNSelectDropdown("Commands", "Find Document(s)", "Insert Document(s)");
+  //   cy.typeValueNValidate("NonASCIITest", "Collection");
+
+  //   let nonAsciiDoc = `[{"_id":1, "Från" :"Yogesh" , "Frõ" :"Active"},
+  //   {"_id":2, "Från" :"Vivek" , "Frõ" :"Active"},
+  //   {"_id":3, "Från" :"Prapulla" , "Frõ" :"Active"},
+  //   {"_id":4, "Från" :"Raksha" , "Frõ" :"Active"}]`
+
+  //   cy.typeValueNValidate(nonAsciiDoc, "Documents");
+  //   cy.EvaluateCurrentValue(nonAsciiDoc);
+  //   cy.getEntityName().then((entity) => {
+  //     cy.wrap(entity).as("entity");
+  //   });
+  //   cy.runQuery()
+
+  //   //Find Documents
+  //   cy.validateNSelectDropdown("Commands", "Insert Document(s)", "Find Document(s)");
+  //   cy.runQuery()
+
+  //   cy.get(queryLocators.suggestedTableWidget)
+  //     .click()
+  //     .wait(1000);
+  //   cy.wait("@updateLayout").then(({ response }) => {
+  //     expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
+  //   });
+
+  //   cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+  //   cy.get(queryLocators.suggestedWidgetChart)
+  //     .click()
+  //     .wait(1000);
+  //   cy.wait("@updateLayout").then(({ response }) => {
+  //     expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
+  //   });
+
+  //   cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
+
+  //   //Delete Documents using both Single & Multiple Documents
+  //   cy.validateNSelectDropdown("Commands", "Find Document(s)", "Delete Document(s)");
+  //   cy.typeValueNValidate("{_id : {$gte: 3 }}", "Query");
+  //   cy.validateNSelectDropdown("Limit", "Single Document");
+  //   cy.runQuery();
+
+  //   cy.validateNSelectDropdown("Commands", "Delete Document(s)", "Find Document(s)");
+  //   cy.runQuery();
+
+  //   cy.validateNSelectDropdown("Commands", "Find Document(s)", "Delete Document(s)");
+  //   cy.typeValueNValidate("{_id : {$lte: 3 }}", "Query");
+  //   cy.validateNSelectDropdown("Limit", "All Matching Documents");
+  //   cy.runQuery();
+
+  //   cy.deleteQueryUsingContext();
+  //   cy.deleteEntitybyName("Table1");
+  //   cy.deleteEntitybyName("Chart1");
+  //   cy.wait(3000); //waiting for deletion to complete! - else next case fails
+  // });
 });

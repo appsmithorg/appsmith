@@ -2226,30 +2226,30 @@ Cypress.Commands.add(
       ? datasourceFormData["mongo-host"] + "  "
       : datasourceFormData["mongo-host"];
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["mongo-defaultDatabaseName"] + "  "
-      : datasourceFormData["mongo-defaultDatabaseName"];
+      ? datasourceFormData["mongo-databaseName"] + "  "
+      : datasourceFormData["mongo-databaseName"];
 
     cy.get(datasourceEditor["host"]).type(hostAddress);
-    //cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
-    cy.get(datasourceEditor["selConnectionType"]).click();
-    cy.contains(datasourceFormData["connection-type"]).click();
+    // cy.get(datasourceEditor["selConnectionType"]).click();
+    // cy.contains(datasourceFormData["connection-type"]).click();
     cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);
 
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
-    cy.get(datasourceEditor["username"]).type(
-      datasourceFormData["mongo-username"],
-    );
-    cy.get(datasourceEditor["password"]).type(
-      datasourceFormData["mongo-password"],
-    );
-    cy.get(datasourceEditor["authenticationAuthtype"]).click();
-    cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
-      force: true,
-    });
+    // cy.get(datasourceEditor["username"]).type(
+    //   datasourceFormData["mongo-username"],
+    // );
+    // cy.get(datasourceEditor["password"]).type(
+    //   datasourceFormData["mongo-password"],
+    // );
+    // cy.get(datasourceEditor["authenticationAuthtype"]).click();
+    // cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
+    //   force: true,
+    // });
   },
 );
 

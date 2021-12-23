@@ -1,0 +1,17 @@
+{
+	"indexes": [
+		{
+			"v": {
+				"$numberInt": "2"
+			},
+			"key": {
+				"_id": {
+					"$numberInt": "1"
+				}
+			},
+			"name": "_id_"
+		}
+	],
+	"uuid": "9303bfeca54d4123a3facd121ec119b5",
+	"collectionName": "selected_documents"
+}
