@@ -332,7 +332,6 @@ class InputComponent extends React.Component<
     const element: any = document.querySelectorAll(
       `#${this.props.widgetId} .bp3-button`,
     );
-
     if (element !== null) {
       element[0].removeEventListener("click", () => this.onButtonClick(1));
       element[1].removeEventListener("click", () => this.onButtonClick(-1));
@@ -353,13 +352,14 @@ class InputComponent extends React.Component<
 
   onButtonClick = (type: number) => {
     let deFormattedValue: string | number = this.props.value
+      .toString()
       .split(",")
       .join("");
     const stepSize = this.props.stepSize || 1;
     deFormattedValue = +deFormattedValue + stepSize * type;
     const formattedValue = formatCurrencyNumber(
       this.props.decimalsInCurrency,
-      "" + deFormattedValue,
+      deFormattedValue.toString(),
     );
     this.props.onValueChange(formattedValue);
   };
@@ -475,7 +475,10 @@ class InputComponent extends React.Component<
   };
 
   onNumberInputFocus = () => {
-    const deFormattedValue = this.props.value.split(",").join("");
+    const deFormattedValue = this.props.value
+      .toString()
+      .split(",")
+      .join("");
     this.props.onValueChange(deFormattedValue);
     this.setFocusState(true);
   };
