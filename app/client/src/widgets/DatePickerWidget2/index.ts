@@ -2,7 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import moment from "moment";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { TimePrecision } from "@blueprintjs/datetime";
+import { TimePrecision } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
