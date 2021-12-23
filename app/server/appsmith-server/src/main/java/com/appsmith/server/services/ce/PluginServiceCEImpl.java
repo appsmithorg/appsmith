@@ -307,7 +307,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return
                 datasourceMono
                         .flatMap(datasource -> this.findById(datasource.getPluginId())
-                                .map(Plugin::getPackageName));
+                                .map(plugin -> plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName()));
     }
 
     @Override
