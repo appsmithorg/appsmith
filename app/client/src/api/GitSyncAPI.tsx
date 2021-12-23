@@ -29,7 +29,7 @@ export type MergeStatusPayload = {
 
 export type ConnectToGitPayload = {
   remoteUrl: string;
-  gitProfile: {
+  gitProfile?: {
     authorName: string;
     authorEmail: string;
   };
@@ -116,8 +116,10 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static checkoutBranch(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`);
+  static checkoutBranch(applicationId: string, branch: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
+      branchName: branch,
+    });
   }
 
   static createNewBranch(applicationId: string, branch: string) {
@@ -138,6 +140,10 @@ class GitSyncAPI extends Api {
     return Api.get(
       `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
+  }
+
+  static disconnectGit({ applicationId }: { applicationId: string }) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 }
 

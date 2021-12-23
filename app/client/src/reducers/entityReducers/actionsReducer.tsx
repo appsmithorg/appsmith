@@ -254,6 +254,17 @@ const actionsReducer = createReducer(initialState, {
 
       return a;
     }),
+  [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string }>,
+  ): ActionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return { ...a, isLoading: false };
+      }
+
+      return a;
+    }),
   [ReduxActionTypes.MOVE_ACTION_INIT]: (
     state: ActionDataState,
     action: ReduxAction<{

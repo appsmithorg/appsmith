@@ -32,6 +32,7 @@ type EditableTextProps = {
   onBlur?: (value?: string) => void;
   beforeUnmount?: (value?: string) => void;
   errorTooltipClass?: string;
+  maxLength?: number;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -90,6 +91,7 @@ export function EditableText(props: EditableTextProps) {
     hideEditIcon,
     isEditingDefault,
     isInvalid,
+    maxLength,
     minimal,
     onBlur,
     onTextChanged,
@@ -183,6 +185,7 @@ export function EditableText(props: EditableTextProps) {
             className={className}
             disabled={!isEditing}
             isEditing={isEditing}
+            maxLength={maxLength}
             onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}

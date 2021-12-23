@@ -124,6 +124,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
         isSortable: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
         primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
@@ -181,6 +182,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
+        animateLoading: {
+          type: "BOOLEAN",
+        },
         defaultSearchText: {
           type: "TEXT",
         },
@@ -274,6 +278,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
         setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
@@ -329,6 +334,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "TEXT",
         },
         isVisible: {
+          type: "BOOLEAN",
+        },
+        animateLoading: {
           type: "BOOLEAN",
         },
         setAdaptiveYMin: {

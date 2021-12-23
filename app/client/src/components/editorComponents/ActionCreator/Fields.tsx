@@ -73,7 +73,7 @@ const NAVIGATION_TARGET_FIELD_OPTIONS = [
   },
 ];
 
-export const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[].*[\]])|([\{].*[\}])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
+export const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[][\s\S]*[\]])|([\{][\s\S]*[\}])|(['][^']*['])|([\(][\s\S]*[\)][ ]*=>[ ]*[{][\s\S]*[}])|([^'",][^,"+]*[^'",]*))*/gi;
 export const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 //Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
 export const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
@@ -134,7 +134,7 @@ export const JSToString = (js: string): string => {
     .join("");
 };
 
-const argsStringToArray = (funcArgs: string): string[] => {
+export const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;

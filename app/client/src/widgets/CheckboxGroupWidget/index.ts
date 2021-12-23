@@ -8,8 +8,9 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 3 * GRID_DENSITY_MIGRATION_V1,
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 1.5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
@@ -17,10 +18,11 @@ export const CONFIG = {
     ],
     defaultSelectedValues: "BLUE",
     isDisabled: false,
+    isInline: true,
     isRequired: false,
     isVisible: true,
     widgetName: "CheckboxGroup",
-    version: 1,
+    version: 2,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
