@@ -114,6 +114,7 @@ describe("Git", function() {
     cy.createGitBranch(tempBranch3);
     cy.get(explorerLocators.addWidget).click();
     cy.dragAndDropToCanvas("inputwidget", { x: 300, y: 300 });
+    cy.wait("@updateLayout");
 
     cy.commitAndPush();
 
