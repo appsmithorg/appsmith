@@ -24,6 +24,7 @@ describe("Git", function() {
   before(() => {
     cy.generateUUID().then((uid) => {
       repoName = uid;
+
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
     });
@@ -189,5 +190,27 @@ describe("Git", function() {
 
   after(() => {
     cy.deleteTestGithubRepo(repoName);
+
+    // TODO remove
+    cy.get(homePage.homeIcon).click({ force: true });
+    cy.get(homePage.createNew)
+      .first()
+      .click({ force: true });
+    cy.wait("@createNewApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+
+    cy.AppSetupForRename();
+    cy.get(homePage.applicationName).type(repoName + "{enter}");
+    cy.wait("@updateApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   });
 });

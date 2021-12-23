@@ -57,33 +57,21 @@ describe("Repo Limit Exceeded Error Modal", function() {
       method: "DELETE",
       url: "api/v1/applications/" + repoName1,
       failOnStatusCode: false,
-    }).then((response) => {
-      cy.log(response.body);
-      cy.log(response.status);
     });
     cy.request({
       method: "DELETE",
       url: "api/v1/applications/" + repoName2,
       failOnStatusCode: false,
-    }).then((response) => {
-      cy.log(response.body);
-      cy.log(response.status);
     });
     cy.request({
       method: "DELETE",
       url: "api/v1/applications/" + repoName3,
       failOnStatusCode: false,
-    }).then((response) => {
-      cy.log(response.body);
-      cy.log(response.status);
     });
     cy.request({
       method: "DELETE",
       url: "api/v1/applications/" + repoName4,
       failOnStatusCode: false,
-    }).then((response) => {
-      cy.log(response.body);
-      cy.log(response.status);
     });
     cy.deleteTestGithubRepo(repoName1);
     cy.deleteTestGithubRepo(repoName2);
