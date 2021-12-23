@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, { useMemo, useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps, Route } from "react-router";
 import { Switch } from "react-router-dom";
 import { AppState } from "reducers";
@@ -11,14 +11,10 @@ import {
   VIEWER_FORK_PATH,
   VIEWER_URL,
 } from "constants/routes";
-import {
-  PageListPayload,
-  ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -31,13 +27,12 @@ import { getViewModePageList } from "selectors/editorSelectors";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
-
+import webfontloader from "webfontloader";
 import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { AppTheme } from "entities/AppTheming";
+import { useSelector } from "react-redux";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -52,7 +47,7 @@ const AppViewerBody = styled.section<{ hasPages: boolean }>`
         // NOTE: we need to substract the header height from app body otherwise you will two scrollbars
         return !props.hasPages
           ? `${props.theme.smallHeaderHeight} - 1px`
-          : "85px";
+          : "87px";
       }}
   );
 `;
@@ -74,167 +69,153 @@ const AppViewerBodyContainer = styled.div<{
   background: ${({ backgroundColor }) => backgroundColor};
 `;
 
-export type AppViewerProps = {
-  initializeAppViewer: (params: {
-    applicationId: string;
-    pageId?: string;
-    branch?: string;
-  }) => void;
-  isInitialized: boolean;
-  isInitializeError: boolean;
-  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
-  updateWidgetProperty: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) => void;
-  updateWidgetMetaProperty: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) => void;
-  resetChildrenMetaProperty: (widgetId: string) => void;
-  pages: PageListPayload;
-  lightTheme: Theme;
-  selectedTheme: AppTheme;
-} & RouteComponentProps<BuilderRouteParams>;
+export type AppViewerProps = RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
 
-class AppViewer extends Component<Props> {
-  public state = {
-    registered: false,
-    isSideNavOpen: true,
-  };
-  componentDidMount() {
-    editorInitializer().then(() => {
-      this.setState({ registered: true });
-    });
+const DEFAULT_FONT_NAME = "System Default";
 
-    const { applicationId, pageId } = this.props.match.params;
-    const {
-      location: { search },
-    } = this.props;
+function AppViewer(props: Props) {
+  const dispatch = useDispatch();
+  const { search } = props.location;
+  const { applicationId, pageId } = props.match.params;
+  const [registered, setRegistered] = useState(false);
+  const isInitialized = useSelector(getIsInitialized);
+  const pages = useSelector(getViewModePageList);
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const lightTheme = useSelector((state: AppState) =>
+    getThemeDetails(state, ThemeMode.LIGHT),
+  );
+
+  /**
+   * initializes the widgets factory and registers all widgets
+   */
+  useEffect(() => {
+    editorInitializer().then(() => setRegistered(true));
+  }, []);
+
+  /**
+   * initialize the app if branch, pageId or application is changed
+   */
+  useEffect(() => {
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (applicationId) {
-      this.props.initializeAppViewer({
-        branch: branch,
-        applicationId,
-        pageId,
+    if (applicationId && pageId) {
+      initializeAppViewerCallback(branch, applicationId, pageId);
+    }
+  }, [search, pageId, applicationId]);
+
+  /**
+   * loads font for canvas based on theme
+   */
+  useEffect(() => {
+    if (selectedTheme.properties.fontFamily.appFont !== DEFAULT_FONT_NAME) {
+      webfontloader.load({
+        google: {
+          families: [
+            `${selectedTheme.properties.fontFamily.appFont}:300,400,500,700`,
+          ],
+        },
       });
     }
-  }
+  }, [selectedTheme.properties.fontFamily.appFont]);
 
-  componentDidUpdate(prevProps: Props) {
-    const { applicationId, pageId } = this.props.match.params;
-    const {
-      location: { search: prevSearch },
-    } = prevProps;
-    const {
-      location: { search },
-    } = this.props;
-
-    const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-
-    if (branch && branch !== prevBranch && applicationId && pageId) {
-      this.props.initializeAppViewer({
-        applicationId,
-        pageId,
-        branch: branch,
-      });
+  /**
+   * returns the font to be used for the canvas
+   */
+  const getAppFontFamily = useMemo(() => {
+    if (selectedTheme.properties.fontFamily.appFont === DEFAULT_FONT_NAME) {
+      return "inherit";
     }
-  }
 
-  toggleCollapse = (open: boolean) => {
-    this.setState({ isSideNavOpen: open });
-  };
+    return selectedTheme.properties.fontFamily.appFont;
+  }, [selectedTheme.properties.fontFamily]);
 
-  public render() {
-    const { isInitialized } = this.props;
-    return (
-      <ThemeProvider theme={this.props.lightTheme}>
-        <GlobalHotKeys>
-          <EditorContext.Provider
-            value={{
-              executeAction: this.props.executeAction,
-              updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
-              resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
-            }}
-          >
-            <ContainerWithComments>
-              <AppViewerCommentsSidebar />
-              <AppViewerBodyContainer
-                backgroundColor={
-                  this.props.selectedTheme.properties.colors.backgroundColor
-                }
-              >
-                <AppViewerBody hasPages={this.props.pages.length > 1}>
-                  {isInitialized && this.state.registered && (
-                    <Switch>
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_URL}
-                      />
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_FORK_PATH}
-                      />
-                    </Switch>
-                  )}
-                </AppViewerBody>
-              </AppViewerBodyContainer>
-            </ContainerWithComments>
-            <AddCommentTourComponent />
-            <CommentShowCaseCarousel />
-          </EditorContext.Provider>
-        </GlobalHotKeys>
-      </ThemeProvider>
-    );
-  }
+  /**
+   * callback for initialize app
+   */
+  const initializeAppViewerCallback = useCallback(
+    (branch, applicationId, pageId) => {
+      dispatch({
+        type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+        payload: {
+          branch: branch,
+          applicationId,
+          pageId,
+        },
+      });
+    },
+    [dispatch],
+  );
+
+  /**
+   * callback for executing an action
+   */
+  const executeActionCallback = useCallback(
+    (actionPayload: ExecuteTriggerPayload) =>
+      dispatch(executeTrigger(actionPayload)),
+    [executeTrigger, dispatch],
+  );
+
+  /**
+   * callback for updating widget meta property
+   */
+  const updateWidgetMetaPropertyCallback = useCallback(
+    (widgetId: string, propertyName: string, propertyValue: any) =>
+      dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
+    [],
+  );
+
+  /**
+   * callback for initializing app
+   */
+  const resetChildrenMetaPropertyCallback = useCallback(
+    (widgetId: string) => dispatch(resetChildrenMetaProperty(widgetId)),
+    [resetChildrenMetaProperty, dispatch],
+  );
+
+  return (
+    <ThemeProvider theme={lightTheme}>
+      <GlobalHotKeys>
+        <EditorContext.Provider
+          value={{
+            executeAction: executeActionCallback,
+            updateWidgetMetaProperty: updateWidgetMetaPropertyCallback,
+            resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
+          }}
+        >
+          <ContainerWithComments>
+            <AppViewerCommentsSidebar />
+            <AppViewerBodyContainer
+              backgroundColor={selectedTheme.properties.colors.backgroundColor}
+              style={{
+                fontFamily: getAppFontFamily,
+              }}
+            >
+              <AppViewerBody hasPages={pages.length > 1}>
+                {isInitialized && registered && (
+                  <Switch>
+                    <SentryRoute
+                      component={AppViewerPageContainer}
+                      exact
+                      path={VIEWER_URL}
+                    />
+                    <SentryRoute
+                      component={AppViewerPageContainer}
+                      exact
+                      path={VIEWER_FORK_PATH}
+                    />
+                  </Switch>
+                )}
+              </AppViewerBody>
+            </AppViewerBodyContainer>
+          </ContainerWithComments>
+          <AddCommentTourComponent />
+          <CommentShowCaseCarousel />
+        </EditorContext.Provider>
+      </GlobalHotKeys>
+    </ThemeProvider>
+  );
 }
 
-const mapStateToProps = (state: AppState) => ({
-  isInitialized: getIsInitialized(state),
-  pages: getViewModePageList(state),
-  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
-  selectedTheme: getSelectedAppTheme(state),
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (actionPayload: ExecuteTriggerPayload) =>
-    dispatch(executeTrigger(actionPayload)),
-  updateWidgetProperty: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) =>
-    dispatch(
-      updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
-    ),
-  updateWidgetMetaProperty: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) =>
-    dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
-  resetChildrenMetaProperty: (widgetId: string) =>
-    dispatch(resetChildrenMetaProperty(widgetId)),
-  initializeAppViewer: (params: {
-    applicationId: string;
-    pageId?: string;
-    branch?: string;
-  }) => {
-    dispatch({
-      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: params,
-    });
-  },
-});
-
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Sentry.withProfiler(AppViewer)),
-);
+export default withRouter(Sentry.withProfiler(AppViewer));
