@@ -52,7 +52,7 @@ const Title = styled.div`
   cursor: pointer;
   height: 30px;
   align-items: center;
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 0.25rem;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
@@ -117,7 +117,7 @@ function JSDependencies() {
             className="t--help-icon"
             name="help"
             onClick={showDocs}
-            size={Size.xs}
+            size={Size.xxs}
           />
         </TooltipComponent>
       </Title>
