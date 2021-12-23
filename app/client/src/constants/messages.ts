@@ -669,7 +669,13 @@ export const NAV_DESCRIPTION = () =>
 export const ACTION_OPERATION_DESCRIPTION = () =>
   `Create a new Query, API or JS Object`;
 
-export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+export const TRIGGER_ACTION_VALIDATION_ERROR = (
+  functionName: string,
+  argumentName: string,
+  expectedType: string,
+  received: string,
+) =>
+  `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
 export const MORE_OPTIONS = () => "More Options";
