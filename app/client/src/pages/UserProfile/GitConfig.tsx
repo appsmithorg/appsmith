@@ -54,9 +54,10 @@ export default function GitConfig() {
   const isSubmitDisabled = !authorName || !authorEmail || !areFormValuesUpdated;
 
   useEffect(() => {
-    setAuthorName(globalGitConfig.authorName);
-    setAuthorEmail(globalGitConfig.authorEmail);
-  }, [globalGitConfig.authorName, globalGitConfig.authorEmail]);
+    setAreFormValuesUpdated(false);
+    setAuthorNameInState(globalGitConfig.authorName);
+    setAuthorEmailInState(globalGitConfig.authorEmail);
+  }, [globalGitConfig]);
 
   const updateConfig = () => {
     if (authorName && authorEmail && emailValidator(authorEmail).isValid) {

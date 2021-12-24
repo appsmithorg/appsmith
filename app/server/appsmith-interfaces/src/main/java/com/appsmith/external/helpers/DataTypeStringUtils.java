@@ -5,6 +5,7 @@ import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -188,13 +189,15 @@ public class DataTypeStringUtils {
 
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
                                                                   String replacement,
-                                                                  List<Map.Entry<String, String>> insertedParams) {
+                                                                  List<Map.Entry<String, String>> insertedParams,
+                                                                  SmartSubstitutionInterface smartSubstitutionUtils) {
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
 
         Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
 
+        String updatedReplacement;
         switch (dataType) {
             case INTEGER:
             case LONG:
@@ -202,12 +205,12 @@ public class DataTypeStringUtils {
             case DOUBLE:
             case NULL:
             case BOOLEAN:
-                input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(replacement));
+                updatedReplacement = String.valueOf(replacement);
                 break;
             case ARRAY:
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
-                    input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
+                    updatedReplacement = String.valueOf(objectMapper.writeValueAsString(jsonArray));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -223,7 +226,7 @@ public class DataTypeStringUtils {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
                     String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
                     // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
-                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
+                    updatedReplacement = Matcher.quoteReplacement(jsonString);
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -235,7 +238,7 @@ public class DataTypeStringUtils {
                 }
                 break;
             case BSON:
-                input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
+                updatedReplacement = Matcher.quoteReplacement(replacement);
                 break;
             case DATE:
             case TIME:
@@ -246,7 +249,7 @@ public class DataTypeStringUtils {
             default:
                 try {
                     String valueAsString = objectMapper.writeValueAsString(replacement);
-                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(valueAsString));
+                    updatedReplacement = Matcher.quoteReplacement(valueAsString);
                 } catch (JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -258,6 +261,11 @@ public class DataTypeStringUtils {
                 }
         }
 
+        if (smartSubstitutionUtils != null) {
+            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement);
+        }
+
+        input = placeholderPattern.matcher(input).replaceFirst(updatedReplacement);
         return input;
     }
 
