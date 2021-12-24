@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { cloneDeep, debounce, isEmpty, sortBy } from "lodash";
+import { cloneDeep, debounce, isEmpty, maxBy, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -177,7 +177,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const schemaItem = this.findSchemaItem(index);
 
     if (schemaItem) {
-      const itemToDeletePath = `${propertyName}.${schemaItem.name}`;
+      const itemToDeletePath = `${propertyName}.${schemaItem.identifier}`;
 
       this.deleteProperties([itemToDeletePath]);
     }
@@ -212,6 +212,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const { widgetName } = widgetProperties;
     const schema: Schema = propertyValue;
     const existingKeys = Object.keys(schema);
+    const schemaItems = Object.values(schema);
+    const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
+    const lastSchemaItemPosition = lastSchemaItem?.position || -1;
     const nextFieldKey = getNextEntityName("customField", existingKeys);
     const schemaItem = SchemaParser.getSchemaItemFor(nextFieldKey, {
       currSourceData: "",
@@ -219,7 +222,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
       isCustomField: true,
     });
 
-    schemaItem.position = existingKeys.length;
+    schemaItem.position = lastSchemaItemPosition + 1;
 
     this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
   };

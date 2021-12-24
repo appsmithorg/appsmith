@@ -2,9 +2,9 @@ import {
   cloneDeep,
   difference,
   isEmpty,
-  maxBy,
   omit,
   pick,
+  sortBy,
   startCase,
 } from "lodash";
 import {
@@ -164,12 +164,25 @@ const getKeysFromSchema = (schema: Schema) => {
 };
 
 const applyPositions = (schema: Schema, newKeys?: string[]) => {
-  if (!newKeys) {
+  if (!newKeys?.length) {
     return;
   }
+
   const schemaItems = Object.values(schema);
-  const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
-  const lastSchemaItemPosition = lastSchemaItem?.position || -1;
+  const sortedSchemaItems = sortBy(schemaItems, ({ position }) => position);
+
+  // All the new schemaItems have a position of -1 by default, and on sort
+  // the are at the front of the array, for the next step we don't want
+  // to consider them as they will be dealt with in the next step.
+  sortedSchemaItems.splice(0, newKeys.length);
+
+  // This is to make all the items have contiguous positioning numbers
+  // Note: It won't change the actual ordering of the fields.
+  sortedSchemaItems.forEach(({ identifier }, index) => {
+    schema[identifier].position = index;
+  });
+
+  const lastSchemaItemPosition = sortedSchemaItems.length - 1;
 
   newKeys.forEach((newKey, index) => {
     schema[newKey].position = lastSchemaItemPosition + index + 1;
@@ -435,9 +448,7 @@ class SchemaParser {
       });
     });
 
-    if (newKeys.length) {
-      applyPositions(schema, newKeys);
-    }
+    applyPositions(schema, newKeys);
 
     return schema;
   };
