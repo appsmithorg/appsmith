@@ -523,7 +523,7 @@ export const migrateTableWidgetNumericColumnName = (currentDSL: DSLWidget) => {
             return path;
           }
           const firstPart = pathChunks[0] + "."; // "primaryColumns."
-          const lastPart = "." + pathChunks[pathChunks.length - 1]; // ".computedValue"
+          const lastPart = "." + pathChunks.pop(); // ".computedValue"
           const key = getSubstringBetweenTwoWords(
             path.key,
             firstPart,
