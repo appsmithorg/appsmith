@@ -646,6 +646,9 @@ export const ReduxActionTypes = {
   DELETE_ORG_SUCCESS: "DELETE_ORG_SUCCESS",
   SET_USER_CURRENT_GEO_LOCATION: "SET_USER_CURRENT_GEO_LOCATION",
   SET_DISCONNECTING_GIT_APPLICATION: "SET_DISCONNECTING_GIT_APPLICATION",
+  /* This action constants is for identifying the status of the updates of the entities */
+  ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
+  ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
