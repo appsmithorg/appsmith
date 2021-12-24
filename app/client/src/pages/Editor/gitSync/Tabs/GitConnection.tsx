@@ -36,6 +36,7 @@ import {
   remoteUrlInputValue,
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
+  setIsGitSyncModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import { emailValidator } from "components/ads/TextInput";
@@ -350,6 +351,7 @@ function GitConnection({ isImport }: Props) {
   }, [scrollWrapperRef]);
 
   const openDisconnectGitModal = useCallback(() => {
+    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(
       setDisconnectingGitApplication({
         id: curApplication?.id || "",
@@ -404,7 +406,7 @@ function GitConnection({ isImport }: Props) {
             />
             {isGitConnected && (
               <TooltipWrapper>
-                <TooltipComponent content="Revoke Access">
+                <TooltipComponent content="Disconnect Git">
                   <Icon
                     fillColor={Colors.DARK_GRAY}
                     hoverFillColor={Colors.ERROR_RED}

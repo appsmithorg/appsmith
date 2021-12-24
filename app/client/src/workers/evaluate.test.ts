@@ -1,4 +1,8 @@
-import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
+import evaluate, {
+  setupEvaluationEnvironment,
+  evaluateAsync,
+  isFunctionAsync,
+} from "workers/evaluate";
 import {
   DataTree,
   DataTreeWidget,
@@ -6,7 +10,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 
-describe("evaluate", () => {
+describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
     bottomRow: 0,
     isLoading: false,
@@ -58,7 +62,6 @@ describe("evaluate", () => {
     const response1 = evaluate("wrongJS", {}, {});
     expect(response1).toStrictEqual({
       result: undefined,
-      triggers: [],
       errors: [
         {
           ch: 1,
@@ -96,7 +99,6 @@ describe("evaluate", () => {
     const response2 = evaluate("{}.map()", {}, {});
     expect(response2).toStrictEqual({
       result: undefined,
-      triggers: [],
       errors: [
         {
           errorMessage: "TypeError: {}.map is not a function",
@@ -119,50 +121,11 @@ describe("evaluate", () => {
     const response = evaluate(js, dataTree, {});
     expect(response.result).toBe("value");
   });
-  it("gets triggers from a function", () => {
-    const js = "showAlert('message', 'info')";
-    const response = evaluate(js, dataTree, {}, undefined, undefined, true);
-    //this will be changed again in new implemenation for promises
-    const data = {
-      action: {
-        payload: {
-          executor: [
-            {
-              payload: { message: "message", style: "info" },
-              type: "SHOW_ALERT",
-            },
-          ],
-          then: [],
-        },
-        type: "PROMISE",
-      },
-      triggerReference: 0,
-    };
-    expect(response.result).toEqual(data);
-    expect(response.triggers).toStrictEqual([
-      {
-        type: "PROMISE",
-        payload: {
-          executor: [
-            {
-              type: "SHOW_ALERT",
-              payload: {
-                message: "message",
-                style: "info",
-              },
-            },
-          ],
-          then: [],
-        },
-      },
-    ]);
-  });
   it("disallows unsafe function calls", () => {
     const js = "setTimeout(() => {}, 100)";
     const response = evaluate(js, dataTree, {});
     expect(response).toStrictEqual({
       result: undefined,
-      triggers: [],
       errors: [
         {
           errorMessage: "TypeError: setTimeout is not a function",
@@ -202,20 +165,20 @@ describe("evaluate", () => {
   });
   it("handles TRIGGERS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("handles ANONYMOUS_FUNCTION with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, undefined, undefined, true);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("has access to this context", () => {
@@ -233,5 +196,84 @@ describe("evaluate", () => {
     const response = evaluate(js, dataTree, {}, { globalContext });
     expect(response.result).toBe("test");
     expect(response.errors).toHaveLength(0);
+  });
+});
+
+describe("evaluateAsync", () => {
+  it("runs and completes", async () => {
+    const js = "(() => new Promise((resolve) => { resolve(123) }))()";
+    self.postMessage = jest.fn();
+    await evaluateAsync(js, {}, "TEST_REQUEST", {});
+    expect(self.postMessage).toBeCalledWith({
+      requestId: "TEST_REQUEST",
+      responseData: {
+        finished: true,
+        result: { errors: [], result: 123, triggers: [] },
+      },
+      type: "PROCESS_TRIGGER",
+    });
+  });
+  it("runs and returns errors", async () => {
+    jest.restoreAllMocks();
+    const js = "(() => new Promise((resolve) => { randomKeyword }))()";
+    self.postMessage = jest.fn();
+    await evaluateAsync(js, {}, "TEST_REQUEST_1", {});
+    expect(self.postMessage).toBeCalledWith({
+      requestId: "TEST_REQUEST_1",
+      responseData: {
+        finished: true,
+        result: {
+          errors: [
+            {
+              errorMessage: expect.stringContaining(
+                "randomKeyword is not defined",
+              ),
+              errorType: "PARSE",
+              originalBinding: expect.stringContaining("Promise"),
+              raw: expect.stringContaining("Promise"),
+              severity: "error",
+            },
+          ],
+          triggers: [],
+          result: undefined,
+        },
+      },
+      type: "PROCESS_TRIGGER",
+    });
+  });
+});
+
+describe("isFunctionAsync", () => {
+  it("identifies async functions", () => {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const cases: Array<{ script: Function | string; expected: boolean }> = [
+      {
+        script: () => {
+          return 1;
+        },
+        expected: false,
+      },
+      {
+        script: () => {
+          return new Promise((resolve) => {
+            resolve(1);
+          });
+        },
+        expected: true,
+      },
+      {
+        script: "() => { showAlert('yo') }",
+        expected: true,
+      },
+    ];
+
+    for (const testCase of cases) {
+      let testFunc = testCase.script;
+      if (typeof testFunc === "string") {
+        testFunc = eval(testFunc);
+      }
+      const actual = isFunctionAsync(testFunc, {});
+      expect(actual).toBe(testCase.expected);
+    }
   });
 });
