@@ -929,4 +929,34 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testQueryParamsInDatasource() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "body";
+        actionConfig.setBody(requestBody);
+        actionConfig.setEncodeParamsToggle(true);
+
+        List<Property> queryParams = new ArrayList<>();
+        queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
+        dsConfig.setQueryParameters(queryParams);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
+                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
+                    assertEquals(expected_url, url.toString());
+                })
+                .verifyComplete();
+    }
 }

@@ -58,8 +58,9 @@ export const entityDefinitions: Record<string, unknown> = {
         "!doc": "The response meta of the action",
         "!type": "?",
       },
-      run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
-      clear: "fn() -> void",
+      run:
+        "fn(onSuccess: fn() -> void, onError: fn() -> void) -> +Promise[:t=[!0.<i>.:t]]",
+      clear: "fn() -> +Promise[:t=[!0.<i>.:t]]",
     };
   },
   AUDIO_WIDGET: {
@@ -469,35 +470,38 @@ export const GLOBAL_FUNCTIONS = {
   "!name": "DATA_TREE.APPSMITH.FUNCTIONS",
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
-    "!type": "fn(pageNameOrUrl: string, params: {}, target?: string) -> void",
+    "!type":
+      "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   showAlert: {
     "!doc": "Show a temporary notification style message to the user",
-    "!type": "fn(message: string, style: string) -> void",
+    "!type": "fn(message: string, style: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   showModal: {
     "!doc": "Open a modal",
-    "!type": "fn(modalName: string) -> void",
+    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   closeModal: {
     "!doc": "Close a modal",
-    "!type": "fn(modalName: string) -> void",
+    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   storeValue: {
     "!doc": "Store key value data locally",
-    "!type": "fn(key: string, value: any) -> void",
+    "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
   download: {
     "!doc": "Download anything as a file",
-    "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
+    "!type":
+      "fn(data: any, fileName: string, fileType?: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   copyToClipboard: {
     "!doc": "Copy text to clipboard",
-    "!type": "fn(data: string, options: object) -> void",
+    "!type": "fn(data: string, options: object) -> +Promise[:t=[!0.<i>.:t]]",
   },
   resetWidget: {
     "!doc": "Reset widget values",
-    "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
+    "!type":
+      "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
   },
   setInterval: {
     "!doc": "Execute triggers at a given interval",
