@@ -232,9 +232,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
         });
       dispatchDrop(draggedBlocksToUpdate);
     }
-    if (reflowedPositionsUpdatesWidgets.length) {
-      stopReflowing();
-    }
   };
 
   const dispatchDrop = (

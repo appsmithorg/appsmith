@@ -265,7 +265,6 @@ export const useCanvasDragging = (
         };
 
         const onFirstMoveOnCanvas = (e: any, over = false) => {
-          stopReflowing();
           if (
             !isResizing &&
             isDragging &&
@@ -637,17 +636,14 @@ export const useCanvasDragging = (
             };
           }
         };
+        const onMouseOver = (e: any) => onFirstMoveOnCanvas(e, true);
         const initializeListeners = () => {
           canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
           canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
           scrollParent?.addEventListener("scroll", updateCanvasStyles, false);
           scrollParent?.addEventListener("scroll", onScroll, false);
 
-          canvasRef.current?.addEventListener(
-            "mouseover",
-            (e) => onFirstMoveOnCanvas(e, true),
-            false,
-          );
+          canvasRef.current?.addEventListener("mouseover", onMouseOver, false);
           canvasRef.current?.addEventListener(
             "mouseout",
             resetCanvasState,
@@ -687,10 +683,7 @@ export const useCanvasDragging = (
           canvasRef.current?.removeEventListener("mouseup", onMouseUp);
           scrollParent?.removeEventListener("scroll", updateCanvasStyles);
           scrollParent?.removeEventListener("scroll", onScroll);
-          canvasRef.current?.removeEventListener(
-            "mouseover",
-            onFirstMoveOnCanvas,
-          );
+          canvasRef.current?.removeEventListener("mouseover", onMouseOver);
           canvasRef.current?.removeEventListener("mouseout", resetCanvasState);
           canvasRef.current?.removeEventListener(
             "mouseleave",
