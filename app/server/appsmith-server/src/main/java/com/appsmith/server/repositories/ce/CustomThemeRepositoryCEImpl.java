@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.QTheme;
+import com.appsmith.server.domainsm .QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
