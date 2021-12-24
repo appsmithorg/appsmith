@@ -11,9 +11,15 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.startRoutesForDatasource();
   });
 
+  afterEach(function() {
+    if (this.currentTest.state === "failed") {
+      Cypress.runner.stop();
+    }
+  });
+
   // afterEach(() => {
   //   if (queryName)
-  //     cy.deleteEntitybyName(queryName);
+  //     cy.actionContextMenuByEntityName(queryName);
   // });
 
   it("1. Creates a new Amazon S3 datasource", function() {
@@ -431,7 +437,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "response.body.responseMeta.status",
       409,
     );
-    cy.deleteEntitybyName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
   });
 
   it("9. Bug 9069, 9201, 6975, 9922: Upload/Update query is failing in S3 crud pages", function() {
@@ -512,26 +518,27 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "not.exist",
     ); //verify Deletion of file is success from UI also
 
-    //Upload: 2 - Bug verification 9201
-    fixturePath = "Vase.jpeg";
-    cy.wait(3000);
-    cy.clickButton("Select Files"); //1 files selected
-    cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
-    cy.wait(2000);
-    cy.get(generatePage.uploadBtn).click();
-    cy.wait(1000);
-    cy.clickButton("Upload");
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.data.isExecutionSuccess",
-      true,
-    );
-
-    cy.get(commonlocators.toastAction)
-      .should("have.length", 1)
-      .should("contain.text", "File Uploaded"); //Verifies bug # 6975
-
     //Commenting below since bug # 9922 is open
+
+    // //Upload: 2 - Bug verification 9201
+    // fixturePath = "Vase.jpeg";
+    // cy.wait(3000);
+    // cy.clickButton("Select Files"); //1 files selected
+    // cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
+    // cy.wait(2000);
+    // cy.get(generatePage.uploadBtn).click();
+    // cy.wait(1000);
+    // cy.clickButton("Upload");
+    // cy.wait("@postExecute").should(
+    //   "have.nested.property",
+    //   "response.body.data.isExecutionSuccess",
+    //   true,
+    // );
+
+    // cy.get(commonlocators.toastAction)
+    //   .should("have.length", 1)
+    //   .should("contain.text", "File Uploaded"); //Verifies bug # 6975
+
     // //Verifying Searching File from UI
     // cy.xpath(queryLocators.searchFilefield)
     //   .clear()
@@ -563,7 +570,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // ); //verify Deletion of file is success from UI also
 
     //Deleting the page:
-    cy.deleteEntitybyName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
   });
 
   it("10. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
@@ -621,7 +628,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
-    cy.deleteEntitybyName("Table1");
+    cy.actionContextMenuByEntityName("Table1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
 

@@ -3392,25 +3392,33 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
-  .scrollIntoView()
-  .click({force: true});
-});
-
-Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
-  cy.xpath(
-    "//div[text()='" +
-      entityNameinLeftSidebar +
-      "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
-  )
-    .first()
+    .scrollIntoView()
     .click({ force: true });
-
-  cy.xpath(generatePage.deleteMenuItem).click();
-
-  cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
-    "not.exist",
-  );
 });
+
+Cypress.Commands.add(
+  "actionContextMenuByEntityName",
+  (entityNameinLeftSidebar, action = "Delete") => {
+    cy.xpath(
+      "//div[text()='" +
+        entityNameinLeftSidebar +
+        "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
+    )
+      .first()
+      .click({ force: true });
+
+    cy.xpath(
+      "//div[text()='" +
+        action +
+        "']/parent::a[contains(@class, 'single-select')]",
+    ).click();
+
+    if (action == "Delete")
+      cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
+        "not.exist",
+      );
+  },
+);
 
 Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
   cy.xpath(
