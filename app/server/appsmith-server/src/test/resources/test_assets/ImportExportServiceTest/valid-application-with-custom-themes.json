@@ -630,13 +630,13 @@
     ]
   },
   "editModeTheme": {
-    "name": "Classic",
+    "name": "Custom edit theme",
     "new": true,
-    "isSystemTheme": true
+    "isSystemTheme": false
   },
   "publishedTheme": {
-    "name": "Classic",
+    "name": "Custom published theme",
     "new": true,
-    "isSystemTheme": true
+    "isSystemTheme": false
   }
 }
