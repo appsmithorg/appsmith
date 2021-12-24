@@ -8,7 +8,7 @@ import * as log from "loglevel";
 import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   evaluateArgumentSaga,
-  evaluateDynamicTrigger,
+  evaluateAndExecuteDynamicTrigger,
   evaluateSnippetSaga,
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
@@ -19,7 +19,6 @@ import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
 import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
-import executePromiseSaga from "sagas/ActionExecution/PromiseActionSaga";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -32,7 +31,8 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
   logActionExecutionError,
-  TriggerEvaluationError,
+  TriggerFailureError,
+  UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import {
   clearIntervalSaga,
@@ -53,24 +53,22 @@ export type TriggerMeta = {
  * The controller saga that routes different trigger effects to its executor sagas
  * @param trigger The trigger information with trigger type
  * @param eventType Widget/Platform event which triggered this action
- * @param triggerMeta Meta information about the trigger to log errors
+ * @param triggerMeta Where the trigger originated from
  */
 export function* executeActionTriggers(
   trigger: ActionDescription,
   eventType: EventType,
   triggerMeta: TriggerMeta,
-) {
+): any {
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
   switch (trigger.type) {
-    case ActionTriggerType.PROMISE:
-      yield call(executePromiseSaga, trigger.payload, eventType, triggerMeta);
-      break;
     case ActionTriggerType.RUN_PLUGIN_ACTION:
       response = yield call(
         executePluginActionTriggerSaga,
         trigger.payload,
         eventType,
+        triggerMeta,
       );
       break;
     case ActionTriggerType.CLEAR_PLUGIN_ACTION:
@@ -80,7 +78,7 @@ export function* executeActionTriggers(
       yield call(navigateActionSaga, trigger.payload);
       break;
     case ActionTriggerType.SHOW_ALERT:
-      yield call(showAlertSaga, trigger.payload, triggerMeta);
+      yield call(showAlertSaga, trigger.payload);
       break;
     case ActionTriggerType.SHOW_MODAL_BY_NAME:
       yield call(openModalSaga, trigger);
@@ -92,19 +90,19 @@ export function* executeActionTriggers(
       yield call(storeValueLocally, trigger.payload);
       break;
     case ActionTriggerType.DOWNLOAD:
-      yield call(downloadSaga, trigger.payload, triggerMeta);
+      yield call(downloadSaga, trigger.payload);
       break;
     case ActionTriggerType.COPY_TO_CLIPBOARD:
-      yield call(copySaga, trigger.payload, triggerMeta);
+      yield call(copySaga, trigger.payload);
       break;
     case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
-      yield call(resetWidgetActionSaga, trigger.payload, triggerMeta);
+      yield call(resetWidgetActionSaga, trigger.payload);
       break;
     case ActionTriggerType.SET_INTERVAL:
       yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
       break;
     case ActionTriggerType.CLEAR_INTERVAL:
-      yield call(clearIntervalSaga, trigger.payload, triggerMeta);
+      yield call(clearIntervalSaga, trigger.payload);
       break;
     case ActionTriggerType.GET_CURRENT_LOCATION:
       response = yield call(
@@ -147,23 +145,13 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     throw new Error("Executing undefined action");
   }
 
-  const triggers = yield call(
-    evaluateDynamicTrigger,
+  yield call(
+    evaluateAndExecuteDynamicTrigger,
     dynamicString,
+    type,
+    { source, triggerPropertyName },
     responseData,
   );
-
-  log.debug({ triggers });
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map((trigger: ActionDescription) =>
-        call(executeActionTriggers, trigger, type, {
-          source,
-          triggerPropertyName,
-        }),
-      ),
-    );
-  }
 }
 
 function* initiateActionTriggerExecution(
@@ -179,7 +167,7 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
-    if (e instanceof TriggerEvaluationError) {
+    if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
       logActionExecutionError(e.message, source, triggerPropertyName);
     }
     // handle errors here
