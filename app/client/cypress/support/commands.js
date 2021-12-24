@@ -6,7 +6,9 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 
 const dayjs = require("dayjs");
-
+const {
+  addMatchImageSnapshotCommand,
+} = require("cypress-image-snapshot/command");
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
@@ -3833,3 +3835,7 @@ Cypress.Commands.add("isInViewport", (element) => {
 
 //   return originalFn(element, clearedText, options);
 // });
+addMatchImageSnapshotCommand({
+  failureThreshold: 0.2, // threshold for entire image
+  failureThresholdType: "percent",
+});

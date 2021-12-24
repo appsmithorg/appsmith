@@ -482,6 +482,12 @@ jobs:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
+      # Upload the snapshots as artifacts for layout validation
+      - uses: actions/upload-artifact@v1
+        with:
+          name: cypress-snapshots-visualRegression
+          path: app/client/cypress/snapshots/
+
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v2
