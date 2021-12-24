@@ -114,7 +114,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
   }, [props.bottomRow, props.canExtend]);
   useEffect(() => {
-    if (!isDragging || !isResizing) {
+    if (!isDragging && !isResizing) {
       // bottom row of canvas can increase by any number as user moves/resizes any widget towards the bottom of the canvas
       // but canvas height is not lost when user moves/resizes back top.
       // it is done that way to have a pleasant building experience.
