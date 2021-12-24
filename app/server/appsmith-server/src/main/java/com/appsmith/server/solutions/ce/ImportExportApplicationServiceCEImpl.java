@@ -132,7 +132,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return pluginRepository
                 .findAll()
                 .map(plugin -> {
-                    pluginMap.put(plugin.getId(), plugin.getPackageName());
+                    pluginMap.put(plugin.getId(), plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName());
                     return plugin;
                 })
                 .then(applicationMono)
@@ -452,7 +452,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         return pluginRepository.findAll()
                 .map(plugin -> {
-                    pluginMap.put(plugin.getPackageName(), plugin.getId());
+                    final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
+                    pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
                 .then(organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
