@@ -332,6 +332,21 @@ class InputComponent extends React.Component<
     }
   }
 
+  componentDidUpdate(prevProps: InputComponentProps) {
+    if (
+      this.props.inputType === InputTypes.CURRENCY &&
+      this.props.inputType !== prevProps.inputType
+    ) {
+      const element: any = document.querySelectorAll(
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+      );
+      if (element !== null) {
+        element[0].addEventListener("click", this.onIncrementButtonClick);
+        element[1].addEventListener("click", this.onDecrementButtonClick);
+      }
+    }
+  }
+
   componentWillUnmount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const element: any = document.querySelectorAll(
