@@ -225,7 +225,7 @@ const InputWrapper = styled.div<{
       border: 1.2px solid
       ${
         props.isValid
-          ? props.theme.colors.info.main
+          ? "var(--appsmith-input-focus-border-color)"
           : props.theme.colors.danger.main
       };
       `

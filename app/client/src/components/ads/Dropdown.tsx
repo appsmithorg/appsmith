@@ -226,7 +226,9 @@ const Selected = styled.div<{
       ? `border: 1px solid ${props.theme.colors.danger.main}`
       : props.isOpen
       ? `border: 1px solid ${
-          !!props.bgColor ? props.bgColor : props.theme.colors.info.main
+          !!props.bgColor
+            ? props.bgColor
+            : "var(--appsmith-input-focus-border-color)"
         }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`

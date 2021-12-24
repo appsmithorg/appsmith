@@ -1,14 +1,11 @@
-import {
-  DataTree,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+// Workers do not have access to log.error
+/* eslint-disable no-console */
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
-  EvaluationError,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -19,59 +16,69 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
-import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
+import evaluate, {
+  evaluateAsync,
+  setupEvaluationEnvironment,
+} from "workers/evaluate";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
-import * as log from "loglevel";
 
 const CANVAS = "canvas";
 
 const ctx: Worker = self as any;
 
-let dataTreeEvaluator: DataTreeEvaluator | undefined;
+export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
-  fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
+  fn: (
+    message: EVAL_WORKER_ACTIONS,
+    requestData: any,
+    requestId: string,
+  ) => any,
 ) {
   return (e: MessageEvent) => {
     const startTime = performance.now();
     const { method, requestData, requestId } = e.data;
-    const responseData = fn(method, requestData);
-    const endTime = performance.now();
-    try {
-      ctx.postMessage({
-        requestId,
-        responseData,
-        timeTaken: (endTime - startTime).toFixed(2),
-      });
-    } catch (e) {
-      log.error(e);
-      // we dont want to log dataTree because it is huge.
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { dataTree, ...rest } = requestData;
-      ctx.postMessage({
-        requestId,
-        responseData: {
-          errors: [
-            {
-              type: EvalErrorTypes.CLONE_ERROR,
-              message: e,
-              context: JSON.stringify(rest),
+    if (method) {
+      const responseData = fn(method, requestData, requestId);
+      if (responseData) {
+        const endTime = performance.now();
+        try {
+          ctx.postMessage({
+            requestId,
+            responseData,
+            timeTaken: (endTime - startTime).toFixed(2),
+          });
+        } catch (e) {
+          console.error(e);
+          // we dont want to log dataTree because it is huge.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { dataTree, ...rest } = requestData;
+          ctx.postMessage({
+            requestId,
+            responseData: {
+              errors: [
+                {
+                  type: EvalErrorTypes.CLONE_ERROR,
+                  message: e,
+                  context: JSON.stringify(rest),
+                },
+              ],
             },
-          ],
-        },
-        timeTaken: (endTime - startTime).toFixed(2),
-      });
+            timeTaken: (endTime - startTime).toFixed(2),
+          });
+        }
+      }
     }
   };
 }
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method, requestData: any) => {
+  messageEventListener((method, requestData: any, requestId) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.SETUP: {
         setupEvaluationEnvironment();
@@ -134,7 +141,7 @@ ctx.addEventListener(
               type: EvalErrorTypes.UNKNOWN_ERROR,
               message: e.message,
             });
-            log.error(e);
+            console.error(e);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
@@ -167,51 +174,30 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const {
-          callbackData,
-          dataTree,
-          dynamicTrigger,
-          fullPropertyPath,
-        } = requestData;
+        const { callbackData, dataTree, dynamicTrigger } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
         dataTreeEvaluator.updateDataTree(dataTree);
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-        const {
-          errors: evalErrors,
-          result,
-          triggers,
-        }: {
-          errors: EvaluationError[];
-          triggers: Array<any>;
-          result: any;
-        } = dataTreeEvaluator.getDynamicValue(
+
+        dataTreeEvaluator.evaluateTriggers(
           dynamicTrigger,
           evalTree,
+          requestId,
           resolvedFunctions,
-          EvaluationSubstitutionType.TEMPLATE,
-          true,
-          undefined,
           callbackData,
-          fullPropertyPath,
         );
-        const cleanTriggers = removeFunctions(triggers);
-        const cleanResult = removeFunctions(result);
-        // Transforming eval errors into eval trigger errors. Since trigger
-        // errors occur less, we want to treat it separately
-        const errors = evalErrors
-          .filter(
-            (error) => error.errorType === PropertyEvaluationErrorType.PARSE,
-          )
-          .map((error) => ({
-            ...error,
-            message: error.errorMessage,
-            type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
-          }));
-        return { triggers: cleanTriggers, errors, result: cleanResult };
+
+        break;
       }
+      case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
+        /**
+         * This action will not be processed here. This is handled in the eval trigger sub steps
+         * @link promisifyAction
+         **/
+        break;
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
         return true;
@@ -252,31 +238,29 @@ ctx.addEventListener(
         replayMap[entityId ?? CANVAS].clearLogs();
         return replayResult;
       }
-      case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {
-        const { action, collectionName } = requestData;
+      case EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS: {
+        const { functionCall } = requestData;
 
         if (!dataTreeEvaluator) {
           return true;
         }
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-        const path = collectionName + "." + action.name + "()";
-        const { result } = evaluate(
-          path,
+        const { errors, result } = evaluate(
+          functionCall,
           evalTree,
           resolvedFunctions,
           undefined,
-          undefined,
-          true,
         );
-        return result;
+        return { errors, result };
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
         const { expression, isTrigger } = requestData;
         const evalTree = dataTreeEvaluator?.evalTree;
         if (!evalTree) return {};
+        // TODO find a way to do this for snippets
         return isTrigger
-          ? evaluate(expression, evalTree, {}, undefined, [], true)
+          ? evaluateAsync(expression, evalTree, "SNIPPET", {})
           : evaluate(expression, evalTree, {});
       case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
         const { entity, entityId, entityType } = requestData;
@@ -292,7 +276,7 @@ ctx.addEventListener(
         self.evaluationVersion = version || 1;
         break;
       default: {
-        log.error("Action not registered on worker", method);
+        console.error("Action not registered on worker", method);
       }
     }
   }),
