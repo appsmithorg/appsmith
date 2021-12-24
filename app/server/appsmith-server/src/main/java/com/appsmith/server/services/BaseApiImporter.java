@@ -1,10 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.dtos.ActionDTO;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.services.ce.BaseApiImporterCE;
 
-public abstract class BaseApiImporter implements ApiImporter {
-
-    public abstract Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId);
+public abstract class BaseApiImporter extends BaseApiImporterCE implements ApiImporter {
 
 }

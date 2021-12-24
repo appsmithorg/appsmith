@@ -1,10 +1,11 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.apache.commons.validator.routines.DateValidator;
 import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
@@ -26,9 +26,12 @@ import reactor.core.Exceptions;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,25 +58,6 @@ public class DataTypeStringUtils {
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
 
-    public static class DateValidatorUsingDateFormat extends DateValidator {
-        private String dateFormat;
-
-        public DateValidatorUsingDateFormat(String dateFormat) {
-            this.dateFormat = dateFormat;
-        }
-
-        @Override
-        public boolean isValid(String dateStr) {
-            DateFormat sdf = new SimpleDateFormat(this.dateFormat);
-            sdf.setLenient(false);
-            try {
-                sdf.parse(dateStr);
-            } catch (ParseException e) {
-                return false;
-            }
-            return true;
-        }
-    }
 
     public static DataType stringToKnownDataTypeConverter(String input) {
 
@@ -132,20 +116,37 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        DateValidator timestampValidator = new DateValidatorUsingDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (timestampValidator.isValid(input)) {
+        try {
+            final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
+//                    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
+                    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    .toFormatter();
+            LocalDateTime.parse(input, dateTimeFormatter);
             return DataType.TIMESTAMP;
+        } catch (DateTimeParseException ex) {
+            // Not timestamp
         }
 
-        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
-        if (dateValidator.isValid(input)) {
+        try {
+            final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
+                    .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
+                    .toFormatter();
+            LocalDate.parse(input, dateFormatter);
             return DataType.DATE;
+        } catch (DateTimeParseException ex) {
+            // Not date
         }
 
-        DateValidator timeValidator = new DateValidatorUsingDateFormat("hh:mm:ss");
-        if (timeValidator.isValid(input)) {
+        try {
+            final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder()
+                    .appendOptional(DateTimeFormatter.ISO_LOCAL_TIME)
+                    .toFormatter();
+            LocalTime.parse(input, timeFormatter);
             return DataType.TIME;
+        } catch (DateTimeParseException ex) {
+            // Not time
         }
+
 
         try (JsonReader reader = new JsonReader(new StringReader(input))) {
             strictGsonObjectAdapter.read(reader);
@@ -188,13 +189,15 @@ public class DataTypeStringUtils {
 
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
                                                                   String replacement,
-                                                                  List<Map.Entry<String, String>> insertedParams) {
+                                                                  List<Map.Entry<String, String>> insertedParams,
+                                                                  SmartSubstitutionInterface smartSubstitutionUtils) {
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
 
         Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
 
+        String updatedReplacement;
         switch (dataType) {
             case INTEGER:
             case LONG:
@@ -202,12 +205,12 @@ public class DataTypeStringUtils {
             case DOUBLE:
             case NULL:
             case BOOLEAN:
-                input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(replacement));
+                updatedReplacement = String.valueOf(replacement);
                 break;
             case ARRAY:
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
-                    input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
+                    updatedReplacement = String.valueOf(objectMapper.writeValueAsString(jsonArray));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -223,7 +226,7 @@ public class DataTypeStringUtils {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
                     String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
                     // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
-                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
+                    updatedReplacement = Matcher.quoteReplacement(jsonString);
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -235,7 +238,7 @@ public class DataTypeStringUtils {
                 }
                 break;
             case BSON:
-                input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
+                updatedReplacement = Matcher.quoteReplacement(replacement);
                 break;
             case DATE:
             case TIME:
@@ -246,7 +249,7 @@ public class DataTypeStringUtils {
             default:
                 try {
                     String valueAsString = objectMapper.writeValueAsString(replacement);
-                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(valueAsString));
+                    updatedReplacement = Matcher.quoteReplacement(valueAsString);
                 } catch (JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -258,6 +261,11 @@ public class DataTypeStringUtils {
                 }
         }
 
+        if (smartSubstitutionUtils != null) {
+            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement);
+        }
+
+        input = placeholderPattern.matcher(input).replaceFirst(updatedReplacement);
         return input;
     }
 

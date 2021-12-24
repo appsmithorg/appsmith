@@ -7,6 +7,7 @@ import {
   select,
   spawn,
   take,
+  delay,
 } from "redux-saga/effects";
 
 import {
@@ -51,13 +52,6 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import {
-  openPropertyPaneSaga,
-  postUndoRedoSaga,
-  UndoRedoPayload,
-} from "./ReplaySaga";
-
-import { updateAndSaveLayout } from "actions/pageActions";
 import { get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
@@ -78,12 +72,11 @@ import {
 } from "constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
-
-import AnalyticsUtil from "../utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   logActionExecutionError,
   UncaughtPromiseError,
@@ -220,7 +213,19 @@ export function* evaluateAndExecuteDynamicTrigger(
           requestData.result.errors[0].errorMessage,
         );
       }
-      // This is returned to be stored in the data property of async js object actions
+      // It is possible to get a few triggers here if the user
+      // still uses the old way of action runs and not promises. For that we
+      // need to manually execute these triggers outside the promise flow
+      const { triggers } = requestData.result;
+      if (triggers && triggers.length) {
+        log.debug({ triggers });
+        yield all(
+          triggers.map((trigger: ActionDescription) =>
+            call(executeActionTriggers, trigger, eventType, triggerMeta),
+          ),
+        );
+      }
+      // Return value of a promise is returned
       return requestData.result;
     }
     yield call(evalErrorHandler, requestData.errors);
@@ -289,55 +294,6 @@ export function* clearEvalCache() {
   yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
 
   return true;
-}
-
-/**
- * saga that listen for UNDO_REDO_OPERATION
- * it won't do anything in case of sniping/comment mode
- *
- * @param action
- * @returns
- */
-export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode: boolean = yield select(commentModeSelector);
-  const isSnipingMode: boolean = yield select(snipingModeSelector);
-
-  // if the app is in snipping or comments mode, don't do anything
-  if (isCommentMode || isSnipingMode) return;
-  try {
-    const workerResponse: any = yield call(
-      worker.request,
-      action.payload.operation,
-      {},
-    );
-
-    // if there is no change, then don't do anything
-    if (!workerResponse) return;
-
-    const {
-      event,
-      logs,
-      paths,
-      replay,
-      replayWidgetDSL,
-      timeTaken,
-    } = workerResponse;
-
-    logs && logs.forEach((evalLog: any) => log.debug(evalLog));
-
-    const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
-
-    AnalyticsUtil.logEvent(event, { paths, timeTaken });
-
-    if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-
-    yield put(updateAndSaveLayout(replayWidgetDSL, false, false));
-
-    if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
-  } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
-  }
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {
@@ -584,6 +540,35 @@ export function* evaluateArgumentSaga(action: any) {
     log.error(e);
     Sentry.captureException(e);
   }
+}
+
+export function* updateReplayEntitySaga(
+  actionPayload: ReduxAction<{
+    entityId: string;
+    entity: Replayable;
+    entityType: ENTITY_TYPE;
+  }>,
+) {
+  //Delay updates to replay object to not persist every keystroke
+  yield delay(REPLAY_DELAY);
+  const { entity, entityId, entityType } = actionPayload.payload;
+  const workerResponse = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
+    {
+      entityId,
+      entity,
+      entityType,
+    },
+  );
+  return workerResponse;
+}
+
+export function* workerComputeUndoRedo(operation: string, entityId: string) {
+  const workerResponse: any = yield call(worker.request, operation, {
+    entityId,
+  });
+  return workerResponse;
 }
 
 export function* setAppVersionOnWorkerSaga(action: {

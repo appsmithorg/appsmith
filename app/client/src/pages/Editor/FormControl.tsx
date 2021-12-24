@@ -20,7 +20,10 @@ function FormControl(props: FormControlProps) {
   if (hidden) return null;
 
   return (
-    <div className={`t--form-control-${props.config.controlType}`}>
+    <div
+      className={`t--form-control-${props.config.controlType}`}
+      data-replay-id={btoa(props.config.configProperty)}
+    >
       {FormControlFactory.createControl(
         props.config,
         props.formName,

@@ -17,6 +17,7 @@ export const CONFIG = {
     chartName: "Sales Report",
     allowScroll: false,
     version: 1,
+    animateLoading: true,
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",

@@ -24,8 +24,12 @@ describe("Add functions", () => {
       logBlackList: {},
     },
   };
-  const dataTreeWithFunctions = createGlobalData(dataTree, {});
-  self.REQUEST_ID = "EVAL_TRIGGER";
+  self.TRIGGER_COLLECTOR = [];
+  const dataTreeWithFunctions = createGlobalData(
+    dataTree,
+    {},
+    { requestId: "EVAL_TRIGGER" },
+  );
 
   beforeEach(() => {
     workerEventMock.mockReset();
@@ -37,7 +41,6 @@ describe("Add functions", () => {
     const onSuccess = () => "success";
     const onError = () => "failure";
     const actionParams = { param1: "value1" };
-    self.TRIGGER_COLLECTOR = [];
 
     workerEventMock.mockReturnValue({
       data: {
@@ -312,31 +315,37 @@ describe("Add functions", () => {
     const callback = () => "test";
     const interval = 5000;
     const id = "myInterval";
-    self.TRIGGER_COLLECTOR = [];
 
     expect(dataTreeWithFunctions.setInterval(callback, interval, id)).toBe(
       undefined,
     );
-    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
-      payload: {
-        callback: 'function () { return "test"; }',
-        id: "myInterval",
-        interval: 5000,
-      },
-      type: "SET_INTERVAL",
-    });
+    expect(self.TRIGGER_COLLECTOR).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: {
+            callback: 'function () { return "test"; }',
+            id: "myInterval",
+            interval: 5000,
+          },
+          type: "SET_INTERVAL",
+        }),
+      ]),
+    );
   });
 
   it("clearInterval works", () => {
     const id = "myInterval";
-    self.TRIGGER_COLLECTOR = [];
 
     expect(dataTreeWithFunctions.clearInterval(id)).toBe(undefined);
-    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
-      payload: {
-        id: "myInterval",
-      },
-      type: "CLEAR_INTERVAL",
-    });
+    expect(self.TRIGGER_COLLECTOR).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: {
+            id: "myInterval",
+          },
+          type: "CLEAR_INTERVAL",
+        }),
+      ]),
+    );
   });
 });

@@ -180,11 +180,18 @@ export class GracefulWorkerService {
      * We create a unique channel to wait for a response of this specific request.
      */
     const workerRequestId = `${method}__${_.uniqueId()}`;
+    // The worker channel is the main channel
+    // where the web worker messages will get posted
     const workerChannel = channel();
-    const mainThreadRequestChannel = channel();
-    const mainThreadResponseChannel = channel();
     this._channels.set(workerRequestId, workerChannel);
+    // The main thread will listen to the
+    // request channel where it will get worker messages
+    const mainThreadRequestChannel = channel();
+    // The main thread will respond back on the
+    // response channel which will be relayed to the worker
+    const mainThreadResponseChannel = channel();
 
+    // We spawn both the main thread request and response handler
     yield spawn(
       this.duplexRequestHandler,
       workerChannel,
@@ -198,12 +205,14 @@ export class GracefulWorkerService {
       mainThreadResponseChannel,
     );
 
+    // And post the first message to the worker
     this._evaluationWorker.postMessage({
       method,
       requestData,
       requestId: workerRequestId,
     });
 
+    // Returning these channels to the main thread so that they can listen and post on it
     return {
       responseChannel: mainThreadResponseChannel,
       requestChannel: mainThreadRequestChannel,
@@ -219,12 +228,15 @@ export class GracefulWorkerService {
     try {
       let keepAlive = true;
       while (keepAlive) {
+        // Wait for a message from the worker
         const workerResponse = yield take(workerChannel);
         const { responseData } = workerResponse;
-        // process request
+        // post that message to the request channel so the main thread can read it
         requestChannel.put({ requestData: responseData });
+        // If we get a finished flag, the worker is requesting to end the request
         if (responseData.finished) {
           keepAlive = false;
+          // Relay the finished flag to the response channel as well
           responseChannel.put({
             finished: true,
           });
@@ -247,7 +259,9 @@ export class GracefulWorkerService {
     try {
       let keepAlive = true;
       while (keepAlive) {
+        // Wait for the main thread to respond back after a request
         const response = yield take(responseChannel);
+        // If we get a finished flag, the worker is requesting to end the request
         if (response.finished) {
           keepAlive = false;
           continue;
@@ -261,6 +275,7 @@ export class GracefulWorkerService {
     } catch (e) {
       log.error(e);
     } finally {
+      // clean up everything
       responseChannel.close();
       workerChannel.close();
       this._channels.delete(workerRequestId);

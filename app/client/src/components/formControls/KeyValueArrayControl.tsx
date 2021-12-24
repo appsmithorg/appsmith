@@ -93,7 +93,10 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
         }
         return (
           <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
-            <div style={{ width: "50vh" }}>
+            <div
+              data-replay-id={btoa(`${field}.${keyName[1]}`)}
+              style={{ width: "50vh" }}
+            >
               <FormLabel>
                 {extraData && extraData[0].label} {isRequired && "*"}
               </FormLabel>
@@ -110,7 +113,10 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
                   {extraData && extraData[1].label} {isRequired && "*"}
                 </FormLabel>
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div style={{ marginRight: 14, width: 72 }}>
+                  <div
+                    data-replay-id={btoa(`${field}.${valueName[1]}`)}
+                    style={{ marginRight: 14, width: 72 }}
+                  >
                     <StyledTextField
                       name={`${field}.${valueName[1]}`}
                       placeholder={

@@ -19,6 +19,7 @@ export const CONFIG = {
     thickness: 2,
     isVisible: true,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

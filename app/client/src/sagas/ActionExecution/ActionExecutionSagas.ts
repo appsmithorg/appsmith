@@ -54,6 +54,11 @@ import { JSAction, JSCollection } from "entities/JSCollection";
 import { getJSCollection } from "selectors/entitiesSelector";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { confirmRunActionSaga } from "sagas/ActionExecution/PluginActionSaga";
+import {
+  getCurrentLocationSaga,
+  stopWatchCurrentLocation,
+  watchCurrentLocation,
+} from "sagas/ActionExecution/GetCurrentLocationSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -115,6 +120,27 @@ export function* executeActionTriggers(
     case ActionTriggerType.CLEAR_INTERVAL:
       yield call(clearIntervalSaga, trigger.payload);
       break;
+    case ActionTriggerType.GET_CURRENT_LOCATION:
+      response = yield call(
+        getCurrentLocationSaga,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
+      break;
+
+    case ActionTriggerType.WATCH_CURRENT_LOCATION:
+      response = yield call(
+        watchCurrentLocation,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
+      break;
+
+    case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
+      response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
+      break;
     default:
       log.error("Trigger type unknown", trigger);
       throw Error("Trigger type unknown");
@@ -135,23 +161,13 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     throw new Error("Executing undefined action");
   }
 
-  const response = yield call(
+  yield call(
     evaluateAndExecuteDynamicTrigger,
     dynamicString,
     type,
     { source, triggerPropertyName },
     responseData,
   );
-  if (response.triggers && response.triggers.length) {
-    yield all(
-      response.triggers.map((trigger: ActionDescription) =>
-        call(executeActionTriggers, trigger, type, {
-          source,
-          triggerPropertyName,
-        }),
-      ),
-    );
-  }
 }
 
 function* initiateActionTriggerExecution(

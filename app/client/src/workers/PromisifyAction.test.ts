@@ -1,15 +1,21 @@
 import { createGlobalData } from "workers/evaluate";
 import _ from "lodash";
+jest.mock("./evaluation.worker.ts", () => {
+  return {
+    dataTreeEvaluator: {
+      evalTree: {},
+      resolvedFunctions: {},
+    },
+  };
+});
 
 describe("promise execution", () => {
   const postMessageMock = jest.fn();
-  const dataTreeWithFunctions = createGlobalData({}, {});
-  let requestId: string;
+  const requestId = _.uniqueId("TEST_REQUEST");
+  const dataTreeWithFunctions = createGlobalData({}, {}, { requestId });
 
   beforeEach(() => {
     self.ALLOW_ASYNC = true;
-    requestId = _.uniqueId("TEST_REQUEST");
-    self.REQUEST_ID = requestId;
     self.postMessage = postMessageMock;
   });
   afterAll(() => {

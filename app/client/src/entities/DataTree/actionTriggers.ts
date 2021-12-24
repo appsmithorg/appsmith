@@ -14,21 +14,27 @@ export enum ActionTriggerType {
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
   SET_INTERVAL = "SET_INTERVAL",
   CLEAR_INTERVAL = "CLEAR_INTERVAL",
+  GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
+  WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
+  STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
-  CLEAR_INTERVAL: "clearInterval",
-  CLEAR_PLUGIN_ACTION: "action.clear",
-  CLOSE_MODAL: "closeModal",
-  COPY_TO_CLIPBOARD: "copyToClipboard",
-  DOWNLOAD: "download",
-  NAVIGATE_TO: "navigateTo",
-  RESET_WIDGET_META_RECURSIVE_BY_NAME: "resetWidget",
-  RUN_PLUGIN_ACTION: "action.run",
-  SET_INTERVAL: "setInterval",
-  SHOW_ALERT: "showAlert",
-  SHOW_MODAL_BY_NAME: "showModal",
-  STORE_VALUE: "storeValue",
+  [ActionTriggerType.CLEAR_INTERVAL]: "clearInterval",
+  [ActionTriggerType.CLEAR_PLUGIN_ACTION]: "action.clear",
+  [ActionTriggerType.CLOSE_MODAL]: "closeModal",
+  [ActionTriggerType.COPY_TO_CLIPBOARD]: "copyToClipboard",
+  [ActionTriggerType.DOWNLOAD]: "download",
+  [ActionTriggerType.NAVIGATE_TO]: "navigateTo",
+  [ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME]: "resetWidget",
+  [ActionTriggerType.RUN_PLUGIN_ACTION]: "action.run",
+  [ActionTriggerType.SET_INTERVAL]: "setInterval",
+  [ActionTriggerType.SHOW_ALERT]: "showAlert",
+  [ActionTriggerType.SHOW_MODAL_BY_NAME]: "showModal",
+  [ActionTriggerType.STORE_VALUE]: "storeValue",
+  [ActionTriggerType.GET_CURRENT_LOCATION]: "getCurrentLocation",
+  [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
+  [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
 };
 
 export type RunPluginActionDescription = {
@@ -125,6 +131,33 @@ export type ClearIntervalDescription = {
   };
 };
 
+type GeolocationOptions = {
+  maximumAge?: number;
+  timeout?: number;
+  enableHighAccuracy?: boolean;
+};
+
+type GeolocationPayload = {
+  onSuccess?: string;
+  onError?: string;
+  options?: GeolocationOptions;
+};
+
+export type GetCurrentLocationDescription = {
+  type: ActionTriggerType.GET_CURRENT_LOCATION;
+  payload: GeolocationPayload;
+};
+
+export type WatchCurrentLocationDescription = {
+  type: ActionTriggerType.WATCH_CURRENT_LOCATION;
+  payload: GeolocationPayload;
+};
+
+export type StopWatchingCurrentLocationDescription = {
+  type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION;
+  payload?: Record<string, never>;
+};
+
 export type ActionDescription =
   | RunPluginActionDescription
   | ClearPluginActionDescription
@@ -137,4 +170,7 @@ export type ActionDescription =
   | CopyToClipboardDescription
   | ResetWidgetDescription
   | SetIntervalDescription
-  | ClearIntervalDescription;
+  | ClearIntervalDescription
+  | GetCurrentLocationDescription
+  | WatchCurrentLocationDescription
+  | StopWatchingCurrentLocationDescription;

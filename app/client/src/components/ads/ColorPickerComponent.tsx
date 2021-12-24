@@ -11,6 +11,7 @@ import { ReactComponent as CheckedIcon } from "assets/icons/control/checkmark.sv
 import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce } from "lodash";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
@@ -186,6 +187,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
       usePortal
     >
       <StyledInputGroup
+        className={replayHighlightClass}
         leftIcon={
           color ? (
             <ColorIcon color={color} />

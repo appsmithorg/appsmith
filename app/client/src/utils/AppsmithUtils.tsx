@@ -59,43 +59,55 @@ export const appInitializer = () => {
 export const initializeAnalyticsAndTrackers = () => {
   const appsmithConfigs = getAppsmithConfigs();
 
-  if (appsmithConfigs.sentry.enabled) {
-    window.Sentry = Sentry;
-    Sentry.init({
-      ...appsmithConfigs.sentry,
-      beforeBreadcrumb(breadcrumb) {
-        if (breadcrumb.category === "console" && breadcrumb.level !== "error") {
-          return null;
-        }
-        if (breadcrumb.category === "sentry.transaction") {
-          return null;
-        }
-        if (breadcrumb.category === "redux.action") {
+  try {
+    if (appsmithConfigs.sentry.enabled && !window.Sentry) {
+      window.Sentry = Sentry;
+      Sentry.init({
+        ...appsmithConfigs.sentry,
+        beforeBreadcrumb(breadcrumb) {
           if (
-            breadcrumb.data &&
-            breadcrumb.data.type === "SET_EVALUATED_TREE"
+            breadcrumb.category === "console" &&
+            breadcrumb.level !== "error"
           ) {
-            breadcrumb.data = undefined;
+            return null;
           }
-        }
-        return breadcrumb;
-      },
-    });
-  }
-
-  if (appsmithConfigs.smartLook.enabled) {
-    const { id } = appsmithConfigs.smartLook;
-    AnalyticsUtil.initializeSmartLook(id);
-  }
-
-  if (appsmithConfigs.segment.enabled) {
-    if (appsmithConfigs.segment.apiKey) {
-      // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
-    } else if (appsmithConfigs.segment.ceKey) {
-      // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+          if (breadcrumb.category === "sentry.transaction") {
+            return null;
+          }
+          if (breadcrumb.category === "redux.action") {
+            if (
+              breadcrumb.data &&
+              breadcrumb.data.type === "SET_EVALUATED_TREE"
+            ) {
+              breadcrumb.data = undefined;
+            }
+          }
+          return breadcrumb;
+        },
+      });
     }
+  } catch (e) {
+    log.error(e);
+  }
+
+  try {
+    if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
+      const { id } = appsmithConfigs.smartLook;
+      AnalyticsUtil.initializeSmartLook(id);
+    }
+
+    if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
+      if (appsmithConfigs.segment.apiKey) {
+        // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+      } else if (appsmithConfigs.segment.ceKey) {
+        // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+      }
+    }
+  } catch (e) {
+    Sentry.captureException(e);
+    log.error(e);
   }
 };
 
@@ -360,6 +372,26 @@ export const parseBlobUrl = (blobId: string) => {
 };
 
 /**
+ * Convert a string into camelCase
+ * @param sourceString input string
+ * @returns camelCase string
+ */
+export const getCamelCaseString = (sourceString: string) => {
+  let out = "";
+  // Split the input string to separate words using RegEx
+  const regEx = /[A-Z\xC0-\xD6\xD8-\xDE]?[a-z\xDF-\xF6\xF8-\xFF]+|[A-Z\xC0-\xD6\xD8-\xDE]+(?![a-z\xDF-\xF6\xF8-\xFF])|\d+/g;
+  const words = sourceString.match(regEx);
+  if (words) {
+    words.forEach(function(el, idx) {
+      const add = el.toLowerCase();
+      out += idx === 0 ? add : add[0].toUpperCase() + add.slice(1);
+    });
+  }
+
+  return out;
+};
+
+/*
  * gets the page url
  *
  * Note: for edit mode, the page will have different url ( contains '/edit' at the end )

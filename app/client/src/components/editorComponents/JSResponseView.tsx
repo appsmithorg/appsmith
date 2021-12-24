@@ -42,6 +42,7 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
 import { ReactComponent as FunctionSettings } from "assets/icons/menu/settings.svg";
 import JSFunctionSettings from "pages/Editor/JSEditor/JSFunctionSettings";
+import FlagBadge from "components/utils/FlagBadge";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -93,6 +94,7 @@ const ResponseTabAction = styled.li`
   .function-name {
     margin-left: 5px;
     display: inline-block;
+    flex: 1;
   }
   .function-actions {
     margin-left: auto;
@@ -103,6 +105,7 @@ const ResponseTabAction = styled.li`
   }
   .run-button {
     margin: 0 15px;
+    margin-left: 10px;
   }
   &.active {
     background-color: #f0f0f0;
@@ -261,6 +264,11 @@ function JSResponseView(props: Props) {
                                 runAction(action);
                               }}
                             />
+                            {action.actionConfiguration.isAsync ? (
+                              <FlagBadge name={"ASYNC"} />
+                            ) : (
+                              ""
+                            )}
                           </div>
                         </ResponseTabAction>
                       );

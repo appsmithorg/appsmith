@@ -153,7 +153,7 @@ export function Main(
 
   return (
     <Wrapper>
-      <BackButton onClick={onBack}>
+      <BackButton className="t--admin-settings-back-button" onClick={onBack}>
         <Icon icon="chevron-left" iconSize={16} />
         <BackButtonText>&nbsp;Back</BackButtonText>
       </BackButton>
@@ -164,6 +164,7 @@ export function Main(
           <SettingsButtonWrapper>
             <StyledSaveButton
               category={Category.primary}
+              className="t--admin-settings-save-button"
               disabled={Object.keys(props.settings).length == 0 || !props.valid}
               isLoading={props.isSaving}
               onClick={onSave}
@@ -172,6 +173,7 @@ export function Main(
             />
             <StyledClearButton
               category={Category.tertiary}
+              className="t--admin-settings-reset-button"
               disabled={Object.keys(props.settings).length == 0}
               onClick={onClear}
               tag="button"

@@ -14,6 +14,7 @@ export const CONFIG = {
     url: "https://assets.appsmith.com/widgets/bird.mp4",
     autoPlay: false,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
