@@ -3502,4 +3502,7 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
 
 //   return originalFn(element, clearedText, options);
 // });
-addMatchImageSnapshotCommand();
+addMatchImageSnapshotCommand({
+  failureThreshold: 0.2, // threshold for entire image
+  failureThresholdType: "percent",
+});
