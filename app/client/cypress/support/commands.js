@@ -2227,11 +2227,11 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
-  cy.saveDatasource();
-  cy.get(datasourceEditor.datasourceCard)
-    .last()
-    .click();
   cy.testDatasource(expectedRes);
+  cy.saveDatasource();
+  // cy.get(datasourceEditor.datasourceCard)
+  //   .last()
+  //   .click();
 });
 
 Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
@@ -3097,6 +3097,14 @@ Cypress.Commands.add("callApi", (apiname) => {
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess, { timeout: 10000 }).should("exist");
 });
+
+Cypress.Commands.add(
+  "validateWidgetExists",
+  { prevSubject: true },
+  (selector) => {
+    cy.get(selector, { timeout: 5000 }).should("exist");
+  },
+);
 
 Cypress.Commands.add("ValidateQueryParams", (param) => {
   cy.xpath(apiwidget.paramsTab)
