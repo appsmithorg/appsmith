@@ -6,14 +6,15 @@ import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 
-type FieldProps = {
+type FieldProps<TValue> = {
+  defaultValue: TValue;
+  defaultValueValidatorFn?: (value: TValue) => boolean;
   hideLabel?: boolean;
   label: string;
+  labelStyles: FieldLabelProps["labelStyles"];
   name: ControllerProps["name"];
   render: ControllerProps["render"];
   tooltip?: string;
-  labelStyles: FieldLabelProps["labelStyles"];
-  defaultValue: any;
 };
 
 const StyledWrapper = styled.div`
@@ -29,22 +30,27 @@ const StyledControllerWrapper = styled.div`
   align-items: center;
 `;
 
-function Field({
+function Field<TValue>({
   defaultValue,
+  defaultValueValidatorFn,
   hideLabel = false,
   label,
   labelStyles = {},
   name,
   render,
   tooltip,
-}: FieldProps) {
-  const refDefaultValue = useRef();
+}: FieldProps<TValue>) {
+  const refDefaultValue = useRef<TValue>();
   const { control, setValue } = useFormContext();
 
   useEffect(() => {
     if (!equal(refDefaultValue.current, defaultValue)) {
       refDefaultValue.current = defaultValue;
-      setValue(name, defaultValue);
+
+      const isValid = defaultValueValidatorFn?.(defaultValue) ?? true;
+      if (isValid) {
+        setValue(name, defaultValue);
+      }
     }
   }, [defaultValue, setValue]);
 

@@ -40,13 +40,13 @@ const CurlyBraces = styled.span`
 `;
 
 function processObject(schema: Schema, defaultValue?: any) {
-  const struct: Record<string, any> = {};
+  const obj: Record<string, any> = {};
 
   Object.values(schema).forEach((schemaItem) => {
-    struct[schemaItem.name] = processSchemaItem(schemaItem, defaultValue);
+    obj[schemaItem.name] = processSchemaItem(schemaItem, defaultValue);
   });
 
-  return struct;
+  return obj;
 }
 
 function processArray(schema: Schema, defaultValue?: any): any[] {
@@ -73,15 +73,15 @@ function generateAutoCompleteStructure(
   schema: Schema,
   defaultValue?: any,
 ): any {
-  let struct;
+  let obj;
 
   if (schema) {
     Object.values(schema).forEach((schemaItem) => {
-      struct = processSchemaItem(schemaItem, defaultValue);
+      obj = processSchemaItem(schemaItem, defaultValue);
     });
   }
 
-  return struct;
+  return obj;
 }
 
 export function InputText(props: {

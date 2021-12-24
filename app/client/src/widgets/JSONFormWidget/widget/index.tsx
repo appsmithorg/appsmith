@@ -97,13 +97,13 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
 
   parseAndSaveFieldState = () => {
     const processObject = (schema: Schema) => {
-      const struct: Record<string, any> = {};
+      const obj: Record<string, any> = {};
 
       Object.values(schema).forEach((schemaItem) => {
-        struct[schemaItem.name] = processSchemaItem(schemaItem);
+        obj[schemaItem.name] = processSchemaItem(schemaItem);
       });
 
-      return struct;
+      return obj;
     };
 
     const processArray = (schema: Schema): any[] => {

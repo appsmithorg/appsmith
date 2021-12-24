@@ -40,7 +40,7 @@ const COMMON_PROPERTIES = {
       helpText:
         "Allows users to select from the given option(s). Values must be unique",
       label: "Options",
-      controlType: "JSON_FORM_COMPUTE_VALUE",
+      controlType: "INPUT_TEXT",
       placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
       isBindProperty: true,
       isTriggerProperty: false,

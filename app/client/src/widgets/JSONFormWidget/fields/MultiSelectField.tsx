@@ -51,6 +51,13 @@ const StyledMultiSelectWrapper = styled.div`
 const isValid = (schemaItem: MultiSelectFieldProps["schemaItem"], value = []) =>
   schemaItem.isRequired ? Boolean(value.length) : true;
 
+const defaultValueValidator = (value: any) => {
+  if (!Array.isArray(value)) return false;
+  if (!value.every((v) => typeof v === "string")) return false;
+
+  return true;
+};
+
 function MultiSelectField({
   name,
   propertyPath,
@@ -99,7 +106,8 @@ function MultiSelectField({
   return (
     <Field
       {...rest}
-      defaultValue={schemaItem.defaultValue}
+      defaultValue={schemaItem.defaultValue as string[]}
+      defaultValueValidatorFn={defaultValueValidator}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

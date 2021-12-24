@@ -176,6 +176,15 @@ const applyPositions = (schema: Schema, newKeys?: string[]) => {
   });
 };
 
+const checkIfArrayAndSubDataTypeChanged = (currentData: any, prevData: any) => {
+  if (!Array.isArray(currentData) || !Array.isArray(prevData)) return false;
+
+  const currSubDataType = subDataTypeFor(currentData);
+  const prevSubDataType = subDataTypeFor(prevData);
+
+  return currSubDataType !== prevSubDataType;
+};
+
 class SchemaParser {
   static nameAndLabel = (key: string) => {
     return {
@@ -386,7 +395,12 @@ class SchemaParser {
       const currDataType = dataTypeFor(currObj[modifiedKey]);
       const prevDataType = schema[modifiedKey].dataType;
 
-      if (currDataType !== prevDataType) {
+      const isArrayAndSubDataTypeChanged = checkIfArrayAndSubDataTypeChanged(
+        currObj[modifiedKey],
+        schema[modifiedKey].sourceData,
+      );
+
+      if (isArrayAndSubDataTypeChanged || currDataType !== prevDataType) {
         const prevSchemaItem = cloneDeep(schema[modifiedKey]);
 
         schema[modifiedKey] = SchemaParser.getSchemaItemFor(modifiedKey, {
