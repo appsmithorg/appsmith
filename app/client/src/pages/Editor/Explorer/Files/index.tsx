@@ -43,6 +43,7 @@ function Files() {
           return (
             <div
               className={`text-sm text-[${Colors.CODE_GRAY}] px-4 bg-trueGray-100 overflow-hidden overflow-ellipsis whitespace-nowrap`}
+              key={entity.name}
             >
               {entity.name}
             </div>

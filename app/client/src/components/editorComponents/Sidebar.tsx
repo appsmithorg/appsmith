@@ -43,6 +43,7 @@ import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 import PagesContainer from "pages/Editor/Explorer/Pages/PagesContainer";
 import { Colors } from "constants/Colors";
+import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 
 type Props = {
   width: number;
@@ -216,6 +217,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         {/* PagesContainer */}
         <PagesContainer />
+        <EntityProperties />
         {/* SWITCHER */}
         <div
           className={`px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}

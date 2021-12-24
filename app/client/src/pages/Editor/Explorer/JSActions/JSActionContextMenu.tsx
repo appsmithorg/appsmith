@@ -12,6 +12,8 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { useNewJSCollectionName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 type EntityContextMenuProps = {
   id: string;
@@ -23,6 +25,21 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewJSCollectionName();
 
   const dispatch = useDispatch();
+
+  const showBinding = useCallback(
+    (actionId, actionName) =>
+      dispatch({
+        type: ReduxActionTypes.SET_ENTITY_INFO,
+        payload: {
+          entityId: actionId,
+          entityName: actionName,
+          entityType: ENTITY_TYPE.JSACTION,
+          show: true,
+        },
+      }),
+    [],
+  );
+
   const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
       dispatch(
@@ -73,6 +90,11 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
           value: "rename",
           onSelect: editJSCollectionName,
           label: "Rename",
+        },
+        {
+          value: "showBinding",
+          onSelect: () => showBinding(props.id, props.name),
+          label: "Show Binding",
         },
         {
           value: "copy",

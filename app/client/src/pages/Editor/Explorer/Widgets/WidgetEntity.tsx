@@ -162,25 +162,6 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
             widgetsInStep={widgetsInStep}
           />
         ))}
-      {/* {!(props.childWidgets && props.childWidgets.length > 0) && (
-        <CurrentPageEntityProperties
-          entityName={props.widgetName}
-          entityType={ENTITY_TYPE.WIDGET}
-          key={props.widgetId}
-          step={props.step + 1}
-        />
-      )} */}
-      {/* {!(props.childWidgets && props.childWidgets.length > 0) &&
-        !isCurrentPage && (
-          <EntityProperties
-            entityId={props.widgetId}
-            entityName={props.widgetName}
-            entityType={ENTITY_TYPE.WIDGET}
-            key={props.widgetId}
-            pageId={props.pageId}
-            step={props.step + 1}
-          />
-        )} */}
     </Entity>
   );
 });

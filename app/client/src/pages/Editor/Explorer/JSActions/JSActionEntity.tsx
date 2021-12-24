@@ -60,16 +60,7 @@ export const ExplorerJSCollectionEntity = memo(
         searchKeyword={props.searchKeyword}
         step={props.step}
         updateEntityName={getUpdateJSObjectName}
-      >
-        {/* <EntityProperties
-          entity={props.action}
-          entityId={jsAction.id}
-          entityName={jsAction.name}
-          entityType={ENTITY_TYPE.JSACTION}
-          pageId={pageId}
-          step={props.step + 1}
-        /> */}
-      </Entity>
+      />
     );
   },
 );

@@ -3,8 +3,6 @@ import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
 import { saveActionName } from "actions/pluginActionActions";
-// import EntityProperties from "../Entity/EntityProperties";
-// import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -75,16 +73,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       searchKeyword={props.searchKeyword}
       step={props.step}
       updateEntityName={getUpdateActionNameReduxAction}
-    >
-      {/* <EntityProperties
-        entity={action}
-        entityId={action.id}
-        entityName={action.name}
-        entityType={ENTITY_TYPE.ACTION}
-        pageId={pageId}
-        step={props.step + 1}
-      /> */}
-    </Entity>
+    />
   );
 });
 

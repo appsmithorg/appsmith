@@ -84,9 +84,9 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  max-height: 300px;
+  // max-height: 300px;
   min-height: 28px;
-  overflow-y: auto;
+  // overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
   padding-right: 30px;
@@ -338,7 +338,7 @@ export const CurrentValueViewer = memo(
                 minimal
                 onClick={() => copyContent(props.evaluatedValue)}
               >
-                <CopyIcon />
+                <CopyIcon height={34} />
               </CopyIconWrapper>
             )}
           </CurrentValueWrapper>

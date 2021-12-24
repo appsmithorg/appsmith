@@ -13,6 +13,7 @@ import {
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function WidgetContextMenu(props: {
@@ -57,6 +58,20 @@ export function WidgetContextMenu(props: {
     });
   }, [dispatch, widgetId, parentId, widget, parentWidget]);
 
+  const showBinding = useCallback(
+    (widgetId, widgetName) =>
+      dispatch({
+        type: ReduxActionTypes.SET_ENTITY_INFO,
+        payload: {
+          entityId: widgetId,
+          entityName: widgetName,
+          entityType: ENTITY_TYPE.WIDGET,
+          show: true,
+        },
+      }),
+    [],
+  );
+
   const editWidgetName = useCallback(
     () => dispatch(initExplorerEntityNameEdit(widgetId)),
     [dispatch, widgetId],
@@ -67,6 +82,11 @@ export function WidgetContextMenu(props: {
       value: "rename",
       onSelect: editWidgetName,
       label: "Rename",
+    },
+    {
+      value: "showBinding",
+      onSelect: () => showBinding(props.widgetId, widget.widgetName),
+      label: "Show Binding",
     },
   ];
 

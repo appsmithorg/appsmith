@@ -16,6 +16,8 @@ import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { useNewActionName } from "./helpers";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 type EntityContextMenuProps = {
   id: string;
@@ -64,6 +66,20 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch, props.id],
   );
 
+  const showBinding = useCallback(
+    (actionId, actionName) =>
+      dispatch({
+        type: ReduxActionTypes.SET_ENTITY_INFO,
+        payload: {
+          entityId: actionId,
+          entityName: actionName,
+          entityType: ENTITY_TYPE.ACTION,
+          show: true,
+        },
+      }),
+    [],
+  );
+
   return (
     <TreeDropdown
       className={props.className}
@@ -75,6 +91,11 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           value: "rename",
           onSelect: editActionName,
           label: "Rename",
+        },
+        {
+          value: "showBinding",
+          onSelect: () => showBinding(props.id, props.name),
+          label: "Show Binding",
         },
         {
           value: "copy",

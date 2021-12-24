@@ -273,6 +273,7 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           } t--entity-item`}
           highlight={!!props.highlight}
+          id={props.entityId}
           isSticky={props.isSticky === true}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
