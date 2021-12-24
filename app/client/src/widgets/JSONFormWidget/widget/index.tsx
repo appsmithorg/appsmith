@@ -12,7 +12,13 @@ import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { ARRAY_ITEM_KEY, DataType, Schema, SchemaItem } from "../constants";
+import {
+  ARRAY_ITEM_KEY,
+  DataType,
+  FieldType,
+  Schema,
+  SchemaItem,
+} from "../constants";
 import { AppState } from "reducers";
 
 export interface JSONFormWidgetProps extends WidgetProps {
@@ -119,7 +125,10 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
         return processObject(schemaItem.children);
       }
 
-      if (schemaItem.dataType === DataType.ARRAY) {
+      if (
+        schemaItem.dataType === DataType.ARRAY &&
+        schemaItem.fieldType === FieldType.ARRAY
+      ) {
         return processArray(schemaItem.children);
       }
 

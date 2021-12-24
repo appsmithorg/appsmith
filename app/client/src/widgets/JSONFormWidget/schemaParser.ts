@@ -75,7 +75,7 @@ const getSourcePath = (name: string | number, basePath?: string) => {
   return basePath ? `${basePath}${indexedName}` : indexedName;
 };
 
-const convertSchemaItemPathToSourceDataPath = (
+const getSourceDataPathFromSchemaItemPath = (
   schema: Schema,
   schemaItemPath: string,
 ) => {
@@ -84,22 +84,26 @@ const convertSchemaItemPathToSourceDataPath = (
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
   let skipIteration = false;
+  let notation = "";
 
   keys.forEach((key, index) => {
     if (index !== 0 && !skipIteration) {
       schemaItem = clonedSchema[key];
 
-      if (schemaItem.dataType === DataType.OBJECT) {
-        sourceDataPath = sourceDataPath.concat(".");
-      } else if (schemaItem.dataType === DataType.ARRAY) {
-        sourceDataPath = sourceDataPath.concat("[0]");
-      } else {
+      if (index !== 1) {
         sourceDataPath = sourceDataPath.concat(schemaItem.name);
+      }
+
+      if (schemaItem.dataType === DataType.OBJECT) {
+        notation = ".";
+      } else if (schemaItem.dataType === DataType.ARRAY) {
+        notation = "[0]";
       }
 
       if (!isEmpty(schemaItem.children)) {
         clonedSchema = schemaItem.children;
         skipIteration = true;
+        sourceDataPath = sourceDataPath.concat(notation);
       }
     } else if (skipIteration) {
       skipIteration = false;
@@ -229,7 +233,7 @@ class SchemaParser {
     const rootSchemaItem = SchemaParser.getSchemaItemFor("", {
       currSourceData,
       prevSchema,
-      sourceDataPath: "",
+      sourceDataPath: "sourceData",
       widgetName,
     });
 
@@ -248,7 +252,7 @@ class SchemaParser {
       ? FIELD_TYPE_TO_POTENTIAL_DATA[fieldType]
       : schemaItem.sourceData;
 
-    const sourceDataPath = convertSchemaItemPathToSourceDataPath(
+    const sourceDataPath = getSourceDataPathFromSchemaItemPath(
       schema,
       schemaItemPath,
     );
@@ -297,7 +301,7 @@ class SchemaParser {
       if (isCustomField) return "";
 
       const path = sourceDataPath
-        ? `${startTemplate}sourceData.${sourceDataPath}${endTemplate}`
+        ? `${startTemplate}${sourceDataPath}${endTemplate}`
         : "";
 
       return `${path}`;
@@ -312,7 +316,7 @@ class SchemaParser {
       children = SchemaParser.convertObjectToSchema(sanitizedOptions);
     }
 
-    if (dataType === DataType.ARRAY) {
+    if (dataType === DataType.ARRAY && fieldType === FieldType.ARRAY) {
       children = SchemaParser.convertArrayToSchema(sanitizedOptions);
     }
 
