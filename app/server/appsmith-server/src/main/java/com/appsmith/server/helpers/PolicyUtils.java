@@ -1,13 +1,13 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
@@ -51,6 +51,7 @@ public class PolicyUtils {
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
+        // TODO: Do we need to return the domain object?
         final Map<String, Policy> policyMap1 = new HashMap<>();
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
             Policy entryValue = entry.getValue();

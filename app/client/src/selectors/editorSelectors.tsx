@@ -9,7 +9,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   getActions,
   getCanvasWidgets,
@@ -69,7 +69,10 @@ export const getIsPageSaving = (state: AppState) => {
   });
 
   return (
-    state.ui.editor.loadingStates.saving || areApisSaving || areJsObjectsSaving
+    state.ui.editor.loadingStates.saving ||
+    areApisSaving ||
+    areJsObjectsSaving ||
+    state.ui.editor.loadingStates.savingEntity
   );
 };
 
@@ -97,8 +100,12 @@ export const getPageList = (state: AppState) => state.entities.pageList.pages;
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
+export const getCurrentApplication = (state: AppState) =>
+  state.ui.applications.currentApplication;
+
 export const getCurrentApplicationId = (state: AppState) =>
-  state.entities.pageList.applicationId;
+  state.entities.pageList.applicationId ||
+  ""; /** this is set during init can assume it to be defined */
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT
@@ -368,3 +375,32 @@ export const getJSCollectionById = createSelector(
 
 export const getApplicationLastDeployedAt = (state: AppState) =>
   state.ui.applications.currentApplication?.lastDeployedAt;
+
+/**
+ * returns the `state.ui.editor.isPreviewMode`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const previewModeSelector = (state: AppState) => {
+  return state.ui.editor.isPreviewMode;
+};
+
+/**
+ * returns the `state.ui.editor.zoomLevel`
+ *
+ * @param state AppState
+ * @returns number
+ */
+export const getZoomLevel = (state: AppState) => {
+  return state.ui.editor.zoomLevel;
+};
+
+/**
+ * returns the `state.ui.editor.savingEntity`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const getIsSavingEntity = (state: AppState) =>
+  state.ui.editor.loadingStates.savingEntity;

@@ -45,6 +45,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c444c91dea93f0eaf91bd": {
     id: "605c444c91dea93f0eaf91bd",
@@ -77,6 +78,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c519391dea93f0eaf91bf": {
     id: "605c519391dea93f0eaf91bf",
@@ -109,6 +111,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c519c91dea93f0eaf91c1": {
     id: "605c519c91dea93f0eaf91c1",
@@ -160,6 +163,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c51e891dea93f0eaf91c4": {
     id: "605c51e891dea93f0eaf91c4",
@@ -192,6 +196,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c53b491dea93f0eaf91c6": {
     id: "605c53b491dea93f0eaf91c6",
@@ -224,6 +229,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605cb30c91dea93f0eaf91cb": {
     id: "605cb30c91dea93f0eaf91cb",
@@ -256,6 +262,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "6060c45e91dea93f0eaf91ce": {
     id: "6060c45e91dea93f0eaf91ce",
@@ -288,6 +295,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
 };
 
@@ -378,15 +386,13 @@ export const updateCommentThreadPayload = {
 };
 
 export const newCommentThreadEventPayload = {
-  thread: {
-    _id: "606bf995c7a35467ac887f99",
-    position: {
-      topPercent: 4,
-      leftPercent: 28,
-    },
-    refId: "0",
-    applicationId: "605c435a91dea93f0eaf91b8",
+  _id: "606bf995c7a35467ac887f99",
+  position: {
+    topPercent: 4,
+    leftPercent: 28,
   },
+  refId: "0",
+  applicationId: "605c435a91dea93f0eaf91b8",
 };
 
 export const updateCommentThreadEventPayload = {

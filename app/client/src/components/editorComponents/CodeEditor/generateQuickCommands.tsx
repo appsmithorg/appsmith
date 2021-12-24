@@ -61,15 +61,17 @@ const generateCreateNewCommand = ({
   displayText,
   shortcut,
   text,
+  triggerCompletionsPostPick,
 }: any): CommandsCompletion => ({
-  text: text,
+  text,
   displayText: displayText,
   data: { doc: "" },
   origin: "",
   type: AutocompleteDataType.UNKNOWN,
   className: "CodeMirror-commands",
-  shortcut: shortcut,
-  action: action,
+  shortcut,
+  action,
+  triggerCompletionsPostPick,
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
       <Command
@@ -140,6 +142,7 @@ export const generateQuickCommands = (
     text: "{{}}",
     displayText: "New Binding",
     shortcut: Shortcuts.BINDING,
+    triggerCompletionsPostPick: true,
   });
   const insertSnippet: CommandsCompletion = generateCreateNewCommand({
     text: "",
@@ -178,6 +181,7 @@ export const generateQuickCommands = (
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
+      triggerCompletionsPostPick: suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, self: any, data: any) => {
         const pluginType = data.data.pluginType as PluginType;
         ReactDOM.render(

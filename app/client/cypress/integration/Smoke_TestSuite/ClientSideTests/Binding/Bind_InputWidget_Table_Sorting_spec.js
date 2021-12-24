@@ -12,7 +12,7 @@ describe("Binding the Table and input Widget", function() {
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
     cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -67,7 +67,6 @@ describe("Binding the Table and input Widget", function() {
         }
       });
     cy.get(widgetsPage.defaultInput).type(testdata.sortedColumn);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -1,9 +1,11 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -30,10 +32,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -49,6 +53,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -56,6 +61,8 @@ import reactor.util.function.Tuple2;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +78,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -130,16 +138,47 @@ public class ApplicationServiceTest {
     @Autowired
     PolicyUtils policyUtils;
 
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+
+    @Autowired
+    ThemeService themeService;
+
     @MockBean
     ReleaseNotesService releaseNotesService;
 
+    @MockBean
+    PluginExecutor pluginExecutor;
+
     String orgId;
+
+    static Application gitConnectedApp = new Application();
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
+        if (StringUtils.isEmpty(gitConnectedApp.getId())) {
+            gitConnectedApp.setOrganizationId(orgId);
+            GitApplicationMetadata gitData = new GitApplicationMetadata();
+            gitData.setBranchName("testBranch");
+            gitData.setRepoName("testRepo");
+            gitData.setRemoteUrl("git@test.com:user/testRepo.git");
+            gitData.setRepoName("testRepo");
+            gitConnectedApp.setGitApplicationMetadata(gitData);
+            // This will be altered in update app by branch test
+            gitConnectedApp.setName("gitConnectedApp");
+            gitConnectedApp = applicationPageService.createApplication(gitConnectedApp)
+                    .flatMap(application -> {
+                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                        return applicationService.save(application);
+                    })
+                    // Assign the branchName to all the resources connected to the application
+                    .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .block();
+        }
     }
 
     @Test
@@ -170,17 +209,24 @@ public class ApplicationServiceTest {
                 .build();
 
         StepVerifier
-                .create(applicationMono)
-                .assertNext(application -> {
+                .create(applicationMono.zipWith(themeService.getDefaultThemeId()))
+                .assertNext(tuple2 -> {
+                    Application application = tuple2.getT1();
+                    String defaultThemeId = tuple2.getT2();
                     assertThat(application).isNotNull();
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getOrganizationId().equals(orgId));
+                    assertThat(application.getOrganizationId()).isEqualTo(orgId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
+                    assertThat(application.getColor()).isNotEmpty();
+                    assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
+                    assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
                 })
                 .verifyComplete();
     }
@@ -276,6 +322,54 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void getApplicationByDefaultIdAndBranchName_emptyBranchName_success() {
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("", gitConnectedApp.getId(), READ_APPLICATIONS);
+        StepVerifier.create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getId()).isEqualTo(gitConnectedApp.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationByDefaultIdAndBranchName_invalidBranchName_throwException() {
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
+        StepVerifier.create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationByDefaultIdAndBranchName_validBranchName_success() {
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("testBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
+        StepVerifier.create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getGitApplicationMetadata()).isEqualTo(gitConnectedApp.getGitApplicationMetadata());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationsByBranchName_validBranchName_success() {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.set(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, gitConnectedApp.getGitApplicationMetadata().getBranchName());
+
+        Flux<Application> getApplication = applicationService.get(params);
+        StepVerifier.create(getApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getGitApplicationMetadata().getBranchName()).isEqualTo(gitConnectedApp.getGitApplicationMetadata().getBranchName());
+                    assertThat(t.getId()).isEqualTo(gitConnectedApp.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void validGetApplications() {
         Application application = new Application();
         application.setName("validGetApplications-Test");
@@ -325,6 +419,7 @@ public class ApplicationServiceTest {
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.makeSlug(t.getName()));
                 })
                 .verifyComplete();
     }
@@ -354,6 +449,28 @@ public class ApplicationServiceTest {
         StepVerifier.create(updateInvalidApplication)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
             .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateApplicationByIdAndBranchName_validBranchName_success() {
+        gitConnectedApp.setName("updatedGitConnectedApplication");
+
+        Mono<Application> updateApplication = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
+                .flatMap(t -> {
+                    GitApplicationMetadata gitData = t.getGitApplicationMetadata();
+                    return applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), READ_APPLICATIONS);
+                });
+
+        StepVerifier.create(updateApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getPolicies()).isNotEmpty();
+                    assertThat(t.getName()).isEqualTo("updatedGitConnectedApplication");
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.makeSlug(t.getName()));
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -416,6 +533,57 @@ public class ApplicationServiceTest {
                     }
 
 
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getOnlyDefaultApplicationsConnectedToGitForHome() {
+        Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
+
+        Mono<UserHomepageDTO> allApplications = applicationFetcher.getAllApplications();
+
+        Application branchedApplication = new Application();
+        GitApplicationMetadata childBranchGitData = new GitApplicationMetadata();
+        BeanCopyUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
+        childBranchGitData.setBranchName("childBranch");
+        branchedApplication.setGitApplicationMetadata(childBranchGitData);
+        branchedApplication.setOrganizationId(orgId);
+        branchedApplication.setName(gitConnectedApp.getName());
+
+        Mono<Application> branchedApplicationMono = applicationPageService.createApplication(branchedApplication);
+
+        Mono<List<Application>> gitConnectedAppsMono = applicationService.findByOrganizationId(orgId, READ_APPLICATIONS)
+                .filter(application -> application.getGitApplicationMetadata() != null)
+                .collectList();
+
+        StepVerifier
+                .create(branchedApplicationMono
+                        .then(Mono.zip(allApplications, gitConnectedAppsMono)))
+                .assertNext(tuple -> {
+                    UserHomepageDTO userHomepageDTO = tuple.getT1();
+                    List<Application> gitConnectedApps = tuple.getT2();
+                    assertThat(userHomepageDTO).isNotNull();
+                    //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
+
+                    List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
+                    assertThat(organizationApplicationsDTOs.size()).isPositive();
+
+                    for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
+                        if (organizationApplicationDTO.getOrganization().getId().equals(orgId)) {
+                            List<Application> applications = organizationApplicationDTO
+                                    .getApplications()
+                                    .stream()
+                                    .filter(application -> application.getGitApplicationMetadata() != null)
+                                    .collect(Collectors.toList());
+                            assertThat(applications).hasSize(1);
+                            assertThat(applications.get(0).getId()).isEqualTo(gitConnectedApp.getId());
+                            assertThat(gitConnectedApps).hasSize(2);
+                        }
+                    }
                 })
                 .verifyComplete();
 
@@ -558,6 +726,100 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void makeApplicationPublic_applicationWithGitMetadata_success() {
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        Mono<Application> publicAppMono = applicationService
+                .changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
+                .cache();
+
+        Mono<PageDTO> pageMono = publicAppMono
+                .flatMap(app -> {
+                    String pageId = app.getPages().get(0).getId();
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
+                });
+
+        StepVerifier
+                .create(Mono.zip(publicAppMono, pageMono))
+                .assertNext(tuple -> {
+                    Application publicApp = tuple.getT1();
+                    PageDTO page = tuple.getT2();
+
+                    assertThat(publicApp.getIsPublic()).isTrue();
+                    assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    // Check the child page's policies
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void makeApplicationPrivate_applicationWithGitMetadata_success() {
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+        Mono<Application> privateAppMono = applicationService.changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
+                .flatMap(application1 -> {
+                    applicationAccessDTO.setPublicAccess(false);
+                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                })
+                .cache();
+
+        Mono<PageDTO> pageMono = privateAppMono
+                .flatMap(app -> {
+                    String pageId = app.getPages().get(0).getId();
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
+                });
+
+        StepVerifier
+                .create(Mono.zip(privateAppMono, pageMono))
+                .assertNext(tuple -> {
+                    Application app = tuple.getT1();
+                    PageDTO page = tuple.getT2();
+
+                    assertThat(app.getIsPublic()).isFalse();
+                    assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    // Check the child page's policies
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void validMakeApplicationPublicWithActions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -660,15 +922,10 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneApplicationTest() {
-        Application testApplication = new Application();
-        testApplication.setName("ApplicationServiceTest Clone Source TestApp");
+    public void cloneApplication_applicationWithGitMetadata_success() {
 
-        Mono<Application> testApplicationMono = applicationPageService.createApplication(testApplication, orgId)
-                .cache();
-
-        Mono<Application> applicationMono = testApplicationMono
-                .flatMap(application -> applicationPageService.cloneApplication(application.getId()))
+        final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
@@ -678,7 +935,7 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Mono<List<PageDTO>> pageListMono = applicationMono
+        Mono<List<PageDTO>> clonedPageListMono = clonedApplicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
@@ -690,68 +947,93 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
+        Mono<List<PageDTO>> srcPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
+                .collectList();
+
         StepVerifier
-                .create(Mono.zip(applicationMono, pageListMono))
+                .create(Mono.zip(clonedApplicationMono, clonedPageListMono, srcPageListMono))
                 .assertNext(tuple -> {
-                    Application application = tuple.getT1(); // cloned application
-                    List<PageDTO> pageList = tuple.getT2();
-                    assertThat(application).isNotNull();
-                    assertThat(application.isAppIsExample()).isFalse();
-                    assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getOrganizationId().equals(orgId));
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
-                    assertThat(application.getUpdatedAt()).isNotNull();
-                    List<ApplicationPage> pages = application.getPages();
-                    Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
-                    Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Application clonedApplication = tuple.getT1(); // cloned application
+                    List<PageDTO> clonedPageList = tuple.getT2();
+                    List<PageDTO> srcPageList = tuple.getT3();
 
-                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
+                    assertThat(clonedApplication).isNotNull();
+                    assertThat(clonedApplication.isAppIsExample()).isFalse();
+                    assertThat(clonedApplication.getId()).isNotNull();
+                    assertThat(clonedApplication.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(clonedApplication.getOrganizationId().equals(orgId));
+                    assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(clonedApplication.getUpdatedAt()).isNotNull();
+                    List<ApplicationPage> pages = clonedApplication.getPages();
+                    Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
-                    assertThat(pageList).isNotEmpty();
-                    for (PageDTO page : pageList) {
+                    assertThat(clonedPageIdsFromApplication.containsAll(clonedPageIdsFromDb));
+
+                    Set<String> srcPageIdsFromDb = srcPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> defaultSrcPageIdsFromDb = srcPageList.stream().map(page -> page.getDefaultResources().getPageId()).collect(Collectors.toSet());
+                    assertThat(Collections.disjoint(srcPageIdsFromDb, clonedPageIdsFromDb)).isTrue();
+
+                    assertThat(clonedPageList).isNotEmpty();
+                    for (PageDTO page : clonedPageList) {
                         assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
-                        assertThat(page.getApplicationId()).isEqualTo(application.getId());
+                        assertThat(page.getApplicationId()).isEqualTo(clonedApplication.getId());
                     }
                 })
                 .verifyComplete();
 
         // verify that Pages are cloned
 
-        Mono<List<NewPage>> testPageListMono = testApplicationMono
+        Mono<List<NewPage>> clonedNewPageListMono = clonedApplicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
                 .flatMap(applicationPage -> newPageRepository.findById(applicationPage.getId()))
                 .collectList();
 
-        Mono<List<String>> pageIdListMono = pageListMono
-                .flatMapMany(Flux::fromIterable)
-                .map(PageDTO::getId)
-                .collectList();
-
-        Mono<List<String>> testPageIdListMono = testPageListMono
-                .flatMapMany(Flux::fromIterable)
-                .map(NewPage::getId)
+        Mono<List<NewPage>> srcNewPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
+                .flatMap(applicationPage -> newPageService.findByBranchNameAndDefaultPageId(branchName, applicationPage.getDefaultPageId(), READ_PAGES))
                 .collectList();
 
         StepVerifier
-                .create(Mono.zip(pageIdListMono, testPageIdListMono))
+                .create(Mono.zip(clonedNewPageListMono, srcNewPageListMono))
                 .assertNext(tuple -> {
-                    List<String> pageIdList = tuple.getT1();
-                    List<String> testPageIdList = tuple.getT2();
+                    List<NewPage> clonedNewPageList = tuple.getT1();
+                    List<NewPage> srcNewPageList = tuple.getT2();
 
-                    assertThat(pageIdList).doesNotContainAnyElementsOf(testPageIdList);
+                    List<String> clonedPageIdList = new ArrayList<>();
+                    List<String> clonedDefaultPageIdList = new ArrayList<>();
+                    clonedNewPageList
+                            .forEach(newPage -> {
+                                clonedPageIdList.add(newPage.getId());
+                                clonedDefaultPageIdList.add(newPage.getDefaultResources().getPageId());
+                                assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(newPage.getApplicationId());
+                                assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
+                            });
+
+                    List<String> srcPageIdList = new ArrayList<>();
+                    List<String> srcDefaultPageIdList = new ArrayList<>();
+                    srcNewPageList
+                            .forEach(newPage -> {
+                                srcPageIdList.add(newPage.getId());
+                                srcDefaultPageIdList.add(newPage.getDefaultResources().getPageId());
+                                assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(newPage.getApplicationId());
+                                assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
+                            });
+
+                    assertThat(clonedPageIdList).doesNotContainAnyElementsOf(srcPageIdList);
+                    assertThat(clonedDefaultPageIdList).doesNotContainAnyElementsOf(srcDefaultPageIdList);
                 })
                 .verifyComplete();
 
         // verify that cloned Pages are not renamed
 
-        Mono<List<String>> pageNameListMono = pageListMono
+        Mono<List<String>> pageNameListMono = clonedPageListMono
                 .flatMapMany(Flux::fromIterable)
                 .map(PageDTO::getName)
                 .collectList();
 
-        Mono<List<String>> testPageNameListMono = testPageListMono
+        Mono<List<String>> testPageNameListMono = clonedNewPageListMono
                 .flatMapMany(Flux::fromIterable)
                 .map(newPage -> newPage.getUnpublishedPage().getName())
                 .collectList();
@@ -763,6 +1045,104 @@ public class ApplicationServiceTest {
                     List<String> testPageNameList = tuple.getT2();
 
                     assertThat(pageNameList).containsExactlyInAnyOrderElementsOf(testPageNameList);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_applicationWithGitMetadataAndActions_success() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+
+        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        String pageId = gitConnectedApp.getPages().get(0).getId();
+
+        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Clone App with action Test");
+        datasource.setPluginId(plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("Clone App Test action");
+        action.setPageId(pageId);
+        action.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+
+        ActionDTO savedAction = layoutActionService.createSingleAction(action).block();
+
+        Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
+                .cache();
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Mono<List<NewAction>> clonedActionListMono = clonedApplicationMono
+                .flatMapMany(application -> newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null))
+                .collectList();
+
+        Mono<List<NewAction>> srcActionListMono = newActionService.findAllByApplicationIdAndViewMode(gitConnectedApp.getId(), false, READ_ACTIONS, null)
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(clonedApplicationMono, clonedActionListMono, srcActionListMono))
+                .assertNext(tuple -> {
+                    Application clonedApplication = tuple.getT1(); // cloned application
+                    List<NewAction> clonedActionList = tuple.getT2();
+                    List<NewAction> srcActionList = tuple.getT3();
+
+                    assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(clonedApplication.getOrganizationId().equals(orgId));
+                    assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(clonedApplication.getUpdatedAt()).isNotNull();
+
+                    Set<String> clonedPageId = clonedApplication.getPages().stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> clonedActionIdsFromDb = clonedActionList.stream().map(action1 -> action1.getId()).collect(Collectors.toSet());
+                    Set<String> clonedPageIdsInActionFromDb = clonedActionList.stream().map(action1 -> action1.getUnpublishedAction().getPageId()).collect(Collectors.toSet());
+                    Set<String> defaultPageIdsInClonedActionFromDb = clonedActionList.stream().map(action1 -> action1.getUnpublishedAction().getDefaultResources().getPageId()).collect(Collectors.toSet());
+                    Set<String> defaultClonedActionIdsFromDb = clonedActionList.stream().map(newAction -> newAction.getDefaultResources().getActionId()).collect(Collectors.toSet());
+
+                    Set<String> srcActionIdsFromDb = srcActionList.stream().map(action1 -> action1.getId()).collect(Collectors.toSet());
+                    Set<String> srcPageIdsInActionFromDb = srcActionList.stream().map(action1 -> action1.getUnpublishedAction().getPageId()).collect(Collectors.toSet());
+                    Set<String> defaultPageIdsInSrcActionFromDb = srcActionList.stream().map(action1 -> action1.getUnpublishedAction().getDefaultResources().getPageId()).collect(Collectors.toSet());
+                    Set<String> defaultSrcActionIdsFromDb = srcActionList.stream().map(newAction -> newAction.getDefaultResources().getActionId()).collect(Collectors.toSet());
+
+                    assertThat(Collections.disjoint(clonedActionIdsFromDb, srcActionIdsFromDb)).isTrue();
+                    assertThat(clonedPageId).containsAll(clonedPageIdsInActionFromDb);
+                    assertThat(Collections.disjoint(defaultClonedActionIdsFromDb, defaultSrcActionIdsFromDb)).isTrue();
+                    assertThat(Collections.disjoint(clonedPageIdsInActionFromDb, srcPageIdsInActionFromDb)).isTrue();
+                    assertThat(Collections.disjoint(defaultPageIdsInClonedActionFromDb, defaultPageIdsInSrcActionFromDb)).isTrue();
+                    assertThat(defaultPageIdsInClonedActionFromDb).isNotEmpty();
+
+                    assertThat(clonedActionList).isNotEmpty();
+                    assertThat(defaultClonedActionIdsFromDb).isNotEmpty();
+                    for (NewAction newAction : clonedActionList) {
+                        assertThat(newAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+                        assertThat(newAction.getApplicationId()).isEqualTo(clonedApplication.getId());
+                        assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(newAction.getUnpublishedAction().getDefaultResources().getPageId());
+                    }
                 })
                 .verifyComplete();
     }
@@ -811,6 +1191,45 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void publishApplication_withGitConnectedApp_success() {
+        GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
+        gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+
+        Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
+                .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
+                .flatMap(application -> applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS))
+                .cache();
+
+        Mono<List<NewPage>> applicationPagesMono = applicationMono
+                .map(application -> application.getPages())
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
+                .collectList();
+
+        StepVerifier
+                .create(Mono.zip(applicationMono, applicationPagesMono))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    List<NewPage> pages = tuple.getT2();
+
+                    assertThat(application).isNotNull();
+                    assertThat(application.getPages().size()).isEqualTo(1);
+                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+
+                    assertThat(pages.size()).isEqualTo(1);
+                    NewPage newPage = pages.get(0);
+                    assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
+                    assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getId()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getId());
+                    assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
+                    assertThat(newPage.getDefaultResources()).isNotNull();
+
+                    assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void deleteUnpublishedPageFromApplication() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Delete Page";
@@ -839,6 +1258,50 @@ public class ApplicationServiceTest {
         ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setId(newPage.getId());
         applicationPage.setIsDefault(false);
+        applicationPage.setDefaultPageId(newPage.getId());
+
+        StepVerifier
+                .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
+                .assertNext(editedApplication -> {
+
+                    List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
+                    assertThat(publishedPages).size().isEqualTo(2);
+                    assertThat(publishedPages).containsAnyOf(applicationPage);
+
+                    List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
+                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).doesNotContain(applicationPage);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteUnpublishedPage_FromApplicationConnectedToGit_success() {
+
+        final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        PageDTO page = new PageDTO();
+        page.setName("Test delete unPublish page test");
+        page.setApplicationId(gitConnectedApp.getId());
+        Layout defaultLayout = newPageService.createDefaultLayout();
+        List<Layout> layouts = new ArrayList<>();
+        layouts.add(defaultLayout);
+        page.setLayouts(layouts);
+
+        Mono<Application> applicationMono = applicationPageService.createPageWithBranchName(page, branchName)
+                .flatMap(pageDTO -> applicationPageService.publish(pageDTO.getApplicationId(), branchName, true))
+                .cache();
+
+        PageDTO newPage = applicationMono
+                .flatMap(application -> newPageService
+                        .findByNameAndApplicationIdAndViewMode("Test delete unPublish page test", application.getId(), READ_PAGES, false)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
+                        .flatMap(pageDTO -> applicationPageService.deleteUnpublishedPage(pageDTO.getId()))).block();
+
+        ApplicationPage applicationPage = new ApplicationPage();
+        applicationPage.setId(newPage.getId());
+        applicationPage.setIsDefault(false);
+        applicationPage.setDefaultPageId(newPage.getId());
 
         StepVerifier
                 .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
@@ -972,7 +1435,9 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validCloneApplicationWhenCancelledMidWay() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Clone Application Midway Cancellation";
@@ -1020,11 +1485,28 @@ public class ApplicationServiceTest {
 
         ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
 
+        // Testing JS Objects here
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setPageId(pageId);
+        actionCollectionDTO1.setApplicationId(originalApplication.getId());
+        actionCollectionDTO1.setOrganizationId(orgId);
+        actionCollectionDTO1.setPluginId(datasource.getPluginId());
+        ActionDTO jsAction = new ActionDTO();
+        jsAction.setName("jsFunc");
+        jsAction.setActionConfiguration(new ActionConfiguration());
+        jsAction.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO1.setActions(List.of(jsAction));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
+
         // Trigger the clone of application now.
-        applicationPageService.cloneApplication(originalApplication.getId())
+        applicationPageService.cloneApplication(originalApplication.getId(), null)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
+        // Wait for cloning to complete
         Mono<Application> clonedAppFromDbMono = Mono.just(originalApplication)
                 .flatMap(originalApp -> {
                     try {
@@ -1037,29 +1519,42 @@ public class ApplicationServiceTest {
                 })
                 .cache();
 
+        // Find all actions in new app
         Mono<List<NewAction>> actionsMono = clonedAppFromDbMono
                 .flatMap(clonedAppFromDb -> newActionService
                         .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                         .collectList()
                 );
 
+        // Find all pages in new app
         Mono<List<PageDTO>> pagesMono = clonedAppFromDbMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
+        // Find all action collections in new app
+        final Mono<List<ActionCollection>> actionCollectionsMono = clonedAppFromDbMono
+                .flatMap(clonedAppFromDb -> actionCollectionService
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
+                        .collectList()
+                );
+
         StepVerifier
-                .create(Mono.zip(clonedAppFromDbMono, actionsMono, pagesMono))
+                .create(Mono.zip(clonedAppFromDbMono, actionsMono, pagesMono, actionCollectionsMono))
                 .assertNext(tuple -> {
                     Application cloneApp = tuple.getT1();
                     List<NewAction> actions = tuple.getT2();
                     List<PageDTO> pages = tuple.getT3();
+                    final List<ActionCollection> actionCollections = tuple.getT4();
 
                     assertThat(cloneApp).isNotNull();
                     assertThat(pages.get(0).getId()).isNotEqualTo(pageId);
-                    assertThat(actions.size()).isEqualTo(3);
+                    assertThat(actions.size()).isEqualTo(4);
                     Set<String> actionNames = actions.stream().map(action -> action.getUnpublishedAction().getName()).collect(Collectors.toSet());
-                    assertThat(actionNames).containsExactlyInAnyOrder("Clone App Test action1", "Clone App Test action2", "Clone App Test action3");
+                    assertThat(actionNames).containsExactlyInAnyOrder("Clone App Test action1", "Clone App Test action2", "Clone App Test action3", "jsFunc");
+                    assertThat(actionCollections.size()).isEqualTo(1);
+                    Set<String> actionCollectionNames = actionCollections.stream().map(actionCollection -> actionCollection.getUnpublishedCollection().getName()).collect(Collectors.toSet());
+                    assertThat(actionCollectionNames).containsExactlyInAnyOrder("testCollection1");
                 })
                 .verifyComplete();
 
@@ -1131,7 +1626,7 @@ public class ApplicationServiceTest {
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = createApplicationMono
                 .map(application -> application.getId())
-                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, false));
+                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdViewMode(applicationId, false, false));
 
         StepVerifier
                 .create(applicationPagesDTOMono)
@@ -1291,6 +1786,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("SaveLastEditInformation TestApp");
         testApplication.setModifiedBy("test-user");
+        testApplication.setIsPublic(true);
 
         Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application ->
@@ -1300,6 +1796,7 @@ public class ApplicationServiceTest {
             assertThat(application.getLastUpdateTime()).isNotNull();
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
+            assertThat(application.getIsPublic()).isTrue();
         }).verifyComplete();
     }
 
@@ -1308,14 +1805,12 @@ public class ApplicationServiceTest {
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
         unsavedApplication.setOrganizationId(orgId);
-        unsavedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        unsavedApplication.getGitApplicationMetadata().setRemoteUrl("sample-remote-url");
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
         unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
 
         Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
-                .flatMap(savedApplication -> applicationService.generateSshKeyPair(savedApplication.getId())
+                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId())
                         .thenReturn(savedApplication.getId())
                 ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
 
@@ -1325,7 +1820,7 @@ public class ApplicationServiceTest {
                     assertThat(gitAuth.getPublicKey()).isNotNull();
                     assertThat(gitAuth.getPrivateKey()).isNotNull();
                     assertThat(gitAuth.getGeneratedAt()).isNotNull();
-                    assertThat(testApplication.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("sample-remote-url");
+                    assertThat(testApplication.getGitApplicationMetadata().getDefaultApplicationId()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -1343,6 +1838,7 @@ public class ApplicationServiceTest {
         unsavedMainApp.setOrganizationId(orgId);
 
         Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
+                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId()).thenReturn(savedApplication))
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
                     unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
@@ -1353,7 +1849,7 @@ public class ApplicationServiceTest {
                     return applicationRepository.save(unsavedChildApp);
                 })
                 .flatMap(savedChildApp ->
-                        applicationService.generateSshKeyPair(savedChildApp.getId()).thenReturn(savedChildApp)
+                        applicationService.createOrUpdateSshKeyPair(savedChildApp.getId()).thenReturn(savedChildApp)
                 )
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
@@ -1435,6 +1931,48 @@ public class ApplicationServiceTest {
         StepVerifier
                 .create(resultMono)
                 // Since the action should be deleted, we exmpty the Mono to complete empty.
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_withNullGitData_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_withNullGitData_Success";
+        testApplication.setName(appName);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_WithDeployKeysNotConnectedToRemote_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_WithDeployKeysNotConnectedToRemote_Success";
+        testApplication.setName(appName);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPrivateKey("privateKey");
+        gitAuth.setPublicKey("publicKey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
                 .verifyComplete();
     }
 

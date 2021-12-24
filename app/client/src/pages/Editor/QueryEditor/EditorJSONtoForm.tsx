@@ -73,6 +73,8 @@ import SearchSnippets from "components/ads/SnippetButton";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -387,6 +389,7 @@ type QueryFormProps = {
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
     suggestedWidgets?: SuggestedWidget[];
+    readableError?: string;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -449,11 +452,25 @@ export function EditorJSONtoForm(props: Props) {
   );
   const { pageId } = useParams<ExplorerURLParams>();
 
+  // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
-      error = String(executedQueryData.body);
+      // Pass the error to be shown in the error tab
+      error = executedQueryData.readableError
+        ? getErrorAsString(executedQueryData.readableError)
+        : getErrorAsString(executedQueryData.body);
     } else if (isString(executedQueryData.body)) {
-      output = JSON.parse(executedQueryData.body);
+      try {
+        // Try to parse response as JSON array to be displayed in the Response tab
+        output = JSON.parse(executedQueryData.body);
+      } catch (e) {
+        // In case the string is not a JSON, wrap it in a response object
+        output = [
+          {
+            response: executedQueryData.body,
+          },
+        ];
+      }
     } else {
       output = executedQueryData.body;
     }
@@ -732,6 +749,12 @@ export function EditorJSONtoForm(props: Props) {
     props.actionName,
   );
 
+  // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
+  // the initialized prop below comes from redux-form.
+  if (!props.initialized) {
+    return null;
+  }
+
   return (
     <>
       <CloseEditor />
@@ -809,7 +832,7 @@ export function EditorJSONtoForm(props: Props) {
               <TabComponent
                 tabs={[
                   {
-                    key: "query",
+                    key: EDITOR_TABS.QUERY,
                     title: "Query",
                     panelComponent: (
                       <SettingsWrapper>
@@ -851,7 +874,7 @@ export function EditorJSONtoForm(props: Props) {
                     ),
                   },
                   {
-                    key: "settings",
+                    key: EDITOR_TABS.SETTINGS,
                     title: "Settings",
                     panelComponent: (
                       <SettingsWrapper>

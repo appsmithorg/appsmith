@@ -2,14 +2,13 @@ const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const pages = require("../../../../locators/Pages.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 
 describe("Page Load tests", () => {
   before(() => {
     cy.addDsl(dsl);
-    cy.get("div")
-      .contains("Pages")
-      .next()
-      .next()
+    cy.get(explorerLocators.AddPage)
+      .first()
       .click();
 
     cy.skipGenerateCRUDPage();

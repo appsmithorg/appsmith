@@ -1,4 +1,4 @@
-# This workflow is responsible for building, testing & packaging the Java server codebase
+# This workflow is responsible for building, testing & packaging the RTS Node server.
 name: Build RTS Workflow
 
 on:

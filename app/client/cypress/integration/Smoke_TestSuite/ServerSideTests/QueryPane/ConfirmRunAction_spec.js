@@ -30,9 +30,9 @@ describe("Confirm run action", function() {
       .find(".bp3-switch")
       .click();
 
-    cy.get(queryEditor.runQuery).click();
+    cy.onlyQueryRun();
     cy.get(".bp3-dialog")
-      .find(".bp3-button")
+      .find("button")
       .contains("Confirm")
       .click();
     cy.wait("@postExecute").should(

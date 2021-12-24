@@ -24,6 +24,8 @@ import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
   step: number;
@@ -63,6 +65,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
@@ -76,8 +79,8 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
     const defaultPageLayouts = [
       { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
     ];
-    dispatch(createPage(params.applicationId, name, defaultPageLayouts));
-  }, [dispatch, pages, params.applicationId]);
+    dispatch(createPage(applicationId, name, defaultPageLayouts));
+  }, [dispatch, pages, applicationId]);
 
   const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
@@ -107,7 +110,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   return (
     <Entity
       action={() =>
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId))
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId))
       }
       addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
       alwaysShowRightIcon
@@ -118,7 +121,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       isDefaultExpanded
       name="Pages"
       onClickRightIcon={() => {
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
       }}
       onCreate={createPageCallback}
       rightIcon={settingsIconWithTooltip}

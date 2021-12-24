@@ -1,10 +1,11 @@
 import React, { memo, ReactElement } from "react";
 import ExplorerActionEntity from "./ActionEntity";
 import { Page } from "constants/ReduxActionConstants";
-import { ExplorerURLParams, getActionIdFromURL } from "../helpers";
+import { getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
-import { useParams } from "react-router";
 import { Plugin } from "api/PluginApi";
+import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerActionsGroupProps = {
   actions: any[];
@@ -15,15 +16,18 @@ type ExplorerActionsGroupProps = {
   plugins: Record<string, Plugin>;
 };
 export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
-  const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
   const childNode: ReactElement<ExplorerActionsGroupProps> = (
     <>
       {props.actions.map((action: any) => {
         const url = props.config?.getURL(
-          params.applicationId,
+          applicationId,
           props.page.pageId,
           action.config.id,
           action.config.pluginType,
+          props.plugins[
+            action.config.pluginId || action.config.datasource.pluginId
+          ],
         );
         const actionId = getActionIdFromURL();
         const active = actionId === action.config.id;

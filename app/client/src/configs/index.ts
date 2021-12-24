@@ -2,6 +2,7 @@ import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
+import { EvaluationVersion } from "api/ApplicationApi";
 const history = createBrowserHistory();
 
 export type INJECTED_CONFIGS = {
@@ -41,16 +42,16 @@ export type INJECTED_CONFIGS = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  disableTelemetry: boolean;
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
-  isAppsmithCloud: boolean;
 };
 declare global {
   interface Window {
     APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
     Intercom: any;
+    evaluationVersion: EvaluationVersion;
+    Sentry: any;
   }
 }
 
@@ -118,12 +119,10 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    disableTelemetry: true,
     cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
-    isAppsmithCloud: !!process.env.REACT_APP_IS_APPSMITH_CLOUD,
   };
 };
 
@@ -211,21 +210,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   // We enable segment tracking if either the Cloud API key is set or the self-hosted CE key is set
   segment.enabled = segment.enabled || segmentCEKey.enabled;
 
-  let sentryTelemetry = true;
-  // Turn off all analytics if telemetry is disabled
-  if (APPSMITH_FEATURE_CONFIGS.disableTelemetry) {
-    smartLook.enabled = false;
-    segment.enabled = false;
-    sentryTelemetry = false;
-  }
-
   return {
     sentry: {
-      enabled:
-        sentryDSN.enabled &&
-        sentryRelease.enabled &&
-        sentryENV.enabled &&
-        sentryTelemetry,
+      enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,
       dsn: sentryDSN.value,
       release: sentryRelease.value,
       environment: sentryENV.value,
@@ -287,12 +274,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
-    disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
     commentsTestModeEnabled: false,
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
-    isAppsmithCloud: ENV_CONFIG.isAppsmithCloud,
   };
 };

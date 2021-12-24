@@ -8,7 +8,7 @@ import ResetPassword from "./ResetPassword";
 import PageNotFound from "pages/common/PageNotFound";
 import FooterLinks from "./FooterLinks";
 import * as Sentry from "@sentry/react";
-import requiresAuthHOC from "./requiresAuthHOC";
+import { requiresUnauth } from "./requiresAuthHOC";
 import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
@@ -51,4 +51,4 @@ export function UserAuth() {
   );
 }
 
-export default requiresAuthHOC(UserAuth);
+export default requiresUnauth(UserAuth);

@@ -46,30 +46,30 @@ const getCustomHoverColor = (
   if (!backgroundColor) {
     return theme.colors.button[
       (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
-    ][(buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()].hoverColor;
+    ][(buttonVariant || ButtonVariantTypes.PRIMARY).toLowerCase()].hoverColor;
   }
 
   switch (buttonVariant) {
-    case ButtonVariantTypes.OUTLINE:
+    case ButtonVariantTypes.SECONDARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
-        : theme.colors.button.primary.outline.hoverColor;
+        : theme.colors.button.primary.secondary.hoverColor;
 
-    case ButtonVariantTypes.GHOST:
+    case ButtonVariantTypes.TERTIARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
-        : theme.colors.button.primary.ghost.hoverColor;
+        : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .darken(10)
             .toString()
-        : theme.colors.button.primary.solid.hoverColor;
+        : theme.colors.button.primary.primary.hoverColor;
   }
 };
 
@@ -79,12 +79,12 @@ const getCustomBackgroundColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  return buttonVariant === ButtonVariantTypes.SOLID
+  return buttonVariant === ButtonVariantTypes.PRIMARY
     ? backgroundColor
       ? backgroundColor
       : theme.colors.button[
           (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
-        ].solid.bgColor
+        ].primary.bgColor
     : "none";
 };
 
@@ -94,12 +94,12 @@ const getCustomBorderColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  return buttonVariant === ButtonVariantTypes.OUTLINE
+  return buttonVariant === ButtonVariantTypes.SECONDARY
     ? backgroundColor
       ? backgroundColor
       : theme.colors.button[
           (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
-        ].outline.borderColor
+        ].secondary.borderColor
     : "none";
 };
 
@@ -126,20 +126,20 @@ const StyledButton = styled((props) => (
     &:enabled {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.warning.solid.bgColor
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
+            ? theme.colors.button.warning.primary.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.DANGER
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.danger.solid.bgColor
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
+            ? theme.colors.button.danger.primary.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.INFO
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.info.solid.bgColor
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
+            ? theme.colors.button.info.primary.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.secondary.solid.bgColor
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
+            ? theme.colors.button.secondary.primary.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.CUSTOM
           ? getCustomBackgroundColor(
@@ -148,8 +148,8 @@ const StyledButton = styled((props) => (
               buttonVariant,
               buttonColor,
             )
-          : buttonVariant === ButtonVariantTypes.SOLID
-          ? theme.colors.button.primary.solid.bgColor
+          : buttonVariant === ButtonVariantTypes.PRIMARY
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
@@ -157,25 +157,25 @@ const StyledButton = styled((props) => (
     &:hover:enabled, &:active:enabled {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
-          ? buttonVariant === ButtonVariantTypes.OUTLINE
-            ? theme.colors.button.warning.outline.hoverColor
-            : buttonVariant === ButtonVariantTypes.GHOST
-            ? theme.colors.button.warning.ghost.hoverColor
-            : theme.colors.button.warning.solid.hoverColor
+          ? buttonVariant === ButtonVariantTypes.SECONDARY
+            ? theme.colors.button.warning.secondary.hoverColor
+            : buttonVariant === ButtonVariantTypes.TERTIARY
+            ? theme.colors.button.warning.tertiary.hoverColor
+            : theme.colors.button.warning.primary.hoverColor
           : buttonStyle === ButtonStyleTypes.DANGER
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.danger.solid.hoverColor
-            : theme.colors.button.danger.outline.hoverColor
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
+            ? theme.colors.button.danger.primary.hoverColor
+            : theme.colors.button.danger.secondary.hoverColor
           : buttonStyle === ButtonStyleTypes.INFO
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.info.solid.hoverColor
-            : theme.colors.button.info.outline.hoverColor
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
+            ? theme.colors.button.info.primary.hoverColor
+            : theme.colors.button.info.secondary.hoverColor
           : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? buttonVariant === ButtonVariantTypes.OUTLINE
-            ? theme.colors.button.secondary.outline.hoverColor
-            : buttonVariant === ButtonVariantTypes.GHOST
-            ? theme.colors.button.secondary.ghost.hoverColor
-            : theme.colors.button.secondary.solid.hoverColor
+          ? buttonVariant === ButtonVariantTypes.SECONDARY
+            ? theme.colors.button.secondary.secondary.hoverColor
+            : buttonVariant === ButtonVariantTypes.TERTIARY
+            ? theme.colors.button.secondary.tertiary.hoverColor
+            : theme.colors.button.secondary.primary.hoverColor
           : buttonStyle === ButtonStyleTypes.CUSTOM
           ? getCustomHoverColor(
               theme,
@@ -183,12 +183,13 @@ const StyledButton = styled((props) => (
               buttonVariant,
               buttonColor,
             )
-          : buttonVariant === ButtonVariantTypes.OUTLINE
-          ? theme.colors.button.primary.outline.hoverColor
-          : buttonVariant === ButtonVariantTypes.GHOST
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
+          : buttonVariant === ButtonVariantTypes.SECONDARY
+          ? theme.colors.button.primary.secondary.hoverColor
+          : buttonVariant === ButtonVariantTypes.TERTIARY
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
       } !important;
+      border-color: var(--appsmith-input-focus-border-color) !important;
     }
 
     &:disabled {
@@ -197,15 +198,15 @@ const StyledButton = styled((props) => (
     }
 
     border: ${
-      buttonVariant === ButtonVariantTypes.OUTLINE
+      buttonVariant === ButtonVariantTypes.SECONDARY
         ? buttonStyle === ButtonStyleTypes.WARNING
-          ? `1px solid ${theme.colors.button.warning.outline.borderColor}`
+          ? `1px solid ${theme.colors.button.warning.secondary.borderColor}`
           : buttonStyle === ButtonStyleTypes.DANGER
-          ? `1px solid ${theme.colors.button.danger.outline.borderColor}`
+          ? `1px solid ${theme.colors.button.danger.secondary.borderColor}`
           : buttonStyle === ButtonStyleTypes.INFO
-          ? `1px solid ${theme.colors.button.info.outline.borderColor}`
+          ? `1px solid ${theme.colors.button.info.secondary.borderColor}`
           : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? `1px solid ${theme.colors.button.secondary.outline.borderColor}`
+          ? `1px solid ${theme.colors.button.secondary.secondary.borderColor}`
           : buttonStyle === ButtonStyleTypes.CUSTOM
           ? `1px solid ${getCustomBorderColor(
               theme,
@@ -213,7 +214,7 @@ const StyledButton = styled((props) => (
               buttonVariant,
               buttonColor,
             )}`
-          : `1px solid ${theme.colors.button.primary.outline.borderColor}`
+          : `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
 
@@ -227,26 +228,26 @@ const StyledButton = styled((props) => (
       -webkit-box-orient: vertical;
 
       color: ${
-        buttonVariant === ButtonVariantTypes.SOLID
+        buttonVariant === ButtonVariantTypes.PRIMARY
           ? buttonStyle === ButtonStyleTypes.CUSTOM
             ? getCustomTextColor(theme, buttonColor, prevButtonStyle)
-            : `${theme.colors.button.primary.solid.textColor}`
+            : `${theme.colors.button.primary.primary.textColor}`
           : buttonStyle === ButtonStyleTypes.WARNING
-          ? `${theme.colors.button.warning.outline.textColor}`
+          ? `${theme.colors.button.warning.secondary.textColor}`
           : buttonStyle === ButtonStyleTypes.DANGER
-          ? `${theme.colors.button.danger.outline.textColor}`
+          ? `${theme.colors.button.danger.secondary.textColor}`
           : buttonStyle === ButtonStyleTypes.INFO
-          ? `${theme.colors.button.info.outline.textColor}`
+          ? `${theme.colors.button.info.secondary.textColor}`
           : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? `${theme.colors.button.secondary.outline.textColor}`
+          ? `${theme.colors.button.secondary.secondary.textColor}`
           : buttonStyle === ButtonStyleTypes.CUSTOM
           ? getCustomBackgroundColor(
               theme,
               prevButtonStyle,
-              ButtonVariantTypes.SOLID,
+              ButtonVariantTypes.PRIMARY,
               buttonColor,
             )
-          : `${theme.colors.button.primary.outline.textColor}`
+          : `${theme.colors.button.primary.secondary.textColor}`
       } !important;
     }
   `}
@@ -353,7 +354,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
 
 BaseButton.defaultProps = {
   buttonStyle: "SECONDARY",
-  buttonVariant: "SOLID",
+  buttonVariant: ButtonVariantTypes.PRIMARY,
   disabled: false,
   text: "Button Text",
   minimal: true,

@@ -36,7 +36,7 @@ export function defaultValueValidation(
     inputType === "CURRENCY" ||
     inputType === "PHONE_NUMBER"
   ) {
-    const parsed = Number(value);
+    let parsed: number | undefined = Number(value);
 
     if (typeof value === "string") {
       if (value.trim() === "") {
@@ -54,6 +54,10 @@ export function defaultValueValidation(
           messages: ["This value must be a number"],
         };
       }
+    }
+
+    if (isNaN(parsed)) {
+      parsed = undefined;
     }
 
     return {
@@ -335,6 +339,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Clears the input value after submit",
             propertyName: "resetOnSubmit",
             label: "Reset on submit",
@@ -354,10 +369,25 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "isSpellCheck",
+            label: "Spellcheck",
+            helpText:
+              "Defines whether the text input may be checked for spelling errors",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.TEXT;
+            },
+            dependencies: ["inputType"],
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the text is changed",
@@ -493,7 +523,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{
-        function(){
+        (function(){
           if (!this.isRequired && !this.text) {
             return true
           }
@@ -562,7 +592,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           } else {
             return true;
           }
-        }()
+        })()
       }}`,
       value: `{{this.text}}`,
     };
@@ -701,7 +731,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip
         ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 2
+          GRID_DENSITY_MIGRATION_V1 + 4
         : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           GRID_DENSITY_MIGRATION_V1;
 
@@ -744,6 +774,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         phoneNumberCountryCode={phoneNumberCountryCode}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
+        spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
         value={value}

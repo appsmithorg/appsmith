@@ -5,6 +5,7 @@ import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
@@ -13,7 +14,11 @@ export const useSSHKeyPair = () => {
   const dispatch = useDispatch();
 
   const currentApplication = useSelector(getCurrentApplication);
-
+  //
+  //
+  // TODO: MAINTAIN SSHKeyPair in GitSyncReducer
+  //
+  //
   const SSHKeyPair = currentApplication?.SSHKeyPair;
   const deployKeyDocUrl = currentApplication?.deployKeyDocUrl || DOCS_BASE_URL;
 
@@ -52,12 +57,12 @@ export const useSSHKeyPair = () => {
       setIsGeneratingSSHKey(true);
       setFailedGeneratingSSHKey(false);
 
-      // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         generateSSHKeyPair({
           onErrorCallback: onGenerateSSHKeyFailure,
         }),
       );
+      AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
     }
   }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey, currentApplication?.id]);
 
@@ -72,28 +77,22 @@ export const useSSHKeyPair = () => {
   };
 };
 
-export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
+export const useGitConnect = () => {
   const dispatch = useDispatch();
 
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
-  const [failedConnectingToGit, setFailedConnectingToGit] = useState(false);
-
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
-    onSuccess();
   }, [setIsConnectingToGit]);
 
   const onGitConnectFailure = useCallback(() => {
     setIsConnectingToGit(false);
-    setFailedConnectingToGit(true);
   }, [setIsConnectingToGit]);
 
   const connectToGit = useCallback(
     (payload: ConnectToGitPayload) => {
       setIsConnectingToGit(true);
-      setFailedConnectingToGit(false);
-
       // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         connectToGitInit({
@@ -108,7 +107,6 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 
   return {
     isConnectingToGit,
-    failedConnectingToGit,
     connectToGit,
   };
 };

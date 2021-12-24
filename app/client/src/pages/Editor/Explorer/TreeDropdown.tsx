@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
 import {
-  StyledPopover,
   StyledDropDownContainer,
   StyledMenuItem,
   StyledMenu,
@@ -12,8 +11,13 @@ import {
   PopoverInteractionKind,
   PopoverPosition,
   IPopoverSharedProps,
+  Popover,
+  Classes,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
+import styled from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
+import { entityTooltipCSS } from "./Entity";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -39,6 +43,39 @@ type TreeDropdownProps = {
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
 };
+
+export const StyledPopover = styled(Popover)`
+  .${Classes.POPOVER_TARGET} {
+    ${entityTooltipCSS}
+  }
+  div {
+    flex: 1 1 auto;
+  }
+  span {
+    width: 100%;
+    position: relative;
+  }
+  .${Classes.BUTTON} {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .${Classes.BUTTON_TEXT} {
+    text-overflow: ellipsis;
+    text-align: left;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+  && {
+    .${Classes.ICON} {
+      width: fit-content;
+      color: ${Colors.SLATE_GRAY};
+    }
+  }
+`;
 
 function getSelectedOption(
   selectedValue: string,

@@ -24,14 +24,17 @@ public class ApplicationJson {
     List<NewPage> pageList;
 
     String publishedDefaultPageName;
-
+    
     String unpublishedDefaultPageName;
-
+    
     List<NewAction> actionList;
 
     List<ActionCollection> actionCollectionList;
 
     Map<String, DecryptedSensitiveFields> decryptedFields;
+
+    Theme editModeTheme;
+    Theme publishedTheme;
 
     /**
      * Mapping mongoEscapedWidgets with layoutId

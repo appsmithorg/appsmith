@@ -12,6 +12,7 @@ import {
   ButtonBoxShadow,
   ButtonVariant,
   ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
 } from "components/constants";
 import { Colors } from "constants/Colors";
 
@@ -62,10 +63,21 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -97,19 +109,31 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             options: [
               {
                 label: "Primary",
-                value: "SOLID",
+                value: ButtonVariantTypes.PRIMARY,
               },
               {
                 label: "Secondary",
-                value: "OUTLINE",
+                value: ButtonVariantTypes.SECONDARY,
               },
               {
                 label: "Tertiary",
-                value: "GHOST",
+                value: ButtonVariantTypes.TERTIARY,
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
+              },
+            },
           },
           {
             propertyName: "borderRadius",

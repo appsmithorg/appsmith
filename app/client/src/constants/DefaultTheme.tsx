@@ -6,6 +6,7 @@ import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
+import { typography, Typography, TypographyKeys } from "./typography";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -20,7 +21,7 @@ export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
   success: Colors.PURPLE,
   secondary: Colors.BLACK_PEARL,
-  danger: Colors.RED,
+  danger: Colors.ERROR_RED,
   none: Colors.GEYSER_LIGHT,
   warning: Colors.JAFFA,
   successLight: Colors.GREEN,
@@ -42,43 +43,6 @@ export enum Skin {
   DARK,
 }
 
-export const hideScrollbar = css`
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-    -webkit-appearance: none;
-  }
-`;
-
-export const thinScrollbar = css`
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-  }
-  &:hover {
-    ::-webkit-scrollbar-thumb {
-      background: ${Colors.PORCELAIN};
-      border-radius: 10px;
-    }
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
-`;
-
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -86,7 +50,10 @@ export const truncateTextUsingEllipsis = css`
   display: block;
 `;
 
-export const getTypographyByKey = (props: Record<string, any>, key: string) => `
+export const getTypographyByKey = (
+  props: Record<string, any>,
+  key: TypographyKeys,
+) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
   line-height: ${props.theme.typography[key].lineHeight}px;
@@ -95,67 +62,45 @@ export const getTypographyByKey = (props: Record<string, any>, key: string) => `
 
 export const BlueprintControlTransform = css`
   && {
+    .${Classes.CONTROL}.${Classes.DISABLED} {
+      color: ${Colors.GREY_8};
+    }
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
         background: ${(props) => props.theme.colors.primaryOld};
         box-shadow: none;
-        border: 2px solid ${(props) => props.theme.colors.primaryOld};
+        border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        background: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &.${Classes.SWITCH}
-        input:checked:disabled
-        ~ .${Classes.CONTROL_INDICATOR} {
+      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
         opacity: 0.5;
       }
-    }
-
-    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
-      border-radius: 0;
+      & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid ${Colors.GREY_5};
+      }
     }
 
     .${Classes.SWITCH} {
+      & .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
       input:checked ~ .${Classes.CONTROL_INDICATOR} {
         &::before {
           left: calc(105% - 1em);
         }
       }
-
-      & .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
-        &::before {
-          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
-        }
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${(props) => props.theme.colors.primaryOld};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
+      input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${Colors.GREY_3};
+        border: 1px solid ${Colors.GREY_5};
       }
     }
 
     .${Classes.CONTROL_INDICATOR} {
-      box-shadow: none;
-      background: none;
-      border: 2px solid ${Colors.SLATE_GRAY};
       &::before {
         position: absolute;
-        left: -2px;
-        top: -2px;
+        left: -1px;
+        top: -1px;
       }
     }
   }
@@ -318,6 +263,20 @@ export const BlueprintInputTransform = css`
   }
 `;
 
+const iconSizes = {
+  XXS: 8,
+  XS: 10,
+  SMALL: 12,
+  MEDIUM: 14,
+  LARGE: 15,
+  XL: 16,
+  XXL: 18,
+  XXXL: 20,
+  XXXXL: 22,
+};
+
+type IconSizeType = typeof iconSizes;
+
 export type ThemeBorder = {
   thickness: number;
   style: "dashed" | "solid";
@@ -343,7 +302,7 @@ export type Theme = {
   spaces: Array<number>;
   fontWeights: Array<number>;
   colors: any;
-  typography: any;
+  typography: Typography;
   lineHeights: Array<number>;
   fonts: {
     code: FontFamily;
@@ -457,17 +416,11 @@ export type Theme = {
   onboarding: {
     statusBarHeight: number;
   };
-};
-
-type IconSizeType = {
-  XXS: number;
-  XS: number;
-  SMALL: number;
-  MEDIUM: number;
-  LARGE: number;
-  XL: number;
-  XXL: number;
-  XXXL: number;
+  settings: {
+    footerHeight: number;
+    footerShadow: string;
+    linkBg: string;
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -493,6 +446,42 @@ export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+  }
+`;
 // export const adsTheme: any = {
 //   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
 // };
@@ -556,6 +545,7 @@ const darkShades = [
   "#FFFFFF",
   "#157A96",
   "#090707",
+  "#FFDEDE",
 ] as const;
 
 const lightShades = [
@@ -577,6 +567,7 @@ const lightShades = [
   "#858282",
   "#000000",
   "#F86A2B",
+  "#FFDEDE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -590,19 +581,19 @@ type buttonVariant = {
 };
 
 type ButtonVariantColor = {
-  solid: {
+  primary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
     textColor: Color;
   };
-  outline: {
+  secondary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
     textColor: Color;
   };
-  ghost: {
+  tertiary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
@@ -742,6 +733,7 @@ type ColorType = {
       disabledBg: ShadeColor;
     };
     menu: {
+      border: ShadeColor;
       bg: ShadeColor;
       hover: ShadeColor;
       text: ShadeColor;
@@ -886,6 +878,7 @@ type ColorType = {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
+    iconBg: ShadeColor;
     user: {
       textColor: ShadeColor;
     };
@@ -1250,14 +1243,18 @@ type ColorType = {
   numberedStep: {
     line: string;
   };
-  gitSyncModal: {
-    menuBackgroundColor: string;
-    separator: string;
-  };
+  gitSyncModal: GitSyncModalColors;
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
     branchBtnText: string;
+  };
+  link: string;
+  welcomePage?: {
+    text: string;
+  };
+  settings: {
+    link: string;
   };
 };
 
@@ -1270,7 +1267,9 @@ const editorBottomBar = {
 const gitSyncModal = {
   menuBackgroundColor: Colors.ALABASTER_ALT,
   separator: Colors.ALTO2,
+  closeIcon: "rgba(29, 28, 29, 0.7);",
 };
+type GitSyncModalColors = typeof gitSyncModal;
 
 const tabItemBackgroundFill = {
   highlightBackground: Colors.Gallery,
@@ -1367,7 +1366,7 @@ const comments = {
   activeModeIconCircleStroke: "#090707",
 };
 
-const auth: any = {
+const auth = {
   background: lightShades[11],
   cardBackground: lightShades[0],
   btnPrimary: Colors.CRUSTA,
@@ -1516,81 +1515,81 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
-      solid: {
+      primary: {
         bgColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
-      solid: {
+      primary: {
         bgColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_OUTLINE_HOVER,
         textColor: Colors.WARNING_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
-      solid: {
+      primary: {
         bgColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
         textColor: Colors.DANGER_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
-      solid: {
+      primary: {
         bgColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
         textColor: Colors.INFO_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
-      solid: {
+      primary: {
         bgColor: Colors.GRAY,
         hoverColor: Colors.CHARCOAL,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GRAY,
         hoverColor: Colors.Gallery,
         textColor: Colors.GRAY,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.MERCURY,
       },
     },
@@ -1702,6 +1701,7 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menu: {
+      border: darkShades[3],
       bg: darkShades[3],
       text: darkShades[9],
       hover: darkShades[4],
@@ -1845,6 +1845,7 @@ export const dark: ColorType = {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
+    iconBg: darkShades[12],
     user: {
       textColor: darkShades[7],
     },
@@ -2077,6 +2078,13 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const light: ColorType = {
@@ -2145,81 +2153,81 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
-      solid: {
+      primary: {
         bgColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
-      solid: {
+      primary: {
         bgColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_OUTLINE_HOVER,
         textColor: Colors.WARNING_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
-      solid: {
+      primary: {
         bgColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
         textColor: Colors.DANGER_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
-      solid: {
+      primary: {
         bgColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
         textColor: Colors.INFO_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
-      solid: {
+      primary: {
         bgColor: Colors.GRAY,
         hoverColor: Colors.CHARCOAL,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GRAY,
         hoverColor: Colors.Gallery,
         textColor: Colors.GRAY,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.MERCURY,
       },
     },
@@ -2331,7 +2339,8 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menu: {
-      bg: lightShades[11],
+      border: lightShades[13],
+      bg: lightShades[0],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
@@ -2475,6 +2484,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: lightShades[5],
+    iconBg: lightShades[18],
     user: {
       textColor: lightShades[9],
     },
@@ -2547,7 +2557,7 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[0],
+    bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
     dividerBg: lightShades[13],
@@ -2708,6 +2718,13 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const theme: Theme = {
@@ -2715,148 +2732,8 @@ export const theme: Theme = {
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
-  typography: {
-    h1: {
-      fontSize: 20,
-      lineHeight: 27,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h2: {
-      fontSize: 18,
-      lineHeight: 25,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h3: {
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h4: {
-      fontSize: 16,
-      lineHeight: 21,
-      letterSpacing: -0.24,
-      fontWeight: 500,
-    },
-    h5: {
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.24,
-      fontWeight: 500,
-    },
-    h6: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.8,
-      fontWeight: 500,
-    },
-    p1: {
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    p2: {
-      fontSize: 13,
-      lineHeight: 17,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    p3: {
-      fontSize: 12,
-      lineHeight: 16,
-      letterSpacing: -0.221538,
-      fontWeight: "normal",
-    },
-    p4: {
-      fontSize: 13,
-      lineHeight: 16,
-      letterSpacing: -0.221538,
-      fontWeight: 600,
-    },
-    btnLarge: {
-      fontSize: 13,
-      lineHeight: 15,
-      letterSpacing: 0.6,
-      fontWeight: 600,
-    },
-    btnMedium: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.6,
-      fontWeight: 600,
-    },
-    btnSmall: {
-      fontSize: 11,
-      lineHeight: 12,
-      letterSpacing: 0.4,
-      fontWeight: 600,
-    },
-    floatingBtn: {
-      fontSize: 14,
-      lineHeight: 17,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    releaseList: {
-      fontSize: 14,
-      lineHeight: 23,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    cardHeader: {
-      fontStyle: "normal",
-      fontWeight: 600,
-      fontSize: 25,
-      lineHeight: 20,
-    },
-    cardSubheader: {
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 15,
-      lineHeight: 20,
-    },
-    largeH1: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 28,
-      lineHeight: 36,
-    },
-    docHeader: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 17,
-    },
-    spacedOutP1: {
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 14,
-      lineHeight: 24,
-    },
-    categoryBtn: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.2,
-      fontWeight: 500,
-    },
-    sideHeading: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 13,
-    },
-  },
-  iconSizes: {
-    XXS: 8,
-    XS: 10,
-    SMALL: 12,
-    MEDIUM: 14,
-    LARGE: 15,
-    XL: 16,
-    XXL: 18,
-    XXXL: 20,
-  },
+  typography: typography,
+  iconSizes: iconSizes,
   propertyPane: {
     width: 270,
     titleHeight: 40,
@@ -3016,9 +2893,9 @@ export const theme: Theme = {
   dropdown: {
     [Skin.LIGHT]: {
       hoverBG: lightShades[2],
-      hoverText: lightShades[0],
-      inActiveBG: lightShades[3],
-      inActiveText: lightShades[8],
+      hoverText: lightShades[10],
+      inActiveBG: lightShades[2],
+      inActiveText: lightShades[10],
       border: Colors.WHITE,
       background: Colors.WHITE,
     },
@@ -3109,6 +2986,11 @@ export const theme: Theme = {
   },
   onboarding: {
     statusBarHeight: 83,
+  },
+  settings: {
+    footerHeight: 84,
+    footerShadow: "0px 0px 18px -6px rgb(0, 0, 0, 0.25)",
+    linkBg: lightShades[2],
   },
 };
 

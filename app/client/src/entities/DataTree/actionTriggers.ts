@@ -2,7 +2,6 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { TypeOptions } from "react-toastify";
 
 export enum ActionTriggerType {
-  PROMISE = "PROMISE",
   RUN_PLUGIN_ACTION = "RUN_PLUGIN_ACTION",
   CLEAR_PLUGIN_ACTION = "CLEAR_PLUGIN_ACTION",
   NAVIGATE_TO = "NAVIGATE_TO",
@@ -13,16 +12,29 @@ export enum ActionTriggerType {
   DOWNLOAD = "DOWNLOAD",
   COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+  SET_INTERVAL = "SET_INTERVAL",
+  CLEAR_INTERVAL = "CLEAR_INTERVAL",
+  GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
+  WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
+  STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
 }
 
-export type PromiseActionDescription = {
-  type: ActionTriggerType.PROMISE;
-  payload: {
-    executor: ActionDescription[];
-    then: string[];
-    catch?: string;
-    finally?: string;
-  };
+export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
+  [ActionTriggerType.CLEAR_INTERVAL]: "clearInterval",
+  [ActionTriggerType.CLEAR_PLUGIN_ACTION]: "action.clear",
+  [ActionTriggerType.CLOSE_MODAL]: "closeModal",
+  [ActionTriggerType.COPY_TO_CLIPBOARD]: "copyToClipboard",
+  [ActionTriggerType.DOWNLOAD]: "download",
+  [ActionTriggerType.NAVIGATE_TO]: "navigateTo",
+  [ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME]: "resetWidget",
+  [ActionTriggerType.RUN_PLUGIN_ACTION]: "action.run",
+  [ActionTriggerType.SET_INTERVAL]: "setInterval",
+  [ActionTriggerType.SHOW_ALERT]: "showAlert",
+  [ActionTriggerType.SHOW_MODAL_BY_NAME]: "showModal",
+  [ActionTriggerType.STORE_VALUE]: "storeValue",
+  [ActionTriggerType.GET_CURRENT_LOCATION]: "getCurrentLocation",
+  [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
+  [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
 };
 
 export type RunPluginActionDescription = {
@@ -30,6 +42,8 @@ export type RunPluginActionDescription = {
   payload: {
     actionId: string;
     params?: Record<string, unknown>;
+    onSuccess?: string;
+    onError?: string;
   };
 };
 
@@ -96,13 +110,55 @@ export type CopyToClipboardDescription = {
 export type ResetWidgetDescription = {
   type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME;
   payload: {
-    widgetName: string | unknown;
+    widgetName: string;
     resetChildren: boolean;
   };
 };
 
+export type SetIntervalDescription = {
+  type: ActionTriggerType.SET_INTERVAL;
+  payload: {
+    callback: string;
+    interval: number;
+    id?: string;
+  };
+};
+
+export type ClearIntervalDescription = {
+  type: ActionTriggerType.CLEAR_INTERVAL;
+  payload: {
+    id: string;
+  };
+};
+
+type GeolocationOptions = {
+  maximumAge?: number;
+  timeout?: number;
+  enableHighAccuracy?: boolean;
+};
+
+type GeolocationPayload = {
+  onSuccess?: string;
+  onError?: string;
+  options?: GeolocationOptions;
+};
+
+export type GetCurrentLocationDescription = {
+  type: ActionTriggerType.GET_CURRENT_LOCATION;
+  payload: GeolocationPayload;
+};
+
+export type WatchCurrentLocationDescription = {
+  type: ActionTriggerType.WATCH_CURRENT_LOCATION;
+  payload: GeolocationPayload;
+};
+
+export type StopWatchingCurrentLocationDescription = {
+  type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION;
+  payload?: Record<string, never>;
+};
+
 export type ActionDescription =
-  | PromiseActionDescription
   | RunPluginActionDescription
   | ClearPluginActionDescription
   | NavigateActionDescription
@@ -112,4 +168,9 @@ export type ActionDescription =
   | StoreValueActionDescription
   | DownloadActionDescription
   | CopyToClipboardDescription
-  | ResetWidgetDescription;
+  | ResetWidgetDescription
+  | SetIntervalDescription
+  | ClearIntervalDescription
+  | GetCurrentLocationDescription
+  | WatchCurrentLocationDescription
+  | StopWatchingCurrentLocationDescription;

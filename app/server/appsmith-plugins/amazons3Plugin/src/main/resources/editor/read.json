@@ -1,0 +1,74 @@
+{
+  "identifier": "READ_FILE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'READ_FILE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Bucket to Query",
+      "children": [
+        {
+          "label": "Bucket Name",
+          "configProperty": "actionConfiguration.formData.bucket",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Optional",
+      "children": [
+        {
+          "label": "File Path",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": ""
+        },
+        {
+          "label": "File Data Type",
+          "configProperty": "actionConfiguration.formData.read.dataType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Base64",
+              "value": "YES"
+            },
+            {
+              "label": "Text / Binary",
+              "value": "NO"
+            }
+          ]
+        },
+        {
+          "label": "Expiry Duration of Signed URL (Minutes)",
+          "configProperty": "actionConfiguration.formData.read.expiry",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5"
+        },
+        {
+          "label": "Base64 Encode File - Yes/No",
+          "configProperty": "actionConfiguration.formData.read.usingBase64Encoding",
+          "controlType": "DROP_DOWN",
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -13,6 +13,7 @@ export const CONFIG = {
   defaults: {
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     widgetName: "Form",
     backgroundColor: "white",
     children: [],
@@ -54,7 +55,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Submit",
-                    buttonVariant: ButtonVariantTypes.SOLID,
+                    buttonVariant: ButtonVariantTypes.PRIMARY,
                     buttonColor: Colors.GREEN,
                     disabledWhenInvalid: true,
                     resetFormOnClick: true,
@@ -74,7 +75,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Reset",
-                    buttonVariant: ButtonVariantTypes.OUTLINE,
+                    buttonVariant: ButtonVariantTypes.SECONDARY,
                     buttonColor: Colors.GREEN,
                     disabledWhenInvalid: false,
                     resetFormOnClick: true,

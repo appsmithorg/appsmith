@@ -10,14 +10,23 @@ import {
   matchJSObjectPath,
 } from "constants/routes";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { matchSaasPath } from "pages/Editor/SaaSEditor/constants";
 
-const getRecentEntity = (pathName: string) => {
+export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);
   if (builderMatch)
     return {
       type: "page",
       id: builderMatch?.params?.pageId,
       params: builderMatch?.params,
+    };
+
+  const saasMatch = matchSaasPath(pathName);
+  if (saasMatch)
+    return {
+      type: "action",
+      id: saasMatch?.params?.apiId,
+      params: saasMatch?.params,
     };
 
   const apiMatch = matchApiPath(pathName);
@@ -73,7 +82,7 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
 function* handlePathUpdated(
   action: ReduxAction<{ location: typeof window.location }>,
 ) {
-  const { id, params, type } = getRecentEntity(
+  const { id, params, type } = getEntityInCurrentPath(
     action.payload.location.pathname,
   );
   if (type && id && id.indexOf(":") === -1) {

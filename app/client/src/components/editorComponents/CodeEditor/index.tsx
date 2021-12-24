@@ -41,6 +41,8 @@ import {
   FieldEntityInformation,
   Hinter,
   HintHelper,
+  isCloseKey,
+  isModifierKey,
   MarkHelper,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -80,18 +82,10 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
+import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
-
-const AUTOCOMPLETE_CLOSE_KEY_CODES = [
-  "Enter",
-  "Tab",
-  "Escape",
-  "Comma",
-  "Backspace",
-  "Semicolon",
-  "Space",
-];
+import { replayHighlightClass } from "globalStyles/portals";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -102,6 +96,7 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
+  startingEntityUpdation: () => void;
 }
 
 export type CodeEditorExpected = {
@@ -179,7 +174,6 @@ class CodeEditor extends Component<Props, State> {
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
-
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
@@ -248,13 +242,10 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 600));
-        editor.on("change", this.handleAutocompleteVisibility);
-        editor.on("change", this.onChangeTrigger);
-        editor.on("keyup", this.handleAutocompleteHide);
+        editor.on("change", this.startChange);
+        editor.on("keyup", this.handleAutocompleteKeyup);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
-        editor.on("focus", this.onFocusTrigger);
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         if (this.props.height) {
@@ -269,7 +260,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
-          this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
 
@@ -293,6 +283,7 @@ class CodeEditor extends Component<Props, State> {
         if (!!inputValue || inputValue === "") {
           if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
+            this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
           } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
             // Even if Editor is updated with new value, it cannot update without layour calcs.
             //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
@@ -312,6 +303,18 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    // return if component unmounts before editor is created
+    if (!this.editor) return;
+
+    this.editor.off("beforeChange", this.handleBeforeChange);
+    this.editor.off("change", this.startChange);
+    this.editor.off("keyup", this.handleAutocompleteKeyup);
+    this.editor.off("focus", this.handleEditorFocus);
+    this.editor.off("cursorActivity", this.handleCursorMovement);
+    this.editor.off("blur", this.handleEditorBlur);
+    this.editor.off("postPick", () =>
+      this.handleAutocompleteVisibility(this.editor),
+    );
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
     this.editor.closeHint();
@@ -321,25 +324,12 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
     return hinting.map((helper) => {
       return helper(editor, dynamicData, additionalDynamicData);
     });
   }
-
-  onFocusTrigger = (cm: CodeMirror.Editor) => {
-    if (!cm.state.completionActive) {
-      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
-    }
-  };
-
-  onChangeTrigger = (cm: CodeMirror.Editor) => {
-    if (this.state.isFocused) {
-      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
-    }
-  };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
     // ignore if disabled
@@ -357,8 +347,16 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorFocus = () => {
+  handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+    if (!cm.state.completionActive) {
+      const entityInformation: FieldEntityInformation = this.getEntityInformation();
+      this.hinters
+        .filter((hinter) => hinter.fireOnFocus)
+        .forEach(
+          (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
+        );
+    }
   };
 
   handleEditorBlur = () => {
@@ -367,10 +365,10 @@ class CodeEditor extends Component<Props, State> {
     this.editor.setOption("matchBrackets", false);
   };
 
-  handleBeforeChange(
+  handleBeforeChange = (
     cm: CodeMirror.Editor,
     change: CodeMirror.EditorChangeCancellable,
-  ) {
+  ) => {
     if (change.origin === "paste") {
       // Remove all non ASCII quotes since they are invalid in Javascript
       const formattedText = change.text.map((line) => {
@@ -382,7 +380,7 @@ class CodeEditor extends Component<Props, State> {
         change.update(undefined, undefined, formattedText);
       }
     }
-  }
+  };
 
   handleChange = (instance?: any, changeObj?: any) => {
     const value = this.editor.getValue() || "";
@@ -400,6 +398,18 @@ class CodeEditor extends Component<Props, State> {
       this.props.input.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
+  };
+
+  handleDebouncedChange = _.debounce(this.handleChange, 600);
+
+  startChange = (instance?: any, changeObj?: any) => {
+    /* This action updates the status of the savingEntity to true so that any
+      shortcut commands do not execute before updating the entity in the store */
+    const entity = this.getEntityInformation();
+    if (entity.entityId) {
+      this.props.startingEntityUpdation();
+    }
+    this.handleDebouncedChange(instance, changeObj);
   };
 
   getEntityInformation = (): FieldEntityInformation => {
@@ -461,10 +471,34 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ hinterOpen });
   };
 
-  handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
-    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
+  handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
+    const key = event.key;
+    if (isModifierKey(key)) return;
+    const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
+    if (isCloseKey(code) || isCloseKey(key)) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
       cm.closeHint();
+      return;
     }
+    const cursor = cm.getCursor();
+    const line = cm.getLine(cursor.line);
+    let showAutocomplete = false;
+    /* Check if the character before cursor is completable to show autocomplete which backspacing */
+    if (key === "/") {
+      showAutocomplete = true;
+    } else if (event.code === "Backspace") {
+      const prevChar = line[cursor.ch - 1];
+      showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
+    } else if (key === "{") {
+      /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
+      const prevChar = line[cursor.ch - 2];
+      showAutocomplete = prevChar === "{";
+    } else if (key.length == 1) {
+      showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
+      /* Autocomplete should be triggered only for characters that make up valid variable names */
+    }
+    showAutocomplete && this.handleAutocompleteVisibility(cm);
   };
 
   lintCode(editor: CodeMirror.Editor) {
@@ -492,11 +526,7 @@ class CodeEditor extends Component<Props, State> {
     marking.forEach((helper) => helper(editor));
   };
 
-  updatePropertyValue(
-    value: string,
-    cursor?: number,
-    preventAutoComplete = false,
-  ) {
+  updatePropertyValue(value: string, cursor?: number) {
     this.editor.focus();
     if (value) {
       this.editor.setValue(value);
@@ -506,7 +536,6 @@ class CodeEditor extends Component<Props, State> {
       ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
     });
     this.setState({ isFocused: true }, () => {
-      if (preventAutoComplete) return;
       this.handleAutocompleteVisibility(this.editor);
     });
   }
@@ -632,7 +661,9 @@ class CodeEditor extends Component<Props, State> {
           <EditorWrapper
             border={border}
             borderLess={borderLess}
-            className={className}
+            className={`${className} ${replayHighlightClass} ${
+              isInvalid ? "t--codemirror-has-error" : ""
+            }`}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
@@ -700,6 +731,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
+  startingEntityUpdation: () => dispatch(startingEntityUpdation()),
 });
 
 export default Sentry.withProfiler(

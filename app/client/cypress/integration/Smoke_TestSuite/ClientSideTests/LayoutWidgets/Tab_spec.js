@@ -43,13 +43,10 @@ describe("Tab widget test", function() {
     /**
      * @param{toggleButton Css} Assert to be checked
      */
-    cy.togglebar(widgetsPage.Scrollbutton)
-      .check({ force: true })
-      .should("be.checked");
+    cy.togglebar(widgetsPage.Scrollbutton);
     cy.get(Layoutpage.tabContainer)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.get(commonlocators.crossbutton).click({ force: true });
     cy.PublishtheApp();
   });
   it("Tab Widget Functionality To Select Tabs", function() {

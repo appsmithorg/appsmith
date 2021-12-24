@@ -59,6 +59,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
+import * as log from "loglevel";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -68,7 +69,7 @@ export function* fetchJSCollectionsSaga(
     const response = yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      payload: response.data,
+      payload: response.data || [],
     });
   } catch (error) {
     yield put({
@@ -266,7 +267,12 @@ export function* deleteJSCollectionSaga(
             JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
           );
         } else {
-          history.push(BUILDER_PAGE_URL(applicationId, pageId));
+          history.push(
+            BUILDER_PAGE_URL({
+              applicationId,
+              pageId,
+            }),
+          );
         }
       }
       AppsmithConsole.info({
@@ -312,7 +318,7 @@ function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
       text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
       variant: Variant.danger,
     });
-    console.error(e);
+    log.error(e);
   }
 }
 

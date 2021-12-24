@@ -81,7 +81,7 @@ export default (props: PopperProps) => {
     renderDragBlockPositions,
     cypressSelectorDragHandle,
   } = props;
-  // Meomoizing to avoid rerender of draggable icon.
+  // Memoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
   const popperTheme = useMemo(
     () => getThemeDetails({} as AppState, themeMode),
@@ -100,7 +100,7 @@ export default (props: PopperProps) => {
       // and figure out a way to keep an app instance level popper instance
       // which we can update to have different references when called here.
       // However, the performance benefit gained by such an optimization
-      // remaines to be discovered.
+      // remains to be discovered.
       const _popper = new PopperJS(
         props.targetNode,
         (contentRef.current as unknown) as Element,

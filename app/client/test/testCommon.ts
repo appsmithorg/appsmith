@@ -14,7 +14,6 @@ import { createSelector } from "reselect";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 
-import { WidgetProps } from "widgets/BaseWidget";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DSLWidget } from "widgets/constants";
 

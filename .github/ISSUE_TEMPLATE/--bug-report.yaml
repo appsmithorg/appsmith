@@ -1,0 +1,58 @@
+name: 🐞 Bug report
+description: Create a bug report to help us improve Appsmith
+title: "[Bug]: "
+labels: [Bug, Needs Triaging]
+assignees:
+- Nikhil-Nandagopal
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thanks for taking the time to fill out this bug report! Please fill the form in English
+- type: checkboxes
+  attributes:
+    label: Is there an existing issue for this?
+    description: Please search to see if an issue already exists for the bug you encountered.
+    options:
+    - label: I have searched the existing issues
+      required: true
+- type: textarea
+  attributes:
+    label: Current Behavior
+    description: A concise description of what you're experiencing and what you expect.
+    placeholder: |
+      When I do <X>, <Y> happens and I see the error message attached below:
+      ```...```
+      What I expect is <Z>
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Steps To Reproduce
+    description: Add steps to reproduce this behaviour, include console / network logs & screenshots
+    placeholder: |
+      1. Go to '...'
+      2. Click on '....'
+      3. Scroll down to '....'
+      4. See error
+  validations:
+    required: true
+- type: dropdown
+  id: env
+  attributes:
+    label: Environment
+    options:
+      - Production
+      - Release
+      - Deploy Preview
+  validations:
+    required: true
+- type: dropdown
+  id: version
+  attributes:
+    label: Version
+    options:
+      - Cloud
+      - Self-Hosted
+  validations:
+    required: true

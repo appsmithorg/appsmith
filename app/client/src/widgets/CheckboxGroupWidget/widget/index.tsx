@@ -1,27 +1,24 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { compact } from "lodash";
+
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { WidgetType } from "constants/WidgetConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import CheckboxGroupComponent, { OptionProps } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
-function defaultSelectedValuesValidation(
+import CheckboxGroupComponent, { OptionProps } from "../component";
+
+export function defaultSelectedValuesValidation(
   value: unknown,
-  props: CheckboxGroupWidgetProps,
 ): ValidationResponse {
-  let isValid = true;
   let values: string[] = [];
-  const messages: string[] = [];
-  const { options } = props;
-
-  const optionValues = options.map((option) => option.value);
 
   if (typeof value === "string") {
     try {
@@ -36,28 +33,14 @@ function defaultSelectedValuesValidation(
       }
     }
   }
+
   if (Array.isArray(value)) {
     values = Array.from(new Set(value));
   }
 
-  values.forEach((value, index) => {
-    if (!optionValues.includes(value)) {
-      isValid = false;
-      messages.push(`Mismatching value: ${value} at: ${index}`);
-    }
-  });
-
-  if (isValid) {
-    return {
-      isValid: true,
-      parsed: values,
-    };
-  }
-
   return {
-    isValid: false,
+    isValid: true,
     parsed: values,
-    messages,
   };
 }
 
@@ -81,22 +64,27 @@ class CheckboxGroupWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                default: [],
+                unique: ["value"],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",
                         type: ValidationTypes.TEXT,
                         params: {
-                          unique: true,
+                          default: "",
+                          required: true,
                         },
                       },
                       {
                         name: "value",
                         type: ValidationTypes.TEXT,
                         params: {
-                          unique: true,
+                          default: "",
+                          required: true,
                         },
                       },
                     ],
@@ -175,10 +163,21 @@ class CheckboxGroupWidget extends BaseWidget<
               type: ValidationTypes.BOOLEAN,
             },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the check state is changed",
@@ -218,18 +217,23 @@ class CheckboxGroupWidget extends BaseWidget<
       Array.isArray(this.props.options) &&
       this.props.options.length !== prevProps.options.length
     ) {
-      const prevOptions = prevProps.options.map(
+      const prevOptions = compact(prevProps.options).map(
         (prevOption) => prevOption.value,
       );
-      const options = this.props.options.map((option) => option.value);
+      const options = compact(this.props.options).map((option) => option.value);
 
-      const diffOptions = prevOptions.filter(
-        (prevOption) => !options.includes(prevOption),
-      );
+      // Get an array containing all the options of prevOptions that are not in options and vice-versa
+      const diffOptions = prevOptions
+        .filter((option) => !options.includes(option))
+        .concat(options.filter((option) => !prevOptions.includes(option)));
 
-      const selectedValues = this.props.selectedValues.filter(
+      let selectedValues = this.props.selectedValues.filter(
         (selectedValue: string) => !diffOptions.includes(selectedValue),
       );
+      // if selectedValues empty, and options have changed, set defaultSelectedValues
+      if (!selectedValues.length && this.props.defaultSelectedValues.length) {
+        selectedValues = this.props.defaultSelectedValues;
+      }
 
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
         triggerPropertyName: "onSelectionChange",
@@ -250,7 +254,7 @@ class CheckboxGroupWidget extends BaseWidget<
         isValid={this.props.isValid}
         key={this.props.widgetId}
         onChange={this.handleCheckboxChange}
-        options={this.props.options}
+        options={compact(this.props.options)}
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
         widgetId={this.props.widgetId}

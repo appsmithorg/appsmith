@@ -32,6 +32,7 @@ import {
   PluginImage,
   SaveButtonContainer,
 } from "./JSONtoForm";
+import { ButtonVariantTypes } from "components/constants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -166,7 +167,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         </Header>
         {messages &&
           messages.map((msg, i) => (
-            <Callout fill key={i} text={msg} variant={Variant.warning} />
+            <Callout
+              addMarginTop
+              fill
+              key={i}
+              text={msg}
+              variant={Variant.warning}
+            />
           ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
@@ -189,7 +196,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <SaveButtonContainer>
               <ActionButton
                 buttonStyle="DANGER"
-                buttonVariant="SOLID"
+                buttonVariant={ButtonVariantTypes.PRIMARY}
                 // accent="error"
                 className="t--delete-datasource"
                 loading={isDeleting}
@@ -200,7 +207,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               <ActionButton
                 // accent="secondary"
                 buttonStyle="PRIMARY"
-                buttonVariant="OUTLINE"
+                buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--test-datasource"
                 loading={isTesting}
                 onClick={this.test}
@@ -241,5 +248,6 @@ const mapStateToProps = (state: AppState, props: any) => {
 export default connect(mapStateToProps)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
     form: DATASOURCE_DB_FORM,
+    enableReinitialize: true,
   })(DatasourceDBEditor),
 );

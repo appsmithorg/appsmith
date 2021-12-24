@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
+import * as log from "loglevel";
 
 type Props = { children: ReactNode };
 type State = { hasError: boolean };
@@ -35,7 +36,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: any, errorInfo: any) {
-    console.error({ error, errorInfo });
+    log.error({ error, errorInfo });
     Sentry.captureException(error);
   }
 

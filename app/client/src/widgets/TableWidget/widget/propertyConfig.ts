@@ -1,11 +1,13 @@
 import { get } from "lodash";
-import { Colors } from "constants/Colors";
 import { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ButtonBorderRadiusTypes } from "components/constants";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
 import {
   updateDerivedColumnsHook,
   ColumnTypes,
@@ -15,7 +17,17 @@ import {
   updateIconAlignment,
   getBasePropertyPath,
   hideByColumnType,
+  uniqueColumnNameValidation,
 } from "./propertyUtils";
+import {
+  createMessage,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+} from "constants/messages";
+import { IconNames } from "@blueprintjs/icons";
+
+const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
 
 export default [
   {
@@ -48,6 +60,17 @@ export default [
         dependencies: ["derivedColumns", "columnOrder"],
         isBindProperty: false,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: uniqueColumnNameValidation,
+            expected: {
+              type: "Unique Column Names",
+              example: "abc",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
@@ -134,6 +157,8 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  helpText:
+                    "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
                   propertyName: "computedValue",
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
@@ -674,13 +699,18 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultIconName: "add",
                   isJSConvertible: true,
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      default: "plus",
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ICON_NAMES,
+                        default: IconNames.ADD,
+                      },
                     },
                   },
                 },
@@ -754,7 +784,6 @@ export default [
                   helpText: "Changes the color of the button",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -789,20 +818,36 @@ export default [
                   ],
                   options: [
                     {
-                      label: "Solid",
-                      value: "SOLID",
+                      label: "Primary",
+                      value: ButtonVariantTypes.PRIMARY,
                     },
                     {
-                      label: "Outline",
-                      value: "OUTLINE",
+                      label: "Secondary",
+                      value: ButtonVariantTypes.SECONDARY,
                     },
                     {
-                      label: "Ghost",
-                      value: "GHOST",
+                      label: "Tertiary",
+                      value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  isBindProperty: false,
+                  defaultValue: ButtonVariantTypes.PRIMARY,
+
+                  isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        default: ButtonVariantTypes.PRIMARY,
+                        allowedValues: [
+                          ButtonVariantTypes.PRIMARY,
+                          ButtonVariantTypes.SECONDARY,
+                          ButtonVariantTypes.TERTIARY,
+                        ],
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "borderRadius",
@@ -896,7 +941,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.WHITE,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
@@ -920,9 +964,9 @@ export default [
                   controlType: "COLOR_PICKER",
                   isBindProperty: false,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
-                  defaultColor: Colors.GREEN,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
@@ -943,16 +987,16 @@ export default [
                   helpText: "Sets the variant of the menu button",
                   options: [
                     {
-                      label: "Solid",
-                      value: "SOLID",
+                      label: "Primary",
+                      value: ButtonVariantTypes.PRIMARY,
                     },
                     {
-                      label: "Outline",
-                      value: "OUTLINE",
+                      label: "Secondary",
+                      value: ButtonVariantTypes.SECONDARY,
                     },
                     {
-                      label: "Ghost",
-                      value: "GHOST",
+                      label: "Tertiary",
+                      value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
                   isJSConvertible: true,
@@ -967,13 +1011,17 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
                     params: {
-                      default: "SOLID",
-                      allowedValues: ["SOLID", "OUTLINE", "GHOST"],
+                      default: ButtonVariantTypes.PRIMARY,
+                      allowedValues: [
+                        ButtonVariantTypes.PRIMARY,
+                        ButtonVariantTypes.SECONDARY,
+                        ButtonVariantTypes.TERTIARY,
+                      ],
                     },
                   },
                 },
@@ -1076,7 +1124,6 @@ export default [
                     ),
                   }),
                   isJSConvertible: true,
-                  updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -1264,7 +1311,7 @@ export default [
                         ],
                       },
                       {
-                        sectionName: "Actions",
+                        sectionName: "Events",
                         children: [
                           {
                             helpText:
@@ -1275,7 +1322,6 @@ export default [
                             isJSConvertible: true,
                             isBindProperty: true,
                             isTriggerProperty: true,
-                            updateHook: updateDerivedColumnsHook,
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1291,6 +1337,17 @@ export default [
             },
           ],
         },
+      },
+      {
+        helpText:
+          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on value",
+        propertyName: "primaryColumnId",
+        dependencies: ["primaryColumns"],
+        label: "Primary key column",
+        controlType: "PRIMARY_COLUMNS_DROPDOWN",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "defaultSearchText",
@@ -1355,8 +1412,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText:
-          "Bind the Table.pageSize and Table.pageNo property in your API and call it onPageChange. Without this the Table widget cannot calculate the number of pages and disable page buttons.",
+        helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
         propertyName: "totalRecordsCount",
         label: "Total Record Count",
         controlType: "INPUT_TEXT",
@@ -1386,7 +1442,35 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        helpText: "Controls sorting in View Mode",
+        propertyName: "isSortable",
+        isJSConvertible: true,
+        label: "Sortable",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+          params: {
+            default: true,
+          },
+        },
       },
       {
         propertyName: "multiRowSelection",
@@ -1395,10 +1479,17 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        propertyName: "enableClientSideSearch",
+        label: "Enable client side search",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a table row is selected",

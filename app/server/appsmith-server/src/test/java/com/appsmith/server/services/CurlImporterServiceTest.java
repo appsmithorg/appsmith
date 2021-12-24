@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class CurlImporterServiceTest {
     @Autowired
     CurlImporterService curlImporterService;
+
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
 
     @MockBean
     PluginManager pluginManager;
@@ -125,6 +130,10 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest App");

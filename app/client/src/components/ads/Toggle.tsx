@@ -116,7 +116,7 @@ const StyledToggle = styled.label<{
 `;
 
 export default function Toggle(props: ToggleProps) {
-  const [value, setValue] = useState(false);
+  const [value, setValue] = useState(props.value);
 
   useEffect(() => {
     setValue(props.value);

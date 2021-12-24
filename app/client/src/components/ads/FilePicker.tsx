@@ -17,6 +17,7 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import Icon, { IconSize } from "./Icon";
+import { error as logError } from "loglevel";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
 
@@ -204,7 +205,7 @@ export function CloudinaryUploader(
       onUpload(data.data.url);
     })
     .catch((error) => {
-      console.error("error in file uploading", error);
+      logError("error in file uploading", error);
     });
 }
 

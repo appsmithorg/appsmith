@@ -28,7 +28,6 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.get(commonlocators.toastBody)
       .first()
       .contains("Copied");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Delete Widget from sidebar and Undo action validation", function() {

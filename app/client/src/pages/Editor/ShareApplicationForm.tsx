@@ -6,6 +6,7 @@ import { AppState } from "reducers";
 import Switch from "components/ads/Switch";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const ShareWithPublicOption = styled.div`
    {
@@ -29,13 +30,11 @@ const ShareToggle = styled.div`
 
 export function ShareApplicationForm(props: any) {
   const {
+    applicationId,
     changeAppViewAccess,
     currentApplicationDetails,
     isChangingViewAccess,
     isFetchingApplication,
-    match: {
-      params: { applicationId },
-    },
   } = props;
 
   return (
@@ -67,6 +66,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplicationDetails: state.ui.applications.currentApplication,
   isFetchingApplication: state.ui.applications.isFetchingApplication,
   isChangingViewAccess: state.ui.applications.isChangingViewAccess,
+  applicationId: getCurrentApplicationId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

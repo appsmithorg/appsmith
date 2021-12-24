@@ -1,4 +1,4 @@
-import { Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
+import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
@@ -76,6 +76,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
 
   &&& svg {
@@ -103,7 +104,6 @@ export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
   height: 36px;
-  border: 1px solid ${Colors.GREY_5};
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
@@ -118,39 +118,6 @@ export const StyledMenu = styled(Menu)`
   }
   .bp3-submenu .bp3-menu {
     background: ${(props) => props.theme.dropdown[Skin.LIGHT].background};
-  }
-`;
-
-export const StyledPopover = styled(Popover)`
-  .${Classes.POPOVER_TARGET} {
-    display: flex;
-  }
-  div {
-    flex: 1 1 auto;
-  }
-  span {
-    width: 100%;
-    position: relative;
-  }
-  .${Classes.BUTTON} {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .${Classes.BUTTON_TEXT} {
-    text-overflow: ellipsis;
-    text-align: left;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-  && {
-    .${Classes.ICON} {
-      width: fit-content;
-      color: ${Colors.SLATE_GRAY};
-    }
   }
 `;
 
@@ -359,6 +326,26 @@ export const StyledPropertyPaneButton = styled(Button)`
     path {
       fill: ${Colors.GREY_8};
       stroke: ${Colors.GREY_8};
+    }
+  }
+`;
+
+export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 60px;
+  padding-bottom: 4px;
+  text-overflow: ellipsis;
+  background: inherit;
+  &&& {
+    input {
+      padding-left: 24px;
+      border: none;
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      &:focus {
+        border: none;
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+      }
     }
   }
 `;

@@ -15,8 +15,6 @@ import {
   setVisibleThread,
   updateCommentSuccess,
   deleteCommentThreadSuccess,
-  fetchUnreadCommentThreadsCountSuccess,
-  decrementThreadUnreadCount,
 } from "actions/commentActions";
 import {
   getNewDragPos,
@@ -36,6 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   AddCommentToCommentThreadRequestPayload,
+  CommentThread,
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
   DraggedCommentThread,
@@ -164,12 +163,18 @@ function* fetchApplicationComments() {
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(fetchApplicationCommentsSuccess(response.data));
+      const commentThreads = response.data as CommentThread[];
+      yield put(
+        fetchApplicationCommentsSuccess({
+          commentThreads,
+          applicationId,
+        }),
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_COMMENTS_ERROR,
-      payload: { error, logToSentry: true },
+      payload: { error, logToSentry: false },
     });
   }
 }
@@ -258,7 +263,6 @@ function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(updateCommentThreadSuccess(response.data));
-      yield put(decrementThreadUnreadCount());
     }
   } catch (error) {
     yield put({
@@ -343,19 +347,6 @@ function* deleteCommentReaction(
   }
 }
 
-function* updateCommentThreadUnreadCount(action: ReduxAction<unknown>) {
-  const type = action.type;
-  let unreadCommentsCount = yield select(
-    (state: AppState) => state.ui.comments.unreadCommentThreadsCount,
-  );
-  if (type === ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT) {
-    unreadCommentsCount += 1;
-  } else if (type === ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT) {
-    unreadCommentsCount -= 1;
-  }
-  yield put(fetchUnreadCommentThreadsCountSuccess(unreadCommentsCount));
-}
-
 function* handleSetCommentMode(action: ReduxAction<boolean>) {
   const { payload } = action;
   if (!payload) {
@@ -411,13 +402,6 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.DELETE_THREAD_REQUEST, deleteCommentThread),
     takeLatest(ReduxActionTypes.ADD_COMMENT_REACTION, addCommentReaction),
     takeLatest(ReduxActionTypes.REMOVE_COMMENT_REACTION, deleteCommentReaction),
-    takeLatest(
-      [
-        ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT,
-        ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
-      ],
-      updateCommentThreadUnreadCount,
-    ),
     takeLatest(ReduxActionTypes.SET_COMMENT_MODE, handleSetCommentMode),
   ]);
 }

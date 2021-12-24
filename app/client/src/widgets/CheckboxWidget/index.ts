@@ -8,8 +8,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 3 * GRID_DENSITY_MIGRATION_V1,
+    rows: 1.1 * GRID_DENSITY_MIGRATION_V1,
+    columns: 5 * GRID_DENSITY_MIGRATION_V1,
     label: "Label",
     defaultCheckedState: true,
     widgetName: "Checkbox",
@@ -17,6 +17,7 @@ export const CONFIG = {
     alignWidget: "LEFT",
     isDisabled: false,
     isRequired: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

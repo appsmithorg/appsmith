@@ -114,12 +114,7 @@ describe("Entity explorer datasource structure", function() {
       .focus()
       .type(`CREATE TABLE ${tableName} ( ID int );`);
 
-    cy.get(queryEditor.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.runQuery();
 
     cy.GlobalSearchEntity(datasourceName);
     cy.get("@datasourceEntityCollapse")
@@ -144,15 +139,13 @@ describe("Entity explorer datasource structure", function() {
     cy.get(".CodeMirror")
       .first()
       .then((editor) => {
-        editor[0].CodeMirror.setValue(`DROP TABLE ${tableName}`);
+        editor[0].CodeMirror.setValue("");
+        cy.wrap(editor)
+          .find("textarea")
+          .focus()
+          .type(`DROP TABLE ${tableName};`);
         cy.WaitAutoSave();
-        cy.get(queryEditor.runQuery).click();
-        cy.wait("@postExecute").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-
+        cy.runQuery();
         cy.get(queryEditor.queryMoreAction).click();
         cy.get(queryEditor.deleteUsingContext).click();
         cy.wait("@deleteAction").should(

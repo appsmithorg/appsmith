@@ -15,16 +15,8 @@ describe("Modal Widget Functionality", function() {
   });
 
   it("Open Existing Modal from created Widgets list", () => {
-    cy.get(
-      ".t--entity-collapse-toggle ~ .t--entity-name:contains(Widgets)",
-    ).click({
-      multiple: true,
-    });
-    cy.get(
-      ".t--entity-collapse-toggle ~ .t--entity-name:contains(Modal1)",
-    ).click({
-      multiple: true,
-    });
+    cy.get(".widgets").click();
+    cy.get(".t--entity-name:contains(Modal1)").click();
     cy.get(".t--modal-widget").should("exist");
   });
 
@@ -40,5 +32,25 @@ describe("Modal Widget Functionality", function() {
     cy.get(widgets.iconWidgetBtn).click({ force: true });
 
     cy.get(commonlocators.toastmsg).contains("test");
+  });
+
+  it("should paste modal widgets with main container as parentId", () => {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+    cy.SearchEntityandOpen("Modal1");
+    cy.wait(200);
+    cy.get("body").type(`{${modifierKey}}c`);
+    cy.get(commonlocators.toastBody)
+      .first()
+      .contains("Copied");
+
+    cy.get(widgets.iconWidgetBtn).click({ force: true });
+
+    cy.get("body").type(`{${modifierKey}}v`);
+
+    cy.get('.bp3-collapse-body > [step="2"]')
+      .first()
+      .children()
+      .should("have.length", 2);
   });
 });

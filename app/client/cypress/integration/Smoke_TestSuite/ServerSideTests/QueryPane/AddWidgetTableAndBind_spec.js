@@ -1,11 +1,9 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/inputdsl.json");
-const pages = require("../../../../locators/Pages.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 
 let datasourceName;
 
@@ -40,12 +38,8 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.intercept("/api/v1/actions/execute", {
       fixture: "addWidgetTable-mock",
     });
-    cy.get(queryEditor.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+
+    cy.onlyQueryRun();
     cy.xpath(queryEditor.queryResponse)
       .first()
       .invoke("text")
@@ -66,19 +60,20 @@ describe("Addwidget from Query and bind with other widgets", function() {
   it("Input widget test with default value from table widget", () => {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
   });
+
   it("validation of data displayed in input widget based on row data selected", function() {
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
       expect(tabValue).to.be.equal("5");
+      cy.isSelectRow(1);
       cy.get(publish.inputWidget + " " + "input")
         .first()
         .invoke("attr", "value")

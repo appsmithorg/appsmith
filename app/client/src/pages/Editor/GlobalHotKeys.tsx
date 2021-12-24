@@ -42,6 +42,12 @@ import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
+import { setPreviewModeAction } from "actions/editorActions";
+import { previewModeSelector } from "selectors/editorSelectors";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { setExplorerPinnedAction } from "actions/explorerActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -65,6 +71,11 @@ type Props = {
   redo: () => void;
   appMode?: APP_MODE;
   isCommentMode: boolean;
+  isPreviewMode: boolean;
+  setPreviewModeAction: (shouldSet: boolean) => void;
+  isExplorerPinned: boolean;
+  setExplorerPinnedAction: (shouldPinned: boolean) => void;
+  showCommitModal: () => void;
 };
 
 @HotkeysTarget
@@ -91,6 +102,10 @@ class GlobalHotKeys extends React.Component<Props> {
     categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
   ) {
     e.preventDefault();
+
+    // don't open omnibar if preview mode is on
+    if (this.props.isPreviewMode) return;
+
     const category = filterCategories[categoryId];
     this.props.toggleShowGlobalSearchModal(category);
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
@@ -118,14 +133,14 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + k"
           global
           label="Show omnibar"
           onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + j"
           global
           label="Show omnibar"
@@ -134,7 +149,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + l"
           global
           label="Show omnibar"
@@ -143,7 +158,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + p"
           global
           label="Show omnibar"
@@ -152,6 +167,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }
         />
         <Hotkey
+          allowInInput
           combo="mod + d"
           global
           group="Canvas"
@@ -242,13 +258,14 @@ class GlobalHotKeys extends React.Component<Props> {
                 source: "HOTKEY",
                 combo: "esc",
               });
+              setCommentModeInUrl(false);
             }
-            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
             this.props.closeTableFilterProppane();
             e.preventDefault();
+            this.props.setPreviewModeAction(false);
           }}
         />
         <Hotkey
@@ -338,6 +355,31 @@ class GlobalHotKeys extends React.Component<Props> {
           preventDefault
           stopPropagation
         />
+        <Hotkey
+          combo="p"
+          global
+          label="Preview Mode"
+          onKeyDown={() => {
+            setCommentModeInUrl(false);
+            this.props.setPreviewModeAction(!this.props.isPreviewMode);
+          }}
+        />
+        <Hotkey
+          combo="mod + /"
+          global
+          label="Preview Mode"
+          onKeyDown={() => {
+            this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
+          }}
+        />
+        <Hotkey
+          combo="ctrl + shift + g"
+          global
+          label="Show git commit modal"
+          onKeyDown={() => {
+            this.props.showCommitModal();
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -353,6 +395,8 @@ const mapStateToProps = (state: AppState) => ({
   isDebuggerOpen: state.ui.debugger.isOpen,
   appMode: getAppMode(state),
   isCommentMode: commentModeSelector(state),
+  isPreviewMode: previewModeSelector(state),
+  isExplorerPinned: getExplorerPinned(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -373,6 +417,14 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
+    setPreviewModeAction: (shouldSet: boolean) =>
+      dispatch(setPreviewModeAction(shouldSet)),
+    setExplorerPinnedAction: (shouldSet: boolean) =>
+      dispatch(setExplorerPinnedAction(shouldSet)),
+    showCommitModal: () =>
+      dispatch(
+        setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+      ),
   };
 };
 

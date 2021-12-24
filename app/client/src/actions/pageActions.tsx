@@ -18,6 +18,8 @@ import {
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
 } from "../constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -37,7 +39,11 @@ export interface CreatePageActionPayload {
 }
 
 export const fetchPageList = (
-  applicationId: string,
+  {
+    applicationId,
+  }: {
+    applicationId: string;
+  },
   mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
   return {
@@ -380,6 +386,17 @@ export const generateTemplateToUpdatePage = ({
     },
   };
 };
+
+export function updateReplayEntity(
+  entityId: string,
+  entity: Replayable,
+  entityType: ENTITY_TYPE,
+) {
+  return {
+    type: ReduxActionTypes.UPDATE_REPLAY_ENTITY,
+    payload: { entityId, entity, entityType },
+  };
+}
 
 export function undoAction() {
   return {

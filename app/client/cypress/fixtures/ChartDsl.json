@@ -24,7 +24,7 @@
         "widgetName": "Chart1",
         "chartType": "BAR_CHART",
         "chartName": "Sales on working days",
-        "allowHorizontalScroll": false,
+        "allowScroll": false,
         "version": 1,
         "chartData": [
           {

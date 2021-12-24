@@ -10,9 +10,8 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import { DatePickerType } from "../constants";
+import { DatePickerType, TimePrecision } from "../constants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -21,19 +20,14 @@ import {
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
 
-enum KEYS {
-  Tab = "Tab",
-  Escape = "Escape",
-}
-
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
+      color: ${Colors.GREY_10};
       box-shadow: none;
       border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[1]}px;
       width: 100%;
       height: inherit;
       align-items: center;
@@ -52,6 +46,10 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
           box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
         }
       }
+    }
+    .${Classes.INPUT}:disabled {
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_7};
     }
     .${Classes.INPUT_GROUP} {
       display: block;
@@ -74,9 +72,7 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
       border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
-      color: ${Colors.OXFORD_BLUE};
       font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
@@ -90,11 +86,8 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
-      showPicker: false,
     };
   }
-
-  pickerRef: HTMLElement | null = null;
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
@@ -111,11 +104,6 @@ class DatePickerComponent extends React.Component<
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
-  };
-
-  handlePopoverRef = (ref: any) => {
-    // get popover ref as callback
-    this.pickerRef = ref as HTMLElement;
   };
 
   render() {
@@ -169,10 +157,6 @@ class DatePickerComponent extends React.Component<
               closeOnSelection={this.props.closeOnSelection}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
-              inputProps={{
-                onFocus: this.showPicker,
-                onKeyDown: this.handleKeyDown,
-              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
@@ -180,13 +164,15 @@ class DatePickerComponent extends React.Component<
               placeholder={"Select Date"}
               popoverProps={{
                 usePortal: !this.props.withoutPortal,
-                isOpen: this.state.showPicker,
-                onClose: this.closePicker,
-                popoverRef: this.handlePopoverRef,
+                canEscapeKeyClose: true,
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
-              timePrecision={TimePrecision.MINUTE}
+              timePrecision={
+                this.props.timePrecision === TimePrecision.NONE
+                  ? undefined
+                  : this.props.timePrecision
+              }
               value={value}
             />
           </ErrorTooltip>
@@ -251,40 +237,12 @@ class DatePickerComponent extends React.Component<
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
     if (isUserChange) {
-      const { closeOnSelection, onDateSelected } = this.props;
-
+      const { onDateSelected } = this.props;
       const date = selectedDate ? selectedDate.toISOString() : "";
       this.setState({
         selectedDate: date,
-        // close picker while user changes in calender
-        // if closeOnSelection false, do not allow user to close picker
-        showPicker: !closeOnSelection,
       });
-
       onDateSelected(date);
-    }
-  };
-
-  showPicker = () => {
-    this.setState({ showPicker: true });
-  };
-
-  closePicker = (e: any) => {
-    const { closeOnSelection } = this.props;
-    try {
-      // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
-      const showPicker =
-        this.pickerRef && this.pickerRef.contains(e.target)
-          ? !closeOnSelection
-          : false;
-      this.setState({ showPicker });
-    } catch (error) {
-      this.setState({ showPicker: false });
-    }
-  };
-  handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
-      this.closePicker(e);
     }
   };
 }
@@ -303,11 +261,11 @@ interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  timePrecision: TimePrecision;
 }
 
 interface DatePickerComponentState {
   selectedDate?: string;
-  showPicker?: boolean;
 }
 
 export default DatePickerComponent;

@@ -10,8 +10,11 @@ import {
   ButtonBoxShadow,
   ButtonVariant,
   ButtonVariantTypes,
+  ButtonPlacementTypes,
+  ButtonPlacement,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
+import { MinimumPopupRows } from "widgets/constants";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -41,6 +44,7 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 }
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
@@ -166,7 +170,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                   ],
                 },
                 {
-                  sectionName: "Actions",
+                  sectionName: "Events",
                   children: [
                     {
                       helpText:
@@ -204,6 +208,17 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "isCompact",
             helpText: "Decides if menu items will consume lesser space",
             label: "Compact",
@@ -234,15 +249,15 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             options: [
               {
                 label: "Primary",
-                value: "SOLID",
+                value: ButtonVariantTypes.PRIMARY,
               },
               {
                 label: "Secondary",
-                value: "OUTLINE",
+                value: ButtonVariantTypes.SECONDARY,
               },
               {
                 label: "Tertiary",
-                value: "GHOST",
+                value: ButtonVariantTypes.TERTIARY,
               },
             ],
             isJSConvertible: true,
@@ -251,8 +266,12 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                default: ButtonVariantTypes.SOLID,
-                allowedValues: ["SOLID", "OUTLINE", "GHOST"],
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
               },
             },
           },
@@ -333,6 +352,41 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             },
           },
           {
+            propertyName: "placement",
+            label: "Placement",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the space between items",
+            options: [
+              {
+                label: "Start",
+                value: ButtonPlacementTypes.START,
+              },
+              {
+                label: "Between",
+                value: ButtonPlacementTypes.BETWEEN,
+              },
+              {
+                label: "Center",
+                value: ButtonPlacementTypes.CENTER,
+              },
+            ],
+            defaultValue: ButtonPlacementTypes.CENTER,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonPlacementTypes.START,
+                  ButtonPlacementTypes.BETWEEN,
+                  ButtonPlacementTypes.CENTER,
+                ],
+                default: ButtonPlacementTypes.CENTER,
+              },
+            },
+          },
+          {
             propertyName: "iconAlign",
             label: "Icon Alignment",
             helpText: "Sets the icon alignment of the menu button",
@@ -364,10 +418,15 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    const { componentWidth } = this.getComponentDimensions();
+    const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+
     return (
       <MenuButtonComponent
         {...this.props}
+        menuDropDownWidth={menuDropDownWidth}
         onItemClicked={this.menuItemClickHandler}
+        width={componentWidth}
       />
     );
   }

@@ -165,15 +165,22 @@ const removeDynamicBinding = (value: string) => {
 export const getSnippet = (
   snippet: string,
   args: any,
+  hideOuterBindings = false,
   replaceWithDynamicBinding = false,
 ) => {
   const templateSubstitutionRegex = /%%(.*?)%%/g;
-  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
-    const substitution = removeDynamicBinding(args[capture] || "");
-    return replaceWithDynamicBinding
-      ? `{{${capture}}}`
-      : substitution || capture;
-  });
+  const snippetReplacedWithCustomizedValues = snippet.replace(
+    templateSubstitutionRegex,
+    function(match, capture) {
+      const substitution = removeDynamicBinding(args[capture] || "");
+      return replaceWithDynamicBinding
+        ? `{{${capture}}}`
+        : substitution || capture;
+    },
+  );
+  return hideOuterBindings
+    ? removeDynamicBinding(snippetReplacedWithCustomizedValues)
+    : snippetReplacedWithCustomizedValues;
 };
 
 export default function SnippetDescription({ item }: { item: Snippet }) {
@@ -198,6 +205,10 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     ),
     onEnter = useSelector(
       (state: AppState) => state.ui.globalSearch.filterContext.onEnter,
+    ),
+    hideOuterBindings = useSelector(
+      (state: AppState) =>
+        state.ui.globalSearch.filterContext.hideOuterBindings,
     );
 
   const handleArgsValidation = useCallback(
@@ -246,7 +257,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     );
     dispatch(
       evaluateSnippet({
-        expression: removeDynamicBinding(getSnippet(template, selectedArgs)),
+        expression: getSnippet(template, selectedArgs, true),
         dataType: dataType,
         isTrigger,
       }),
@@ -292,10 +303,14 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           )}
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {getSnippet(snippet, {}, true)}
+              {getSnippet(snippet, {}, hideOuterBindings, true)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
+              <CopyIcon
+                onClick={() =>
+                  handleCopy(getSnippet(snippet, {}, hideOuterBindings))
+                }
+              />
             </div>
           </div>
         </>
@@ -311,11 +326,15 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
         <>
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {getSnippet(template, selectedArgs)}
+              {getSnippet(template, selectedArgs, hideOuterBindings)}
             </SyntaxHighlighter>
             <div className="action-icons">
               <CopyIcon
-                onClick={() => handleCopy(getSnippet(template, selectedArgs))}
+                onClick={() =>
+                  handleCopy(
+                    getSnippet(template, selectedArgs, hideOuterBindings),
+                  )
+                }
               />
             </div>
           </div>

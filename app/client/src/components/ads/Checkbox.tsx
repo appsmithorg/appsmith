@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type CheckboxProps = CommonComponentProps & {
   label: string;
@@ -10,6 +11,7 @@ export type CheckboxProps = CommonComponentProps & {
   onCheckChange?: (isChecked: boolean) => void;
   info?: string;
   backgroundColor?: string;
+  fill?: boolean;
 };
 
 const Checkmark = styled.span<{
@@ -61,10 +63,11 @@ const Checkmark = styled.span<{
 
 const StyledCheckbox = styled.label<{
   disabled?: boolean;
+  $fill?: boolean;
 }>`
   position: relative;
   display: block;
-  width: 100%;
+  width: ${(props) => (props.$fill ? "100%" : "unset")};
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   color: ${(props) => props.theme.colors.checkbox.labelColor};
   padding-left: ${(props) => props.theme.spaces[12] - 2}px;
@@ -113,6 +116,7 @@ const useUpdate = (intitialValue?: boolean) => {
 };
 
 function Checkbox(props: CheckboxProps) {
+  const { fill = true } = props;
   const [checked, setChecked] = useUpdate(props.isDefaultChecked);
 
   const onChangeHandler = (checked: boolean) => {
@@ -121,7 +125,11 @@ function Checkbox(props: CheckboxProps) {
   };
 
   return (
-    <StyledCheckbox data-cy={props.cypressSelector} disabled={props.disabled}>
+    <StyledCheckbox
+      $fill={fill}
+      data-cy={props.cypressSelector}
+      disabled={props.disabled}
+    >
       <LabelContainer info={props.info}>
         <Text type={TextType.P1}>{props.label}</Text>
         {props.info ? <Text type={TextType.P3}>{props.info}</Text> : null}
@@ -136,6 +144,7 @@ function Checkbox(props: CheckboxProps) {
       />
       <Checkmark
         backgroundColor={props.backgroundColor}
+        className={replayHighlightClass}
         disabled={props.disabled}
         info={props.info}
         isChecked={checked}

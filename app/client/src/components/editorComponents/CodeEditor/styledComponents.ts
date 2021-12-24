@@ -61,7 +61,7 @@ export const EditorWrapper = styled.div<{
   top: 0;
   `
       : `position: relative;`}
-  min-height: 32px;
+  min-height: 35px;
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) => editorBackground(props.editorTheme)};
   background-color: ${(props) => props.disabled && "#eef2f5"};
@@ -115,15 +115,12 @@ export const EditorWrapper = styled.div<{
           case props.hasError:
             return "red";
           case props.isFocused:
-            return Colors.PRIMARY_ORANGE;
+            return "var(--appsmith-input-focus-border-color)";
           default:
             return Colors.GREY_5;
         }
       }};
-      background: ${(props) =>
-        props.isFocused
-          ? props.theme.colors.apiPane.requestTree.header.bg
-          : props.theme.colors.apiPane.bg};
+      background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { debounce } from "lodash";
@@ -9,7 +9,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
+import {
+  FORGOT_PASSWORD_SUCCESS_TEXT,
+  createMessage,
+} from "constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "reducers";
 import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
@@ -20,6 +23,7 @@ import {
   Loader,
   TextLoader,
 } from "./StyledComponents";
+import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -38,7 +42,7 @@ function General() {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
       Toaster.show({
-        text: `${FORGOT_PASSWORD_SUCCESS_TEXT} ${user?.email}`,
+        text: `${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)} ${user?.email}`,
         variant: Variant.success,
       });
       dispatch(logoutUser());
@@ -62,6 +66,10 @@ function General() {
   const isFetchingUser = useSelector(
     (state: AppState) => state.ui.users.loadingStates.fetchingUser,
   );
+
+  useEffect(() => {
+    dispatch(refreshCurrentUser());
+  }, []);
 
   return (
     <Wrapper>

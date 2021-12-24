@@ -54,7 +54,10 @@ function CloseEditor() {
   // else go back to BUILDER_PAGE
   const redirectURL = isGeneratePageInitiator
     ? getGenerateTemplateFormURL(applicationId, pageId)
-    : BUILDER_PAGE_URL(applicationId, pageId);
+    : BUILDER_PAGE_URL({
+        applicationId,
+        pageId,
+      });
 
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(

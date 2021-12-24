@@ -30,7 +30,6 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   // console.log("Binding Data in Saga");
   const currentURL = new URL(window.location.href);
@@ -148,7 +147,13 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    history.replace(BUILDER_PAGE_URL(applicationId, pageId, {}));
+    const applicationId = yield select(getCurrentApplicationId);
+    history.replace(
+      BUILDER_PAGE_URL({
+        applicationId,
+        pageId,
+      }),
+    );
   } else {
     queryId &&
       Toaster.show({

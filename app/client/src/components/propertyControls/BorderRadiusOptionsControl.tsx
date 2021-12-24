@@ -9,6 +9,7 @@ import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
 } from "components/constants";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const StyledButtonGroup = styled(ButtonGroup)`
   height: 33px;
@@ -54,7 +55,7 @@ class BorderRadiusOptionsControl extends BaseControl<
     const { options, propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
+      <StyledButtonGroup className={replayHighlightClass} fill>
         {options.map((option: ButtonBorderRadius) => {
           const active =
             option === ButtonBorderRadiusTypes.SHARP

@@ -100,10 +100,12 @@ export default {
           }
         });
 
-        currentItem[currentWidgetName] = _.pick(
-          currentWidget,
-          props.childrenEntityDefinitions[currentWidget.type],
-        );
+        if (props.childrenEntityDefinitions) {
+          currentItem[currentWidgetName] = _.pick(
+            currentWidget,
+            props.childrenEntityDefinitions[currentWidget.type],
+          );
+        }
       }
 
       updatedItems[itemIndex] = currentItem;
@@ -130,11 +132,7 @@ export default {
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
-    if (_.isNaN(perPage)) {
-      return 0;
-    } else {
-      return _.floor(perPage);
-    }
+    return _.isNaN(perPage) ? 0 : _.floor(perPage);
   },
   //
   // this is just a patch for #7520
