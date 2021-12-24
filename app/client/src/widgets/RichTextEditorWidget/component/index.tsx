@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
@@ -39,10 +39,11 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const toolbarConfig =
     "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help";
 
-  const onChange = debounce((content: string) => {
+  const onChange = (content: string) => {
     editorContent.current = content;
     props.onValueChange(content);
-  }, 200);
+  };
+  const debouncedOnChange = useCallback(debounce(onChange, 1000), []);
 
   useEffect(() => {
     setValue(props.defaultText);
@@ -69,7 +70,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         onEditorChange={(newValue) => {
           if (newValue === value) return;
           setValue(newValue);
-          onChange(newValue);
+          debouncedOnChange(newValue);
         }}
         onInit={(evt, editor) => {
           editorRef.current = editor;
