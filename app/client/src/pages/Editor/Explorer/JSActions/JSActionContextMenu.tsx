@@ -94,7 +94,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "showBinding",
           onSelect: () => showBinding(props.id, props.name),
-          label: "Show Binding",
+          label: "Show Bindings",
         },
         {
           value: "copy",

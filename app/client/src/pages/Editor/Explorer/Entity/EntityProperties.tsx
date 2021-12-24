@@ -22,7 +22,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
 const EntityInfoContainer = styled.div`
-  min-width: 300px;
+  min-width: 270px;
   max-width: 400px;
   max-height: 300px;
   overflow-y: hidden;
@@ -35,7 +35,7 @@ const selectEntityInfo = (state: AppState) => state.ui.explorer.entityInfo;
 export function EntityProperties() {
   const ref = React.createRef<HTMLDivElement>();
   const dispatch = useDispatch();
-  const { entityId = "", entityName, entityType, show } = useSelector(
+  const { entityId, entityName, entityType, show } = useSelector(
     selectEntityInfo,
   );
   const pageId = useSelector(getCurrentPageId) || "";
@@ -53,6 +53,14 @@ export function EntityProperties() {
       return pageWidgets[entityId];
     }
   });
+
+  const actionEntity = useSelector((state: AppState) =>
+    state.entities.actions.find((action) => action.config.id === entityId),
+  );
+
+  const jsActionEntity = useSelector((state: AppState) =>
+    state.entities.jsActions.find((js) => js.config.id === entityId),
+  );
 
   const closeContainer = useCallback((e) => {
     e.stopPropagation();
@@ -81,14 +89,6 @@ export function EntityProperties() {
       ref.current.style.left = (rect ? rect?.width + 0 : 0) + "px";
     }
   }, [entityId]);
-
-  const actionEntity = useSelector((state: AppState) =>
-    state.entities.actions.find((action) => action.config.id === entityId),
-  );
-
-  const jsActionEntity = useSelector((state: AppState) =>
-    state.entities.jsActions.find((js) => js.config.id === entityId),
-  );
 
   const entity: any = widgetEntity || actionEntity || jsActionEntity;
   let config: any;

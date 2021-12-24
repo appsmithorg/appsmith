@@ -19,7 +19,7 @@ export interface ExplorerReduxState {
   entityInfo: {
     show: boolean;
     entityType?: ENTITY_TYPE;
-    entityId?: string;
+    entityId: string;
     entityName?: string;
   };
 }
@@ -31,6 +31,7 @@ const initialState: ExplorerReduxState = {
   active: true,
   entityInfo: {
     show: false,
+    entityId: "",
   },
 };
 

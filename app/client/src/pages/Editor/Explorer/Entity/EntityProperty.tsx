@@ -16,18 +16,6 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import CollapseToggle from "./CollapseToggle";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 
-// const StyledValue = styled.pre<{ step: number }>`
-//   & {
-//     display: inline;
-//     font-size: 10px;
-//     line-height: 12px;
-//     color: ${Colors.GRAY_CHATEAU};
-//     padding-left: ${(props) =>
-//       props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
-//     margin: 0;
-//   }
-// `;
-
 const Wrapper = styled.div<{ step: number }>`
   &&&& {
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -95,26 +83,6 @@ const Wrapper = styled.div<{ step: number }>`
   }
 `;
 
-// const StyledPopoverContent = styled.div`
-//   background: ${Colors.WHITE};
-//   max-height: 500px;
-//   width: 400px;
-//   padding: 10px;
-//   overflow: auto;
-//   & > div {
-//     max-height: 100%;
-//     & > pre {
-//       overflow: hidden;
-//     }
-//   }
-//   & > pre {
-//     width: 100%;
-//     overflow: hidden;
-//     white-space: pre-wrap;
-//     color: white;
-//   }
-// `;
-
 const CopyBox = styled.div`
   cursor: pointer;
   position: relative;
@@ -164,17 +132,6 @@ export type EntityPropertyProps = {
   step?: number;
 };
 
-// const transformedValue = (value: any) => {
-//   if (
-//     typeof value === "object" ||
-//     Array.isArray(value) ||
-//     (value && value.length && value.length > 30)
-//   ) {
-//     return JSON.stringify(value).slice(0, 25) + "...";
-//   }
-//   return `${value}`;
-// };
-
 /* eslint-disable react/display-name */
 export const EntityProperty = memo((props: any) => {
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
@@ -184,10 +141,6 @@ export const EntityProperty = memo((props: any) => {
 
   const codeText = `{{${props.entityName}.${props.propertyName}}}`;
 
-  // const showPopup =
-  //   typeof props.value === "object" ||
-  //   Array.isArray(props.value) ||
-  //   (props.value && props.value.length && props.value.length > 25);
   const isString = typeof props.value === "string";
 
   const copyBindingToClipboard = () => {
@@ -201,41 +154,6 @@ export const EntityProperty = memo((props: any) => {
     },
     [isOpen],
   );
-
-  // let propertyValue = (
-  //   <StyledValue className="value" step={props.step}>
-  //     {transformedValue(props.value)}
-  //   </StyledValue>
-  // );
-  // if (showPopup) {
-  // const propertyValue = (
-  //   <>
-  //     <StyledValue className="value" step={props.step}>
-  //       {transformedValue(props.value)}
-  //     </StyledValue>
-  //     <Popover
-  //       interactionKind={PopoverInteractionKind.HOVER}
-  //       modifiers={ContextMenuPopoverModifiers}
-  //       position="left"
-  //     >
-  //       {collapseIcon}
-  //       {showPopup && (
-  //         <StyledPopoverContent ref={popoverContentRef}>
-  //           {!isString && (
-  //             <CurrentValueViewer
-  //               evaluatedValue={props.value}
-  //               hideLabel
-  //               theme={EditorTheme.LIGHT}
-  //             />
-  //           )}
-  //           {isString && <pre>{props.value}</pre>}
-  //           <ScrollIndicator containerRef={popoverContentRef} mode="DARK" />
-  //         </StyledPopoverContent>
-  //       )}
-  //     </Popover>
-  //   </>
-  // );
-  // }
 
   return (
     <Wrapper className={`${EntityClassNames.PROPERTY}`} step={props.step}>
@@ -266,7 +184,7 @@ export const EntityProperty = memo((props: any) => {
           </TooltipComponent>
         </div>
       </CopyBox>
-      <Collapse className="px-4" isOpen={isOpen}>
+      <Collapse className="px-6" isOpen={isOpen}>
         {isString ? (
           <span className="type-text">{props.value}</span>
         ) : (

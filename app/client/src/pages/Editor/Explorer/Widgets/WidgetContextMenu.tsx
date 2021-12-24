@@ -86,7 +86,7 @@ export function WidgetContextMenu(props: {
     {
       value: "showBinding",
       onSelect: () => showBinding(props.widgetId, widget.widgetName),
-      label: "Show Binding",
+      label: "Show Bindings",
     },
   ];
 
