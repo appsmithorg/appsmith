@@ -667,7 +667,13 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
-export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+export const TRIGGER_ACTION_VALIDATION_ERROR = (
+  functionName: string,
+  argumentName: string,
+  expectedType: string,
+  received: string,
+) =>
+  `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
 export const MORE_OPTIONS = () => "More Options";
