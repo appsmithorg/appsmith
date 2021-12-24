@@ -12,6 +12,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
   if (value) {
     const whiteSpaceRegex = /\s/g;
     const urlRegex = /(?:https:\/\/|www)?([\da-z.-]+)\.([a-z.]{2,6})[/\w .-]*\/?/;
+    const ipRegex = /(?:http(s?):\/\/)((?:[0-9]{1,3}.){3}[0-9]{1,3})(:?([0-9]{1,5})?)([/da-z-]+)$/;
     const base64Regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
     if (
       urlRegex.test(value as string) &&
@@ -39,6 +40,11 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
       }
     } else if (base64Regex.test(value as string)) {
       // base 64 is valid
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    } else if (ipRegex.test(value as string)) {
       return {
         isValid: true,
         parsed: value,

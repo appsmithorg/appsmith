@@ -73,6 +73,26 @@ describe("validate propertypane input : docUrl", () => {
 
     const result2 = documentUrlValidation(input2);
     expect(result2).toStrictEqual(expected2);
+
+    const input3 = "192.168.0.102";
+    const expected3 = {
+      isValid: false,
+      parsed: "",
+      messages: ["Provided URL / Base64 is invalid."],
+    };
+
+    const result3 = documentUrlValidation(input3);
+    expect(result3).toStrictEqual(expected3);
+
+    const input4 = "192.168.0.102/test-url";
+    const expected4 = {
+      isValid: false,
+      parsed: "",
+      messages: ["Provided URL / Base64 is invalid."],
+    };
+
+    const result4 = documentUrlValidation(input4);
+    expect(result4).toStrictEqual(expected4);
   });
 
   it("validation for valid url or base64 value", () => {
@@ -123,5 +143,32 @@ describe("validate propertypane input : docUrl", () => {
 
     const result5 = documentUrlValidation(input5);
     expect(result5).toStrictEqual(expected5);
+
+    const input6 = "https://192.168.0.102:8000/test-url";
+    const expected6 = {
+      isValid: true,
+      parsed: "https://192.168.0.102:8000/test-url",
+    };
+
+    const result6 = documentUrlValidation(input6);
+    expect(result6).toStrictEqual(expected6);
+
+    const input7 = "http://192.168.0.102:8000/test-url";
+    const expected7 = {
+      isValid: true,
+      parsed: "http://192.168.0.102:8000/test-url",
+    };
+
+    const result7 = documentUrlValidation(input7);
+    expect(result7).toStrictEqual(expected7);
+
+    const input8 = "http://192.168.0.102:8000/media/test.pdf";
+    const expected8 = {
+      isValid: true,
+      parsed: "http://192.168.0.102:8000/media/test.pdf",
+    };
+
+    const result8 = documentUrlValidation(input8);
+    expect(result8).toStrictEqual(expected8);
   });
 });
