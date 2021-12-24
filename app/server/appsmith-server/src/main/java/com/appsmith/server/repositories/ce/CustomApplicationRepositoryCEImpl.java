@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
@@ -173,5 +174,17 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
         query.addCriteria(where(fieldName(QApplication.application.deleted)).is(Boolean.FALSE));
         return mongoOperations.count(query, Application.class);
+    }
+
+    @Override
+    public Mono<UpdateResult> setAppTheme(String applicationId, String themeId, ApplicationMode applicationMode, AclPermission aclPermission) {
+        Update updateObj = new Update();
+        if(applicationMode == ApplicationMode.EDIT) {
+            updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), themeId);
+        } else if(applicationMode == ApplicationMode.PUBLISHED) {
+            updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), themeId);
+        }
+
+        return this.updateById(applicationId, updateObj, aclPermission);
     }
 }
