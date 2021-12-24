@@ -58,7 +58,7 @@ const EMAIL_REGEX = new RegExp(
 );
 
 const parseRegex = (regex?: string) => {
-  if (regex) {
+  if (regex && typeof regex === "string") {
     /*
      * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
      *
