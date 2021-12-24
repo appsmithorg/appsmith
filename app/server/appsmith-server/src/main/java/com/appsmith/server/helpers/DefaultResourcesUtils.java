@@ -1,19 +1,17 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
-import org.springframework.util.StringUtils;
 
 public class DefaultResourcesUtils {
     public static <T> T createPristineDefaultIdsAndUpdateWithGivenResourceIds(T resource, String branchName) {
         DefaultResources defaultResources = new DefaultResources();
-        if (!StringUtils.isEmpty(branchName)) {
-            defaultResources.setBranchName(branchName);
-        }
+
+        defaultResources.setBranchName(branchName);
         if (resource instanceof NewAction) {
             NewAction action = (NewAction) resource;
             defaultResources.setApplicationId(action.getApplicationId());
