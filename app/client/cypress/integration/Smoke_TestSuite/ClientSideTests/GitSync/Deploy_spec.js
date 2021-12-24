@@ -1,5 +1,5 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
-const homePage = require("../../../../locators/HomePage");
+import homePage from "../../../../locators/HomePage";
 const commonLocators = require("../../../../locators/commonlocators.json");
 
 let repoName;

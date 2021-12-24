@@ -1,5 +1,5 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
-const homePage = require("../../../../locators/HomePage");
+import homePage from "../../../../locators/HomePage";
 const commonLocators = require("../../../../locators/commonlocators.json");
 
 const httpsRepoURL = "https://github.com/test/test.git";
