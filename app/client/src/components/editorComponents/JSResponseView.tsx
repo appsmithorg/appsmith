@@ -252,6 +252,11 @@ function JSResponseView(props: Props) {
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
                           <div className="function-actions">
+                            {action.actionConfiguration.isAsync ? (
+                              <FlagBadge name={"ASYNC"} />
+                            ) : (
+                              ""
+                            )}
                             <FunctionSettings
                               onClick={() => {
                                 setSelectedFunction(action);
@@ -264,11 +269,6 @@ function JSResponseView(props: Props) {
                                 runAction(action);
                               }}
                             />
-                            {action.actionConfiguration.isAsync ? (
-                              <FlagBadge name={"ASYNC"} />
-                            ) : (
-                              ""
-                            )}
                           </div>
                         </ResponseTabAction>
                       );
