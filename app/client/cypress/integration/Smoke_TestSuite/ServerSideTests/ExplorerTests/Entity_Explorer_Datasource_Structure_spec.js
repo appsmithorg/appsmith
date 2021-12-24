@@ -17,10 +17,7 @@ describe("Entity explorer datasource structure", function() {
   });
 
   it("Entity explorer datasource structure", function() {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",
