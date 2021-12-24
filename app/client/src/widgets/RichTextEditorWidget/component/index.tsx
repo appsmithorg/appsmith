@@ -46,6 +46,11 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const debouncedOnChange = useCallback(debounce(onChange, 1000), []);
 
   useEffect(() => {
+    return () => {
+      debouncedOnChange.cancel();
+    };
+  }, []);
+  useEffect(() => {
     setValue(props.defaultText);
   }, [props.defaultText]);
   return (
