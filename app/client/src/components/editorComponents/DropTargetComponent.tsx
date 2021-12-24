@@ -122,7 +122,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       rowRef.current = snapRows;
       updateHeight();
     }
-  }, [isDragging]);
+  }, [isDragging, isResizing]);
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
