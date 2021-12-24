@@ -774,14 +774,21 @@ public class GitServiceTest {
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("detachRemote_validData");
         testApplication.setOrganizationId(orgId);
-        Application application1 = applicationPageService.createApplication(testApplication).block();
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication)
+                .flatMap(application -> {
+                    // Update the defaultIds for resources to mock merge action from other branch
+                    application.getPages().forEach(page -> page.setDefaultPageId(page.getId() + "randomId"));
+                    return applicationService.save(application);
+                });
 
-        Mono<Application> applicationMono = gitDataService.detachRemote(application1.getId());
+        Mono<Application> result = applicationMono
+                .flatMap(application -> gitDataService.detachRemote(application.getId()));
 
         StepVerifier
-                .create(applicationMono)
+                .create(result)
                 .assertNext(application -> {
                     assertThat(application.getGitApplicationMetadata()).isNull();
+                    application.getPages().forEach(page -> assertThat(page.getDefaultPageId()).isEqualTo(page.getId()));
                 })
                 .verifyComplete();
     }
