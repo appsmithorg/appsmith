@@ -63,7 +63,7 @@ class ProgressBarWidget extends BaseWidget<
             isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 1 },
+              params: { min: 1, max: 100, default: 1, natural: true },
             },
             hidden: (props: ProgressBarWidgetProps) => {
               return props.barType !== BarType.DETERMINATE;
