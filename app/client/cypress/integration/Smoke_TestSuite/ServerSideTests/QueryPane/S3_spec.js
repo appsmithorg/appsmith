@@ -488,7 +488,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifying Searching File from UI
     cy.xpath(queryLocators.searchFilefield)
       .type("GlobeChri")
-      .wait(3000); //for search to finish
+      .wait(4000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
@@ -504,7 +504,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ).scrollIntoView();
 
     //Verifying DeleteFile icon from UI
-    cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
+    cy.xpath(queryLocators.deleteFileicon)
+      .should("be.visible")
+      .click({ force: true }); //Verifies 8684
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     expect(

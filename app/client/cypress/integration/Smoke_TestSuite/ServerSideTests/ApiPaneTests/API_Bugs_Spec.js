@@ -56,7 +56,7 @@ describe("Rest Bugs tests", function() {
     });
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      //cy.log("4th response is :"+ JSON.stringify(response.body))
+      //cy.log("Response is :"+ JSON.stringify(response.body))
 
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.type).to.eq("dog");

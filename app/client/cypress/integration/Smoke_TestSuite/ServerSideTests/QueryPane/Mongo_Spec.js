@@ -295,90 +295,166 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
   });
 
-  // it("11. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {
-  //   cy.NavigateToHome();
-  //   cy.get(homePage.createNew)
-  //     .first()
-  //     .click({ force: true });
-  //   cy.wait("@createNewApplication").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     201,
-  //   );
+  it("11. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function() {
+    cy.NavigateToHome();
+    cy.get(homePage.createNew)
+      .first()
+      .click({ force: true });
+    cy.wait("@createNewApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.NavigateToDatasourceEditor();
+    cy.get(datasource.MongoDB).click({ force: true });
+    cy.fillMongoDatasourceForm();
 
-  //   cy.NavigateToDatasourceEditor();
-  //   cy.get(datasource.MongoDB).click({ force: true });
-  //   // if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
-  //   // else cy.fillMongoDatasourceForm();
-  //   cy.fillMongoDatasourceFormWithURI();
+    cy.generateUUID().then((uid) => {
+      datasourceName = `Mongo Documents ${uid}`;
+      cy.renameDatasource(datasourceName);
+      cy.wrap(datasourceName).as("dSName");
+    });
+    cy.testSaveDatasource();
 
-  //   cy.generateUUID().then((uid) => {
-  //     datasourceName = `Mongo Documents ${uid}`;
-  //     cy.renameDatasource(datasourceName);
-  //     cy.wrap(datasourceName).as("dSName");
-  //   });
-  //   cy.testSaveDatasource(false);
+    //Insert documents
+    cy.get("@dSName").then((dbName) => {
+      cy.NavigateToActiveDSQueryPane(dbName);
+    });
 
-  //   //Insert documents
+    cy.setQueryTimeout(30000);
+    cy.validateNSelectDropdown(
+      "Commands",
+      "Find Document(s)",
+      "Insert Document(s)",
+    );
+    cy.typeValueNValidate("NonAsciiTest", "Collection");
 
-  //   cy.get("@dSName").then((dbName) => {
-  //     cy.NavigateToActiveDSQueryPane(dbName);
-  //   });
+    let nonAsciiDoc = `[{"_id":1, "Från" :"Raksha" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Basilika - Thai 'Siam Queen'"},
+    {"_id":2, "Från" :"Vivek" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
+    {"_id":3, "Från" :"Prapulla" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
-  //   cy.setQueryTimeout(30000);
-  //   cy.validateNSelectDropdown("Commands", "Find Document(s)", "Insert Document(s)");
-  //   cy.typeValueNValidate("NonASCIITest", "Collection");
+    cy.typeValueNValidate(nonAsciiDoc, "Documents");
+    cy.EvaluateCurrentValue(nonAsciiDoc);
+    cy.getEntityName().then((entity) => {
+      cy.wrap(entity).as("entity");
+    });
+    cy.runQuery();
 
-  //   let nonAsciiDoc = `[{"_id":1, "Från" :"Yogesh" , "Frõ" :"Active"},
-  //   {"_id":2, "Från" :"Vivek" , "Frõ" :"Active"},
-  //   {"_id":3, "Från" :"Prapulla" , "Frõ" :"Active"},
-  //   {"_id":4, "Från" :"Raksha" , "Frõ" :"Active"}]`
+    //Find the Inserted Document
+    cy.validateNSelectDropdown(
+      "Commands",
+      "Insert Document(s)",
+      "Find Document(s)",
+    );
+    cy.runQuery();
+    cy.xpath(queryLocators.countText).should("have.text", "3 Records");
 
-  //   cy.typeValueNValidate(nonAsciiDoc, "Documents");
-  //   cy.EvaluateCurrentValue(nonAsciiDoc);
-  //   cy.getEntityName().then((entity) => {
-  //     cy.wrap(entity).as("entity");
-  //   });
-  //   cy.runQuery()
+    cy.get("@dSName").then((dbName) => {
+      cy.actionContextMenuByEntityName(dbName, "Refresh");
+    });
+    cy.xpath("//div[text()='NonAsciiTest']").should("exist");
 
-  //   //Find Documents
-  //   cy.validateNSelectDropdown("Commands", "Insert Document(s)", "Find Document(s)");
-  //   cy.runQuery()
+    //Verifying Suggested Widgets functionality
+    cy.get(queryLocators.suggestedTableWidget)
+      .click()
+      .wait(1000);
+    cy.wait("@updateLayout").then(({ response }) => {
+      cy.log("1st Response is :" + JSON.stringify(response.body));
 
-  //   cy.get(queryLocators.suggestedTableWidget)
-  //     .click()
-  //     .wait(1000);
-  //   cy.wait("@updateLayout").then(({ response }) => {
-  //     expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
-  //   });
+      //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
+    });
 
-  //   cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
-  //   cy.get(queryLocators.suggestedWidgetChart)
-  //     .click()
-  //     .wait(1000);
-  //   cy.wait("@updateLayout").then(({ response }) => {
-  //     expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
-  //   });
+    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    cy.get(queryLocators.suggestedWidgetChart)
+      .click()
+      .wait(1000);
+    cy.wait("@updateLayout").then(({ response }) => {
+      cy.log("2nd Response is :" + JSON.stringify(response.body));
 
-  //   cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
+      //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
+    });
 
-  //   //Delete Documents using both Single & Multiple Documents
-  //   cy.validateNSelectDropdown("Commands", "Find Document(s)", "Delete Document(s)");
-  //   cy.typeValueNValidate("{_id : {$gte: 3 }}", "Query");
-  //   cy.validateNSelectDropdown("Limit", "Single Document");
-  //   cy.runQuery();
+    cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
+    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
 
-  //   cy.validateNSelectDropdown("Commands", "Delete Document(s)", "Find Document(s)");
-  //   cy.runQuery();
+    //Update Document - Single Document
+    cy.validateNSelectDropdown(
+      "Commands",
+      "Find Document(s)",
+      "Update Document(s)",
+    );
+    cy.typeValueNValidate("{_id: {$eq:1}}", "Query");
+    cy.typeValueNValidate("{$set:{ 'Frõ': 'InActive'}}", "Update");
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.body.nModified).to.eq(1);
+    });
 
-  //   cy.validateNSelectDropdown("Commands", "Find Document(s)", "Delete Document(s)");
-  //   cy.typeValueNValidate("{_id : {$lte: 3 }}", "Query");
-  //   cy.validateNSelectDropdown("Limit", "All Matching Documents");
-  //   cy.runQuery();
+    // //Update Document - All Matching Documents
+    // cy.validateNSelectDropdown("Commands", "Find Document(s)", "Update Document(s)");
+    // cy.typeValueNValidate("{_id: {$gte:2}}", "Query");
+    // cy.typeValueNValidate("{$set:{ 'Frõ': 'InActive'}}", "Update");
+    // cy.validateNSelectDropdown("Limit", "Single Document", "All Matching Documents");
+    // cy.runQuery()
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.body.nModified).to.eq(2);
+    // });
 
-  //   cy.deleteQueryUsingContext();
-  //   cy.actionContextMenuByEntityName("Table1");
-  //   cy.actionContextMenuByEntityName("Chart1");
-  //   cy.wait(3000); //waiting for deletion to complete! - else next case fails
-  // });
+    // //Verify Updation Successful:
+    // cy.validateNSelectDropdown("Commands", "Update Document(s)", "Find Document(s)");
+    // cy.runQuery()
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.body[0].Frõ).to.eq('InActive');
+    // });
+
+    //Delete Documents using both Single & Multiple Documents
+    cy.validateNSelectDropdown(
+      "Commands",
+      "Update Document(s)",
+      "Delete Document(s)",
+    );
+    cy.typeValueNValidate("{_id : {$eq: 1 }}", "Query");
+    cy.validateNSelectDropdown("Limit", "Single Document");
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.body.n).to.eq(1);
+    });
+
+    cy.typeValueNValidate("{_id : {$lte: 3 }}", "Query");
+    cy.validateNSelectDropdown(
+      "Limit",
+      "Single Document",
+      "All Matching Documents",
+    );
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.body.n).to.eq(2);
+    });
+
+    //Verify Deletion is Successful:
+    cy.validateNSelectDropdown(
+      "Commands",
+      "Delete Document(s)",
+      "Find Document(s)",
+    );
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.body.length).to.eq(0); //checking that body is empty array
+    });
+
+    //Delete Collection:
+    cy.validateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    //cy.get(queryLocators.templateMenu).click();
+    cy.typeValueNValidate('{"drop": "NonAsciiTest"}');
+    cy.runQuery();
+    cy.get("@dSName").then((dbName) => {
+      cy.actionContextMenuByEntityName(dbName, "Refresh");
+    });
+    cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
+
+    cy.deleteQueryUsingContext();
+    cy.actionContextMenuByEntityName("Table1");
+    cy.actionContextMenuByEntityName("Chart1");
+    cy.wait(3000); //waiting for deletion to complete! - else next case fails
+  });
 });
