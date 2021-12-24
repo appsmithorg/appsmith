@@ -8,7 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import moment from "moment";
-import { DatePickerType } from "../constants";
+import { DatePickerType, TimePrecision } from "../constants";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -124,6 +124,41 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             hideSubText: true,
           },
           {
+            propertyName: "timePrecision",
+            label: "Time precision",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the different time picker or hide.",
+            defaultValue: TimePrecision.MINUTE,
+            options: [
+              {
+                label: "None",
+                value: TimePrecision.NONE,
+              },
+              {
+                label: "Minute",
+                value: TimePrecision.MINUTE,
+              },
+              {
+                label: "Second",
+                value: TimePrecision.SECOND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  TimePrecision.NONE,
+                  TimePrecision.MINUTE,
+                  TimePrecision.SECOND,
+                ],
+                default: TimePrecision.MINUTE,
+              },
+            },
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -148,6 +183,17 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -247,6 +293,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
+        timePrecision={this.props.timePrecision}
         widgetId={this.props.widgetId}
       />
     );
@@ -282,6 +329,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  timePrecision: TimePrecision;
 }
 
 export default DatePickerWidget;

@@ -104,7 +104,17 @@ const applicationsReducer = createReducer(initialState, {
       userOrgs: action.payload,
     };
   },
-
+  [ReduxActionTypes.DELETE_ORG_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      userOrgs: state.userOrgs.filter(
+        (org: Organization) => org.organization.id !== action.payload,
+      ),
+    };
+  },
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplication: true }),

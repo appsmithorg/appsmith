@@ -1,8 +1,9 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Layout;
+import com.appsmith.server.repositories.ce.LayoutRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LayoutRepository extends BaseRepository<Layout, String> {
+public interface LayoutRepository extends LayoutRepositoryCE {
+
 }

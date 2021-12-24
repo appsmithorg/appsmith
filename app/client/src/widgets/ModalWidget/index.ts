@@ -21,6 +21,7 @@ export const CONFIG = {
     width: 456,
     height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
     canEscapeKeyClose: true,
+    animateLoading: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
     // setting it to true will only render the widgets(from sidebar) on the main container without any collision check.
     detachFromLayout: true,

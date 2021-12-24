@@ -109,7 +109,9 @@ public class DataUtils {
         }
 
         return bodyFormData
+                // Disregard keys that are null
                 .stream()
+                .filter(property -> property.getKey() != null)
                 .map(property -> {
                     String key = property.getKey();
                     String value = (String) property.getValue();
@@ -139,6 +141,10 @@ public class DataUtils {
 
                     for (Property property : bodyFormData) {
                         final String key = property.getKey();
+
+                        if (property.getKey() == null) {
+                            continue;
+                        }
 
                         // This condition is for the current scenario, while we wait for client changes to come in
                         // before the migration can be introduced

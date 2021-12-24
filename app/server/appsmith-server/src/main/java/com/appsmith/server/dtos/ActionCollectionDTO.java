@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -15,7 +16,10 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 
 @Getter
 @Setter
@@ -48,12 +52,20 @@ public class ActionCollectionDTO {
 //    ActionDTO defaultAction;
 
     // This property is not shared with the client since the reference is only useful to server
+    // Map<defaultActionId, branchedActionId>
     @JsonIgnore
+    Map<String, String> defaultToBranchedActionIdsMap = Map.of();
+
+    @Deprecated
     Set<String> actionIds = Set.of();
 
     // This property is not shared with the client since the reference is only useful to server
     // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the user
+    // Map<defaultActionId, branchedActionId>
     @JsonIgnore
+    Map<String, String> defaultToBranchedArchivedActionIdsMap = Map.of();
+
+    @Deprecated
     Set<String> archivedActionIds = Set.of();
 
     // Instead of storing the entire action object, we only populate this field while interacting with the client side
@@ -70,6 +82,10 @@ public class ActionCollectionDTO {
 
     // This list is currently used to record constants
     List<JSValue> variables;
+
+    // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as transient
+    @JsonIgnore
+    DefaultResources defaultResources;
 
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
@@ -95,5 +111,6 @@ public class ActionCollectionDTO {
         this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
         this.setOrganizationId(actionCollection.getOrganizationId());
+        copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 }
