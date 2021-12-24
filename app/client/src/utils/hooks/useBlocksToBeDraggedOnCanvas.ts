@@ -28,6 +28,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflow } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -69,6 +70,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const draggingCanvas = useSelector(
     getWidgetByID(dragDetails.draggedOn || ""),
   );
+  const isReflowing = useSelector(getIsReflowing);
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
@@ -177,7 +179,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   );
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const stopReflowing = () => {
-    dispatch(stopReflow());
+    if (isReflowing) dispatch(stopReflow());
   };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
