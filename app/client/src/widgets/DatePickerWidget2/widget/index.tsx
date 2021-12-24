@@ -8,7 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import moment from "moment";
-import { DatePickerType } from "../constants";
+import { DatePickerType, TimePrecision } from "../constants";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -122,6 +122,41 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hideSubText: true,
+          },
+          {
+            propertyName: "timePrecision",
+            label: "Time precision",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the different time picker or hide.",
+            defaultValue: TimePrecision.MINUTE,
+            options: [
+              {
+                label: "None",
+                value: TimePrecision.NONE,
+              },
+              {
+                label: "Minute",
+                value: TimePrecision.MINUTE,
+              },
+              {
+                label: "Second",
+                value: TimePrecision.SECOND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  TimePrecision.NONE,
+                  TimePrecision.MINUTE,
+                  TimePrecision.SECOND,
+                ],
+                default: TimePrecision.MINUTE,
+              },
+            },
           },
           {
             propertyName: "isRequired",
@@ -258,6 +293,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
+        timePrecision={this.props.timePrecision}
         widgetId={this.props.widgetId}
       />
     );
@@ -293,6 +329,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  timePrecision: TimePrecision;
 }
 
 export default DatePickerWidget;
