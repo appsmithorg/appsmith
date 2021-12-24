@@ -65,3 +65,10 @@ export enum ButtonVariantTypes {
   TERTIARY = "TERTIARY",
 }
 export type ButtonVariant = keyof typeof ButtonVariantTypes;
+
+export enum ButtonPlacementTypes {
+  START = "START",
+  BETWEEN = "BETWEEN",
+  CENTER = "CENTER",
+}
+export type ButtonPlacement = keyof typeof ButtonPlacementTypes;

@@ -228,7 +228,11 @@ export function TabComponent(props: TabbedViewComponentType) {
       >
         <TabList>
           {props.tabs.map((tab, index) => (
-            <Tab data-cy={`t--tab-${tab.key}`} key={tab.key}>
+            <Tab
+              data-cy={`t--tab-${tab.key}`}
+              data-replay-id={tab.key}
+              key={tab.key}
+            >
               <TabItem
                 selected={
                   index === props.selectedIndex || index === selectedIndex

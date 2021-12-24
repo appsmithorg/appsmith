@@ -8,6 +8,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -30,6 +31,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -68,6 +70,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -110,11 +113,25 @@ public class LayoutActionServiceTest {
     @Autowired
     ActionCollectionService actionCollectionService;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
 
+    Application gitConnectedApp = null;
+
+    PageDTO gitConnectedPage = null;
+
     Datasource datasource;
+
+    String orgId;
+
+    String branchName;
 
     Datasource jsDatasource;
 
@@ -125,7 +142,7 @@ public class LayoutActionServiceTest {
     public void setup() {
         newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
-        String orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getOrganizationIds().iterator().next();
         Organization organization = organizationService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
@@ -168,6 +185,27 @@ public class LayoutActionServiceTest {
             layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+        }
+
+        if (gitConnectedApp == null) {
+            Application newApp = new Application();
+            newApp.setName(UUID.randomUUID().toString());
+            GitApplicationMetadata gitData = new GitApplicationMetadata();
+            gitData.setBranchName("actionServiceTest");
+            newApp.setGitApplicationMetadata(gitData);
+            gitConnectedApp = applicationPageService.createApplication(newApp, orgId)
+                    .flatMap(application -> {
+                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                        return applicationService.save(application)
+                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
+                    })
+                    // Assign the branchName to all the resources connected to the application
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .block();
+
+            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+
+            branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
@@ -380,6 +418,74 @@ public class LayoutActionServiceTest {
                     innerArrayReference.clear();
                     innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void refactorActionName_forGitConnectedAction_success() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("beforeNameChange");
+        action.setPageId(gitConnectedPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ \tbeforeNameChange.data }}");
+        final JSONObject innerObjectReference = new JSONObject();
+        innerObjectReference.put("k", "{{\tbeforeNameChange.data}}");
+        dsl.put("innerObjectReference", innerObjectReference);
+        final JSONArray innerArrayReference = new JSONArray();
+        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tbeforeNameChange.data}}")));
+        dsl.put("innerArrayReference", innerArrayReference);
+
+        Layout layout = gitConnectedPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), layout.getId(), layout, branchName).block();
+
+
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setPageId(gitConnectedPage.getId());
+        refactorActionNameDTO.setLayoutId(firstLayout.getId());
+        refactorActionNameDTO.setOldName("beforeNameChange");
+        refactorActionNameDTO.setNewName("PostNameChange");
+        refactorActionNameDTO.setActionId(createdAction.getId());
+
+        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+
+        StepVerifier
+                .create(postNameChangeActionMono)
+                .assertNext(updatedAction -> {
+
+                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
+
+                    DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
+
+                    dsl.put("testField", "{{ \tPostNameChange.data }}");
+                    innerObjectReference.put("k", "{{\tPostNameChange.data}}");
+                    innerArrayReference.clear();
+                    innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
+                    assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
+                    assertThat(updatedAction.getDefaultResources()).isNotNull();
+                    assertThat(updatedAction.getDefaultResources().getActionId()).isEqualTo(updatedAction.getId());
+                    assertThat(updatedAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedApp.getId());
+                    assertThat(updatedAction.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
                 })
                 .verifyComplete();
     }
@@ -846,6 +952,46 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testRefactorWidgetName_forDefaultWidgetsInList_updatesBothWidgetsAndTemplateReferences() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "List1");
+        dsl.put("type", "LIST_WIDGET");
+        JSONObject template = new JSONObject();
+        template.put("oldWidgetName", "irrelevantContent");
+        dsl.put("template", template);
+        final JSONArray children = new JSONArray();
+        final JSONObject defaultWidget = new JSONObject();
+        defaultWidget.put("widgetName", "oldWidgetName");
+        defaultWidget.put("type", "TEXT_WIDGET");
+        children.add(defaultWidget);
+        dsl.put("children", children);
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("oldWidgetName");
+        refactorNameDTO.setNewName("newWidgetName");
+
+        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
+
+        StepVerifier
+                .create(widgetRenameMono)
+                .assertNext(updatedLayout -> {
+                    assertTrue(((Map) updatedLayout.getDsl().get("template")).containsKey("newWidgetName"));
+                    assertEquals("newWidgetName",
+                            ((Map)(((List)updatedLayout.getDsl().get("children")).get(0))).get("widgetName"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -885,7 +1031,7 @@ public class LayoutActionServiceTest {
 
         assert createdActionCollectionDTO1 != null;
         final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO1.getId());
-        final Optional<String> optional = createdActionCollectionDTO1.getActionIds().stream().findFirst();
+        final Optional<String> optional = createdActionCollectionDTO1.getDefaultToBranchedActionIdsMap().values().stream().findFirst();
         assert optional.isPresent();
         final Mono<NewAction> actionMono = newActionService.findById(optional.get());
 
@@ -1202,5 +1348,40 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @SneakyThrows(JsonProcessingException.class)
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateLayout_withSelfReferencingWidget_updatesLayout() {
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+
+        ArrayList children = (ArrayList) parentDsl.get("children");
+
+        JSONObject firstWidget = new JSONObject();
+        firstWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        firstWidget.put("dynamicBindingPathList", temp);
+        firstWidget.put("testField", "{{ firstWidget.testField }}");
+        children.add(firstWidget);
+
+        parentDsl.put("children", children);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(layoutDTO -> {
+                    final JSONObject dsl = layoutDTO.getDsl();
+                    final Object fieldValue = ((JSONObject) ((ArrayList) dsl.get("children")).get(0)).getAsString("testField");
+                    // Make sure the DSL got updated
+                    Assert.assertEquals("{{ firstWidget.testField }}", fieldValue);
+                })
+                .verifyComplete();
     }
 }
