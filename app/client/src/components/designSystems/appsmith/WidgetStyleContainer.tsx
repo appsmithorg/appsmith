@@ -29,6 +29,9 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   width: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow:  ${(props) => props.boxShadow} !important;
+  border-width: ${(props) => props.borderWidth}px;
+  border-color: ${(props) => props.borderColor || "transparent"};
+  border-style: solid;
   overflow: hidden;
 
   & > div {

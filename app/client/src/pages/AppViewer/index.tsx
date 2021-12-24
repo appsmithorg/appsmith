@@ -33,6 +33,7 @@ import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
+import PoweredBy from "./PoweredBy";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -86,6 +87,7 @@ function AppViewer(props: Props) {
   const lightTheme = useSelector((state: AppState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
+  const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -98,12 +100,10 @@ function AppViewer(props: Props) {
    * initialize the app if branch, pageId or application is changed
    */
   useEffect(() => {
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-
     if (applicationId && pageId) {
       initializeAppViewerCallback(branch, applicationId, pageId);
     }
-  }, [search, pageId, applicationId]);
+  }, [branch, pageId, applicationId]);
 
   /**
    * loads font for canvas based on theme
@@ -208,6 +208,7 @@ function AppViewer(props: Props) {
                   </Switch>
                 )}
               </AppViewerBody>
+              <PoweredBy />
             </AppViewerBodyContainer>
           </ContainerWithComments>
           <AddCommentTourComponent />

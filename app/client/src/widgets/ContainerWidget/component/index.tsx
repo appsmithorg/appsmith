@@ -30,9 +30,6 @@ const StyledContainerComponent = styled.div<
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
 
-    border-width: ${(props) => props.borderWidth}px;
-    border-color: ${(props) => props.borderColor || "transparent"};
-    border-style: solid;
     overflow: hidden;
 
   ${(props) =>

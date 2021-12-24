@@ -119,6 +119,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
     <Popover
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
+      key={`color-picker-v2-popover-${color}`}
       minimal
       position={Position.BOTTOM}
       usePortal
@@ -147,7 +148,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
               <div className="flex space-x-1">
                 {Object.keys(themeColors).map((colorKey) => (
                   <div
-                    className="w-6 h-6 transform border rounded-full"
+                    className="w-6 h-6 transform border rounded-full cursor-pointer"
                     key={`color-picker-v2-${colorKey}`}
                     onClick={() => {
                       setColor(themeColors[colorKey]);
@@ -172,7 +173,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
               <div className="flex space-x-1">
                 {Object.values(applicationColors).map((colorCode: string) => (
                   <div
-                    className="w-6 h-6 transform border rounded-full"
+                    className="w-6 h-6 transform border rounded-full cursor-pointer"
                     key={colorCode}
                     onClick={() => {
                       setColor(colorCode);
@@ -194,7 +195,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
                 {Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
                   (singleColorKey) => (
                     <div
-                      className="items-center w-6 h-6 transform rounded-full"
+                      className="items-center w-6 h-6 transform rounded-full cursor-pointer"
                       key={`a-${colorKey}`}
                       onClick={() => {
                         setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
