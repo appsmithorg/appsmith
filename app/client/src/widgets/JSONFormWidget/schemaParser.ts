@@ -7,6 +7,7 @@ import {
   sortBy,
   startCase,
 } from "lodash";
+import moment from "moment";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
@@ -137,7 +138,7 @@ export const normalizeArrayValue = (data: Obj[]) => {
 
 export const fieldTypeFor = (value: any) => {
   const dataType = dataTypeFor(value);
-  const fieldType = DATA_TYPE_POTENTIAL_FIELD[dataType];
+  const potentialFieldType = DATA_TYPE_POTENTIAL_FIELD[dataType];
   const subDataType = subDataTypeFor(value);
 
   if (subDataType) {
@@ -150,7 +151,12 @@ export const fieldTypeFor = (value: any) => {
     }
   }
 
-  return fieldType;
+  if (dataType === DataType.STRING) {
+    const date = moment(value);
+    if (date.isValid()) return FieldType.DATE;
+  }
+
+  return potentialFieldType;
 };
 
 const getKeysFromSchema = (schema: Schema) => {
