@@ -480,6 +480,7 @@ export interface WidgetDisplayProps {
   isLoading: boolean;
   isDisabled?: boolean;
   backgroundColor?: string;
+  animateLoading?: boolean;
 }
 
 export interface WidgetDataProps

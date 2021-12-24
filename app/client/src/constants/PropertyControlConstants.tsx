@@ -90,6 +90,8 @@ type ValidationConfigParams = {
   expected?: CodeEditorExpected; // FUNCTION type expected type and example
   strict?: boolean; //for strict string validation of TEXT type
   ignoreCase?: boolean; //to ignore the case of key
+  type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
+  params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
 };
 
 export type ValidationConfig = {

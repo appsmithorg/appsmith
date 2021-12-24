@@ -394,7 +394,7 @@ function* createOnboardingDatasource() {
           },
           endpoints: [
             {
-              host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+              host: "mockdb.internal.appsmith.com",
               port: 5432,
             },
           ],
@@ -427,7 +427,7 @@ function* createOnboardingDatasource() {
     });
 
     // Navigate to that datasource page
-    yield put(changeDatasource(onboardingDatasource));
+    yield put(changeDatasource({ datasource: onboardingDatasource }));
 
     yield take(ReduxActionTypes.SHOW_ONBOARDING_LOADER);
     yield put(

@@ -43,7 +43,7 @@
             <version>5.13.0.202109080827-r</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit.ssh.jsch -->
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit.junit.ssh -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.ssh.jsch</artifactId>
