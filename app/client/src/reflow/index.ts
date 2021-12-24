@@ -3,11 +3,11 @@ import { cloneDeep } from "lodash";
 import { getMovementMap } from "./reflowHelpers";
 import { CollidingSpaceMap, GridProps, ReflowDirection } from "./reflowTypes";
 import {
+  changeExitContainerDirection,
   filterSpaceById,
   getCollidingSpaces,
   getDelta,
   getIsHorizontalMove,
-  getOppositeDirection,
   getShouldReflow,
 } from "./reflowUtils";
 
@@ -62,11 +62,11 @@ export function reflow(
   //eslint-disable-next-line
   console.log("reflow input", consolelog);
 
-  if (immediateExitContainer && collidingSpaceMap[immediateExitContainer]) {
-    collidingSpaceMap[immediateExitContainer].direction = getOppositeDirection(
-      direction,
-    );
-  }
+  changeExitContainerDirection(
+    collidingSpaceMap,
+    immediateExitContainer,
+    direction,
+  );
 
   const delta = getDelta(OGPositions, newPositions, direction);
 

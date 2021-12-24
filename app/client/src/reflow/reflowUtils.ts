@@ -372,10 +372,10 @@ function getCorrectedDirection(
   isHorizontalMove?: boolean,
   prevCollidingSpaces?: CollidingSpaceMap,
 ): ReflowDirection {
+  if (forceDirection) return direction;
+
   if (prevCollidingSpaces && prevCollidingSpaces[collidingSpace.id])
     return prevCollidingSpaces[collidingSpace.id].direction;
-
-  if (forceDirection) return direction;
 
   let primaryDirection: ReflowDirection = direction,
     secondaryDirection: ReflowDirection | undefined = undefined;
@@ -777,4 +777,42 @@ function replaceMovementMapByDirection(
   }
 
   return currentMovementMap;
+}
+
+/**
+ * on Container exit, the exitted container and the widgets behind it should reflow in opposite direction
+ * @param collidingSpaceMap
+ * @param immediateExitContainer
+ * @param direction
+ * changes reference of collidingSpaceMap
+ */
+export function changeExitContainerDirection(
+  collidingSpaceMap: CollidingSpaceMap,
+  immediateExitContainer: string | undefined,
+  direction: ReflowDirection,
+) {
+  if (!immediateExitContainer || !collidingSpaceMap[immediateExitContainer])
+    return;
+
+  const oppDirection = getOppositeDirection(direction);
+  const { directionIndicator, oppositeDirection } = getAccessor(oppDirection);
+
+  const collidingSpaces: CollidingSpace[] = Object.values(collidingSpaceMap);
+  const oppositeFrom =
+    collidingSpaceMap[immediateExitContainer][oppositeDirection];
+
+  const oppositeSpaceIds = collidingSpaces
+    .filter((collidingSpace: CollidingSpace) => {
+      return compareNumbers(
+        collidingSpace[oppositeDirection],
+        oppositeFrom,
+        directionIndicator > 0,
+        true,
+      );
+    })
+    .map((collidingSpace: CollidingSpace) => collidingSpace.id);
+
+  for (const spaceId of oppositeSpaceIds) {
+    collidingSpaceMap[spaceId].direction = oppDirection;
+  }
 }
