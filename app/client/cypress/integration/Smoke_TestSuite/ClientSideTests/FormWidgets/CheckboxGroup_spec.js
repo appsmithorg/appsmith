@@ -90,7 +90,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(".t--property-control-alignment").should("exist");
     cy.get(".t--property-control-alignment span[type='p1']").should(
       "have.text",
-      "Between",
+      "No selection.",
     );
 
     cy.get(
