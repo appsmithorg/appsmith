@@ -83,6 +83,17 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   border-radius: 0px;
 `;
 
+const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
+  color: ${(props) => THEMES[props.colorTheme].textColor};
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 0;
+  display: none;
+`;
+
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   // max-height: 300px;
   min-height: 28px;
@@ -92,16 +103,11 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   padding-right: 30px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   position: relative;
-`;
-
-const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
-  color: ${(props) => THEMES[props.colorTheme].textColor};
-  position: absolute;
-  right: 0;
-  top: 0;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 0;
+  &:hover {
+    ${CopyIconWrapper} {
+      display: flex;
+    }
+  }
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`

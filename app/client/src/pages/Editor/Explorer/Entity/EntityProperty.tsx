@@ -51,7 +51,7 @@ const Wrapper = styled.div<{ step: number }>`
     & {
       code.${SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH} {
         display: flex;
-        white-space: pre-wrap;
+        white-space: nowrap;
         background: transparent;
         font-size: 11px;
         overflow-wrap: break-word;
@@ -63,6 +63,7 @@ const Wrapper = styled.div<{ step: number }>`
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+          color: rgb(221, 74, 104) !important;
         }
       }
     }
