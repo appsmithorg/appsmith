@@ -588,14 +588,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         ).onErrorResume(error -> {
+                            log.error("Error while cloning the remote repo, {}", error.getMessage());
                             if (error instanceof TransportException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                             }
                             if (error instanceof InvalidRemoteException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
                             }
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
-                            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
                         });
                         return Mono.zip(
                                 Mono.just(application),
