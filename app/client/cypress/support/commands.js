@@ -3438,7 +3438,9 @@ Cypress.Commands.add(
       "//div[text()='" +
         action +
         "']/parent::a[contains(@class, 'single-select')]",
-    ).click();
+    )
+      .click({ force: true })
+      .wait(500);
 
     if (action == "Delete")
       cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
