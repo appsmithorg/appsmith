@@ -8,10 +8,19 @@ const {
   sortObjectKeys,
 } = require("./utils/utils");
 
+const selectors = {
+  appMoreIcon: "span.t--options-icon",
+  orgImportAppOption: '[data-cy*="t--org-import-app"]',
+  fileInput: "#fileInput",
+  importButton: '[data-cy*="t--org-import-app-button"]',
+};
 module.exports = class Perf {
   constructor(launchOptions = {}) {
     this.launchOptions = {
+      defaultViewport: null,
+
       ...launchOptions,
+      args: ["--window-size=1920,1080"],
     };
     this.traces = [];
     this.traceInProgress = false;
@@ -50,7 +59,7 @@ module.exports = class Perf {
 
   stopTrace = async () => {
     this.traceInProgress = false;
-    await delay(5000, "before stoping the trace");
+    await delay(3000, "before stoping the trace");
     await this.page.tracing.stop();
   };
 
@@ -104,6 +113,20 @@ module.exports = class Perf {
       waitUntil: "networkidle2",
       timeout: 60000,
     });
+  };
+
+  importApplication = async (app) => {
+    await this.page.waitForSelector(selectors.appMoreIcon);
+    await this.page.click(selectors.appMoreIcon);
+    await this.page.waitForSelector(selectors.orgImportAppOption);
+    await this.page.click(selectors.orgImportAppOption);
+
+    const elementHandle = await this.page.$(selectors.fileInput);
+    await elementHandle.uploadFile(`${APP_ROOT}/dsl/ImportTest.json`);
+    await this.page.click(selectors.importButton);
+
+    await this.page.waitForNavigation();
+    await this.page.reload();
   };
 
   generateReport = async () => {

@@ -92,7 +92,7 @@ exports.login = async (page) => {
   const url = "https://dev.appsmith.com/user/login";
 
   await page.goto(url);
-  await page.setViewport({ width: 1440, height: 714 });
+  await page.setViewport({ width: 1920, height: 1080 });
 
   await delay(1000, "before login");
 
