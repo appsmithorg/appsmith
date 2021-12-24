@@ -3350,17 +3350,18 @@ Cypress.Commands.add(
   "validateNSelectDropdown",
   (ddTitle, currentValue, newValue) => {
     let toChange = false;
-    cy.log(currentValue);
-    cy.xpath('//div[contains(text(),"' + currentValue + '")]').should(
+    cy.xpath('//span[contains(text(),"' + currentValue + '")]').should(
       "exist",
       currentValue + " dropdown value not present",
     );
     if (newValue) toChange = true;
     if (toChange) {
       cy.xpath(
-        "//p[text()='" + ddTitle + "']/following-sibling::div/div",
+        "//p[text()='" +
+          ddTitle +
+          "']/parent::label/following-sibling::div/div/div",
       ).click(); //to expand the dropdown
-      cy.xpath('//div[contains(text(),"' + newValue + '")]')
+      cy.xpath('//span[contains(text(),"' + newValue + '")]')
         .last()
         .click({ force: true }); //to select the new value
     }
@@ -3369,19 +3370,17 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   if (fieldName) {
-    cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div").then(
-      ($field) => {
-        cy.updateCodeInput($field, valueToType);
-      },
-    );
+    cy.xpath(
+      "//p[text()='" + fieldName + "']/parent::label/following-sibling::div",
+    ).then(($field) => {
+      cy.updateCodeInput($field, valueToType);
+    });
   } else {
     cy.xpath("//div[@class='CodeEditorTarget']").then(($field) => {
       cy.updateCodeInput($field, valueToType);
     });
   }
-
   cy.EvaluateCurrentValue(valueToType);
-
   // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
   //   textF = fieldValue.innerText
   //   fieldValue.innerText = ""
@@ -3428,26 +3427,22 @@ Cypress.Commands.add(
   (fieldName = "", currentValue = "") => {
     let toValidate = false;
     if (currentValue) toValidate = true;
-
     if (fieldName) {
       cy.xpath(
         "//p[text()='" +
           fieldName +
-          "']/following-sibling::div//div[@class='CodeMirror-code']",
+          "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
       cy.xpath("//div[@class='CodeMirror-code']").click();
     }
-
     cy.wait(2000);
     const val = cy
       .get(commonlocators.evaluatedCurrentValue)
       .first()
       .should("be.visible")
       .invoke("text");
-
     if (toValidate) expect(val).to.eq(currentValue);
-
     return val;
   },
 );

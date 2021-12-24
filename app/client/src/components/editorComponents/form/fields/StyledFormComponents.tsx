@@ -85,6 +85,7 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   display: inline-block;
   // TODO: replace condition with props.config?.dataType === "TOGGLE" 
   // required for large texts in CHECKBOX and SWITCH
+  width: ${(props) => props.config?.customStyles?.width || "auto;"}
   min-width: ${(props) =>
     props.config?.controlType === "SWITCH" ||
     props.config?.controlType === "CHECKBOX"

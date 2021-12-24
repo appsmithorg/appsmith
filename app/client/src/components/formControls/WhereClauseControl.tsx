@@ -5,7 +5,6 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import _ from "lodash";
 import { useSelector } from "react-redux";
@@ -216,7 +215,7 @@ function ConditionBlock(props: any) {
     isDisabled = true;
   }
   return (
-    <PrimaryBox style={{ width: `${props.maxWidth}vh`, marginTop }}>
+    <PrimaryBox style={{ marginTop }}>
       <SecondaryBox>
         {/* Component to render the joining operator between multiple conditions */}
         <FormControl
@@ -302,8 +301,6 @@ function ConditionBlock(props: any) {
                   },
                 ],
               });
-              // eslint-disable-next-line no-console
-              console.log("Ayush new field", props.fields.getAll());
             }}
           >
             {/*Hardcoded label to be removed */}

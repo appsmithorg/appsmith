@@ -28,7 +28,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           component={renderDropdown}
           name={this.props.configProperty}
           options={this.props.options}
-          props={this.props}
+          props={{ ...this.props, width }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>
@@ -43,7 +43,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 function renderDropdown(props: {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
-  props: DropDownControlProps;
+  props: DropDownControlProps & { width?: string };
   options: { label: string; value: string }[];
 }): JSX.Element {
   let selectedValue = props.input?.value;
@@ -68,7 +68,7 @@ function renderDropdown(props: {
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
-      width="50vh"
+      width={props?.props?.width ? props?.props?.width : "50vh"}
     />
   );
 }
