@@ -90,7 +90,9 @@ function Accordion({
           />
         </StyledToggleHeader>
       )}
-      <Collapse isOpen={isOpen}>{children}</Collapse>
+      <Collapse isOpen={isOpen} keepChildrenMounted>
+        {children}
+      </Collapse>
     </StyledWrapper>
   );
 }
