@@ -385,7 +385,9 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
         for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
             for (final DslActionDTO actionDTO : actionSet) {
                 if (actionIdsMap.containsKey(actionDTO.getId())) {
-                    actionDTO.setId(actionIdsMap.get(actionDTO.getId()));
+                    final String srcActionId = actionDTO.getId();
+                    actionDTO.setId(actionIdsMap.get(srcActionId));
+                    actionDTO.setDefaultActionId(actionIdsMap.get(srcActionId));
                     shouldSave = true;
                 } else {
                     log.error(

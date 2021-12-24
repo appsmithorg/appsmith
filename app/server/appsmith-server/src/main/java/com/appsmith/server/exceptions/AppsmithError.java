@@ -89,8 +89,6 @@ public enum AppsmithError {
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4038, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     INVALID_CRUD_PAGE_REQUEST(400, 4039, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH(400, 4040, "This operation is not supported for remote branch {0}. Please use local branches only to proceed", AppsmithErrorAction.DEFAULT, "Unsupported Operation!", ErrorType.BAD_REQUEST),
-    GIT_APPLICATION_LIMIT_ERROR(400, 4041, "You have reached the maximum number of private git repo counts which can be  connected to the organization. Please reach out to Appsmith support to opt for commercial plan.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
-
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +
@@ -129,6 +127,7 @@ public enum AppsmithError {
     INVALID_JS_ACTION(400, 4040, "Something went wrong while trying to parse this action. Please check the JS object for errors.", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     CYCLICAL_DEPENDENCY_ERROR(400, 4041, "Cyclical dependency error encountered while parsing relationship [{0}] where the relationship is denoted as (source : target).", AppsmithErrorAction.DEFAULT, "Cyclical Dependency in Page Load Actions", ErrorType.CONFIGURATION_ERROR),
     CLOUD_SERVICES_ERROR(500, 5012, "Received error from cloud services {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
+    GIT_APPLICATION_LIMIT_ERROR(400, 4043, "You have reached the maximum number of private git repo counts which can be  connected to the organization. Please reach out to Appsmith support to opt for commercial plan.", AppsmithErrorAction.DEFAULT, null, ErrorType.EE_FEATURE_ERROR),
     ;
 
     private final Integer httpErrorCode;
