@@ -214,6 +214,10 @@
             <artifactId>mockito-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jgrapht</groupId>
             <artifactId>jgrapht-core</artifactId>
             <version>1.5.0</version>

@@ -628,5 +628,15 @@
     "60aca056136c4b7178f67906": [
       "Table1"
     ]
+  },
+  "editModeTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
   }
 }

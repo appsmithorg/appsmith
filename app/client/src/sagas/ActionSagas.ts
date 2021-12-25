@@ -930,6 +930,17 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   }
 }
 
+function* updateEntitySavingStatus() {
+  yield race([
+    take(ReduxActionTypes.UPDATE_ACTION_SUCCESS),
+    take(ReduxActionTypes.SAVE_PAGE_SUCCESS),
+  ]);
+
+  yield put({
+    type: ReduxActionTypes.ENTITY_UPDATE_SUCCESS,
+  });
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -958,5 +969,9 @@ export function* watchActionSagas() {
       toggleActionExecuteOnLoadSaga,
     ),
     takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommandSaga),
+    takeLatest(
+      ReduxActionTypes.ENTITY_UPDATE_STARTED,
+      updateEntitySavingStatus,
+    ),
   ]);
 }
