@@ -1,14 +1,22 @@
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { createMessage, DEBUGGER_TRIGGER_ERROR } from "constants/messages";
+import {
+  createMessage,
+  DEBUGGER_TRIGGER_ERROR,
+  TRIGGER_ACTION_VALIDATION_ERROR,
+} from "constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
+import { Types } from "utils/TypeHelpers";
+import {
+  ActionTriggerFunctionNames,
+  ActionTriggerType,
+} from "entities/DataTree/actionTriggers";
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -17,13 +25,36 @@ import { isString } from "lodash";
 export class TriggerFailureError extends Error {
   error?: Error;
 
-  constructor(reason: string, triggerMeta: TriggerMeta, error?: Error) {
+  constructor(reason: string, error?: Error) {
     super(reason);
     this.error = error;
-    const { source, triggerPropertyName } = triggerMeta;
-    const errorMessage = error?.message || reason;
+  }
+}
 
-    logActionExecutionError(errorMessage, source, triggerPropertyName);
+export class PluginTriggerFailureError extends TriggerFailureError {
+  responseData: unknown[] = [];
+
+  constructor(reason: string, responseData: unknown[]) {
+    super(reason);
+    this.responseData = responseData;
+  }
+}
+
+export class ActionValidationError extends TriggerFailureError {
+  constructor(
+    functionName: ActionTriggerType,
+    argumentName: string,
+    expectedType: Types,
+    received: Types,
+  ) {
+    const errorMessage = createMessage(
+      TRIGGER_ACTION_VALIDATION_ERROR,
+      ActionTriggerFunctionNames[functionName],
+      argumentName,
+      expectedType,
+      received,
+    );
+    super(errorMessage);
   }
 }
 
@@ -33,39 +64,32 @@ export const logActionExecutionError = (
   triggerPropertyName?: string,
   errorType?: PropertyEvaluationErrorType,
 ) => {
-  AppsmithConsole.addError({
-    id: `${source?.id}-${triggerPropertyName}`,
-    logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
-    text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-    source: {
-      type: ENTITY_TYPE.WIDGET,
-      id: source?.id ?? "",
-      name: source?.name ?? "",
-      propertyPath: triggerPropertyName,
-    },
-    messages: [
-      {
-        type: errorType,
-        message: errorMessage,
+  if (triggerPropertyName) {
+    AppsmithConsole.addError({
+      id: `${source?.id}-${triggerPropertyName}`,
+      logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+      text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        id: source?.id ?? "",
+        name: source?.name ?? "",
+        propertyPath: triggerPropertyName,
       },
-    ],
-  });
+      messages: [
+        {
+          type: errorType,
+          message: errorMessage,
+        },
+      ],
+    });
+  }
 
   Toaster.show({
     text: errorMessage,
     variant: Variant.danger,
-    showDebugButton: true,
+    showDebugButton: !!triggerPropertyName,
   });
 };
-
-export class PluginTriggerFailureError extends Error {
-  responseData: unknown[] = [];
-
-  constructor(reason: string, responseData: unknown[]) {
-    super(reason);
-    this.responseData = responseData;
-  }
-}
 
 /*
  * Thrown when action execution fails for some reason
@@ -94,15 +118,9 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
   }
 }
 
-export class TriggerEvaluationError extends Error {
+export class UncaughtPromiseError extends Error {
   constructor(message: string) {
     super(message);
-  }
-}
-
-export class UncaughtAppsmithPromiseError extends TriggerFailureError {
-  constructor(message: string, triggerMeta: TriggerMeta, error: Error) {
-    super(message, triggerMeta, error);
   }
 }
 
