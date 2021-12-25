@@ -27,7 +27,7 @@ This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) depl
     * Minikube: [Setup Kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/)
     * Google Cloud Kubernetes: [Configuring cluster access for kubectl](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
     * Aws EKS: [Create a kubeconfig for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
-    
+
     * Microk8s: [Working with kubectl](https://microk8s.io/docs/working-with-kubectl)
 * Ensure you have a default storage class running on your cluster. Please follow one of below guideline to enable your default storage class in case of no existing one
 	* Minikube: [Enable addon default-storageclass](https://kubernetes.io/docs/tutorials/hello-minikube/#enable-addons)
@@ -52,7 +52,7 @@ To uninstall the `appsmith` release:
 ```
 helm list
 NAME                       NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-appsmith-1631069261        default         1               2021-09-09 11:24:40.152766 +0700 +07    deployed        appsmith-1.3.0  1.16.0   
+appsmith-1631069261        default         1               2021-09-09 11:24:40.152766 +0700 +07    deployed        appsmith-1.3.0  1.16.0
 
 helm uninstall appsmith-1631069261
 ```
@@ -63,13 +63,13 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 | Name 											 | Description 																								| Value 	|
 | -------------------------- | ---------------------------------------------------------- | ------- |
-| `global.namespaceOverride` | Override the namespace for resource deployed by the chart	| `""`	 	| 
+| `global.namespaceOverride` | Override the namespace for resource deployed by the chart	| `""`	 	|
 | `global.storageClass`			 | Global StorageClass for Persistent Volume(s)								| `""`  	|
 
 ### Common parameters
 | Name 								| Description 																			| Value 				|
 | ------------------- | ------------------------------------------------- | ------------- |
-| `fullnameOverride`  | String to fully override `appsmith.name`	template	| `""`	 				| 
+| `fullnameOverride`  | String to fully override `appsmith.name`	template	| `""`	 				|
 | `containerName`			| Specify container's name running in the pods			| `"appsmith"` 	|
 | `commonLabels`      | Labels to add to all deployed objects							| `{}` 					|
 | `commonAnnotations`	| Annotations to add to all deployed objects 				| `{}` 					|
@@ -95,6 +95,12 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `nodeSelector`							| Node labels for pod assignment											| `{}`						|
 | `tolerations`								| Tolerations for pod assignment											| `[]`						|
 | `affinity`									| Affinity fod pod assignment													| `{}`						|
+
+
+### Appsmith namespace parameters
+| Name 											 		| Description 																																				 												| Value 	|
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- |
+| `namespace.create`    		| Enable creation of `Namespace`															 													| `true` 	|
 
 ### Appsmith service account parameters
 | Name 											 		| Description 																																				 												| Value 	|

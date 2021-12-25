@@ -10,9 +10,9 @@ import {
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
 
-const Loader = styled.div`
+const Skeleton = styled.div`
   width: 135px;
-  height: 26px;
+  height: ${(props) => props.theme.spaces[9]}px;
   background: linear-gradient(
     90deg,
     ${Colors.GREY_2} 0%,
@@ -23,9 +23,13 @@ const Loader = styled.div`
 
 const Wrapper = styled.div`
   width: 178px;
+  height: ${(props) => props.theme.spaces[9]}px;
   display: flex;
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[3]}px;
+  }
+  .${Classes.TEXT} {
+    padding-top: ${(props) => props.theme.spaces[1] - 2}px;
   }
 `;
 
@@ -39,7 +43,7 @@ export enum Kind {
   widget = "widget",
   query = "query",
   commit = "commit",
-  pullRequest = "pullRequest",
+  // pullRequest = "pullRequest",
 }
 
 type GitSyncProps = {
@@ -50,36 +54,31 @@ function GitStatus(props: GitSyncProps) {
   const { type } = props;
   const status: any = useSelector(getGitStatus);
   const loading = useSelector(getIsFetchingGitStatus);
+  // const loading = true;
   let message = "",
     iconName: IconName;
   switch (type) {
     case Kind.widget:
       message = `${status?.modifiedPages || 0} page${
-        (status?.modifiedPages || 0) > 1 ? "s" : ""
+        (status?.modifiedPages || 0) === 1 ? "" : "s"
       } updated`;
       iconName = "widget";
       break;
     case Kind.query:
       message = `${status?.modifiedQueries || 0} ${
-        (status?.modifiedQueries || 0) > 1 ? "queries" : "query"
+        (status?.modifiedQueries || 0) === 1 ? "query" : "queries"
       } modified`;
       iconName = "query";
       break;
     case Kind.commit:
       message = `${status?.aheadCount || 0} commit${
-        (status?.aheadCount || 0) > 1 ? "s" : ""
+        (status?.aheadCount || 0) === 1 ? "" : "s"
       } to push`;
       iconName = "git-commit";
       break;
-    case Kind.pullRequest:
-      message = `${status?.behindCount || 0} pull request${
-        (status?.behindCount || 0) > 1 ? "s" : ""
-      } pending`;
-      iconName = "git-pull-request";
-      break;
   }
   return loading ? (
-    <Loader />
+    <Skeleton />
   ) : (
     <Wrapper>
       <Icon fillColor={Colors.GREY_10} name={iconName} size={IconSize.XXL} />

@@ -50,18 +50,18 @@ public class ApplicationFetcherUnitTest {
     ReleaseNotesService releaseNotesService;
 
     ApplicationFetcher applicationFetcher;
+
     User testUser;
 
+
     @Before
-    public void setUp() {
-        applicationFetcher = new ApplicationFetcher(
-                sessionUserService,
+    public void setup() {
+        applicationFetcher = new ApplicationFetcherImpl(sessionUserService,
                 userService,
                 userDataService,
                 organizationService,
                 applicationRepository,
-                releaseNotesService
-        );
+                releaseNotesService);
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {

@@ -229,9 +229,17 @@ public class RestApiPlugin extends BasePlugin {
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-                uri = createFinalUriWithQueryParams(httpUrl,
-                        actionConfiguration.getQueryParameters(),
-                        encodeParamsToggle);
+
+                ArrayList<Property> allQueryParams = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(actionConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(actionConfiguration.getQueryParameters());
+                }
+
+                if (!CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(datasourceConfiguration.getQueryParameters());
+                }
+
+                uri = createFinalUriWithQueryParams(httpUrl, allQueryParams, encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
@@ -467,7 +475,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             for (Property header : headers) {
-                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                if (StringUtils.isNotEmpty(header.getKey()) && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
                         MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
@@ -671,7 +679,7 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, null);
         }
 
         @Override

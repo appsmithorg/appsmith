@@ -3,6 +3,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableNewDslWithPagination.json");
 const testdata = require("../../../../fixtures/testdata.json");
+const emptyTableColumnNameData = require("../../../../fixtures/TableWidgetDatawithEmptyKeys.json");
 
 describe("Table Widget property pane feature validation", function() {
   before(() => {
@@ -27,6 +28,32 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.deleteWidget(widgetsPage.tableWidget);
     cy.wait(2000);
+    cy.ClearSearch();
+  });
+
+  it("Verify empty columnName in data", () => {
+    cy.get(widgetsPage.addWidget).click();
+    // Drag and drop table widget
+    cy.dragAndDropToCanvas("tablewidget", { x: 300, y: 200 });
+    // close Widget side bar
+    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
+    cy.get(widgetsPage.tabedataField).should("not.be.empty");
+    cy.get(`${widgetsPage.tabedataField} .CodeMirror`)
+      .first()
+      .then((ins) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        cy.wait(100);
+        input.setValue(JSON.stringify(emptyTableColumnNameData));
+      });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait(5000);
+    cy.get(".t--widget-tablewidget").should("be.visible");
+    cy.deleteWidget(widgetsPage.tableWidget);
   });
 
   it("Verify On Row Selected Action", function() {
