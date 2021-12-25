@@ -18,7 +18,6 @@ import {
   fetchBranchesInit,
   fetchBranchesSuccess,
   fetchGlobalGitConfigSuccess,
-  pushToRepoSuccess,
   fetchLocalGitConfigSuccess,
   updateLocalGitConfigSuccess,
   fetchLocalGitConfigInit,
@@ -345,41 +344,6 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
   }
 }
 
-function* pushToGitRepoSaga() {
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-
-    const gitMetaData: GitApplicationMetadata = yield select(
-      getCurrentAppGitMetaData,
-    );
-
-    const response: ApiResponse = yield GitSyncAPI.push({
-      applicationId,
-      branch: gitMetaData?.branchName || "",
-    });
-    if (!response?.responseMeta?.success) {
-      yield put({
-        type: ReduxActionErrorTypes.PUSH_TO_GIT_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-          show: false,
-        },
-      });
-    }
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (isValidResponse) {
-      yield put(pushToRepoSuccess());
-      yield put(fetchGitStatusInit());
-    }
-  } catch (error) {
-    // yield put({
-    //   type: ReduxActionErrorTypes.PUSH_TO_GIT_ERROR,
-    //   payload: { error, logToSentry: true },
-    // });
-  }
-}
-
 function* fetchGitStatusSaga() {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -552,7 +516,6 @@ export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
     takeLatest(ReduxActionTypes.CONNECT_TO_GIT_INIT, connectToGitSaga),
-    takeLatest(ReduxActionTypes.PUSH_TO_GIT_INIT, pushToGitRepoSaga),
     takeLatest(
       ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT,
       fetchGlobalGitConfig,
