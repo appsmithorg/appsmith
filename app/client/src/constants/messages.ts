@@ -667,7 +667,13 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
-export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+export const TRIGGER_ACTION_VALIDATION_ERROR = (
+  functionName: string,
+  argumentName: string,
+  expectedType: string,
+  received: string,
+) =>
+  `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
 export const MORE_OPTIONS = () => "More Options";
@@ -887,5 +893,10 @@ export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+
+// Add datasource
+export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_DESCRIPTION = () =>
+  "Quickly generate a page to perform CRUD operations on your database tables";
 
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";

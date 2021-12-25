@@ -764,15 +764,15 @@ public class ExamplesOrganizationClonerTests {
                             "datasource 2"
                     );
 
-                    assertThat(data.actions).hasSize(4);
+                    assertThat(data.actions).hasSize(3);
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "newPageAction",
                             "action1",
-                            "action3",
-                            "run"
+                            "action3"
                     );
                     assertThat(data.actionCollections).hasSize(1);
                     assertThat(data.actionCollections.get(0).getDefaultToBranchedActionIdsMap()).hasSize(1);
+                    assertThat(data.actionCollections.get(0).getActions()).hasSize(1);
                 })
                 .verifyComplete();
 
@@ -1033,7 +1033,7 @@ public class ExamplesOrganizationClonerTests {
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
-                .flatMap(page -> actionCollectionService.getActionCollectionsByViewMode(new LinkedMultiValueMap<>(
+                .flatMap(page -> actionCollectionService.getPopulatedActionCollectionsByViewMode(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), false));
     }
 }
