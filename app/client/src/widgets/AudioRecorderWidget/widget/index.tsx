@@ -29,22 +29,6 @@ class AudioRecorderWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "iconColor",
-            helpText: "Sets the icon color of the widget",
-            label: "Icon color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
@@ -101,6 +85,27 @@ class AudioRecorderWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "iconColor",
+            helpText: "Sets the icon color of the widget",
+            label: "Icon color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
         ],
       },

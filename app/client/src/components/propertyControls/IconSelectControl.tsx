@@ -30,6 +30,11 @@ const StyledButton = styled(Button)`
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
   }
+
+  &:hover,
+  &:focus {
+    border: 1.2px solid var(--appsmith-input-focus-border-color);
+  }
 `;
 
 const StyledMenu = styled(Menu)`
