@@ -185,7 +185,7 @@ export const EntityProperty = memo((props: any) => {
           </TooltipComponent>
         </div>
       </CopyBox>
-      <Collapse className="px-6" isOpen={isOpen}>
+      <Collapse className="px-4" isOpen={isOpen}>
         {isString ? (
           <span className="type-text">{props.value}</span>
         ) : (

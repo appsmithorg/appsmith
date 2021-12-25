@@ -132,7 +132,7 @@ export function EntityProperties() {
             }
             if (actionProperty === "data") {
               if (isEmpty(entity.data) || !entity.data.hasOwnProperty("body")) {
-                value = "{}";
+                value = {};
               } else {
                 value = entity.data.body;
               }
