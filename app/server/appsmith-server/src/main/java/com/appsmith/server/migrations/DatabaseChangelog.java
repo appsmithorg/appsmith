@@ -51,8 +51,10 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -3587,8 +3589,8 @@ public class DatabaseChangelog {
     }
 
     public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates,
-               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
-               UQIMigrationDataTransformer dataTransformer, String pluginName) {
+                                                                               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
+                                                                               UQIMigrationDataTransformer dataTransformer, String pluginName) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
@@ -4236,9 +4238,9 @@ public class DatabaseChangelog {
                 unpublishedActionDTODefaults.setPageId(unpublishedAction.getPageId());
                 unpublishedActionDTODefaults.setCollectionId(unpublishedAction.getCollectionId());
                 defaultResourceUpdates.set(
-                                fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
-                                unpublishedActionDTODefaults
-                        );
+                        fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
+                        unpublishedActionDTODefaults
+                );
             }
 
             ActionDTO publishedAction = action.getPublishedAction();
@@ -4465,8 +4467,8 @@ public class DatabaseChangelog {
     public void clearRedisCache(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         final String script =
                 "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
-                " do redis.call('del',k) " +
-                "end";
+                        " do redis.call('del',k) " +
+                        "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
         flushdb.subscribe();
@@ -4703,7 +4705,7 @@ public class DatabaseChangelog {
                 Datasource.class
         );
     }
-
+  
     /**
      * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
      * unexpected / bad older data.
@@ -4733,5 +4735,36 @@ public class DatabaseChangelog {
 
         // Update plugin data.
         mongockTemplate.save(firestorePlugin);
+    }
+  
+    @ChangeSet(order = "108", id = "create-system-themes", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        Index uniqueApplicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index");
+
+        ensureIndexes(mongockTemplate, Theme.class, uniqueApplicationIdIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            Theme savedTheme = mongockTemplate.save(theme);
+            if(savedTheme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+        }
+
+        // migrate all applications and set legacy theme to them in both mode
+        Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+        mongockTemplate.updateMulti(
+                new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+        );
     }
 }

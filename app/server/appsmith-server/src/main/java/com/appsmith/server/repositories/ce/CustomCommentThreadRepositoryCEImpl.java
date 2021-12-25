@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.CommentMode;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
@@ -68,7 +68,7 @@ public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryI
     }
 
     @Override
-    public Mono<UpdateResult> archiveByPageId(String pageId, CommentMode commentMode) {
+    public Mono<UpdateResult> archiveByPageId(String pageId, ApplicationMode commentMode) {
         // create an update object that'll be applied
         Update update = new Update();
         update.set(fieldName(QCommentThread.commentThread.deleted), true);

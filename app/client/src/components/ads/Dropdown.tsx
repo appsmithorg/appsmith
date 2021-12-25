@@ -184,7 +184,9 @@ const Selected = styled.div<{
       ? `border: 1px solid ${props.theme.colors.danger.main}`
       : props.isOpen
       ? `border: 1px solid ${
-          !!props.bgColor ? props.bgColor : props.theme.colors.info.main
+          !!props.bgColor
+            ? props.bgColor
+            : "var(--appsmith-input-focus-border-color)"
         }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
@@ -210,6 +212,7 @@ const Selected = styled.div<{
       props.hasError
         ? Colors.FAIR_PINK
         : props.theme.colors.dropdown.hovered.bg};
+    border: 1px solid var(--appsmith-input-focus-border-color);
   }
 `;
 
