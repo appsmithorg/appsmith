@@ -26,7 +26,7 @@ import { AppTheme } from "entities/AppTheming";
 
 export type ActionDispatcher = (
   ...args: any[]
-) => ActionDescription | AppsmithPromise;
+) => Promise<unknown> | ActionDescription;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

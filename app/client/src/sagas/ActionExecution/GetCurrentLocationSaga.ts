@@ -8,7 +8,10 @@ import {
   TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
-import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
+import {
+  logActionExecutionError,
+  TriggerFailureError,
+} from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import { Channel, channel } from "redux-saga";
 
@@ -115,7 +118,11 @@ export function* getCurrentLocationSaga(
     yield put(setUserCurrentGeoLocation(currentLocation));
     return [currentLocation];
   } catch (e) {
-    throw new TriggerFailureError(e.message, triggerMeta, e);
+    logActionExecutionError(
+      e.message,
+      triggerMeta.source,
+      triggerMeta.triggerPropertyName,
+    );
   }
 }
 
@@ -128,9 +135,10 @@ export function* watchCurrentLocation(
   if (watchId) {
     // When a watch is already active, we will not start a new watch.
     // at a given point in time, only one watch is active
-    throw new TriggerFailureError(
+    logActionExecutionError(
       "A watchLocation is already active. Clear it before before starting a new one",
-      triggerMeta,
+      triggerMeta.source,
+      triggerMeta.triggerPropertyName,
     );
   }
   successChannel = channel();
@@ -167,7 +175,12 @@ export function* stopWatchCurrentLocation(
   triggerMeta: TriggerMeta,
 ) {
   if (watchId === undefined) {
-    throw new TriggerFailureError("No location watch active", triggerMeta);
+    logActionExecutionError(
+      "No location watch active",
+      triggerMeta.source,
+      triggerMeta.triggerPropertyName,
+    );
+    return;
   }
   navigator.geolocation.clearWatch(watchId);
   watchId = undefined;

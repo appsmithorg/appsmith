@@ -25,8 +25,6 @@ public class ApplicationController extends ApplicationControllerCE {
         super(service, applicationPageService, applicationFetcher, applicationForkingService,
                 importExportApplicationService, themeService);
 
-    }
-
     @PatchMapping("{applicationId}/themes/{themeId}")
     public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
         return themeService.changeCurrentTheme(themeId, applicationId)
