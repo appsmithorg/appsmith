@@ -51,8 +51,10 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -3520,7 +3522,14 @@ public class DatabaseChangelog {
                         uqiWhereMap.put(CONDITION_KEY, AND);
                         uqiWhereMap.put(CHILDREN_KEY, new ArrayList<>());
 
-                        List<Map<String, Object>> oldListOfConditions = (List<Map<String, Object>>) value;
+                        List<Map<String, Object>> oldListOfConditions;
+                        try {
+                            oldListOfConditions = (List<Map<String, Object>>) value;
+                        } catch (ClassCastException e) {
+                            System.out.println("value: " + value);
+                            oldListOfConditions = new ArrayList<>();
+                        }
+
                         oldListOfConditions.stream()
                                 .forEachOrdered(oldCondition -> {
                                     /* Map old values to keys in the new UQI format. */
@@ -3580,8 +3589,8 @@ public class DatabaseChangelog {
     }
 
     public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates,
-               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
-               UQIMigrationDataTransformer dataTransformer, String pluginName) {
+                                                                               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
+                                                                               UQIMigrationDataTransformer dataTransformer, String pluginName) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
@@ -4229,9 +4238,9 @@ public class DatabaseChangelog {
                 unpublishedActionDTODefaults.setPageId(unpublishedAction.getPageId());
                 unpublishedActionDTODefaults.setCollectionId(unpublishedAction.getCollectionId());
                 defaultResourceUpdates.set(
-                                fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
-                                unpublishedActionDTODefaults
-                        );
+                        fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
+                        unpublishedActionDTODefaults
+                );
             }
 
             ActionDTO publishedAction = action.getPublishedAction();
@@ -4458,8 +4467,8 @@ public class DatabaseChangelog {
     public void clearRedisCache(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         final String script =
                 "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
-                " do redis.call('del',k) " +
-                "end";
+                        " do redis.call('del',k) " +
+                        "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
         flushdb.subscribe();
@@ -4533,6 +4542,11 @@ public class DatabaseChangelog {
 
             /* No migrations required if action configuration does not exist. */
             if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                continue;
+            }
+
+            /* It means that earlier migration had succeeded on this action, hence current migration can be skipped. */
+            if (!CollectionUtils.isEmpty(unpublishedAction.getActionConfiguration().getFormData())) {
                 continue;
             }
 
@@ -4676,5 +4690,81 @@ public class DatabaseChangelog {
 
             mongockTemplate.save(firestoreAction);
         }
+    }
+
+    @ChangeSet(order = "106", id = "update-mongodb-mockdb-endpoint", author = "")
+    public void updateMongoMockdbEndpoint(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.endpoints.host").is("mockdb.swrsq.mongodb.net")),
+                update("datasourceConfiguration.endpoints.$.host", "mockdb.kce5o.mongodb.net"),
+                Datasource.class
+        );
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.properties.value").is("mongodb+srv://mockdb_super:****@mockdb.swrsq.mongodb.net/movies")),
+                update("datasourceConfiguration.properties.$.value", "mongodb+srv://mockdb_super:****@mockdb.kce5o.mongodb.net/movies"),
+                Datasource.class
+        );
+    }
+  
+    /**
+     * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
+     * unexpected / bad older data.
+     */
+    @ChangeSet(order = "107", id = "migrate-firestore-to-uqi-3", author = "")
+    public void migrateFirestorePluginToUqi3(MongockTemplate mongockTemplate) {
+        // Update Firestore plugin to indicate use of UQI schema
+        Plugin firestorePlugin = mongockTemplate.findOne(
+                query(where("packageName").is("firestore-plugin")),
+                Plugin.class
+        );
+        firestorePlugin.setUiComponent("UQIDbEditorForm");
+
+        // Find all Firestore actions
+        final Query firestoreActionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
+                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
+        firestoreActionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        List<NewAction> firestoreActions = mongockTemplate.find(
+                firestoreActionQuery,
+                NewAction.class
+        );
+
+        migrateFirestoreToUQI(mongockTemplate, firestoreActions);
+
+        // Update plugin data.
+        mongockTemplate.save(firestorePlugin);
+    }
+  
+    @ChangeSet(order = "108", id = "create-system-themes", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        Index uniqueApplicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index");
+
+        ensureIndexes(mongockTemplate, Theme.class, uniqueApplicationIdIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            Theme savedTheme = mongockTemplate.save(theme);
+            if(savedTheme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+        }
+
+        // migrate all applications and set legacy theme to them in both mode
+        Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+        mongockTemplate.updateMulti(
+                new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+        );
     }
 }

@@ -32,6 +32,7 @@ export type GitApplicationMetadata =
       remoteUrl: string;
       repoName: string;
       browserSupportedUrl?: string;
+      isRepoPrivate?: boolean;
     }
   | undefined;
 

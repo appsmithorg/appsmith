@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Policy;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -180,6 +181,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> createDefault(Application application) {
         application.setSlug(TextUtils.makeSlug(application.getName()));
         application.setLastEditedAt(Instant.now());
+        if(!StringUtils.hasLength(application.getColor())) {
+            application.setColor(getRandomAppCardColor());
+        }
         return super.create(application);
     }
 
@@ -553,6 +557,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
         return repository.getGitConnectedApplicationCount(organizationId);
+    }
+
+    public String getRandomAppCardColor() {
+        int randomColorIndex = (int) (System.currentTimeMillis() % ApplicationConstants.APP_CARD_COLORS.length);
+        return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
     }
 
 }
