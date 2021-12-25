@@ -118,6 +118,8 @@ function AppViewer(props: Props) {
         },
       });
     }
+
+    document.body.style.fontFamily = getAppFontFamily;
   }, [selectedTheme.properties.fontFamily.appFont]);
 
   /**
@@ -188,9 +190,6 @@ function AppViewer(props: Props) {
             <AppViewerCommentsSidebar />
             <AppViewerBodyContainer
               backgroundColor={selectedTheme.properties.colors.backgroundColor}
-              style={{
-                fontFamily: getAppFontFamily,
-              }}
             >
               <AppViewerBody hasPages={pages.length > 1}>
                 {isInitialized && registered && (

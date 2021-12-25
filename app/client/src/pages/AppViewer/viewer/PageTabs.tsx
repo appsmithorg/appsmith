@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
@@ -16,7 +16,10 @@ import { useSelector } from "react-redux";
 
 import { trimQueryString } from "utils/helpers";
 import { getPageURL } from "utils/AppsmithUtils";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import {
+  getPreviewAppTheme,
+  getSelectedAppTheme,
+} from "selectors/appThemingSelectors";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -69,18 +72,21 @@ const StyleTabText = styled.div`
   }
 `;
 
-function PageTabName({ name }: { name: string }) {
+function PageTabName({
+  name,
+  primaryColor,
+}: {
+  name: string;
+  primaryColor: string;
+}) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
-  const selectedTheme = useSelector(getSelectedAppTheme);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
       <div className="relative flex items-center justify-center flex-grow">
         <span ref={tabNameRef}>{name}</span>
       </div>
-      <StyledBottomBorder
-        primaryColor={selectedTheme.properties.colors.primaryColor}
-      />
+      <StyledBottomBorder primaryColor={primaryColor} />
     </StyleTabText>
   );
 
@@ -141,10 +147,20 @@ export function PageTabs(props: Props) {
   const location = useLocation();
   const appMode = useSelector(getAppMode);
   const [query, setQuery] = useState("");
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const previewTheme = useSelector(getPreviewAppTheme);
 
   useEffect(() => {
     setQuery(window.location.search);
   }, [location]);
+
+  /**
+   * returns the current theme
+   * Note: preview theme will take priority over selected theme
+   */
+  const currentTheme = useMemo(() => {
+    return previewTheme ? previewTheme : selectedTheme;
+  }, [selectedTheme, previewTheme]);
 
   return (
     <div
@@ -174,7 +190,10 @@ export function PageTabs(props: Props) {
               search: query,
             }}
           >
-            <PageTabName name={page.pageName} />
+            <PageTabName
+              name={page.pageName}
+              primaryColor={currentTheme.properties.colors.primaryColor}
+            />
           </PageTab>
         </PageTabContainer>
       ))}
