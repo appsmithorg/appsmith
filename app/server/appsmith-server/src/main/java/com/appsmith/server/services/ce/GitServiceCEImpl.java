@@ -1514,9 +1514,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return this.getStatus(defaultApplicationId, sourceBranch)
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch)));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch)
                                         .map(destBranchStatus -> {
@@ -1539,14 +1539,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 try {
                                     return gitExecutor.resetToLastCommit(repoSuffix, destinationBranch)
-                                            .flatMap(reset -> {
-                                                try {
-                                                    return gitExecutor.resetToLastCommit(repoSuffix, sourceBranch);
-                                                } catch (GitAPIException | IOException e) {
-                                                    log.error("Error while resetting to last commit", e);
-                                                }
-                                                return Mono.just(false);
-                                            })
                                             .map(reset -> {
                                                 MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                                 mergeStatus.setMergeAble(false);

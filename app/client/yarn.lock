@@ -2771,6 +2771,11 @@
   version "1.0.0"
   resolved "https://registry.npmjs.org/@types/deep-diff/-/deep-diff-1.0.0.tgz"
 
+"@types/dom-mediacapture-record@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@types/dom-mediacapture-record/-/dom-mediacapture-record-1.0.11.tgz#f61b17e6131d76629d4039b02634c7e786b82c3a"
+  integrity sha512-ODVOH95x08arZhbQOjH3no7Iye64akdO+55nM+IGtTzpu2ACKr9CQTrI//CCVieIjlI/eL+rK1hQjMycxIgylQ==
+
 "@types/dom4@^2.0.1":
   version "2.0.1"
   resolved "https://registry.npmjs.org/@types/dom4/-/dom4-2.0.1.tgz"
@@ -8037,6 +8042,11 @@ fs-write-stream-atomic@^1.0.8:
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
+
+fscreen@^1.0.2:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/fscreen/-/fscreen-1.2.0.tgz#1a8c88e06bc16a07b473ad96196fb06d6657f59e"
+  integrity sha512-hlq4+BU0hlPmwsFjwGGzZ+OZ9N/wq9Ljg/sq3pX+2CD7hrJsX9tJgWWK/wiNTFM212CLHWhicOoqwXyZGGetJg==
 
 fsevents@^1.2.7:
   version "1.2.13"
@@ -13598,6 +13608,13 @@ react-fast-compare@^3.0.0, react-fast-compare@^3.0.1:
   version "3.2.0"
   resolved "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-3.2.0.tgz"
 
+react-full-screen@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-full-screen/-/react-full-screen-1.1.0.tgz#696c586da25652ed10d88046f8dc0b6620f4ef96"
+  integrity sha512-ivL/HrcfHhEUJWmgoiDKP7Xfy127LGz9x3VnwVxljJ0ky1D1YqJmXjhxnuEhfqT3yociJy/HCk9/yyJ3HEAjaw==
+  dependencies:
+    fscreen "^1.0.2"
+
 react-google-maps@^9.4.5:
   version "9.4.5"
   resolved "https://registry.npmjs.org/react-google-maps/-/react-google-maps-9.4.5.tgz"
@@ -13983,6 +14000,11 @@ react-virtuoso@^1.9.0:
     "@virtuoso.dev/urx" "^0.2.5"
     react-app-polyfill "^1.0.6"
     resize-observer-polyfill "^1.5.1"
+
+react-webcam@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/react-webcam/-/react-webcam-6.0.0.tgz#46dd9ba44cebe6bf3cc4ea2ff09d12243900abfa"
+  integrity sha512-pw7067WYnDHRjAXYXrsLeig9/AAxCFDnnaEJzZ5ep6UZoYMqF4UNRtVkeTk0LotpwqT/c8vHisn/+QodNbUsQA==
 
 react-window@^1.8.2:
   version "1.8.5"
