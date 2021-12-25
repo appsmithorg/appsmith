@@ -12,6 +12,7 @@ import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -206,7 +207,8 @@ class TabsWidget extends BaseWidget<
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
-      width: (rightColumn - leftColumn) * parentColumnSpace,
+      width:
+        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
     return (
       <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>
