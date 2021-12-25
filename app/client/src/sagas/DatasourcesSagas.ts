@@ -696,9 +696,11 @@ function* formValueChangeSaga(
   const { field, form } = actionPayload.meta;
   if (form === DATASOURCE_REST_API_FORM) {
     const { values } = yield select(getFormData, DATASOURCE_REST_API_FORM);
-    yield put(
-      updateReplayEntity(values.datasourceId, values, ENTITY_TYPE.DATASOURCE),
-    );
+    if (values && values.datasourceId) {
+      yield put(
+        updateReplayEntity(values.datasourceId, values, ENTITY_TYPE.DATASOURCE),
+      );
+    }
   }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
