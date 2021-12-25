@@ -6,7 +6,9 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 
 const dayjs = require("dayjs");
-
+const {
+  addMatchImageSnapshotCommand,
+} = require("cypress-image-snapshot/command");
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 const homePage = require("../locators/HomePage.json");
@@ -1153,6 +1155,21 @@ Cypress.Commands.add("validateMessage", (value) => {
   });
 });
 
+Cypress.Commands.add(
+  "VerifyPopOverMessage",
+  (msgAbsenceToVerify, presence = false) => {
+    // Give this element 3 seconds to appear
+    let shouldCondition = "not.exist";
+    if (presence) shouldCondition = "exist";
+    cy.xpath(
+      "//div[@class='bp3-popover-content'][contains(text(),'" +
+        msgAbsenceToVerify +
+        "')]",
+      { timeout: 3000 },
+    ).should(shouldCondition);
+  },
+);
+
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
   cy.deleteEntity();
   cy.wait("@deleteAction").should(
@@ -2077,7 +2094,9 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
 });
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
-  cy.get(explorer.addEntityJSEditor).click({ force: true });
+  cy.get(explorer.addEntityJSEditor)
+    .last()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("testCreateApiButton", () => {
@@ -3075,7 +3094,7 @@ Cypress.Commands.add("callApi", (apiname) => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess);
+  cy.get(commonlocators.saveStatusSuccess, { timeout: 10000 }).should("exist");
 });
 
 Cypress.Commands.add("ValidateQueryParams", (param) => {
@@ -3563,3 +3582,7 @@ Cypress.Commands.add("isInViewport", (element) => {
 
 //   return originalFn(element, clearedText, options);
 // });
+addMatchImageSnapshotCommand({
+  failureThreshold: 0.2, // threshold for entire image
+  failureThresholdType: "percent",
+});
