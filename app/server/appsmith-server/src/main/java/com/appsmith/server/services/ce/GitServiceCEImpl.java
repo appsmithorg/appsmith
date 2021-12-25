@@ -913,54 +913,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // will be deleted
                     Flux.fromIterable(application.getPages())
                             .flatMap(page -> newPageService.findById(page.getId(), MANAGE_PAGES))
-                            .map(newPage -> {
-                                createPristineDefaultIdsAndUpdateWithGivenResourceIds(newPage, null);
-                                newPage.getUnpublishedPage()
-                                        .getLayouts()
-                                        .forEach(layout -> {
-                                            if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-                                                layout.getLayoutOnLoadActions()
-                                                        .forEach(dslActionDTOS -> dslActionDTOS
-                                                                .forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))
-                                                        );
-                                            }
-                                        });
-                                if (!CollectionUtils.isNullOrEmpty(newPage.getPublishedPage().getLayouts())) {
-                                    newPage.getPublishedPage()
-                                            .getLayouts()
-                                            .forEach(layout -> {
-                                                if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-                                                    layout.getLayoutOnLoadActions()
-                                                            .forEach(dslActionDTOS -> dslActionDTOS
-                                                                    .forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))
-                                                            );
-                                                }
-                                            });
-                                }
-                                return newPage;
-                            })
+                            .map(newPage ->  createPristineDefaultIdsAndUpdateWithGivenResourceIds(newPage, null))
                             .collectList()
                             .flatMapMany(newPageService::saveAll)
                             .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), MANAGE_ACTIONS)
-                                    .map(newAction -> {
-                                        createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction, null);
-                                        createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction.getUnpublishedAction(), null);
-                                        if (Optional.ofNullable(newAction.getPublishedAction()).isPresent()) {
-                                            createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction.getPublishedAction(), null);
-                                        }
-                                        return newAction;
-                                    })
+                                    .map(newAction -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction, null))
                                     .collectList()
                                     .flatMapMany(newActionService::saveAll)
                                     .thenMany(actionCollectionService.findByPageId(newPage.getId()))
-                                    .map(actionCollection -> {
-                                        createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection, null);
-                                        createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection.getUnpublishedCollection(), null);
-                                        if (Optional.ofNullable(actionCollection.getPublishedCollection()).isPresent()) {
-                                            createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection.getPublishedCollection(), null);
-                                        }
-                                        return actionCollection;
-                                    })
+                                    .map(actionCollection -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection, null))
                                     .collectList()
                                     .flatMapMany(actionCollectionService::saveAll)
                             )
