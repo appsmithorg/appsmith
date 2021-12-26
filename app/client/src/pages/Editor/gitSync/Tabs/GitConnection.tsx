@@ -466,9 +466,7 @@ function GitConnection({ isImport }: Props) {
             )}
             {!isConnectingToGit && (
               <Button
-                category={
-                  isGitConnected ? Category.secondary : Category.primary
-                }
+                category={Category.primary}
                 className="t--connect-submit-btn"
                 disabled={submitButtonDisabled}
                 isLoading={submitButtonIsLoading}
