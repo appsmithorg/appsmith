@@ -24,7 +24,7 @@ export default {
         break;
     }
 
-    if (!props.isRequired && !hasValidValue) {
+    if (!props.isRequired && (props.text === "" || props.text === undefined)) {
       return true;
     }
     if (props.isRequired && !hasValidValue) {

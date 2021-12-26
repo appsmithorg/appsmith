@@ -12,7 +12,7 @@ export const CONFIG = {
     ...BaseConfig.defaults,
     widgetName: "PhoneInput",
     version: 1,
-    countryCode: getDefaultISDCode().code,
+    dialCode: getDefaultISDCode().dial_code,
     allowDialCodeChange: false,
   },
   properties: {

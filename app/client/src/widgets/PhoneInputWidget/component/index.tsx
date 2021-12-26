@@ -23,7 +23,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
   };
 
   getLeftIcon = () => {
-    const selectedISDCode = getSelectedISDCode(this.props.countryCode);
+    const selectedISDCode = getSelectedISDCode(this.props.dialCode);
     return (
       <ISDCodeDropdown
         allowDialCodeChange={this.props.allowDialCodeChange}
@@ -46,8 +46,8 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
   };
 
   componentDidMount() {
-    if (this.props.countryCode) {
-      this.props.onISDCodeChange(this.props.countryCode);
+    if (this.props.dialCode) {
+      this.props.onISDCodeChange(this.props.dialCode);
     }
   }
 
@@ -88,6 +88,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
 }
 
 export interface PhoneInputComponentProps extends BaseInputComponentProps {
+  dialCode?: string;
   countryCode?: CountryCode;
   onISDCodeChange: (code?: string) => void;
   allowDialCodeChange: boolean;

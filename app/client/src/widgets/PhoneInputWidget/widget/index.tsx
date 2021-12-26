@@ -10,7 +10,7 @@ import {
 import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
-  getDailingCode,
+  getCountryCode,
   ISDCodeDropdownOptions,
 } from "../component/ISDCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -20,6 +20,8 @@ import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { AsYouType, CountryCode } from "libphonenumber-js";
+import * as Sentry from "@sentry/react";
+import log from "loglevel";
 
 export function defaultValueValidation(
   value: any,
@@ -79,14 +81,15 @@ class PhoneInputWidget extends BaseInputWidget<
             },
             {
               helpText: "Changes the country code",
-              propertyName: "countryCode",
+              propertyName: "dialCode",
               label: "Default Country Code",
               enableSearch: true,
               dropdownHeight: "195px",
               controlType: "DROP_DOWN",
               placeholderText: "Search by code or country name",
               options: ISDCodeDropdownOptions,
-              isBindProperty: false,
+              isJSConvertible: true,
+              isBindProperty: true,
               isTriggerProperty: false,
             },
             {
@@ -124,16 +127,37 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return _.merge(super.getMetaPropertiesMap(), {
-      dialCode: undefined,
-      countryCode: undefined,
-    });
+    return _.merge(super.getMetaPropertiesMap());
   }
 
-  onISDCodeChange = (code?: string) => {
-    const dialCode = getDailingCode(code);
+  componentDidMount() {
+    //format the defaultText and store it in text
+    if (!!this.props.text) {
+      try {
+        const dialCode = this.props.dialCode || "+1";
+        const countryCode = getCountryCode(dialCode);
+        const value = this.props.text;
+        const parsedValue: string = new AsYouType(
+          countryCode as CountryCode,
+        ).input(value);
+        this.props.updateWidgetMetaProperty("text", parsedValue);
+      } catch (e) {
+        log.error(e);
+        Sentry.captureException(e);
+      }
+    }
+  }
+
+  onISDCodeChange = (dialCode?: string) => {
+    const countryCode = getCountryCode(dialCode);
     this.props.updateWidgetMetaProperty("dialCode", dialCode);
-    this.props.updateWidgetMetaProperty("countryCode", code);
+    this.props.updateWidgetMetaProperty("countryCode", countryCode);
+    if (this.props.text) {
+      const parsedValue: string = new AsYouType(
+        countryCode as CountryCode,
+      ).input(this.props.text);
+      this.props.updateWidgetMetaProperty("text", parsedValue);
+    }
   };
 
   onValueChange = (value: string) => {
@@ -189,6 +213,7 @@ class PhoneInputWidget extends BaseInputWidget<
         compactMode
         countryCode={countryCode}
         defaultValue={this.props.defaultText}
+        dialCode={this.props.dialCode}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
         iconAlign={this.props.iconAlign}
@@ -220,6 +245,7 @@ class PhoneInputWidget extends BaseInputWidget<
 }
 
 export interface PhoneInputWidgetProps extends BaseInputWidgetProps {
+  dialCode?: string;
   countryCode?: CountryCode;
   defaultText?: string;
   allowDialCodeChange: boolean;

@@ -463,11 +463,13 @@ class BaseInputComponent extends React.Component<
 
   onStepIncrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     this.props.onStep && this.props.onStep(1);
   };
 
   onStepDecrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     this.props.onStep && this.props.onStep(-1);
   };
 
@@ -478,10 +480,13 @@ class BaseInputComponent extends React.Component<
       );
 
       if (element !== null && element.childNodes) {
-        element.childNodes[0].addEventListener("click", this.onStepIncrement);
+        element.childNodes[0].addEventListener(
+          "mousedown",
+          this.onStepIncrement,
+        );
         element.childNodes[1].addEventListener(
-          "click",
-          () => this.onStepDecrement,
+          "mousedown",
+          this.onStepDecrement,
         );
       }
     }
@@ -500,7 +505,7 @@ class BaseInputComponent extends React.Component<
         );
         element.childNodes[1].removeEventListener(
           "click",
-          () => this.onStepDecrement,
+          this.onStepDecrement,
         );
       }
     }

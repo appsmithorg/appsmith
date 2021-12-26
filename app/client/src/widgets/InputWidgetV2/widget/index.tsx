@@ -236,8 +236,14 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         try {
           if (value === "") {
             parsedValue = undefined;
+          } else if (value === "-") {
+            parsedValue = "-";
           } else {
             parsedValue = Number(value);
+
+            if (isNaN(parsedValue)) {
+              parsedValue = undefined;
+            }
           }
           break;
         } catch (e) {

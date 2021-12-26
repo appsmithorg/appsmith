@@ -69,7 +69,7 @@ const getISDCodeOptions = (): Array<DropdownOption> => {
       leftElement: countryToFlag(item.code),
       searchText: item.name,
       label: `${item.name} (${item.dial_code})`,
-      value: item.code,
+      value: item.dial_code,
       id: item.dial_code,
     };
   });
@@ -83,9 +83,9 @@ export const getDefaultISDCode = () => ({
   code: "US",
 });
 
-export const getSelectedISDCode = (code?: string): DropdownOption => {
+export const getSelectedISDCode = (dialCode?: string): DropdownOption => {
   let selectedCountry: ISDCodeProps | undefined = ISDCodeOptions.find(
-    (item: ISDCodeProps) => item.code === code,
+    (item: ISDCodeProps) => item.dial_code === dialCode,
   );
   if (!selectedCountry) {
     selectedCountry = getDefaultISDCode();
@@ -93,18 +93,18 @@ export const getSelectedISDCode = (code?: string): DropdownOption => {
   return {
     label: `${selectedCountry.name} (${selectedCountry.dial_code})`,
     searchText: selectedCountry.name,
-    value: selectedCountry.code,
+    value: selectedCountry.dial_code,
     id: selectedCountry.dial_code,
   };
 };
 
-export const getDailingCode = (code?: string) => {
+export const getCountryCode = (dialCode?: string) => {
   const option = ISDCodeOptions.find((item: ISDCodeProps) => {
-    return item.code === code;
+    return item.dial_code === dialCode;
   });
 
   if (option) {
-    return option.dial_code;
+    return option.code;
   } else {
     return "";
   }

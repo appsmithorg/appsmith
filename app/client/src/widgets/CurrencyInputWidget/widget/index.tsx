@@ -33,7 +33,6 @@ import {
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 
-//TODO (Balaji): Need to validate default againts decimals prop
 export function defaultValueValidation(
   value: any,
   props: CurrencyInputWidgetProps,
@@ -70,6 +69,7 @@ export function defaultValueValidation(
     /*
      *  When parsed value is a Number
      */
+    parsed = String(parsed);
     isValid = true;
     messages = [EMPTY_ERROR_MESSAGE];
   }
@@ -175,11 +175,34 @@ class CurrencyInputWidget extends BaseInputWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
-      countryCode: undefined,
-      currencyCode: undefined,
       value: undefined,
       text: undefined,
     });
+  }
+
+  componentDidMount() {
+    //format the defaultText and store it in text
+    if (!!this.props.text) {
+      try {
+        const formattedValue = formatCurrencyNumber(
+          this.props.decimals,
+          this.props.text,
+        );
+        this.props.updateWidgetMetaProperty("text", formattedValue);
+
+        let parsed: number | undefined = parseLocaleFormattedStringToNumber(
+          formattedValue,
+        );
+
+        if (isNaN(parsed)) {
+          parsed = undefined;
+        }
+        this.props.updateWidgetMetaProperty("value", parsed);
+      } catch (e) {
+        log.error(e);
+        Sentry.captureException(e);
+      }
+    }
   }
 
   onValueChange = (value: string) => {
@@ -292,7 +315,19 @@ class CurrencyInputWidget extends BaseInputWidget<
   };
 
   onStep = (direction: number) => {
-    direction;
+    const value = Number(this.props.value) + direction;
+    this.props.updateWidgetMetaProperty("value", value);
+    const formattedValue = formatCurrencyNumber(
+      this.props.decimals,
+      String(value),
+    );
+    this.props.updateWidgetMetaProperty("text", String(formattedValue), {
+      triggerPropertyName: "onTextChanged",
+      dynamicString: this.props.onTextChanged,
+      event: {
+        type: EventType.ON_TEXT_CHANGE,
+      },
+    });
   };
 
   getPageView() {
