@@ -96,8 +96,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
 
   renderDataSourceConfigForm = (sections: any) => {
-    const { datasource, formData, messages, pluginType } = this.props;
-    const { viewMode } = this.props;
+    const { datasource, formData, messages, pluginType, viewMode } = this.props;
 
     return (
       <form
