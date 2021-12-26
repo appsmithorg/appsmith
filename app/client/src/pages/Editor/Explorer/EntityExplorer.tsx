@@ -31,7 +31,8 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import Datasources from "./Datasources";
-import ExplorerPageEntity from "./Pages/PageEntity";
+import Files from "./Files";
+import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -130,11 +131,12 @@ function EntityExplorer(props: IPanelProps) {
         onChange={search}
         ref={searchInputRef}
       />
-      <ExplorerPageEntity
+      <ExplorerWidgetGroup
+        addWidgetsFn={showWidgetsSidebar}
         searchKeyword={searchKeyword}
-        showWidgetsSidebar={showWidgetsSidebar}
         step={0}
       />
+      <Files />
       {noResults && (
         <NoResult
           className={Classes.DARK}

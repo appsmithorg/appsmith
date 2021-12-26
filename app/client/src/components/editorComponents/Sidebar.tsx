@@ -217,6 +217,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         {/* PagesContainer */}
         <PagesContainer />
+        {/* Popover that contains the bindings info */}
         <EntityProperties />
         {/* SWITCHER */}
         <div
