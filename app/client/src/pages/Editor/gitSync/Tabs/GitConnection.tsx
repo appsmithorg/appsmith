@@ -313,10 +313,9 @@ function GitConnection({ isImport }: Props) {
         }),
       );
     } else {
-      const gitProfile = useGlobalConfigInputVal ? undefined : authorInfo;
       connectToGit({
         remoteUrl,
-        gitProfile,
+        gitProfile: authorInfo,
         isImport,
         isDefaultProfile: useGlobalConfigInputVal,
       });
