@@ -123,7 +123,7 @@ function GitErrorPopup() {
                 <Button
                   category={Category.tertiary}
                   className="t--commit-button"
-                  href={gitMetaData?.remoteUrl}
+                  href={gitMetaData?.browserSupportedRemoteUrl}
                   size={Size.medium}
                   tag="a"
                   target="_blank"
