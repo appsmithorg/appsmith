@@ -318,6 +318,8 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                                 });
 
                                                         unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
+                                                        // Set objectId as null, otherwise save will try to overwrite same resource instead of creating a new resource
+                                                        actionCollection.setId(null);
                                                         return actionCollectionService.create(actionCollection)
                                                                 .flatMap(newActionCollection -> {
                                                                     if (StringUtils.isEmpty(newActionCollection.getDefaultResources().getCollectionId())) {
