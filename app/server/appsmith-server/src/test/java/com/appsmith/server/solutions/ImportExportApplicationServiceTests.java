@@ -822,6 +822,28 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void importApplication_WithoutThemes_DefaultThemesAssigned() {
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        final Mono<Application> resultMono = organizationService.create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(application -> {
+                    assertThat(application.getEditModeThemeId()).isNotEmpty();
+                    assertThat(application.getPublishedModeThemeId()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void exportImportApplication_importWithBranchName_updateApplicationResourcesWithBranch() {
         Application testApplication = new Application();
         testApplication.setName("Export-Import-Update-Branch_Test-App");
