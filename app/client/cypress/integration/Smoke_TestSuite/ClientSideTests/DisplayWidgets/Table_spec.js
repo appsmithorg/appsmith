@@ -361,53 +361,6 @@ describe("Table Widget Functionality", function() {
   });
 */
 
-  it("Table Widget Functionality To Check with changing schema of tabledata", () => {
-    cy.visit("/applications");
-    cy.get(".t--new-button")
-      .first()
-      .click();
-    cy.get(".t--BuildFromScratch").click();
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
-    cy.dragAndDropToCanvas("tablewidget", { x: 200, y: 300 });
-    cy.wait(3000);
-    cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
-    cy.testJsontext(
-      "tabledata",
-      `{{
-        Switch1.isSwitchedOn ? [
-            {
-              name: "joe"
-            }
-          ] : [
-            {
-              employee_name: "john"
-            },
-          ];
-      }}`,
-    );
-    cy.wait("@updateLayout");
-    cy.PublishtheApp();
-    cy.wait(3000);
-    cy.getTableDataSelector("0", "0").then((element) => {
-      cy.get(element).should("be.visible");
-    });
-    cy.readTabledataPublish("0", "0").then((value) => {
-      expect(value).to.be.equal("joe");
-    });
-    cy.get(".t--switch-widget-active")
-      .first()
-      .click();
-    cy.wait(1000);
-    cy.getTableDataSelector("0", "0").then((element) => {
-      cy.get(element).should("be.visible");
-    });
-    cy.readTabledataPublish("0", "0").then((value) => {
-      expect(value).to.be.equal("john");
-    });
-  });
-
   afterEach(() => {
     // put your clean up code if any
   });
