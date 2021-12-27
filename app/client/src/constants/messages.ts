@@ -261,6 +261,7 @@ export const EDIT_DATASOURCE_MESSAGE = () =>
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ADD = () => "ADD";
+export const EDIT = () => "EDIT";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;

@@ -3,9 +3,10 @@ import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
 import Button, { Category } from "components/ads/Button";
-import { createMessage, ADD } from "constants/messages";
+import { createMessage, ADD, EDIT } from "constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Callout } from "pages/Settings/Callout";
 import Breadcrumbs from "components/ads/Breadcrumbs";
 import { IBreadcrumbProps } from "@blueprintjs/core";
 
@@ -122,6 +123,11 @@ export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
                   <MethodTitle>{callout.label}</MethodTitle>
                   {callout.isConnected && <Label>Enabled</Label>}
                   <MethodDets>{callout.subText}</MethodDets>
+                  <Callout
+                    actionLabel="Learn More"
+                    title={"User Emails Ids are not verified."}
+                    type="Warning"
+                  />
                 </MethodDetailsWrapper>
                 {callout.isConnected ? (
                   <EditButton
@@ -134,7 +140,7 @@ export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
                       )
                     }
                   >
-                    <ButtonTitle>Edit</ButtonTitle>
+                    <ButtonTitle>{createMessage(EDIT)}</ButtonTitle>
                     <Icon name="right-arrow" size={IconSize.XL} />
                   </EditButton>
                 ) : (
