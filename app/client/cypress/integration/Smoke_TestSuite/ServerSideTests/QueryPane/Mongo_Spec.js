@@ -26,11 +26,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(datasource.MongoDB).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource();
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
     });
+    cy.testSaveDatasource();
   });
 
   it("2. Validate Raw query command, run and then delete the query", function() {

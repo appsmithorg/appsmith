@@ -509,7 +509,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifying DeleteFile icon from UI
     cy.xpath(queryLocators.deleteFileicon)
       .should("be.visible")
-      .click({ force: true }); //Verifies 8684
+      .click(); //Verifies 8684
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     expect(
