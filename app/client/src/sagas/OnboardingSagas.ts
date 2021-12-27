@@ -137,6 +137,7 @@ function* setUpTourAppSaga() {
       value: body,
     }),
   );
+  yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   yield put(clearActionResponse(query?.config.id ?? ""));
   const applicationId = yield select(getCurrentApplicationId);
   history.push(
@@ -156,7 +157,6 @@ function* setUpTourAppSaga() {
   );
   // Hide the explorer initialy
   yield put(setExplorerPinnedAction(false));
-  yield delay(1000);
   yield put(toggleLoader(false));
 }
 
@@ -193,6 +193,7 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
     // Update widget names
     yield take(ReduxActionTypes.UPDATE_LAYOUT);
+    yield delay(2000);
     const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
       getWidgets,
     );
@@ -209,7 +210,6 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
       (widget) => widget.widgetName === "Image1",
     );
 
-    yield delay(2000);
     if (nameInput && emailInput && countryInput && imageWidget) {
       yield put(updateWidgetName(nameInput.widgetId, "NameInput"));
       yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);

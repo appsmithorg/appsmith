@@ -53,6 +53,10 @@ const Title = styled.span`
   color: #000000;
   display: flex;
   flex: 1;
+
+  .success-message {
+    margin-right: 10px;
+  }
 `;
 
 const StepCount = styled.div`
@@ -242,6 +246,7 @@ function InitialContent() {
           </Description>
         </SubContentWrapper>
         <GuideButton
+          className="t--start-building"
           isLoading={isLoading}
           onClick={setupFirstStep}
           tag="button"
@@ -260,8 +265,9 @@ function InitialContent() {
 
 function GuideStepsContent(props: {
   currentStep: number;
-  meta: GuideBody["meta"];
+  showInfoMessage: boolean;
 }) {
+  const meta = useComputeCurrentStep(props.showInfoMessage);
   const content = Steps[props.currentStep];
   const [hintCount, setHintCount] = useState(0);
   const currentHint = content.hints[hintCount]
@@ -274,8 +280,8 @@ function GuideStepsContent(props: {
   }, [props.currentStep]);
 
   useEffect(() => {
-    setHintCount(props.meta.hintCount);
-  }, [props.meta.hintCount]);
+    setHintCount(meta.hintCount);
+  }, [meta.hintCount]);
 
   const hintSteps = currentHint.steps;
 
@@ -312,6 +318,7 @@ function GuideStepsContent(props: {
             {currentHint.image && <img src={currentHint.image} />}
             {currentHint.button && (
               <GuideButton
+                className="t--hint-button"
                 onClick={hintButtonOnClick}
                 tag="button"
                 text={"PROCEED"}
@@ -321,7 +328,7 @@ function GuideStepsContent(props: {
           {isArray(hintSteps) &&
             hintSteps.length &&
             hintSteps.map((step, index) => {
-              const completed = props.meta.completedSubSteps.includes(index);
+              const completed = meta.completedSubSteps.includes(index);
               const className = "hint-steps" + (completed ? " strike" : "");
 
               return (
@@ -399,9 +406,12 @@ function CompletionContent(props: CompletionContentProps) {
         <div className="wrapper">
           <div className="lottie-wrapper" ref={tickMarkRef} />
           <div className="title-wrapper">
-            <Title>{Steps[props.step].success?.text}</Title>
+            <Title className="success-message">
+              {Steps[props.step].success?.text}
+            </Title>
             {/* Show the button after a delay */}
             <GuideButton
+              className="t--success-button"
               isVisible={showSuccessButton}
               onClick={onSuccessButtonClick}
               tag="button"
@@ -419,6 +429,7 @@ function CompletionContent(props: CompletionContentProps) {
 
           <Description className="info">{info?.text}</Description>
           <GuideButton
+            className="t--info-button"
             onClick={onInfoButtonClick}
             tag="button"
             text={info?.buttonText ?? "PROCEED TO NEXT STEP"}
@@ -432,10 +443,6 @@ function CompletionContent(props: CompletionContentProps) {
 export type GuideBody = {
   exploring: boolean;
   step: number;
-  meta: {
-    completedSubSteps: number[];
-    hintCount: number;
-  };
   showInfoMessage: boolean;
 };
 
@@ -452,7 +459,12 @@ function GuideBody(props: GuideBody) {
       />
     );
   } else {
-    return <GuideStepsContent currentStep={props.step} meta={props.meta} />;
+    return (
+      <GuideStepsContent
+        currentStep={props.step}
+        showInfoMessage={props.showInfoMessage}
+      />
+    );
   }
 }
 
@@ -464,7 +476,6 @@ function Guide(props: GuideProps) {
   const exploring = useSelector(isExploringSelector);
   const step = useSelector(getCurrentStep);
   const showInfoMessage = useSelector(showInfoMessageSelector);
-  const meta = useComputeCurrentStep(exploring, showInfoMessage);
 
   return (
     <GuideWrapper className={props.className}>
@@ -472,7 +483,6 @@ function Guide(props: GuideProps) {
         <UpperContent>
           <GuideBody
             exploring={exploring}
-            meta={meta}
             showInfoMessage={showInfoMessage}
             step={step}
           />

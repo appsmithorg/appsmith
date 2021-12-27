@@ -30,12 +30,14 @@ import {
   buttonWidgetHasOnSuccessBinding,
 } from "selectors/onboardingSelectors";
 import { Steps } from "./constants";
-import { GuideBody } from "./Guide";
 import { hideIndicator, highlightSection, showIndicator } from "./utils";
 
-function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
+function useComputeCurrentStep(showInfoMessage: boolean) {
   let step = 1;
-  const meta: GuideBody["meta"] = {
+  const meta: {
+    completedSubSteps: number[];
+    hintCount: number;
+  } = {
     completedSubSteps: [],
     hintCount: 0,
   };
@@ -162,13 +164,11 @@ function useComputeCurrentStep(isExploring: boolean, showInfoMessage: boolean) {
   }, [tableWidget]);
 
   useEffect(() => {
-    if (!isExploring) {
-      dispatch({
-        type: "SET_CURRENT_STEP",
-        payload: step,
-      });
-    }
-  }, [isExploring, step]);
+    dispatch({
+      type: "SET_CURRENT_STEP",
+      payload: step,
+    });
+  }, [step]);
 
   // Step 1 effects
   useEffect(() => {
