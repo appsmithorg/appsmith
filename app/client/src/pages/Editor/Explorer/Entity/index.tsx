@@ -70,10 +70,7 @@ export const EntityItem = styled.div<{
   height: 36px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: ${(props) =>
-    props.spaced
-      ? "20px auto 1fr auto auto auto"
-      : "8px auto 1fr auto auto auto"};
+  grid-template-columns: 20px auto 1fr auto auto auto;
   grid-auto-flow: column dense;
   border-radius: 0;
   color: ${Colors.CODE_GRAY};

@@ -86,6 +86,8 @@ import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -365,10 +367,19 @@ export function EditorHeader(props: EditorHeaderProps) {
                 className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
                 onMouseEnter={onMenuHover}
               >
-                <MenuIcon
-                  className="absolute w-4 h-4 transition-opacity opacity-100 fill-current cursor-pointer"
-                  onClick={onPin}
-                />
+                <MenuIcon className="absolute w-4 h-4 transition-opacity fill-current cursor-pointer group-hover:opacity-0" />
+                {!pinned && (
+                  <UnpinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
+                {pinned && (
+                  <PinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
               </div>
             </TooltipComponent>
           </HamburgerContainer>
