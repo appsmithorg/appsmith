@@ -19,6 +19,7 @@ const initialState: AppThemingState = {
   selectedThemeLoading: false,
   previewTheme: undefined,
   selectedTheme: {
+    id: "",
     name: "",
     created_by: "",
     created_at: "",

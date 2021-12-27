@@ -10,14 +10,16 @@ import {
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
 import ThemingApi from "api/AppThemingApi";
-import { all, takeLatest, put } from "redux-saga/effects";
+import { all, takeLatest, put, select } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { CHANGE_APP_THEME, createMessage } from "constants/messages";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
   {
+    id: "classic",
     name: "Classic",
     created_at: "12/12/12",
     created_by: "@appsmith",
@@ -210,13 +212,14 @@ const dummyThemes: AppTheme[] = [
     },
   },
   {
+    id: "default",
     name: "Default",
     created_at: "12/12/12",
     created_by: "@appsmith",
     config: {
       colors: {
         primaryColor: "#553DE9",
-        backgroundColor: "#fff",
+        backgroundColor: "#F6F6F6",
       },
       borderRadius: {
         appBorderRadius: {
@@ -388,7 +391,7 @@ const dummyThemes: AppTheme[] = [
     properties: {
       colors: {
         primaryColor: "#553DE9",
-        backgroundColor: "#fff",
+        backgroundColor: "#F6F6F6",
       },
       borderRadius: {
         appBorderRadius: "0.375rem",
@@ -403,6 +406,7 @@ const dummyThemes: AppTheme[] = [
     },
   },
   {
+    id: "sharp",
     name: "Sharp",
     created_at: "12/12/12",
     created_by: "@appsmith",
@@ -595,6 +599,7 @@ const dummyThemes: AppTheme[] = [
     },
   },
   {
+    id: "rounded",
     name: "Rounded",
     created_at: "12/12/12",
     created_by: "@appsmith",
@@ -796,7 +801,6 @@ const dummyThemes: AppTheme[] = [
  */
 export function* fetchAppThemes() {
   try {
-    // eslint-disable-next-line
     const response = yield ThemingApi.fetchThemes();
 
     yield put({
@@ -821,13 +825,13 @@ export function* fetchAppSelectedTheme(
 ) {
   // eslint-disable-next-line
   const { applicationId } = action.payload;
+
   try {
-    // eslint-disable-next-line
     const response = yield ThemingApi.fetchSelected(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: dummyThemes[1],
+      payload: response.data,
     });
   } catch (error) {
     yield put({
@@ -849,7 +853,7 @@ export function* updateSelectedTheme(
   const { applicationId, theme } = action.payload;
 
   try {
-    // yield ThemingApi.updateTheme(applicationId, theme);
+    yield ThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -873,9 +877,10 @@ export function* changeSelectedTheme(
 ) {
   // eslint-disable-next-line
   const { applicationId, theme } = action.payload;
+  const selectedTheme: AppTheme = yield select(getSelectedAppTheme);
 
   try {
-    // yield ThemingApi.changeTheme(applicationId, theme);
+    yield ThemingApi.changeTheme(applicationId, selectedTheme.id, theme);
 
     yield put({
       type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,

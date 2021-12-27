@@ -4,7 +4,7 @@ import { AppTheme } from "entities/AppTheming";
 import { GenericApiResponse } from "./ApiResponses";
 
 class AppThemingApi extends API {
-  static baseUrl = "/v1/themes";
+  static baseUrl = "/v1";
 
   /**
    * fires request to get all themes
@@ -12,7 +12,7 @@ class AppThemingApi extends API {
    * @returns
    */
   static fetchThemes(): AxiosPromise<GenericApiResponse<AppTheme[]>> {
-    return API.get(AppThemingApi.baseUrl);
+    return API.get(`${AppThemingApi.baseUrl}/themes`);
   }
 
   /**
@@ -24,7 +24,9 @@ class AppThemingApi extends API {
   static fetchSelected(
     applicationId: string,
   ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
-    return API.get(`${AppThemingApi.baseUrl}/applications/${applicationId}`);
+    return API.get(
+      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}?mode=EDIT`,
+    );
   }
 
   /**
@@ -39,7 +41,7 @@ class AppThemingApi extends API {
     theme: AppTheme,
   ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
     return API.post(
-      `${AppThemingApi.baseUrl}/applications/${applicationId}`,
+      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
       theme,
     );
   }
@@ -53,10 +55,11 @@ class AppThemingApi extends API {
    */
   static changeTheme(
     applicationId: string,
+    themeId: string,
     theme: AppTheme,
   ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
     return API.patch(
-      `${AppThemingApi.baseUrl}/applications/${applicationId}`,
+      `${AppThemingApi.baseUrl}/applications/${applicationId}/themes/${themeId}`,
       theme,
     );
   }
