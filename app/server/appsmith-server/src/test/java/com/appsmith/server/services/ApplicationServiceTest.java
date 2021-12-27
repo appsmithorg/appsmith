@@ -1163,7 +1163,7 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneApplicationTest() {
+    public void cloneApplication_withActionAndActionCollection_success() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
 
