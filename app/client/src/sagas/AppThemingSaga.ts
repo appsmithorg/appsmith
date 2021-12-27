@@ -258,17 +258,14 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -805,7 +802,7 @@ export function* fetchAppThemes() {
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: dummyThemes,
+      payload: response.data,
     });
   } catch (error) {
     yield put({
