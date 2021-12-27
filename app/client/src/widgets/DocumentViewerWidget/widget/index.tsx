@@ -38,13 +38,10 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
           messages: ["Provided URL / Base64 is invalid."],
         };
       }
-    } else if (base64Regex.test(value as string)) {
-      // base 64 is valid
-      return {
-        isValid: true,
-        parsed: value,
-      };
-    } else if (ipRegex.test(value as string)) {
+    } else if (
+      base64Regex.test(value as string) ||
+      ipRegex.test(value as string)
+    ) {
       return {
         isValid: true,
         parsed: value,
