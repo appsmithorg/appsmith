@@ -112,6 +112,18 @@ ctx.addEventListener(
             // We need to clean it to remove any possible functions inside the tree.
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+          } else if (dataTreeEvaluator.hasCyclicalDependency) {
+            if (shouldReplay) {
+              replayMap[CANVAS]?.update(widgets);
+            }
+            dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+            const dataTreeResponse = dataTreeEvaluator.createFirstTree(
+              unevalTree,
+            );
+            evaluationOrder = dataTreeEvaluator.sortedDependencies;
+            dataTree = dataTreeResponse.evalTree;
+            jsUpdates = dataTreeResponse.jsUpdates;
+            dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
             if (shouldReplay) {
@@ -144,7 +156,6 @@ ctx.addEventListener(
             console.error(e);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
-          dataTreeEvaluator = undefined;
         }
         return {
           dataTree,

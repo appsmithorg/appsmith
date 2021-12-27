@@ -665,6 +665,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         ).onErrorResume(error -> {
+                            log.error("Error while cloning the remote repo, {}", error.getMessage());
                             if (error instanceof TransportException) {
                                 return addAnalyticsForGitOperation(
                                         AnalyticsEvents.GIT_CONNECT.getEventName(),
@@ -687,8 +688,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         application.getGitApplicationMetadata().getIsRepoPrivate()
                                 ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url")));
                             }
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
-                            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
                         });
                         return Mono.zip(
                                 Mono.just(application),
@@ -1789,9 +1789,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return this.getStatus(defaultApplicationId, sourceBranch)
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch)));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch)
                                         .map(destBranchStatus -> {
@@ -1814,14 +1814,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 try {
                                     return gitExecutor.resetToLastCommit(repoSuffix, destinationBranch)
-                                            .flatMap(reset -> {
-                                                try {
-                                                    return gitExecutor.resetToLastCommit(repoSuffix, sourceBranch);
-                                                } catch (GitAPIException | IOException e) {
-                                                    log.error("Error while resetting to last commit", e);
-                                                }
-                                                return Mono.just(false);
-                                            })
                                             .map(reset -> {
                                                 MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                                 mergeStatus.setMergeAble(false);
