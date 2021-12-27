@@ -585,6 +585,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             }
                                             unpublishedCollection.setDefaultToBranchedActionIdsMap(updatedDefaultToBranchedActionId);
 
+                                            // Set id as null, otherwise create (which is using under the hood save)
+                                            // will try to overwrite same resource instead of creating a new resource
                                             actionCollection.setId(null);
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {

@@ -76,7 +76,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.*;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,9 +161,9 @@ public class ApplicationServiceTest {
 
     String orgId;
 
-    Plugin testPlugin = new Plugin();
+    static Plugin testPlugin = new Plugin();
 
-    Datasource testDatasource = new Datasource();
+    static Datasource testDatasource = new Datasource();
 
     static Application gitConnectedApp = new Application();
 
@@ -1082,21 +1091,10 @@ public class ApplicationServiceTest {
 
         String pageId = gitConnectedApp.getPages().get(0).getId();
 
-        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
-        Datasource datasource = new Datasource();
-        datasource.setName("Clone App with action Test");
-        datasource.setPluginId(plugin.getId());
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
-
-        Datasource savedDatasource = datasourceService.create(datasource).block();
-
         ActionDTO action = new ActionDTO();
         action.setName("Clone App Test action");
         action.setPageId(pageId);
-        action.setDatasource(savedDatasource);
+        action.setDatasource(testDatasource);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
