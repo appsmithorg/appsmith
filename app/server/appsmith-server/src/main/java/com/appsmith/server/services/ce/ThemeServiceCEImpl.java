@@ -104,10 +104,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         .flatMap(currentTheme -> {
                             if (!StringUtils.isEmpty(currentTheme.getId()) && !currentTheme.isSystemTheme()) {
                                 // current theme is not a system theme but customized one, delete this
-                                return repository.delete(currentTheme).then(setAppThemeMono);
+                                return repository.delete(currentTheme);
                             }
-                            return setAppThemeMono;
-                        }));
+                            return Mono.empty();
+                        })
+                ).then(setAppThemeMono);
     }
 
     @Override
