@@ -110,7 +110,7 @@ describe("Map Chart Widget Functionality", function() {
     cy.get(widgetsPage.mapChartPlot)
       .children()
       .first()
-      .click();
+      .click({ force: true });
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
       this.data.ModalName,
@@ -141,7 +141,7 @@ describe("Map Chart Widget Functionality", function() {
     cy.get(widgetsPage.mapChartPlot)
       .children()
       .first()
-      .click();
+      .click({ force: true });
     // Assert
     cy.validateToastMessage(JSON.stringify(expectedEntityData));
   });
