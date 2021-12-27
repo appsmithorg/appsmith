@@ -13,12 +13,14 @@ import {
 
 import styled from "styled-components";
 import Button, { Category } from "components/ads/Button";
+import Breadcrumbs from "components/ads/Breadcrumbs";
 import { createMessage, ADD } from "constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Google from "assets/images/Google.png";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
 import SamlSso from "assets/images/saml.svg";
+import Icon, { IconSize } from "components/ads/Icon";
 import { useHistory } from "react-router-dom";
 
 const Form_Auth: AdminConfigType = {
@@ -128,6 +130,7 @@ const PageSettings = {
       label: "Google",
       subText: "Enable your organization to sign in with Google (OAuth).",
       image: Google,
+      isConnected: false,
     },
     {
       id: "APPSMITH_SAML_AUTH",
@@ -136,6 +139,7 @@ const PageSettings = {
       subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
       Identity, Google SAML, Keycloak, or VMware Identity Manager.`,
       image: SamlSso,
+      isConnected: true,
     },
     {
       id: "APPSMITH_GITHUB_AUTH",
@@ -145,6 +149,7 @@ const PageSettings = {
       subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
       Identity, Google SAML, Keycloak, or VMware Identity Manager.`,
       image: Github,
+      isConnected: false,
     },
     {
       id: "APPSMITH_FORM_LOGIN_AUTH",
@@ -153,6 +158,7 @@ const PageSettings = {
       label: "Form Login",
       subText: "Enable your organization to sign in with Google (OAuth).",
       image: Lock,
+      isConnected: true,
     },
   ],
 };
@@ -193,6 +199,7 @@ const Image = styled.img`
   object-fit: cover;
   border-radius: 50%;
   padding: 5px;
+  align-self: baseline;
 `;
 
 const MethodDetailsWrapper = styled.div`
@@ -212,10 +219,31 @@ const MethodDets = styled.div`
   line-height: 16px;
 `;
 
+const EditButton = styled.span`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const ButtonTitle = styled.span`
+  margin-right: 2px;
+  line-height: 1;
+`;
+
+const Label = styled.div`
+  display: inline-block;
+  color: #fff;
+  background: #03b365;
+  padding: 2px 6px;
+  font-size: 12px;
+  margin: 4px 0;
+`;
+
 function AuthMain() {
   const history = useHistory();
   return (
     <Wrapper>
+      <Breadcrumbs />
       <SettingsFormWrapper>
         <SettingsHeader>Select Authentication Method</SettingsHeader>
         <SettingsSubHeader>
@@ -230,22 +258,39 @@ function AuthMain() {
                 <Image alt={method.label} src={method.image} />
                 <MethodDetailsWrapper>
                   <MethodTitle>{method.label}</MethodTitle>
+                  {method.isConnected && <Label>Enabled</Label>}
                   <MethodDets>{method.subText}</MethodDets>
                 </MethodDetailsWrapper>
-                <Button
-                  category={Category.tertiary}
-                  className={"add-button"}
-                  data-cy="add-auth-account"
-                  onClick={() =>
-                    history.push(
-                      getAdminSettingsCategoryUrl(
-                        SettingCategories.AUTHENTICATION,
-                        method.category,
-                      ),
-                    )
-                  }
-                  text={createMessage(ADD)}
-                />
+                {method.isConnected ? (
+                  <EditButton
+                    onClick={() =>
+                      history.push(
+                        getAdminSettingsCategoryUrl(
+                          SettingCategories.AUTHENTICATION,
+                          method.category,
+                        ),
+                      )
+                    }
+                  >
+                    <ButtonTitle>Edit</ButtonTitle>
+                    <Icon name="right-arrow" size={IconSize.XL} />
+                  </EditButton>
+                ) : (
+                  <Button
+                    category={Category.tertiary}
+                    className={"add-button"}
+                    data-cy="add-auth-account"
+                    onClick={() =>
+                      history.push(
+                        getAdminSettingsCategoryUrl(
+                          SettingCategories.AUTHENTICATION,
+                          method.category,
+                        ),
+                      )
+                    }
+                    text={createMessage(ADD)}
+                  />
+                )}
               </MethodCard>
             );
           })}
