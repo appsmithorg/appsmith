@@ -29,12 +29,13 @@ export interface ApplicationPagePayload {
 export type GitApplicationMetadata =
   | {
       branchName: string;
+      defaultBranchName: string;
       remoteUrl: string;
       repoName: string;
-      defaultApplicationId?: string;
-      defaultBranchName?: string;
       isRepoPrivate?: boolean;
       browserSupportedUrl?: string;
+      browserSupportedRemoteUrl: string;
+      defaultApplicationId: string;
     }
   | undefined;
 
