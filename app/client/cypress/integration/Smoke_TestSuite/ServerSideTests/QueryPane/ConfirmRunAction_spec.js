@@ -14,12 +14,8 @@ describe("Confirm run action", function() {
     });
   });
 
-  it("Confirm run action", () => {
-    cy.NavigateToQueryEditor();
-
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+  it("1. Confirm run action", () => {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
