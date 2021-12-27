@@ -19,6 +19,7 @@ import {
 } from "pages/Applications/permissionHelpers";
 import moment from "moment";
 import { extraLibrariesNames } from "./DynamicBindingUtils";
+import { ApiResponse } from "api/ApiResponses";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -578,4 +579,8 @@ export function unFocus(document: Document, window: Window) {
       // eslint-disable-next-line no-empty
     } catch (e) {}
   }
+}
+
+export function getLogToSentryFromResponse(response?: ApiResponse) {
+  return response && response?.responseMeta?.status >= 500;
 }

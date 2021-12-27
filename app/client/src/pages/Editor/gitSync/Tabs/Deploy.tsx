@@ -153,8 +153,10 @@ function Deploy() {
   const isConflicting = !isFetchingGitStatus && pullFailed;
   // const pullRequired =
   //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
+
+  // TODO improve this check
   let pullRequired = false;
-  if (!isFetchingGitStatus && gitError && gitError.code === 5006) {
+  if (!isFetchingGitStatus && gitError && gitError.code === 4044) {
     pullRequired = gitError.message.indexOf("git  push failed") > -1;
   }
   const showCommitButton =
