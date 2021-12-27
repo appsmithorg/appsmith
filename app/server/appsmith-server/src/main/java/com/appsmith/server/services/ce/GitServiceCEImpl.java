@@ -409,7 +409,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 defaultApplicationId,
                                 branchedApplication.getId(),
                                 AppsmithError.INVALID_GIT_CONFIGURATION.getTitle(),
-                                AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(),
+                                AppsmithError.INVALID_GIT_CONFIGURATION.getMessage("Unable to find the git " +
+                                        "configuration, please configure the your application to use version control service"),
                                 branchedApplication.getGitApplicationMetadata().getIsRepoPrivate()
                         ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find the git " +
                                 "configuration, please configure the your application to use version control service")));
@@ -485,7 +486,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 defaultApplicationId,
                                 childApplication.getId(),
                                 AppsmithError.INVALID_GIT_CONFIGURATION.getTitle(),
-                                AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(),
+                                AppsmithError.INVALID_GIT_CONFIGURATION.getMessage("Unable to find git author configuration for logged-in user." +
+                                        " You can set up a git profile from the user profile section."),
                                 childApplication.getGitApplicationMetadata().getIsRepoPrivate()
                         ).flatMap(user -> Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
