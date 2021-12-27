@@ -60,11 +60,13 @@ function Categories({
   currentCategory,
   currentSubCategory,
   parentCategory,
+  showSubCategory,
 }: {
   categories?: Category[];
   parentCategory?: Category;
   currentCategory: string;
   currentSubCategory?: string;
+  showSubCategory?: boolean;
 }) {
   return (
     <CategoryList className="t--settings-category-list">
@@ -72,7 +74,7 @@ function Categories({
         <CategoryItem key={config.slug}>
           <StyledLink
             $active={
-              !!currentSubCategory
+              !!currentSubCategory && showSubCategory
                 ? currentSubCategory == config.slug
                 : currentCategory == config.slug
             }
@@ -85,12 +87,14 @@ function Categories({
           >
             {config.title}
           </StyledLink>
-          <Categories
-            categories={config.children}
-            currentCategory={currentCategory}
-            currentSubCategory={currentSubCategory}
-            parentCategory={config}
-          />
+          {showSubCategory && (
+            <Categories
+              categories={config.children}
+              currentCategory={currentCategory}
+              currentSubCategory={currentSubCategory}
+              parentCategory={config}
+            />
+          )}
         </CategoryItem>
       ))}
     </CategoryList>
