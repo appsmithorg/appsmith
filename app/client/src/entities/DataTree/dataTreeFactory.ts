@@ -21,7 +21,6 @@ import {
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
-import { AppsmithPromise } from "workers/Actions";
 import { AppTheme } from "entities/AppTheming";
 
 export type ActionDispatcher = (

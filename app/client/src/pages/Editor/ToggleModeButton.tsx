@@ -279,7 +279,7 @@ function CommentModeBtn({
         position={Position.BOTTOM}
       >
         <div className="relative">
-          <CommentIcon className="w-6 h-6 text-gray-900" />
+          <CommentIcon className="w-5 h-5 text-gray-900" />
           {showUnreadIndicator && (
             <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
           )}
