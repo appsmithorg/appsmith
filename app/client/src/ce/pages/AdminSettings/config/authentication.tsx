@@ -23,6 +23,8 @@ import SamlSso from "assets/images/saml.svg";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useHistory } from "react-router-dom";
 
+import { IBreadcrumbProps } from "@blueprintjs/core";
+
 const Form_Auth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
@@ -239,11 +241,16 @@ const Label = styled.div`
   margin: 4px 0;
 `;
 
+const breadcrumbList: IBreadcrumbProps[] = [
+  { href: "/applications", text: "Homepage" },
+  { href: "/settings/general", text: "Settings" },
+];
+
 function AuthMain() {
   const history = useHistory();
   return (
     <Wrapper>
-      <Breadcrumbs />
+      <Breadcrumbs items={breadcrumbList} />
       <SettingsFormWrapper>
         <SettingsHeader>Select Authentication Method</SettingsHeader>
         <SettingsSubHeader>

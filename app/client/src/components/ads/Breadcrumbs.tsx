@@ -1,26 +1,35 @@
 import React from "react";
-
+import styled from "styled-components";
 import {
   Breadcrumbs as BPBreadcrumbs,
   Breadcrumb,
   IBreadcrumbProps,
 } from "@blueprintjs/core";
 
-const BREADCRUMBS: IBreadcrumbProps[] = [
-  { href: "/applications", text: "Homepage" },
-  { href: "/settings/general", text: "Settings" },
-];
+interface BreadcrumbProps {
+  items: IBreadcrumbProps[];
+}
 
 const renderCurrentBreadcrumb = ({ text, ...restProps }: IBreadcrumbProps) => {
   // customize rendering of last breadcrumb
   return <Breadcrumb {...restProps}>{text}</Breadcrumb>;
 };
 
-function Breadcrumbs() {
+const StyledBreadcrumbs = styled(BPBreadcrumbs)`
+  &.bp3-overflow-list {
+    > li {
+      .bp3-breadcrumb {
+        font-size: 12px;
+      }
+    }
+  }
+`;
+
+function Breadcrumbs(props: BreadcrumbProps) {
   return (
-    <BPBreadcrumbs
+    <StyledBreadcrumbs
       currentBreadcrumbRenderer={renderCurrentBreadcrumb}
-      items={BREADCRUMBS}
+      items={props.items}
     />
   );
 }
