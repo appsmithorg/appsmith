@@ -1,10 +1,13 @@
 import styled from "styled-components";
 import React from "react";
+import Icon, { IconSize } from "../../components/ads/Icon";
 
 export type CalloutType = "Warning" | "Info";
 
 export const Wrapper = styled.div<{ type?: CalloutType }>`
   //height: 56px;
+  display: flex;
+  align-items: center;
   width: 100%;
   padding: 8px 16px;
   ${(props) =>
@@ -15,6 +18,11 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
       : `color: #c91818; background: #FFE9E9;
    `}
   margin: 16px 0;
+
+  .warning-icon {
+    margin-right: 16px;
+  }
+
   h4 {
     font-style: normal;
     font-weight: normal;
@@ -45,8 +53,20 @@ export function Callout(props: {
 }) {
   return (
     <Wrapper type={props.type}>
-      <h4>{props.title}</h4>
-      <a>{props.actionLabel}</a>
+      {props.type === "Warning" && (
+        <Icon
+          className="warning-icon"
+          name="warning-line"
+          size={IconSize.XXXXL}
+        />
+      )}
+      <div>
+        <h4>{props.title}</h4>
+        <a>
+          {props.actionLabel}&nbsp;&nbsp;
+          <Icon name="right-arrow" size={IconSize.LARGE} />
+        </a>
+      </div>
     </Wrapper>
   );
 }
