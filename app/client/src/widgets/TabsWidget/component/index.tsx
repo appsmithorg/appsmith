@@ -93,13 +93,11 @@ const ScrollableCanvasWrapper = styled.div<
 
 export interface TabsContainerProps {
   isScrollable: boolean;
-  width: number;
 }
 
 const TabsContainer = styled.div<TabsContainerProps>`
   position: absolute;
   top: 0;
-  width: ${({ width }) => width}px;
   overflow-x: auto;
   overflow-y: hidden;
   background: ${(props) => props.theme.colors.builderBodyBG};
@@ -193,16 +191,12 @@ function TabsComponent(props: TabsComponentProps) {
     null,
   );
   const tabsRef = useRef<HTMLDivElement>(null);
-  const isFirstRender = useRef(true);
 
   const [isScrollable, setIsScrollable] = useState(false);
   const [isMaxScrolled, setIsMaxScrolled] = useState(false);
-  const [tabRefs, setTabRefs] = useState<RefObject<HTMLDivElement>[]>(
-    tabs.map(() => createRef()),
-  );
+  const [tabRefs, setTabRefs] = useState<RefObject<HTMLDivElement>[]>([]);
   const [tabScrollIndex, setTabScrollIndex] = useState(0);
   const [offsetLeft, setOffsetLeft] = useState(0);
-  const [tabsContainerWidth, setTabsContainerWidth] = useState(0);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -211,27 +205,20 @@ function TabsComponent(props: TabsComponentProps) {
   }, [props.shouldScrollContents]);
 
   useEffect(() => {
-    setTabsContainerWidth(width);
-  }, [width]);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
     setTabRefs(tabs.map(() => createRef()));
-  }, [tabs.length]);
+  }, [tabs]);
 
   useEffect(() => {
     if (tabsRef.current) {
       // Check if the current tabs container has scroll
       const scrollWidth = tabsRef.current.scrollWidth;
       const clientWidth = tabsRef.current.clientWidth;
+
       if (scrollWidth > clientWidth) {
         setIsScrollable(true);
-        return;
+      } else {
+        setIsScrollable(false);
       }
-      setIsScrollable(false);
     }
   }, [tabs, width]);
 
@@ -241,12 +228,16 @@ function TabsComponent(props: TabsComponentProps) {
       const tabWidth = tabRef.current?.scrollWidth || 0;
       return (total += tabWidth);
     }, 0);
-    if (tabsWidth + SCROLL_NAV_CONTROL_CONTAINER_WIDTH <= width) {
+    const visibleElementsWidth =
+      tabsWidth +
+      (tabScrollIndex === 0 ? 0 : SCROLL_NAV_CONTROL_CONTAINER_WIDTH);
+
+    if (visibleElementsWidth <= width) {
       setIsMaxScrolled(true);
-      return;
+    } else {
+      setIsMaxScrolled(false);
     }
-    setIsMaxScrolled(false);
-  }, [tabScrollIndex, tabRefs]);
+  }, [tabRefs, tabScrollIndex, width]);
 
   useEffect(() => {
     if (tabsRef.current) {
@@ -256,10 +247,8 @@ function TabsComponent(props: TabsComponentProps) {
 
   const handleScrollLeft = () => {
     const scrollSize = tabRefs[tabScrollIndex - 1].current?.scrollWidth || 0;
+
     setOffsetLeft((prev) => (tabScrollIndex === 1 ? 0 : prev + scrollSize));
-    setTabsContainerWidth((prev) =>
-      tabScrollIndex === 1 ? width : prev - scrollSize,
-    );
     setTabScrollIndex((prev) => prev - 1);
   };
 
@@ -270,11 +259,6 @@ function TabsComponent(props: TabsComponentProps) {
       tabScrollIndex === 0
         ? prev - scrollSize + SCROLL_NAV_CONTROL_CONTAINER_WIDTH
         : prev - scrollSize,
-    );
-    setTabsContainerWidth((prev) =>
-      tabScrollIndex === 0
-        ? prev + scrollSize - SCROLL_NAV_CONTROL_CONTAINER_WIDTH
-        : prev + scrollSize,
     );
     setTabScrollIndex((prev) => prev + 1);
   };
@@ -294,7 +278,7 @@ function TabsComponent(props: TabsComponentProps) {
           <TabsContainer
             isScrollable={isScrollable}
             ref={tabsRef}
-            width={tabsContainerWidth}
+            // width={tabsContainerWidth}
           >
             {props.tabs.map((tab, index) => (
               <StyledText
