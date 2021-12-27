@@ -126,6 +126,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
 
   return (
     <CheckboxGroupContainer
+      data-cy="checkbox-group-container"
       inline={isInline}
       optionAlignment={optionAlignment}
       optionCount={options.length}
