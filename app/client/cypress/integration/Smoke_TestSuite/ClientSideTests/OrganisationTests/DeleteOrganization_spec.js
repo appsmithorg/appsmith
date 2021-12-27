@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import homePage from "../../../../locators/HomePage.js";
+import homePage from "../../../../locators/HomePage";
 
 describe("Delete organization test spec", function() {
   let newOrganizationName;
