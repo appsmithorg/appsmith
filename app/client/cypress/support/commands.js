@@ -2581,9 +2581,9 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
 
 Cypress.Commands.add("CreateMockQuery", (queryName) => {
   // cy.get(queryEditor.addNewQueryBtn).click({ force: true });
-  cy.get(queryEditor.createQuery)
-    .first()
-    .click({ force: true });
+  // cy.get(queryEditor.createQuery)
+  //   .first()
+  //   .click({ force: true });
   cy.get(queryEditor.queryNameField).type(queryName + "{enter}", {
     force: true,
   });
