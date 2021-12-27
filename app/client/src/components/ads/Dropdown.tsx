@@ -697,7 +697,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           }
           return !option.isSectionHeader ? (
             <OptionWrapper
-              aria-selected={props.selected.value === option.value}
+              aria-selected={isSelected}
               className="t--dropdown-option"
               key={index}
               onClick={() => props.optionClickHandler(option)}
@@ -857,17 +857,20 @@ export default function Dropdown(props: DropdownProps) {
         case " ":
         case "Enter":
           e.preventDefault();
-          if (isOpen) optionClickHandler(selected);
+          if (isOpen && !("length" in selected)) optionClickHandler(selected);
           else onClickHandler();
           break;
         case "ArrowUp":
           e.preventDefault();
           if (isOpen) {
             setSelected((prevSelected) => {
-              let index = findIndex(props.options, prevSelected);
-              if (index === 0) index = props.options.length - 1;
-              else index--;
-              return props.options[index];
+              if (!("length" in prevSelected)) {
+                let index = findIndex(props.options, prevSelected);
+                if (index === 0) index = props.options.length - 1;
+                else index--;
+                return props.options[index];
+              }
+              return prevSelected;
             });
           } else {
             onClickHandler();
@@ -877,10 +880,13 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             setSelected((prevSelected) => {
-              let index = findIndex(props.options, prevSelected);
-              if (index === props.options.length - 1) index = 0;
-              else index++;
-              return props.options[index];
+              if (!("length" in prevSelected)) {
+                let index = findIndex(props.options, prevSelected);
+                if (index === props.options.length - 1) index = 0;
+                else index++;
+                return props.options[index];
+              }
+              return prevSelected;
             });
           } else {
             onClickHandler();
