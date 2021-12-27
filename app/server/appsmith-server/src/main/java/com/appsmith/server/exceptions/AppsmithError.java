@@ -83,7 +83,6 @@ public enum AppsmithError {
             "If you want to clone from remote repo and build application, please use import application from git option.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     DEFAULT_RESOURCES_UNAVAILABLE(400, 4034, "Unexpected state. Default resources are unavailable for {0} with id {1}. Please reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.BAD_REQUEST),
-    GIT_FILE_SYSTEM_ERROR(400, 4035, "Error while accessing the file system. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     GIT_MERGE_FAILED_REMOTE_CHANGES(406, 4036, "Remote is ahead of local by {0} commits on branch {1}. Please pull remote changes first and try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     GIT_MERGE_FAILED_LOCAL_CHANGES(406, 4037, "There are uncommitted changes present in your local branch {0}. Please commit them first and try again", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4038, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
@@ -100,7 +99,6 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     PLUGIN_LOAD_TEMPLATES_FAIL(500, 5005, "Unable to load datasource templates. Details: {0}.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
-    GIT_ACTION_FAILED(500, 5006, "git {0} failed. \nDetails: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     IO_ERROR(503, 5003, "IO action failed with error {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later",
             AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),
@@ -127,7 +125,10 @@ public enum AppsmithError {
     INVALID_JS_ACTION(400, 4040, "Something went wrong while trying to parse this action. Please check the JS object for errors.", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     CYCLICAL_DEPENDENCY_ERROR(400, 4041, "Cyclical dependency error encountered while parsing relationship [{0}] where the relationship is denoted as (source : target).", AppsmithErrorAction.DEFAULT, "Cyclical Dependency in Page Load Actions", ErrorType.CONFIGURATION_ERROR),
     CLOUD_SERVICES_ERROR(500, 5012, "Received error from cloud services {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
-    GIT_APPLICATION_LIMIT_ERROR(400, 4043, "You have reached the maximum number of private git repo counts which can be  connected to the organization. Please reach out to Appsmith support to opt for commercial plan.", AppsmithErrorAction.DEFAULT, null, ErrorType.EE_FEATURE_ERROR),
+    GIT_APPLICATION_LIMIT_ERROR(402, 4043, "You have reached the maximum number of private git repo counts which can be  connected to the organization. Please reach out to Appsmith support to opt for commercial plan.", AppsmithErrorAction.DEFAULT, null, ErrorType.EE_FEATURE_ERROR),
+    GIT_ACTION_FAILED(400, 4044, "git {0} failed. \nDetails: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
+    GIT_FILE_SYSTEM_ERROR(503, 5013, "Error while accessing the file system. {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
+    GIT_EXECUTION_TIMEOUT(504, 5040, "Git command execution exceeded the maximum allowed time, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),
     ;
 
     private final Integer httpErrorCode;
