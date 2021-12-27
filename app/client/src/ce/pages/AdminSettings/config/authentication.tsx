@@ -18,6 +18,7 @@ import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Google from "assets/images/Google.png";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
+import SamlSso from "assets/images/saml.svg";
 import { useHistory } from "react-router-dom";
 
 const Form_Auth: AdminConfigType = {
@@ -127,6 +128,14 @@ const PageSettings = {
       label: "Google",
       subText: "Enable your organization to sign in with Google (OAuth).",
       image: Google,
+    },
+    {
+      id: "APPSMITH_SAML_AUTH",
+      controlType: SettingTypes.BUTTON,
+      label: "SAML 2.0",
+      subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
+      Identity, Google SAML, Keycloak, or VMware Identity Manager.`,
+      image: SamlSso,
     },
     {
       id: "APPSMITH_GITHUB_AUTH",
