@@ -7,10 +7,12 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.ParsedDataType;
@@ -22,6 +24,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -41,6 +44,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -130,6 +134,9 @@ public class ActionServiceTest {
     @Autowired
     ActionCollectionService actionCollectionService;
 
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+
     @SpyBean
     PluginService pluginService;
 
@@ -140,9 +147,15 @@ public class ActionServiceTest {
 
     PageDTO testPage = null;
 
+    Application gitConnectedApp = null;
+
+    PageDTO gitConnectedPage = null;
+
     Datasource datasource;
 
     String orgId;
+
+    String branchName;
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -184,6 +197,27 @@ public class ActionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
+        if (gitConnectedApp == null) {
+            Application newApp = new Application();
+            newApp.setName(UUID.randomUUID().toString());
+            GitApplicationMetadata gitData = new GitApplicationMetadata();
+            gitData.setBranchName("actionServiceTest");
+            newApp.setGitApplicationMetadata(gitData);
+            gitConnectedApp = applicationPageService.createApplication(newApp, orgId)
+                    .flatMap(application -> {
+                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                        return applicationService.save(application)
+                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
+                    })
+                    // Assign the branchName to all the resources connected to the application
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .block();
+
+            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+
+            branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        }
+
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
         datasource = new Datasource();
@@ -201,6 +235,33 @@ public class ActionServiceTest {
         testApp = null;
         testPage = null;
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void findByIdAndBranchName_forGitConnectedAction_getBranchedAction() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        ActionDTO action = new ActionDTO();
+        action.setName("findActionByBranchNameTest");
+        action.setPageId(gitConnectedPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<NewAction> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName)
+                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(branchName, createdAction.getId(), READ_ACTIONS));
+
+        StepVerifier
+                .create(actionMono)
+                .assertNext(newAction -> {
+                    assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(gitConnectedPage.getId());
+                    assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                    assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedApp.getId());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -235,6 +296,45 @@ public class ActionServiceTest {
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createValidAction_forGitConnectedApp_getValidPermissionAndDefaultIds() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(gitConnectedPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName)
+                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(branchName, createdAction.getId(), READ_ACTIONS))
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+
+        StepVerifier
+                .create(actionMono)
+                .assertNext(createdAction -> {
+                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+                    assertThat(createdAction.getExecuteOnLoad()).isFalse();
+
+                    assertThat(createdAction.getDefaultResources()).isNotNull();
+                    assertThat(createdAction.getDefaultResources().getActionId()).isEqualTo(createdAction.getId());
+                    assertThat(createdAction.getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
+                    assertThat(createdAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedPage.getApplicationId());
                 })
                 .verifyComplete();
     }
@@ -282,6 +382,55 @@ public class ActionServiceTest {
 
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void moveAction_forGitConnectedApp_defaultResourceIdsUpdateSuccess() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PageDTO newPage = new PageDTO();
+        newPage.setName("Destination Page");
+        newPage.setApplicationId(gitConnectedApp.getId());
+        PageDTO destinationPage = applicationPageService.createPageWithBranchName(newPage, branchName).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(gitConnectedPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> createActionMono = layoutActionService.createSingleActionWithBranch(action, branchName).cache();
+        DefaultResources sourceActionDefaultRes = new DefaultResources();
+
+        Mono<ActionDTO> movedActionMono = createActionMono
+                .flatMap(savedAction -> {
+                    ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
+                    actionMoveDTO.setAction(savedAction);
+                    actionMoveDTO.setDestinationPageId(destinationPage.getId());
+                    BeanCopyUtils.copyNestedNonNullProperties(savedAction.getDefaultResources(), sourceActionDefaultRes);
+                    return layoutActionService.moveAction(actionMoveDTO, branchName);
+                });
+
+        StepVerifier
+                .create(Mono.zip(createActionMono, movedActionMono))
+                .assertNext(tuple -> {
+                    ActionDTO originalAction = tuple.getT1();
+                    ActionDTO movedAction = tuple.getT2();
+
+                    assertThat(movedAction.getId()).isEqualTo(originalAction.getId());
+                    assertThat(movedAction.getName()).isEqualTo(originalAction.getName());
+                    assertThat(movedAction.getPolicies()).containsAll(originalAction.getPolicies());
+                    assertThat(movedAction.getPageId()).isEqualTo(destinationPage.getId());
+
+                    // Check if the defaultIds are updated as per destination page default Id
+                    assertThat(movedAction.getDefaultResources()).isNotNull();
+                    assertThat(movedAction.getDefaultResources().getPageId()).isEqualTo(destinationPage.getDefaultResources().getPageId());
+                    assertThat(sourceActionDefaultRes.getPageId()).isEqualTo(gitConnectedPage.getDefaultResources().getPageId());
+                })
+                .verifyComplete();
+
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -355,8 +504,24 @@ public class ActionServiceTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
-        Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(layoutActionService::createSingleAction);
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action);
+        StepVerifier
+                .create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createActionWithBranchName_withNullPageId_throwException() {
+        ActionDTO action = new ActionDTO();
+        action.setName("randomActionName");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName);
+
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -380,6 +545,23 @@ public class ActionServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(
                                 AppsmithError.NO_RESOURCE_FOUND.getMessage("page", "invalid page id here")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createAction_forGitConnectedAppWithInvalidBranchName_throwException() {
+        ActionDTO action = new ActionDTO();
+        action.setName("randomActionName");
+        action.setPageId(gitConnectedPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, "randomTestBranch");
+        StepVerifier
+                .create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGE, action.getPageId() + ", randomTestBranch")))
                 .verify();
     }
 

@@ -538,6 +538,51 @@ public class AmazonS3PluginTest {
                 .verifyComplete();
     }
 
+    /*
+     * - This method tests the create multiple files program flow till the point where an actual call is made by the AmazonS3
+     *   connection to upload a file.
+     * - If everything goes well, then only expected exception is the one thrown by AmazonS3 connection
+     *   regarding false credentials.
+     */
+    @Test
+    public void testCreateMultipleFilesFromBodyWithFalseCredentialsAndNonNullDuration() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
+                            "our records"));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
+
     @Test
     public void testReadFileFromPathWithoutBase64Encoding() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();

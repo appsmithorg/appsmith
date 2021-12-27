@@ -10,11 +10,6 @@ export type CommitPayload = {
   branch: string;
 };
 
-export type PushToGitPayload = {
-  applicationId: string;
-  branch: string;
-};
-
 export type MergeBranchPayload = {
   applicationId: string;
   sourceBranch: string;
@@ -29,7 +24,7 @@ export type MergeStatusPayload = {
 
 export type ConnectToGitPayload = {
   remoteUrl: string;
-  gitProfile: {
+  gitProfile?: {
     authorName: string;
     authorEmail: string;
   };
@@ -57,15 +52,6 @@ class GitSyncAPI extends Api {
         commitMessage,
         doPush,
       },
-    );
-  }
-
-  static push({
-    applicationId,
-    branch,
-  }: PushToGitPayload): AxiosPromise<ApiResponse> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branch}`,
     );
   }
 
@@ -116,8 +102,10 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static checkoutBranch(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`);
+  static checkoutBranch(applicationId: string, branch: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
+      branchName: branch,
+    });
   }
 
   static createNewBranch(applicationId: string, branch: string) {
@@ -138,6 +126,10 @@ class GitSyncAPI extends Api {
     return Api.get(
       `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
+  }
+
+  static disconnectGit({ applicationId }: { applicationId: string }) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 }
 

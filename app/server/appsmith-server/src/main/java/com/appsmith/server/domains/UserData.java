@@ -11,6 +11,7 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,27 +51,28 @@ public class UserData extends BaseDomain {
     // last state related to comment feature on-boarding
     private CommentOnboardingState commentOnboardingState;
 
-    // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user we will use default
-    // as the key
+    // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
+    // the key for the map
     @JsonIgnore
     Map<String, GitProfile> gitProfiles;
 
-    public GitProfile getDefaultOrAppSpecificGitProfiles(String defaultApplicationId) {
+    public GitProfile getGitProfileByKey(String key) {
         // Always use DEFAULT_GIT_PROFILE as fallback
-        if (CollectionUtils.isNullOrEmpty(this.gitProfiles)) {
+        if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
             return null;
-        } else if (!StringUtils.isEmpty(defaultApplicationId) && this.gitProfiles.containsKey(defaultApplicationId)) {
-            return this.getGitProfiles().get(defaultApplicationId);
+        } else if (!StringUtils.isEmpty(key)) {
+            return this.getGitProfiles().get(key);
         }
         return this.getGitProfiles().get(DEFAULT);
     }
 
-    public void setDefaultGitProfile(GitProfile gitProfile){
+    public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile){
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
-            this.setGitProfiles(Map.of(DEFAULT, gitProfile));
-            return;
+            return Map.of(key, gitProfile);
         }
-        this.gitProfiles.put(DEFAULT, gitProfile);
+        Map<String, GitProfile> updatedGitProfiles = new HashMap<>(this.getGitProfiles());
+        updatedGitProfiles.put(key, gitProfile);
+        return updatedGitProfiles;
     }
 
     public UserData(String userId) {

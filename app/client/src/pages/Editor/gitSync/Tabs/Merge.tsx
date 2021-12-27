@@ -10,6 +10,7 @@ import {
   FETCH_MERGE_STATUS,
   FETCH_GIT_STATUS,
   IS_MERGING,
+  MERGED_SUCCESSFULLY,
 } from "constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
@@ -43,6 +44,13 @@ import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
+import { Classes } from "../constants";
+import SuccessTick from "pages/common/SuccessTick";
+import Text, { Case, TextType } from "components/ads/Text";
+import { Colors } from "constants/Colors";
+
+import { useTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
   display: flex;
@@ -51,6 +59,25 @@ const Row = styled.div`
 
 const DEFAULT_OPTION = "--Select--";
 const DROPDOWNMENU_MAXHEIGHT = "350px";
+
+function MergeSuccessIndicator() {
+  const theme = useTheme() as Theme;
+
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <SuccessTick height="36px" style={{ marginBottom: 0 }} width="30px" />
+      <Text
+        case={Case.UPPERCASE}
+        color={Colors.GREY_9}
+        style={{ marginLeft: theme.spaces[2] }}
+        type={TextType.P1}
+        weight="600"
+      >
+        {createMessage(MERGED_SUCCESSFULLY)}
+      </Text>
+    </div>
+  );
+}
 
 export default function Merge() {
   const dispatch = useDispatch();
@@ -68,6 +95,9 @@ export default function Merge() {
   // const pullFailed: any = useSelector(getPullFailed);
   const currentBranch = gitMetaData?.branchName;
   const isMerging = useSelector(getIsMergeInProgress);
+  const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] = useState(
+    false,
+  );
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
     label: DEFAULT_OPTION,
@@ -122,12 +152,19 @@ export default function Merge() {
     value: currentBranch || "",
   };
 
+  const handleMergeSuccess = () => {
+    setShowMergeSuccessIndicator(true);
+  };
+
   const mergeHandler = useCallback(() => {
     if (currentBranch && selectedBranchOption.value) {
       dispatch(
         mergeBranchInit({
-          sourceBranch: currentBranch,
-          destinationBranch: selectedBranchOption.value,
+          payload: {
+            sourceBranch: currentBranch,
+            destinationBranch: selectedBranchOption.value,
+          },
+          onSuccessCallback: handleMergeSuccess,
         }),
       );
     }
@@ -187,6 +224,7 @@ export default function Merge() {
       <Space size={4} />
       <Row>
         <Dropdown
+          className={Classes.MERGE_DROPDOWN}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
@@ -219,16 +257,20 @@ export default function Merge() {
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
       <ConflictInfo isConflicting={isConflicting} />
-      {showMergeButton && (
-        <Button
-          disabled={mergeBtnDisabled}
-          isLoading={isMerging}
-          onClick={mergeHandler}
-          size={Size.large}
-          tag="button"
-          text={createMessage(MERGE_CHANGES)}
-          width="max-content"
-        />
+      {showMergeSuccessIndicator ? (
+        <MergeSuccessIndicator />
+      ) : (
+        showMergeButton && (
+          <Button
+            disabled={mergeBtnDisabled}
+            isLoading={isMerging}
+            onClick={mergeHandler}
+            size={Size.large}
+            tag="button"
+            text={createMessage(MERGE_CHANGES)}
+            width="max-content"
+          />
+        )
       )}
       {isMerging && (
         <StatusbarWrapper>
