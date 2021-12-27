@@ -177,11 +177,20 @@ export interface ScrollNavControlProps {
   onClick: () => void;
   icon: IconName | MaybeElement;
   disabled?: boolean;
+  className?: string;
 }
 
 function ScrollNavControl(props: ScrollNavControlProps) {
-  const { disabled, icon, onClick } = props;
-  return <Button disabled={disabled} icon={icon} minimal onClick={onClick} />;
+  const { className, disabled, icon, onClick } = props;
+  return (
+    <Button
+      className={className}
+      disabled={disabled}
+      icon={icon}
+      minimal
+      onClick={onClick}
+    />
+  );
 }
 
 function TabsComponent(props: TabsComponentProps) {
@@ -270,16 +279,13 @@ function TabsComponent(props: TabsComponentProps) {
           {!!tabScrollIndex && (
             <ScrollNavControlLeftContainer>
               <ScrollNavControl
+                className="scroll-nav-left-button"
                 icon={<ScrollNavLeftIcon />}
                 onClick={handleScrollLeft}
               />
             </ScrollNavControlLeftContainer>
           )}
-          <TabsContainer
-            isScrollable={isScrollable}
-            ref={tabsRef}
-            // width={tabsContainerWidth}
-          >
+          <TabsContainer isScrollable={isScrollable} ref={tabsRef}>
             {props.tabs.map((tab, index) => (
               <StyledText
                 className={`t--tab-${tab.label}`}
@@ -300,6 +306,7 @@ function TabsComponent(props: TabsComponentProps) {
           {!isMaxScrolled && (
             <ScrollNavControlRightContainer>
               <ScrollNavControl
+                className="scroll-nav-right-button"
                 icon={<ScrollNavRightIcon />}
                 onClick={handleScrollRight}
               />
