@@ -1,0 +1,9 @@
+.appsmith-light-theme {
+  /* Syntax of style naming */
+  /* --appsmith-<entity name>-<style-name> */
+  /* --------------------- */
+
+  /* input */
+  --appsmith-input-focus-border-color: var(--appsmith-color-black-900);
+
+}

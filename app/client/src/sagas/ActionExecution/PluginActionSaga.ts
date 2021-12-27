@@ -60,6 +60,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getCurrentPageId,
+  getIsSavingEntity,
   getLayoutOnLoadActions,
 } from "selectors/editorSelectors";
 import PerformanceTracker, {
@@ -82,17 +83,25 @@ import {
   QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
-import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
+import {
+  ActionTriggerType,
+  RunPluginActionDescription,
+} from "entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
 import {
-  PluginTriggerFailureError,
-  PluginActionExecutionError,
-  UserCancelledActionExecutionError,
+  ActionValidationError,
   getErrorAsString,
+  PluginActionExecutionError,
+  PluginTriggerFailureError,
+  UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
+import {
+  executeAppAction,
+  TriggerMeta,
+} from "sagas/ActionExecution/ActionExecutionSagas";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -242,8 +251,17 @@ function* confirmRunActionSaga() {
 export default function* executePluginActionTriggerSaga(
   pluginAction: RunPluginActionDescription["payload"],
   eventType: EventType,
+  triggerMeta: TriggerMeta,
 ) {
-  const { actionId, params } = pluginAction;
+  const { actionId, onError, onSuccess, params } = pluginAction;
+  if (getType(params) !== Types.OBJECT) {
+    throw new ActionValidationError(
+      ActionTriggerType.RUN_PLUGIN_ACTION,
+      "params",
+      Types.OBJECT,
+      getType(params),
+    );
+  }
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.EXECUTE_ACTION,
     {
@@ -299,16 +317,29 @@ export default function* executePluginActionTriggerSaga(
       state: payload.request,
       messages: [
         {
-          message: payload.body as string,
+          // Need to stringify cause this gets rendered directly
+          // and rendering objects can crash the app
+          message: !isString(payload.body)
+            ? JSON.stringify(payload.body)
+            : payload.body,
           type: PLATFORM_ERROR.PLUGIN_EXECUTION,
           subType: payload.errorType,
         },
       ],
     });
-    throw new PluginTriggerFailureError(
-      createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
-      [payload.body, params],
-    );
+    if (onError) {
+      yield call(executeAppAction, {
+        event: { type: eventType },
+        dynamicString: onError,
+        responseData: [payload.body, params],
+        ...triggerMeta,
+      });
+    } else {
+      throw new PluginTriggerFailureError(
+        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
+        [payload.body, params],
+      );
+    }
   } else {
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
@@ -324,6 +355,14 @@ export default function* executePluginActionTriggerSaga(
         request: payload.request,
       },
     });
+    if (onSuccess) {
+      yield call(executeAppAction, {
+        event: { type: eventType },
+        dynamicString: onSuccess,
+        responseData: [payload.body, params],
+        ...triggerMeta,
+      });
+    }
   }
   return [payload.body, params];
 }
@@ -369,7 +408,8 @@ function* runActionSaga(
   const actionId = reduxAction.payload.id;
   const isSaving = yield select(isActionSaving(actionId));
   const isDirty = yield select(isActionDirty(actionId));
-  if (isSaving || isDirty) {
+  const isSavingEntity = yield select(getIsSavingEntity);
+  if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
     }
@@ -419,7 +459,7 @@ function* runActionSaga(
   }
 
   // Error should be readable error if present.
-  // Otherwise payload's body.
+  // Otherwise, payload's body.
   // Default to "An unexpected error occurred" if none is available
 
   const readableError = payload.readableError

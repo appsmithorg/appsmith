@@ -114,6 +114,10 @@ import SwitchGroupWidget, {
 
 import log from "loglevel";
 
+import CameraWidget, {
+  CONFIG as CAMERA_WIDGET_CONFIG,
+} from "widgets/CameraWidget";
+
 export const registerWidgets = () => {
   const start = performance.now();
   registerWidget(CanvasWidget, CANVAS_WIDGET_CONFIG);
@@ -158,6 +162,7 @@ export const registerWidgets = () => {
   registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG);
   registerWidget(AudioWidget, AUDIO_WIDGET_CONFIG);
+  registerWidget(CameraWidget, CAMERA_WIDGET_CONFIG);
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
