@@ -9,7 +9,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
-// import ThemingApi from "api/AppThemingApi";
+import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
@@ -797,7 +797,7 @@ const dummyThemes: AppTheme[] = [
 export function* fetchAppThemes() {
   try {
     // eslint-disable-next-line
-    // const response = yield ThemingApi.fetchThemes();
+    const response = yield ThemingApi.fetchThemes();
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -822,7 +822,8 @@ export function* fetchAppSelectedTheme(
   // eslint-disable-next-line
   const { applicationId } = action.payload;
   try {
-    // const response = yield ThemingApi.fetchSelected(applicationId);
+    // eslint-disable-next-line
+    const response = yield ThemingApi.fetchSelected(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
