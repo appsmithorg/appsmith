@@ -3,6 +3,7 @@ import commonLocators from "../../../../locators/commonlocators";
 import explorer from "../../../../locators/explorerlocators";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import homePage from "../../../../locators/HomePage";
+import jsActions from "../../../../locators/jsActionLocators";
 
 const parentBranchKey = "ParentBranch";
 const childBranchKey = "ChildBranch";
@@ -61,20 +62,20 @@ describe("Git sync connect to repo", function() {
       .should("be.visible")
       .click({ force: true });
     cy.CreateAPI("ParentApi1");
-    // cy.get(jsActions.addJsActionButton)
-    //   .last()
-    //   .click({ force: true });
-    // cy.wait("@createNewJSCollection");
-    // cy.get(jsActions.name).click({ force: true });
-    // cy.get(jsActions.nameInput)
-    //   .type("{selectall}ParentJsAction1", { force: true })
-    //   .should("have.value", "ParentJsAction1")
-    //   .blur();
-    // cy.wait("@renameJsAction");
+    cy.get(jsActions.addJsActionButton)
+      .last()
+      .click({ force: true });
+    cy.wait("@createNewJSCollection");
+    cy.get(jsActions.name).click({ force: true });
+    cy.get(jsActions.nameInput)
+      .type("{selectall}ParentJsAction1", { force: true })
+      .should("have.value", "ParentJsAction1")
+      .blur();
+    cy.wait("@renameJsAction");
     // Added because api name edit takes some time to
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    // cy.wait(2000);
+    cy.wait(2000);
 
     cy.createGitBranch(childBranchKey);
 
@@ -87,16 +88,16 @@ describe("Git sync connect to repo", function() {
       .should("be.visible")
       .click({ force: true });
     cy.CreateAPI("ChildApi1");
-    // cy.get(jsActions.addJsActionButton)
-    //   .last()
-    //   .click({ force: true });
-    // cy.wait("@createNewJSCollection");
-    // cy.get(jsActions.name).click({ force: true });
-    // cy.get(jsActions.nameInput)
-    //   .type("{selectall}ChildJsAction1", { force: true })
-    //   .should("have.value", "ChildJsAction1")
-    //   .blur();
-    // cy.wait("@renameJsAction");
+    cy.get(jsActions.addJsActionButton)
+      .last()
+      .click({ force: true });
+    cy.wait("@createNewJSCollection");
+    cy.get(jsActions.name).click({ force: true });
+    cy.get(jsActions.nameInput)
+      .type("{selectall}ChildJsAction1", { force: true })
+      .should("have.value", "ChildJsAction1")
+      .blur();
+    cy.wait("@renameJsAction");
     // Added because api name edit takes some time to
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -207,7 +208,7 @@ describe("Git sync connect to repo", function() {
       cy.createGitBranch(childBranchKey);
       cy.Createpage(uuid);
       cy.switchGitBranch("master");
-      cy.contains("Unable to find page");
+      cy.contains("Page not found");
     });
   });
 
