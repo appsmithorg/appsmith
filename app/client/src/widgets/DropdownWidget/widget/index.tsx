@@ -61,7 +61,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                     ],
