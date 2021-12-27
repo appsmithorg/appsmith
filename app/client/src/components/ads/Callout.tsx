@@ -11,17 +11,25 @@ export type CalloutProps = CommonComponentProps & {
   closeButton?: boolean;
   text?: string;
   label?: ReactNode;
+  addMarginTop?: boolean;
   onClose?: () => void;
 };
 
 const CalloutContainer = styled.div<{
   variant: Variant;
   fill?: boolean;
+  addMarginTop?: boolean;
 }>`
   position: relative;
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[12]}px;
   background: ${(props) => props.theme.colors.callout[props.variant].bgColor};
+
+  ${(props) =>
+    props.addMarginTop &&
+    `
+    margin-top: ${props.theme.spaces[6]}px;
+  `}
 
   ${(props) =>
     props.fill
@@ -73,6 +81,7 @@ Callout.defaultProps = {
 function Callout(props: CalloutProps) {
   return (
     <CalloutContainer
+      addMarginTop={props.addMarginTop}
       className={props.className}
       fill={props.fill}
       variant={props.variant || Variant.info}
