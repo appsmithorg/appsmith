@@ -4,9 +4,32 @@ import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RadioOption } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { compact, isArray } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+function defaultOptionValueValidation(value: unknown): ValidationResponse {
+  /**
+   * Check if the data type of the value
+   * If it's number send return as a number
+   * Other than that returns as it is.
+   */
+  if (typeof value === "number") {
+    return {
+      isValid: true,
+      parsed: value,
+    };
+  }
+
+  return {
+    isValid: true,
+    parsed: value,
+  };
+}
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -64,7 +87,22 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            /**
+             * Changing the validation to FUNCTION.
+             * If the user enters Integer inside {{}} e.g. {{1}} then value should evalute to integer.
+             * If user enters 1 e.g. then it should evaluate as string.
+             */
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "string | number",
+                  example: `"1" | {{1}}`,
+                  autocompleteDataType: AutocompleteDataType.ARRAY,
+                },
+              },
+            },
           },
           {
             propertyName: "isRequired",
@@ -163,7 +201,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
-    this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue, {
+    let newVal;
+    if (typeof this.props.options[0].value === "number") {
+      newVal = parseFloat(updatedValue);
+    } else {
+      newVal = updatedValue;
+    }
+    this.props.updateWidgetMetaProperty("selectedOptionValue", newVal, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
