@@ -387,6 +387,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     String source = edge.getSource();
                     String target = edge.getTarget();
 
+                    // Edges here are assumed to be non-null
+                    // If an edge comprises vertices that depend on itself (caused by self-referencing),
+                    // We want to throw an error before attempting to create the DAG
+                    // Example: Text1.text has the value {{ Text1.text }}
+                    if (source.equals(target)) {
+                        throw new AppsmithException(AppsmithError.CYCLICAL_DEPENDENCY_ERROR, edge.toString());
+                    }
+
                     Set<String> vertices = Set.of(source, target);
 
                     AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);

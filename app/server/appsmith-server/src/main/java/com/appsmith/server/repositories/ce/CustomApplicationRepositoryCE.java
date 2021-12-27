@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -37,4 +38,10 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId);
 
     Mono<List<String>> getAllApplicationId(String organizationId);
+
+    Mono<UpdateResult> setAppTheme(String applicationId, String themeId, ApplicationMode applicationMode, AclPermission aclPermission);
+
+    Mono<Long> countByOrganizationId(String organizationId);
+
+    Mono<Long> getGitConnectedApplicationCount(String organizationId);
 }

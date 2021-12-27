@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -280,25 +279,37 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{this.isRequired  ? !!this.selectedOption : true}}`,
-      selectedOption: `{{  _.find(this.options, { value:  this.defaultValue }) }}`,
-      selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
-      value: `{{  this.defaultValue }}`,
-      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.label; })()}}`,
-      selectedOptionValue: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.value; })()}}`,
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue : true}}`,
+      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.value }); return this.options[index]?.label; })()}}`,
+      selectedOptionValue: `{{(()=>{const index = _.findIndex(this.options, { value: this.value }); return this.options[index]?.value; })()}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       defaultValue: "defaultOptionValue",
+      value: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       defaultValue: undefined,
+      value: undefined,
     };
+  }
+
+  componentDidMount() {
+    this.changeSelectedOption();
+  }
+  componentDidUpdate(prevProps: DropdownWidgetProps): void {
+    // removing selectedOptionValue if defaultValueChanges
+    if (
+      prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
+      prevProps.option !== this.props.option
+    ) {
+      this.changeSelectedOption();
+    }
   }
 
   getPageView() {
@@ -306,10 +317,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     const selectedIndex = _.findIndex(this.props.options, {
-      value: this.props.defaultValue,
+      value: this.props.selectedOptionValue,
     });
-    console.log("dropDownWidth Select", dropDownWidth);
-
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
@@ -350,20 +359,22 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     if (this.props.selectedOptionValue) {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
-
     if (isChanged) {
-      this.props.updateWidgetMetaProperty(
-        "defaultValue",
-        selectedOption.value,
-        {
-          triggerPropertyName: "onOptionChange",
-          dynamicString: this.props.onOptionChange,
-          event: {
-            type: EventType.ON_OPTION_CHANGE,
-          },
+      this.props.updateWidgetMetaProperty("value", selectedOption.value, {
+        triggerPropertyName: "onOptionChange",
+        dynamicString: this.props.onOptionChange as string,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
         },
-      );
+      });
     }
+  };
+  changeSelectedOption = () => {
+    const index = _.findIndex(this.props.options, {
+      value: this.props.defaultOptionValue,
+    });
+    const value = this.props.options?.[index]?.value;
+    this.props.updateWidgetMetaProperty("value", value);
   };
 
   onFilterChange = (value: string) => {
@@ -390,7 +401,8 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange?: string;
-  defaultOptionValue?: string | string[];
+  defaultOptionValue?: string;
+  value?: string;
   isRequired: boolean;
   isFilterable: boolean;
   defaultValue: string;
