@@ -430,6 +430,17 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/switch-group",
     selectedValues: "[string]",
   },
+  CAMERA_WIDGET: {
+    "!doc":
+      "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",
+    "!url": "https://docs.appsmith.com/widget-reference/camera",
+    imageBlobURL: "string",
+    imageDataURL: "string",
+    imageRawBinary: "string",
+    videoBlobURL: "string",
+    videoDataURL: "string",
+    videoRawBinary: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {
