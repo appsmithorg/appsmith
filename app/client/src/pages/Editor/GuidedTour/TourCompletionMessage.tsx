@@ -116,6 +116,7 @@ function CongratulationsView() {
             <Rating
               emptySymbol={
                 <Icon
+                  className={"t--guided-tour-rating"}
                   fillColor={"#858282"}
                   name="star-line"
                   size={IconSize.XXXXL}
@@ -145,6 +146,7 @@ function CongratulationsView() {
             </Description>
           </div>
           <Button
+            className="t--start-building"
             height="38"
             href={editorUrl}
             onClick={hideMessage}

@@ -40,6 +40,7 @@ describe("Guided Tour", function() {
   });
 
   it("Step 5: Add binding to the rest of the widgets in the container", function() {
+    cy.get(commonlocators.editWidgetName).contains("EmailInput");
     cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.email}}");
     cy.SearchEntityandOpen("CountryInput");
     cy.wait(1000);
@@ -82,5 +83,9 @@ describe("Guided Tour", function() {
 
   it("Step 9: Deploy", function() {
     cy.PublishtheApp();
+    cy.get(guidedTourLocators.rating)
+      .eq(4)
+      .click();
+    cy.get(guidedTourLocators.startBuilding).click();
   });
 });
