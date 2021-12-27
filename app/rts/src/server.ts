@@ -13,16 +13,16 @@ import { VERSION as buildVersion } from "./version"  // release version of the a
 
 const RTS_BASE_PATH = "/rts"
 
-const APP_ROOM_PREFIX : string = "app:"
-const PAGE_ROOM_PREFIX : string = "page:"
-const ROOT_NAMESPACE : string = "/"
-const PAGE_EDIT_NAMESPACE : string = "/page/edit"
+const APP_ROOM_PREFIX = "app:"
+const PAGE_ROOM_PREFIX = "page:"
+const ROOT_NAMESPACE = "/"
+const PAGE_EDIT_NAMESPACE = "/page/edit"
 
-const EDITORS_EVENT_NAME : string = "collab:online_editors"
-const START_EDIT_EVENT_NAME : string = "collab:start_edit"
-const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
-const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
-const RELEASE_VERSION_EVENT_NAME : string = "info:release_version"
+const EDITORS_EVENT_NAME = "collab:online_editors"
+const START_EDIT_EVENT_NAME = "collab:start_edit"
+const LEAVE_EDIT_EVENT_NAME = "collab:leave_edit"
+const MOUSE_POINTER_EVENT_NAME = "collab:mouse_pointer"
+const RELEASE_VERSION_EVENT_NAME = "info:release_version"
 
 // Setting the logLevel for all log messages
 const logLevel : LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL || "debug") as LogLevelDesc
