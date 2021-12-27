@@ -12,7 +12,7 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
       ? `border-left: 5px solid #1d9bd1;
      color: #00407d;
      background: #e8f5fa;`
-      : `color: #D71010; background: #FFE9E9;
+      : `color: #c91818; background: #FFE9E9;
    `}
   margin: 16px 0;
   h4 {
@@ -34,18 +34,19 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
     text-decoration: none;
     margin: 5px 0;
     ${(props) =>
-      props.type !== "Warning" ? `color: #00407d;` : `color: #D71010;`}
+      props.type !== "Warning" ? `color: #00407d;` : `color: #c91818;`}
 `;
 
 export function Callout(props: {
   type: CalloutType;
   title: string;
-  learnAction?: () => void;
+  actionLabel?: string;
+  action?: () => void;
 }) {
   return (
-    <Wrapper>
+    <Wrapper type={props.type}>
       <h4>{props.title}</h4>
-      <a>Learn More</a>
+      <a>{props.actionLabel}</a>
     </Wrapper>
   );
 }

@@ -15,7 +15,8 @@ export const DisconnectButton = styled(Button)`
   font-size: 13px;
   height: 38px;
   margin-top: 16px;
-  background: #d71010;
+  background: #c91818;
+  border: 2px solid #c91818;
 `;
 
 export const Header = styled.h2`
@@ -28,7 +29,7 @@ export const Header = styled.h2`
 `;
 
 export const HeaderDanger = styled(Header)`
-  color: #d71010;
+  color: #c91818;
 `;
 
 export const Info = styled.h3`
@@ -51,7 +52,7 @@ export function DisconnectService(props: {
     <Container>
       <HeaderDanger>Danger Zone</HeaderDanger>
       <Info>{props.subHeader}</Info>
-      <Callout title={props.warning} type="Warning" />
+      <Callout actionLabel="Learn More" title={props.warning} type="Warning" />
       <DisconnectButton
         onClick={props.disconnect}
         text="Disconnect"
