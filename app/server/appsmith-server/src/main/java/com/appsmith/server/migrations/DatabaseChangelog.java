@@ -96,7 +96,6 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
-import org.springframework.data.mongodb.core.index.PartialIndexFilter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -4086,7 +4085,7 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "101", id = "update-mockdb-endpoint", author = "")
+    @ChangeSet(order = "100", id = "update-mockdb-endpoint", author = "")
     public void updateMockdbEndpoint(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
                 query(where("datasourceConfiguration.endpoints.host").is("fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com")),
@@ -4745,7 +4744,6 @@ public class DatabaseChangelog {
                 .named("system_theme_index");
 
         ensureIndexes(mongockTemplate, Theme.class, uniqueApplicationIdIndex);
-<<<<<<< HEAD
 
         final String themesJson = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
@@ -4762,24 +4760,6 @@ public class DatabaseChangelog {
             }
         }
 
-=======
-
-        final String themesJson = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
-                Charset.defaultCharset()
-        );
-        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
-
-        Theme legacyTheme = null;
-        for (Theme theme : themes) {
-            theme.setSystemTheme(true);
-            Theme savedTheme = mongockTemplate.save(theme);
-            if(savedTheme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
-                legacyTheme = savedTheme;
-            }
-        }
-
->>>>>>> 5af8112fbe019bd7fb0467302b86c1eeaeec3492
         // migrate all applications and set legacy theme to them in both mode
         Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
                 .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
