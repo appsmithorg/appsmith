@@ -1080,7 +1080,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             )
                             .then()
                             .thenReturn(responseUtils.updateApplicationWithDefaultResources(application))
-                );
+                )
                 // Add BE analytics
                 .flatMap(application -> addAnalyticsForGitOperation(
                         AnalyticsEvents.GIT_DISCONNECT.getEventName(),
