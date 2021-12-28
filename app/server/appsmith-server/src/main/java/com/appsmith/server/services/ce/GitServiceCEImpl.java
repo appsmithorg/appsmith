@@ -76,6 +76,17 @@ import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNA
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds;
 
+/**
+ * Git APIs are slow today because these needs to communicate with remote repo and/or serialise and de-serialise the
+ * application. This process takes time and the client may cancel the request. This leads to the flow getting stopped
+ * mid way producing corrupted states.
+ * We use the synchronous sink to ensure that even though the client may have cancelled the flow, git operations should
+ * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. synchronous sink does
+ * not take subscription cancellations into account. This means that even if the subscriber has cancelled its
+ * subscription, the create method still generates its event.
+ *
+ */
+
 @Slf4j
 @RequiredArgsConstructor
 @Import({GitExecutorImpl.class})
@@ -101,7 +112,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
-    private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please resolve merge conflicts in remote and pull again";
+    private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please " +
+            "resolve merge conflicts in remote and pull again";
 
     private final static Map<String, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
 
@@ -499,7 +511,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, String branchName) {
 
-        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        Mono<List<GitLogDTO>> commitHistoryMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData == null || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
@@ -521,6 +534,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return gitExecutor.getCommitHistory(baseRepoSuffix)
                             .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage())));
                 });
+
+        return Mono.create(sink -> commitHistoryMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
@@ -557,7 +574,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId);
 
-        return profileMono
+        Mono<Application> connectApplicationMono =  profileMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 )
@@ -730,6 +747,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                 });
+
+        return Mono.create(sink -> connectApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     private Mono<Integer> getPrivateRepoLimitForOrg(String orgId, boolean isClearCache) {
@@ -794,7 +815,7 @@ public class GitServiceCEImpl implements GitServiceCE {
      */
     private Mono<String> pushApplication(String applicationId, boolean doPublish) {
 
-        return publishAndOrGetApplication(applicationId, doPublish)
+        Mono<String> pushStatusMono = publishAndOrGetApplication(applicationId, doPublish)
                 .flatMap(application -> {
                     if (applicationId.equals(application.getGitApplicationMetadata().getDefaultApplicationId())) {
                         return Mono.just(application);
@@ -847,6 +868,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return Mono.just(pushResult);
                 });
+
+        return Mono.create(sink -> pushStatusMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
@@ -857,7 +882,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      */
     @Override
     public Mono<Application> detachRemote(String defaultApplicationId) {
-        return getApplicationById(defaultApplicationId)
+
+        Mono<Application> disconnectMono = getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
                     if (Optional.ofNullable(defaultApplication.getGitApplicationMetadata()).isEmpty()
                             || isInvalidDefaultApplicationGitMetadata(defaultApplication.getGitApplicationMetadata())) {
@@ -928,6 +954,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .then()
                             .thenReturn(responseUtils.updateApplicationWithDefaultResources(application))
                 );
+
+        return Mono.create(sink -> disconnectMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
@@ -942,7 +972,8 @@ public class GitServiceCEImpl implements GitServiceCE {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
-        return applicationService.findByBranchNameAndDefaultApplicationId(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+        Mono<Application> createBranchMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
                 .zipWhen(srcApplication -> {
                     GitApplicationMetadata gitData = srcApplication.getGitApplicationMetadata();
                     if (gitData.getDefaultApplicationId().equals(srcApplication.getId())) {
@@ -1022,6 +1053,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .map(responseUtils::updateApplicationWithDefaultResources);
+
+        return Mono.create(sink -> createBranchMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
@@ -1053,7 +1088,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<Application> checkoutRemoteBranch(String defaultApplicationId, String branchName) {
-        return getApplicationById(defaultApplicationId)
+        Mono<Application> checkoutRemoteBranchMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     String repoName = gitApplicationMetadata.getRepoName();
@@ -1103,6 +1138,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return importExportApplicationService
                             .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), branchName);
                 });
+
+        return Mono.create(sink -> checkoutRemoteBranchMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {
@@ -1116,7 +1155,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     Mono<Application> getApplicationById(String applicationId) {
         return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
     /**
@@ -1136,7 +1175,7 @@ public class GitServiceCEImpl implements GitServiceCE {
          * 4.Get the latest application mono from the mongodb and send it back to client
          * */
 
-        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+        Mono<GitPullDTO> pullMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .flatMap(branchedApplication -> {
                     // Check if the application is the default if not fetch the default application
                     GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
@@ -1251,6 +1290,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .thenReturn(getPullDTO(application1, status));
                             });
                 });
+
+        return Mono.create(sink -> pullMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     private GitPullDTO getPullDTO(Application application, MergeStatusDTO status) {
@@ -1263,7 +1306,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches) {
-        return getApplicationById(defaultApplicationId)
+        Mono<List<GitBranchDTO>> branchMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (gitApplicationMetadata == null || gitApplicationMetadata.getDefaultApplicationId() == null) {
@@ -1289,7 +1332,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                             );
                     return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath));
 
-                }).flatMap(tuple -> {
+                })
+                .flatMap(tuple -> {
                     List<GitBranchDTO> gitBranchListDTOS = tuple.getT1();
                     Application application = tuple.getT2();
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1339,6 +1383,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.just(gitBranchListDTOS);
                     }
                 });
+
+        return Mono.create(sink -> branchMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
@@ -1360,7 +1408,7 @@ public class GitServiceCEImpl implements GitServiceCE {
          */
 
 
-        return Mono.zip(
+        Mono<GitStatusDTO> statusMono = Mono.zip(
                 getGitApplicationMetadata(defaultApplicationId),
                 applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
                         .onErrorResume(error -> {
@@ -1389,6 +1437,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
                         .then(gitExecutor.getStatus(tuple.getT1(), finalBranchName))
                         .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()))));
+
+        return Mono.create(sink -> statusMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
@@ -1412,7 +1464,7 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, destinationBranch));
         }
 
-        return getApplicationById(defaultApplicationId)
+        Mono<GitPullDTO> mergeMono = getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(defaultApplication.getGitApplicationMetadata())) {
@@ -1516,6 +1568,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         });
                             });
                 });
+
+        return Mono.create(sink -> mergeMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
@@ -1532,7 +1588,7 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, destinationBranch));
         }
 
-        return getApplicationById(defaultApplicationId)
+        Mono<MergeStatusDTO> mergeableStatusMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
@@ -1588,6 +1644,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
                             });
                 });
+
+        return Mono.create(sink -> mergeableStatusMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
@@ -1596,7 +1656,7 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
 
-        return Mono.zip(
+        Mono<String> conflictedBranchMono = Mono.zip(
                 getGitApplicationMetadata(defaultApplicationId),
                 applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                         .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
@@ -1628,10 +1688,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     commitAndPushWithDefaultCommit(repoSuffix, gitData.getGitAuth(), gitData, DEFAULT_COMMIT_REASONS.CONFLICT_STATE)
                                             .flatMap(successMessage -> gitExecutor.checkoutToBranch(repoSuffix, branchName))
                                             .flatMap(isCheckedOut -> gitExecutor.deleteBranch(repoSuffix, conflictedBranchName))
-                                            .flatMap(isCheckedOut -> gitExecutor.deleteBranch(repoSuffix, conflictedBranchName))
                                             .thenReturn(conflictedBranchName + CONFLICTED_SUCCESS_MESSAGE)
                             );
                 });
+
+        return Mono.create(sink -> conflictedBranchMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {

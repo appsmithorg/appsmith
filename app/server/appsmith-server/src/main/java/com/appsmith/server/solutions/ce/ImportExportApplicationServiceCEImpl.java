@@ -462,7 +462,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         }
 
-        return pluginRepository.findAll()
+        Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
                     final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
@@ -892,6 +892,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .then(applicationService.update(importedApplication.getId(), importedApplication));
                 });
+
+        // Import Application is currently a slow API because it needs to import and create application, pages, actions
+        // and action collection. This process may take time and the client may cancel the request. This leads to the flow
+        // getting stopped mid way producing corrupted objects in DB. The following ensures that even though the client may have
+        // cancelled the flow, the importing the application should proceed uninterrupted and whenever the user refreshes
+        // the page, the imported application is available and is in sane state.
+        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
+        // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**

@@ -267,7 +267,7 @@ public class GitFileUtils {
         ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
         if (unpublishedCollection != null) {
             unpublishedCollection.setDefaultResources(null);
-            unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(null);
+            unpublishedCollection.setDefaultToBranchedActionIdsMap(null);
         }
         if (publishedCollection != null) {
             publishedCollection.setDefaultResources(null);
