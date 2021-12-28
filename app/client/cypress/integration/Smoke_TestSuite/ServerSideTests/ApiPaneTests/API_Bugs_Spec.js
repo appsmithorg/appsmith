@@ -36,7 +36,7 @@ describe("Rest Bugs tests", function() {
     );
     cy.wait(1000);
 
-    cy.contains(commonlocators.entityName, "Page1").click();
+    cy.contains(commonlocators.entityName, "Page1").click({ force: true });
     cy.clickButton("Get Facts!");
     cy.wait(8000); // for all api calls to complete!
 
