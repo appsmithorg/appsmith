@@ -55,7 +55,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -554,24 +553,60 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             unpublishedCollection.setPageId(newPageId);
                                             actionCollection.setApplicationId(clonedPage.getApplicationId());
 
-                                            // Replace all action Ids from map
-                                            final HashSet<String> newActionIds = new HashSet<>();
-                                            unpublishedCollection
-                                                    .getActionIds()
-                                                    .stream()
-                                                    .forEach(oldActionId -> newActionIds.add(actionIdsMap.get(oldActionId)));
-                                            unpublishedCollection.setActionIds(newActionIds);
+                                            DefaultResources defaultResourcesForCollection = new DefaultResources();
+                                            defaultResourcesForCollection.setApplicationId(clonedPageDefaultResources.getApplicationId());
+                                            actionCollection.setDefaultResources(defaultResourcesForCollection);
 
+                                            DefaultResources defaultResourcesForDTO = new DefaultResources();
+                                            defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
+                                            actionCollection.getUnpublishedCollection().setDefaultResources(defaultResourcesForDTO);
+
+                                            // Replace all action Ids from map
+                                            Map<String, String> updatedDefaultToBranchedActionId = new HashMap<>();
+                                            // Check if the application is connected with git and update defaultActionIds accordingly
+                                            //
+                                            // 1. If the app is connected with git keep the actionDefaultId as it is and
+                                            // update branchedActionId only
+                                            //
+                                            // 2. If app is not connected then both default and branchedActionId will be
+                                            // same as newly created action Id
+
+                                            if (StringUtils.isEmpty(clonedPageDefaultResources.getBranchName())) {
+                                                unpublishedCollection
+                                                        .getDefaultToBranchedActionIdsMap()
+                                                        .forEach((defaultId, oldActionId) ->
+                                                                updatedDefaultToBranchedActionId.put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId)));
+
+                                            } else {
+                                                unpublishedCollection
+                                                        .getDefaultToBranchedActionIdsMap()
+                                                        .forEach((defaultId, oldActionId) ->
+                                                                updatedDefaultToBranchedActionId.put(defaultId, actionIdsMap.get(oldActionId)));
+                                            }
+                                            unpublishedCollection.setDefaultToBranchedActionIdsMap(updatedDefaultToBranchedActionId);
+
+                                            // Set id as null, otherwise create (which is using under the hood save)
+                                            // will try to overwrite same resource instead of creating a new resource
+                                            actionCollection.setId(null);
                                             return actionCollectionService.create(actionCollection)
-                                                    .flatMap(newlyCreatedActionCollection -> {
-                                                        return Flux.fromIterable(newActionIds)
+                                                    .flatMap(savedActionCollection -> {
+                                                        if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
+                                                            savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
+                                                            return actionCollectionService.update(savedActionCollection.getId(), savedActionCollection);
+                                                        }
+                                                        else return Mono.just(savedActionCollection);
+                                                    })
+                                                    .flatMap(newlyCreatedActionCollection ->
+                                                            Flux.fromIterable(updatedDefaultToBranchedActionId.values())
                                                                 .flatMap(newActionService::findById)
                                                                 .flatMap(newlyCreatedAction -> {
                                                                     newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
+                                                                    newlyCreatedAction.getUnpublishedAction().getDefaultResources()
+                                                                            .setCollectionId(newlyCreatedActionCollection.getDefaultResources().getCollectionId());
                                                                     return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                                                                 })
-                                                                .collectList();
-                                                    });
+                                                                .collectList()
+                                                    );
                                         })
                                         .collectList();
                             })
