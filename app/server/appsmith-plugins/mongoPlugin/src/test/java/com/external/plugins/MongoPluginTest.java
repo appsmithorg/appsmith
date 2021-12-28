@@ -52,6 +52,7 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDa
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
@@ -63,10 +64,9 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1928,5 +1928,58 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    public void testBuildClientURI_withoutUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://host:port/db?param";
+        final String resultUri = "mongodb://host:port/db?param&authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://user:pass@host:port/db?param&authSource=notAdmin";
+        final String resultUri = "mongodb://user:newPass@host:port/db?param&authSource=notAdmin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withoutDbInfoAndPortsAndParams() {
+
+        final String testUri = "mongodb://user:pass@host";
+        final String resultUri = "mongodb://user:newPass@host/?authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
     }
 }
