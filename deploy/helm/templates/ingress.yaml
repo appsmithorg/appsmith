@@ -23,7 +23,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-	  {{- if .Values.ingress.certManager }}
+    {{- if .Values.ingress.certManager }}
     kubernetes.io/tls-acme: "true"
     {{- end }}
 spec:
@@ -36,7 +36,7 @@ spec:
         {{- end }}
       secretName: {{ .secretName }}
     {{- end }}
-		{{- range .Values.ingress.certManagerTls }}
+    {{- range .Values.ingress.certManagerTls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
