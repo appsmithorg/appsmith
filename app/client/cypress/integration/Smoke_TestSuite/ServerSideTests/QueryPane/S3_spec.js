@@ -565,7 +565,14 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // ).scrollIntoView();
 
     // //Verifying DeleteFile icon from UI
-    // cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
+    // cy.xpath(
+    //   "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]/preceding-sibling::div[contains(@class, 't--widget-textwidget')]//span[text()='" +
+    //   fixturePath +
+    //   "']/ancestor::div[contains(@class, 't--widget-textwidget')]/following-sibling::div[contains(@class,'t--widget-iconbuttonwidget')]",
+    // )
+    //   .should("be.visible")
+    //   .last()
+    //   .click(); //Verifies 8684
     // cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     // expect(
