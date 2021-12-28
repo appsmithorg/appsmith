@@ -23,7 +23,7 @@ describe("Confirm run action", function() {
       .type("select * from configs");
     cy.get("li:contains('Settings')").click({ force: true });
     cy.get("[data-cy=confirmBeforeExecute]")
-      .find(".bp3-switch")
+      .find("label")
       .click();
 
     cy.onlyQueryRun();
