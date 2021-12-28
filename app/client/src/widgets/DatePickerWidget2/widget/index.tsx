@@ -266,7 +266,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
               params: {
                 fn: allowedRange,
                 expected: {
-                  type: "Max number : 6",
+                  type:
+                    "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
                   example: "0",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
