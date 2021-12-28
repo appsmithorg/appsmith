@@ -1,14 +1,13 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
+
 describe("Table Widget property pane feature validation", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Table widget with Add button test and validation", function() {
+  it("1. Table widget with Add button test and validation", function() {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.editColumn("id");
@@ -44,7 +43,7 @@ describe("Table Widget property pane feature validation", function() {
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
   });
-  it("Table Button color validation", function() {
+  it("2. Table Button color validation", function() {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.editColumn("id");
@@ -68,7 +67,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
   });
 
-  it("Table Button label color validation", function() {
+  it("3. Table Button label color validation", function() {
     const color1 = "rgb(255, 255, 0)";
     cy.get(widgetsPage.labelColor)
       .click({ force: true })
@@ -87,10 +86,11 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.tableBtn).should("have.css", "color", color2);
   });
 
-  it("Table widget triggeredRow property should be accessible", function() {
+  it("4. Table widget triggeredRow property should be accessible", function() {
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
-  it("Table widget triggeredRow property should be same even after sorting the table", function() {
+
+  it("5. Table widget triggeredRow property should be same even after sorting the table", function() {
     //sort table date on second column
     cy.get(".draggable-header ")
       .first()
@@ -98,7 +98,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
-  it("Table widget add new icon button column", function() {
+
+  it("6. Table widget add new icon button column", function() {
     cy.get(".t--property-pane-back-btn").click({ force: true });
     // hide id column
     cy.makeColumnVisible("id");
@@ -140,7 +141,8 @@ describe("Table Widget property pane feature validation", function() {
     });
     */
   });
-  it("Table widget add new menu button column", function() {
+
+  it("7. Table widget add new menu button column", function() {
     cy.openPropertyPane("tablewidget");
     // click on Add new Column.
     cy.get(".t--add-column-btn").click();
@@ -257,7 +259,7 @@ describe("Table Widget property pane feature validation", function() {
       .should("have.css", "background-color", "rgb(3, 179, 101)");
     cy.get(".bp3-menu-item")
       .eq(1)
-      .should("have.css", "background-color", "rgb(255, 193, 61)");
+      .should("have.css", "background-color", "rgb(51, 102, 255)"); // "rgb(255, 193, 61)");
     cy.get(".bp3-menu-item")
       .eq(2)
       .should("have.css", "background-color", "rgb(51, 102, 255)");
@@ -311,7 +313,8 @@ describe("Table Widget property pane feature validation", function() {
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
   });
-  it("Table widget test on button icon click, row should not get deselected", () => {
+
+  it("8. Table widget test on button icon click, row should not get deselected", () => {
     cy.get(widgetsPage.tableIconBtn)
       .last()
       .click({ force: true });
