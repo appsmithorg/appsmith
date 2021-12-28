@@ -4,7 +4,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let datasourceName;
 
-describe("Create a query with a mongo datasource, run, save and then delete the query", function () {
+describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -26,7 +26,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
   });
 
-  it("2. Validate Raw query command, run and then delete the query", function () {
+  it("2. Validate Raw query command, run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // cy.get("@getPluginForm").should(
     //   "have.nested.property",
@@ -35,7 +35,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     // );
 
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Raw");
-
     cy.get(queryLocators.templateMenu).click();
     cy.typeValueNValidate('{"find": "listingsAndReviews","limit": 10}');
 
@@ -50,7 +49,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.runAndDeleteQuery(); //exeute actions & 200 response is verified in this method
   });
 
-  it("3. Validate Find documents command & Run and then delete the query", function () {
+  it("3. Validate Find documents command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.setQueryTimeout(30000);
 
@@ -97,7 +96,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it("4. Validate Count command & Run and then delete the query", function () {
+  it("4. Validate Count command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Count");
@@ -107,7 +106,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
   });
 
-  it("5. Validate Distinct command & Run and then delete the query", function () {
+  it("5. Validate Distinct command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Distinct");
@@ -124,7 +123,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it("6. Validate Aggregate command & Run and then delete the query", function () {
+  it("6. Validate Aggregate command & Run and then delete the query", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.setQueryTimeout(30000);
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Aggregate");

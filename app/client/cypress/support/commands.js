@@ -390,9 +390,9 @@ Cypress.Commands.add(
   "addOauthAuthDetails",
   (accessTokenUrl, clientId, clientSecret, authURL) => {
     cy.get(datasource.authType).click();
-    cy.xpath(datasource.OAuth2).click();
+    cy.get(datasource.OAuth2).click();
     cy.get(datasource.grantType).click();
-    cy.xpath(datasource.authorisecode).click();
+    cy.get(datasource.authorisecode).click();
     cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
     cy.get(datasource.clienID).type(clientId);
     cy.get(datasource.clientSecret).type(clientSecret);
@@ -1843,8 +1843,8 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-    Pagename +
-    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
@@ -3369,16 +3369,18 @@ Cypress.Commands.add(
   "validateNSelectDropdown",
   (ddTitle, currentValue, newValue) => {
     let toChange = false;
-    cy.xpath('//div[contains(text(),"' + currentValue + '")]').should(
+    cy.xpath('//span[contains(text(),"' + currentValue + '")]').should(
       "exist",
       currentValue + " dropdown value not present",
     );
     if (newValue) toChange = true;
     if (toChange) {
       cy.xpath(
-        "//p[text()='" + ddTitle + "']/following-sibling::div/div",
+        "//p[text()='" +
+          ddTitle +
+          "']/parent::label/following-sibling::div/div/div",
       ).click(); //to expand the dropdown
-      cy.xpath('//div[contains(text(),"' + newValue + '")]')
+      cy.xpath('//span[contains(text(),"' + newValue + '")]')
         .last()
         .click({ force: true }); //to select the new value
     }
@@ -3387,19 +3389,17 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   if (fieldName) {
-    cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div").then(
-      ($field) => {
-        cy.updateCodeInput($field, valueToType);
-      },
-    );
+    cy.xpath(
+      "//p[text()='" + fieldName + "']/parent::label/following-sibling::div",
+    ).then(($field) => {
+      cy.updateCodeInput($field, valueToType);
+    });
   } else {
     cy.xpath("//div[@class='CodeEditorTarget']").then(($field) => {
       cy.updateCodeInput($field, valueToType);
     });
   }
-
   cy.EvaluateCurrentValue(valueToType);
-
   // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
   //   textF = fieldValue.innerText
   //   fieldValue.innerText = ""
@@ -3417,8 +3417,8 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
 Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
   cy.xpath(
     "//div[text()='" +
-    entityNameinLeftSidebar +
-    "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
+      entityNameinLeftSidebar +
+      "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
   )
     .first()
     .click({ force: true });
@@ -3446,31 +3446,27 @@ Cypress.Commands.add(
   (fieldName = "", currentValue = "") => {
     let toValidate = false;
     if (currentValue) toValidate = true;
-
     if (fieldName) {
       cy.xpath(
         "//p[text()='" +
-        fieldName +
-        "']/following-sibling::div//div[@class='CodeMirror-code']",
+          fieldName +
+          "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
       cy.xpath("//div[@class='CodeMirror-code']").click();
     }
-
     cy.wait(2000);
     const val = cy
       .get(commonlocators.evaluatedCurrentValue)
       .first()
       .should("be.visible")
       .invoke("text");
-
     if (toValidate) expect(val).to.eq(currentValue);
-
     return val;
   },
 );
 
-cy.all = function (...commands) {
+cy.all = function(...commands) {
   const _ = Cypress._;
   const chain = cy.wrap(null, { log: false });
   const stopCommand = _.find(cy.queue.commands, {
@@ -3485,8 +3481,8 @@ cy.all = function (...commands) {
         return cmd[chainStart]
           ? cmd[chainStart].attributes
           : _.find(cy.queue.commands, {
-            attributes: { chainerId: cmd.chainerId },
-          }).attributes;
+              attributes: { chainerId: cmd.chainerId },
+            }).attributes;
       })
       .concat(stopCommand.attributes)
       .slice(1)
