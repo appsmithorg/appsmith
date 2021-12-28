@@ -4,6 +4,8 @@
 .env
 .vscode/*
 
+app/client/cypress.env.json
+
 # to ignore the node_modeules folder
 node_modules
 # to ignore the package-lock.json file
