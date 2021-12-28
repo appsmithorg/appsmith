@@ -170,11 +170,15 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   };
 
   componentDidUpdate = (prevProps: TextComponentProps) => {
-    if (!isEqual(prevProps, this.props) && this.props.shouldTruncate) {
-      const textRef = get(this.textRef, "current.textRef");
-      if (textRef) {
-        const isTruncated = this.getTruncate(textRef);
-        this.setState({ isTruncated });
+    if (!isEqual(prevProps, this.props)) {
+      if (this.props.shouldTruncate) {
+        const textRef = get(this.textRef, "current.textRef");
+        if (textRef) {
+          const isTruncated = this.getTruncate(textRef);
+          this.setState({ isTruncated });
+        }
+      } else if (prevProps.shouldTruncate && !this.props.shouldTruncate) {
+        this.setState({ isTruncated: false });
       }
     }
   };
@@ -230,6 +234,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             {this.state.isTruncated && (
               <StyledIcon
                 backgroundColor={backgroundColor}
+                className="t--widget-textwidget-truncate"
                 fillColor={truncateButtonColor}
                 name="context-menu"
                 onClick={this.handleModelOpen}
@@ -241,7 +246,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
         <ModalComponent
           canEscapeKeyClose
           canOutsideClickClose
-          data-cy={"truncate-modal"}
+          className="t--widget-textwidget-truncate-modal"
           hasBackDrop
           isOpen={this.state.showModal}
           onClose={this.handleModelClose}
