@@ -44,7 +44,7 @@ import {
 } from "./StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
+import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
