@@ -24,7 +24,6 @@ export const fieldTypeUpdateHook = (
   };
 
   const newSchemaItem = SchemaParser.getSchemaItemByFieldType(
-    schemaItem.name,
     fieldType,
     options,
   );

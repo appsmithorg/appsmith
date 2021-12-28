@@ -65,7 +65,7 @@ export const constructPlausibleObjectFromArray = (arrayOfObj: Obj[]) => {
   return plausibleObj;
 };
 
-const getSourcePath = (name: string | number, basePath?: string) => {
+export const getSourcePath = (name: string | number, basePath?: string) => {
   if (typeof name === "string") {
     return basePath ? `${basePath}.${name}` : name;
   }
@@ -75,7 +75,7 @@ const getSourcePath = (name: string | number, basePath?: string) => {
   return basePath ? `${basePath}${indexedName}` : indexedName;
 };
 
-const getSourceDataPathFromSchemaItemPath = (
+export const getSourceDataPathFromSchemaItemPath = (
   schema: Schema,
   schemaItemPath: string,
 ) => {
@@ -90,8 +90,10 @@ const getSourceDataPathFromSchemaItemPath = (
     if (index !== 0 && !skipIteration) {
       schemaItem = clonedSchema[key];
 
-      if (index !== 1) {
-        sourceDataPath = sourceDataPath.concat(schemaItem.name);
+      if (!schemaItem) return;
+
+      if (index !== 1 && schemaItem.identifier !== "__array_item__") {
+        sourceDataPath = sourceDataPath.concat(schemaItem.identifier);
       }
 
       if (schemaItem.dataType === DataType.OBJECT) {
@@ -132,7 +134,7 @@ export const subDataTypeFor = (value: any) => {
   return undefined;
 };
 
-export const normalizeArrayValue = (data: Obj[]) => {
+export const normalizeArrayValue = (data: any[]) => {
   if (subDataTypeFor(data) === DataType.OBJECT) {
     return constructPlausibleObjectFromArray(data);
   }
@@ -147,23 +149,23 @@ export const fieldTypeFor = (value: any) => {
 
   if (subDataType) {
     switch (subDataType) {
-      case DataType.STRING:
-      case DataType.NUMBER:
-        return FieldType.MULTI_SELECT;
-      default:
+      case DataType.OBJECT:
+      case DataType.FUNCTION:
         return FieldType.ARRAY;
+      default:
+        return FieldType.MULTI_SELECT;
     }
   }
 
   if (dataType === DataType.STRING) {
-    const date = moment(value);
+    const date = moment(new Date(value));
     if (date.isValid()) return FieldType.DATE;
   }
 
   return potentialFieldType;
 };
 
-const getKeysFromSchema = (schema: Schema) => {
+export const getKeysFromSchema = (schema: Schema) => {
   return Object.entries(schema).reduce<string[]>((keys, [key, schemaItem]) => {
     if (!schemaItem.isCustomField) {
       keys.push(key);
@@ -173,7 +175,7 @@ const getKeysFromSchema = (schema: Schema) => {
   }, []);
 };
 
-const applyPositions = (schema: Schema, newKeys?: string[]) => {
+export const applyPositions = (schema: Schema, newKeys?: string[]) => {
   if (!newKeys?.length) {
     return;
   }
@@ -199,7 +201,10 @@ const applyPositions = (schema: Schema, newKeys?: string[]) => {
   });
 };
 
-const checkIfArrayAndSubDataTypeChanged = (currentData: any, prevData: any) => {
+export const checkIfArrayAndSubDataTypeChanged = (
+  currentData: any,
+  prevData: any,
+) => {
   if (!Array.isArray(currentData) || !Array.isArray(prevData)) return false;
 
   const currSubDataType = subDataTypeFor(currentData);
@@ -243,7 +248,6 @@ class SchemaParser {
   };
 
   static getSchemaItemByFieldType = (
-    key: string,
     fieldType: FieldType,
     options: SchemaItemsByFieldOptions,
   ) => {
@@ -257,7 +261,7 @@ class SchemaParser {
       schemaItemPath,
     );
 
-    const newSchemaItem = SchemaParser.getSchemaItemFor(key, {
+    const newSchemaItem = SchemaParser.getSchemaItemFor(schemaItem.identifier, {
       isCustomField: schemaItem.isCustomField,
       currSourceData,
       fieldType,
@@ -266,6 +270,7 @@ class SchemaParser {
     });
 
     const oldSchemaItemProperties = pick(schemaItem, [
+      "name",
       "position",
       "label",
       "defaultValue",
@@ -291,6 +296,7 @@ class SchemaParser {
       sourceDataPath,
       widgetName,
     } = options || {};
+
     const dataType = dataTypeFor(currSourceData);
     const fieldType = options.fieldType || fieldTypeFor(currSourceData);
     const FieldComponent = FIELD_MAP[fieldType];
@@ -335,14 +341,14 @@ class SchemaParser {
     };
   };
 
-  static getModifiedSchemaItemFor = (
-    currData: JSON,
+  static getUnModifiedSchemaItemFor = (
+    currData: JSON | string,
     schemaItem: SchemaItem,
     sourceDataPath: string,
     widgetName: string,
   ) => {
     let { children } = schemaItem;
-    const { dataType } = schemaItem;
+    const { dataType, fieldType } = schemaItem;
 
     const options = {
       currSourceData: currData,
@@ -355,12 +361,13 @@ class SchemaParser {
       children = SchemaParser.convertObjectToSchema(options);
     }
 
-    if (dataType === DataType.ARRAY) {
+    if (dataType === DataType.ARRAY && fieldType === FieldType.ARRAY) {
       children = SchemaParser.convertArrayToSchema(options);
     }
 
     return {
       ...schemaItem,
+      sourceData: currData,
       children,
     };
   };
@@ -386,7 +393,7 @@ class SchemaParser {
         sourceDataPath: getSourcePath(0, sourceDataPath),
       });
     } else {
-      schema[ARRAY_ITEM_KEY] = SchemaParser.getModifiedSchemaItemFor(
+      schema[ARRAY_ITEM_KEY] = SchemaParser.getUnModifiedSchemaItemFor(
         currData,
         schema[ARRAY_ITEM_KEY],
         getSourcePath(0, sourceDataPath),
@@ -436,7 +443,7 @@ class SchemaParser {
 
         schema[modifiedKey].position = prevSchemaItem.position;
       } else {
-        schema[modifiedKey] = SchemaParser.getModifiedSchemaItemFor(
+        schema[modifiedKey] = SchemaParser.getUnModifiedSchemaItemFor(
           currObj[modifiedKey],
           schema[modifiedKey],
           getSourcePath(modifiedKey, sourceDataPath),
