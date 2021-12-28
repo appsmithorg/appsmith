@@ -133,7 +133,6 @@ export function highlightSection(
     );
   } else {
     primaryReference = document.querySelector(`.${selector}`);
-
     if (widthSelector) {
       widthReference = document.querySelector(`.${widthSelector}`);
     }
@@ -141,20 +140,16 @@ export function highlightSection(
 
   if (!primaryReference) return;
 
-  const observer = new ResizeObserver((entries: any) => {
-    // Loop through all `entries` returned by the observer
-    for (const entry of entries) {
-      const coords = getCoords(entry.target);
-      highlightBorder.style.left = coords.left - positionOffset + "px";
-      highlightBorder.style.left = coords.left - positionOffset + "px";
-      highlightBorder.style.top = coords.top - positionOffset + "px";
-      highlightBorder.style.width = !!widthReference
-        ? widthReference.clientWidth + dimensionOffset + "px"
-        : coords.width + dimensionOffset + "px";
-      highlightBorder.style.height = coords.height + dimensionOffset + "px";
-    }
-  });
-  observer.observe(primaryReference);
+  function updatePosition(element: Element) {
+    const coords = getCoords(element);
+    highlightBorder.style.left = coords.left - positionOffset + "px";
+    highlightBorder.style.left = coords.left - positionOffset + "px";
+    highlightBorder.style.top = coords.top - positionOffset + "px";
+    highlightBorder.style.width = !!widthReference
+      ? widthReference.clientWidth + dimensionOffset + "px"
+      : coords.width + dimensionOffset + "px";
+    highlightBorder.style.height = coords.height + dimensionOffset + "px";
+  }
 
   const highlightBorder = document.createElement("div");
   highlightBorder.classList.add("guided-tour-border");
@@ -172,13 +167,20 @@ export function highlightSection(
     highlightBorder.classList.add("show");
   }, showAnimationDelay);
 
+  // Get the current position
+  // Further location retrievals are done in 1 second intervals.
+  updatePosition(primaryReference);
+  const timerId = setInterval(() => {
+    primaryReference && updatePosition(primaryReference);
+  }, 1000);
+
   setTimeout(() => {
     highlightBorder.classList.remove("show");
   }, hideAnimationDelay);
 
   setTimeout(() => {
     highlightBorder.remove();
-    observer.disconnect();
+    clearInterval(timerId);
   }, removeElementDelay);
 }
 
