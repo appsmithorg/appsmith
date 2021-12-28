@@ -227,6 +227,7 @@ export const isNameInputBoundSelector = createSelector(
   },
 );
 
+// Get the id of NameInput
 export const nameInputSelector = createSelector(getWidgets, (widgets) => {
   const widgetValues = Object.values(widgets);
   const nameInput = widgetValues.find((widget) => {
@@ -237,6 +238,34 @@ export const nameInputSelector = createSelector(getWidgets, (widgets) => {
 
   return nameInput ? nameInput.widgetId : "";
 });
+// Check if CountryInput is selected
+export const countryInputSelector = createSelector(
+  getWidgets,
+  getSelectedWidget,
+  (widgets, selectedWidgetId) => {
+    const widgetValues = Object.values(widgets);
+    const countryInput = widgetValues.find((widget) => {
+      if (widget.type === "INPUT_WIDGET") {
+        return widget.widgetName === "CountryInput";
+      }
+    });
+
+    return countryInput ? countryInput.widgetId === selectedWidgetId : false;
+  },
+);
+// Check if ImageWidget is selected
+export const imageWidgetSelector = createSelector(
+  getWidgets,
+  getSelectedWidget,
+  (widgets, selectedWidgetId) => {
+    const widgetValues = Object.values(widgets);
+    const imageWidget = widgetValues.find((widget) => {
+      return widget.widgetName === "ImageWidget";
+    });
+
+    return imageWidget ? imageWidget.widgetId === selectedWidgetId : false;
+  },
+);
 
 export const isCountryInputBound = createSelector(
   getTableWidget,
@@ -245,7 +274,7 @@ export const isCountryInputBound = createSelector(
     if (tableWidget) {
       const widgetValues = Object.values(widgets);
       const countryInput = widgetValues.find((widget) => {
-        if (widget.type === "INPUT_WIDGET") {
+        if (widget.widgetName === "CountryInput") {
           return (
             widget.defaultText ===
             `{{${tableWidget.widgetName}.selectedRow.country}}`
@@ -268,7 +297,7 @@ export const isEmailInputBound = createSelector(
     if (tableWidget) {
       const widgetValues = Object.values(widgets);
       const countryInput = widgetValues.find((widget) => {
-        if (widget.type === "INPUT_WIDGET") {
+        if (widget.widgetName === "EmailInput") {
           return (
             widget.defaultText ===
             `{{${tableWidget.widgetName}.selectedRow.email}}`
@@ -291,8 +320,8 @@ export const isImageWidgetBound = createSelector(
   (tableWidget, widgets) => {
     if (tableWidget) {
       const widgetValues = Object.values(widgets);
-      const countryInput = widgetValues.find((widget) => {
-        if (widget.type === "IMAGE_WIDGET") {
+      const imageWidget = widgetValues.find((widget) => {
+        if (widget.widgetName === "ImageWidget") {
           return (
             widget.image === `{{${tableWidget.widgetName}.selectedRow.image}}`
           );
@@ -301,7 +330,7 @@ export const isImageWidgetBound = createSelector(
         return false;
       });
 
-      if (countryInput) return true;
+      if (imageWidget) return true;
     }
 
     return false;

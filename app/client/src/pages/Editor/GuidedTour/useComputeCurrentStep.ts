@@ -29,6 +29,8 @@ import {
   isButtonWidgetPresent,
   buttonWidgetHasOnClickBinding,
   buttonWidgetHasOnSuccessBinding,
+  countryInputSelector,
+  imageWidgetSelector,
 } from "selectors/onboardingSelectors";
 import { Steps } from "./constants";
 import { hideIndicator, highlightSection, showIndicator } from "./utils";
@@ -60,6 +62,8 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   const isNameInputBound = useSelector(isNameInputBoundSelector);
   // 5
   const countryInputBound = useSelector(isCountryInputBound);
+  const isCountryInputSelected = useSelector(countryInputSelector);
+  const isImageWidgetSelected = useSelector(imageWidgetSelector);
   const emailInputBound = useSelector(isEmailInputBound);
   const imageWidgetBound = useSelector(isImageWidgetBound);
   // 6
@@ -243,6 +247,36 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   }, [isNameInputBound, step, hadReachedStep]);
 
   // 5
+  useEffect(() => {
+    if (step === 5 && hadReachedStep <= 5) {
+      if (isCountryInputSelected) {
+        if (!countryInputBound) {
+          showIndicator(`[data-guided-tour-iid='defaultText']`, "top", {
+            top: 20,
+            left: 0,
+          });
+        } else {
+          hideIndicator();
+        }
+      }
+    }
+  }, [step, hadReachedStep, countryInputBound, isCountryInputSelected]);
+
+  useEffect(() => {
+    if (step === 5 && hadReachedStep <= 5) {
+      if (isImageWidgetSelected) {
+        if (!imageWidgetBound) {
+          showIndicator(`[data-guided-tour-iid='image']`, "top", {
+            top: 20,
+            left: 0,
+          });
+        } else {
+          hideIndicator();
+        }
+      }
+    }
+  }, [step, hadReachedStep, imageWidgetBound, isImageWidgetSelected]);
+
   useEffect(() => {
     if (step === 5 && hadReachedStep <= 5) {
       if (meta.completedSubSteps.length === 1) {
