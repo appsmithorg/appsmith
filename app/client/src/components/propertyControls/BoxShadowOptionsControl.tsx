@@ -56,7 +56,7 @@ class BoxShadowOptionsControl extends BaseControl<
       >
         <button
           className={`flex items-center justify-center w-8 h-8 bg-white border ring-gray-700 ${
-            this.props.propertyValue === optionValue ? "ring-1" : ""
+            this.props.evaluatedValue === optionValue ? "ring-1" : ""
           }`}
           onClick={() => {
             this.updateProperty(this.props.propertyName, optionValue);
@@ -81,11 +81,7 @@ class BoxShadowOptionsControl extends BaseControl<
         <div className="inline-flex">
           <div className="grid grid-cols-5 gap-2 auto-cols-max">
             {Object.keys(boxShadowOptions).map((optionKey) =>
-              this.renderOptions(
-                optionKey,
-                boxShadowOptions[optionKey],
-                boxShadowOptions[optionKey],
-              ),
+              this.renderOptions(optionKey, boxShadowOptions[optionKey]),
             )}
           </div>
         </div>

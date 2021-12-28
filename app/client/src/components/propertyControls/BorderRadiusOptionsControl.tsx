@@ -76,7 +76,7 @@ class BorderRadiusOptionsControl extends BaseControl<
       >
         <button
           className={`flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-gray-700 cursor-pointer hover:bg-trueGray-50 ${
-            this.props.propertyValue === optionValue ? "ring-1" : ""
+            this.props.evaluatedValue === optionValue ? "ring-1" : ""
           }`}
           onClick={() => {
             this.updateProperty(this.props.propertyName, optionValue);
