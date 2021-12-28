@@ -1,7 +1,7 @@
 import RadioGroupWidget from "./index";
 
 describe("unit test case for property config pane", () => {
-  it("case: check tooltip text for total record count property exists", () => {
+  it("case: check the value returned by defaultOptionValue", () => {
     const generalSection: any = RadioGroupWidget.getPropertyPaneConfig().filter(
       (section: any) => section.sectionName === "General",
     );
