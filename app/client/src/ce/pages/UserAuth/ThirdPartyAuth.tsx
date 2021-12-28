@@ -24,12 +24,9 @@ const StyledSocialLoginButton = styled.a`
   justify-content: center;
   border: solid 1px ${(props) => props.theme.colors.auth.socialBtnBorder};
   padding: ${(props) => props.theme.spaces[2]}px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
 
-  &:first-child {
-    margin-bottom: ${(props) => props.theme.spaces[4]}px;
-  }
-
-  &:only-child {
+  &:only-child, &:last-child {
     margin-bottom: 0;
   }
 
