@@ -4,16 +4,28 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.JSValue;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
@@ -22,9 +34,19 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +56,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -45,10 +68,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringRunner.class)
@@ -69,6 +97,24 @@ public class GitServiceTest {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    LayoutActionService layoutActionService;
+
+    @Autowired
+    NewPageService newPageService;
+
+    @Autowired
+    NewActionService newActionService;
+
+    @Autowired
+    ActionCollectionService actionCollectionService;
+
+    @Autowired
+    PluginRepository pluginRepository;
+
     @MockBean
     UserService userService;
 
@@ -83,6 +129,9 @@ public class GitServiceTest {
 
     @MockBean
     ImportExportApplicationService importExportApplicationService;
+
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
 
     String orgId;
     private static final String DEFAULT_GIT_PROFILE = "default";
@@ -277,7 +326,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_InvalidRemoteUrl_ThrowInvalidRemoteUrl() throws GitAPIException, IOException {
+    public void connectApplicationToGit_InvalidRemoteUrl_ThrowInvalidRemoteUrl() throws IOException {
 
         UserData userData = new UserData();
         GitProfile gitProfile1 = new GitProfile();
@@ -749,6 +798,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(false)))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitFileUtils.detachRemote(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -766,14 +816,166 @@ public class GitServiceTest {
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("detachRemote_validData");
         testApplication.setOrganizationId(orgId);
-        Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<Application> applicationMono = gitDataService.detachRemote(application1.getId());
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication)
+                .flatMap(application -> {
+                    // Update the defaultIds for resources to mock merge action from other branch
+                    application.getPages().forEach(page -> page.setDefaultPageId(page.getId() + "randomId"));
+                    return Mono.zip(
+                            applicationService.save(application),
+                            pluginRepository.findByPackageName("installed-plugin"),
+                            newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false)
+                    );
+                })
+                .flatMap(tuple -> {
+
+                    Application application = tuple.getT1();
+                    PageDTO testPage = tuple.getT3();
+
+                    // Save action
+                    Datasource datasource = new Datasource();
+                    datasource.setName("Default Database");
+                    datasource.setOrganizationId(application.getOrganizationId());
+                    datasource.setPluginId(tuple.getT2().getId());
+                    datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("onPageLoadAction");
+                    action.setPageId(application.getPages().get(0).getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
+
+                    DefaultResources branchedResources = new DefaultResources();
+                    branchedResources.setActionId("branchedActionId");
+                    branchedResources.setApplicationId("branchedAppId");
+                    branchedResources.setPageId("branchedPageId");
+                    branchedResources.setCollectionId("branchedCollectionId");
+                    branchedResources.setBranchName("testBranch");
+                    action.setDefaultResources(branchedResources);
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JSONObject parentDsl = null;
+                    try {
+                        parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+                        }));
+                    } catch (JsonProcessingException e) {
+                        log.debug(String.valueOf(e));
+                    }
+
+                    ArrayList children = (ArrayList) parentDsl.get("children");
+                    JSONObject testWidget = new JSONObject();
+                    testWidget.put("widgetName", "firstWidget");
+                    JSONArray temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    testWidget.put("dynamicBindingPathList", temp);
+                    testWidget.put("testField", "{{ onPageLoadAction.data }}");
+                    children.add(testWidget);
+
+                    Layout layout = testPage.getLayouts().get(0);
+                    layout.setDsl(parentDsl);
+
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("testCollection1");
+                    actionCollectionDTO.setPageId(application.getPages().get(0).getId());
+                    actionCollectionDTO.setApplicationId(application.getId());
+                    actionCollectionDTO.setOrganizationId(application.getOrganizationId());
+                    actionCollectionDTO.setPluginId(datasource.getPluginId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    actionCollectionDTO.setBody("collectionBody");
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("testAction1");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    action1.getActionConfiguration().setBody("mockBody");
+                    actionCollectionDTO.setActions(List.of(action1));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+                    actionCollectionDTO.setDefaultResources(branchedResources);
+                    actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
+
+                    return Mono.zip(
+                            layoutActionService.createSingleAction(action)
+                                    .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout)),
+                            layoutCollectionService.createCollection(actionCollectionDTO)
+                    )
+                    .map(tuple2 -> application);
+                });
+
+        Mono<Application> resultMono = applicationMono
+                .flatMap(application -> gitDataService.detachRemote(application.getId()));
 
         StepVerifier
-                .create(applicationMono)
-                .assertNext(application -> {
+                .create(resultMono.zipWhen(application -> Mono.zip(
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
+                )))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
+                    List<NewPage> pageList = tuple.getT2().getT3();
+
                     assertThat(application.getGitApplicationMetadata()).isNull();
+                    application.getPages().forEach(page -> assertThat(page.getDefaultPageId()).isEqualTo(page.getId()));
+                    application.getPublishedPages().forEach(page -> assertThat(page.getDefaultPageId()).isEqualTo(page.getId()));
+
+                    assertThat(pageList).isNotNull();
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getDefaultResources()).isNotNull();
+                        assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
+                        assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+                        assertThat(newPage.getDefaultResources().getBranchName()).isNullOrEmpty();
+
+                        newPage.getUnpublishedPage()
+                                .getLayouts()
+                                .forEach(layout ->
+                                        layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                            dslActionDTOS.forEach(actionDTO -> {
+                                                Assertions.assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                            });
+                                        })
+                                );
+                    });
+
+                    assertThat(actionList).hasSize(2);
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getDefaultResources()).isNotNull();
+                        assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                        assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+                        assertThat(newAction.getDefaultResources().getBranchName()).isNullOrEmpty();
+
+                        ActionDTO action = newAction.getUnpublishedAction();
+                        assertThat(action.getDefaultResources()).isNotNull();
+                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getPages().get(0).getId());
+                        if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
+                            assertThat(action.getDefaultResources().getCollectionId()).isEqualTo(action.getCollectionId());
+                        }
+                    });
+
+                    assertThat(actionCollectionList).hasSize(1);
+                    actionCollectionList.forEach(actionCollection -> {
+                        assertThat(actionCollection.getDefaultResources()).isNotNull();
+                        assertThat(actionCollection.getDefaultResources().getCollectionId()).isEqualTo(actionCollection.getId());
+                        assertThat(actionCollection.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+                        assertThat(actionCollection.getDefaultResources().getBranchName()).isNullOrEmpty();
+
+                        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+
+                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
+                                .hasSize(1);
+                        unpublishedCollection.getDefaultToBranchedActionIdsMap().keySet()
+                                .forEach(key ->
+                                        assertThat(key).isEqualTo(unpublishedCollection.getDefaultToBranchedActionIdsMap().get(key))
+                                );
+
+                        assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
+                        assertThat(unpublishedCollection.getDefaultResources().getPageId())
+                                .isEqualTo(application.getPages().get(0).getId());
+                    });
+
                 })
                 .verifyComplete();
     }
