@@ -212,25 +212,25 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .click()
       .wait(100); //wait for Find form to open
     cy.EvaluatFieldValue("Collection").then((colData) => {
-      colData = colData.replace("{", "").replace("}", "");
-      cy.log("Collection value is fieldData: " + colData);
-      cy.wrap(colData).as("colData");
+      let localcolData = colData.replace("{", "").replace("}", "");
+      cy.log("Collection value is fieldData: " + localcolData);
+      cy.wrap(localcolData).as("colData");
     });
     cy.EvaluatFieldValue("Query").then((queryData) => {
-      queryData = queryData.replace("{", "").replace("}", "");
-      id = queryData;
-      cy.log("Query value is : " + queryData);
-      cy.wrap(queryData).as("queryData");
+      let localqueryData = queryData.replace("{", "").replace("}", "");
+      id = localqueryData;
+      cy.log("Query value is : " + localqueryData);
+      cy.wrap(localqueryData).as("queryData");
     });
     cy.EvaluatFieldValue("Sort").then((sortData) => {
-      sortData = sortData.replace("{", "").replace("}", "");
-      cy.log("Sort value is : " + sortData);
-      cy.wrap(sortData).as("sortData");
+      let localsortData = sortData.replace("{", "").replace("}", "");
+      cy.log("Sort value is : " + localsortData);
+      cy.wrap(localsortData).as("sortData");
     });
     cy.EvaluatFieldValue("Limit").then((limitData) => {
-      limitData = limitData.replace("{", "").replace("}", "");
-      cy.log("Limit value is : " + limitData);
-      cy.wrap(limitData).as("limitData");
+      let locallimitData = limitData.replace("{", "").replace("}", "");
+      cy.log("Limit value is : " + locallimitData);
+      cy.wrap(locallimitData).as("limitData");
     });
 
     cy.onlyQueryRun();

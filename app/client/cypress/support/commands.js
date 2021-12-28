@@ -3474,7 +3474,7 @@ Cypress.Commands.add(
     } else {
       cy.xpath("//div[@class='CodeMirror-code']").click();
     }
-    cy.wait(3500); //Increasing wait time to evaluate non-undefined values
+    cy.wait(3000); //Increasing wait time to evaluate non-undefined values
     const val = cy
       .get(commonlocators.evaluatedCurrentValue)
       .first()
