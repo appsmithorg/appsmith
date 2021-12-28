@@ -105,12 +105,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    if (this.props.updateWidgetMetaProperty) {
-      this.props.updateWidgetMetaProperty(
-        "childrenEntityDefinitions",
-        childrenEntityDefinitions,
-      );
-    }
+    super.updateWidgetProperty(
+      "childrenEntityDefinitions",
+      childrenEntityDefinitions,
+    );
   }
 
   generateChildrenDefaultPropertiesMap = (
@@ -137,8 +135,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    if (this.props.updateWidgetProperty) {
-      this.props.updateWidgetProperty(
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
         "childrenDefaultPropertiesMap",
         childrenDefaultPropertiesMap,
       );
