@@ -30,7 +30,7 @@ import FormTextField from "components/ads/formFields/TextField";
 import Button, { Size } from "components/ads/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import { isEmail, isEmptyString } from "utils/formhelpers";
-import { LoginFormValues } from "./helpers";
+import { LoginFormValues } from "pages/UserAuth/helpers";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 
@@ -41,7 +41,7 @@ import {
   AuthCardNavLink,
   SignUpLinkSection,
   ForgotPasswordLink,
-} from "./StyledComponents";
+} from "pages/UserAuth/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
