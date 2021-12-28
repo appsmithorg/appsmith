@@ -822,6 +822,52 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void importApplication_withoutPageIdInActionCollection_succeeds() {
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        final Mono<Application> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                getActionsInApplication(application).collectList(),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                actionCollectionService
+                                        .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<ActionDTO> actionDTOS = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
+
+
+                    assertThat(datasourceList).isNotEmpty();
+
+                    assertThat(actionDTOS).hasSize(1);
+                    actionDTOS.forEach(actionDTO -> {
+                        assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+
+                    });
+
+                    assertThat(actionCollectionList).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void exportImportApplication_importWithBranchName_updateApplicationResourcesWithBranch() {
         Application testApplication = new Application();
         testApplication.setName("Export-Import-Update-Branch_Test-App");
