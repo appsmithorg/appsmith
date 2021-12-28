@@ -62,6 +62,7 @@ export type Hinter = {
   ) => boolean;
   update?: (data: DataTree) => void;
   fireOnFocus?: boolean;
+  updateArgHints?: (editor: CodeMirror.Editor) => void;
 };
 
 export type MarkHelper = (editor: CodeMirror.Editor) => void;

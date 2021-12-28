@@ -48,5 +48,8 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
       editor.closeHint();
       return shouldShow;
     },
+    updateArgHints: (editor: CodeMirror.Editor): void => {
+      TernServer.updateArgHints(editor);
+    },
   };
 };

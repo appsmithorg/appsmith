@@ -333,6 +333,9 @@ class CodeEditor extends Component<Props, State> {
     if (!this.props.input.onChange || this.props.disabled) {
       return;
     }
+    this.hinters.forEach((hinter) => {
+      hinter.updateArgHints && hinter.updateArgHints(cm);
+    });
     const mode = cm.getModeAt(cm.getCursor());
     if (
       mode &&

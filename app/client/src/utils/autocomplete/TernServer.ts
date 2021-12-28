@@ -80,6 +80,10 @@ type ArgHints = {
   doc: CodeMirror.Doc;
 };
 
+interface ActiveArgHints extends HTMLElement {
+  clear?: () => void;
+}
+
 export type DataTreeDefEntityInformation = {
   type: ENTITY_TYPE;
   subType: string;
@@ -89,6 +93,7 @@ class TernServer {
   server: Server;
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
+  activeArgHints: ActiveArgHints | null = null;
   active: any;
   fieldEntityInformation: FieldEntityInformation = {};
   defEntityInformation: Map<string, DataTreeDefEntityInformation> = new Map<
@@ -142,6 +147,173 @@ class TernServer {
         window.open(data.url, "_blank");
       }
     });
+  }
+
+  updateArgHints(cm: CodeMirror.Editor) {
+    this.closeArgHints();
+
+    if (cm.somethingSelected()) return;
+    const state = cm.getTokenAt(cm.getCursor()).state;
+    const inner = CodeMirror.innerMode(cm.getMode(), state);
+    if (inner.mode.name != "javascript") return;
+    const lex = inner.state.lexical;
+    if (lex.info != "call") return;
+
+    let ch, line, e;
+    let found = false;
+    const argPos = lex.pos || 0,
+      tabSize = cm.getOption("tabSize") as number; // check if valid
+    for (
+      line = cm.getCursor().line, e = Math.max(0, line - 9);
+      line >= e;
+      --line
+    ) {
+      const str = cm.getLine(line);
+      let extra = 0;
+      for (let pos = 0; ; ) {
+        const tab = str.indexOf("\t", pos);
+        if (tab == -1) break;
+        extra += tabSize - ((tab + extra) % tabSize) - 1;
+        pos = tab + 1;
+      }
+      ch = lex.column - extra;
+      if (str.charAt(ch) == "(") {
+        found = true;
+        break;
+      }
+    }
+    if (!found) return;
+    // debugger;
+
+    const start = Pos(line, ch);
+    const cache = this.cachedArgHints;
+    if (cache && cache.doc == cm.getDoc() && cmpPos(start, cache.start) == 0)
+      return this.showArgHints(cm, argPos, start);
+
+    this.request(
+      cm,
+      {
+        type: "type",
+        preferFunction: true,
+      },
+      (error, data) => {
+        // debugger;
+        if (error || !data.type || !/^fn\(/.test(data.type)) return;
+        this.cachedArgHints = {
+          start: start,
+          type: this.parseFnType(data.type),
+          name: data.exprName || data.name || "fn",
+          guess: data.guess,
+          doc: cm.getDoc(),
+        };
+        this.showArgHints(cm, argPos, start);
+      },
+      start,
+    );
+  }
+
+  showArgHints(cm: CodeMirror.Editor, pos: number, start: CodeMirror.Position) {
+    this.closeArgHints();
+    if (!this.cachedArgHints) return;
+
+    const cache = this.cachedArgHints,
+      tp = cache.type;
+    const tip = this.elt(
+      "span",
+      cache.guess ? cls + "fhint-guess" : null,
+      this.elt("span", cls + "fname", cache.name + "("),
+    );
+    for (let i = 0; i < tp.args.length; ++i) {
+      if (i) tip.appendChild(document.createTextNode(", "));
+      const arg = tp.args[i];
+      tip.appendChild(
+        this.elt(
+          "span",
+          cls + "farg" + (i == pos ? " " + cls + "farg-current" : ""),
+          arg.name || "?",
+        ),
+      );
+      if (arg.type != "?") {
+        tip.appendChild(document.createTextNode(":\u00a0"));
+        tip.appendChild(this.elt("span", cls + "type", arg.type));
+      }
+    }
+    tip.appendChild(document.createTextNode(tp.rettype ? ") ->\u00a0" : ")"));
+    if (tp.rettype) tip.appendChild(this.elt("span", cls + "type", tp.rettype));
+    const place = cm.cursorCoords(start, "page") as {
+      left: number;
+      right: number;
+      top: number;
+      bottom: number;
+    };
+    const tooltip = (this.activeArgHints = this.makeTooltip(
+      place.right + 1,
+      place.bottom,
+      tip,
+    ) as ActiveArgHints);
+    tooltip.className += " " + cls + "hint-doc visible";
+    // CodeMirror.on(
+    //   cm,
+    //   "keyup",
+    //   (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
+    //     if (
+    //       keyboardEvent.code === "Space" &&
+    //       keyboardEvent.ctrlKey &&
+    //       tooltip
+    //     ) {
+    //       tooltip.className += " visible";
+    //     }
+    //   },
+    // );
+    setTimeout(() => {
+      tooltip.clear = this.onEditorActivity(cm, () => {
+        if (this.activeArgHints == tooltip) this.closeArgHints();
+      });
+    }, 20);
+  }
+
+  closeArgHints() {
+    if (this.activeArgHints) {
+      if (this.activeArgHints.clear) this.activeArgHints.clear();
+      this.remove(this.activeArgHints);
+      this.activeArgHints = null;
+    }
+  }
+
+  parseFnType(text: string) {
+    const args = [];
+    let pos = 3;
+
+    function skipMatching(upto: RegExp) {
+      let depth = 0;
+      const start = pos;
+      for (;;) {
+        const next = text.charAt(pos);
+        if (upto.test(next) && !depth) return text.slice(start, pos);
+        if (/[{\[\(]/.test(next)) ++depth;
+        else if (/[}\]\)]/.test(next)) --depth;
+        ++pos;
+      }
+    }
+
+    // Parse arguments
+    if (text.charAt(pos) != ")")
+      for (;;) {
+        let name: RegExpMatchArray | string | null = text
+          .slice(pos)
+          .match(/^([^, \(\[\{]+): /);
+        if (name) {
+          pos += name[0].length;
+          name = name[1];
+        }
+        args.push({ name: name, type: skipMatching(/[\),]/) });
+        if (text.charAt(pos) == ")") break;
+        pos += 2;
+      }
+
+    const rettype = text.slice(pos).match(/^\) -> (.*)$/);
+
+    return { args: args, rettype: rettype && rettype[1] };
   }
 
   updateDef(
