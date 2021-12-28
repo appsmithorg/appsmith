@@ -13,6 +13,15 @@ import { showPostCompletionMessage } from "actions/onboardingActions";
 import { useSelector } from "store";
 import { getEditorURL } from "selectors/appViewSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  createMessage,
+  END_BUTTON_TEXT,
+  END_DESCRIPTION,
+  END_TITLE,
+  RATING_DESCRIPTION,
+  RATING_TEXT,
+  RATING_TITLE,
+} from "constants/messages";
 
 const Container = styled.div`
   background-color: #ffefdb;
@@ -103,16 +112,12 @@ function CongratulationsView() {
           <Left>
             <Confetti>🎉</Confetti>
             <div>
-              <Title>
-                Congratulations! You just built your first app in Appsmith.
-              </Title>
-              <Description>
-                You can now invite others to this application.
-              </Description>
+              <Title>{createMessage(RATING_TITLE)}</Title>
+              <Description>{createMessage(RATING_DESCRIPTION)}</Description>
             </div>
           </Left>
           <RatingWrapper>
-            <RatingText>Rate your experience</RatingText>
+            <RatingText>{createMessage(RATING_TEXT)}</RatingText>
             <Rating
               emptySymbol={
                 <Icon
@@ -140,10 +145,8 @@ function CongratulationsView() {
       <Container>
         <Wrapper>
           <div>
-            <Title>What’s next? Start building your own apps.</Title>
-            <Description>
-              You can now invite others to this application.
-            </Description>
+            <Title>{createMessage(END_TITLE)}</Title>
+            <Description>{createMessage(END_DESCRIPTION)}</Description>
           </div>
           <Button
             className="t--start-building"
@@ -151,7 +154,7 @@ function CongratulationsView() {
             href={editorUrl}
             onClick={hideMessage}
             size={Size.large}
-            text="START BUILDING AN APP"
+            text={createMessage(END_BUTTON_TEXT)}
             type="button"
           />
         </Wrapper>

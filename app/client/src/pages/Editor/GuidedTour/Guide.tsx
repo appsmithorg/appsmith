@@ -22,6 +22,16 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Steps } from "./constants";
 import useComputeCurrentStep from "./useComputeCurrentStep";
+import {
+  BUTTON_TEXT,
+  COMPLETE,
+  CONTINUE,
+  createMessage,
+  DESCRIPTION,
+  PROCEED,
+  PROCEED_TO_NEXT_STEP,
+  TITLE,
+} from "constants/messages";
 
 const GuideWrapper = styled.div`
   margin-bottom: 10px;
@@ -236,21 +246,15 @@ function InitialContent() {
     <div>
       <ContentWrapper>
         <SubContentWrapper>
-          <Title>
-            In this tutorial we’ll build a tool to display customer information
-          </Title>
-          <Description>
-            This tool has a table that displays customer data and a form to
-            update a particular customer record. Try out the tool below before
-            you start building this.
-          </Description>
+          <Title>{createMessage(TITLE)}</Title>
+          <Description>{createMessage(DESCRIPTION)}</Description>
         </SubContentWrapper>
         <GuideButton
           className="t--start-building"
           isLoading={isLoading}
           onClick={setupFirstStep}
           tag="button"
-          text="Start Building"
+          text={createMessage(BUTTON_TEXT)}
         />
       </ContentWrapper>
       <Hint>
@@ -303,7 +307,7 @@ function GuideStepsContent(props: {
             </TitleWrapper>
             <div className="count">
               {props.currentStep - 1}/9{" "}
-              <span className="complete">COMPLETE</span>
+              <span className="complete">{createMessage(COMPLETE)}</span>
             </div>
           </div>
           {content.description && (
@@ -321,7 +325,7 @@ function GuideStepsContent(props: {
                 className="t--hint-button"
                 onClick={hintButtonOnClick}
                 tag="button"
-                text={"PROCEED"}
+                text={createMessage(PROCEED)}
               />
             )}
           </HintTextWrapper>
@@ -415,7 +419,7 @@ function CompletionContent(props: CompletionContentProps) {
               isVisible={showSuccessButton}
               onClick={onSuccessButtonClick}
               tag="button"
-              text={success?.buttonText ?? "CONTINUE"}
+              text={success?.buttonText ?? createMessage(CONTINUE)}
             />
           </div>
         </div>
@@ -432,7 +436,7 @@ function CompletionContent(props: CompletionContentProps) {
             className="t--info-button"
             onClick={onInfoButtonClick}
             tag="button"
-            text={info?.buttonText ?? "PROCEED TO NEXT STEP"}
+            text={info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
           />
         </div>
       </SuccessMessageWrapper>

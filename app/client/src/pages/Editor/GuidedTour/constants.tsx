@@ -15,7 +15,33 @@ import { IconName } from "components/ads/Icon";
 import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import {
+  createMessage,
+  STEP_EIGHT_SUCCESS_TEXT,
+  STEP_EIGHT_TITLE,
+  STEP_FIVE_HINT_TEXT,
+  STEP_FIVE_SUCCESS_BUTTON_TEXT,
+  STEP_FIVE_SUCCESS_TEXT,
+  STEP_FIVE_TITLE,
+  STEP_FOUR_HINT_BUTTON_TEXT,
+  STEP_FOUR_SUCCESS_BUTTON_TEXT,
+  STEP_FOUR_SUCCESS_TEXT,
+  STEP_FOUR_TITLE,
+  STEP_NINE_TITLE,
+  STEP_ONE_BUTTON_TEXT,
+  STEP_ONE_SUCCESS_TEXT,
+  STEP_ONE_TITLE,
+  STEP_SEVEN_TITLE,
+  STEP_SIX_SUCCESS_BUTTON_TEXT,
+  STEP_SIX_SUCCESS_TEXT,
+  STEP_SIX_TITLE,
+  STEP_THREE_SUCCESS_BUTTON_TEXT,
+  STEP_THREE_SUCCESS_TEXT,
+  STEP_THREE_TITLE,
+  STEP_TWO_TITLE,
+} from "constants/messages";
 
+// We are using widget blueprints to create the form like container widget
 export const onboardingContainerBlueprint = {
   view: [
     {
@@ -209,7 +235,7 @@ const RunButton = styled.div`
 
 export const Steps: StepsType = {
   1: {
-    title: `First step is querying the database. Here we are querying a Postgres database populated with customers data.`,
+    title: createMessage(STEP_ONE_TITLE),
     elementSelector: "query-table-response",
     hints: [
       {
@@ -229,8 +255,7 @@ export const Steps: StepsType = {
       },
     ],
     success: {
-      text:
-        "Excellent! You successfully queried the database and you can see the response of the query below. ",
+      text: createMessage(STEP_ONE_SUCCESS_TEXT),
       onClick: (dispatch) => {
         dispatch(setExplorerPinnedAction(true));
         dispatch(setCurrentStep(2));
@@ -241,13 +266,12 @@ export const Steps: StepsType = {
           });
         }, 1000);
       },
-      buttonText: "PROCEED TO NEXT STEP",
+      buttonText: createMessage(STEP_ONE_BUTTON_TEXT),
       timed: true,
     },
   },
   2: {
-    title:
-      "Let’s display this response in a table. Select the table widget we’ve added for you.",
+    title: createMessage(STEP_TWO_TITLE),
     hints: [
       {
         text: (
@@ -260,7 +284,7 @@ export const Steps: StepsType = {
     ],
   },
   3: {
-    title: "Display the response of the query in a table.",
+    title: createMessage(STEP_THREE_TITLE),
     hints: [
       {
         text: (
@@ -279,8 +303,7 @@ export const Steps: StepsType = {
       },
     ],
     success: {
-      text:
-        "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.",
+      text: createMessage(STEP_THREE_SUCCESS_TEXT),
       onClick: (dispatch) => {
         dispatch(forceShowContent(3));
         setTimeout(() => {
@@ -288,7 +311,7 @@ export const Steps: StepsType = {
         }, 1000);
       },
       timed: true,
-      buttonText: "PROCEED TO NEXT STEP",
+      buttonText: createMessage(STEP_THREE_SUCCESS_BUTTON_TEXT),
     },
     info: {
       icon: "lightbulb-flash-line",
@@ -318,7 +341,7 @@ export const Steps: StepsType = {
     },
   },
   4: {
-    title: "Let’s build a form to update a customer record ",
+    title: createMessage(STEP_FOUR_TITLE),
     hints: [
       {
         text: (
@@ -332,7 +355,7 @@ export const Steps: StepsType = {
           </>
         ),
         button: {
-          text: "PROCEED",
+          text: createMessage(STEP_FOUR_HINT_BUTTON_TEXT),
           onClick: (dispatch) => {
             // Select the NameInput widget and focus the defaultText input field
             dispatch(focusWidget("NameInput", "defaultText"));
@@ -362,8 +385,7 @@ export const Steps: StepsType = {
       },
     ],
     success: {
-      text:
-        "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.",
+      text: createMessage(STEP_FOUR_SUCCESS_TEXT),
       timed: true,
       onClick: (dispatch) => {
         dispatch(setCurrentStep(5));
@@ -375,20 +397,14 @@ export const Steps: StepsType = {
           });
         }, 1000);
       },
-      buttonText: "PROCEED TO NEXT STEP",
+      buttonText: createMessage(STEP_FOUR_SUCCESS_BUTTON_TEXT),
     },
   },
   5: {
-    title:
-      "Connect all input fields in the Customer Update Form with the table",
+    title: createMessage(STEP_FIVE_TITLE),
     hints: [
       {
-        text: (
-          <>
-            Now let{"'"}s connect rest of widgets in the container to Table{"'"}
-            s selected row
-          </>
-        ),
+        text: <>{createMessage(STEP_FIVE_HINT_TEXT)}</>,
         steps: [
           <>
             Connect <b>{`"Email Input"`}</b>
@@ -415,8 +431,7 @@ export const Steps: StepsType = {
       },
     ],
     success: {
-      text:
-        "Great work! All inputs are now connected to the  table’s selected row",
+      text: createMessage(STEP_FIVE_SUCCESS_TEXT),
       onClick: (dispatch) => {
         dispatch(setCurrentStep(6));
         dispatch(setExplorerPinnedAction(true));
@@ -426,11 +441,11 @@ export const Steps: StepsType = {
         }, 2000);
       },
       timed: true,
-      buttonText: "PROCEED TO NEXT STEP",
+      buttonText: createMessage(STEP_FIVE_SUCCESS_BUTTON_TEXT),
     },
   },
   6: {
-    title: "Add an update button to trigger an update query",
+    title: createMessage(STEP_SIX_TITLE),
     hints: [
       {
         text: (
@@ -443,7 +458,7 @@ export const Steps: StepsType = {
       },
     ],
     success: {
-      text: "Perfect! Your update button is ready to trigger an update query.",
+      text: createMessage(STEP_SIX_SUCCESS_TEXT),
       timed: true,
       onClick: (dispatch) => {
         dispatch(forceOpenWidgetPanel(false));
@@ -451,7 +466,7 @@ export const Steps: StepsType = {
           highlightSection("explorer-entity-updateCustomerInfo");
         }, 1000);
       },
-      buttonText: "PROCEED TO NEXT STEP",
+      buttonText: createMessage(STEP_SIX_SUCCESS_BUTTON_TEXT),
     },
     info: {
       icon: "lightbulb-flash-line",
@@ -471,7 +486,7 @@ export const Steps: StepsType = {
     },
   },
   7: {
-    title: "Trigger updateCustomerInfo query by binding to the button widget",
+    title: createMessage(STEP_SEVEN_TITLE),
     hints: [
       {
         text: (
@@ -485,8 +500,7 @@ export const Steps: StepsType = {
     ],
   },
   8: {
-    title:
-      "After successfully triggering the update query, fetch the updated customer data. ",
+    title: createMessage(STEP_EIGHT_TITLE),
     hints: [
       {
         text: (
@@ -498,8 +512,7 @@ export const Steps: StepsType = {
       },
     ],
     success: {
-      text:
-        "Exceptional work! You’ve now built a way to see customer data and update it.",
+      text: createMessage(STEP_EIGHT_SUCCESS_TEXT),
       onClick: (dispatch) => {
         dispatch(setCurrentStep(9));
         setTimeout(() => {
@@ -513,7 +526,7 @@ export const Steps: StepsType = {
     },
   },
   9: {
-    title: "Final step: Test & deploy your app",
+    title: createMessage(STEP_NINE_TITLE),
     hints: [
       {
         text: (

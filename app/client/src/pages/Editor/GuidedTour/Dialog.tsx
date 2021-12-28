@@ -5,6 +5,12 @@ import {
 } from "actions/onboardingActions";
 import Button, { Category, Size } from "components/ads/Button";
 import DialogComponent from "components/ads/DialogComponent";
+import {
+  CANCEL_DIALOG,
+  createMessage,
+  DEVIATION,
+  END_CONFIRMATION,
+} from "constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -44,8 +50,8 @@ function GuidedTourDialog() {
   const showEndTourDialog = useSelector(showEndTourDialogSelector);
   const dispatch = useDispatch();
   const title = showDeviatingDialog
-    ? "You are deviating from the tutorial"
-    : "Are you sure you want to end?";
+    ? createMessage(DEVIATION)
+    : createMessage(END_CONFIRMATION);
 
   const onClose = () => {
     if (showDeviatingDialog) {
@@ -79,14 +85,14 @@ function GuidedTourDialog() {
           onClick={onClose}
           size={Size.large}
           tag="button"
-          text="CANCEL"
+          text={createMessage(CANCEL_DIALOG)}
         />
         <Button
           className="end"
           onClick={endTour}
           size={Size.large}
           tag="button"
-          text="END THE TOUR"
+          text={createMessage(END_CONFIRMATION)}
         />
       </ButtonsWrapper>
     </DialogComponent>

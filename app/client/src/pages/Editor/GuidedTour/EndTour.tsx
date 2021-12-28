@@ -1,4 +1,5 @@
 import { enableGuidedTour } from "actions/onboardingActions";
+import { createMessage, END_TUTORIAL } from "constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -21,7 +22,9 @@ function EndTour() {
     dispatch(enableGuidedTour(false));
   };
 
-  return <EndTutorial onClick={endTour}>END TUTORIAL</EndTutorial>;
+  return (
+    <EndTutorial onClick={endTour}>{createMessage(END_TUTORIAL)}</EndTutorial>
+  );
 }
 
 export default EndTour;
