@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.JSONObject;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
@@ -166,5 +167,33 @@ public class Find extends MongoCommand {
                 rawQuery,
                 configMap
         );
+    }
+
+    @Override
+    public String getRawQuery() {
+        JSONObject query = new JSONObject();
+        query.put("find", this.collection);
+
+        if (!StringUtils.isNullOrEmpty(this.query)) {
+            query.put("filter", this.query);
+        }
+
+        if (!StringUtils.isNullOrEmpty(this.sort)) {
+            query.put("sort", this.sort);
+        }
+
+        // Default to returning 10 documents if not mentioned
+        int limit = 10;
+        if (!StringUtils.isNullOrEmpty(this.limit)) {
+            limit = Integer.parseInt(this.limit);
+        }
+        query.put("limit", limit);
+        query.put("batchSize", limit);
+
+        if (!StringUtils.isNullOrEmpty(this.skip)) {
+            query.put("skip", this.skip);
+        }
+
+        return query.toString();
     }
 }

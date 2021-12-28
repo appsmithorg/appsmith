@@ -506,6 +506,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
                     return dbAction;
                 })
+                .flatMap(this::extractAndSetNativeQueryFromFormData)
                 .cache();
 
         Mono<ActionDTO> savedUpdatedActionMono = updatedActionMono
@@ -521,6 +522,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .then(analyticsUpdateMono)
                 // Now return the updated action back.
                 .then(savedUpdatedActionMono);
+    }
+
+    private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
+        Mono<Plugin> pluginMono = pluginService.getById(action.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> {
+                    action.getUnpublishedAction().setActionConfiguration(pluginExecutor
+                            .extractAndSetNativeQueryFromFormData(action.getUnpublishedAction().getActionConfiguration()));
+
+                    return Mono.just(action);
+                });
     }
 
     @Override

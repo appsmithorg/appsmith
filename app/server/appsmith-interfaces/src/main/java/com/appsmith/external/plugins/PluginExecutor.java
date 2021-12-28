@@ -208,4 +208,8 @@ public interface PluginExecutor<C> extends ExtensionPoint {
     default Mono<TriggerResultDTO> trigger(TriggerRequestDTO request) {
         return Mono.empty();
     }
+
+    default ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+        return actionConfiguration;
+    }
 }

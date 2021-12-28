@@ -56,32 +56,7 @@ public class MongoPluginUtils {
             if (!isRawCommand(formData)) {
 
                 // Parse the commands into raw appropriately
-                MongoCommand command = null;
-                switch ((String) formData.getOrDefault(COMMAND, "")) {
-                    case "INSERT":
-                        command = new Insert(actionConfiguration);
-                        break;
-                    case "FIND":
-                        command = new Find(actionConfiguration);
-                        break;
-                    case "UPDATE":
-                        command = new UpdateMany(actionConfiguration);
-                        break;
-                    case "DELETE":
-                        command = new Delete(actionConfiguration);
-                        break;
-                    case "COUNT":
-                        command = new Count(actionConfiguration);
-                        break;
-                    case "DISTINCT":
-                        command = new Distinct(actionConfiguration);
-                        break;
-                    case "AGGREGATE":
-                        command = new Aggregate(actionConfiguration);
-                        break;
-                    default:
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid mongo command found. Please select a command from the \"Command\" dropdown and try again");
-                }
+                MongoCommand command = getMongoCommand(actionConfiguration);
                 if (!command.isValid()) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Try again after configuring the fields : " + command.getFieldNamesWithNoConfiguration());
                 }
@@ -93,6 +68,41 @@ public class MongoPluginUtils {
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
         return actionConfiguration.getBody();
+    }
+
+    // TODO: add comment
+    private static MongoCommand getMongoCommand(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        Map<String, Object> formData = actionConfiguration.getFormData();
+        MongoCommand command;
+        switch ((String) formData.getOrDefault(COMMAND, "")) {
+            case "INSERT":
+                command = new Insert(actionConfiguration);
+                break;
+            case "FIND":
+                command = new Find(actionConfiguration);
+                break;
+            case "UPDATE":
+                command = new UpdateMany(actionConfiguration);
+                break;
+            case "DELETE":
+                command = new Delete(actionConfiguration);
+                break;
+            case "COUNT":
+                command = new Count(actionConfiguration);
+                break;
+            case "DISTINCT":
+                command = new Distinct(actionConfiguration);
+                break;
+            case "AGGREGATE":
+                command = new Aggregate(actionConfiguration);
+                break;
+            default:
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "No valid mongo command found. Please select a command from the \"Command\" dropdown and try " +
+                                "again");
+        }
+
+        return command;
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
@@ -189,6 +199,11 @@ public class MongoPluginUtils {
 
     public static String urlEncode(String text) {
         return URLEncoder.encode(text, StandardCharsets.UTF_8);
+    }
+
+    public static String getRawQuery(ActionConfiguration actionConfiguration) {
+        MongoCommand command = getMongoCommand(actionConfiguration);
+        return command.getRawQuery(); // TODO: fix it
     }
 
 }

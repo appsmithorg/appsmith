@@ -24,6 +24,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -70,6 +71,7 @@ import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputT
 import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
 import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
 import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
@@ -86,6 +88,7 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static java.lang.Boolean.TRUE;
+import static org.apache.logging.log4j.util.Strings.isBlank;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -958,6 +961,24 @@ public class MongoPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
+
+        @Override
+        public ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+            Map<String, Object> formData = actionConfiguration.getFormData();
+            if (formData != null && !formData.isEmpty()) {
+                // If it is not raw command, then it must be one of the mongo form commands
+                if (!isRawCommand(formData)) {
+                    if (isBlank(actionConfiguration.getBody())) {
+                        String rawQuery = getRawQuery(actionConfiguration);
+                        if (rawQuery != null) {
+                            setValueSafelyInFormData(formData, "formToNativeQuery", rawQuery); // TODO: magic string
+                        }
+                    }
+                }
+            }
+
+            return actionConfiguration;
+        }
     }
 
     private static Object cleanUp(Object object) {
@@ -1008,5 +1029,4 @@ public class MongoPlugin extends BasePlugin {
         }
         return false;
     }
-
 }
