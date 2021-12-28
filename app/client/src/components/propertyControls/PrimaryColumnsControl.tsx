@@ -140,7 +140,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
   );
 
   const onFocus = () => {
-    setEditing(true);
+    setEditing(false);
     debouncedFocus(index, true);
   };
   const onBlur = () => {
@@ -286,12 +286,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
         <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
           <DroppableComponent
             deleteOption={this.deleteOption}
+            fixedHeight={370}
             itemHeight={45}
             items={draggableComponentColumns}
             onEdit={this.onEdit}
             renderComponent={ColumnControlComponent}
             toggleVisibility={this.toggleVisibility}
-            updateFocus={this.updateFocus}
             updateItems={this.updateItems}
             updateOption={this.updateOption}
           />

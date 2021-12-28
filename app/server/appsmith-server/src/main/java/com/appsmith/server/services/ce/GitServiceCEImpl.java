@@ -32,9 +32,12 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -65,10 +68,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.helpers.DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -80,6 +86,9 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
+    private final NewPageService newPageService;
+    private final NewActionService newActionService;
+    private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
@@ -588,14 +597,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         ).onErrorResume(error -> {
+                            log.error("Error while cloning the remote repo, {}", error.getMessage());
                             if (error instanceof TransportException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                             }
                             if (error instanceof InvalidRemoteException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
                             }
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
-                            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
                         });
                         return Mono.zip(
                                 Mono.just(application),
@@ -886,6 +895,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //Remove the parent application branch name from the list
                     branch.remove(tuple.getT4());
                     defaultApplication.setGitApplicationMetadata(null);
+                    defaultApplication.getPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedPages())) {
+                        defaultApplication.getPublishedPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    }
                     return fileUtils.detachRemote(repoPath)
                             .flatMap(status -> Flux.fromIterable(branch)
                                     .flatMap(gitBranch ->
@@ -895,7 +908,26 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     )
                                     .then(applicationService.save(defaultApplication)));
                 })
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .flatMap(application ->
+                    // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
+                    // will be deleted
+                    Flux.fromIterable(application.getPages())
+                            .flatMap(page -> newPageService.findById(page.getId(), MANAGE_PAGES))
+                            .map(newPage ->  createPristineDefaultIdsAndUpdateWithGivenResourceIds(newPage, null))
+                            .collectList()
+                            .flatMapMany(newPageService::saveAll)
+                            .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), MANAGE_ACTIONS)
+                                    .map(newAction -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction, null))
+                                    .collectList()
+                                    .flatMapMany(newActionService::saveAll)
+                                    .thenMany(actionCollectionService.findByPageId(newPage.getId()))
+                                    .map(actionCollection -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection, null))
+                                    .collectList()
+                                    .flatMapMany(actionCollectionService::saveAll)
+                            )
+                            .then()
+                            .thenReturn(responseUtils.updateApplicationWithDefaultResources(application))
+                );
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
@@ -1514,9 +1546,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return this.getStatus(defaultApplicationId, sourceBranch)
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch)));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch)
                                         .map(destBranchStatus -> {
@@ -1539,14 +1571,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 try {
                                     return gitExecutor.resetToLastCommit(repoSuffix, destinationBranch)
-                                            .flatMap(reset -> {
-                                                try {
-                                                    return gitExecutor.resetToLastCommit(repoSuffix, sourceBranch);
-                                                } catch (GitAPIException | IOException e) {
-                                                    log.error("Error while resetting to last commit", e);
-                                                }
-                                                return Mono.just(false);
-                                            })
                                             .map(reset -> {
                                                 MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                                 mergeStatus.setMergeAble(false);

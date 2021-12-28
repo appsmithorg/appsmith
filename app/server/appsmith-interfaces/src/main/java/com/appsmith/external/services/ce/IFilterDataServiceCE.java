@@ -3,6 +3,7 @@ package com.appsmith.external.services.ce;
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.UQIDataFilterParams;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.LinkedHashMap;
@@ -14,9 +15,10 @@ public interface IFilterDataServiceCE {
 
     ArrayNode filterData(ArrayNode items, List<Condition> conditionList);
 
-    ArrayNode filterDataNew(ArrayNode items, Condition condition);
+    ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams);
 
-    List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema);
+    List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String,
+            DataType> schema);
 
     void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema);
 
@@ -28,7 +30,8 @@ public interface IFilterDataServiceCE {
 
     boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema);
 
-    String generateLogicalExpression(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema, ConditionalOperator logicOp);
+    String generateLogicalExpression(List<Condition> conditions, List<Map<String, Object>> values,
+                                     Map<String, DataType> schema, ConditionalOperator logicOp);
 
 }
 
