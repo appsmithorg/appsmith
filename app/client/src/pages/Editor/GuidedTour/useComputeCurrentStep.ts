@@ -6,6 +6,7 @@ import {
   updateButtonWidgetText,
   forceShowContent,
   focusWidgetProperty,
+  setCurrentStepInit,
 } from "actions/onboardingActions";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -164,10 +165,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   }, [tableWidget]);
 
   useEffect(() => {
-    dispatch({
-      type: "SET_CURRENT_STEP",
-      payload: step,
-    });
+    dispatch(setCurrentStepInit(step));
   }, [step]);
 
   // Step 1 effects

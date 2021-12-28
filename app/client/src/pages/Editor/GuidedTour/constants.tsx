@@ -6,7 +6,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
 import {
-  setCurrentStep,
+  setCurrentStepInit,
   addOnboardingWidget,
   forceShowContent,
   focusWidget,
@@ -258,7 +258,7 @@ export const Steps: StepsType = {
       text: createMessage(STEP_ONE_SUCCESS_TEXT),
       onClick: (dispatch) => {
         dispatch(setExplorerPinnedAction(true));
-        dispatch(setCurrentStep(2));
+        dispatch(setCurrentStepInit(2));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='CustomersTable']`, "right", {
             top: 1,
@@ -322,7 +322,7 @@ export const Steps: StepsType = {
         </>
       ),
       onClick: (dispatch) => {
-        dispatch(setCurrentStep(4));
+        dispatch(setCurrentStepInit(4));
         dispatch(
           addOnboardingWidget({
             type: "CONTAINER_WIDGET",
@@ -388,7 +388,7 @@ export const Steps: StepsType = {
       text: createMessage(STEP_FOUR_SUCCESS_TEXT),
       timed: true,
       onClick: (dispatch) => {
-        dispatch(setCurrentStep(5));
+        dispatch(setCurrentStepInit(5));
         dispatch(focusWidget("EmailInput", "defaultText"));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='defaultText']`, "top", {
@@ -433,7 +433,7 @@ export const Steps: StepsType = {
     success: {
       text: createMessage(STEP_FIVE_SUCCESS_TEXT),
       onClick: (dispatch) => {
-        dispatch(setCurrentStep(6));
+        dispatch(setCurrentStepInit(6));
         dispatch(setExplorerPinnedAction(true));
         dispatch(forceOpenWidgetPanel(true));
         setTimeout(() => {
@@ -477,7 +477,7 @@ export const Steps: StepsType = {
         </>
       ),
       onClick: (dispatch) => {
-        dispatch(setCurrentStep(7));
+        dispatch(setCurrentStepInit(7));
         showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
           top: 25,
           left: 0,
@@ -514,7 +514,7 @@ export const Steps: StepsType = {
     success: {
       text: createMessage(STEP_EIGHT_SUCCESS_TEXT),
       onClick: (dispatch) => {
-        dispatch(setCurrentStep(9));
+        dispatch(setCurrentStepInit(9));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='deploy']`, "bottom", {
             top: -6,

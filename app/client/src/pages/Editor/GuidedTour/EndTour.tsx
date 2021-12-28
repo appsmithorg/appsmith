@@ -3,6 +3,7 @@ import { createMessage, END_TUTORIAL } from "constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const EndTutorial = styled.span`
   font-size: 12px;
@@ -20,6 +21,7 @@ function EndTour() {
   const dispatch = useDispatch();
   const endTour = () => {
     dispatch(enableGuidedTour(false));
+    AnalyticsUtil.logEvent("END_GUIDED_TOUR_CLICK");
   };
 
   return (

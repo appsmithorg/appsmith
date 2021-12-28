@@ -25,6 +25,7 @@ import TourApp from "pages/Editor/GuidedTour/app.json";
 
 import {
   getFirstTimeUserOnboardingApplicationId,
+  getHadReachedStep,
   getOnboardingOrganisations,
   getQueryAction,
   getTableWidget,
@@ -35,6 +36,7 @@ import { Organization } from "constants/orgConstants";
 import {
   enableGuidedTour,
   focusWidgetProperty,
+  setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -63,6 +65,7 @@ import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function* createApplication() {
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
@@ -92,6 +95,18 @@ function* createApplication() {
   }
 
   yield put(setPreviewModeAction(true));
+}
+
+function* setCurrentStepSaga(action: ReduxAction<number>) {
+  const hadReachedStep = yield select(getHadReachedStep);
+  // Log only once when we reach that step
+  if (action.payload > hadReachedStep) {
+    AnalyticsUtil.logEvent("GUIDED_TOUR_REACHED_STEP", {
+      step: action.payload,
+    });
+  }
+
+  yield put(setCurrentStep(action.payload));
 }
 
 function* setUpTourAppSaga() {
@@ -361,6 +376,7 @@ export default function* onboardingActionSagas() {
     ),
     takeLatest(ReduxActionTypes.SET_UP_TOUR_APP, setUpTourAppSaga),
     takeLatest(ReduxActionTypes.GUIDED_TOUR_ADD_WIDGET, addOnboardingWidget),
+    takeLatest(ReduxActionTypes.SET_CURRENT_STEP_INIT, setCurrentStepSaga),
     takeLatest(
       ReduxActionTypes.UPDATE_BUTTON_WIDGET_TEXT,
       updateWidgetTextSaga,

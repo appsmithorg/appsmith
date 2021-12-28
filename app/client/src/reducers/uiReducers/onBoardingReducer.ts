@@ -20,7 +20,7 @@ const initialState: OnboardingState = {
   showSuccessMessage: false,
   showInfoMessage: false,
   tableWidgetWasSelected: false,
-  hadReachedStep: 1,
+  hadReachedStep: 0,
   showEndTourDialog: false,
   showDeviatingDialog: false,
   showPostCompletionMessage: false,

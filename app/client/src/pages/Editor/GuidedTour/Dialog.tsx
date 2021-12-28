@@ -19,6 +19,7 @@ import {
 } from "selectors/onboardingSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ButtonsWrapper = styled.div`
   display: flex;
@@ -65,6 +66,7 @@ function GuidedTourDialog() {
   const endTour = () => {
     onClose();
     dispatch(enableGuidedTour(false));
+    AnalyticsUtil.logEvent("END_GUIDED_TOUR_CLICK");
   };
 
   return (
