@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
 import { formValueSelector } from "redux-form";
@@ -45,7 +44,7 @@ export function InputText(props: {
   inputType?: INPUT_TEXT_INPUT_TYPES;
   customStyles?: any;
 }) {
-  const { actionName, inputType, isRequired, label, name, placeholder } = props;
+  const { actionName, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
   let editorProps = {};
 
@@ -57,15 +56,18 @@ export function InputText(props: {
     };
   }
 
-  let customStyle = { width: "50vh", minHeight: "55px" };
+  let customStyle = { width: "50vh", minHeight: "38px" };
   if (!!props.customStyles && _.isEmpty(props.customStyles) === false) {
-    customStyle = props.customStyles;
+    customStyle = { ...props.customStyles };
+    if (props.customStyles?.width) {
+      customStyle.width = "50vh";
+    }
+    if (props.customStyles?.minHeight) {
+      customStyle.minHeight = "34px";
+    }
   }
   return (
     <div style={customStyle}>
-      <FormLabel>
-        {label} {isRequired && "*"}
-      </FormLabel>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         name={name}
