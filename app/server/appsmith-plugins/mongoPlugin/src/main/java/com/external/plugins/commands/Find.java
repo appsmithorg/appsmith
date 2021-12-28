@@ -2,6 +2,8 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -194,6 +196,15 @@ public class Find extends MongoCommand {
             query.put("skip", this.skip);
         }
 
-        return query.toString();
+        String queryString = "";
+        try {
+            queryString = objectMapper.readTree(query.toString()).toPrettyString();
+        } catch (JsonProcessingException e) {
+            // TODO: add comment
+            e.printStackTrace();
+            queryString = "";
+        }
+
+        return queryString;
     }
 }
