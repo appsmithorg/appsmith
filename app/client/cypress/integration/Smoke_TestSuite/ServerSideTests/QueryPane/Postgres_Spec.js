@@ -9,11 +9,11 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.startRoutesForDatasource();
   });
 
-  afterEach(function() {
-    if (this.currentTest.state === "failed") {
-      Cypress.runner.stop();
-    }
-  });
+  // afterEach(function() {
+  //   if (this.currentTest.state === "failed") {
+  //     Cypress.runner.stop();
+  //   }
+  // });
 
   it("1. Creates a new Postgres datasource", function() {
     cy.NavigateToDatasourceEditor();

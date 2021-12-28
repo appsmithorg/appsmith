@@ -10,11 +10,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.startRoutesForDatasource();
   });
 
-  afterEach(function() {
-    if (this.currentTest.state === "failed") {
-      Cypress.runner.stop();
-    }
-  });
+  // afterEach(function() {
+  //   if (this.currentTest.state === "failed") {
+  //     Cypress.runner.stop();
+  //   }
+  // });
 
   // afterEach(() => {
   //   if (queryName)

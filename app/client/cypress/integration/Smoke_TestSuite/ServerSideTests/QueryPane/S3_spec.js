@@ -11,11 +11,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.startRoutesForDatasource();
   });
 
-  afterEach(function() {
-    if (this.currentTest.state === "failed") {
-      Cypress.runner.stop();
-    }
-  });
+  // afterEach(function() {
+  //   if (this.currentTest.state === "failed") {
+  //     Cypress.runner.stop();
+  //   }
+  // });
 
   // afterEach(() => {
   //   if (queryName)
