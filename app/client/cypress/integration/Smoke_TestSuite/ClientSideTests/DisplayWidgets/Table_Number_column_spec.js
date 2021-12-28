@@ -1,5 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const dsl = require("../../../../fixtures/basicNumberDataTabledsl.json");
+const dsl = require("../../../../fixtures/basicNumberDataTableDsl.json");
 
 describe("Validate Table Widget Table Data", function() {
   before(() => {
