@@ -9,7 +9,7 @@ import {
   API_STATUS_CODES,
   ERROR_CODES,
   SERVER_ERROR_CODES,
-} from "constants/ApiConstants";
+} from "@appsmith/constants/ApiConstants";
 import log from "loglevel";
 import { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {
   getSocialLoginButtonProps,
   SocialLoginType,
-} from "constants/SocialLogin";
+} from "@appsmith/constants/SocialLogin";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";

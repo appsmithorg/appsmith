@@ -1,4 +1,4 @@
-import { GoogleOAuthURL, GithubOAuthURL } from "constants/ApiConstants";
+import { GoogleOAuthURL, GithubOAuthURL } from "./ApiConstants";
 
 import GithubLogo from "assets/images/Github.png";
 import GoogleLogo from "assets/images/Google.png";
