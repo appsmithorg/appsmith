@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -33,6 +33,10 @@ import HtmlTitle from "../AppViewerHtmlTitle";
 import AppViewerPrimaryCTA from "../AppViewerPrimaryCTA";
 import Button from "./../AppViewerButton";
 import { Colors } from "constants/Colors";
+import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith-logo-no-pad.svg";
+import MenuIcon from "remixicon-react/MenuFillIcon";
+import CloseIcon from "remixicon-react/CloseFillIcon";
+import PageMenu from "./PageMenu";
 
 /**
  * ----------------------------------------------------------------------------
@@ -123,6 +127,7 @@ type AppViewerHeaderProps = {
 
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
+  const [isMenuOpen, setMenuOpen] = useState(false);
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
@@ -137,72 +142,96 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
   return (
     <ThemeProvider theme={props.lightTheme}>
-      <HeaderWrapper hasPages={pages.length > 1}>
-        <HtmlTitle name={currentApplicationDetails?.name} />
-        <HeaderRow className="justify-between px-6 py-2">
-          <HeaderSection className="justify-start space-x-3">
-            <div className="text-base">{currentApplicationDetails?.name}</div>
-          </HeaderSection>
-          <HeaderSection className="justify-end space-x-2">
-            {currentApplicationDetails && (
-              <>
-                {!shouldHideComments && (
-                  <div>
-                    <ToggleCommentModeButton />
-                  </div>
+      <>
+        <HeaderWrapper className="relative" hasPages={pages.length > 1}>
+          <HtmlTitle name={currentApplicationDetails?.name} />
+          <HeaderRow className="justify-between px-3 py-2 md:px-6">
+            <HeaderSection className="justify-start space-x-3">
+              <div
+                className="block w-5 h-5 cursor-pointer md:hidden"
+                onClick={() => setMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? (
+                  <CloseIcon className="w-5 h-5" />
+                ) : (
+                  <MenuIcon className="w-5 h-5" />
                 )}
-                <FormDialogComponent
-                  Form={AppInviteUsersForm}
-                  applicationId={currentApplicationDetails.id}
-                  canOutsideClickClose
-                  headerIcon={{
-                    name: "right-arrow",
-                    bgColor: "transparent",
-                  }}
-                  isOpen={showAppInviteUsersDialog}
-                  orgId={currentOrgId}
-                  title={currentApplicationDetails.name}
-                  trigger={
-                    <Button
-                      borderRadius={
-                        selectedTheme.properties.borderRadius.appBorderRadius
-                      }
-                      boxShadow="none"
-                      buttonColor={selectedTheme.properties.colors.primaryColor}
-                      buttonVariant="SECONDARY"
-                      className="h-8"
-                      text="Share"
-                    />
-                  }
-                />
+              </div>
+              <div className="space-y-1">
+                <AppsmithLogo className="block w-auto h-3 md:hidden" />
+                <div className="text-sm text-gray-600 md:text-base">
+                  {currentApplicationDetails?.name}
+                </div>
+              </div>
+            </HeaderSection>
+            <HeaderSection className="justify-end space-x-2">
+              {currentApplicationDetails && (
+                <div className="hidden space-x-2 md:flex">
+                  {!shouldHideComments && (
+                    <div>
+                      <ToggleCommentModeButton />
+                    </div>
+                  )}
+                  <FormDialogComponent
+                    Form={AppInviteUsersForm}
+                    applicationId={currentApplicationDetails.id}
+                    canOutsideClickClose
+                    headerIcon={{
+                      name: "right-arrow",
+                      bgColor: "transparent",
+                    }}
+                    isOpen={showAppInviteUsersDialog}
+                    orgId={currentOrgId}
+                    title={currentApplicationDetails.name}
+                    trigger={
+                      <Button
+                        borderRadius={
+                          selectedTheme.properties.borderRadius.appBorderRadius
+                        }
+                        boxShadow="none"
+                        buttonColor={
+                          selectedTheme.properties.colors.primaryColor
+                        }
+                        buttonVariant="SECONDARY"
+                        className="h-8"
+                        text="Share"
+                      />
+                    }
+                  />
 
+                  <HeaderRightItemContainer>
+                    <AppViewerPrimaryCTA url={props.url} />
+                  </HeaderRightItemContainer>
+                </div>
+              )}
+              {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
                 <HeaderRightItemContainer>
-                  <AppViewerPrimaryCTA url={props.url} />
+                  <ProfileDropdown
+                    modifiers={{
+                      offset: {
+                        enabled: true,
+                        offset: `0, 0`,
+                      },
+                    }}
+                    name={currentUser.name}
+                    photoId={currentUser?.photoId}
+                    userName={currentUser?.username || ""}
+                  />
                 </HeaderRightItemContainer>
-              </>
-            )}
-            {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
-              <HeaderRightItemContainer>
-                <ProfileDropdown
-                  modifiers={{
-                    offset: {
-                      enabled: true,
-                      offset: `0, 0`,
-                    },
-                  }}
-                  name={currentUser.name}
-                  photoId={currentUser?.photoId}
-                  userName={currentUser?.username || ""}
-                />
-              </HeaderRightItemContainer>
-            )}
-          </HeaderSection>
-        </HeaderRow>
-        <PageTabsContainer
-          currentApplicationDetails={currentApplicationDetails}
+              )}
+            </HeaderSection>
+          </HeaderRow>
+          <PageTabsContainer
+            currentApplicationDetails={currentApplicationDetails}
+            pages={pages}
+          />
+        </HeaderWrapper>
+        <PageMenu
+          application={currentApplicationDetails}
+          isOpen={isMenuOpen}
           pages={pages}
         />
-      </HeaderWrapper>
+      </>
     </ThemeProvider>
   );
 }

@@ -55,11 +55,10 @@ class AppThemingApi extends API {
    */
   static changeTheme(
     applicationId: string,
-    themeId: string,
     theme: AppTheme,
   ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
     return API.patch(
-      `${AppThemingApi.baseUrl}/applications/${applicationId}/themes/${themeId}`,
+      `${AppThemingApi.baseUrl}/applications/${applicationId}/themes/${theme.id}`,
       theme,
     );
   }

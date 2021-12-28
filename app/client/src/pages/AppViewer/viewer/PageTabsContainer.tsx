@@ -11,7 +11,6 @@ import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   width: 100%;
-  display: flex;
   align-items: center;
 
   & {
@@ -156,7 +155,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 ? (
-    <Container className="relative px-6 h-9">
+    <Container className="relative hidden px-6 h-9 md:flex">
       <ScrollBtnContainer
         className="left-0"
         onMouseDown={() => startScrolling(true)}

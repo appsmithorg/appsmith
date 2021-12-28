@@ -821,7 +821,7 @@ export function* fetchAppThemes() {
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: dummyThemes,
+      payload: response.data,
     });
   } catch (error) {
     yield put({
@@ -843,11 +843,11 @@ export function* fetchAppSelectedTheme(
   const { applicationId } = action.payload;
 
   try {
-    // const response = yield ThemingApi.fetchSelected(applicationId);
+    const response = yield ThemingApi.fetchSelected(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: dummyThemes[1],
+      payload: response.data,
     });
   } catch (error) {
     yield put({
@@ -893,10 +893,9 @@ export function* changeSelectedTheme(
 ) {
   // eslint-disable-next-line
   const { applicationId, theme } = action.payload;
-  const selectedTheme: AppTheme = yield select(getSelectedAppTheme);
 
   try {
-    yield ThemingApi.changeTheme(applicationId, selectedTheme.id, theme);
+    yield ThemingApi.changeTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
