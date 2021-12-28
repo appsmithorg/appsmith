@@ -74,12 +74,10 @@ function* executeInIntervals(
 
 export function* clearIntervalSaga(
   payload: ClearIntervalDescription["payload"],
-  triggerMeta: TriggerMeta,
 ) {
   if (!(payload.id in activeTimers)) {
     throw new TriggerFailureError(
       `Failed to clear interval. No timer active with id "${payload.id}"`,
-      triggerMeta,
     );
   }
   delete activeTimers[payload.id];

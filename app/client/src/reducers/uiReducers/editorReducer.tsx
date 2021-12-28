@@ -15,6 +15,7 @@ const initialState: EditorReduxState = {
     publishingError: false,
     saving: false,
     savingError: false,
+    savingEntity: false,
     loading: false,
     loadingError: false,
     pageSwitchingError: false,
@@ -193,6 +194,21 @@ const editorReducer = createReducer(initialState, {
       isPreviewMode: action.payload,
     };
   },
+  /* This action updates the status of the savingEntity for any entity of the application in the store */
+  [ReduxActionTypes.ENTITY_UPDATE_STARTED]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      savingEntity: true,
+    },
+  }),
+  [ReduxActionTypes.ENTITY_UPDATE_SUCCESS]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      savingEntity: false,
+    },
+  }),
 });
 
 export interface EditorReduxState {
@@ -209,6 +225,7 @@ export interface EditorReduxState {
   loadingStates: {
     saving: boolean;
     savingError: boolean;
+    savingEntity: boolean;
     publishing: boolean;
     published?: string;
     publishingError: boolean;

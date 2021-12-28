@@ -51,8 +51,10 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -123,6 +125,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -153,6 +156,8 @@ public class DatabaseChangelog {
     public static final String PATH_KEY = "path";
     public static final String AND = "AND";
     public static final String KEY = "key";
+    public static final String START_AFTER = "startAfter";
+    public static final String END_BEFORE = "endBefore";
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -3517,7 +3522,14 @@ public class DatabaseChangelog {
                         uqiWhereMap.put(CONDITION_KEY, AND);
                         uqiWhereMap.put(CHILDREN_KEY, new ArrayList<>());
 
-                        List<Map<String, Object>> oldListOfConditions = (List<Map<String, Object>>) value;
+                        List<Map<String, Object>> oldListOfConditions;
+                        try {
+                            oldListOfConditions = (List<Map<String, Object>>) value;
+                        } catch (ClassCastException e) {
+                            System.out.println("value: " + value);
+                            oldListOfConditions = new ArrayList<>();
+                        }
+
                         oldListOfConditions.stream()
                                 .forEachOrdered(oldCondition -> {
                                     /* Map old values to keys in the new UQI format. */
@@ -3577,8 +3589,8 @@ public class DatabaseChangelog {
     }
 
     public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates,
-               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
-               UQIMigrationDataTransformer dataTransformer, String pluginName) {
+                                                                               Map<Integer, List<String>> migrationMap, Map<Integer, String> uqiDataTransformationMap,
+                                                                               UQIMigrationDataTransformer dataTransformer, String pluginName) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
@@ -3913,7 +3925,7 @@ public class DatabaseChangelog {
 
         for (NewPage onlyIdPage : pages) {
 
-            // Fetch one page at a time to avoid OOM.
+            // Fetch one action at a time to avoid OOM.
             NewPage page = mongockTemplate.findOne(
                     query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
                     NewPage.class
@@ -4138,13 +4150,18 @@ public class DatabaseChangelog {
         // Update pages for defaultIds (applicationId, pageId) along-with the defaultActionIds for onPageLoadActions
         final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
         pageQuery.fields()
-                .include(fieldName(QNewPage.newPage.applicationId))
-                .include(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts")
-                .include(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts");
+                .include(fieldName(QNewPage.newPage.id));
 
         List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
 
-        for (NewPage page : pages) {
+        for (NewPage onlyIdPage : pages) {
+
+            // Fetch one page at a time to avoid OOM.
+            NewPage page = mongockTemplate.findOne(
+                    query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
+                    NewPage.class
+            );
+
             String applicationId = page.getApplicationId();
             final Update defaultResourceUpdates = new Update();
             DefaultResources defaults = new DefaultResources();
@@ -4193,15 +4210,17 @@ public class DatabaseChangelog {
                 .addCriteria(where(fieldName(QNewAction.newAction.applicationId)).exists(true));
 
         actionQuery.fields()
-                .include(fieldName(QNewAction.newAction.applicationId))
-                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.collectionId))
-                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId))
-                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.collectionId));
+                .include(fieldName(QNewAction.newAction.id));
 
         List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
 
-        for (NewAction action : actions) {
+        for (NewAction actionIdOnly : actions) {
+            // Fetch one action at a time to avoid OOM.
+            final NewAction action = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(actionIdOnly.getId())),
+                    NewAction.class
+            );
+
             String applicationId = action.getApplicationId();
             if (StringUtils.isEmpty(applicationId)) {
                 continue;
@@ -4219,9 +4238,9 @@ public class DatabaseChangelog {
                 unpublishedActionDTODefaults.setPageId(unpublishedAction.getPageId());
                 unpublishedActionDTODefaults.setCollectionId(unpublishedAction.getCollectionId());
                 defaultResourceUpdates.set(
-                                fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
-                                unpublishedActionDTODefaults
-                        );
+                        fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
+                        unpublishedActionDTODefaults
+                );
             }
 
             ActionDTO publishedAction = action.getPublishedAction();
@@ -4448,8 +4467,8 @@ public class DatabaseChangelog {
     public void clearRedisCache(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         final String script =
                 "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
-                " do redis.call('del',k) " +
-                "end";
+                        " do redis.call('del',k) " +
+                        "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
         flushdb.subscribe();
@@ -4491,21 +4510,43 @@ public class DatabaseChangelog {
         );
         firestorePlugin.setUiComponent("UQIDbEditorForm");
 
-
         // Find all Firestore actions
+        final Query firestoreActionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
+                        .and(fieldName(QNewAction.newAction.deleted)).is(true) // Update: Should have been .ne(true)
+        );
+        firestoreActionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
         List<NewAction> firestoreActions = mongockTemplate.find(
-                query(new Criteria().andOperator(
-                        where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId()))),
+                firestoreActionQuery,
                 NewAction.class
         );
 
-        List<NewAction> actionsToSave = new ArrayList<>();
+        migrateFirestoreToUQI(mongockTemplate, firestoreActions);
 
-        for (NewAction firestoreAction : firestoreActions) {
+        // Update plugin data.
+        mongockTemplate.save(firestorePlugin);
+    }
+
+    private void migrateFirestoreToUQI(MongockTemplate mongockTemplate, List<NewAction> firestoreActions) {
+        for (NewAction firestoreActionId : firestoreActions) {
+
+            // Fetch one page at a time to avoid OOM.
+            final NewAction firestoreAction = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(firestoreActionId.getId())),
+                    NewAction.class
+            );
+
             ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
 
             /* No migrations required if action configuration does not exist. */
             if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                continue;
+            }
+
+            /* It means that earlier migration had succeeded on this action, hence current migration can be skipped. */
+            if (!CollectionUtils.isEmpty(unpublishedAction.getActionConfiguration().getFormData())) {
                 continue;
             }
 
@@ -4554,15 +4595,176 @@ public class DatabaseChangelog {
                     objectMapper, firestoreAction, firestoreMigrationMap);
             unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
-            actionsToSave.add(firestoreAction);
-        }
-
-        // Save the actions which have been migrated.
-        for (NewAction firestoreAction : actionsToSave) {
             mongockTemplate.save(firestoreAction);
         }
+    }
+
+    /**
+     * This migration was required because migration numbered 103 had an error - it fetched all actions which had
+     * `deleted` set to true instead of the other way around.
+     */
+    @ChangeSet(order = "104", id = "migrate-firestore-to-uqi-2", author = "")
+    public void migrateFirestorePluginToUqi2(MongockTemplate mongockTemplate) {
+
+        // Update Firestore plugin to indicate use of UQI schema
+        Plugin firestorePlugin = mongockTemplate.findOne(
+                query(where("packageName").is("firestore-plugin")),
+                Plugin.class
+        );
+
+        // Find all Firestore actions
+        final Query firestoreActionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
+                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
+        firestoreActionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        List<NewAction> firestoreActions = mongockTemplate.find(
+                firestoreActionQuery,
+                NewAction.class
+        );
+
+        migrateFirestoreToUQI(mongockTemplate, firestoreActions);
+    }
+
+    @ChangeSet(order = "105", id = "migrate-firestore-pagination-data", author = "")
+    public void migrateFirestorePaginationData(MongockTemplate mongockTemplate) {
+        Plugin firestorePlugin = mongockTemplate.findOne(
+                query(where("packageName").is("firestore-plugin")),
+                Plugin.class
+        );
+
+        // Query to get action id from all Firestore actions
+        Query queryToGetActionIds =query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
+                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)
+        );
+        queryToGetActionIds.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        // Get list of Firestore action ids
+        List<NewAction> firestoreActionIds = mongockTemplate.find(
+                queryToGetActionIds,
+                NewAction.class
+        );
+
+        // Iterate over each action id and operate on each action one by one.
+        for (NewAction firestoreActionId : firestoreActionIds) {
+
+            // Fetch one action at a time to avoid OOM.
+            final NewAction firestoreAction = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(firestoreActionId.getId())),
+                    NewAction.class
+            );
+
+            ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
+
+            // No migrations required if action configuration does not exist.
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null ) {
+                continue;
+            }
+
+            // Migrate unpublished action config data
+            if (unpublishedAction.getActionConfiguration().getFormData() != null) {
+                Map formData = unpublishedAction.getActionConfiguration().getFormData();
+
+                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                unpublishedAction.getActionConfiguration().setNext(startAfter);
+
+                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                unpublishedAction.getActionConfiguration().setPrev(endBefore);
+            }
+
+            // Migrate published action config data.
+            ActionDTO publishedAction = firestoreAction.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
+                    publishedAction.getActionConfiguration().getFormData() != null) {
+                Map formData = publishedAction.getActionConfiguration().getFormData();
+
+                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                publishedAction.getActionConfiguration().setNext(startAfter);
+
+                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                publishedAction.getActionConfiguration().setPrev(endBefore);
+            }
+
+            mongockTemplate.save(firestoreAction);
+        }
+    }
+
+    @ChangeSet(order = "106", id = "update-mongodb-mockdb-endpoint", author = "")
+    public void updateMongoMockdbEndpoint(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.endpoints.host").is("mockdb.swrsq.mongodb.net")),
+                update("datasourceConfiguration.endpoints.$.host", "mockdb.kce5o.mongodb.net"),
+                Datasource.class
+        );
+        mongockTemplate.updateMulti(
+                query(where("datasourceConfiguration.properties.value").is("mongodb+srv://mockdb_super:****@mockdb.swrsq.mongodb.net/movies")),
+                update("datasourceConfiguration.properties.$.value", "mongodb+srv://mockdb_super:****@mockdb.kce5o.mongodb.net/movies"),
+                Datasource.class
+        );
+    }
+  
+    /**
+     * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
+     * unexpected / bad older data.
+     */
+    @ChangeSet(order = "107", id = "migrate-firestore-to-uqi-3", author = "")
+    public void migrateFirestorePluginToUqi3(MongockTemplate mongockTemplate) {
+        // Update Firestore plugin to indicate use of UQI schema
+        Plugin firestorePlugin = mongockTemplate.findOne(
+                query(where("packageName").is("firestore-plugin")),
+                Plugin.class
+        );
+        firestorePlugin.setUiComponent("UQIDbEditorForm");
+
+        // Find all Firestore actions
+        final Query firestoreActionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
+                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
+        firestoreActionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        List<NewAction> firestoreActions = mongockTemplate.find(
+                firestoreActionQuery,
+                NewAction.class
+        );
+
+        migrateFirestoreToUQI(mongockTemplate, firestoreActions);
 
         // Update plugin data.
         mongockTemplate.save(firestorePlugin);
+    }
+  
+    @ChangeSet(order = "108", id = "create-system-themes", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        Index uniqueApplicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index");
+
+        ensureIndexes(mongockTemplate, Theme.class, uniqueApplicationIdIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            Theme savedTheme = mongockTemplate.save(theme);
+            if(savedTheme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+        }
+
+        // migrate all applications and set legacy theme to them in both mode
+        Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+        mongockTemplate.updateMulti(
+                new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+        );
     }
 }
