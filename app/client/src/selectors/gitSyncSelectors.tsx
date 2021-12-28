@@ -24,14 +24,8 @@ export const getIsGitRepoSetup = (state: AppState) => {
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
 
-export const getIsPushingToGit = (state: AppState) =>
-  state.ui.gitSync.isPushingToGit;
-
 export const getIsCommitSuccessful = (state: AppState) =>
   state.ui.gitSync.isCommitSuccessful;
-
-export const getIsPushSuccessful = (state: AppState) =>
-  state.ui.gitSync.isPushSuccessful;
 
 export const getActiveGitSyncModalTab = (state: AppState) =>
   state.ui.gitSync.activeGitSyncModalTab;
