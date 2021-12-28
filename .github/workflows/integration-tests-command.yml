@@ -582,7 +582,6 @@ jobs:
     strategy:
       fail-fast: false
 
-
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
