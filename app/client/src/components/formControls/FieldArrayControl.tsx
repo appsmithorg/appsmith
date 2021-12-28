@@ -5,7 +5,6 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 
 const CenteredIcon = styled(Icon)`
@@ -105,17 +104,14 @@ function NestedComponents(props: any) {
 }
 
 export default function FieldArrayControl(props: FieldArrayControlProps) {
-  const { configProperty, formName, label, schema } = props;
+  const { configProperty, formName, schema } = props;
   return (
-    <>
-      <FormLabel>{label}</FormLabel>
-      <FieldArray
-        component={NestedComponents}
-        name={configProperty}
-        props={{ formName, schema }}
-        rerenderOnEveryChange={false}
-      />
-    </>
+    <FieldArray
+      component={NestedComponents}
+      name={configProperty}
+      props={{ formName, schema }}
+      rerenderOnEveryChange={false}
+    />
   );
 }
 
