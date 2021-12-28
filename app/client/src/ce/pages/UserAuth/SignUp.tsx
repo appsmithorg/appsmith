@@ -14,7 +14,7 @@ import {
   SpacedSubmitForm,
   FormActions,
   SignUpLinkSection,
-} from "./StyledComponents";
+} from "pages/UserAuth/StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
   SIGNUP_PAGE_EMAIL_INPUT_LABEL,
@@ -37,7 +37,7 @@ import Button, { Size } from "components/ads/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
-import { SignupFormValues } from "./helpers";
+import { SignupFormValues } from "pages/UserAuth/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
