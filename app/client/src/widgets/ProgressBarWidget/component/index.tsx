@@ -29,7 +29,7 @@ const ProgressBar = styled.div<{ progress?: number; fillColor: string }>`
 `;
 
 const Label = styled.div`
-  font-size: 10px;
+  font-size: 14px;
   color: ${Colors.GREY_10};
   padding-left: 4px;
   line-height: 16px;
