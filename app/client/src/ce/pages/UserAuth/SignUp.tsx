@@ -27,7 +27,8 @@ import {
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
-import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
+import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
+import { SocialLoginsFactory } from "pages/UserAuth/SocialLoginsFactory";
 import Button, { Size } from "components/ads/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
@@ -46,11 +47,6 @@ import { useIntiateOnboarding } from "components/editorComponents/Onboarding/uti
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-
-const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
-const SocialLoginList: string[] = [];
-if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
-if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -87,7 +83,7 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-
+  const socialLoginList = SocialLoginsFactory.methods;
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
 
@@ -129,8 +125,8 @@ export function SignUp(props: SignUpFormProps) {
           {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
         </AuthCardNavLink>
       </SignUpLinkSection>
-      {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
+      {socialLoginList.length > 0 && (
+        <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
       <SpacedSubmitForm
         action={signupURL}
