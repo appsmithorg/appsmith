@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-global.APP_ROOT = path.resolve(__dirname);
 
 exports.summaries = async (directory) => {
   const files = await fs.promises.readdir(directory);
@@ -29,21 +28,25 @@ exports.summaries = async (directory) => {
       });
     }
   });
-  generateMarkdown(results);
+  generateReport(results);
 };
 
-const getMaxSize = (results) => {
-  let size = 0;
+const generateReport = (results) => {
+  var size = 5;
   Object.keys(results).forEach((key) => {
     const action = results[key];
-    size = Math.max(action["scripting"].length, size);
+    Object.keys(action).forEach((key) => {
+      size = action[key].length;
+      const sum = action[key].reduce((sum, val) => sum + val, 0);
+      const avg = (sum / action[key].length).toFixed(2);
+      action[key].push(avg);
+    });
   });
 
-  return size;
+  generateMarkdown(results, size);
 };
 
-const generateMarkdown = (results) => {
-  const size = getMaxSize(results);
+const generateMarkdown = (results, size = 5) => {
   let markdown = `<details><summary>Click to view performance test results</summary>\n\n| `;
   for (let i = 0; i < size; i++) {
     markdown = markdown + `| Run #${i + 1} `;
@@ -64,22 +67,9 @@ const generateMarkdown = (results) => {
       markdown = markdown + `| `;
     }
     markdown += "|\n";
-
     Object.keys(action).forEach((key) => {
-      const length = action[key].length;
       markdown += `| ${key} | `;
       markdown += action[key].reduce((sum, val) => `${sum} | ${val} `);
-      if (length < size) {
-        for (let i = 0; i < size - action[key].length; i++) {
-          markdown += " | ";
-        }
-      }
-      // Add average
-      const avg = (
-        action[key].reduce((sum, val) => sum + val, 0) / length
-      ).toFixed(2);
-      markdown += `| ${avg}`;
-
       markdown += "| \n";
     });
   });
