@@ -44,7 +44,7 @@ import PerformanceTracker, {
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
