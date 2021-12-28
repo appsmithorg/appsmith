@@ -34,7 +34,7 @@ import {
 } from "constants/messages";
 
 const GuideWrapper = styled.div`
-  margin-bottom: 10px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
   user-select: text;
 
   code {
@@ -45,9 +45,10 @@ const GuideWrapper = styled.div`
 const CardWrapper = styled.div`
   width: 100%;
   display: flex;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid
+    ${(props) => props.theme.colors.guidedTour.card.borderBottom};
   flex-direction: column;
-  background: #ffefdb;
+  background: ${(props) => props.theme.colors.guidedTour.card.background};
 `;
 
 const TitleWrapper = styled.div`
@@ -56,21 +57,19 @@ const TitleWrapper = styled.div`
 `;
 
 const Title = styled.span`
+  ${(props) => getTypographyByKey(props, "h2")}
   font-weight: 600;
-  font-size: 18px;
-  letter-spacing: -0.24px;
-  line-height: 24px;
   color: #000000;
   display: flex;
   flex: 1;
 
-  .success-message {
-    margin-right: 10px;
+  &.success-message {
+    margin-right: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
 const StepCount = styled.div`
-  background: #090707;
+  background: ${(props) => props.theme.colors.guidedTour.stepCountBackground};
   color: white;
   ${(props) => getTypographyByKey(props, "h5")};
   height: 24px;
@@ -79,7 +78,7 @@ const StepCount = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-right: 8px;
+  margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const Description = styled.span<{ addLeftSpacing?: boolean }>`
@@ -88,13 +87,14 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
 
   letter-spacing: -0.24px;
   padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0px")};
-  margin-top: 9px;
+  margin-top: ${(props) => props.theme.spaces[3] + 1}px;
   flex: 1;
   display: flex;
 `;
 
 const UpperContent = styled.div`
-  padding: 20px 16px;
+  padding: ${(props) => props.theme.spaces[9]}px
+    ${(props) => props.theme.spaces[7]}px;
   flex-direction: column;
   display: flex;
 `;
@@ -127,22 +127,25 @@ const SubContentWrapper = styled.div`
   .count {
     font-size: 14px;
     font-weight: 600;
-    width: 105px;
     text-align: center;
 
     .complete {
       font-weight: 400;
+      letter-spacing: 0.8px;
     }
   }
 `;
 
 const Hint = styled.div`
   background: #ffffff;
-  padding: 19px 24px;
-  margin-top: 20px;
+  color: #090707;
+  padding: ${(props) => props.theme.spaces[8] + 1}px
+    ${(props) => props.theme.spaces[11]}px;
+  margin-top: ${(props) => props.theme.spaces[9]}px;
   display: flex;
   align-items: center;
-  border: 1px solid #716e6e;
+  border: 1px solid
+    ${(props) => props.theme.colors.guidedTour.cancelButton.color};
   box-shadow: 0px 0px 24px -4px rgba(16, 24, 40, 0.1),
     0px 8px 8px -4px rgba(16, 24, 40, 0.04);
 
@@ -159,12 +162,12 @@ const Hint = styled.div`
   }
 
   .hint-button {
-    margin-top: 14px;
+    margin-top: ${(props) => props.theme.spaces[6]}px;
   }
 
   .hint-steps {
     display: flex;
-    margin-top: 12px;
+    margin-top: ${(props) => props.theme.spaces[5]}px;
   }
 
   .strike {
@@ -173,7 +176,7 @@ const Hint = styled.div`
   }
 
   .hint-steps-text {
-    margin-left: 10px;
+    margin-left: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
@@ -195,16 +198,18 @@ const SuccessMessageWrapper = styled.div`
   display: flex;
   background: white;
   flex-direction: column;
-  border: 1px solid #716e6e;
+  border: 1px solid
+    ${(props) => props.theme.colors.guidedTour.cancelButton.color};
   box-shadow: 0px 0px 24px -4px rgba(16, 24, 40, 0.1),
     0px 8px 8px -4px rgba(16, 24, 40, 0.04);
 
   .wrapper {
-    padding: 6px 24px;
+    padding: ${(props) => props.theme.spaces[2]}px
+      ${(props) => props.theme.spaces[11]}px;
     display: flex;
   }
   .info-wrapper {
-    padding: 26px 36px;
+    padding: 16px 24px;
     align-items: center;
 
     svg {
@@ -224,7 +229,7 @@ const SuccessMessageWrapper = styled.div`
     justify-content: space-between;
   }
   .info {
-    padding-left: 15px;
+    padding-left: ${(props) => props.theme.spaces[6] + 1}px;
     display: block;
     padding-right: 65px;
     margin-top: 0px;
@@ -306,7 +311,7 @@ function GuideStepsContent(props: {
               <Title>{content.title}</Title>
             </TitleWrapper>
             <div className="count">
-              {props.currentStep - 1}/9{" "}
+              {props.currentStep - 1}/9{"  "}
               <span className="complete">{createMessage(COMPLETE)}</span>
             </div>
           </div>

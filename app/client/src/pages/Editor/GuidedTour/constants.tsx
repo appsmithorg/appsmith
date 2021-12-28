@@ -40,6 +40,7 @@ import {
   STEP_THREE_TITLE,
   STEP_TWO_TITLE,
 } from "constants/messages";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 // We are using widget blueprints to create the form like container widget
 export const onboardingContainerBlueprint = {
@@ -225,11 +226,11 @@ type Step = {
 type StepsType = Record<number, Step>;
 
 const RunButton = styled.div`
-  background-color: #f86a2b;
-  padding: 5px 15px;
+  background-color: ${(props) => props.theme.colors.guidedTour.runButton};
+  padding: ${(props) => props.theme.spaces[1] + 1}px
+    ${(props) => props.theme.spaces[6] + 1}px;
   color: white;
-  font-size: 12px;
-  font-weight: 600;
+  ${(props) => getTypographyByKey(props, "btnMedium")}
   display: inline-block;
 `;
 

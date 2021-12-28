@@ -23,25 +23,30 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ButtonsWrapper = styled.div`
   display: flex;
-  gap: 20px;
+  gap: ${(props) => props.theme.spaces[9]}px;
   justify-content: flex-end;
-  margin-top: 30px;
+  margin-top: ${(props) => props.theme.spaces[12]}px;
 
   .cancel {
-    color: #716e6e;
-    border-color: #716e6e;
+    color: ${(props) => props.theme.colors.guidedTour.cancelButton.color};
+    border-color: ${(props) =>
+      props.theme.colors.guidedTour.cancelButton.borderColor};
 
     :hover {
-      background-color: #f1f1f1;
+      background-color: ${(props) =>
+        props.theme.colors.guidedTour.cancelButton.hoverBackgroundColor};
     }
   }
 
   .end {
-    background-color: #f22b2b;
-    border-color: #f22b2b;
+    background-color: ${(props) =>
+      props.theme.colors.guidedTour.endButton.backgroundColor};
+    border-color: ${(props) =>
+      props.theme.colors.guidedTour.endButton.borderColor};
 
     :hover {
-      background-color: #f34040;
+      background-color: ${(props) =>
+        props.theme.colors.guidedTour.endButton.hoverBackgroundColor};
     }
   }
 `;

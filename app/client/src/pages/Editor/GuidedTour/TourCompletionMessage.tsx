@@ -22,10 +22,12 @@ import {
   RATING_TEXT,
   RATING_TITLE,
 } from "constants/messages";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const Container = styled.div`
-  background-color: #ffefdb;
-  padding: 20px 24px;
+  background-color: ${(props) => props.theme.colors.guidedTour.card.background};
+  padding: ${(props) => props.theme.spaces[9]}px
+    ${(props) => props.theme.spaces[11]}px;
   width: 100%;
 `;
 
@@ -37,33 +39,35 @@ const Wrapper = styled.div`
 
 const Confetti = styled.span`
   font-size: 40px;
-  margin-right: 16px;
+  margin-right: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Title = styled.div`
-  font-size: 40px;
   color: #000000;
-  font-size: 18px;
+  ${(props) => getTypographyByKey(props, "h2")}
   font-weight: 600;
 `;
 
 const Description = styled.div`
-  color: #090707;
+  color: ${(props) => props.theme.colors.guidedTour.stepCountBackground};
   font-size: 16px;
-  margin-top: 8px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const RatingText = styled.span`
-  font-size: 16px;
-  font-weight: 500;
+  ${(props) => getTypographyByKey(props, "h4")}
   color: #000000;
-  padding-bottom: 5px;
-  margin-right: 17px;
+  padding-bottom: ${(props) => props.theme.spaces[1] + 1}px;
+  margin-right: ${(props) => props.theme.spaces[7] + 1}px;
 `;
 
 const RatingWrapper = styled.div`
   display: flex;
   align-items: center;
+
+  .star {
+    padding: 0 5px;
+  }
 `;
 
 const Left = styled.div`
@@ -121,7 +125,7 @@ function CongratulationsView() {
             <Rating
               emptySymbol={
                 <Icon
-                  className={"t--guided-tour-rating"}
+                  className={"t--guided-tour-rating star"}
                   fillColor={"#858282"}
                   name="star-line"
                   size={IconSize.XXXXL}
@@ -129,6 +133,7 @@ function CongratulationsView() {
               }
               fullSymbol={
                 <Icon
+                  className={"t--guided-tour-rating star"}
                   fillColor={"#FFCB45"}
                   name="star-fill"
                   size={IconSize.XXXXL}

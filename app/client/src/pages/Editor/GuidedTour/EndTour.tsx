@@ -1,4 +1,5 @@
 import { enableGuidedTour } from "actions/onboardingActions";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import { createMessage, END_TUTORIAL } from "constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -6,14 +7,12 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const EndTutorial = styled.span`
-  font-size: 12px;
-  letter-spacing: 0.6px;
-  color: #4b4848;
-  font-weight: 600;
+  color: ${(props) => props.theme.colors.guidedTour.endTourButton.color};
+  ${(props) => getTypographyByKey(props, "btnMedium")}
   cursor: pointer;
 
   &:hover {
-    color: #928f8f;
+    color: ${(props) => props.theme.colors.guidedTour.endTourButton.hoverColor};
   }
 `;
 

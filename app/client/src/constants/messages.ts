@@ -966,5 +966,5 @@ export const RATING_TEXT = () => "Rate your experience";
 // -- End Message --
 export const END_TITLE = () => "What’s next? Start building your own apps.";
 export const END_DESCRIPTION = () =>
-  "You can now invite others to this application.";
+  "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "START BUILDING AN APP";
