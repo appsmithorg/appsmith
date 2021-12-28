@@ -251,7 +251,7 @@ function ConnectGitPlaceholder() {
               category={Category.tertiary}
               onClick={() => {
                 AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
-                  source: "Buttom bar connect to git button",
+                  source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
                 dispatch(showConnectGitModal());
               }}
@@ -292,7 +292,7 @@ export default function QuickGitActions() {
         }),
       );
       AnalyticsUtil.logEvent("DEPLOY_GIT_MODAL_TRIGGERED", {
-        source: "Buttom bar commit git button",
+        source: "BOTTOM_BAR_GIT_COMMIT_BUTTON",
       });
     },
     connect: () => {
@@ -303,18 +303,18 @@ export default function QuickGitActions() {
         }),
       );
       AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
-        source: "Buttom bar connect to git button(from setting menu)",
+        source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });
     },
     pull: () => {
       AnalyticsUtil.logEvent("PULL_GIT_CLICK", {
-        source: "Buttom bar pull git button",
+        source: "BOTTOM_BAR_GIT_PULL_BUTTON",
       });
       dispatch(gitPullInit({ triggeredFromBottomBar: true }));
     },
     merge: () => {
       AnalyticsUtil.logEvent("MERGE_GIT_MODAL_TRIGGERED", {
-        source: "Buttom bar merge git button",
+        source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
       });
       dispatch(
         setIsGitSyncModalOpen({
