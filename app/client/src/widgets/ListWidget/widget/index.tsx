@@ -137,8 +137,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    if (this.props.updateWidgetMetaProperty) {
-      this.props.updateWidgetMetaProperty(
+    if (this.props.updateWidgetProperty) {
+      this.props.updateWidgetProperty(
         "childrenDefaultPropertiesMap",
         childrenDefaultPropertiesMap,
       );
