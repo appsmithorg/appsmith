@@ -235,7 +235,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       case "INTEGER":
         try {
           if (value === "") {
-            parsedValue = undefined;
+            parsedValue = null;
           } else if (value === "-") {
             parsedValue = "-";
           } else {
