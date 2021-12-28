@@ -28,7 +28,8 @@ import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 import Button, { Size } from "components/ads/Button";
-import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
+import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
+import { SocialLoginsFactory } from "pages/UserAuth/SocialLoginsFactory";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
 import { withTheme } from "styled-components";
@@ -50,11 +51,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-const {
-  disableLoginForm,
-  enableGithubOAuth,
-  enableGoogleOAuth,
-} = getAppsmithConfigs();
+const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -81,15 +78,11 @@ type LoginFormProps = { emailValue: string } & InjectedFormProps<
     theme: Theme;
   };
 
-const SocialLoginList: string[] = [];
-if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
-if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
-
 export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
-
+  const socialLoginList = SocialLoginsFactory.methods;
   const queryParams = new URLSearchParams(location.search);
   let showError = false;
   const currentUser = useSelector(getCurrentUser);
@@ -154,8 +147,8 @@ export function Login(props: LoginFormProps) {
           }
         />
       )}
-      {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNIN"} />
+      {socialLoginList.length > 0 && (
+        <ThirdPartyAuth logins={socialLoginList} type={"SIGNIN"} />
       )}
       {!disableLoginForm && (
         <>
