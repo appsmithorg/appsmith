@@ -705,7 +705,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   getFormattedText = () => {
     if (this.props.isFocused || this.props.inputType !== InputTypes.CURRENCY) {
-      return this.props.text || "";
+      return this.props.text !== undefined ? this.props.text : "";
     }
     if (this.props.text === "" || this.props.text === undefined) return "";
     const valueToFormat = String(this.props.text);
