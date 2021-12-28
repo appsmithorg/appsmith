@@ -6,7 +6,7 @@ import Button, { Category } from "components/ads/Button";
 import { createMessage, ADD, EDIT } from "constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Callout } from "pages/Settings/Callout";
+import { Callout, CalloutType } from "pages/Settings/Callout";
 import Breadcrumbs from "components/ads/Breadcrumbs";
 import { IBreadcrumbProps } from "@blueprintjs/core";
 
@@ -68,6 +68,12 @@ const MethodDets = styled.div`
 
 export type calloutType = "LINK" | "OTHER";
 
+export type banner = {
+  actionLabel: string;
+  title: string;
+  type: CalloutType;
+};
+
 export type AuthCallout = {
   id: string;
   category?: string;
@@ -77,6 +83,7 @@ export type AuthCallout = {
   needsUpgrade?: boolean;
   type: calloutType;
   isConnected?: boolean;
+  calloutBanner?: banner;
 };
 
 const EditButton = styled.span`
@@ -88,6 +95,7 @@ const EditButton = styled.span`
 const ButtonTitle = styled.span`
   margin-right: 2px;
   line-height: 1;
+  font-size: 11px;
 `;
 
 const Label = styled.div`
@@ -123,11 +131,13 @@ export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
                   <MethodTitle>{callout.label}</MethodTitle>
                   {callout.isConnected && <Label>Enabled</Label>}
                   <MethodDets>{callout.subText}</MethodDets>
-                  <Callout
-                    actionLabel="Learn More"
-                    title={"User Emails Ids are not verified."}
-                    type="Warning"
-                  />
+                  {callout.calloutBanner && (
+                    <Callout
+                      actionLabel={callout.calloutBanner.actionLabel}
+                      title={callout.calloutBanner.title}
+                      type={callout.calloutBanner.type}
+                    />
+                  )}
                 </MethodDetailsWrapper>
                 {callout.isConnected ? (
                   <EditButton

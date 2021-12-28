@@ -122,6 +122,11 @@ export const Form_Auth_Callout: AuthCallout = {
   image: Lock,
   type: "LINK",
   isConnected: true,
+  calloutBanner: {
+    actionLabel: "Learn More",
+    title: "User Emails Ids are not verified.",
+    type: "Warning",
+  },
 };
 
 export const Google_Auth_Callout: AuthCallout = {
