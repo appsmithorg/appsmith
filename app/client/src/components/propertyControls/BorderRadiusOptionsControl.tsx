@@ -95,18 +95,6 @@ class BorderRadiusOptionsControl extends BaseControl<
     return (
       <div className="mt-1">
         <div className="inline-flex">
-          <div className="pr-3 mr-3 border-r border-gray-300">
-            {Object.keys(this.state.themeBorderOptions).map((optionKey) =>
-              this.renderOptions(
-                optionKey,
-                getThemePropertyBinding(
-                  `${borderRadiusPropertyName}.${optionKey}`,
-                ),
-                this.state.themeBorderOptions[optionKey],
-                true,
-              ),
-            )}
-          </div>
           <div className="grid grid-cols-5 gap-2 auto-cols-max">
             {Object.keys(borderRadiusOptions).map((optionKey) =>
               this.renderOptions(

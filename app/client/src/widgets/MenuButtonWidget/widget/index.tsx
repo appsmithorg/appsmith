@@ -286,7 +286,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Border Radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
-            controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
+            controlType: "BORDER_RADIUS_OPTIONS",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

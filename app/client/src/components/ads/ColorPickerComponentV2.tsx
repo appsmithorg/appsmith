@@ -124,7 +124,6 @@ function ColorPickerComponent(props: ColorPickerProps) {
       usePortal
     >
       <StyledInputGroup
-        autoFocus
         leftIcon={
           color ? (
             <ColorIcon color={props.evaluatedColorValue || color || ""} />

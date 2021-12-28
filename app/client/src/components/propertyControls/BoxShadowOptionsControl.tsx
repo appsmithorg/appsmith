@@ -44,21 +44,11 @@ class BoxShadowOptionsControl extends BaseControl<
     }
   }
 
-  renderOptions = (
-    optionKey: string,
-    optionValue: string,
-    twSuffix: string,
-    isThemeValue?: boolean,
-  ) => {
+  renderOptions = (optionKey: string, optionValue: string) => {
     return (
       <TooltipComponent
         content={
           <div>
-            {isThemeValue && (
-              <header className="text-xs text-center text-gray-300 uppercase">
-                Theme
-              </header>
-            )}
             <div>{startCase(optionKey)}</div>
           </div>
         }
@@ -74,9 +64,11 @@ class BoxShadowOptionsControl extends BaseControl<
         >
           <div
             className="flex items-center justify-center w-5 h-5 bg-white"
-            style={{ boxShadow: twSuffix }}
+            style={{ boxShadow: optionValue }}
           >
-            {twSuffix === "none" && <CloseLineIcon className="text-gray-700" />}
+            {optionValue === "none" && (
+              <CloseLineIcon className="text-gray-700" />
+            )}
           </div>
         </button>
       </TooltipComponent>
@@ -87,18 +79,6 @@ class BoxShadowOptionsControl extends BaseControl<
     return (
       <div className="mt-1">
         <div className="inline-flex">
-          <div className="pr-3 mr-3 border-r border-gray-300">
-            {Object.keys(this.state.themeBoxShadowOptions).map((optionKey) =>
-              this.renderOptions(
-                optionKey,
-                getThemePropertyBinding(
-                  `${boxShadowPropertyName}.${optionKey}`,
-                ),
-                this.state.themeBoxShadowOptions[optionKey],
-                true,
-              ),
-            )}
-          </div>
           <div className="grid grid-cols-5 gap-2 auto-cols-max">
             {Object.keys(boxShadowOptions).map((optionKey) =>
               this.renderOptions(
