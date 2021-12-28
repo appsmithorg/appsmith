@@ -85,7 +85,7 @@ class BoxShadowOptionsControl extends BaseControl<
 
   public render() {
     return (
-      <div className="mt-2 mb-2">
+      <div className="mt-1">
         <div className="inline-flex">
           <div className="pr-3 mr-3 border-r border-gray-300">
             {Object.keys(this.state.themeBoxShadowOptions).map((optionKey) =>

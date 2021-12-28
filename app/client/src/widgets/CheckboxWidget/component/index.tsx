@@ -43,7 +43,6 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
   color: ${({ checked }) => (checked ? Colors.GREY_10 : Colors.GREY_9)};
 
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
-    border-radius: 0;
     border: 1px solid ${Colors.GREY_3};
     box-shadow: none;
     outline: none !important;

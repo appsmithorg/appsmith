@@ -50,6 +50,8 @@ export interface StyledCheckboxProps {
   disabled?: boolean;
   optionCount: number;
   rowspace: number;
+  backgroundColor: string;
+  borderRadius: string;
 }
 
 const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
@@ -63,16 +65,19 @@ const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
     .bp3-control-indicator {
       ${({ disabled }) =>
         !disabled && `border: 1.5px solid ${Colors.DARK_GRAY}`};
-      border-radius: 0;
+      background-image: none;
       box-shadow: none;
+      border: 1px solid ${Colors.GREY_3};
+      border-radius: ${({ borderRadius }) => borderRadius};
     }
   }
 
   &.bp3-control input:checked ~ .bp3-control-indicator {
-    border: none;
     background-image: none;
-    background-color: ${({ theme }) =>
-      theme.colors.button.primary.primary.bgColor};
+    background-color: ${({ backgroundColor }) => backgroundColor};
+    &::before {
+      background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A") !important;
+    }
   }
 
   &.bp3-control input:not(:disabled):active ~ .bp3-control-indicator {
@@ -127,6 +132,8 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
         options.length > 0 &&
         [...options].map((option: OptionProps) => (
           <StyledCheckbox
+            backgroundColor={props.backgroundColor}
+            borderRadius={props.borderRadius}
             checked={(selectedValues || []).includes(option.value)}
             disabled={isDisabled}
             indeterminate={isDisabled ? true : undefined}

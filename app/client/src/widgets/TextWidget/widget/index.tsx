@@ -137,19 +137,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 subText: "0.75rem",
               },
               {
-                label: "sm",
-                value: "0.875rem",
-                subText: "0.875rem",
-              },
-              {
-                label: "default",
+                label: "base",
                 value: "1rem",
                 subText: "1rem",
-              },
-              {
-                label: "lg",
-                value: "1.125rem",
-                subText: "1.125rem",
               },
               {
                 label: "xl",
@@ -157,19 +147,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 subText: "1.25rem",
               },
               {
-                label: "2xl",
-                value: "1.5rem",
-                subText: "1.5rem",
-              },
-              {
                 label: "3xl",
                 value: "1.875rem",
                 subText: "1.875rem",
-              },
-              {
-                label: "4xl",
-                value: "2.25rem",
-                subText: "2.25rem",
               },
               {
                 label: "5xl",

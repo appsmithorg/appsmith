@@ -33,7 +33,6 @@ const dummyThemes: AppTheme[] = [
           none: "0px",
           md: "0.375rem",
           lg: "1.5rem",
-          full: "9999px",
         },
       },
       boxShadow: {
@@ -65,17 +64,16 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -84,12 +82,12 @@ const dummyThemes: AppTheme[] = [
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -103,7 +101,7 @@ const dummyThemes: AppTheme[] = [
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -112,12 +110,12 @@ const dummyThemes: AppTheme[] = [
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -125,7 +123,7 @@ const dummyThemes: AppTheme[] = [
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -144,17 +142,20 @@ const dummyThemes: AppTheme[] = [
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -163,6 +164,7 @@ const dummyThemes: AppTheme[] = [
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -174,6 +176,7 @@ const dummyThemes: AppTheme[] = [
       },
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -193,6 +196,7 @@ const dummyThemes: AppTheme[] = [
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
     },
     properties: {
@@ -226,7 +230,6 @@ const dummyThemes: AppTheme[] = [
           none: "0px",
           md: "0.375rem",
           lg: "1.5rem",
-          full: "9999px",
         },
       },
       boxShadow: {
@@ -262,10 +265,12 @@ const dummyThemes: AppTheme[] = [
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -274,12 +279,12 @@ const dummyThemes: AppTheme[] = [
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -293,7 +298,7 @@ const dummyThemes: AppTheme[] = [
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -302,12 +307,12 @@ const dummyThemes: AppTheme[] = [
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -315,7 +320,7 @@ const dummyThemes: AppTheme[] = [
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -334,17 +339,20 @@ const dummyThemes: AppTheme[] = [
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -353,6 +361,7 @@ const dummyThemes: AppTheme[] = [
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -364,6 +373,7 @@ const dummyThemes: AppTheme[] = [
       },
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -383,6 +393,7 @@ const dummyThemes: AppTheme[] = [
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
     },
     properties: {
@@ -417,7 +428,6 @@ const dummyThemes: AppTheme[] = [
           none: "0px",
           md: "0.375rem",
           lg: "1.5rem",
-          full: "9999px",
         },
       },
       boxShadow: {
@@ -449,17 +459,16 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -468,12 +477,12 @@ const dummyThemes: AppTheme[] = [
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -487,7 +496,7 @@ const dummyThemes: AppTheme[] = [
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -496,12 +505,12 @@ const dummyThemes: AppTheme[] = [
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -509,7 +518,7 @@ const dummyThemes: AppTheme[] = [
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -528,17 +537,20 @@ const dummyThemes: AppTheme[] = [
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -547,6 +559,7 @@ const dummyThemes: AppTheme[] = [
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -558,6 +571,7 @@ const dummyThemes: AppTheme[] = [
       },
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -577,6 +591,7 @@ const dummyThemes: AppTheme[] = [
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
     },
     properties: {
@@ -610,7 +625,6 @@ const dummyThemes: AppTheme[] = [
           none: "0px",
           md: "0.375rem",
           lg: "1.5rem",
-          full: "9999px",
         },
       },
       boxShadow: {
@@ -642,17 +656,16 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -661,12 +674,12 @@ const dummyThemes: AppTheme[] = [
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -680,7 +693,7 @@ const dummyThemes: AppTheme[] = [
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -689,12 +702,12 @@ const dummyThemes: AppTheme[] = [
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -702,7 +715,7 @@ const dummyThemes: AppTheme[] = [
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -721,17 +734,20 @@ const dummyThemes: AppTheme[] = [
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -740,6 +756,7 @@ const dummyThemes: AppTheme[] = [
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -751,6 +768,7 @@ const dummyThemes: AppTheme[] = [
       },
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        boxShadow: "none",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -770,6 +788,7 @@ const dummyThemes: AppTheme[] = [
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
       },
     },
     properties: {
@@ -802,7 +821,7 @@ export function* fetchAppThemes() {
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes,
     });
   } catch (error) {
     yield put({
@@ -824,11 +843,11 @@ export function* fetchAppSelectedTheme(
   const { applicationId } = action.payload;
 
   try {
-    const response = yield ThemingApi.fetchSelected(applicationId);
+    // const response = yield ThemingApi.fetchSelected(applicationId);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes[1],
     });
   } catch (error) {
     yield put({

@@ -4,7 +4,6 @@ import {
   Popover,
   InputGroup,
   PopoverInteractionKind,
-  Position,
   Classes,
 } from "@blueprintjs/core";
 import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
@@ -93,7 +92,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const applicationColors = extractColorsFromString(JSON.stringify(widgets));
 
   /**
-   * debounced on change
+   * debounced onChange
    *
    */
   const debouncedOnChange = React.useCallback(
@@ -121,10 +120,11 @@ function ColorPickerComponent(props: ColorPickerProps) {
       interactionKind={PopoverInteractionKind.CLICK}
       key={`color-picker-v2-popover-${color}`}
       minimal
-      position={Position.BOTTOM}
+      openOnTargetFocus
       usePortal
     >
       <StyledInputGroup
+        autoFocus
         leftIcon={
           color ? (
             <ColorIcon color={props.evaluatedColorValue || color || ""} />

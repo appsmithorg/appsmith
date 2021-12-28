@@ -153,8 +153,6 @@ export const CONFIG = {
                 `${columnId}.computedValue`,
                 `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
               );
-              set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
-              set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);
               set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
             });
             const updatePropertyMap = [
