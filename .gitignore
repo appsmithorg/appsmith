@@ -15,3 +15,6 @@ package-lock.json
 coverage-summary.json
 app/client/cypress/locators/Widgets.json
 deploy/ansible/appsmith_playbook/inventory
+
+# performance tests
+app/client/perf/traces/*
