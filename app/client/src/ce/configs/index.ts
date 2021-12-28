@@ -2,10 +2,9 @@ import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
-import { EvaluationVersion } from "api/ApplicationApi";
 const history = createBrowserHistory();
 
-export type INJECTED_CONFIGS = {
+export interface INJECTED_CONFIGS {
   sentry: {
     dsn: string;
     release: string;
@@ -45,14 +44,6 @@ export type INJECTED_CONFIGS = {
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
-};
-declare global {
-  interface Window {
-    APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
-    Intercom: any;
-    evaluationVersion: EvaluationVersion;
-    Sentry: any;
-  }
 }
 
 const capitalizeText = (text: string) => {
@@ -61,7 +52,7 @@ const capitalizeText = (text: string) => {
   return `${first}${rest}`;
 };
 
-const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
+export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
   return {
     sentry: {
       dsn: process.env.REACT_APP_SENTRY_DSN || "",

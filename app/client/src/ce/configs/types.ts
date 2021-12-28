@@ -16,7 +16,7 @@ export type FeatureFlagConfig = {
   default: FeatureFlags;
 };
 
-export type AppsmithUIConfigs = {
+export interface AppsmithUIConfigs {
   sentry: {
     enabled: boolean;
     dsn: string;
@@ -77,4 +77,4 @@ export type AppsmithUIConfigs = {
     apiKey: string;
   };
   appsmithSupportEmail: string;
-};
+}
