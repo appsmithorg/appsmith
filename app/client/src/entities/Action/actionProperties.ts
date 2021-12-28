@@ -23,6 +23,7 @@ export const getBindingPathsOfAction = (
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {
     data: EvaluationSubstitutionType.TEMPLATE,
     isLoading: EvaluationSubstitutionType.TEMPLATE,
+    datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
   };
   if (!formConfig) {
     return {

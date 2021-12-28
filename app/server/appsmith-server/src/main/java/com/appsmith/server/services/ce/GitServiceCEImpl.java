@@ -32,9 +32,12 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -65,10 +68,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.helpers.DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -80,6 +86,9 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
+    private final NewPageService newPageService;
+    private final NewActionService newActionService;
+    private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
@@ -886,6 +895,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //Remove the parent application branch name from the list
                     branch.remove(tuple.getT4());
                     defaultApplication.setGitApplicationMetadata(null);
+                    defaultApplication.getPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedPages())) {
+                        defaultApplication.getPublishedPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    }
                     return fileUtils.detachRemote(repoPath)
                             .flatMap(status -> Flux.fromIterable(branch)
                                     .flatMap(gitBranch ->
@@ -895,7 +908,26 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     )
                                     .then(applicationService.save(defaultApplication)));
                 })
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .flatMap(application ->
+                    // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
+                    // will be deleted
+                    Flux.fromIterable(application.getPages())
+                            .flatMap(page -> newPageService.findById(page.getId(), MANAGE_PAGES))
+                            .map(newPage ->  createPristineDefaultIdsAndUpdateWithGivenResourceIds(newPage, null))
+                            .collectList()
+                            .flatMapMany(newPageService::saveAll)
+                            .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), MANAGE_ACTIONS)
+                                    .map(newAction -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction, null))
+                                    .collectList()
+                                    .flatMapMany(newActionService::saveAll)
+                                    .thenMany(actionCollectionService.findByPageId(newPage.getId()))
+                                    .map(actionCollection -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection, null))
+                                    .collectList()
+                                    .flatMapMany(actionCollectionService::saveAll)
+                            )
+                            .then()
+                            .thenReturn(responseUtils.updateApplicationWithDefaultResources(application))
+                );
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
