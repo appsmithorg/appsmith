@@ -58,10 +58,7 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateReplayEntity } from "actions/pageActions";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
@@ -293,23 +290,7 @@ function* handleExecuteJSFunctionSaga(
   const { action, collectionId, collectionName } = data.payload;
   const actionId = action.id;
   try {
-    const { result, triggers } = yield call(
-      executeFunction,
-      collectionName,
-      action,
-    );
-    if (triggers && triggers.length) {
-      yield all(
-        triggers.map((trigger: ActionDescription) =>
-          call(executeActionTriggers, trigger, EventType.ON_CLICK, {
-            source: {
-              id: action.collectionId || "",
-              name: data.payload.collectionName,
-            },
-          }),
-        ),
-      );
-    }
+    const result = yield call(executeFunction, collectionName, action);
 
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,

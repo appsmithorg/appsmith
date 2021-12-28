@@ -86,14 +86,14 @@ const capitalizeFirstLetter = (string = " ") => {
   return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
 };
 
-const SpinnerContainer = styled.div`
-  margin-left: ${(props) => props.theme.spaces[2]}px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 29px;
-  height: 26px;
-`;
+// const SpinnerContainer = styled.div`
+//   margin-left: ${(props) => props.theme.spaces[2]}px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   width: 29px;
+//   height: 26px;
+// `;
 
 function QuickActionButton({
   count = 0,
@@ -105,18 +105,18 @@ function QuickActionButton({
 }: QuickActionButtonProps) {
   return (
     <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
-      {loading ? (
-        <SpinnerContainer>
+      <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
+        {loading ? (
           <SpinnerLoader height="16px" width="16px" />
-        </SpinnerContainer>
-      ) : (
-        <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
-          <Icon name={icon} size={IconSize.XL} />
-          {count > 0 && (
-            <span className="count">{count > 9 ? `${9}+` : count}</span>
-          )}
-        </QuickActionButtonContainer>
-      )}
+        ) : (
+          <div>
+            <Icon name={icon} size={IconSize.XL} />
+            {count > 0 && (
+              <span className="count">{count > 9 ? `${9}+` : count}</span>
+            )}
+          </div>
+        )}
+      </QuickActionButtonContainer>
     </Tooltip>
   );
 }

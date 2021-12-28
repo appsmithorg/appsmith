@@ -139,7 +139,11 @@ describe("Entity explorer datasource structure", function() {
     cy.get(".CodeMirror")
       .first()
       .then((editor) => {
-        editor[0].CodeMirror.setValue(`DROP TABLE ${tableName}`);
+        editor[0].CodeMirror.setValue("");
+        cy.wrap(editor)
+          .find("textarea")
+          .focus()
+          .type(`DROP TABLE ${tableName};`);
         cy.WaitAutoSave();
         cy.runQuery();
         cy.get(queryEditor.queryMoreAction).click();
