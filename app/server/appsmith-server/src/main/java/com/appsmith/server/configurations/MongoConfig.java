@@ -107,6 +107,7 @@ public class MongoConfig {
         MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
         converter.setCustomConversions(mongoCustomConversions());
+        converter.setMapKeyDotReplacement("-APPSMITH-DOT-REPLACEMENT-");
         return converter;
     }
 

@@ -30,6 +30,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.UQIDataFilterParams;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -629,7 +630,8 @@ public class AmazonS3Plugin extends BasePlugin {
                             Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
                             Condition condition = parseWhereClause(whereForm);
                             ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
-                            actionResult = filterDataService.filterDataNew(preFilteringResponse, condition);
+                            actionResult = filterDataService.filterDataNew(preFilteringResponse,
+                                    new UQIDataFilterParams(condition, null, null, null));
 
                         }
 
@@ -983,7 +985,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, null);
         }
 
     }

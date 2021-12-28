@@ -7,6 +7,8 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -20,15 +22,22 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitConnectionLimitDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -43,6 +52,8 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -50,18 +61,20 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.helpers.DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -73,16 +86,24 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
+    private final NewPageService newPageService;
+    private final NewActionService newActionService;
+    private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
+    private final CommonConfig commonConfig;
+    private final ConfigService configService;
+    private final CloudServicesConfig cloudServicesConfig;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
     private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please resolve merge conflicts in remote and pull again";
+
+    private final static Map<String, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -92,6 +113,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         SYNC_REMOTE_AFTER_MERGE("for syncing changes with local branch after git merge, branch: ");
 
         private final String reason;
+
         DEFAULT_COMMIT_REASONS(String reason) {
             this.reason = reason;
         }
@@ -102,9 +124,9 @@ public class GitServiceCEImpl implements GitServiceCE {
 
 
     @Override
-    public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata){
+    public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
 
-        if(Optional.ofNullable(gitApplicationMetadata).isEmpty()) {
+        if (Optional.ofNullable(gitApplicationMetadata).isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Git metadata values cannot be null"));
         }
 
@@ -148,29 +170,53 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId) {
 
-        if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
+        // Throw error in following situations:
+        // 1. Updating or creating global git profile (defaultApplicationId = "default") and update is made with empty
+        //    authorName or authorEmail
+        // 2. Updating or creating repo specific profile and user want to use repo specific profile but provided empty
+        //    values for authorName and email
+
+        if((DEFAULT.equals(defaultApplicationId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+                && StringUtils.isEmptyOrNull(gitProfile.getAuthorName())
+        ) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Name"));
-        } else if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
+        } else if((DEFAULT.equals(defaultApplicationId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+                && StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())
+        ) {
             return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Email"));
         } else if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
-            return Mono.error( new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        if (StringUtils.equalsIgnoreCase(DEFAULT, defaultApplicationId)) {
-            gitProfile.setUseGlobalProfile(Boolean.TRUE);
+        if (DEFAULT.equals(defaultApplicationId)) {
+            gitProfile.setUseGlobalProfile(null);
         } else if (!Boolean.TRUE.equals(gitProfile.getUseGlobalProfile())) {
             gitProfile.setUseGlobalProfile(Boolean.FALSE);
         }
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
-                .flatMap(user -> userDataService
-                        .getForUser(user.getId())
+                .flatMap(user -> userDataService.getForUser(user.getId())
                         .flatMap(userData -> {
                             // GitProfiles will be null if the user has not created any git profile.
                             GitProfile savedProfile = userData.getGitProfileByKey(defaultApplicationId);
-                            if (savedProfile == null || !savedProfile.equals(gitProfile)) {
+                            GitProfile defaultGitProfile = userData.getGitProfileByKey(DEFAULT);
+
+                            if (savedProfile == null || !savedProfile.equals(gitProfile) || defaultGitProfile == null) {
                                 userData.setGitProfiles(userData.setGitProfileByKey(defaultApplicationId, gitProfile));
+
+                                // Assign appsmith user profile as a fallback git profile
+                                if (defaultGitProfile == null) {
+                                    GitProfile userProfile = new GitProfile();
+                                    String authorName = StringUtils.isEmptyOrNull(user.getName())
+                                            ? user.getUsername().split("@")[0]
+                                            : user.getName();
+                                    userProfile.setAuthorEmail(user.getEmail());
+                                    userProfile.setAuthorName(authorName);
+                                    userProfile.setUseGlobalProfile(null);
+                                    userData.setGitProfiles(userData.setGitProfileByKey(DEFAULT, userProfile));
+                                }
+
                                 // Update userData here
                                 UserData requiredUpdates = new UserData();
                                 requiredUpdates.setGitProfiles(userData.getGitProfiles());
@@ -179,11 +225,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             }
                             return Mono.just(userData.getGitProfiles());
                         })
-                        .filter(profiles -> !CollectionUtils.isNullOrEmpty(profiles))
                         .switchIfEmpty(Mono.defer(() -> {
-                                    // If profiles are empty use Appsmith's user details as git default profile
+                                    // If profiles are empty use Appsmith's user profile as git default profile
                                     GitProfile profile = new GitProfile();
-                                    String authorName = StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName();
+                                    String authorName = StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername().split("@")[0] : user.getName();
 
                                     profile.setAuthorName(authorName);
                                     profile.setAuthorEmail(user.getEmail());
@@ -194,19 +239,27 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             .map(UserData::getGitProfiles);
                                 })
                         )
+                        .filter(profiles -> !CollectionUtils.isNullOrEmpty(profiles))
                 );
     }
 
     @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile) {
-        gitProfile.setUseGlobalProfile(true);
+        gitProfile.setUseGlobalProfile(null);
         return updateOrCreateGitProfileForCurrentUser(gitProfile, DEFAULT);
     }
 
     @Override
-    public Mono<GitProfile> getGitProfileForUser() {
-        // Get default git profile
-        return getGitProfileForUser(DEFAULT);
+    public Mono<GitProfile> getDefaultGitProfileOrCreateIfEmpty() {
+        // Get default git profile if the default is empty then use Appsmith profile as a fallback value
+        return getGitProfileForUser(DEFAULT)
+                .flatMap(gitProfile -> {
+                    if (StringUtils.isEmptyOrNull(gitProfile.getAuthorName()) || StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())) {
+                        return updateGitProfileWithAppsmithProfile(DEFAULT);
+                    }
+                    gitProfile.setUseGlobalProfile(null);
+                    return Mono.just(gitProfile);
+                });
     }
 
     @Override
@@ -216,14 +269,48 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitProfile gitProfile = userData.getGitProfileByKey(defaultApplicationId);
                     if (gitProfile != null && gitProfile.getUseGlobalProfile() == null) {
                         gitProfile.setUseGlobalProfile(true);
+                    } else if (gitProfile == null) {
+                        // If the profile is requested for repo specific using the applicationId
+                        GitProfile gitProfile1 = new GitProfile();
+                        gitProfile1.setAuthorName("");
+                        gitProfile1.setAuthorEmail("");
+                        gitProfile1.setUseGlobalProfile(true);
+                        return gitProfile1;
                     }
                     return gitProfile;
                 });
     }
 
+    private Mono<GitProfile> updateGitProfileWithAppsmithProfile(String key) {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .flatMap(currentUser -> {
+                    GitProfile gitProfile = new GitProfile();
+                    String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
+                            ? currentUser.getUsername().split("@")[0]
+                            : currentUser.getName();
+                    gitProfile.setAuthorEmail(currentUser.getEmail());
+                    gitProfile.setAuthorName(authorName);
+                    gitProfile.setUseGlobalProfile(null);
+                    return userDataService.getForUser(currentUser)
+                            .flatMap(userData -> {
+                                UserData updates = new UserData();
+                                if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                                    updates.setGitProfiles(Map.of(key, gitProfile));
+                                } else {
+                                    userData.getGitProfiles().put(key, gitProfile);
+                                    updates.setGitProfiles(userData.getGitProfiles());
+                                }
+                                return userDataService.updateForUser(currentUser, updates)
+                                        .thenReturn(gitProfile);
+                            });
+                });
+    }
+
     /**
      * This method will make a commit to local repo
-     * @param commitDTO information required for making a commit
+     *
+     * @param commitDTO            information required for making a commit
      * @param defaultApplicationId application branch on which the commit needs to be done
      * @return success message
      */
@@ -254,10 +341,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .getCurrentUser()
                                 .flatMap(user -> {
                                     GitProfile gitProfile = new GitProfile();
-                                    gitProfile.setAuthorName(StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername() : user.getName());
+                                    gitProfile.setAuthorName(StringUtils.isEmptyOrNull(user.getName()) ? user.getUsername().split("@")[0] : user.getName());
                                     gitProfile.setAuthorEmail(user.getEmail());
                                     Map<String, GitProfile> updateProfiles = userData.getGitProfiles();
-                                    updateProfiles.put(DEFAULT, gitProfile);
+                                    if (CollectionUtils.isNullOrEmpty(updateProfiles)) {
+                                        updateProfiles = Map.of(DEFAULT, gitProfile);
+                                    } else {
+                                        updateProfiles.put(DEFAULT, gitProfile);
+                                    }
 
                                     UserData update = new UserData();
                                     update.setGitProfiles(updateProfiles);
@@ -267,8 +358,42 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.just(userData);
                 });
 
-        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName)))
+        return this.getApplicationById(defaultApplicationId)
+                .flatMap(defaultApplication -> {
+                    GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
+                    Boolean dbIsRepoPrivate = defaultGitMetadata.getIsRepoPrivate();
+                    if (!Boolean.TRUE.equals(dbIsRepoPrivate)) {
+                        try {
+                            if (StringUtils.isEmptyOrNull(defaultGitMetadata.getBrowserSupportedRemoteUrl())) {
+                                defaultGitMetadata.setBrowserSupportedRemoteUrl(
+                                        GitUtils.convertSshUrlToHttpsCurlSupportedUrl(defaultGitMetadata.getRemoteUrl())
+                                );
+                            }
+                            Boolean isRepoPrivateCurrentStatus = GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl());
+                            if (!isRepoPrivateCurrentStatus.equals(dbIsRepoPrivate)) {
+                                defaultGitMetadata.setIsRepoPrivate(isRepoPrivateCurrentStatus);
+                                // check if the commit application will be allowed if the repo is made private
+                                return applicationService.save(defaultApplication)
+                                        //Check the limit for number of private repo
+                                        .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId(), false)
+                                                .flatMap(limitCount -> {
+                                                    //get git connected apps count from db
+                                                    return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
+                                                            .flatMap(count -> {
+                                                                if (limitCount <= count) {
+                                                                    return Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR));
+                                                                }
+                                                                return Mono.just(application);
+                                                            });
+                                                }));
+                            }
+                        } catch (IOException e) {
+                            log.debug("Error while checking if the repo is private: ", e);
+                        }
+                    }
+                    return Mono.just(defaultApplication);
+                })
+                .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS))
                 .flatMap(branchedApplication -> publishAndOrGetApplication(branchedApplication.getId(), commitDTO.getDoPush()))
                 .flatMap(branchedApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
@@ -322,14 +447,17 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     GitProfile authorProfile = currentUserData.getGitProfileByKey(gitApplicationData.getDefaultApplicationId());
 
-                    if (authorProfile == null || authorProfile.getUseGlobalProfile()) {
+                    if (authorProfile == null
+                            || StringUtils.isEmptyOrNull(authorProfile.getAuthorName())
+                            || Boolean.TRUE.equals(authorProfile.getUseGlobalProfile())) {
+
                         // Use default author profile as the fallback value
                         if (currentUserData.getGitProfileByKey(DEFAULT) != null) {
                             authorProfile = currentUserData.getGitProfileByKey(DEFAULT);
                         }
                     }
 
-                    if (authorProfile == null) {
+                    if (authorProfile == null || StringUtils.isEmptyOrNull(authorProfile.getAuthorName())) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
                                 " You can set up a git profile from the user profile section."
@@ -364,6 +492,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     /**
      * Method to get commit history for application branch
+     *
      * @param defaultApplicationId application for which the commit history is needed
      * @return list of commits
      */
@@ -395,15 +524,15 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     /**
-     *  Connect the application from Appsmith to a git repo
-     *  This is the prerequisite step needed to perform all the git operation for an application
-     *  We are implementing the deployKey approach and since the deploy-keys are repo level these keys are store under application.
-     *  Each application is equal to a repo in the git(and each branch creates a new application with default application as parent)
-     *  @param gitConnectDTO
-     *            applicationId - this is used to link the local git repo to an application
-     *            remoteUrl - used for connecting to remote repo etc
-     *  @return Application object with the updated data
-     * */
+     * Connect the application from Appsmith to a git repo
+     * This is the prerequisite step needed to perform all the git operation for an application
+     * We are implementing the deployKey approach and since the deploy-keys are repo level these keys are store under application.
+     * Each application is equal to a repo in the git(and each branch creates a new application with default application as parent)
+     *
+     * @param gitConnectDTO applicationId - this is used to link the local git repo to an application
+     *                      remoteUrl - used for connecting to remote repo etc
+     * @return Application object with the updated data
+     */
     @Override
     public Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO, String originHeader) {
         /*
@@ -412,7 +541,7 @@ public class GitServiceCEImpl implements GitServiceCE {
          *  We would be updating the remote url and default branchName
          * */
 
-        if(StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
+        if (StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
@@ -426,21 +555,41 @@ public class GitServiceCEImpl implements GitServiceCE {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 );
 
-        Mono<Map<String, GitProfile>> profileMono = Boolean.TRUE.equals(gitConnectDTO.getGitProfile().getUseGlobalProfile())
-                ? this.getGitProfileForUser().map(profile -> Map.of(DEFAULT, profile))
-                : updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId);
+        Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), defaultApplicationId);
 
         return profileMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 )
                 .then(getApplicationById(defaultApplicationId))
+                //Check the limit for number of private repo
+                .flatMap(application -> {
+                    // Check if the repo is public
+                    try {
+                        if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
+                            return Mono.just(application);
+                        }
+                    } catch (IOException e) {
+                        log.debug("Error while checking if the repo is private: ", e);
+                    }
+                    return getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
+                        .flatMap(limitCount -> {
+                            // get git connected apps count from db
+                            return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
+                                    .flatMap(count -> {
+                                        if (limitCount <= count) {
+                                            return Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR));
+                                        }
+                                        return Mono.just(application);
+                                    });
+                        });
+                })
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     } else {
-                        String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                        String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
                         Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
                                 repoPath,
@@ -448,14 +597,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         ).onErrorResume(error -> {
+                            log.error("Error while cloning the remote repo, {}", error.getMessage());
                             if (error instanceof TransportException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                             }
                             if (error instanceof InvalidRemoteException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
                             }
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
-                            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
                         });
                         return Mono.zip(
                                 Mono.just(application),
@@ -475,7 +624,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     try {
                         return fileUtils.checkIfDirectoryIsEmpty(repoPath)
                                 .flatMap(isEmpty -> {
-                                    if(!isEmpty) {
+                                    if (!isEmpty) {
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_REPO));
                                     } else {
                                         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -484,6 +633,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setDefaultBranchName(defaultBranch);
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
+                                        gitApplicationMetadata.setBrowserSupportedRemoteUrl(
+                                                GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl())
+                                        );
+                                        try {
+                                            gitApplicationMetadata.setIsRepoPrivate(
+                                                    GitUtils.isRepoPrivate(gitApplicationMetadata.getBrowserSupportedRemoteUrl())
+                                            );
+                                        } catch (IOException e) {
+                                            gitApplicationMetadata.setIsRepoPrivate(true);
+                                            log.debug("Error while checking if the repo is private: ", e);
+                                        }
+
                                         // Set branchName for each application resource
                                         return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                                                 .flatMap(applicationJson -> {
@@ -499,9 +660,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                 })
                 .flatMap(application -> {
-                    String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                    String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                     String defaultPageId = "";
-                    if(!application.getPages().isEmpty()) {
+                    if (!application.getPages().isEmpty()) {
                         defaultPageId = application.getPages()
                                 .stream()
                                 .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))
@@ -515,17 +676,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //Initialize the repo with readme file
                     try {
                         return Mono.zip(
-                                        fileUtils.initializeGitRepo(
-                                                Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
-                                                originHeader + viewModeUrl,
-                                                originHeader + editModeUrl
-                                        ),
-                                        currentUserMono)
+                                fileUtils.initializeGitRepo(
+                                        Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
+                                        originHeader + viewModeUrl,
+                                        originHeader + editModeUrl
+                                ),
+                                currentUserMono)
                                 .flatMap(tuple -> {
                                     UserData userData = tuple.getT2();
                                     // Commit and push application to check if the SSH key has the write access
                                     GitProfile profile = userData.getGitProfileByKey(defaultApplicationId);
-                                    if (profile == null) {
+                                    if (profile == null
+                                            || StringUtils.isEmptyOrNull(profile.getAuthorName())
+                                            || Boolean.TRUE.equals(profile.getUseGlobalProfile())) {
+
                                         profile = userData.getGitProfileByKey(DEFAULT);
                                     }
 
@@ -543,20 +707,20 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                     GitAuth gitAuth = application.getGitApplicationMetadata().getGitAuth();
                                     return gitExecutor.pushApplication(
-                                                    baseRepoSuffix,
-                                                    application.getGitApplicationMetadata().getRemoteUrl(),
-                                                    gitAuth.getPublicKey(),
-                                                    gitAuth.getPrivateKey(),
-                                                    application.getGitApplicationMetadata().getBranchName()
-                                            )
+                                            baseRepoSuffix,
+                                            application.getGitApplicationMetadata().getRemoteUrl(),
+                                            gitAuth.getPublicKey(),
+                                            gitAuth.getPrivateKey(),
+                                            application.getGitApplicationMetadata().getBranchName()
+                                    )
                                             .onErrorResume(error ->
                                                     // If the push fails remove all the cloned files from local repo
                                                     fileUtils.detachRemote(baseRepoSuffix)
-                                                            .map(isDeleted -> {
-                                                                if(error instanceof TransportException) {
-                                                                    throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                                                            .flatMap(isDeleted -> {
+                                                                if (error instanceof TransportException) {
+                                                                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                                                                 }
-                                                                throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage());
+                                                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                                                             })
                                             );
                                 })
@@ -568,22 +732,45 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    /**
-     * Special chars are transformed to "-" : https://github.com/desktop/desktop/issues/3090
-     * Sample repo urls :
-     * git@github.com:username/reponame.git
-     * ssh://git@bitbucket.org/<workspace_ID>/<repo_name>.git
-     * @param remoteUrl ssh url of repo
-     * @return repo name extracted from repo url
-     */
-    private String getRepoName(String remoteUrl) {
-        // Pattern to match all words in the text
-        final Matcher matcher = Pattern.compile("([^/]*).git$").matcher(remoteUrl);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect! Can you " +
-                "please provide as per standard format => git@github.com:username/reponame.git");
+    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId, boolean isClearCache) {
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+        return configService.getInstanceId().map(instanceId -> {
+            if (commonConfig.isCloudHosting()) {
+                return instanceId + "_" + orgId;
+            } else {
+                return instanceId;
+            }
+        }).flatMap(key -> {
+            // check the cache for the repo limit
+            if(Boolean.FALSE.equals(isClearCache) && gitLimitCache.containsKey(key)) {
+                return Mono.just(gitLimitCache.get(key).getRepoLimit());
+            }
+            // Call the cloud service API
+            return WebClient
+                    .create(baseUrl + "/api/v1/git/limit/" + key)
+                    .get()
+                    .exchange()
+                    .flatMap(response -> {
+                        if (response.statusCode().is2xxSuccessful()) {
+                            return response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Integer>>() {
+                            });
+                        } else {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.CLOUD_SERVICES_ERROR,
+                                    "Unable to connect to cloud-services with error status {}", response.statusCode()));
+                        }
+                    })
+                    .map(ResponseDTO::getData)
+                    // cache the repo limit
+                    .map(limit -> {
+                        GitConnectionLimitDTO gitConnectionLimitDTO = new GitConnectionLimitDTO();
+                        gitConnectionLimitDTO.setRepoLimit(limit);
+                        gitConnectionLimitDTO.setExpiryTime(Instant.now().plusSeconds(24 * 60 * 60));
+                        gitLimitCache.put(key, gitConnectionLimitDTO);
+                        return limit;
+                    })
+                    .doOnError(error -> log.error("Error fetching config from cloud services", error));
+        });
     }
 
     @Override
@@ -601,6 +788,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     /**
      * Push flow for dehydrated apps
+     *
      * @param applicationId application which needs to be pushed to remote repo
      * @return Success message
      */
@@ -641,8 +829,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     gitAuth.getPrivateKey(),
                                     gitData.getBranchName()))
                             .onErrorResume(error -> {
-                                if(error instanceof TransportException) {
-                                    return Mono.error( new AppsmithException(
+                                if (error instanceof TransportException) {
+                                    return Mono.error(new AppsmithException(
                                             AppsmithError.GIT_ACTION_FAILED,
                                             "push",
                                             " Uh oh! you haven't provided the write permission to deploy keys. Appsmith needs write access to push to remote, please provide one to proceed"));
@@ -651,11 +839,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .flatMap(pushResult -> {
-                    if(pushResult.contains("REJECTED")) {
+                    if (pushResult.contains("REJECTED")) {
                         final String error = "Failed to push some refs to remote\n" +
                                 "> To prevent you from losing history, non-fast-forward updates were rejected\n" +
                                 "> Merge the remote changes (e.g. 'git pull') before pushing again.";
-                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", error));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", error));
                     }
                     return Mono.just(pushResult);
                 });
@@ -671,7 +859,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     public Mono<Application> detachRemote(String defaultApplicationId) {
         return getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
-                    if(Optional.ofNullable(defaultApplication.getGitApplicationMetadata()).isEmpty()
+                    if (Optional.ofNullable(defaultApplication.getGitApplicationMetadata()).isEmpty()
                             || isInvalidDefaultApplicationGitMetadata(defaultApplication.getGitApplicationMetadata())) {
                         return Mono.error(
                                 new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Please reconfigure the application to connect to git repo")
@@ -707,6 +895,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //Remove the parent application branch name from the list
                     branch.remove(tuple.getT4());
                     defaultApplication.setGitApplicationMetadata(null);
+                    defaultApplication.getPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedPages())) {
+                        defaultApplication.getPublishedPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    }
                     return fileUtils.detachRemote(repoPath)
                             .flatMap(status -> Flux.fromIterable(branch)
                                     .flatMap(gitBranch ->
@@ -716,9 +908,27 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     )
                                     .then(applicationService.save(defaultApplication)));
                 })
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .flatMap(application ->
+                    // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
+                    // will be deleted
+                    Flux.fromIterable(application.getPages())
+                            .flatMap(page -> newPageService.findById(page.getId(), MANAGE_PAGES))
+                            .map(newPage ->  createPristineDefaultIdsAndUpdateWithGivenResourceIds(newPage, null))
+                            .collectList()
+                            .flatMapMany(newPageService::saveAll)
+                            .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), MANAGE_ACTIONS)
+                                    .map(newAction -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction, null))
+                                    .collectList()
+                                    .flatMapMany(newActionService::saveAll)
+                                    .thenMany(actionCollectionService.findByPageId(newPage.getId()))
+                                    .map(actionCollection -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection, null))
+                                    .collectList()
+                                    .flatMapMany(actionCollectionService::saveAll)
+                            )
+                            .then()
+                            .thenReturn(responseUtils.updateApplicationWithDefaultResources(application))
+                );
     }
-
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
 
@@ -778,6 +988,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(branchName -> {
                                 final String srcApplicationId = srcApplication.getId();
                                 srcBranchGitData.setBranchName(branchName);
+                                srcBranchGitData.setIsRepoPrivate(null);
                                 // Save a new application in DB and update from the parent branch application
                                 srcBranchGitData.setGitAuth(null);
                                 srcApplication.setId(null);
@@ -794,11 +1005,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
                     return importExportApplicationService.importApplicationInOrganization(
-                                    savedApplication.getOrganizationId(),
-                                    tuple.getT2(),
-                                    savedApplication.getId(),
-                                    branchDTO.getBranchName()
-                            )
+                            savedApplication.getOrganizationId(),
+                            tuple.getT2(),
+                            savedApplication.getId(),
+                            branchDTO.getBranchName()
+                    )
                             .flatMap(application -> {
                                 // Commit and push for new branch created this is to avoid issues when user tries to create a
                                 // new branch from uncommitted branch
@@ -820,7 +1031,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
-        if(branchName.startsWith("origin/")) {
+        if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
             return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
                     .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName))
@@ -832,7 +1043,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
-                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     }
                     return applicationService.findByBranchNameAndDefaultApplicationId(
                             branchName, defaultApplicationId, READ_APPLICATIONS
@@ -868,6 +1079,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     srcBranchGitData.setDefaultApplicationId(defaultApplicationId);
                     // Save a new application in DB and update from the parent branch application
                     srcBranchGitData.setGitAuth(null);
+                    srcBranchGitData.setIsRepoPrivate(null);
                     srcApplication.setId(null);
                     srcApplication.setPages(null);
                     srcApplication.setPublishedPages(null);
@@ -880,7 +1092,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             .zipWith(Mono.just(application1));
                                 } catch (GitAPIException | IOException e) {
                                     log.error("Error while constructing the application from the git repo ", e);
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " checkout -t origin/"+branchName, e.getMessage()));
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " checkout -t origin/" + branchName, e.getMessage()));
                                 }
                             });
                 })
@@ -909,8 +1121,9 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     /**
      * We assume that the repo already exists via the connect or commit api
+     *
      * @param applicationId application for which we want to pull remote changes and merge
-     * @param branchName remoteBranch from which the changes will be pulled and merged
+     * @param branchName    remoteBranch from which the changes will be pulled and merged
      * @return return the status of pull operation
      */
     @Override
@@ -980,13 +1193,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Mono<MergeStatusDTO> pullStatus = null;
                     try {
                         pullStatus = gitExecutor.pullApplication(
-                                        repoSuffix,
-                                        gitApplicationMetadata.getRemoteUrl(),
-                                        gitApplicationMetadata.getBranchName(),
-                                        gitAuth.getPrivateKey(),
-                                        gitAuth.getPublicKey())
-                                .onErrorResume(error -> {
-                                    if (error.getMessage().contains("Nothing to fetch.")) {
+                                repoSuffix,
+                                gitApplicationMetadata.getRemoteUrl(),
+                                gitApplicationMetadata.getBranchName(),
+                                gitAuth.getPrivateKey(),
+                                gitAuth.getPublicKey())                                          .onErrorResume(error -> {
+                                    if (error.getMessage().contains("Nothing to fetch")) {
                                         MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                         mergeStatus.setStatus("Nothing to fetch from remote. All changes are up to date.");
                                         mergeStatus.setMergeAble(true);
@@ -1064,11 +1276,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitApplicationMetadata.getRepoName());
 
                     // Fetch default branch from DB if the ignoreCache is false else fetch from remote
-                    Mono<List<GitBranchDTO>> gitBranchDTOMono = gitExecutor.listBranches(repoPath,
-                                    gitApplicationMetadata.getRemoteUrl(),
-                                    gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                    gitApplicationMetadata.getGitAuth().getPublicKey(),
-                                    pruneBranches)
+                    Mono<List<GitBranchDTO>> gitBranchDTOMono = gitExecutor.listBranches(
+                            repoPath,
+                            gitApplicationMetadata.getRemoteUrl(),
+                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                            gitApplicationMetadata.getGitAuth().getPublicKey(),
+                            pruneBranches)
                             .onErrorResume(error -> Mono.error(new AppsmithException(
                                     AppsmithError.GIT_ACTION_FAILED,
                                     "branch --list",
@@ -1132,7 +1345,7 @@ public class GitServiceCEImpl implements GitServiceCE {
      * Get the status of the mentioned branch
      *
      * @param defaultApplicationId root/default application
-     * @param branchName for which the status is required
+     * @param branchName           for which the status is required
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
     public Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName) {
@@ -1148,13 +1361,13 @@ public class GitServiceCEImpl implements GitServiceCE {
 
 
         return Mono.zip(
-                        getGitApplicationMetadata(defaultApplicationId),
-                        applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                                .onErrorResume(error ->  {
-                                    //if the branch does not exist in local, checkout remote branch
-                                    return checkoutBranch(defaultApplicationId, finalBranchName);
-                                })
-                                .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
+                getGitApplicationMetadata(defaultApplicationId),
+                applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                        .onErrorResume(error -> {
+                            //if the branch does not exist in local, checkout remote branch
+                            return checkoutBranch(defaultApplicationId, finalBranchName);
+                        })
+                        .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
                     Application application = tuple.getT2().getT1();
@@ -1246,15 +1459,15 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     // 2. git checkout destinationBranch ---> git merge sourceBranch
                     return Mono.zip(
-                                    gitExecutor.mergeBranch(
-                                            repoSuffix,
-                                            sourceBranch,
-                                            destinationBranch
-                                    ),
-                                    Mono.just(defaultApplication))
+                            gitExecutor.mergeBranch(
+                                    repoSuffix,
+                                    sourceBranch,
+                                    destinationBranch
+                            ),
+                            Mono.just(defaultApplication))
                             // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab handleMergeConflict
                             .onErrorResume(error -> {
-                                if(error.getMessage().contains("Merge conflict")) {
+                                if (error.getMessage().contains("Merge conflict")) {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "Merge", error.getMessage()));
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "Merge", error.getMessage()));
@@ -1333,9 +1546,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return this.getStatus(defaultApplicationId, sourceBranch)
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch)));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
-                                    throw Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch)
                                         .map(destBranchStatus -> {
@@ -1358,20 +1571,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 try {
                                     return gitExecutor.resetToLastCommit(repoSuffix, destinationBranch)
-                                            .flatMap(reset -> {
-                                                try {
-                                                    return gitExecutor.resetToLastCommit(repoSuffix, sourceBranch);
-                                                } catch (GitAPIException | IOException e) {
-                                                    log.error("Error while resetting to last commit", e);
-                                                }
-                                                return Mono.just(false);
-                                            })
                                             .map(reset -> {
                                                 MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                                 mergeStatus.setMergeAble(false);
                                                 mergeStatus.setStatus("Merge check failed!");
                                                 mergeStatus.setMessage(error.getMessage());
-                                                if(error instanceof CheckoutConflictException) {
+                                                if (error instanceof CheckoutConflictException) {
                                                     mergeStatus.setConflictingFiles(((CheckoutConflictException) error)
                                                             .getConflictingPaths());
                                                 }
@@ -1392,9 +1597,9 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         return Mono.zip(
-                        getGitApplicationMetadata(defaultApplicationId),
-                        applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                                .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
+                getGitApplicationMetadata(defaultApplicationId),
+                applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                        .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
                     Application application = tuple.getT2().getT1();
@@ -1446,13 +1651,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .flatMap(commitMessage ->
                         gitExecutor.pushApplication(
-                                        repoSuffix,
-                                        gitApplicationMetadata.getRemoteUrl(),
-                                        auth.getPublicKey(),
-                                        auth.getPrivateKey(),
-                                        gitApplicationMetadata.getBranchName())
+                                repoSuffix,
+                                gitApplicationMetadata.getRemoteUrl(),
+                                auth.getPublicKey(),
+                                auth.getPrivateKey(),
+                                gitApplicationMetadata.getBranchName())
                                 .map(pushResult -> {
-                                    if(pushResult.contains("REJECTED")) {
+                                    if (pushResult.contains("REJECTED")) {
                                         final String error = "Failed to push some refs to remote\n" +
                                                 "> To prevent you from losing history, non-fast-forward updates were rejected\n" +
                                                 "> Merge the remote changes (e.g. 'git pull') before pushing again.";
@@ -1461,23 +1666,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return pushResult;
                                 })
                 );
-    }
-
-    private Mono<Map<String, GitProfile>> fetchGitProfile(UserData userData, String key) {
-        if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
-            return sessionUserService.getCurrentUser()
-                    .map(currentUser -> {
-                        String authorName = StringUtils.isEmptyOrNull(currentUser.getName())
-                                ? currentUser.getUsername()
-                                : currentUser.getName();
-                        GitProfile gitProfile = new GitProfile();
-
-                        gitProfile.setAuthorEmail(currentUser.getEmail());
-                        gitProfile.setAuthorName(authorName);
-                        return Map.of();
-                    });
-        }
-        return Mono.just(userData.getGitProfiles());
     }
 
 }

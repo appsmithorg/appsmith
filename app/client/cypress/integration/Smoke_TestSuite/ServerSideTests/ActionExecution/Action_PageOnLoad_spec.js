@@ -29,12 +29,13 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("Shows which action failed on action fail.", function() {
+    cy.wait(2000);
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("PageLoadApi2");
     cy.enterDatasourceAndPath("https://abc.com", "users");
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=executeOnLoad]").click({ force: true });
+    cy.get("[name=executeOnLoad]").click({ force: true });
 
     cy.wait("@setExecuteOnLoad");
 
@@ -44,6 +45,7 @@ describe("API Panel Test Functionality", function() {
     cy.wait("@updateLayout");
 
     cy.reload();
+    cy.wait(3000);
     cy.get(commonlocators.toastMsg).contains(
       `The action "PageLoadApi2" has failed.`,
     );
