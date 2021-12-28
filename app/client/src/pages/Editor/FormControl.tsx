@@ -1,6 +1,9 @@
 import React from "react";
 import { ControlProps } from "components/formControls/BaseControl";
-import { isHidden } from "components/formControls/utils";
+import {
+  isHidden,
+  getJSONToRawToggleProperty,
+} from "components/formControls/utils";
 import { useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import FormControlFactory from "utils/FormControlFactory";
@@ -12,9 +15,11 @@ import {
   FormInputErrorText,
   FormInfoText,
   FormSubtitleText,
-  FormInputSwitchToJsonButton,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
+import ToggleJSONToRaw, {
+  ToggleJSONToRawButton,
+} from "components/editorComponents/form/ToggleJSONToRaw";
 
 interface FormControlProps {
   config: ControlProps;
@@ -27,6 +32,11 @@ function FormControl(props: FormControlProps) {
     getFormValues(props.formName)(state),
   );
   const hidden = isHidden(formValues, props.config.hidden);
+  const viewType = getJSONToRawToggleProperty(
+    formValues,
+    props.config.controlType,
+    props.config.configProperty,
+  );
 
   if (hidden) return null;
 
@@ -35,12 +45,27 @@ function FormControl(props: FormControlProps) {
       config={props.config}
       formName={props.formName}
       multipleConfig={props?.multipleConfig}
+      viewType={viewType}
     >
       <div className={`t--form-control-${props.config.controlType}`}>
-        {FormControlFactory.createControl(
-          props.config,
-          props.formName,
-          props?.multipleConfig,
+        {viewType ? (
+          <ToggleJSONToRaw
+            rawPropertyPath={`${props.config.configProperty}.raw`}
+            toggleProperty={`${props.config.configProperty}.viewType`}
+            viewType={viewType}
+          >
+            {FormControlFactory.createControl(
+              props.config,
+              props.formName,
+              props?.multipleConfig,
+            )}
+          </ToggleJSONToRaw>
+        ) : (
+          FormControlFactory.createControl(
+            props.config,
+            props.formName,
+            props?.multipleConfig,
+          )
         )}
       </div>
     </FormConfig>
@@ -49,6 +74,7 @@ function FormControl(props: FormControlProps) {
 
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
+  viewType: string | undefined;
 }
 // top contains label, subtitle, urltext, tooltip, dispaly type
 // bottom contains the info and error text
@@ -60,7 +86,7 @@ function FormConfig(props: FormConfigProps) {
     top = (
       <div style={{ display: "flex" }}>
         {props.multipleConfig?.map((config) => {
-          return renderFormConfigTop({ config });
+          return renderFormConfigTop({ config, viewType: props.viewType });
         })}
       </div>
     );
@@ -92,11 +118,17 @@ function FormConfig(props: FormConfigProps) {
         {props.config.controlType === "CHECKBOX" ? (
           <>
             {props.children}
-            {renderFormConfigTop({ config: props.config })}
+            {renderFormConfigTop({
+              config: props.config,
+              viewType: props.viewType,
+            })}
           </>
         ) : (
           <>
-            {renderFormConfigTop({ config: props.config })}
+            {renderFormConfigTop({
+              config: props.config,
+              viewType: props.viewType,
+            })}
             {props.children}
           </>
         )}
@@ -108,9 +140,12 @@ function FormConfig(props: FormConfigProps) {
 
 export default FormControl;
 
-function renderFormConfigTop(props: { config: ControlProps }) {
+function renderFormConfigTop(props: {
+  config: ControlProps;
+  viewType: string | undefined;
+}) {
   const {
-    displayType,
+    // displayType,
     encrypted,
     isRequired,
     label,
@@ -147,10 +182,11 @@ function renderFormConfigTop(props: { config: ControlProps }) {
           {urlText}
         </FormInputAnchor>
       )}
-      {displayType && (
-        <FormInputSwitchToJsonButton type="button">
-          {displayType === "JSON" ? "SWITCH TO GUI" : "SWITCH TO JSON EDITOR"}
-        </FormInputSwitchToJsonButton>
+      {props.viewType && (
+        <ToggleJSONToRawButton
+          toggleProperty={`${props.config.configProperty}.viewType`}
+          viewType={props.viewType}
+        />
       )}
     </React.Fragment>
   );

@@ -1,3 +1,4 @@
+import { ControlType } from "constants/PropertyControlConstants";
 import { isBoolean, get, set } from "lodash";
 import { HiddenType } from "./BaseControl";
 
@@ -145,4 +146,20 @@ export const actionPathFromName = (
     path = "config." + path.substr(ActionConfigStarts.length);
   }
   return `${actionName}.${path}`;
+};
+
+export const getJSONToRawToggleProperty = (
+  values: any,
+  controlType: ControlType,
+  configProperty: string,
+): string | undefined => {
+  const VIEW_TYPES_PATH = "actionConfiguration.viewTypes";
+  const enabledViewType = get(values, `${VIEW_TYPES_PATH}.${controlType}`);
+
+  if (enabledViewType) {
+    const viewType = get(values, `${configProperty}.viewType`);
+    return viewType;
+  }
+
+  return;
 };
