@@ -10,7 +10,6 @@ import {
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
-import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
 import history from "utils/history";
@@ -21,6 +20,8 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -38,17 +39,6 @@ const InputContainer = styled.div<{ isValid: boolean }>`
     input {
       ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
     }
-  }
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  .${GitSyncClasses.OPTION_SELECTOR_WRAPPER} {
-    display: flex;
-    align-items: center;
-    padding-top: 5px;
   }
 `;
 
@@ -77,6 +67,12 @@ const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
   margin-top: ${(props) => props.theme.spaces[3]}px;
+`;
+
+const SectionTitle = styled.span`
+  ${(props) => getTypographyByKey(props, "u1")};
+  text-transform: uppercase;
+  color: ${Colors.GRAY_900};
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -124,19 +120,16 @@ type UserGitProfileSettingsProps = {
   setAuthorInfo: SetAuthorInfo;
   useGlobalConfig: boolean;
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
-  isLocalConfigDefined: boolean;
-  isGlobalConfigDefined: boolean;
   triedSubmit: boolean;
 };
 
 const goToGitProfile = () => {
+  AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK");
   history.push(GIT_PROFILE_ROUTE);
 };
 
 function UserGitProfileSettings({
   authorInfo,
-  isGlobalConfigDefined,
-  // isLocalConfigDefined,
   setAuthorInfo,
   toggleUseDefaultConfig,
   triedSubmit,
@@ -159,7 +152,7 @@ function UserGitProfileSettings({
     [authorInfo, setAuthorInfo],
   );
 
-  const disableInput = isGlobalConfigDefined && useGlobalConfig;
+  const disableInput = useGlobalConfig;
 
   const isValidEmail = useMemo(
     () =>
@@ -170,17 +163,26 @@ function UserGitProfileSettings({
   const isFetchingConfig =
     isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
 
-  const showDefaultConfig = !isFetchingConfig && isGlobalConfigDefined;
+  const showDefaultConfig = !isFetchingConfig;
   const nameInvalid =
-    !authorInfo.authorName && !nameInputFocused && triedSubmit;
-  const emailInvalid = !isValidEmail && !emailInputFocused && triedSubmit;
+    !isFetchingConfig &&
+    !useGlobalConfig &&
+    !authorInfo.authorName &&
+    !nameInputFocused &&
+    triedSubmit;
+
+  const emailInvalid =
+    !isFetchingConfig &&
+    !useGlobalConfig &&
+    !isValidEmail &&
+    !emailInputFocused &&
+    triedSubmit;
+
   return (
     <MainContainer>
-      <TitleWrapper>
-        <span className="label">
-          {createMessage(USER_PROFILE_SETTINGS_TITLE)}
-        </span>
-      </TitleWrapper>
+      <SectionTitle className="label">
+        {createMessage(USER_PROFILE_SETTINGS_TITLE)}
+      </SectionTitle>
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
@@ -208,7 +210,6 @@ function UserGitProfileSettings({
         <InputContainer isValid={!nameInvalid}>
           <TextInput
             dataType="text"
-            defaultValue={authorInfo.authorName}
             disabled={disableInput}
             errorMsg={
               nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
@@ -219,6 +220,7 @@ function UserGitProfileSettings({
             onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
             onFocus={() => setNameInputFocused(true)}
             trimValue={false}
+            value={authorInfo.authorName}
           />
         </InputContainer>
         <LabelContainer>

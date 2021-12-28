@@ -72,6 +72,13 @@ export function defaultSelectedRowValidation(
     } else {
       try {
         const _value: string = value as string;
+
+        if (_value === "") {
+          return {
+            isValid: true,
+            parsed: undefined,
+          };
+        }
         if (Number.isInteger(parseInt(_value, 10)) && parseInt(_value, 10) > -1)
           return { isValid: true, parsed: parseInt(_value, 10) };
 

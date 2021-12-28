@@ -44,7 +44,7 @@ const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 export default function Group({ name, settings }: GroupProps) {
   const state = useSelector((state) => state);
   return (
-    <GroupWrapper>
+    <GroupWrapper data-testid="admin-settings-group-wrapper">
       <GroupHeader>{createMessage(() => name || "")}</GroupHeader>
       <GroupBody>
         {settings &&
@@ -60,6 +60,7 @@ export default function Group({ name, settings }: GroupProps) {
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-text-input"
                     key={setting.name}
                   >
                     <TextInput setting={setting} />
@@ -69,6 +70,7 @@ export default function Group({ name, settings }: GroupProps) {
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-toggle"
                     key={setting.name}
                   >
                     <Toggle setting={setting} />
@@ -78,6 +80,7 @@ export default function Group({ name, settings }: GroupProps) {
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-link"
                     key={setting.name}
                   >
                     <Link setting={setting} />
@@ -87,6 +90,7 @@ export default function Group({ name, settings }: GroupProps) {
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-text"
                     key={setting.name}
                   >
                     <Text setting={setting} />
@@ -96,6 +100,7 @@ export default function Group({ name, settings }: GroupProps) {
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-button"
                     key={setting.name}
                   >
                     <Button setting={setting} />
@@ -105,6 +110,7 @@ export default function Group({ name, settings }: GroupProps) {
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group"
                     key={setting.name}
                   >
                     <Group name={setting.name} settings={setting.children} />

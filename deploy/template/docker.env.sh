@@ -41,7 +41,7 @@ APPSMITH_MAIL_ENABLED=false
 
 # ******** Database *************
 APPSMITH_REDIS_URL=redis://redis:6379
-APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/$mongo_database?retryWrites=true
+APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/$mongo_database?retryWrites=true&authSource=admin
 MONGO_INITDB_DATABASE=$mongo_database
 MONGO_INITDB_ROOT_USERNAME=$encoded_mongo_root_user
 MONGO_INITDB_ROOT_PASSWORD=$encoded_mongo_root_password

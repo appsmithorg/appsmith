@@ -35,6 +35,9 @@ public class ApplicationJson {
 
     Map<String, DecryptedSensitiveFields> decryptedFields;
 
+    Theme editModeTheme;
+    Theme publishedTheme;
+
     /**
      * Mapping mongoEscapedWidgets with layoutId
      */
