@@ -52,6 +52,7 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDa
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
@@ -63,10 +64,9 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -89,6 +89,7 @@ public class MongoPluginTest {
     private static String address;
     private static Integer port;
     private JsonNode value;
+    private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
     @ClassRule
@@ -99,14 +100,14 @@ public class MongoPluginTest {
     public static void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
-        String uri = "mongodb://" + address + ":" + Integer.toString(port);
-        final MongoClient mongoClient = MongoClients.create(uri);
+        String uri = "mongodb://" + address + ":" + port;
+        mongoClient = MongoClients.create(uri);
 
         Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().
                 flatMap(collectionNamesList -> {
-                    final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
-                            "users");
                     if (collectionNamesList.size() == 0) {
+                        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
+                                "users");
                         Mono.from(usersCollection.insertMany(List.of(
                                 new Document(Map.of(
                                         "name", "Cierra Vega",
@@ -122,7 +123,7 @@ public class MongoPluginTest {
                         ))).block();
                     }
 
-                    return Mono.just(usersCollection);
+                    return Mono.empty();
                 }).block();
     }
 
@@ -1815,5 +1816,170 @@ public class MongoPluginTest {
                     assertEquals(expectedReadableError, datasourceTestResult.getInvalids().toArray()[0]);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testSmartSubstitutionWithObjectIdInDoubleQuotes() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        String findQuery = "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "           \"_id\": {\n" +
+                "               $in: {{Input1.text}}\n" +
+                "            }\n" +
+                "    }\n" +
+                "}";
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(findQuery);
+
+        StringBuilder sb = new StringBuilder();
+        documentIds.stream()
+                .forEach(id -> sb.append(" \"ObjectId(\\\"" + id + "\\\")\","));
+        sb.setLength(sb.length() - 1);
+        String objectIdsAsArray = "[" + sb + "]";
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue(objectIdsAsArray);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(3, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testSmartSubstitutionWithObjectIdInSingleQuotes() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        String findQuery = "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "           \"_id\": {\n" +
+                "               $in: {{Input1.text}}\n" +
+                "            }\n" +
+                "    }\n" +
+                "}";
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(findQuery);
+
+        StringBuilder sb = new StringBuilder();
+        documentIds.stream()
+                .forEach(id -> sb.append(" \'ObjectId(\\\"" + id + "\\\")\',"));
+        sb.setLength(sb.length() - 1);
+        String objectIdsAsArray = "[" + sb + "]";
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue(objectIdsAsArray);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(3, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testBuildClientURI_withoutUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://host:port/db?param";
+        final String resultUri = "mongodb://host:port/db?param&authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://user:pass@host:port/db?param&authSource=notAdmin";
+        final String resultUri = "mongodb://user:newPass@host:port/db?param&authSource=notAdmin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withoutDbInfoAndPortsAndParams() {
+
+        final String testUri = "mongodb://user:pass@host";
+        final String resultUri = "mongodb://user:newPass@host/?authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
     }
 }

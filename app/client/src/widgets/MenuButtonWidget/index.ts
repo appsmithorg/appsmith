@@ -15,6 +15,7 @@ export const CONFIG = {
     isCompact: false,
     isDisabled: false,
     isVisible: true,
+    animateLoading: true,
     menuItems: {
       menuItem1: {
         label: "First Menu Item",
