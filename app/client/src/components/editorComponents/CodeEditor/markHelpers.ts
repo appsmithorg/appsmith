@@ -1,8 +1,6 @@
-import CodeMirror from "codemirror";
-import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 
-export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
+export const bindingMarker: MarkHelper = () => {
   // editor.eachLine((line: CodeMirror.LineHandle) => {
   //   const lineNo = editor.getLineNumber(line) || 0;
   //   let match;

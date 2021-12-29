@@ -31,6 +31,7 @@ import {
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
+import "./addon/matchMustaches";
 import {
   CodeEditorBorder,
   EditorConfig,
@@ -149,6 +150,10 @@ type State = {
   hinterOpen: boolean;
 };
 
+interface CMEditorConfig extends EditorConfiguration {
+  matchMustaches: boolean;
+}
+
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
@@ -173,7 +178,7 @@ class CodeEditor extends Component<Props, State> {
   }
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
-      const options: EditorConfiguration = {
+      const options: CMEditorConfig = {
         mode: this.props.mode,
         theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
@@ -184,6 +189,7 @@ class CodeEditor extends Component<Props, State> {
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
         matchBrackets: false,
+        matchMustaches: true,
         scrollbarStyle:
           this.props.size !== EditorSize.COMPACT ? "native" : "null",
         placeholder: this.props.placeholder,
