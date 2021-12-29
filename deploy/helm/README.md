@@ -8,11 +8,11 @@ API Support: CURL importer for REST APIs Database Support: PostgreSQL, MongoDB, 
 ## TL;DR
 ---
 ```
-helm repo add appsmith https://appsmithorg.github.io/appsmith
+helm repo add stable-appsmith http://helm.appsmith.com
 
 helm repo update
 
-helm install appsmith/appsmith --generate-name
+helm install stable-appsmith/appsmith --generate-name
 ```
 
 ## Introduction
@@ -23,17 +23,17 @@ This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) depl
 ---
 * Install Helm package manager: [https://helm.sh/docs/intro/install/](https://helm.sh/docs/intro/install/)
 * Ensure `kubectl` is installed and configured to connect to your cluster
-    * Install kubeclt: [kubernetes.io/vi/docs/tasks/tools/install-kubectl/](https://kubernetes.io/vi/docs/tasks/tools/install-kubectl/)
+    * Install kubectl: [kubernetes.io/vi/docs/tasks/tools/install-kubectl/](https://kubernetes.io/vi/docs/tasks/tools/install-kubectl/)
     * Minikube: [Setup Kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/)
     * Google Cloud Kubernetes: [Configuring cluster access for kubectl](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
     * Aws EKS: [Create a kubeconfig for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
 
     * Microk8s: [Working with kubectl](https://microk8s.io/docs/working-with-kubectl)
 * Ensure you have a default storage class running on your cluster. Please follow one of below guideline to enable your default storage class in case of no existing one
-	* Minikube: [Enable addon default-storageclass](https://kubernetes.io/docs/tutorials/hello-minikube/#enable-addons)
-	* Google Cloud Kubernetes: [Setting up default storage class on GKE](https://cloud.google.com/anthos/clusters/docs/on-prem/1.3/how-to/default-storage-class)
-	* AWS EKS: [Create default storage class](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)
-	* Microk8s: [Enable storage](https://microk8s.io/docs/command-reference#heading--microk8s-enable)
+  * Minikube: [Enable addon default-storageclass](https://kubernetes.io/docs/tutorials/hello-minikube/#enable-addons)
+  * Google Cloud Kubernetes: [Setting up default storage class on GKE](https://cloud.google.com/anthos/clusters/docs/on-prem/1.3/how-to/default-storage-class)
+  * AWS EKS: [Create default storage class](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)
+  * Microk8s: [Enable storage](https://microk8s.io/docs/command-reference#heading--microk8s-enable)
 * Kubernetes NGINX Ingress Controller should be enable on your cluster by default. Please make sure that you install the right version for your cluster
     * Minikube: [Set up Ingress on Minikube with the NGINX Ingress Controller](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/)
     * Google Cloud Kubernetes: [Ingress with NGINX controller on Google Kubernetes Engine](https://kubernetes.github.io/ingress-nginx/deploy/)
@@ -43,7 +43,7 @@ This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) depl
 ---
 To install the chart with the release `appsmith`
 ```
-helm install appsmith/appsmith --generate-name
+helm install stable-appsmith/appsmith --generate-name
 ```
 The command deploys Appsmith application on Kubernetes cluster in the default configuration. The [Parameters](https://github.com/appsmithorg/appsmith/tree/release/deploy/helm#paramters) section lists the parameters that can be configured during installation.
 ## Uninstalling the Chart
@@ -69,7 +69,7 @@ The command uninstalls the release and removes all Kubernetes resources associat
 ### Common parameters
 | Name 								| Description 																			| Value 				|
 | ------------------- | ------------------------------------------------- | ------------- |
-| `fullnameOverride`  | String to fully override `appsmith.name`	template	| `""`	 				|
+| `fullnameOverride`  | String to fully override `appsmith.name` template | `""`	 				|
 | `containerName`			| Specify container's name running in the pods			| `"appsmith"` 	|
 | `commonLabels`      | Labels to add to all deployed objects							| `{}` 					|
 | `commonAnnotations`	| Annotations to add to all deployed objects 				| `{}` 					|
@@ -98,9 +98,9 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 
 ### Appsmith namespace parameters
-| Name 											 		| Description 																																				 												| Value 	|
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- |
-| `namespace.create`    		| Enable creation of `Namespace`															 													| `true` 	|
+| Name 						  | Description 																																				 	| Value 	|
+| ----------------- | ------------------------------------------------------------------------------------- | ------- |
+| `namespace.create`| Enable creation of `Namespace`															 													| `true` 	|
 
 ### Appsmith service account parameters
 | Name 											 		| Description 																																				 												| Value 	|
@@ -115,6 +115,7 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `service.type` 						 					| Appsmith service type																															 			| `ClusterIP` |
 | `service.port`						 					| Appsmith service port																															 			| `80` 				|
 | `service.portName` 				 					| Appsmith service port name																													 		| `appsmith` 	|
+| `service.nodePort` 				 					| Appsmith service node port to expose to expose                              				 		| `8000` 			|
 | `service.clusterIP`        					| Appsmith service Cluster																														 		| `""` 				|
 | `service.loadBalancerIP`   					| Appsmith service Load Balancer IP																									 			| `""` 				|
 | `service.loadBalancerSourceRanges`	| Appsmith service Load Balancer sources                                      						| `[]` 				|
@@ -125,12 +126,14 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `ingress.secrets`										| Custom TLS certificates as secrets																											| `[]`				|
 | `ingress.certManager`								| Enable ingress to use TLS certificates provided by Cert Manager													| `false` 		|
 | `ingress.certManagerTls`						| Specify TLS secret resources created by Cert Manager																		| `[]`				|
+| `ingress.className`						      | Configure Ingress class that being used in ingress resource															| `""`				|
 
 ### Persistence parameters
 | Name 											 					| Description 																													| Value 							|
 | ----------------------------------- | --------------------------------------------------------------------- | ------------------- |
 | `persistence.enabled`								| Enable persistence using Persistent Volume Claims											| `true`							|
 | `persistence.storageClass`					| Persistent Volume storage class																				| `""`								|
+| `persistence.annotations`					  | Additional custom annotations for the PVC															| `{}`								|
 | `persistence.localStorage`					| Enable persistent volume using local storage													| `false`							|
 | `persistence.storagePath`						| Local storage path																										| `/tmp/hostpath_pv`	|
 | `persistence.localCluster`					| Local running cluster to provide storage space												| `[minikube]` 				|
@@ -154,15 +157,15 @@ The command uninstalls the release and removes all Kubernetes resources associat
 
 Specify each parameter using `--set key=value[,key=value]` argument to helm install. For example:
 ```
-helm install appsmith \
+helm install \
 --set persistence.storageClass=appsmith-pv \
-	deploy/helm
+  stable-appsmith/appsmith --generate-name
 ```
 The above command deploys Appsmith application and configure application to use storage class name `appsmith-pv`
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 ```
-helm install -f values.yaml appsmith/appsmith --generate-name
+helm install -f values.yaml stable-appsmith/appsmith --generate-name
 ```
 
 *Tip: You can use the default [values.yaml](https://github.com/appsmithorg/appsmith/blob/release/deploy/helm/values.yaml)*
