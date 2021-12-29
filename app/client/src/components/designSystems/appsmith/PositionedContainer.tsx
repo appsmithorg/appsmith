@@ -73,14 +73,25 @@ export function PositionedContainer(props: PositionedContainerProps) {
     const reflowY = reflowedPosition?.Y || 0;
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
-    const effectedByReflow =
-      isCurrentCanvasReflowing && reflowedPosition && reflowX + reflowY !== 0;
+    const reflowEffected = isCurrentCanvasReflowing && reflowedPosition;
+    const hasReflowedPosition = reflowEffected && reflowX + reflowY !== 0;
+    const hasReflowedDimensions =
+      reflowEffected &&
+      ((reflowHeight && reflowHeight !== props.style.componentHeight) ||
+        (reflowWidth && reflowWidth !== props.style.componentWidth));
+    const effectedByReflow = hasReflowedPosition || hasReflowedDimensions;
     const dropTargetStyles: CSSProperties =
       isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
-    const transformStyles: CSSProperties = effectedByReflow
+    const reflowedPositionStyles: CSSProperties = hasReflowedPosition
       ? {
           transform: `translate(${reflowX}px,${reflowY}px)`,
           transition: `transform 100ms linear`,
+          boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
+        }
+      : {};
+    const reflowDimensionsStyles = hasReflowedDimensions
+      ? {
+          transition: `width 0.1s, height 0.1s`,
           boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }
       : {};
@@ -97,7 +108,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",
-      ...transformStyles,
+      ...reflowedPositionStyles,
+      ...reflowDimensionsStyles,
       ...dropTargetStyles,
     };
     return styles;
