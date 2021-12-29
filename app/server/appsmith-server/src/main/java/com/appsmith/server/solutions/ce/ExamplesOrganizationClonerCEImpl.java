@@ -318,6 +318,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                                 });
 
                                                         unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
+
                                                         return actionCollectionService.create(actionCollection)
                                                                 .flatMap(newActionCollection -> {
                                                                     if (StringUtils.isEmpty(newActionCollection.getDefaultResources().getCollectionId())) {
