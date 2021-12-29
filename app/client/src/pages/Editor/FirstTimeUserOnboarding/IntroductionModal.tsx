@@ -12,9 +12,7 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
-import Database from "assets/images/first-time-onboarding-database.svg";
-import Drag from "assets/images/first-time-onboarding-dragndrop.svg";
-import Publish from "assets/images/first-time-onboarding-publish.svg";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const Wrapper = styled.div`
   display: flex;
@@ -117,6 +115,10 @@ type IntroductionModalProps = {
   close: () => void;
 };
 
+const getConnectDataImg = () => `${ASSETS_CDN_URL}/ConnectData-v2.svg`;
+const getDragAndDropImg = () => `${ASSETS_CDN_URL}/DragAndDrop.svg`;
+const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps-v2.svg`;
+
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const dispatch = useDispatch();
   const onBuildApp = () => {
@@ -160,7 +162,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={Database} />
+                  <StyledImg src={getConnectDataImg()} />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow border>
@@ -177,7 +179,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={Drag} />
+                  <StyledImg src={getDragAndDropImg()} />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow className="border-b-0">
@@ -189,12 +191,12 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                     </ModalContentHeader>
                     <ModalContentDescription>
                       Instantly publish & share your apps with users. Choose
-                      from pre-defined access controls roles.
+                      from pre-defined access control roles.
                     </ModalContentDescription>
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={Publish} />
+                  <StyledImg src={getPublishAppsImg()} />
                 </StyledImgWrapper>
               </ModalContentRow>
             </ModalContentWrapper>
