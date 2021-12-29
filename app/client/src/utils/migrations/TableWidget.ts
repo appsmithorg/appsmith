@@ -493,8 +493,8 @@ export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
 export const migrateTableWidgetNumericColumnName = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "TABLE_WIDGET") {
-      child.columnOrder = (child.columnOrder || []).map((co: string) =>
-        generateTableColumnId(co),
+      child.columnOrder = (child.columnOrder || []).map((col: string) =>
+        generateTableColumnId(col),
       );
 
       const primaryColumns = { ...child.primaryColumns };
