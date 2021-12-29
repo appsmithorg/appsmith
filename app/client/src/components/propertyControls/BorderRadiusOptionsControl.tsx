@@ -69,7 +69,7 @@ class BorderRadiusOptionsControl extends BaseControl<
                 Theme
               </header>
             )}
-            <div>{startCase(optionKey)}</div>
+            <div>{optionKey}</div>
           </div>
         }
         key={optionKey}

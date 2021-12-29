@@ -40,6 +40,8 @@ function ThemeEditor() {
     [updateSelectedAppThemeAction],
   );
 
+  console.log({ selectedTheme });
+
   return (
     <>
       <header className="flex items-center justify-between px-3 ">

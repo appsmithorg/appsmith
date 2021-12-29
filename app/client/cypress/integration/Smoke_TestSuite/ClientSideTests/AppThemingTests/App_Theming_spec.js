@@ -8,8 +8,6 @@ const dsl = require("../../../../fixtures/replay.json");
 const { CHANGE_APP_THEME, createMessage } = require("constants/messages");
 
 describe("App Theming funtionality", function() {
-  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
   before(() => {
     cy.addDsl(dsl);
   });

@@ -105,12 +105,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    // if (this.props.updateWidgetMetaProperty) {
-    //   this.props.updateWidgetMetaProperty(
-    //     "childrenEntityDefinitions",
-    //     childrenEntityDefinitions,
-    //   );
-    // }
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
+        "childrenEntityDefinitions",
+        childrenEntityDefinitions,
+      );
+    }
   }
 
   generateChildrenDefaultPropertiesMap = (

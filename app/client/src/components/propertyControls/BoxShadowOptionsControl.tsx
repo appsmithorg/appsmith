@@ -2,46 +2,20 @@ import * as React from "react";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
-import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
-import store from "store";
 import {
   boxShadowOptions,
-  boxShadowPropertyName,
   getThemePropertyBinding,
 } from "constants/ThemeContants";
-import { startCase } from "lodash";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
 
-interface BoxShadowOptionsControlState {
-  themeBoxShadowOptions: Record<string, string>;
-}
-
 class BoxShadowOptionsControl extends BaseControl<
-  BoxShadowOptionsControlProps,
-  BoxShadowOptionsControlState
+  BoxShadowOptionsControlProps
 > {
-  constructor(props: BoxShadowOptionsControlProps) {
-    super(props);
-    this.state = {
-      themeBoxShadowOptions: {},
-    };
-  }
-
   static getControlType() {
     return "BOX_SHADOW_OPTIONS";
-  }
-
-  componentDidMount() {
-    const theme = getSelectedAppThemeProperties(store.getState());
-
-    if (Object.keys(theme[boxShadowPropertyName]).length) {
-      this.setState({
-        themeBoxShadowOptions: theme[boxShadowPropertyName],
-      });
-    }
   }
 
   renderOptions = (optionKey: string, optionValue: string) => {
@@ -49,7 +23,7 @@ class BoxShadowOptionsControl extends BaseControl<
       <TooltipComponent
         content={
           <div>
-            <div>{startCase(optionKey)}</div>
+            <div>{optionKey}</div>
           </div>
         }
         key={optionKey}

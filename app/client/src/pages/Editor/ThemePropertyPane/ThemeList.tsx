@@ -12,17 +12,13 @@ interface ThemeListProps {
 }
 
 function ThemeList(props: ThemeListProps) {
-  const selectedTheme = useSelector(getSelectedAppTheme);
   const previewTheme = useSelector(getPreviewAppTheme);
 
   return (
     <>
       {props.themes.map((theme, index) => (
         <ThemeCard
-          isSelected={
-            (previewTheme ? previewTheme.name : selectedTheme.name) ===
-            theme.name
-          }
+          isSelected={previewTheme && previewTheme.name === theme.name}
           key={index}
           selectable
           theme={theme}

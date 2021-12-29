@@ -1,5 +1,5 @@
-import React, { memo, useCallback } from "react";
-import _, { isEqual } from "lodash";
+import React, { memo, useCallback, useMemo } from "react";
+import _, { get, isEqual } from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -24,6 +24,7 @@ import {
   getEvalValuePath,
   isPathADynamicProperty,
   isPathADynamicTrigger,
+  THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
   getWidgetPropsForPropertyName,
@@ -41,6 +42,7 @@ import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import * as log from "loglevel";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -68,6 +70,41 @@ const PropertyControl = memo((props: Props) => {
     enhancementSelector,
     isEqual,
   );
+
+  const selectedTheme = useSelector(getSelectedAppTheme);
+
+  const stylesheetValue = get(
+    selectedTheme,
+    `stylesheet.${widgetProperties.type}.${props.propertyName}`,
+  );
+
+  /**
+   * checks if property value is deviated or not
+   * by deviation, we mean if value of property is same as
+   * the one defined in the theme stylesheet. if values are different,
+   * that means the property value is deviated from the theme stylesheet.
+   */
+  const isPropertyDeviatedFromTheme = useMemo(() => {
+    // is theme stylesheet value binded to theme?
+    if (THEME_BINDING_REGEX.test(stylesheetValue)) {
+      // is theme stylesheet value same as widget property value?
+      if (THEME_BINDING_REGEX.test(widgetProperties[props.propertyName])) {
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      false;
+    }
+  }, [widgetProperties[props.propertyName], selectedTheme]);
+
+  /**
+   * resets the value of property to theme stylesheet value
+   * which is a binding to theme object defined in the stylesheet
+   */
+  const resetPropertyValueToTheme = useCallback(() => {
+    onPropertyChange(props.propertyName, stylesheetValue);
+  }, []);
 
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
@@ -434,6 +471,12 @@ const PropertyControl = memo((props: Props) => {
                 >
                   <ControlIcons.JS_TOGGLE />
                 </JSToggleButton>
+              )}
+              {isPropertyDeviatedFromTheme && (
+                <div
+                  className="w-2 h-2 rounded-full cursor-pointer bg-primary-500"
+                  onClick={resetPropertyValueToTheme}
+                />
               )}
               {/* {isThemeBound && (
                 <ThemeBound>
