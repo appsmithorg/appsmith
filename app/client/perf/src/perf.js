@@ -1,5 +1,6 @@
 const Tracelib = require("tracelib");
 const puppeteer = require("puppeteer");
+var sanitize = require("sanitize-filename");
 const fs = require("fs");
 const path = require("path");
 
@@ -43,10 +44,10 @@ module.exports = class Perf {
     global.APP_ROOT = path.join(__dirname, ".."); //Going back one level from src folder to /perf
     process.on("unhandledRejection", async (reason, p) => {
       console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
-      const screenshotPath = `${APP_ROOT}/traces/reports/${
-        this.currentTestFile
-      }__${this.currentTrace} 
-        -${getFormattedTime()}.png`;
+      const fileName = sanitize(
+        `${this.currentTestFile}__${this.currentTrace}`,
+      );
+      const screenshotPath = `${APP_ROOT}/traces/reports/${fileName}-${getFormattedTime()}.png`;
       await this.page.screenshot({
         path: screenshotPath,
       });

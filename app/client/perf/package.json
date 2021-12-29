@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "puppeteer": "^12.0.1",
+    "sanitize-filename": "^1.6.3",
     "tracelib": "^1.0.1"
   }
 }
