@@ -108,8 +108,8 @@ function DraggableList(props: any) {
           ) {
             // Scroll inside container till container cannnot be scrolled more towards bottom
             if (
-              container.scrollTop <
-              container.scrollHeight - container.clientHeight
+              container.scrollTop <=
+              springs.length * itemHeight - container.clientHeight - itemHeight
             ) {
               container.scrollTop += itemHeight / 10;
             }
@@ -138,7 +138,7 @@ function DraggableList(props: any) {
             down: props.down,
             originalIndex,
             curIndex,
-            y: displacement.current,
+            y: Math.abs(displacement.current) > 10 ? displacement.current : 0,
             itemHeight,
           }),
         );
