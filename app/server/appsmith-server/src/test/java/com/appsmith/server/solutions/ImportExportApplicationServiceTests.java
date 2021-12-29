@@ -20,6 +20,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -29,6 +30,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -132,6 +134,9 @@ public class ImportExportApplicationServiceTests {
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    private ThemeRepository themeRepository;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private Plugin installedPlugin;
@@ -437,6 +442,13 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
                     assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getEditModeTheme()).isNotNull();
+                    assertThat(applicationJson.getEditModeTheme().isSystemTheme()).isTrue();
+                    assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+
+                    assertThat(applicationJson.getPublishedTheme()).isNotNull();
+                    assertThat(applicationJson.getPublishedTheme().isSystemTheme()).isTrue();
+                    assertThat(applicationJson.getPublishedTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
                 })
                 .verifyComplete();
     }
@@ -640,6 +652,8 @@ public class ImportExportApplicationServiceTests {
                 assertThat(application.getPublishedPages()).hasSize(1);
                 assertThat(application.getModifiedBy()).isEqualTo("api_user");
                 assertThat(application.getUpdatedAt()).isNotNull();
+                assertThat(application.getEditModeThemeId()).isNotNull();
+                assertThat(application.getPublishedModeThemeId()).isNotNull();
 
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {
@@ -681,6 +695,43 @@ public class ImportExportApplicationServiceTests {
                 assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
             })
             .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationInOrganization_WhenCustomizedThemes_ThemesCreated() {
+        FilePart filePart = createFilePart(
+                "test_assets/ImportExportServiceTest/valid-application-with-custom-themes.json"
+        );
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Import theme test org");
+
+        final Mono<Application> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                themeRepository.findById(application.getEditModeThemeId()),
+                                themeRepository.findById(application.getPublishedModeThemeId())
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    Theme editTheme = tuple.getT2();
+                    Theme publishedTheme = tuple.getT3();
+
+                    assertThat(editTheme.isSystemTheme()).isFalse();
+                    assertThat(editTheme.getName()).isEqualTo("Custom edit theme");
+
+                    assertThat(publishedTheme.isSystemTheme()).isFalse();
+                    assertThat(publishedTheme.getName()).isEqualTo("Custom published theme");
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -765,6 +816,52 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(defaultPageDTO).isNotNull();
                     assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_withoutPageIdInActionCollection_succeeds() {
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        final Mono<Application> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                getActionsInApplication(application).collectList(),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                actionCollectionService
+                                        .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<ActionDTO> actionDTOS = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
+
+
+                    assertThat(datasourceList).isNotEmpty();
+
+                    assertThat(actionDTOS).hasSize(1);
+                    actionDTOS.forEach(actionDTO -> {
+                        assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+
+                    });
+
+                    assertThat(actionCollectionList).isEmpty();
                 })
                 .verifyComplete();
     }

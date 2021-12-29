@@ -313,10 +313,9 @@ function GitConnection({ isImport }: Props) {
         }),
       );
     } else {
-      const gitProfile = useGlobalConfigInputVal ? undefined : authorInfo;
       connectToGit({
         remoteUrl,
-        gitProfile,
+        gitProfile: authorInfo,
         isImport,
         isDefaultProfile: useGlobalConfigInputVal,
       });
@@ -467,9 +466,7 @@ function GitConnection({ isImport }: Props) {
             )}
             {!isConnectingToGit && (
               <Button
-                category={
-                  isGitConnected ? Category.secondary : Category.primary
-                }
+                category={Category.primary}
                 className="t--connect-submit-btn"
                 disabled={submitButtonDisabled}
                 isLoading={submitButtonIsLoading}
