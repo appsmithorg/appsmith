@@ -9,22 +9,10 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { compact, isArray } from "lodash";
+import { compact, isArray, isNumber } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  /**
-   * Check if the data type of the value
-   * If it's number send return as a number
-   * Other than that returns as it is.
-   */
-  if (typeof value === "number") {
-    return {
-      isValid: true,
-      parsed: value,
-    };
-  }
-
+function defaultOptionValidation(value: unknown): ValidationResponse {
   return {
     isValid: true,
     parsed: value,
@@ -95,7 +83,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fn: defaultOptionValueValidation,
+                fn: defaultOptionValidation,
                 expected: {
                   type: "string | number",
                   example: `1 | {{1}}`,
@@ -202,7 +190,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   onRadioSelectionChange = (updatedValue: string) => {
     let newVal;
-    if (typeof this.props.options[0].value === "number") {
+    if (isNumber(this.props.options[0].value)) {
       newVal = parseFloat(updatedValue);
     } else {
       newVal = updatedValue;
