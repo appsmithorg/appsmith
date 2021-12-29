@@ -660,6 +660,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     assert importedNewActionList != null;
 
                     return Flux.fromIterable(importedNewActionList)
+                            .filter(action -> action.getUnpublishedAction() != null
+                                    && !StringUtils.isEmpty(action.getUnpublishedAction().getPageId()))
                             .flatMap(newAction -> {
                                 NewPage parentPage = new NewPage();
                                 if (newAction.getDefaultResources() != null) {
@@ -767,6 +769,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
 
                     return Flux.fromIterable(importedActionCollectionList)
+                            .filter(actionCollection -> actionCollection.getUnpublishedCollection() != null
+                                    && !StringUtils.isEmpty(actionCollection.getUnpublishedCollection().getPageId()))
                             .flatMap(actionCollection -> {
                                 if (actionCollection.getDefaultResources() != null) {
                                     actionCollection.getDefaultResources().setBranchName(branchName);
