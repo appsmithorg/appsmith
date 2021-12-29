@@ -453,7 +453,9 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               const isReflowing = !isEmpty(currentReflowParams.movementMap);
-              const canReflow = currentRectanglesToDraw.length === 1;
+              const canReflow =
+                currentRectanglesToDraw.length === 1 &&
+                !currentRectanglesToDraw[0].detachFromLayout;
               const currentBlock = currentRectanglesToDraw[0];
               const [leftColumn, topRow] = getDropZoneOffsets(
                 snapColumnSpace,
