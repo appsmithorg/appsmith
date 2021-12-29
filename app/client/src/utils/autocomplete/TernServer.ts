@@ -221,7 +221,7 @@ class TernServer {
     const tip = this.elt(
       "span",
       cache.guess ? cls + "fhint-guess" : null,
-      this.elt("span", cls + "fname", cache.name + "("),
+      this.elt("span", cls + "fname", cache.name + "( "),
     );
     for (let i = 0; i < tp.args.length; ++i) {
       if (i) tip.appendChild(document.createTextNode(", "));
@@ -238,7 +238,7 @@ class TernServer {
         tip.appendChild(this.elt("span", cls + "type", arg.type));
       }
     }
-    tip.appendChild(document.createTextNode(tp.rettype ? ") ->\u00a0" : ")"));
+    tip.appendChild(document.createTextNode(tp.rettype ? " ) ->\u00a0" : " )"));
     if (tp.rettype) tip.appendChild(this.elt("span", cls + "type", tp.rettype));
     const place = cm.cursorCoords(start, "page") as {
       left: number;
@@ -248,7 +248,7 @@ class TernServer {
     };
     const tooltip = (this.activeArgHints = this.makeTooltip(
       tip,
-      place.right + 1 + "px",
+      place.left + "px",
       undefined,
       undefined,
       `calc(100vh - ${place.top}px)`,
