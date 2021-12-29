@@ -56,7 +56,7 @@ describe("Table Widget", function() {
       .wait(1000);
 
     cy.selectEntityByName("Widgets");
-    cy.deleteEntitybyName("Switch1");
-    cy.deleteEntitybyName("Table1");
+    cy.actionContextMenuByEntityName("Switch1");
+    cy.actionContextMenuByEntityName("Table1");
   });
 });
