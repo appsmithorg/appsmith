@@ -138,19 +138,25 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> publishTheme(String editModeThemeId, String publishedThemeId, String applicationId) {
-        return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS).then(
-                // makes sure user has permission to manage this application
-                repository.findById(editModeThemeId).flatMap(editModeTheme -> {
-                    if (editModeTheme.isSystemTheme()) {  // system theme is set as edit mode theme
-                        // just set the system theme id as published theme id to application object
-                        return applicationRepository.setAppTheme(
-                                applicationId, editModeThemeId, ApplicationMode.PUBLISHED, MANAGE_APPLICATIONS
-                        ).thenReturn(editModeTheme);
-                    } else {  // a customized theme is set as edit mode theme, copy that theme for published mode
-                        return saveThemeForApplication(publishedThemeId, editModeTheme, applicationId, ApplicationMode.PUBLISHED);
-                    }
-                })
-        );
+        Mono<Theme> editModeThemeMono;
+        if(!StringUtils.hasLength(editModeThemeId)) { // theme id is empty, use the default theme
+            editModeThemeMono = repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
+        } else { // theme id is not empty, fetch it by id
+            editModeThemeMono = repository.findById(editModeThemeId);
+        }
+
+        Mono<Theme> publishThemeMono = editModeThemeMono.flatMap(editModeTheme -> {
+            if (editModeTheme.isSystemTheme()) {  // system theme is set as edit mode theme
+                // just set the system theme id as published theme id to application object
+                return applicationRepository.setAppTheme(
+                        applicationId, editModeTheme.getId(), ApplicationMode.PUBLISHED, MANAGE_APPLICATIONS
+                ).thenReturn(editModeTheme);
+            } else {  // a customized theme is set as edit mode theme, copy that theme for published mode
+                return saveThemeForApplication(publishedThemeId, editModeTheme, applicationId, ApplicationMode.PUBLISHED);
+            }
+        });
+        // fetch application to make sure user has permission to manage this application
+        return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS).then(publishThemeMono);
     }
 
     /**
