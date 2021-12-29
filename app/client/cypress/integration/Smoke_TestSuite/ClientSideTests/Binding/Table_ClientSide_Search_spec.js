@@ -31,6 +31,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.togglebarDisable(
       ".t--property-control-enableclientsidesearch input[type='checkbox']",
     );
+    cy.wait(1000); //wait & then read the table value
     // Verify Client Search doesnt work
     cy.readTabledataPublish("0", "0").then((tabData) => {
       expect(tabData).to.eq("#1");
