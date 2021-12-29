@@ -40,7 +40,7 @@ const generateInitialEvalState = (formConfig: any) => {
     );
 };
 
-// Generator function to run the eval for the whole form when data changes
+// Function to run the eval for the whole form when data changes
 function evaluate(
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvaluationState,
@@ -88,6 +88,8 @@ export function setFormEvaluationSaga(
 ) {
   if (type === ReduxActionTypes.INIT_FORM_EVALUATION) {
     finalEvalObj = {};
+
+    // Config is extracted from the editor json first
     if (
       "editorConfig" in payload &&
       !!payload.editorConfig &&
@@ -97,6 +99,8 @@ export function setFormEvaluationSaga(
         generateInitialEvalState(config);
       });
     }
+
+    // Then the form config is extracted from the settings json
     if (
       "settingConfig" in payload &&
       !!payload.settingConfig &&
@@ -106,11 +110,14 @@ export function setFormEvaluationSaga(
         generateInitialEvalState(config);
       });
     }
+
+    // This is the initial evaluation state, evaluations can now be run on top of this
     return { [payload.formId]: finalEvalObj };
   } else {
     const { actionConfiguration, formId } = payload;
+    // In case the formData is not ready or the form is not of type UQI, return empty state
     if (!actionConfiguration.formData) {
-      return null;
+      return currentEvalState;
     } else {
       return getFormEvaluation(formId, actionConfiguration, currentEvalState);
     }

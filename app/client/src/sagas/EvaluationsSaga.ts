@@ -83,6 +83,7 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -568,6 +569,24 @@ export function* workerComputeUndoRedo(operation: string, entityId: string) {
   const workerResponse: any = yield call(worker.request, operation, {
     entityId,
   });
+  return workerResponse;
+}
+
+// Type to represent the state of the evaluation reducer
+export interface FormEvaluationObject extends ReduxAction<any> {
+  currentEvalState: FormEvaluationState;
+}
+
+// Function to trigger the form eval job in the worker
+export function* workerComputeFormEvals(
+  operation: string,
+  evaluationObject: FormEvaluationObject,
+) {
+  const workerResponse: any = yield call(
+    worker.request,
+    operation,
+    evaluationObject,
+  );
   return workerResponse;
 }
 
