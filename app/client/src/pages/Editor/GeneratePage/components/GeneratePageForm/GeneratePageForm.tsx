@@ -629,7 +629,7 @@ function GeneratePageForm() {
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
                 isSelectedNode={isSelectedNode}
-                key={option.id}
+                key={(option as DropdownOption).id}
                 option={option}
                 optionClickHandler={optionClickHandler}
                 optionWidth={DROPDOWN_DIMENSION.WIDTH}

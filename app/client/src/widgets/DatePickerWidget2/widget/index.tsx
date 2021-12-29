@@ -6,10 +6,20 @@ import DatePickerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 import moment from "moment";
 import { DatePickerType, TimePrecision } from "../constants";
 
+function allowedRange(value: any) {
+  const allowedValues = [0, 1, 2, 3, 4, 5, 6];
+  const isValid = allowedValues.includes(Number(value));
+  return {
+    isValid: isValid,
+    parsed: isValid ? Number(value) : 0,
+    messages: isValid ? [] : ["Number should be between 0-6."],
+  };
+}
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -241,6 +251,29 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
           },
+          {
+            propertyName: "firstDayOfWeek",
+            label: "First Day Of Week",
+            helpText: "Defines the first day of the week for calendar",
+            controlType: "INPUT_TEXT",
+            defaultValue: "0",
+            inputType: "INTEGER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: allowedRange,
+                expected: {
+                  type:
+                    "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+                  example: "0",
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
         ],
       },
       {
@@ -285,6 +318,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         closeOnSelection={this.props.closeOnSelection}
         dateFormat={this.props.dateFormat}
         datePickerType={"DATE_PICKER"}
+        firstDayOfWeek={this.props.firstDayOfWeek}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         label={`${this.props.label}`}
@@ -329,6 +363,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  firstDayOfWeek?: number;
   timePrecision: TimePrecision;
 }
 
