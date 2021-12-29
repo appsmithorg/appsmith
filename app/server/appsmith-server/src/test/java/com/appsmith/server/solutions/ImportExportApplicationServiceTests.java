@@ -822,7 +822,7 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplication_WithoutThemes_DefaultThemesAssigned() {
+    public void importApplication_WithoutThemes_LegacyThemesAssigned() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
 
         Organization newOrganization = new Organization();

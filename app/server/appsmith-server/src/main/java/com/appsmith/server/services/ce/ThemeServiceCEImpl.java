@@ -91,7 +91,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId) {
         // set provided theme to application and return that theme object
         Mono<Theme> setAppThemeMono = applicationRepository.setAppTheme(
-                applicationId, newThemeId, ApplicationMode.EDIT, MANAGE_APPLICATIONS
+                applicationId, newThemeId,null, MANAGE_APPLICATIONS
         ).then(repository.findById(newThemeId));
 
         // in case a customized theme was set to application, we need to delete that
@@ -147,9 +147,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
         Mono<Theme> publishThemeMono = editModeThemeMono.flatMap(editModeTheme -> {
             if (editModeTheme.isSystemTheme()) {  // system theme is set as edit mode theme
-                // just set the system theme id as published theme id to application object
+                // just set the system theme id as edit and published mode theme id to application object
                 return applicationRepository.setAppTheme(
-                        applicationId, editModeTheme.getId(), ApplicationMode.PUBLISHED, MANAGE_APPLICATIONS
+                        applicationId, editModeTheme.getId(), editModeTheme.getId(), MANAGE_APPLICATIONS
                 ).thenReturn(editModeTheme);
             } else {  // a customized theme is set as edit mode theme, copy that theme for published mode
                 return saveThemeForApplication(publishedThemeId, editModeTheme, applicationId, ApplicationMode.PUBLISHED);
@@ -188,9 +188,15 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 }).flatMap(savedThemeTuple -> {
                     Theme theme = savedThemeTuple.getT1();
                     if (savedThemeTuple.getT2()) { // new published theme created, update the application
-                        return applicationRepository.setAppTheme(
-                                applicationId, theme.getId(), applicationMode, MANAGE_APPLICATIONS
-                        ).thenReturn(theme);
+                        if(applicationMode == ApplicationMode.EDIT) {
+                            return applicationRepository.setAppTheme(
+                                    applicationId, theme.getId(), null, MANAGE_APPLICATIONS
+                            ).thenReturn(theme);
+                        } else {
+                            return applicationRepository.setAppTheme(
+                                    applicationId, null, theme.getId(), MANAGE_APPLICATIONS
+                            ).thenReturn(theme);
+                        }
                     } else {
                         return Mono.just(theme); // old theme overwritten, no need to update application
                     }

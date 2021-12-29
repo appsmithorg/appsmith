@@ -1379,14 +1379,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<Theme> getOrSaveTheme(Theme theme) {
-        if(theme == null) { // this application was exported without theme
-            return themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME); // return the default theme
+        if(theme == null) { // this application was exported without theme, assign the legacy theme to it
+            return themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
         } else if (theme.isSystemTheme()) {
             return themeRepository.getSystemThemeByName(theme.getName());
         } else {
             return themeRepository.save(theme);
         }
     }
-
-
 }
