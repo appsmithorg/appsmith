@@ -1034,7 +1034,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
-            listBranchForApplication(defaultApplicationId, false)
+            return listBranchForApplication(defaultApplicationId, false)
                     .flatMap(gitBranchDTOList -> {
                         long branchMatchCount = gitBranchDTOList
                                 .stream()
