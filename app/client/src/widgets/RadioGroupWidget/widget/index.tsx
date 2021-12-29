@@ -13,6 +13,10 @@ import { compact, isArray, isNumber } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultOptionValidation(value: unknown): ValidationResponse {
+  /**
+   * This is a placeholder validation function for keeping the values as is,
+   * And to display the expected structure and example.
+   */
   return {
     isValid: true,
     parsed: value,
