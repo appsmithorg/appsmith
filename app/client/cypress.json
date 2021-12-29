@@ -23,11 +23,5 @@
   "retries": {
     "runMode": 2,
     "openMode": 0
-  },
-  "env": {
-    "USERNAME": "pawan+new2@appsmith.com",
-    "PASSWORD": "123456",
-    "S3_ACCESS_KEY": "AKIAVWHAAGIQLW46V3IU",
-    "S3_SECRET_KEY": "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"
-   }
+  }
 }

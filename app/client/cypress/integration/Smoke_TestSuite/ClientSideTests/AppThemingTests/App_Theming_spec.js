@@ -32,7 +32,7 @@ describe("App Theming funtionality", function() {
         );
       });
 
-    // save theme
+    // save theme ( it goes to theme editor )
     cy.get(commonlocators.saveThemeBtn).click({ force: true });
 
     // check for alert
@@ -44,9 +44,6 @@ describe("App Theming funtionality", function() {
           createMessage(CHANGE_APP_THEME, text),
         );
       });
-
-    // go to back previous pane
-    cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
   });
 
   it("checks if theme can be edited", function() {
@@ -54,9 +51,6 @@ describe("App Theming funtionality", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.get("body").click();
-
-    // open theme editor pane
-    cy.get(commonlocators.editThemeBtn).click({ force: true });
 
     // change app border radius
     cy.get(commonlocators.themeAppBorderRadiusBtn)
@@ -68,6 +62,14 @@ describe("App Theming funtionality", function() {
       .eq(1)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
+        cy.get(widgetsPage.widgetBtn).should(
+          "have.css",
+          "border-radius",
+          borderRadius,
+        );
+
+        // publish the app
+        cy.PublishtheApp();
         cy.get(widgetsPage.widgetBtn).should(
           "have.css",
           "border-radius",
