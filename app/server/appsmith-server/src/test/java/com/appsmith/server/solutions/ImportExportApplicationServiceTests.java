@@ -45,6 +45,7 @@ import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -635,14 +636,14 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
                         datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
-                        getActionsInApplication(application).collectList(),
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                         newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                         actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
                 )))
             .assertNext(tuple -> {
                 final Application application = tuple.getT1();
                 final List<Datasource> datasourceList = tuple.getT2();
-                final List<ActionDTO> actionDTOS = tuple.getT3();
+                final List<NewAction> actionList = tuple.getT3();
                 final List<PageDTO> pageList = tuple.getT4();
                 final List<ActionCollection> actionCollectionList = tuple.getT5();
 
@@ -669,15 +670,25 @@ public class ImportExportApplicationServiceTests {
                     }
                 });
 
-                assertThat(actionDTOS).isNotEmpty();
-                actionDTOS.forEach(actionDTO -> {
+                List<String> collectionIdInAction = new ArrayList<>();
+                assertThat(actionList).isNotEmpty();
+                actionList.forEach(newAction -> {
+                    ActionDTO actionDTO = newAction.getUnpublishedAction();
                     assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
-
+                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                        collectionIdInAction.add(actionDTO.getCollectionId());
+                    }
                 });
 
                 assertThat(actionCollectionList).isNotEmpty();
                 actionCollectionList.forEach(actionCollection -> {
                     assertThat(actionCollection.getUnpublishedCollection().getPageId()).isNotEqualTo(pageList.get(0).getName());
+                    if (StringUtils.equals(actionCollection.getUnpublishedCollection().getName(), "JSObject2")) {
+                        // Check if this action collection is not attached to any action
+                        assertThat(collectionIdInAction).doesNotContain(actionCollection.getId());
+                    } else {
+                        assertThat(collectionIdInAction).contains(actionCollection.getId());
+                    }
                 });
 
                 assertThat(pageList).hasSize(2);
