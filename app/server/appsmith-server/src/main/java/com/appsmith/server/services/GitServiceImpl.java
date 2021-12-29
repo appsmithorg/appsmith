@@ -33,7 +33,8 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           EmailConfig emailConfig,
                           CommonConfig commonConfig,
                           ConfigService configService,
-                          CloudServicesConfig cloudServicesConfig) {
-        super(userService, userDataService, sessionUserService, applicationService, applicationPageService, newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService, gitExecutor, responseUtils, emailConfig, commonConfig, configService, cloudServicesConfig);
+                          CloudServicesConfig cloudServicesConfig,
+                          AnalyticsService analyticsService) {
+        super(userService, userDataService, sessionUserService, applicationService, applicationPageService, newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService, gitExecutor, responseUtils, emailConfig, commonConfig, configService, cloudServicesConfig, analyticsService);
     }
 }

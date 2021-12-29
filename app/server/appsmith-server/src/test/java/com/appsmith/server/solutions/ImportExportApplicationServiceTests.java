@@ -508,6 +508,7 @@ public class ImportExportApplicationServiceTests {
 
                 NewPage newPage = pageList.get(0);
 
+                assertThat(applicationJson.getVersion()).isNotNull();
                 assertThat(exportedApp.getName()).isNotNull();
                 assertThat(exportedApp.getOrganizationId()).isNull();
                 assertThat(exportedApp.getPages()).isNull();
