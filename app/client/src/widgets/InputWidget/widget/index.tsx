@@ -36,7 +36,7 @@ export function defaultValueValidation(
     inputType === "CURRENCY" ||
     inputType === "PHONE_NUMBER"
   ) {
-    const parsed = Number(value);
+    let parsed: number | undefined = Number(value);
 
     if (typeof value === "string") {
       if (value.trim() === "") {
@@ -54,6 +54,10 @@ export function defaultValueValidation(
           messages: ["This value must be a number"],
         };
       }
+    }
+
+    if (isNaN(parsed)) {
+      parsed = undefined;
     }
 
     return {

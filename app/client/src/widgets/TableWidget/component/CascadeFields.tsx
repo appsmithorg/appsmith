@@ -22,6 +22,7 @@ import { RenderOptionWrapper } from "./TableStyledWrappers";
 
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const StyledRemoveIcon = styled(
   ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
@@ -572,6 +573,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             onDateSelected={onDateSelected}
             selectedDate={value}
             shortcuts={false}
+            timePrecision={TimePrecision.MINUTE}
             widgetId=""
             withoutPortal
           />
