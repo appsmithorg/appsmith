@@ -595,6 +595,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.get(".t--entity-name").click({ multiple: true });
   cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
@@ -610,6 +611,7 @@ Cypress.Commands.add("GlobalSearchEntity", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.get(".t--entity-name").click({ multiple: true });
   cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
@@ -796,6 +798,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.get(".t--entity-name").click({ multiple: true });
   cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
@@ -803,6 +806,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
     .last()
     .click({ force: true });
+  //cy.get('.t--entity-name').click({multiple:true})
 });
 
 Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
@@ -810,6 +814,7 @@ Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.get(".t--entity-name").click({ multiple: true });
   cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
@@ -827,6 +832,7 @@ Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.get(".t--entity-name").click({ multiple: true });
   cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
