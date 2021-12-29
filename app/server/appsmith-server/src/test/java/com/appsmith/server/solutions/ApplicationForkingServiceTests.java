@@ -9,13 +9,16 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -32,7 +35,12 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -55,6 +63,7 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +71,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -132,6 +142,7 @@ public class ApplicationForkingServiceTests {
 
     private static boolean isSetupDone = false;
 
+    @SneakyThrows
     @Before
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -153,6 +164,8 @@ public class ApplicationForkingServiceTests {
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
 
+        PageDTO testPage = newPageService.findPageById(app1.getPages().get(0).getId(), READ_PAGES, false).block();
+
         // Save action
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
@@ -162,7 +175,7 @@ public class ApplicationForkingServiceTests {
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         ActionDTO action = new ActionDTO();
-        action.setName("forkActionByTest");
+        action.setName("forkActionTest");
         action.setPageId(app1.getPages().get(0).getId());
         action.setExecuteOnLoad(true);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -172,9 +185,27 @@ public class ApplicationForkingServiceTests {
 
         layoutActionService.createSingleAction(action).block();
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+
+        ArrayList children = (ArrayList) parentDsl.get("children");
+        JSONObject testWidget = new JSONObject();
+        testWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        testWidget.put("dynamicBindingPathList", temp);
+        testWidget.put("testField", "{{ forkActionTest.data }}");
+        children.add(testWidget);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("deleteTestCollection1");
+        actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(app1.getPages().get(0).getId());
         actionCollectionDTO.setApplicationId(sourceAppId);
         actionCollectionDTO.setOrganizationId(sourceOrganization.getId());
@@ -182,7 +213,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("collectionBody");
         ActionDTO action1 = new ActionDTO();
-        action1.setName("deleteTestAction1");
+        action1.setName("forkTestAction1");
         action1.setActionConfiguration(new ActionConfiguration());
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO.setActions(List.of(action1));
@@ -247,12 +278,14 @@ public class ApplicationForkingServiceTests {
         StepVerifier.create(resultMono
                 .zipWhen(application -> Mono.zip(
                         newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
-                    )))
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
+                )))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
                     List<NewAction> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
+                    List<NewPage> pageList = tuple.getT2().getT3();
 
                     assertThat(application).isNotNull();
                     assertThat(application.getName()).isEqualTo("1 - public app");
@@ -260,6 +293,23 @@ public class ApplicationForkingServiceTests {
                             .isEqualTo(application.getPages().get(0).getId());
                     assertThat(application.getPublishedPages().get(0).getDefaultPageId())
                             .isEqualTo(application.getPublishedPages().get(0).getId());
+
+                    assertThat(pageList).isNotEmpty();
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getDefaultResources()).isNotNull();
+                        assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
+                        assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        newPage.getUnpublishedPage()
+                                .getLayouts()
+                                .forEach(layout ->
+                                        layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                            dslActionDTOS.forEach(actionDTO -> {
+                                                assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                            });
+                                        })
+                                );
+                    });
 
                     assertThat(actionList).hasSize(2);
                     actionList.forEach(newAction -> {
