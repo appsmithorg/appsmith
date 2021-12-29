@@ -155,6 +155,10 @@ export const useCanvasDragging = (
     maxPositiveAcc: number;
     maxNegativeAcc: number;
     maxSpeed: number;
+    lastMousePositionOutsideCanvas: {
+      x: number;
+      y: number;
+    };
   }>({
     prevSpeed: 0,
     prevAcceleration: 0,
@@ -163,6 +167,10 @@ export const useCanvasDragging = (
     maxSpeed: 0,
     prevEvent: null,
     currentEvent: null,
+    lastMousePositionOutsideCanvas: {
+      x: 0,
+      y: 0,
+    },
   });
 
   const canScroll = useCanvasDragToScroll(
@@ -172,6 +180,57 @@ export const useCanvasDragging = (
     snapRows,
     canExtend,
   );
+
+  useEffect(() => {
+    const speedCalculationInterval = setInterval(function() {
+      const {
+        currentEvent,
+        maxNegativeAcc,
+        maxPositiveAcc,
+        maxSpeed,
+        prevEvent,
+        prevSpeed,
+      } = mouseAttributesRef.current;
+      if (prevEvent && currentEvent) {
+        const movementX = Math.abs(currentEvent.screenX - prevEvent.screenX);
+        const movementY = Math.abs(currentEvent.screenY - prevEvent.screenY);
+        const movement = Math.sqrt(
+          movementX * movementX + movementY * movementY,
+        );
+
+        const speed = 10 * movement; //current speed
+
+        const acceleration = 10 * (speed - prevSpeed);
+        mouseAttributesRef.current.prevAcceleration = acceleration;
+        mouseAttributesRef.current.prevSpeed = speed;
+        if (speed > maxSpeed) {
+          mouseAttributesRef.current.maxSpeed = speed;
+        }
+        if (acceleration > 0 && acceleration > maxPositiveAcc) {
+          mouseAttributesRef.current.maxPositiveAcc = acceleration;
+        } else if (acceleration < 0 && acceleration < maxNegativeAcc) {
+          mouseAttributesRef.current.maxNegativeAcc = acceleration;
+        }
+      }
+      mouseAttributesRef.current.prevEvent = currentEvent;
+    }, 100);
+    const stopSpeedCalculation = () => {
+      clearInterval(speedCalculationInterval);
+    };
+    const registerMouseMoveEvent = (e: any) => {
+      mouseAttributesRef.current.currentEvent = e;
+      mouseAttributesRef.current.lastMousePositionOutsideCanvas = {
+        x: e.clientX,
+        y: e.clientY,
+      };
+    };
+    window.addEventListener("mousemove", registerMouseMoveEvent);
+    return () => {
+      stopSpeedCalculation();
+      window.removeEventListener("mousemove", registerMouseMoveEvent);
+    };
+  }, []);
+
   useEffect(() => {
     if (
       canvasRef.current &&
@@ -186,48 +245,6 @@ export const useCanvasDragging = (
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
       const scrollObj: any = {};
-
-      const speedCalculationInterval = setInterval(function() {
-        const {
-          currentEvent,
-          maxNegativeAcc,
-          maxPositiveAcc,
-          maxSpeed,
-          prevEvent,
-          prevSpeed,
-        } = mouseAttributesRef.current;
-        if (canvasIsDragging) {
-          if (prevEvent && currentEvent) {
-            const movementX = Math.abs(
-              currentEvent.screenX - prevEvent.screenX,
-            );
-            const movementY = Math.abs(
-              currentEvent.screenY - prevEvent.screenY,
-            );
-            const movement = Math.sqrt(
-              movementX * movementX + movementY * movementY,
-            );
-
-            const speed = 10 * movement; //current speed
-
-            const acceleration = 10 * (speed - prevSpeed);
-            mouseAttributesRef.current.prevAcceleration = acceleration;
-            mouseAttributesRef.current.prevSpeed = speed;
-            if (speed > maxSpeed) {
-              mouseAttributesRef.current.maxSpeed = speed;
-            }
-            if (acceleration > 0 && acceleration > maxPositiveAcc) {
-              mouseAttributesRef.current.maxPositiveAcc = acceleration;
-            } else if (acceleration < 0 && acceleration < maxNegativeAcc) {
-              mouseAttributesRef.current.maxNegativeAcc = acceleration;
-            }
-          }
-          mouseAttributesRef.current.prevEvent = currentEvent;
-        }
-      }, 100);
-      const stopSpeedCalculation = () => {
-        clearInterval(speedCalculationInterval);
-      };
 
       let currentReflowParams: {
         canVerticalMove: boolean;
@@ -247,10 +264,6 @@ export const useCanvasDragging = (
       let lastSnappedPosition = {
         leftColumn: 0,
         topRow: 0,
-      };
-      let lastMousePositionOutsideCanvas = {
-        x: 0,
-        y: 0,
       };
 
       const resetCanvasState = () => {
@@ -345,7 +358,9 @@ export const useCanvasDragging = (
             canvasIsDragging = true;
             canvasRef.current.style.zIndex = "2";
             if (over) {
-              lastMousePosition = { ...lastMousePositionOutsideCanvas };
+              lastMousePosition = {
+                ...mouseAttributesRef.current.lastMousePositionOutsideCanvas,
+              };
             } else {
               lastMousePosition = {
                 x: e.clientX,
@@ -358,8 +373,6 @@ export const useCanvasDragging = (
         };
 
         const canReflowForCurrentMouseMove = () => {
-          // const { movementX = 0, movementY = 0 } = e;
-          // const threshold = 50;
           const {
             maxNegativeAcc,
             maxPositiveAcc,
@@ -371,14 +384,7 @@ export const useCanvasDragging = (
             prevAcceleration < 0 ? maxNegativeAcc : maxPositiveAcc,
           );
           const acceleration = Math.abs(prevAcceleration);
-          // console.log({ acceleration, limit, prevSpeed, maxSpeed });
           return acceleration < limit / 5 || prevSpeed < maxSpeed / 5;
-          // return !(
-          //   movementX > threshold ||
-          //   movementX < -threshold ||
-          //   movementY > threshold ||
-          //   movementY < -threshold
-          // );
         };
         const getMouseMoveDirection = (event: any) => {
           if (lastMousePosition) {
@@ -704,13 +710,8 @@ export const useCanvasDragging = (
           }
         };
         const captureMousePosition = (e: any) => {
-          mouseAttributesRef.current.currentEvent = e;
           if (isDragging && !canvasIsDragging) {
             currentDirection.current = getMouseMoveDirection(e);
-            lastMousePositionOutsideCanvas = {
-              x: e.clientX,
-              y: e.clientY,
-            };
           }
         };
         const onMouseOver = (e: any) => onFirstMoveOnCanvas(e, true);
@@ -756,7 +757,6 @@ export const useCanvasDragging = (
         startDragging();
 
         return () => {
-          stopSpeedCalculation();
           canvasRef.current?.removeEventListener("mousemove", onMouseMove);
           canvasRef.current?.removeEventListener("mouseup", onMouseUp);
           scrollParent?.removeEventListener("scroll", updateCanvasStyles);
