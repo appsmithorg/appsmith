@@ -101,7 +101,7 @@ class ProgressBarWidget extends BaseWidget<
             label: "Fill Color",
             controlType: "COLOR_PICKER",
             defaultColor: Colors.GREEN,
-            isBindProperty: false,
+            isBindProperty: true,
             isJSConvertible: true,
             isTriggerProperty: false,
           },
