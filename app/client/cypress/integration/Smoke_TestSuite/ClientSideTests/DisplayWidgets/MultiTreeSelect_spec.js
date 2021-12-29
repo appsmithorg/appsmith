@@ -1,28 +1,19 @@
 const dsl = require("../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
-describe("Tree Select Widget", function() {
+describe("Multi Tree Select Widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  // it("Open Existing MultiSelectTree from created Widgets list", () => {
-  //   cy.get(".widgets").click();
-  //   cy.get(".t--entity-name:contains(MultiSelectTree1)").click();
-  // });
-  // it("Open Existing SingleSelectTree from created Widgets list", () => {
-  //   cy.get(".widgets").click();
-  //   cy.get(".t--entity-name:contains(SingleSelectTree1)").click();
-  // });
-
   it("Add new widget", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("singleselecttreewidget", { x: 300, y: 300 });
-    cy.get(".t--widget-singleselecttreewidget").should("exist");
+    cy.dragAndDropToCanvas("multiselecttreewidget", { x: 300, y: 300 });
+    cy.get(".t--widget-multiselecttreewidget").should("exist");
   });
 
   it("should check that empty value is allowed in options", () => {
-    cy.openPropertyPane("singleselecttreewidget");
+    cy.openPropertyPane("multiselecttreewidget");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
@@ -56,7 +47,7 @@ describe("Tree Select Widget", function() {
   });
 
   it("should check that more thatn empty value is not allowed in options", () => {
-    cy.openPropertyPane("singleselecttreewidget");
+    cy.openPropertyPane("multiselecttreewidget");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
