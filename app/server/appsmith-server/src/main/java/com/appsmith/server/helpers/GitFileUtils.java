@@ -36,6 +36,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyProperties;
+import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
+import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
+import static com.appsmith.server.constants.FieldName.EXPORTED_APPLICATION;
+import static com.appsmith.server.constants.FieldName.PAGE_LIST;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,7 +52,7 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of("exportedApplication", "datasourceList", "pageList", "actionList", "decryptedFields");
+        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, DECRYPTED_FIELDS);
 
     /**
      * This method will save the complete application in the local repo directory.
@@ -153,26 +158,18 @@ public class GitFileUtils {
                                                              String repoName,
                                                              String branchName) throws GitAPIException, IOException {
 
-        ApplicationJson applicationJson = new ApplicationJson();
 
         return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
                 .map(applicationReference -> {
 
-                    // Extract application data from the json
-                    applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
-
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
+
+                    if (!isVersionCompatible(metadata)) {
+                        migrateToLatestVersion(applicationReference);
+                    }
+                    ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
                     BeanCopyUtils.copyNestedNonNullProperties(metadata, applicationJson);
-
-                    // Extract actions
-                    applicationJson.setActionList(getApplicationResource(applicationReference.getActions(), NewAction.class));
-
-                    // Extract pages
-                    applicationJson.setPageList(getApplicationResource(applicationReference.getPages(), NewPage.class));
-
-                    // Extract datasources
-                    applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
 
                     return applicationJson;
                 });
@@ -284,5 +281,36 @@ public class GitFileUtils {
         if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
             layout.getLayoutOnLoadActions().forEach(layoutAction -> layoutAction.forEach(actionDTO -> actionDTO.setDefaultActionId(null)));
         }
+    }
+
+    private ApplicationJson getApplicationJsonFromGitReference(ApplicationGitReference applicationReference) {
+        ApplicationJson applicationJson = new ApplicationJson();
+        // Extract application data from the json
+        applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
+
+        // Extract actions
+        applicationJson.setActionList(getApplicationResource(applicationReference.getActions(), NewAction.class));
+
+        // Extract pages
+        applicationJson.setPageList(getApplicationResource(applicationReference.getPages(), NewPage.class));
+
+        // Extract datasources
+        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+
+        return applicationJson;
+    }
+
+    private ApplicationGitReference migrateToLatestVersion(ApplicationGitReference applicationReference) {
+        // Implement the incremental version upgrade for JSON files here
+        return applicationReference;
+    }
+
+    private Boolean isVersionCompatible(ApplicationJson metadata) {
+        Integer importedJsonVersion = metadata == null ? null : metadata.getVersion();
+
+        if (importedJsonVersion == null || importedJsonVersion.equals(new ApplicationJson().getVersion())) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 }
