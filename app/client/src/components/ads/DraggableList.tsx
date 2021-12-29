@@ -131,7 +131,8 @@ function DraggableList(props: any) {
             pointerFromTop -
             containerDistanceFromTop +
             container.scrollTop -
-            curIndex * itemHeight;
+            curIndex * itemHeight -
+            itemHeight / 2;
         }
 
         const curRow = clamp(
