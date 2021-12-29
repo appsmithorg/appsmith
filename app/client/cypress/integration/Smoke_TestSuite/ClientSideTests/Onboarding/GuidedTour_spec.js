@@ -2,13 +2,12 @@ const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Guided Tour", function() {
-  it("Start guided tour", function() {
+  it("Guided Tour", function() {
+    // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
-  });
-
-  it("Step 1: Update limit in code and run query", function() {
+    // Step 1: Update limit in code and run query
     cy.get(".CodeMirror")
       .first()
       .then((editor) => {
@@ -21,25 +20,19 @@ describe("Guided Tour", function() {
       .type(" 10;", { delay: 600 });
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
-  });
-
-  it("Step 2: Select table widget", function() {
+    // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
-  });
-
-  it("Step 3: Add binding to the tableData property", function() {
+    // Step 3: Add binding to the tableData property
     cy.testJsontext("tabledata", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
-  });
-
-  it("Step 4: Add binding to the defaulText property of NameInput", function() {
+    // Renaming widgets
+    cy.wait("@updateWidgetName");
+    // Step 4: Add binding to the defaulText property of NameInput
     cy.get(guidedTourLocators.hintButton).click();
     cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.name}}");
     cy.get(guidedTourLocators.successButton).click();
-  });
-
-  it("Step 5: Add binding to the rest of the widgets in the container", function() {
+    // Step 5: Add binding to the rest of the widgets in the container
     cy.get(commonlocators.editWidgetName).contains("EmailInput");
     cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.email}}");
     cy.SearchEntityandOpen("CountryInput");
@@ -50,22 +43,16 @@ describe("Guided Tour", function() {
     cy.get(commonlocators.editWidgetName).contains("CountryInput");
     cy.testJsontext("image", "{{CustomersTable.selectedRow.image}}");
     cy.get(guidedTourLocators.successButton).click();
-  });
-
-  it("Step 6: Drag and drop a widget", function() {
+    // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
       x: 700,
       y: 400,
     });
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
-  });
-
-  it("Step 7: Execute a query onClick", function() {
+    // Step 7: Execute a query onClick
     cy.executeDbQuery("updateCustomerInfo");
-  });
-
-  it("Step 8: Execute getCustomers onSuccess", function() {
+    // Step 8: Execute getCustomers onSuccess
     cy.get(
       `.t--property-control-onclick [data-guided-tour-iid='onSuccess'] ${commonlocators.dropdownSelectButton}`,
     )
@@ -79,9 +66,7 @@ describe("Guided Tour", function() {
       .contains("getCustomers")
       .click({ force: true });
     cy.get(guidedTourLocators.successButton).click();
-  });
-
-  it("Step 9: Deploy", function() {
+    // Step 9: Deploy
     cy.PublishtheApp();
     cy.get(guidedTourLocators.rating)
       .eq(4)
