@@ -1,5 +1,5 @@
 package com.appsmith.server.domains;
 
-public enum CommentMode {
+public enum ApplicationMode {
     EDIT, PUBLISHED
 }

@@ -9,9 +9,7 @@ import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
-  isPushingToGit: false,
   isCommitSuccessful: false,
-  isPushSuccessful: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
   isImportAppViaGitModalOpen: false,
@@ -87,15 +85,6 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommitSuccessful: false,
-  }),
-  [ReduxActionTypes.PUSH_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
-    ...state,
-    isPushingToGit: true,
-    isPushSuccessful: false,
-    connectError: null,
-    commitAndPushError: null,
-    pullError: null,
-    mergeError: null,
   }),
   [ReduxActionTypes.PUSH_TO_GIT_SUCCESS]: (state: GitSyncReducerState) => ({
     ...state,
@@ -408,8 +397,6 @@ export type GitSyncReducerState = {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
   isCommitSuccessful: boolean;
-  isPushSuccessful: boolean;
-  isPushingToGit?: boolean;
 
   fetchingBranches: boolean;
   isFetchingGitConfig: boolean;

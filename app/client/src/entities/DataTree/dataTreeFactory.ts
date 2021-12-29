@@ -21,11 +21,10 @@ import {
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
-import { AppsmithPromise } from "workers/Actions";
 
 export type ActionDispatcher = (
   ...args: any[]
-) => ActionDescription | AppsmithPromise;
+) => Promise<unknown> | ActionDescription;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -57,6 +56,7 @@ export interface DataTreeAction
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
+  datasourceUrl: string;
 }
 
 export interface DataTreeJSAction {
