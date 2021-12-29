@@ -24,7 +24,7 @@
     },
     {
       "label": "Start After",
-      "configProperty": "actionConfiguration.formData.startAfter",
+      "configProperty": "actionConfiguration.next",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
@@ -32,7 +32,7 @@
     },
     {
       "label": "End Before",
-      "configProperty": "actionConfiguration.formData.endBefore",
+      "configProperty": "actionConfiguration.prev",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
