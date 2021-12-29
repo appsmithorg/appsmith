@@ -18,11 +18,7 @@ describe("Create a query with a empty datasource, run, save the query", function
   });
 
   it("2. Create a query for empty/incorrect datasource and validate", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
