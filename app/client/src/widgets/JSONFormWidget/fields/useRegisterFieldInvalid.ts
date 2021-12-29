@@ -2,8 +2,8 @@ import { cloneDeep, set } from "lodash";
 import { ControllerProps, useFormContext } from "react-hook-form";
 import { useContext, useRef } from "react";
 
-import { FieldType } from "../constants";
 import FormContext from "../FormContext";
+import { FieldType } from "../constants";
 
 type UseRegisterFieldValidityProps = {
   fieldName: ControllerProps["name"];
@@ -36,15 +36,12 @@ function useRegisterFieldValidity({
 
       const newFieldState = cloneDeep(fieldState);
       set(newFieldState, `${fieldName}.isValid`, isValid);
-
       // Added setTimeout to resolve a race condition where in the metaHOC,
       // the old value gets updated in the meta property
       // If initially the value of isValid was true and new value false is passed
       // then the value will remain true, now if the value true is passed, metaHOC will
       // update the value as false (previous value).
-      setTimeout(() => {
-        updateWidgetMetaProperty("fieldState", newFieldState);
-      }, 0);
+      updateWidgetMetaProperty("fieldState", newFieldState);
     }
   };
 

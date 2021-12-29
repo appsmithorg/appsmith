@@ -18,13 +18,13 @@ function useEvents<TElement extends BaseEvents>({
   onBlurDynamicString,
   onFocusDynamicString,
 }: UseEventsProps = {}) {
-  const FieldBlurHandlerRef = useRef<ControllerRenderProps["onBlur"]>();
+  const fieldBlurHandlerRef = useRef<ControllerRenderProps["onBlur"]>();
   const inputRef = useRef<TElement | null>(null);
   const { executeAction } = useContext(FormContext) || {};
 
   const onBlurHandler = useCallback(() => {
-    if (FieldBlurHandlerRef.current) {
-      FieldBlurHandlerRef.current?.();
+    if (fieldBlurHandlerRef.current) {
+      fieldBlurHandlerRef.current?.();
     }
 
     if (onBlurDynamicString) {
@@ -67,7 +67,7 @@ function useEvents<TElement extends BaseEvents>({
   const registerFieldOnBlurHandler = (
     blurHandler: ControllerRenderProps["onBlur"],
   ) => {
-    FieldBlurHandlerRef.current = blurHandler;
+    fieldBlurHandlerRef.current = blurHandler;
   };
 
   return {
