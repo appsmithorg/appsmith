@@ -136,7 +136,7 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + p"
           global
-          label="Show omnibar"
+          label="Navigate"
           onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
         />
         <Hotkey
@@ -376,7 +376,7 @@ class GlobalHotKeys extends React.Component<Props> {
         <Hotkey
           combo="mod + /"
           global
-          label="Preview Mode"
+          label="Pin/Unpin Entity Explorer"
           onKeyDown={() => {
             this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
           }}
