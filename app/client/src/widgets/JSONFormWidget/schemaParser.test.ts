@@ -12,7 +12,7 @@ import SchemaParser, {
   normalizeArrayValue,
   subDataTypeFor,
 } from "./schemaParser";
-import testData from "./schemaParserTestData";
+import testData from "./schemaTestData";
 import { DataType, FieldType, Schema, SchemaItem } from "./constants";
 
 const widgetName = "JSONForm1";
