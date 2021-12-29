@@ -16,6 +16,8 @@ import { Colors } from "constants/Colors";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
+const ELLIPSIS_HEIGHT = 15;
+
 export const TextContainer = styled.div`
   & {
     height: 100%;
@@ -46,16 +48,13 @@ export const TextContainer = styled.div`
 `;
 
 const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
-  position: absolute;
   cursor: pointer;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 20px;
+  height: ${ELLIPSIS_HEIGHT}px;
   background: ${(props) =>
-    props.backgroundColor
-      ? props.backgroundColor
-      : props.theme.colors.artboard};
+    props.backgroundColor ? props.backgroundColor : "transparent"};
 `;
 
 export const StyledText = styled(Text)<{
@@ -68,7 +67,8 @@ export const StyledText = styled(Text)<{
   fontStyle?: string;
   fontSize?: TextSize;
 }>`
-  height: 100%;
+  height: ${(props) =>
+    props.isTruncated ? `calc(100% - ${ELLIPSIS_HEIGHT}px)` : "100%"};
   overflow-y: ${(props) =>
     props.scroll ? (props.isTruncated ? "hidden" : "auto") : "hidden"};
   text-overflow: ellipsis;
@@ -137,9 +137,12 @@ export interface TextComponentProps extends ComponentProps {
   fontStyle?: string;
   disableLink: boolean;
   shouldTruncate: boolean;
-  width: number;
-  height: number;
   truncateButtonColor?: string;
+  // helpers to detect and re-calculate content width
+  bottomRow?: number;
+  leftColumn?: number;
+  rightColumn?: number;
+  topRow?: number;
 }
 
 type State = {
@@ -158,7 +161,12 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   textRef = React.createRef() as TextRef;
 
   getTruncate = (element: any) => {
-    return element.scrollHeight > element.offsetHeight;
+    const { isTruncated } = this.state;
+    // add ELLIPSIS_HEIGHT and check content content is overflowing or not
+    return (
+      element.scrollHeight >
+      element.offsetHeight + (isTruncated ? ELLIPSIS_HEIGHT : 0)
+    );
   };
 
   componentDidMount = () => {
@@ -231,17 +239,17 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               }
               newWindow
             />
-            {this.state.isTruncated && (
-              <StyledIcon
-                backgroundColor={backgroundColor}
-                className="t--widget-textwidget-truncate"
-                fillColor={truncateButtonColor}
-                name="context-menu"
-                onClick={this.handleModelOpen}
-                size={IconSize.XXXL}
-              />
-            )}
           </StyledText>
+          {this.state.isTruncated && (
+            <StyledIcon
+              backgroundColor={backgroundColor}
+              className="t--widget-textwidget-truncate"
+              fillColor={truncateButtonColor}
+              name="context-menu"
+              onClick={this.handleModelOpen}
+              size={IconSize.XXXL}
+            />
+          )}
         </TextContainer>
         <ModalComponent
           canEscapeKeyClose
