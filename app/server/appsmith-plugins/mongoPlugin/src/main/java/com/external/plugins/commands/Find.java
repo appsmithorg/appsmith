@@ -28,6 +28,7 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SKIP;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter
@@ -171,40 +172,49 @@ public class Find extends MongoCommand {
         );
     }
 
+    /**
+     * This method coverts Mongo plugin's form inputs to Mongo's native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query.
+     * The `parseCommand` method defined in this class could not be used since it tries to parse and validate the form
+     * data and fails if the data is bad or if it contains mustache binding. However, this is not the desired behavior
+     * wrt the use case this method is intended to solve i.e. we should be able to covert the form data to raw query
+     * irrespective of whether the data provided by the user is valid or not since we are not trying to execute it
+     * immediately.
+     * When writing this method the following two alternative implementations were also considered - using JSONObject
+     * and JsonNode. The issue with JSONObject is that it does not maintain the keys in order, which causes the final
+     * query to fail since order of keys is essential - e.g. `find` must be the first key in the native query for
+     * Mongo to recognize it as a valid command. JsonNode could not be used because it would enclose all values
+     * inside double quotes - which is not a true translation of what the user might have fed into the form.
+     * @return : Mongo's native query
+     */
     @Override
     public String getRawQuery() {
-        JSONObject query = new JSONObject();
-        query.put("find", this.collection);
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        sb.append("  \"find\": \"" + this.collection + "\",\n");
 
-        if (!StringUtils.isNullOrEmpty(this.query)) {
-            query.put("filter", this.query);
+        if (!isBlank(this.query)) {
+            sb.append("  \"filter\": " + this.query + ",\n");
         }
 
-        if (!StringUtils.isNullOrEmpty(this.sort)) {
-            query.put("sort", this.sort);
+        if (!isBlank(this.sort)) {
+            sb.append("  \"sort\": " + this.sort + ",\n");
         }
 
-        // Default to returning 10 documents if not mentioned
+        if (!isBlank(this.skip)) {
+            sb.append("  \"skip\": " + this.skip + ",\n");
+        }
+
+        /* Default to returning 10 documents if not mentioned */
         int limit = 10;
-        if (!StringUtils.isNullOrEmpty(this.limit)) {
+        if (!isBlank(this.limit)) {
             limit = Integer.parseInt(this.limit);
         }
-        query.put("limit", limit);
-        query.put("batchSize", limit);
+        sb.append("  \"limit\": " + limit + ",\n");
+        sb.append("  \"batchSize\": " + limit + "\n");
+        sb.append("}\n");
 
-        if (!StringUtils.isNullOrEmpty(this.skip)) {
-            query.put("skip", this.skip);
-        }
-
-        String queryString = "";
-        try {
-            queryString = objectMapper.readTree(query.toString()).toPrettyString();
-        } catch (JsonProcessingException e) {
-            // TODO: add comment
-            e.printStackTrace();
-            queryString = "";
-        }
-
-        return queryString;
+        return sb.toString();
     }
 }

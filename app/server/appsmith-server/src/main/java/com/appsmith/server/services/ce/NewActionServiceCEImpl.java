@@ -534,6 +534,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             .extractAndSetNativeQueryFromFormData(action.getUnpublishedAction().getActionConfiguration()));
 
                     return Mono.just(action);
+                })
+                .onErrorResume(e -> {
+                    /**
+                     * In the event of a failure, it does not make sense to stop the flow or to show an error to the
+                     * user since this error is not caused by user input, and it does not impact the execution of the
+                     * action in any way. This method is part of the action configuration persistence flow and hence
+                     * users are free to persist any data in the action configuration as they see fit. At best, a
+                     * failure here would cause a minor inconvenience to a beginner user since the form data would
+                     * not be auto translated to the raw query.
+                     */
+                    e.printStackTrace();
+                    return Mono.just(action);
                 });
     }
 

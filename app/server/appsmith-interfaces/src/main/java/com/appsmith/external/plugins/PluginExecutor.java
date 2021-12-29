@@ -209,6 +209,14 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         return Mono.empty();
     }
 
+    /**
+     * This method coverts a plugin's form data to its native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query.
+     * Each plugin must override this method to provide their own translation logic.
+     * @param actionConfiguration
+     * @return
+     */
     default ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
         return actionConfiguration;
     }

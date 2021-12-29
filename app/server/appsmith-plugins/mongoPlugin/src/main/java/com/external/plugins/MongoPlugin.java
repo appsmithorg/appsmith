@@ -67,6 +67,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH;
 import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
 import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
 import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
@@ -962,16 +963,29 @@ public class MongoPlugin extends BasePlugin {
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
+        /**
+         * This method coverts Mongo plugin's form data to Mongo's native query. Currently, it is meant to help users
+         * switch easily from form based input to raw input mode by providing a readily available translation of the
+         * form data to raw query.
+         * @param actionConfiguration
+         * @return Mongo's native/raw query set at path `formData.formToNativeQuery`
+         */
         @Override
         public ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
             Map<String, Object> formData = actionConfiguration.getFormData();
             if (formData != null && !formData.isEmpty()) {
-                // If it is not raw command, then it must be one of the mongo form commands
+                /* If it is not raw command, then it must be one of the mongo form commands */
                 if (!isRawCommand(formData)) {
+
+                    /**
+                     * This translation must happen only if the user has not edited the raw mode. Hence, check that
+                     * user has not provided any raw query. The use case here is a one time conversion from form data
+                     * to raw query when the user switches from form interface to raw input.
+                     */
                     if (isBlank(actionConfiguration.getBody())) {
                         String rawQuery = getRawQuery(actionConfiguration);
                         if (rawQuery != null) {
-                            setValueSafelyInFormData(formData, "formToNativeQuery", rawQuery); // TODO: magic string
+                            setValueSafelyInFormData(formData, NATIVE_QUERY_PATH, rawQuery);
                         }
                     }
                 }

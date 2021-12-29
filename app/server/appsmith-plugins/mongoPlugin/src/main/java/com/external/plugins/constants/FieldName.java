@@ -42,5 +42,5 @@ public class FieldName {
 
 
     public static final String RAW = "RAW";
-
+    public static final String NATIVE_QUERY_PATH = "formToNativeQuery";
 }
