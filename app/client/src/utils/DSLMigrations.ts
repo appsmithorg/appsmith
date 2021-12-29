@@ -25,6 +25,7 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
+  migrateTableWidgetNumericColumnName,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -995,6 +996,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 47) {
+    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
+    currentDSL.version = 48;
+  }
+
+  if (currentDSL.version === 48) {
     currentDSL = migrateRecaptchaType(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

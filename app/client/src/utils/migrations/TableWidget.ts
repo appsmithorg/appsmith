@@ -3,7 +3,10 @@ import {
   TextSizes,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { getAllTableColumnKeys } from "widgets/TableWidget/component/TableHelpers";
+import {
+  generateTableColumnId,
+  getAllTableColumnKeys,
+} from "widgets/TableWidget/component/TableHelpers";
 import {
   ColumnProperties,
   CellAlignmentTypes,
@@ -481,6 +484,60 @@ export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
       });
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetIconButtonVariant(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetNumericColumnName = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      child.columnOrder = (child.columnOrder || []).map((col: string) =>
+        generateTableColumnId(col),
+      );
+
+      const primaryColumns = { ...child.primaryColumns };
+      // clear old primaryColumns
+      child.primaryColumns = {};
+      for (const key in primaryColumns) {
+        if (Object.prototype.hasOwnProperty.call(primaryColumns, key)) {
+          const column = primaryColumns[key];
+          const columnId = generateTableColumnId(key);
+          const newComputedValue = `{{${child.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`;
+          // added column with old accessor
+          child.primaryColumns[columnId] = {
+            ...column,
+            id: columnId,
+            label: columnId,
+            computedValue: newComputedValue,
+          };
+        }
+      }
+
+      child.dynamicBindingPathList = (child.dynamicBindingPathList || []).map(
+        (path) => {
+          const pathChunks = path.key.split(".");
+          // tableData is a valid dynamicBindingPath and pathChunks would have just one entry
+          if (pathChunks.length < 2) {
+            return path;
+          }
+          const firstPart = pathChunks[0] + "."; // "primaryColumns."
+          const lastPart = "." + pathChunks.pop(); // ".computedValue"
+          const key = getSubstringBetweenTwoWords(
+            path.key,
+            firstPart,
+            lastPart,
+          ); // primaryColumns.$random.header.computedValue -> $random.header
+
+          const sanitizedPrimaryColumnKey = generateTableColumnId(key);
+          return {
+            key: firstPart + sanitizedPrimaryColumnKey + lastPart,
+          };
+        },
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetNumericColumnName(child);
     }
     return child;
   });
