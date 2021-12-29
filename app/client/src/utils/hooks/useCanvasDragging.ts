@@ -357,7 +357,7 @@ export const useCanvasDragging = (
           }
         };
 
-        const canReflowForCurrentMouseMove = (e: any) => {
+        const canReflowForCurrentMouseMove = () => {
           // const { movementX = 0, movementY = 0 } = e;
           // const threshold = 50;
           const {
@@ -371,7 +371,7 @@ export const useCanvasDragging = (
             prevAcceleration < 0 ? maxNegativeAcc : maxPositiveAcc,
           );
           const acceleration = Math.abs(prevAcceleration);
-          console.log({ acceleration, limit, prevSpeed, maxSpeed });
+          // console.log({ acceleration, limit, prevSpeed, maxSpeed });
           return acceleration < limit / 5 || prevSpeed < maxSpeed / 5;
           // return !(
           //   movementX > threshold ||
@@ -415,7 +415,7 @@ export const useCanvasDragging = (
         };
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
-            const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove(e);
+            const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
