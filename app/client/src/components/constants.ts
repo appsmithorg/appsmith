@@ -72,6 +72,15 @@ export enum RecaptchaTypes {
 }
 export type RecaptchaType = keyof typeof RecaptchaTypes;
 
+export enum CheckboxGroupAlignmentTypes {
+  START = "flex-start",
+  END = "flex-end",
+  CENTER = "center",
+  SPACE_BETWEEN = "space-between",
+  SPACE_AROUND = "space-around",
+  NONE = "unset",
+}
+export type CheckboxGroupAlignment = keyof typeof CheckboxGroupAlignmentTypes;
 export enum ButtonPlacementTypes {
   START = "START",
   BETWEEN = "BETWEEN",
