@@ -1034,9 +1034,18 @@ public class GitServiceCEImpl implements GitServiceCE {
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
-            return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
-                    .doOnSuccess(application -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists")))
-                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName));
+            listBranchForApplication(defaultApplicationId, false)
+                    .flatMap(gitBranchDTOList -> {
+                        long branchMatchCount = gitBranchDTOList
+                                .stream()
+                                .filter(gitBranchDTO -> gitBranchDTO.getBranchName()
+                                        .equals(finalBranchName)).count();
+                        if(branchMatchCount == 0) {
+                            return checkoutRemoteBranch(defaultApplicationId, finalBranchName);
+                        } else {
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists"));
+                        }
+                    });
         }
 
         return getApplicationById(defaultApplicationId)
