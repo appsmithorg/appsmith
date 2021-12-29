@@ -361,7 +361,7 @@ public class ThemeServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void publishTheme_WhenNoThemeIsSet_SystemDefaultThemeIsSetToPublishedMode() {
-        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
+        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
 
         Mono<Tuple2<Application, Theme>> appAndThemeTuple = applicationRepository.save(
                         createApplication("api_user", Set.of(MANAGE_APPLICATIONS))

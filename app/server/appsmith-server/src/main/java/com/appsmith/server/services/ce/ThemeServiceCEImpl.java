@@ -140,7 +140,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     public Mono<Theme> publishTheme(String editModeThemeId, String publishedThemeId, String applicationId) {
         Mono<Theme> editModeThemeMono;
         if(!StringUtils.hasLength(editModeThemeId)) { // theme id is empty, use the default theme
-            editModeThemeMono = repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
+            editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
         } else { // theme id is not empty, fetch it by id
             editModeThemeMono = repository.findById(editModeThemeId);
         }
