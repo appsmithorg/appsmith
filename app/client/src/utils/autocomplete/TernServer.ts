@@ -247,24 +247,13 @@ class TernServer {
       bottom: number;
     };
     const tooltip = (this.activeArgHints = this.makeTooltip(
-      place.right + 1,
-      place.bottom,
       tip,
+      place.right + 1 + "px",
+      undefined,
+      undefined,
+      `calc(100vh - ${place.top}px)`,
     ) as ActiveArgHints);
-    tooltip.className += " " + cls + "hint-doc visible";
-    // CodeMirror.on(
-    //   cm,
-    //   "keyup",
-    //   (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
-    //     if (
-    //       keyboardEvent.code === "Space" &&
-    //       keyboardEvent.ctrlKey &&
-    //       tooltip
-    //     ) {
-    //       tooltip.className += " visible";
-    //     }
-    //   },
-    // );
+
     setTimeout(() => {
       tooltip.clear = this.onEditorActivity(cm, () => {
         if (this.activeArgHints == tooltip) this.closeArgHints();
@@ -423,9 +412,11 @@ class TernServer {
         const content = cur.data.doc;
         if (content) {
           tooltip = this.makeTooltip(
-            node.parentNode.getBoundingClientRect().right + window.pageXOffset,
-            node.getBoundingClientRect().top + window.pageYOffset,
             content,
+            node.parentNode.getBoundingClientRect().right +
+              window.pageXOffset +
+              "px",
+            node.getBoundingClientRect().top + window.pageYOffset + "px",
           );
           tooltip.className += " " + cls + "hint-doc";
           CodeMirror.on(
@@ -941,10 +932,10 @@ class TernServer {
     }
     const where = cm.cursorCoords();
     const tip = (cm.state.ternTooltip = this.makeTooltip(
-      // @ts-ignore: No types available
-      where.right + 1,
-      where.bottom,
       content,
+      // @ts-ignore: No types available
+      where.right + 1 + "px",
+      where.bottom + "px",
     ));
     const maybeClear = () => {
       old = true;
@@ -988,10 +979,18 @@ class TernServer {
     };
   }
 
-  makeTooltip(x: number, y: number, content: HTMLElement | string) {
+  makeTooltip(
+    content: HTMLElement | string,
+    left?: string,
+    top?: string,
+    right?: string,
+    bottom?: string,
+  ) {
     const node = this.elt("div", cls + "tooltip", content);
-    node.style.left = x + "px";
-    node.style.top = y + "px";
+    left && (node.style.left = left);
+    top && (node.style.top = top);
+    right && (node.style.right = right);
+    bottom && (node.style.bottom = bottom);
     document.body.appendChild(node);
     return node;
   }
