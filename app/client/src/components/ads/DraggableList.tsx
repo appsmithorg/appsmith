@@ -90,27 +90,66 @@ function DraggableList(props: any) {
   const bind: any = useDrag<any>((props: any) => {
     const originalIndex = props.args[0];
     const curIndex = order.current.indexOf(originalIndex);
-    const curRow = clamp(
-      Math.round((curIndex * itemHeight + props.movement[1]) / itemHeight),
-      0,
-      items.length - 1,
-    );
-    const newOrder = swap(order.current, curIndex, curRow);
-    setSprings(
-      dragIdleSpringStyles(newOrder, {
-        down: props.down,
-        originalIndex,
-        curIndex,
-        y: props.movement[1],
-        itemHeight,
-      }),
-    );
-    if (curRow !== curIndex) {
-      // Feed springs new style data, they'll animate the view without causing a single render
-      if (!props.down) {
-        order.current = newOrder;
-        setSprings(updateSpringStyles(order.current, itemHeight));
-        debounce(onDrop, 400)(curIndex, curRow);
+    const pointerFromTop = props.xy[1];
+    if (listRef && listRef.current) {
+      const containerCoordinates = listRef?.current.getBoundingClientRect();
+      const container = listRef.current;
+      if (containerCoordinates) {
+        const containerDistanceFromTop = containerCoordinates.top;
+        if (props.dragging) {
+          if (pointerFromTop < containerDistanceFromTop + itemHeight / 2) {
+            // Scroll inside container till first element in list is completely visible
+            if (container.scrollTop > 0) {
+              container.scrollTop -= itemHeight / 10;
+            }
+          } else if (
+            pointerFromTop >=
+            containerDistanceFromTop + container.clientHeight - itemHeight / 2
+          ) {
+            // Scroll inside container till container cannnot be scrolled more towards bottom
+            if (
+              container.scrollTop <
+              container.scrollHeight - container.clientHeight
+            ) {
+              container.scrollTop += itemHeight / 10;
+            }
+          }
+          // finding distance of current pointer from the top of the container to find the final position
+          // currIndex *  itemHeight for the initial position
+          // subtraction formar with latter for displacement
+          displacement.current =
+            pointerFromTop -
+            containerDistanceFromTop +
+            container.scrollTop -
+            curIndex * itemHeight -
+            itemHeight / 2;
+        }
+
+        const curRow = clamp(
+          Math.round(
+            (curIndex * itemHeight + displacement.current) / itemHeight,
+          ),
+          0,
+          items.length - 1,
+        );
+        const newOrder = swap(order.current, curIndex, curRow);
+        setSprings(
+          dragIdleSpringStyles(newOrder, {
+            down: props.down,
+            originalIndex,
+            curIndex,
+            y: displacement.current,
+            itemHeight,
+          }),
+        );
+        if (curRow !== curIndex) {
+          // Feed springs new style data, they'll animate the view without causing a single render
+          if (!props.down) {
+            order.current = newOrder;
+            setSprings(updateSpringStyles(order.current, itemHeight));
+            debounce(onDrop, 400)(curIndex, curRow);
+          }
+        }
       }
     }
   });
