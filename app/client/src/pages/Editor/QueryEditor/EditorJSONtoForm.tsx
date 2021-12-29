@@ -75,6 +75,7 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import Spinner from "components/ads/Spinner";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -307,6 +308,15 @@ const Container = styled.div`
     white-space: no-wrap;
     margin-left: 6px;
   }
+`;
+
+const StyledSpinner = styled.div`
+  display: flex;
+  padding: 5px;
+  height: 2vw;
+  align-items: center;
+  justify-content: space-between;
+  width: 5vw;
 `;
 
 // const ActionButton = styled(BaseButton)`
@@ -551,8 +561,12 @@ export function EditorJSONtoForm(props: Props) {
             return renderEachConfigV2(formName, config, idx);
           });
         } else {
-          // TODO: Show a proper loading state rather than just text
-          return <p>Loading...</p>;
+          return (
+            <StyledSpinner>
+              <Spinner size={IconSize.LARGE} />
+              <p>Loading..</p>
+            </StyledSpinner>
+          );
         }
       } else {
         return editorConfig.map(renderEachConfig(formName));
