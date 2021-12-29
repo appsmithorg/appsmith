@@ -1,0 +1,42 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 9,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "label": "Data",
+        "widgetName": "Table1",
+        "searchKey": "",
+        "tableData": "[{\"1\":\"abc\",\"2\":\"bcd\",\"3\":\"cde\",\"Dec\":\"mon\",\"demo\":\"3\",\"demo_1\":\"1\",\"test one\":\"1\",\"test 3 4 9\":\"4\",\"rowIndex\":\"0\"},{\"1\":\"asd\",\"2\":\"dfg\",\"3\":\"jkl\",\"Dec\":\"mon2\",\"demo\":\"2\",\"demo_1\":\"1\",\"test one\":\"2\",\"test 3 4 9\":\"3\",\"rowIndex\":\"1\"}]",
+        "type": "TABLE_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 1,
+        "rightColumn": 9,
+        "topRow": 7,
+        "bottomRow": 14,
+        "parentId": "0",
+        "widgetId": "7miqot30xy",
+        "dynamicBindingPathList": []
+      }
+    ]
+  }
+}
