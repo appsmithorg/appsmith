@@ -2,7 +2,11 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
-import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
+import {
+  ButtonPlacementTypes,
+  ButtonVariantTypes,
+  RecaptchaTypes,
+} from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -14,6 +18,7 @@ export const CONFIG = {
     text: "Submit",
     buttonColor: Colors.GREEN,
     buttonVariant: ButtonVariantTypes.PRIMARY,
+    placement: ButtonPlacementTypes.CENTER,
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Button",
