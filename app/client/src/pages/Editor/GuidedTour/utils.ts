@@ -1,6 +1,9 @@
 import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-indicator.json";
 
+// data-guided-tour-id - used for the rectangular highlight
+// data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
+
 class IndicatorHelper {
   timerId!: number;
   indicatorWrapper!: HTMLDivElement;
