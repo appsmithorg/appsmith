@@ -541,6 +541,7 @@ export function EditorJSONtoForm(props: Props) {
     try {
       // Selectively rendering form based on uiComponent prop
       if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+        // If the formEvaluation is not ready yet, just show loading state.
         if (
           props.hasOwnProperty("formEvaluationState") &&
           !!props.formEvaluationState &&
@@ -550,6 +551,7 @@ export function EditorJSONtoForm(props: Props) {
             return renderEachConfigV2(formName, config, idx);
           });
         } else {
+          // TODO: Show a proper loading state rather than just text
           return <p>Loading...</p>;
         }
       } else {
@@ -575,31 +577,38 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
-  // V2 call to make rendering more flexible, used for UQI forms
+  // Function to check if the section config is allowed to render (Only for UQI forms)
+  const checkIfSectionCanRender = (section: any) => {
+    // By default, allow the section to render. This is to allow for the case where no conditional is provided.
+    // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
+    let allowToRender = true;
+    if (
+      section.hasOwnProperty("propertyName") &&
+      props.formEvaluationState.hasOwnProperty(section.propertyName)
+    ) {
+      allowToRender = props?.formEvaluationState[section.propertyName].visible;
+    } else if (
+      section.hasOwnProperty("configProperty") &&
+      props.formEvaluationState.hasOwnProperty(section.configProperty)
+    ) {
+      allowToRender =
+        props?.formEvaluationState[section.configProperty].visible;
+    } else if (
+      section.hasOwnProperty("identifier") &&
+      !!section.identifier &&
+      props.formEvaluationState.hasOwnProperty(section.identifier)
+    ) {
+      allowToRender = props?.formEvaluationState[section.identifier].visible;
+    }
+    return allowToRender;
+  };
+
+  // Render function to render the V2 of form editor type (UQI)
+  // Section argument is a nested config object, this function recursively renders the UI based on the config
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
     if (!!section) {
-      let allowToRender = true;
-      if (
-        section.hasOwnProperty("propertyName") &&
-        props.formEvaluationState.hasOwnProperty(section.propertyName)
-      ) {
-        allowToRender =
-          props?.formEvaluationState[section.propertyName].visible;
-      } else if (
-        section.hasOwnProperty("configProperty") &&
-        props.formEvaluationState.hasOwnProperty(section.configProperty)
-      ) {
-        allowToRender =
-          props?.formEvaluationState[section.configProperty].visible;
-      } else if (
-        section.hasOwnProperty("identifier") &&
-        !!section.identifier &&
-        props.formEvaluationState.hasOwnProperty(section.identifier)
-      ) {
-        allowToRender = props?.formEvaluationState[section.identifier].visible;
-      }
-
-      if (!allowToRender) return null;
+      // If the component is not allowed to render, return null
+      if (!checkIfSectionCanRender(section)) return null;
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
