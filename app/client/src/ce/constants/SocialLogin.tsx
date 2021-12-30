@@ -6,6 +6,7 @@ export type SocialLoginButtonProps = {
   url: string;
   name: string;
   logo: string;
+  label?: string;
 };
 
 export const GoogleSocialLoginButtonProps: SocialLoginButtonProps = {
