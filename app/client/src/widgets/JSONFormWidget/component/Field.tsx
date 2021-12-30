@@ -10,6 +10,7 @@ type FieldProps<TValue> = {
   defaultValue: TValue;
   defaultValueValidatorFn?: (value: TValue) => boolean;
   hideLabel?: boolean;
+  inlineLabel?: boolean;
   label: string;
   labelStyles: FieldLabelProps["labelStyles"];
   name: ControllerProps["name"];
@@ -17,8 +18,14 @@ type FieldProps<TValue> = {
   tooltip?: string;
 };
 
-const StyledWrapper = styled.div`
+type StyledWrapperProps = {
+  direction: "row" | "column";
+};
+
+const StyledWrapper = styled.div<StyledWrapperProps>`
   margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
+  display: flex;
+  flex-direction: ${({ direction }) => direction};
 
   &:last-of-type {
     margin-bottom: 0;
@@ -34,6 +41,7 @@ function Field<TValue>({
   defaultValue,
   defaultValueValidatorFn,
   hideLabel = false,
+  inlineLabel = false,
   label,
   labelStyles = {},
   name,
@@ -65,8 +73,10 @@ function Field<TValue>({
     </StyledControllerWrapper>
   );
 
+  const direction = inlineLabel ? "row" : "column";
+
   return (
-    <StyledWrapper>
+    <StyledWrapper direction={direction}>
       {hideLabel ? (
         controller
       ) : (

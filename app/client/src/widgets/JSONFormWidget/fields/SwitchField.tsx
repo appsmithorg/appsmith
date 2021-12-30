@@ -49,6 +49,7 @@ function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
     <Field
       {...rest}
       defaultValue={schemaItem.defaultValue}
+      inlineLabel
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
