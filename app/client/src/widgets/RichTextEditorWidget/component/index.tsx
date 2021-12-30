@@ -46,6 +46,11 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     return () => clearTimeout(timeOutId);
   }, [value]);
 
+  useEffect(() => {
+    if (!props.defaultText) return;
+    setValue(props.defaultText);
+  }, [props.defaultText]);
+
   const onEditorChange = (newValue: string) => {
     if (!isInit.current) {
       isInit.current = true;
