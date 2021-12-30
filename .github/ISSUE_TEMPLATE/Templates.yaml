@@ -1,7 +1,7 @@
 name: 📓 App Template Request
 description: Request the app template you would like us to make
 title: "[Template]: "
-labels: [Template]
+labels: [Example Apps]
 assignees:
 - Kocharrahul8
 body:
@@ -42,7 +42,7 @@ body:
 - type: dropdown
   id: Use_case
   attributes:
-    label: Version
+    label: Use case
     options:
       - Support
       - Martketing
@@ -66,7 +66,7 @@ body:
 - type: dropdown
   id: Industry
   attributes:
-    label: Industry tag
+    label: Industry
     options:
       - Technology
       - Health Care
@@ -89,7 +89,7 @@ body:
 - type: dropdown
   id: Data_sources
   attributes:
-    label: Data sources tag
+    label: Data sources
     options:
       - Any
       - API
