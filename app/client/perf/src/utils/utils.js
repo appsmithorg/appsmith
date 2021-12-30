@@ -104,8 +104,8 @@ exports.login = async (page) => {
   await page.waitForSelector(passwordSelector);
   await page.waitForSelector(buttonSelector);
 
-  await page.type(emailSelector, process.env.CYPRESS_TESTUSERNAME1);
-  await page.type(passwordSelector, process.env.CYPRESS_TESTPASSWORD1);
+  await page.type(emailSelector, "hello@myemail.com");
+  await page.type(passwordSelector, "qwerty1234");
   delay(1000, "before clicking login button");
   await page.click(buttonSelector);
 };
