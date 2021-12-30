@@ -3,7 +3,6 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
@@ -18,6 +17,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -177,12 +177,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> setAppTheme(String applicationId, String themeId, ApplicationMode applicationMode, AclPermission aclPermission) {
+    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         Update updateObj = new Update();
-        if(applicationMode == ApplicationMode.EDIT) {
-            updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), themeId);
-        } else if(applicationMode == ApplicationMode.PUBLISHED) {
-            updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), themeId);
+        if(StringUtils.hasLength(editModeThemeId)) {
+            updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
+        }
+        if(StringUtils.hasLength(publishedModeThemeId)) {
+            updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 
         return this.updateById(applicationId, updateObj, aclPermission);
