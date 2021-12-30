@@ -220,7 +220,9 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   useEffect(() => {
     if (!!isTableWidgetBound && step === 4 && hadReachedStep <= 4) {
       if (!!nameInputWidgetId) {
+        // Minor timeout to wait for the elements to exist
         setTimeout(() => {
+          // Highlight the selected row and the NameInput widget
           highlightSection(
             "selected-row",
             `appsmith_widget_${isTableWidgetBound}`,
@@ -231,7 +233,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
             undefined,
             "class",
           );
-        }, 1000);
+        }, 500);
       }
     }
   }, [isTableWidgetBound, step, hadReachedStep, nameInputWidgetId]);
