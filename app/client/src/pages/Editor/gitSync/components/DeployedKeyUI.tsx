@@ -1,7 +1,6 @@
 import { Colors } from "constants/Colors";
 import {
   createMessage,
-  DEPLOY_KEY_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
   LEARN_MORE,
 } from "constants/messages";
@@ -66,13 +65,6 @@ const FlexRow = styled.div`
   width: 100%;
 `;
 
-const LabelText = styled.span`
-  margin-left: ${(props) => `${props.theme.spaces[2]}px`};
-  font-size: 14px;
-  color: ${Colors.CODE_GRAY};
-  white-space: nowrap;
-`;
-
 const KeyText = styled.span`
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -119,12 +111,9 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
           <FlexRow>
             <Key2LineIcon
               color={Colors.DOVE_GRAY2}
-              size={28}
-              style={{ marginTop: -4 }}
+              size={20}
+              style={{ marginTop: -1, marginRight: 4 }}
             />
-            <LabelText>
-              {createMessage(DEPLOY_KEY_TITLE)}&nbsp;:&nbsp;
-            </LabelText>
             <KeyText>{SSHKeyPair}</KeyText>
           </FlexRow>
         </DeployedKeyContainer>

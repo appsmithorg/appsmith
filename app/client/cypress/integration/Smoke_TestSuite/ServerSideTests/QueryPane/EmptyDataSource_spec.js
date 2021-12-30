@@ -18,11 +18,7 @@ describe("Create a query with a empty datasource, run, save the query", function
   });
 
   it("2. Create a query for empty/incorrect datasource and validate", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -30,7 +26,7 @@ describe("Create a query with a empty datasource, run, save the query", function
       .type("select * from users limit 10");
 
     cy.EvaluateCurrentValue("select * from users limit 10");
-    cy.runQuery();
+    cy.runQuery(false);
     cy.get(".t--query-error").contains(
       "[Missing endpoint., Missing username for authentication., Missing password for authentication.]",
     );

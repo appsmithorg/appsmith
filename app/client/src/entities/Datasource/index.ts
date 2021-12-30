@@ -75,6 +75,7 @@ export interface Datasource extends BaseDatasource {
     authentication?: DatasourceAuthentication;
     properties?: Property[];
     headers?: Property[];
+    queryParameters?: Property[];
     databaseName?: string;
   };
   invalids?: string[];

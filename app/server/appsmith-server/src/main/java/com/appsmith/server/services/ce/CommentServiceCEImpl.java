@@ -7,8 +7,8 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
@@ -564,7 +564,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
         return applicationService.findById(commentThreadFilterDTO.getApplicationId(), READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.APPLICATION_ID
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, commentThreadFilterDTO.getApplicationId()
                 )))
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(objects -> {
@@ -577,7 +577,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     );
                     if(!permissionPresentForUser) {
                         // user is app viewer, show only PUBLISHED comment threads
-                        commentThreadFilterDTO.setMode(CommentMode.PUBLISHED);
+                        commentThreadFilterDTO.setMode(ApplicationMode.PUBLISHED);
                     }
                     return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREAD)
                             .collectList()

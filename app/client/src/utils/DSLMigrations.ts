@@ -25,6 +25,7 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
+  migrateTableWidgetNumericColumnName,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -40,6 +41,7 @@ import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButton
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
 
@@ -981,8 +983,19 @@ export const transformDSL = (
     currentDSL = isSortableMigration(currentDSL);
     currentDSL.version = 45;
   }
+
   if (currentDSL.version === 45) {
     currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
+    currentDSL.version = 46;
+  }
+
+  if (currentDSL.version === 46) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
+    currentDSL.version = 47;
+  }
+
+  if (currentDSL.version === 47) {
+    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

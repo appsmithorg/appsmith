@@ -41,14 +41,6 @@ export const clearCommitSuccessfulState = () => ({
   type: ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE,
 });
 
-export const pushToRepoInit = () => ({
-  type: ReduxActionTypes.PUSH_TO_GIT_INIT,
-});
-
-export const pushToRepoSuccess = () => ({
-  type: ReduxActionTypes.PUSH_TO_GIT_SUCCESS,
-});
-
 export type ConnectToGitResponse = {
   gitApplicationMetadata: GitApplicationMetadata;
 };
@@ -240,11 +232,6 @@ export const resetPullMergeStatus = () => ({
 
 export const remoteUrlInputValue = (payload?: { tempRemoteUrl?: string }) => ({
   type: ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE,
-  payload,
-});
-
-export const setShouldShowRepoLimitError = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR,
   payload,
 });
 
