@@ -146,7 +146,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         Cell: (props: any) => {
           const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
-          const originalIndex = data?.__originalIndex__ || rowIndex;
+          const originalIndex = data.__originalIndex__ ?? rowIndex;
 
           // cellProperties order or size does not change when filter/sorting/grouping is applied
           // on the data thus original index is need to identify the column's cell property.
@@ -582,7 +582,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
-    if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
+    if (tableDataModified) {
       // Set filter to default
       const defaultFilter = [
         {

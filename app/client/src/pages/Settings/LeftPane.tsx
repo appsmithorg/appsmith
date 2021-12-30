@@ -75,11 +75,12 @@ export default function LeftPane() {
       <HeaderContainer>
         <StyledHeader>Appsmith Admin</StyledHeader>
       </HeaderContainer>
-      <CategoryList>
+      <CategoryList className="t--settings-category-list">
         {categories.map((config) => (
           <Category key={config.slug}>
             <StyledLink
               $active={category == config.slug}
+              className={`t--settings-category-${config.slug}`}
               to={getAdminSettingsCategoryUrl(config.slug)}
             >
               {config.label}

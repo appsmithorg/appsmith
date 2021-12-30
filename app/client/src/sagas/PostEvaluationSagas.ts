@@ -31,7 +31,6 @@ import AnalyticsUtil from "../utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
-  ERROR_EVAL_TRIGGER,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
 } from "constants/messages";
@@ -41,7 +40,6 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
-import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -259,12 +257,6 @@ export function* evalErrorHandler(
       case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
         Sentry.captureException(error);
         break;
-      }
-      case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
-        log.error(error);
-        throw new TriggerEvaluationError(
-          createMessage(ERROR_EVAL_TRIGGER, error.message),
-        );
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);

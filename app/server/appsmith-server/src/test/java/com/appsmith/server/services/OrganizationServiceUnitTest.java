@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -43,6 +44,7 @@ public class OrganizationServiceUnitTest {
     @MockBean OrganizationRepository organizationRepository;
     @MockBean Validator validator;
     @MockBean AnalyticsService analyticsService;
+    @MockBean ApplicationRepository applicationRepository;
 
     OrganizationService organizationService;
 
@@ -50,8 +52,8 @@ public class OrganizationServiceUnitTest {
     public void setUp() {
         organizationService = new OrganizationServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 organizationRepository, analyticsService, pluginRepository, sessionUserService, userOrganizationService,
-                userRepository, roleGraph, assetRepository, assetService
-        );
+                userRepository, roleGraph, assetRepository, assetService,
+                applicationRepository);
     }
 
     @Test

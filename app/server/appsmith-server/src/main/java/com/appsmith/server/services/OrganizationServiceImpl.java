@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.RoleGraph;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -30,10 +31,11 @@ public class OrganizationServiceImpl extends OrganizationServiceCEImpl implement
                                    UserRepository userRepository,
                                    RoleGraph roleGraph,
                                    AssetRepository assetRepository,
-                                   AssetService assetService) {
+                                   AssetService assetService,
+                                   ApplicationRepository applicationRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userOrganizationService, userRepository, roleGraph,
-                assetRepository, assetService);
+                assetRepository, assetService, applicationRepository);
     }
 }

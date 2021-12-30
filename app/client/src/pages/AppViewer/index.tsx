@@ -18,7 +18,11 @@ import {
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
+import {
+  BatchPropertyUpdatePayload,
+  batchUpdateWidgetProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -86,6 +90,10 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -150,6 +158,7 @@ class AppViewer extends Component<Props> {
               executeAction: this.props.executeAction,
               updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
               resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+              batchUpdateWidgetProperty: this.props.batchUpdateWidgetProperty,
             }}
           >
             <ContainerWithComments>
@@ -217,6 +226,10 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: params,
     });
   },
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => dispatch(batchUpdateWidgetProperty(widgetId, updates)),
 });
 
 export default withRouter(
