@@ -46,6 +46,10 @@ type InputComponentProps = FieldComponentBaseProps &
 
 type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
 
+type IsValidOptions = {
+  fieldType: FieldType;
+};
+
 const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isDisabled: false,
   label: "",
@@ -154,6 +158,14 @@ function parseValue(
   }
 
   return value;
+}
+
+function isValidType(value: string, options?: IsValidOptions) {
+  if (options?.fieldType === FieldType.EMAIL && value) {
+    return EMAIL_REGEX.test(value);
+  }
+
+  return false;
 }
 
 function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
@@ -358,5 +370,6 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
 }
 
 InputField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+InputField.isValidType = isValidType;
 
 export default InputField;

@@ -917,6 +917,8 @@ describe(".fieldTypeFor", () => {
       ["1", FieldType.TEXT],
       ["#111", FieldType.TEXT],
       ["999", FieldType.TEXT],
+      ["test@demo.com", FieldType.EMAIL],
+      ["test@.com", FieldType.TEXT],
       [10, FieldType.NUMBER],
       [[{}], FieldType.ARRAY],
       [[""], FieldType.MULTI_SELECT],

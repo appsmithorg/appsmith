@@ -158,6 +158,12 @@ export const fieldTypeFor = (value: any) => {
 
   if (dataType === DataType.STRING) {
     const DateField = FIELD_MAP[FieldType.DATE];
+    const EmailField = FIELD_MAP[FieldType.EMAIL];
+
+    if (EmailField?.isValidType?.(value, { fieldType: FieldType.EMAIL })) {
+      return FieldType.EMAIL;
+    }
+
     if (DateField?.isValidType?.(value)) {
       return FieldType.DATE;
     }
