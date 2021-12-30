@@ -2758,28 +2758,7 @@ export const light: ColorType = {
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
   },
-  guidedTour: {
-    runButton: "#f86a2b",
-    cancelButton: {
-      color: "#716e6e",
-      borderColor: "#716e6e",
-      hoverBackgroundColor: "#f1f1f1",
-    },
-    endButton: {
-      backgroundColor: "#f22b2b",
-      borderColor: "#f22b2b",
-      hoverBackgroundColor: "#f34040",
-    },
-    endTourButton: {
-      color: "#4b4848",
-      hoverColor: "#928f8f",
-    },
-    card: {
-      borderBottom: "#eeeeee",
-      background: "#ffefdb",
-    },
-    stepCountBackground: "#090707",
-  },
+  guidedTour,
   widgetGroupingContextMenu: {
     border: "#69b5ff",
     actionActiveBg: "#e1e1e1",
