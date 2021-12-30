@@ -254,7 +254,9 @@ function* updateWidgetTextSaga() {
           widgetId: buttonWidget.widgetId,
           updates: {
             modify: {
-              label: "Update Info",
+              text: "Click to Update",
+              rightColumn: buttonWidget.leftColumn + 24,
+              bottomRow: buttonWidget.topRow + 5,
             },
           },
         },
