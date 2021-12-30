@@ -22,7 +22,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   sourceData?: TValues;
   stretchBodyVertically: boolean;
   title: string;
-  updateFormValues: (values: TValues) => void;
+  updateFormData: (values: TValues) => void;
 }>;
 
 type StyledFormProps = {
@@ -128,7 +128,7 @@ function Form<TValues = any>({
   showReset,
   stretchBodyVertically,
   title,
-  updateFormValues,
+  updateFormData,
 }: FormProps<TValues>) {
   const valuesRef = useRef({});
   const methods = useForm();
@@ -137,12 +137,12 @@ function Form<TValues = any>({
   const isFormInValid = !isEmpty(errors);
 
   React.useEffect(() => {
-    const debouncedUpdateFormValues = debounce(updateFormValues, 300);
+    const debouncedUpdateFormData = debounce(updateFormData, 300);
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
         valuesRef.current = cloneDeep(values);
-        debouncedUpdateFormValues(values as TValues);
+        debouncedUpdateFormData(values as TValues);
       }
     });
     return () => subscription.unsubscribe();

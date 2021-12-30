@@ -7,7 +7,6 @@ import {
   sortBy,
   startCase,
 } from "lodash";
-import moment from "moment";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,

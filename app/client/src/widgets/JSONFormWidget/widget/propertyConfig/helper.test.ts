@@ -41,7 +41,7 @@ describe(".fieldTypeUpdateHook", () => {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
           sourceData: "travelling",
           isCustomField: false,
@@ -53,7 +53,7 @@ describe(".fieldTypeUpdateHook", () => {
       },
       dataType: DataType.ARRAY,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.ARRAY,
       sourceData: ["travelling", "skating", "off-roading"],
       isCustomField: false,
@@ -96,7 +96,7 @@ describe(".fieldTypeUpdateHook", () => {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
           sourceData: "travelling",
           isCustomField: false,
@@ -108,7 +108,7 @@ describe(".fieldTypeUpdateHook", () => {
       },
       dataType: DataType.ARRAY,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.ARRAY,
       sourceData: ["travelling", "skating", "off-roading"],
       isCustomField: false,

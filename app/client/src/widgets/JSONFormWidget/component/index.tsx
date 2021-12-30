@@ -35,7 +35,7 @@ export type JSONFormComponentProps<TValues> = {
   showReset: boolean;
   sourceData?: TValues;
   title: string;
-  updateFormValues: (values: TValues) => void;
+  updateFormData: (values: TValues) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;

@@ -429,13 +429,14 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/switch-group",
     selectedValues: "[string]",
   },
-  FORM_BUILDER_WIDGET: (widget: any) => ({
+  JSON_FORM_WIDGET: (widget: any) => ({
     "!doc":
-      "Form builder widget can be used to auto-generate forms by just providing a JSON source data.",
+      "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
     // TODO: Update the url
     "!url": "https://docs.appsmith.com/widget-reference",
     // TODO: Fix definition
-    data: generateTypeDef(widget.data),
+    formData: generateTypeDef(widget.formData),
+    sourceData: generateTypeDef(widget.sourceData),
     fieldState: generateTypeDef(widget.fieldState),
     backgroundColor: {
       "!type": "string",

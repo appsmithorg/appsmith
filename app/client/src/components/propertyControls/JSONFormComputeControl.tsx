@@ -215,7 +215,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       <InputText
         additionalDynamicData={{
           sourceData: baseSchemaStructure,
-          data: baseSchemaStructure,
+          formData: baseSchemaStructure,
           fieldState: fieldStateStructure,
         }}
         dataTreePath={dataTreePath}

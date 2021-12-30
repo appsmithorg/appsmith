@@ -116,7 +116,7 @@ describe("#getSchemaItemByFieldType", () => {
         { label: "Red", value: "RED" },
       ],
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.SELECT,
       sourceData: "1",
       isCustomField: false,
@@ -194,7 +194,7 @@ describe("#getSchemaItemByFieldType", () => {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
           sourceData: "travelling",
           isCustomField: false,
@@ -206,7 +206,7 @@ describe("#getSchemaItemByFieldType", () => {
       },
       dataType: DataType.ARRAY,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.ARRAY,
       sourceData: ["travelling", "skating", "off-roading"],
       isCustomField: false,
@@ -238,7 +238,7 @@ describe("#getSchemaItemFor", () => {
       children: {},
       dataType: DataType.STRING,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.firstName))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.firstName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.TEXT,
       sourceData: "John",
       isCustomField: false,
@@ -326,7 +326,7 @@ describe("#getSchemaItemFor", () => {
       children: {},
       dataType: DataType.ARRAY,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.MULTI_SELECT,
       sourceData: ["one", "two"],
       isCustomField: false,
@@ -360,7 +360,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       children: {},
       dataType: DataType.STRING,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.firstName))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.firstName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.TEXT,
       sourceData: "John",
       isCustomField: false,
@@ -390,7 +390,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       children: {},
       dataType: DataType.ARRAY,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.MULTI_SELECT,
       sourceData: "John",
       isCustomField: false,
@@ -440,7 +440,7 @@ describe("#convertArrayToSchema", () => {
             children: {},
             dataType: DataType.STRING,
             defaultValue:
-              "{{((sourceData, data, fieldState) => (sourceData.entries[0].firstName))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+              "{{((sourceData, formData, fieldState) => (sourceData.entries[0].firstName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
             fieldType: FieldType.TEXT,
             sourceData: "John",
             isCustomField: false,
@@ -452,7 +452,7 @@ describe("#convertArrayToSchema", () => {
         },
         dataType: DataType.OBJECT,
         defaultValue:
-          "{{((sourceData, data, fieldState) => (sourceData.entries[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+          "{{((sourceData, formData, fieldState) => (sourceData.entries[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
         fieldType: FieldType.OBJECT,
         sourceData: {
           firstName: "John",
@@ -506,7 +506,7 @@ describe("#convertArrayToSchema", () => {
         },
         dataType: DataType.OBJECT,
         defaultValue:
-          "{{((sourceData, data, fieldState) => (sourceData.entries[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+          "{{((sourceData, formData, fieldState) => (sourceData.entries[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
         fieldType: FieldType.OBJECT,
         sourceData: {
           firstName: "John",
@@ -547,7 +547,7 @@ describe("#convertArrayToSchema", () => {
             children: {},
             dataType: DataType.STRING,
             defaultValue:
-              "{{((sourceData, data, fieldState) => (sourceData.entries[0].lastName))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+              "{{((sourceData, formData, fieldState) => (sourceData.entries[0].lastName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
             fieldType: FieldType.TEXT,
             sourceData: "Doe",
             isCustomField: false,
@@ -559,7 +559,7 @@ describe("#convertArrayToSchema", () => {
         },
         dataType: DataType.OBJECT,
         defaultValue:
-          "{{((sourceData, data, fieldState) => (sourceData.entries[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+          "{{((sourceData, formData, fieldState) => (sourceData.entries[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
         fieldType: FieldType.OBJECT,
         sourceData: {
           firstName: "John",
@@ -597,7 +597,7 @@ describe("#convertObjectToSchema", () => {
         children: {},
         dataType: DataType.STRING,
         defaultValue:
-          "{{((sourceData, data, fieldState) => (sourceData.entry.firstName))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+          "{{((sourceData, formData, fieldState) => (sourceData.entry.firstName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
         fieldType: FieldType.TEXT,
         sourceData: "John",
         isCustomField: false,
@@ -666,7 +666,7 @@ describe("#convertObjectToSchema", () => {
         children: {},
         dataType: DataType.STRING,
         defaultValue:
-          "{{((sourceData, data, fieldState) => (sourceData.entries.lastName))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+          "{{((sourceData, formData, fieldState) => (sourceData.entries.lastName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
         fieldType: FieldType.TEXT,
         sourceData: "Doe",
         isCustomField: false,

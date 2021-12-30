@@ -35,7 +35,7 @@ const initialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
           sourceData: "Test name",
           isCustomField: false,
@@ -51,7 +51,7 @@ const initialDataset = {
           children: {},
           dataType: DataType.NUMBER,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.NUMBER,
           sourceData: 20,
           isCustomField: false,
@@ -71,7 +71,7 @@ const initialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.DATE,
           sourceData: "10/12/2021",
           isCustomField: false,
@@ -87,7 +87,7 @@ const initialDataset = {
           children: {},
           dataType: DataType.BOOLEAN,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.boolean))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.boolean))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.SWITCH,
           sourceData: true,
           isCustomField: false,
@@ -108,7 +108,7 @@ const initialDataset = {
           children: {},
           dataType: DataType.ARRAY,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTI_SELECT,
           sourceData: ["travelling", "skating", "off-roading"],
           isCustomField: false,
@@ -135,7 +135,7 @@ const initialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.TEXT,
                   sourceData: "String field ",
                   isCustomField: false,
@@ -151,7 +151,7 @@ const initialDataset = {
                   children: {},
                   dataType: DataType.NUMBER,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.NUMBER,
                   sourceData: 1,
                   isCustomField: false,
@@ -171,7 +171,7 @@ const initialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -187,7 +187,7 @@ const initialDataset = {
                   children: {},
                   dataType: DataType.BOOLEAN,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.SWITCH,
                   sourceData: true,
                   isCustomField: false,
@@ -198,7 +198,7 @@ const initialDataset = {
               },
               dataType: DataType.OBJECT,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.OBJECT,
               sourceData: {
                 college: "String field ",
@@ -214,7 +214,7 @@ const initialDataset = {
           },
           dataType: DataType.ARRAY,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.education))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.education))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.ARRAY,
           sourceData: [
             {
@@ -242,7 +242,7 @@ const initialDataset = {
               children: {},
               dataType: DataType.STRING,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
               sourceData: "String field ",
               isCustomField: false,
@@ -258,7 +258,7 @@ const initialDataset = {
               children: {},
               dataType: DataType.STRING,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
               sourceData: "1",
               isCustomField: false,
@@ -269,7 +269,7 @@ const initialDataset = {
           },
           dataType: DataType.OBJECT,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.address))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.address))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.OBJECT,
           sourceData: { Line1: "String field ", city: "1" },
           isCustomField: false,
@@ -280,7 +280,7 @@ const initialDataset = {
       },
       dataType: DataType.OBJECT,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.OBJECT,
       sourceData: {
         name: "Test name",
@@ -343,7 +343,7 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
           sourceData: "Test name",
           isCustomField: false,
@@ -359,7 +359,7 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.NUMBER,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.NUMBER,
           sourceData: 20,
           isCustomField: false,
@@ -379,7 +379,7 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.DATE,
           sourceData: "10/12/2021",
           isCustomField: false,
@@ -400,7 +400,7 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.ARRAY,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTI_SELECT,
           sourceData: ["travelling", "skating", "off-roading"],
           isCustomField: false,
@@ -427,7 +427,7 @@ const withRemovedKeyFromInitialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.TEXT,
                   sourceData: "String field ",
                   isCustomField: false,
@@ -443,7 +443,7 @@ const withRemovedKeyFromInitialDataset = {
                   children: {},
                   dataType: DataType.NUMBER,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.NUMBER,
                   sourceData: 1,
                   isCustomField: false,
@@ -463,7 +463,7 @@ const withRemovedKeyFromInitialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -479,7 +479,7 @@ const withRemovedKeyFromInitialDataset = {
                   children: {},
                   dataType: DataType.BOOLEAN,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.SWITCH,
                   sourceData: true,
                   isCustomField: false,
@@ -490,7 +490,7 @@ const withRemovedKeyFromInitialDataset = {
               },
               dataType: DataType.OBJECT,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.OBJECT,
               sourceData: {
                 college: "String field ",
@@ -506,7 +506,7 @@ const withRemovedKeyFromInitialDataset = {
           },
           dataType: DataType.ARRAY,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.education))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.education))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.ARRAY,
           sourceData: [
             {
@@ -534,7 +534,7 @@ const withRemovedKeyFromInitialDataset = {
               children: {},
               dataType: DataType.STRING,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
               sourceData: "String field ",
               isCustomField: false,
@@ -550,7 +550,7 @@ const withRemovedKeyFromInitialDataset = {
               children: {},
               dataType: DataType.STRING,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
               sourceData: "1",
               isCustomField: false,
@@ -561,7 +561,7 @@ const withRemovedKeyFromInitialDataset = {
           },
           dataType: DataType.OBJECT,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.address))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.address))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.OBJECT,
           sourceData: { Line1: "String field ", city: "1" },
           isCustomField: false,
@@ -572,7 +572,7 @@ const withRemovedKeyFromInitialDataset = {
       },
       dataType: DataType.OBJECT,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.OBJECT,
       sourceData: {
         name: "Test name",
@@ -635,7 +635,7 @@ const withRemovedAddedKeyToInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
           sourceData: "Test name",
           isCustomField: false,
@@ -651,7 +651,7 @@ const withRemovedAddedKeyToInitialDataset = {
           children: {},
           dataType: DataType.NUMBER,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.NUMBER,
           sourceData: 20,
           isCustomField: false,
@@ -671,7 +671,7 @@ const withRemovedAddedKeyToInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.DATE,
           sourceData: "10/12/2021",
           isCustomField: false,
@@ -692,7 +692,7 @@ const withRemovedAddedKeyToInitialDataset = {
           children: {},
           dataType: DataType.ARRAY,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.MULTI_SELECT,
           sourceData: ["travelling", "skating", "off-roading"],
           isCustomField: false,
@@ -719,7 +719,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.TEXT,
                   sourceData: "String field ",
                   isCustomField: false,
@@ -735,7 +735,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   children: {},
                   dataType: DataType.NUMBER,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.NUMBER,
                   sourceData: 1,
                   isCustomField: false,
@@ -755,7 +755,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -771,7 +771,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   children: {},
                   dataType: DataType.BOOLEAN,
                   defaultValue:
-                    "{{((sourceData, data, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   fieldType: FieldType.SWITCH,
                   sourceData: true,
                   isCustomField: false,
@@ -782,7 +782,7 @@ const withRemovedAddedKeyToInitialDataset = {
               },
               dataType: DataType.OBJECT,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.OBJECT,
               sourceData: {
                 college: "String field ",
@@ -798,7 +798,7 @@ const withRemovedAddedKeyToInitialDataset = {
           },
           dataType: DataType.ARRAY,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.education))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.education))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.ARRAY,
           sourceData: [
             {
@@ -826,7 +826,7 @@ const withRemovedAddedKeyToInitialDataset = {
               children: {},
               dataType: DataType.STRING,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.address.Line1))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
               sourceData: "String field ",
               isCustomField: false,
@@ -842,7 +842,7 @@ const withRemovedAddedKeyToInitialDataset = {
               children: {},
               dataType: DataType.STRING,
               defaultValue:
-                "{{((sourceData, data, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+                "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               fieldType: FieldType.TEXT,
               sourceData: "1",
               isCustomField: false,
@@ -853,7 +853,7 @@ const withRemovedAddedKeyToInitialDataset = {
           },
           dataType: DataType.OBJECT,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.address))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.address))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.OBJECT,
           sourceData: { Line1: "String field ", city: "1" },
           isCustomField: false,
@@ -869,7 +869,7 @@ const withRemovedAddedKeyToInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, data, fieldState) => (sourceData.gender))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => (sourceData.gender))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           fieldType: FieldType.TEXT,
           sourceData: "male",
           isCustomField: false,
@@ -880,7 +880,7 @@ const withRemovedAddedKeyToInitialDataset = {
       },
       dataType: DataType.OBJECT,
       defaultValue:
-        "{{((sourceData, data, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.data, JSONForm1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
       fieldType: FieldType.OBJECT,
       sourceData: {
         name: "Test name",

@@ -51,7 +51,7 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      data: {},
+      formData: {},
       fieldState: {},
     };
   }
@@ -97,8 +97,8 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
     this.updateWidgetProperty("schema", schema);
   };
 
-  updateFormValues = (values: any) => {
-    this.props.updateWidgetMetaProperty("data", values);
+  updateFormData = (values: any) => {
+    this.props.updateWidgetMetaProperty("formData", values);
   };
 
   parseAndSaveFieldState = () => {
@@ -190,7 +190,7 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
         {...this.props}
         executeAction={this.onExecuteAction}
         onSubmit={this.onSubmit}
-        updateFormValues={this.updateFormValues}
+        updateFormData={this.updateFormData}
         updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
         updateWidgetProperty={this.onUpdateWidgetProperty}
       />
@@ -198,7 +198,7 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
   }
 
   static getWidgetType(): string {
-    return "FORM_BUILDER_WIDGET";
+    return "JSON_FORM_WIDGET";
   }
 }
 
