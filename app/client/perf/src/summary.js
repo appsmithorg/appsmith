@@ -15,17 +15,17 @@ exports.summaries = async (directory) => {
         if (!results[key]?.scripting) {
           results[key].scripting = [];
         }
-        results[key].scripting.push(content[key].summary.scripting);
+        results[key].scripting.push(content[key].summary.scripting.toFixed(2));
 
         if (!results[key]?.painting) {
           results[key].painting = [];
         }
-        results[key].painting.push(content[key].summary.painting);
+        results[key].painting.push(content[key].summary.painting.toFixed(2));
 
         if (!results[key]?.rendering) {
           results[key].rendering = [];
         }
-        results[key].rendering.push(content[key].summary.rendering);
+        results[key].rendering.push(content[key].summary.rendering.toFixed(2));
       });
     }
   });
