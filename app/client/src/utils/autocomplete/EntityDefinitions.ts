@@ -424,6 +424,12 @@ export const entityDefinitions: Record<string, unknown> = {
     dataURL: "string",
     rawBinary: "string",
   },
+  PROGRESSBAR_WIDGET: {
+    "!doc": "Progress bar is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/progressbar",
+    isVisible: isVisible,
+    progress: "number",
+  },
   SWITCH_GROUP_WIDGET: {
     "!doc":
       "Switch group widget allows users to create many switch components which can easily by used in a form",
