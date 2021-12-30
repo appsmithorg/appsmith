@@ -15,17 +15,23 @@ exports.summaries = async (directory) => {
         if (!results[key]?.scripting) {
           results[key].scripting = [];
         }
-        results[key].scripting.push(content[key].summary.scripting.toFixed(2));
+        results[key].scripting.push(
+          parseFloat(content[key].summary.scripting.toFixed(2)),
+        );
 
         if (!results[key]?.painting) {
           results[key].painting = [];
         }
-        results[key].painting.push(content[key].summary.painting.toFixed(2));
+        results[key].painting.push(
+          parseFloat(content[key].summary.painting.toFixed(2)),
+        );
 
         if (!results[key]?.rendering) {
           results[key].rendering = [];
         }
-        results[key].rendering.push(content[key].summary.rendering.toFixed(2));
+        results[key].rendering.push(
+          parseFloat(content[key].summary.rendering.toFixed(2)),
+        );
       });
     }
   });
