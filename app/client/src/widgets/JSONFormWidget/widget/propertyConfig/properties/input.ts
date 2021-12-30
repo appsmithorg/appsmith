@@ -21,6 +21,14 @@ function defaultValueValidation(
   const schemaItem = lodash.get(props, parentPath);
   const { fieldType } = schemaItem;
 
+  if (value === null || value === undefined) {
+    return {
+      isValid: true,
+      parsed: value,
+      messages: [""],
+    };
+  }
+
   // Cannot use FieldType typing check as this whole method is passed as string and executed on worker, so it results
   // any methods/variable (closure) usage as reference error.
   // CAUTION! - make sure the correct fieldType is used here as string.
