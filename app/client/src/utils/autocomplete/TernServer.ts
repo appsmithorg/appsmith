@@ -358,16 +358,17 @@ class TernServer {
       const dataType = this.getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
+      let displayText = completionText.concat("");
 
       if (dataType === "FUNCTION") {
         const paramDefString = completion.type.slice(2, completion.type.length);
-        // paramDefString = paramDefString.replaceAll(": ?", "");
-        completionText = completionText + paramDefString;
+        displayText = completionText + paramDefString;
+        completionText = completionText + "()";
       }
 
       const codeMirrorCompletion: Completion = {
         text: completionText,
-        displayText: completionText,
+        displayText: displayText,
         className: className,
         data: completion,
         origin: completion.origin,
