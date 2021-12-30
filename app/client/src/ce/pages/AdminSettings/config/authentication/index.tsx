@@ -161,9 +161,9 @@ export const Saml_Auth_Callout: AuthCallout = {
 
 const AuthCallouts = [
   Google_Auth_Callout,
+  Saml_Auth_Callout,
   Github_Auth_Callout,
   Form_Auth_Callout,
-  Saml_Auth_Callout,
 ];
 
 function AuthMain() {

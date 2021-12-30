@@ -92,14 +92,20 @@ const EditButton = styled.span`
   cursor: pointer;
 `;
 
+const AddButton = styled(Button)`
+  height: 30px;
+  width: 58px;
+  padding: 8px 16px;
+`;
+
 const ButtonTitle = styled.span`
   margin-right: 2px;
   line-height: 1;
   font-size: 11px;
 `;
 
-const Label = styled.div`
-  display: inline-block;
+const Label = styled.span`
+  display: inline;
   color: #fff;
   background: #03b365;
   padding: 2px 6px;
@@ -128,8 +134,10 @@ export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
               <MethodCard key={callout.id}>
                 <Image alt={callout.label} src={callout.image} />
                 <MethodDetailsWrapper>
-                  <MethodTitle>{callout.label}</MethodTitle>
-                  {callout.isConnected && <Label>Enabled</Label>}
+                  <MethodTitle>
+                    {callout.label}{" "}
+                    {callout.isConnected && <Label>Enabled</Label>}
+                  </MethodTitle>
                   <MethodDets>{callout.subText}</MethodDets>
                   {callout.calloutBanner && (
                     <Callout
@@ -154,7 +162,7 @@ export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
                     <Icon name="right-arrow" size={IconSize.XL} />
                   </EditButton>
                 ) : (
-                  <Button
+                  <AddButton
                     category={Category.tertiary}
                     className={"add-button"}
                     data-cy="add-auth-account"
