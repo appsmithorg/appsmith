@@ -424,11 +424,28 @@ export const entityDefinitions: Record<string, unknown> = {
     dataURL: "string",
     rawBinary: "string",
   },
+  PROGRESSBAR_WIDGET: {
+    "!doc": "Progress bar is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/progressbar",
+    isVisible: isVisible,
+    progress: "number",
+  },
   SWITCH_GROUP_WIDGET: {
     "!doc":
       "Switch group widget allows users to create many switch components which can easily by used in a form",
     "!url": "https://docs.appsmith.com/widget-reference/switch-group",
     selectedValues: "[string]",
+  },
+  CAMERA_WIDGET: {
+    "!doc":
+      "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",
+    "!url": "https://docs.appsmith.com/widget-reference/camera",
+    imageBlobURL: "string",
+    imageDataURL: "string",
+    imageRawBinary: "string",
+    videoBlobURL: "string",
+    videoDataURL: "string",
+    videoRawBinary: "string",
   },
 };
 

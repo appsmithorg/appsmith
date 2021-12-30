@@ -1171,6 +1171,83 @@ describe("Validates Derived Properties", () => {
     let result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
+
+  it("validates generated sanitized table data with valid property keys", () => {
+    const { getSanitizedTableData } = derivedProperty;
+
+    const input = {
+      tableData: [
+        {
+          "1": "abc",
+          "2": "bcd",
+          "3": "cde",
+          Dec: "mon",
+          demo: "3",
+          demo_1: "1",
+          "test one": "1",
+          "test 3 4 9": "4",
+          rowIndex: "0",
+          "😀smile😀": "smile 1",
+          "🙁sad🙁": "sad 1",
+          "@user": "user 1",
+          "@name": "name 1",
+          ÜserÑame: "john",
+        },
+        {
+          "1": "asd",
+          "2": "dfg",
+          "3": "jkl",
+          Dec: "mon2",
+          demo: "2",
+          demo_1: "1",
+          "test one": "2",
+          "test 3 4 9": "3",
+          rowIndex: "1",
+          "😀smile😀": "smile 2",
+          "🙁sad🙁": "sad 2",
+          "@user": "user 2",
+          "@name": "name 2",
+          ÜserÑame: "mike",
+        },
+      ],
+    };
+    const expected = [
+      {
+        _1: "abc",
+        _2: "bcd",
+        _3: "cde",
+        Dec: "mon",
+        demo: "3",
+        demo_1: "1",
+        test_one: "1",
+        test_3_4_9: "4",
+        rowIndex: "0",
+        _smile_: "smile 1",
+        _sad_: "sad 1",
+        _user: "user 1",
+        _name: "name 1",
+        _ser_ame: "john",
+      },
+      {
+        _1: "asd",
+        _2: "dfg",
+        _3: "jkl",
+        Dec: "mon2",
+        demo: "2",
+        demo_1: "1",
+        test_one: "2",
+        test_3_4_9: "3",
+        rowIndex: "1",
+        _smile_: "smile 2",
+        _sad_: "sad 2",
+        _user: "user 2",
+        _name: "name 2",
+        _ser_ame: "mike",
+      },
+    ];
+    let result = getSanitizedTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
 });
 
 describe("Validate getSelectedRow function", () => {

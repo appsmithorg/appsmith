@@ -10,11 +10,6 @@ export type CommitPayload = {
   branch: string;
 };
 
-export type PushToGitPayload = {
-  applicationId: string;
-  branch: string;
-};
-
 export type MergeBranchPayload = {
   applicationId: string;
   sourceBranch: string;
@@ -57,15 +52,6 @@ class GitSyncAPI extends Api {
         commitMessage,
         doPush,
       },
-    );
-  }
-
-  static push({
-    applicationId,
-    branch,
-  }: PushToGitPayload): AxiosPromise<ApiResponse> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branch}`,
     );
   }
 

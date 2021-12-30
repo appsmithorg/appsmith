@@ -70,7 +70,6 @@ public class MongoPluginUtils {
         return actionConfiguration.getBody();
     }
 
-    // TODO: add comment
     private static MongoCommand getMongoCommand(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         Map<String, Object> formData = actionConfiguration.getFormData();
         MongoCommand command;
@@ -203,7 +202,7 @@ public class MongoPluginUtils {
 
     public static String getRawQuery(ActionConfiguration actionConfiguration) {
         MongoCommand command = getMongoCommand(actionConfiguration);
-        return command.getRawQuery(); // TODO: fix it
+        return command.getRawQuery();
     }
 
 }

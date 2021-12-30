@@ -61,7 +61,7 @@ export const EditorWrapper = styled.div<{
   top: 0;
   `
       : `position: relative;`}
-  min-height: 35px;
+  min-height: 38px;
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) => editorBackground(props.editorTheme)};
   background-color: ${(props) => props.disabled && "#eef2f5"};
@@ -260,7 +260,7 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "35px";
+        height = props.height || "38px";
       }
       return `height: ${height}`;
     }}

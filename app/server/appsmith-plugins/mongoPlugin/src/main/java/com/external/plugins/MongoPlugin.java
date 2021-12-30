@@ -75,7 +75,6 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDa
 import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
 import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
@@ -86,8 +85,9 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static java.lang.Boolean.TRUE;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
@@ -115,11 +115,11 @@ public class MongoPlugin extends BasePlugin {
 
     /*
      * - The regex matches the following two pattern types:
-     *   - mongodb+srv://user:pass@some-url/some-db....
-     *   - mongodb://user:pass@some-url:port,some-url:port,../some-db....
-     * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/(some-db....))
+     *   - mongodb+srv://user:pass@some-url/some-db...
+     *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
+     * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))(@.+\\/(.+))$";
+    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
 
     /**
      * This regex matches the following two patterns:
@@ -134,17 +134,21 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int REGEX_GROUP_HEAD = 1;
 
-    private static final int REGEX_GROUP_USERNAME = 4;
+    private static final int REGEX_GROUP_USERNAME = 2;
 
-    private static final int REGEX_GROUP_PASSWORD = 5;
+    private static final int REGEX_GROUP_PASSWORD = 3;
+
+    private static final int REGEX_HOST_PORT = 4;
+
+    private static final int REGEX_GROUP_DBNAME = 5;
 
     private static final int REGEX_GROUP_TAIL = 6;
-
-    private static final int REGEX_GROUP_DBNAME = 7;
 
     private static final String KEY_USERNAME = "username";
 
     private static final String KEY_PASSWORD = "password";
+
+    private static final String KEY_HOST_PORT = "hostPort";
 
     private static final String KEY_URI_HEAD = "uriHead";
 
@@ -582,13 +586,12 @@ public class MongoPlugin extends BasePlugin {
                 Matcher matcher = pattern.matcher(uri);
                 if (matcher.find()) {
                     Map extractedInfoMap = new HashMap();
-                    String username = matcher.group(REGEX_GROUP_USERNAME);
-                    extractedInfoMap.put(KEY_USERNAME, username == null ? "" : username);
-                    String password = matcher.group(REGEX_GROUP_PASSWORD);
-                    extractedInfoMap.put(KEY_PASSWORD, password == null ? "" : password);
                     extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
+                    extractedInfoMap.put(KEY_USERNAME, matcher.group(REGEX_GROUP_USERNAME));
+                    extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
+                    extractedInfoMap.put(KEY_HOST_PORT, matcher.group(REGEX_HOST_PORT));
+                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME));
                     extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
-                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME).split("\\?")[0]);
                     return extractedInfoMap;
                 }
             }
@@ -596,10 +599,34 @@ public class MongoPlugin extends BasePlugin {
             return null;
         }
 
-        private String buildURIfromExtractedInfo(Map extractedInfo, String password) {
-            return extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
-                    extractedInfo.get(KEY_USERNAME) + ":") + (password == null ? "" : password)
-                    + extractedInfo.get(KEY_URI_TAIL);
+        private String buildURIFromExtractedInfo(Map extractedInfo, String password) {
+            String userInfo = "";
+            if (extractedInfo.get(KEY_USERNAME) != null) {
+                userInfo += extractedInfo.get(KEY_USERNAME) + ":";
+                if (password != null) {
+                    userInfo += password;
+                }
+                userInfo += "@";
+            }
+
+            final String dbInfo = "/" + (extractedInfo.get(KEY_URI_DBNAME) == null ? "" : extractedInfo.get(KEY_URI_DBNAME));
+
+            String tailInfo = (String) (extractedInfo.get(KEY_URI_TAIL) == null ? "" : extractedInfo.get(KEY_URI_TAIL));
+            if (StringUtils.hasLength(tailInfo)) {
+                if (!tailInfo.contains("authSource")) {
+                    tailInfo = "?" + tailInfo + "&authSource=admin";
+                } else {
+                    tailInfo = "?" + tailInfo;
+                }
+            } else {
+                tailInfo = "?authSource=admin";
+            }
+
+            return extractedInfo.get(KEY_URI_HEAD)
+                    + userInfo
+                    + extractedInfo.get(KEY_HOST_PORT)
+                    + dbInfo
+                    + tailInfo;
         }
 
         public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -611,7 +638,7 @@ public class MongoPlugin extends BasePlugin {
                     Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
                     if (extractedInfo != null) {
                         String password = ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
-                        return buildURIfromExtractedInfo(extractedInfo, password);
+                        return buildURIFromExtractedInfo(extractedInfo, password);
                     } else {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -775,7 +802,7 @@ public class MongoPlugin extends BasePlugin {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
                         } else if (!isAuthenticated(authentication, mongoUri)) {
-                            String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
+                            String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             authentication = (authentication == null) ? new DBAuth() : authentication;
                             authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
