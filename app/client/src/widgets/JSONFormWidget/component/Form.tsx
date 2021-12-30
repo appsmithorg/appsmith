@@ -138,6 +138,9 @@ function Form<TValues = any>({
 
   React.useEffect(() => {
     const debouncedUpdateFormData = debounce(updateFormData, 300);
+    const defaultValues = getDefaultValues(schema);
+
+    debouncedUpdateFormData(defaultValues as TValues);
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
