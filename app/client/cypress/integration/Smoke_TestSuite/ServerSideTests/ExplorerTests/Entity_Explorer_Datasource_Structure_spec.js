@@ -124,6 +124,9 @@ describe("Entity explorer datasource structure", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+      .find(explorer.collapse)
+      .click();
     cy.xpath("//div[text()='public." + tableName + "']").should("exist");
 
     // cy.get(explorer.refreshStructure).click({ force: true });
