@@ -11,7 +11,7 @@ import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
-  backgroundColor?: string;
+  backgroundColor: string;
   buttonVariant: ButtonVariant;
   borderRadius: string;
   boxShadow: string;

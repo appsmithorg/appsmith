@@ -1,15 +1,8 @@
 import * as React from "react";
 
-import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
-import store from "store";
-import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
-import {
-  getThemePropertyBinding,
-  borderRadiusPropertyName,
-  borderRadiusOptions,
-} from "constants/ThemeContants";
-import { startCase } from "lodash";
+import BaseControl, { ControlProps } from "./BaseControl";
+import { borderRadiusOptions } from "constants/ThemeConstants";
 
 /**
  * ----------------------------------------------------------------------------
@@ -19,39 +12,16 @@ import { startCase } from "lodash";
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
-
-interface BorderRadiusOptionsControlState {
-  themeBorderOptions: Record<string, string>;
-}
-
 /**
  * ----------------------------------------------------------------------------
  * COMPONENT
  *-----------------------------------------------------------------------------
  */
 class BorderRadiusOptionsControl extends BaseControl<
-  BorderRadiusOptionsControlProps,
-  BorderRadiusOptionsControlState
+  BorderRadiusOptionsControlProps
 > {
-  constructor(props: BorderRadiusOptionsControlProps) {
-    super(props);
-    this.state = {
-      themeBorderOptions: {},
-    };
-  }
-
   static getControlType() {
     return "BORDER_RADIUS_OPTIONS";
-  }
-
-  componentDidMount() {
-    const theme = getSelectedAppThemeProperties(store.getState());
-
-    if (Object.keys(theme[borderRadiusPropertyName]).length) {
-      this.setState({
-        themeBorderOptions: theme[borderRadiusPropertyName],
-      });
-    }
   }
 
   renderOptions = (

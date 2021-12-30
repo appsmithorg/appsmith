@@ -4,7 +4,6 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
 import { AlignWidget } from "widgets/constants";
 import { Colors } from "constants/Colors";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 type StyledCheckboxProps = {
   rowSpace: number;
@@ -117,10 +116,6 @@ function CheckboxComponent(props: CheckboxComponentProps) {
     </CheckboxContainer>
   );
 }
-
-CheckboxComponent.defaultProps = {
-  backgroundColor: FALLBACK_COLORS.backgroundColor,
-};
 
 export interface CheckboxComponentProps extends ComponentProps {
   alignWidget?: AlignWidget;

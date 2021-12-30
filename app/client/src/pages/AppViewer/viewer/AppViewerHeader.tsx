@@ -30,7 +30,7 @@ import ToggleCommentModeButton, {
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import HtmlTitle from "../AppViewerHtmlTitle";
-import AppViewerPrimaryCTA from "../AppViewerPrimaryCTA";
+import PrimaryCTA from "../PrimaryCTA";
 import Button from "./../AppViewerButton";
 import { Colors } from "constants/Colors";
 import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith-logo-no-pad.svg";
@@ -200,7 +200,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   />
 
                   <HeaderRightItemContainer>
-                    <AppViewerPrimaryCTA url={props.url} />
+                    <PrimaryCTA url={props.url} />
                   </HeaderRightItemContainer>
                 </div>
               )}

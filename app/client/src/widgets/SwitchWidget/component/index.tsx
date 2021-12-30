@@ -4,7 +4,6 @@ import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidget } from "widgets/constants";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 interface SwitchComponentProps extends ComponentProps {
   label: string;
@@ -81,7 +80,3 @@ export function SwitchComponent({
     </SwitchComponentContainer>
   );
 }
-
-SwitchComponent.defaultProps = {
-  backgroundColor: FALLBACK_COLORS.backgroundColor,
-};

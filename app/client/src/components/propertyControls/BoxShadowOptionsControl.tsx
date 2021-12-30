@@ -2,10 +2,7 @@ import * as React from "react";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
-import {
-  boxShadowOptions,
-  getThemePropertyBinding,
-} from "constants/ThemeContants";
+import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;

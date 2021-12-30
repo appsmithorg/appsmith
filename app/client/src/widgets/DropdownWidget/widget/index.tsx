@@ -368,6 +368,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         }
         disabled={this.props.isDisabled}
         dropDownWidth={dropDownWidth}
+        fontFamily={this.props.fontFamily}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
@@ -451,6 +452,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  fontFamily?: string;
 }
 
 export default DropdownWidget;

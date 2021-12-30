@@ -7,7 +7,7 @@ class AppThemingApi extends API {
   static baseUrl = "/v1";
 
   /**
-   * fires request to get all themes
+   * fires api to get all themes
    *
    * @returns
    */
@@ -23,9 +23,10 @@ class AppThemingApi extends API {
    */
   static fetchSelected(
     applicationId: string,
+    mode = "EDIT",
   ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
     return API.get(
-      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}?mode=EDIT`,
+      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}?mode=${mode}`,
     );
   }
 

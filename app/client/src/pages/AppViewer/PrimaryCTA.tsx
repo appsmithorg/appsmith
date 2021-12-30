@@ -34,7 +34,7 @@ interface Props {
  */
 const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
-function AppViewerPrimaryCTA(props: Props) {
+function PrimaryCTA(props: Props) {
   const { url } = props;
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
@@ -143,4 +143,4 @@ function AppViewerPrimaryCTA(props: Props) {
   return <div>{PrimaryCTA}</div>;
 }
 
-export default AppViewerPrimaryCTA;
+export default PrimaryCTA;

@@ -18,7 +18,6 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 type IconButtonContainerProps = {
   disabled?: boolean;
@@ -198,9 +197,5 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     </IconButtonContainer>
   );
 }
-
-IconButtonComponent.defaultProps = {
-  backgroundColor: FALLBACK_COLORS.backgroundColor,
-};
 
 export default IconButtonComponent;

@@ -478,11 +478,6 @@ const PropertyControl = memo((props: Props) => {
                   onClick={resetPropertyValueToTheme}
                 />
               )}
-              {/* {isThemeBound && (
-                <ThemeBound>
-                  <ControlIcons.THEME_BOUND />
-                </ThemeBound>
-              )} */}
             </ControlPropertyLabelContainer>
             <Indicator
               show={propertyName === "onSubmit"}

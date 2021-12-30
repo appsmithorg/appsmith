@@ -13,7 +13,6 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 export enum RecorderStatusTypes {
   PERMISSION_PROMPT = "PERMISSION_PROMPT",
@@ -743,10 +742,5 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     </RecorderContainer>
   );
 }
-
-AudioRecorderComponent.defaultProps = {
-  backgroundColor: FALLBACK_COLORS.backgroundColor,
-  borderRadius: "0px",
-};
 
 export default AudioRecorderComponent;

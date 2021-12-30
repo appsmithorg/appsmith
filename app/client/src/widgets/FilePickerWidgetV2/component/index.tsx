@@ -5,7 +5,6 @@ import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 function FilePickerComponent(props: FilePickerComponentProps) {
   const label = useMemo(() => {
@@ -37,11 +36,6 @@ function FilePickerComponent(props: FilePickerComponentProps) {
     />
   );
 }
-
-FilePickerComponent.defaultProps = {
-  backgroundColor: FALLBACK_COLORS.backgroundColor,
-};
-
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   uppy: any;

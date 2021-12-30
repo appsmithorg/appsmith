@@ -388,11 +388,6 @@ export const ControlIcons: {
       <QuestionIcon />
     </IconWrapper>
   ),
-  THEME_BOUND: (props: IconProps) => (
-    <IconWrapper {...props}>
-      <BulletsIcon />
-    </IconWrapper>
-  ),
 };
 
 export type ControlIconName = keyof typeof ControlIcons;

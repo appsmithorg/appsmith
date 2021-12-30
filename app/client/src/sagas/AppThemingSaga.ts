@@ -14,7 +14,8 @@ import { all, takeLatest, put, select } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { CHANGE_APP_THEME, createMessage } from "constants/messages";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
@@ -64,102 +65,124 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MAP_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       RADIO_GROUP_WIDGET: {
@@ -168,10 +191,12 @@ const dummyThemes: AppTheme[] = [
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       STATBOX_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SWITCH_WIDGET: {
@@ -181,21 +206,25 @@ const dummyThemes: AppTheme[] = [
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TABS_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TEXT_WIDGET: {},
       VIDEO_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
     },
@@ -261,102 +290,124 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MAP_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       RADIO_GROUP_WIDGET: {
@@ -365,10 +416,12 @@ const dummyThemes: AppTheme[] = [
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       STATBOX_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SWITCH_WIDGET: {
@@ -378,21 +431,25 @@ const dummyThemes: AppTheme[] = [
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TABS_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TEXT_WIDGET: {},
       VIDEO_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
     },
@@ -459,102 +516,124 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MAP_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       RADIO_GROUP_WIDGET: {
@@ -563,10 +642,12 @@ const dummyThemes: AppTheme[] = [
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       STATBOX_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SWITCH_WIDGET: {
@@ -576,21 +657,25 @@ const dummyThemes: AppTheme[] = [
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TABS_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TEXT_WIDGET: {},
       VIDEO_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
     },
@@ -656,102 +741,124 @@ const dummyThemes: AppTheme[] = [
       AUDIO_RECORDER_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       CHECKBOX_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CHECKBOX_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       CONTAINER_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       DATE_PICKER_WIDGET2: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FILE_PICKER_WIDGET_V2: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       FORM_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       FORM_BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       IFRAME_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       IMAGE_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       INPUT_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       LIST_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MAP_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       MENU_BUTTON_WIDGET: {
         menuColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MODAL_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       DROP_DOWN_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
       RADIO_GROUP_WIDGET: {
@@ -760,10 +867,12 @@ const dummyThemes: AppTheme[] = [
       },
       RICH_TEXT_EDITOR_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       STATBOX_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SWITCH_WIDGET: {
@@ -773,21 +882,25 @@ const dummyThemes: AppTheme[] = [
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TABS_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       TEXT_WIDGET: {},
       VIDEO_WIDGET: {
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       },
       SINGLE_SELECT_TREE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
     },
@@ -797,7 +910,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "#F6F6F6",
       },
       borderRadius: {
-        appBorderRadius: "1rem",
+        appBorderRadius: "1.5rem",
       },
       boxShadow: {
         appBoxShadow:
@@ -821,7 +934,7 @@ export function* fetchAppThemes() {
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes,
     });
   } catch (error) {
     yield put({
@@ -839,11 +952,11 @@ export function* fetchAppThemes() {
 export function* fetchAppSelectedTheme(
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
-  // eslint-disable-next-line
   const { applicationId } = action.payload;
+  const mode: APP_MODE = yield select(getAppMode);
 
   try {
-    const response = yield ThemingApi.fetchSelected(applicationId);
+    const response = yield ThemingApi.fetchSelected(applicationId, mode);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,

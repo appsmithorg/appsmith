@@ -14,7 +14,7 @@ import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import {
   colorsPropertyName,
   getThemePropertyBinding,
-} from "constants/ThemeContants";
+} from "constants/ThemeConstants";
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
@@ -78,6 +78,8 @@ const StyledInputGroup = styled(InputGroup)`
     }
   }
 `;
+
+const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer hover:ring-1 ring-gray-500`;
 
 /**
  * ----------------------------------------------------------------------------
@@ -147,7 +149,14 @@ function ColorPickerComponent(props: ColorPickerProps) {
               <div className="flex space-x-1">
                 {Object.keys(themeColors).map((colorKey) => (
                   <div
-                    className="w-6 h-6 transform border rounded-full cursor-pointer"
+                    className={`${COLOR_BOX_CLASSES} ${
+                      props.color ===
+                      getThemePropertyBinding(
+                        `${colorsPropertyName}.${colorKey}`,
+                      )
+                        ? "ring-1"
+                        : ""
+                    }`}
                     key={`color-picker-v2-${colorKey}`}
                     onClick={() => {
                       setColor(themeColors[colorKey]);
@@ -164,71 +173,76 @@ function ColorPickerComponent(props: ColorPickerProps) {
             </section>
           </div>
         )}
-        {props.showApplicationColors && (
-          <div className="space-y-2">
-            <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
-            <section className="space-y-2">
-              <h3 className="text-xs">Application Colors</h3>
-              <div className="flex space-x-1">
-                {Object.values(applicationColors).map((colorCode: string) => (
-                  <div
-                    className="w-6 h-6 transform border rounded-full cursor-pointer"
-                    key={colorCode}
-                    onClick={() => {
-                      setColor(colorCode);
-                      props.changeColor(colorCode);
-                    }}
-                    style={{ backgroundColor: colorCode }}
-                  />
-                ))}
-              </div>
-            </section>
-          </div>
-        )}
-        <div className="space-y-2">
-          <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
+        {props.showApplicationColors && applicationColors.length > 0 && (
           <section className="space-y-2">
-            <h3 className="text-xs">All Colors</h3>
-            {Object.keys(TAILWIND_COLORS).map((colorKey) => (
-              <div className="flex space-x-1" key={colorKey}>
-                {Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
-                  (singleColorKey) => (
-                    <div
-                      className="items-center w-6 h-6 transform rounded-full cursor-pointer"
-                      key={`a-${colorKey}`}
-                      onClick={() => {
-                        setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
-                        props.changeColor(
-                          TAILWIND_COLORS[colorKey][singleColorKey],
-                        );
-                      }}
-                      style={{
-                        backgroundColor:
-                          TAILWIND_COLORS[colorKey][singleColorKey],
-                      }}
-                    />
-                  ),
-                )}
-              </div>
-            ))}
+            <h3 className="text-xs">Application Colors</h3>
             <div className="flex space-x-1">
-              <div
-                className="w-6 h-6 transform border rounded-full white"
-                onClick={() => {
-                  setColor("#fff");
-                  props.changeColor("#fff");
-                }}
-              />
-              <div
-                className="w-6 h-6 transform border rounded-full white diag"
-                onClick={() => {
-                  setColor("transparent");
-                  props.changeColor("transparent");
-                }}
-              />
+              {Object.values(applicationColors).map((colorCode: string) => (
+                <div
+                  className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
+                    props.color === colorCode ? "ring-1" : ""
+                  }`}
+                  key={colorCode}
+                  onClick={() => {
+                    setColor(colorCode);
+                    props.changeColor(colorCode);
+                  }}
+                  style={{ backgroundColor: colorCode }}
+                />
+              ))}
             </div>
           </section>
-        </div>
+        )}
+
+        <section className="space-y-2">
+          <h3 className="text-xs">All Colors</h3>
+          {Object.keys(TAILWIND_COLORS).map((colorKey) => (
+            <div className="flex space-x-1" key={colorKey}>
+              {Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
+                (singleColorKey) => (
+                  <div
+                    className={`${COLOR_BOX_CLASSES}  ${
+                      props.color === TAILWIND_COLORS[colorKey][singleColorKey]
+                        ? "ring-1"
+                        : ""
+                    }`}
+                    key={`a-${colorKey}`}
+                    onClick={() => {
+                      setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
+                      props.changeColor(
+                        TAILWIND_COLORS[colorKey][singleColorKey],
+                      );
+                    }}
+                    style={{
+                      backgroundColor:
+                        TAILWIND_COLORS[colorKey][singleColorKey],
+                    }}
+                  />
+                ),
+              )}
+            </div>
+          ))}
+          <div className="flex space-x-1">
+            <div
+              className={`${COLOR_BOX_CLASSES}  ${
+                props.color === "#fff" ? "ring-1" : ""
+              }`}
+              onClick={() => {
+                setColor("#fff");
+                props.changeColor("#fff");
+              }}
+            />
+            <div
+              className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
+                props.color === "transparent" ? "ring-1" : ""
+              }`}
+              onClick={() => {
+                setColor("transparent");
+                props.changeColor("transparent");
+              }}
+            />
+          </div>
+        </section>
       </div>
     </Popover>
   );

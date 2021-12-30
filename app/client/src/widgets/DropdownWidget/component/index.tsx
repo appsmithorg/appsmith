@@ -138,6 +138,7 @@ const DropdownStyles = createGlobalStyle<{
   borderRadius: string;
   id: string;
   primaryColor: string;
+  fontFamily?: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-width-${id} {
@@ -153,6 +154,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     background: white;
     border-radius: ${({ borderRadius }) => borderRadius} !important;
+    font-family: ${({ fontFamily }) => fontFamily ?? "inherit"} !important;
     overflow: hidden;
 
     & .${Classes.POPOVER_CONTENT} {
@@ -319,6 +321,7 @@ class DropDownComponent extends React.Component<
         <DropdownStyles
           borderRadius={this.props.borderRadius}
           dropDownWidth={this.props.dropDownWidth}
+          fontFamily={this.props.fontFamily}
           id={id}
           parentWidth={this.props.width - WidgetContainerDiff}
           primaryColor={this.props.primaryColor}
@@ -465,6 +468,7 @@ export interface DropDownComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  fontFamily?: string;
 }
 
 export default DropDownComponent;

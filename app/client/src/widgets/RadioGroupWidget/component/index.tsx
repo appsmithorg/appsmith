@@ -12,7 +12,6 @@ import {
 import { Colors } from "constants/Colors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { BlueprintControlTransform, labelStyle } from "constants/DefaultTheme";
-import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
@@ -105,10 +104,6 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     </StyledControlGroup>
   );
 }
-
-RadioGroupComponent.defaultProps = {
-  backgroundColor: FALLBACK_COLORS.backgroundColor,
-};
 
 export interface RadioGroupComponentProps extends ComponentProps {
   label: string;
