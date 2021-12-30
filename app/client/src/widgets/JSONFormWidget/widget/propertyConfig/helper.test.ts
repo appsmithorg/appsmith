@@ -1,4 +1,4 @@
-import { cloneDeep, forEach, get, set } from "lodash";
+import { cloneDeep, get, set } from "lodash";
 
 import schemaTestData from "widgets/JSONFormWidget/schemaTestData";
 import {

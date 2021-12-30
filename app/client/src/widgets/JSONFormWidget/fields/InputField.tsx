@@ -53,9 +53,7 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isSpellCheck: false,
 };
 
-const EMAIL_REGEX = new RegExp(
-  /^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/,
-);
+const EMAIL_REGEX = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
 const parseRegex = (regex?: string) => {
   if (regex && typeof regex === "string") {
@@ -64,7 +62,7 @@ const parseRegex = (regex?: string) => {
      *
      *  Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
      */
-    const regexParts = regex.match(/(\/?)(.+)\\1([a-z]*)/i);
+    const regexParts = regex.match(/(\/?)(.+)\1([a-z]*)/i);
 
     if (!regexParts) {
       return new RegExp(regex);
@@ -290,9 +288,12 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             maxChars: undefined as number | undefined,
           };
 
-          if (isDirty && isRequired && isInvalid) {
+          if (isDirty && isInvalid) {
             props.isInvalid = true;
-            props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+
+            if (isDirty && isRequired && !value?.trim()?.length) {
+              props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+            }
           }
 
           if (
