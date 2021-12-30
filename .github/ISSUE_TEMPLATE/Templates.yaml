@@ -9,7 +9,7 @@ body:
   id: Title
   attributes:
     label: Title
-    description: Name your templte, and make sure it is descriptive, so we make what you need
+    description: Name your template, and make sure it is descriptive, so we make what you need
   validations:
     required: true
 
