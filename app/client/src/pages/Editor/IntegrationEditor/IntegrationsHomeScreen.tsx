@@ -69,8 +69,7 @@ const MainTabsContainer = styled.div`
 const SectionGrid = styled.div`
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr 180px;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 10px 16px;
   flex: 1;
   min-height: 0;
