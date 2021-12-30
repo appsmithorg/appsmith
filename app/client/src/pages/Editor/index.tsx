@@ -45,7 +45,7 @@ import {
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
 import { loading } from "selectors/onboardingSelectors";
-import GuidedTourDialog from "./GuidedTour/Dialog";
+import GuidedTourModal from "./GuidedTour/DeviationModal";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 
@@ -224,7 +224,7 @@ class Editor extends Component<Props> {
               <GitSyncModal />
               <DisconnectGitModal />
               <ConcurrentPageEditorToast />
-              <GuidedTourDialog />
+              <GuidedTourModal />
               <RepoLimitExceededErrorModal />
             </GlobalHotKeys>
           </div>
