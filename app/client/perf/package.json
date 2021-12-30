@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "i": "^0.3.7",
+    "node-stdev": "^1.0.1",
+    "npm": "^8.3.0",
     "puppeteer": "^12.0.1",
     "sanitize-filename": "^1.6.3",
     "tracelib": "^1.0.1"

@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const sd = require("node-stdev");
+
 global.APP_ROOT = path.resolve(__dirname);
 
 exports.summaries = async (directory) => {
@@ -54,11 +56,11 @@ const generateMarkdown = (results) => {
   for (let i = 0; i < size; i++) {
     markdown = markdown + `| Run #${i + 1} `;
   }
-  markdown = markdown + `| Avg `;
+  markdown = markdown + `| Mean | SD.Sample | SD.Population`;
 
   markdown += "|\n";
 
-  for (let i = 0; i <= size + 1; i++) {
+  for (let i = 0; i <= size + 3; i++) {
     markdown = markdown + `| ------------- `;
   }
   markdown += "|\n";
@@ -81,10 +83,12 @@ const generateMarkdown = (results) => {
         }
       }
       // Add average
-      const avg = (
-        action[key].reduce((sum, val) => sum + val, 0) / length
-      ).toFixed(2);
-      markdown += `| ${avg}`;
+      const avg = parseFloat(
+        (action[key].reduce((sum, val) => sum + val, 0) / length).toFixed(2),
+      );
+      markdown += `| ${avg} | ${((sd.sample(action[key]) / avg) * 100).toFixed(
+        2,
+      )} | ${((sd.population(action[key]) / avg) * 100).toFixed(2)}`;
 
       markdown += "| \n";
     });
