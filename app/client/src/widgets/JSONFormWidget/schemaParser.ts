@@ -214,6 +214,9 @@ export const checkIfArrayAndSubDataTypeChanged = (
   return currSubDataType !== prevSubDataType;
 };
 
+export const hasNullOrUndefined = (items: any[]) =>
+  items.includes(null) || items.includes(undefined);
+
 class SchemaParser {
   static nameAndLabel = (key: string) => {
     return {
@@ -431,7 +434,25 @@ class SchemaParser {
         schema[modifiedKey].sourceData,
       );
 
-      if (isArrayAndSubDataTypeChanged || currDataType !== prevDataType) {
+      /**
+       * If a field in sourceData changes from string to null/undefined
+       * we don't generate new schemaItem base on null/undefined
+       * Use case - If the sourceData is bound to table's selected row and
+       * in certain rows's columns do not have values i.e they are null/undefined
+       * And when the user cycles over the rows, changing the sourceData, there will
+       * be times when certain where the sourceData becomes undefined and if we process
+       * that and get new schemaItem them the user would lose all it's field configuration.
+       */
+
+      const valuesHaveNullOrUndefined = hasNullOrUndefined([
+        currObj[modifiedKey],
+        schema[modifiedKey].sourceData,
+      ]);
+
+      if (
+        !valuesHaveNullOrUndefined &&
+        (isArrayAndSubDataTypeChanged || currDataType !== prevDataType)
+      ) {
         const prevSchemaItem = cloneDeep(schema[modifiedKey]);
 
         schema[modifiedKey] = SchemaParser.getSchemaItemFor(modifiedKey, {

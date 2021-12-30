@@ -1,4 +1,4 @@
-import { cloneDeep, get } from "lodash";
+import { cloneDeep, get, set } from "lodash";
 
 import SchemaParser, {
   applyPositions,
@@ -9,6 +9,7 @@ import SchemaParser, {
   getKeysFromSchema,
   getSourceDataPathFromSchemaItemPath,
   getSourcePath,
+  hasNullOrUndefined,
   normalizeArrayValue,
   subDataTypeFor,
 } from "./schemaParser";
@@ -94,6 +95,56 @@ describe("#parse", () => {
     expect(result).toEqual(
       testData.withRemovedAddedKeyToInitialDataset.schemaOutput,
     );
+  });
+
+  it("returns unmodified schema when existing field's value in data source changes to null/undefined", () => {
+    const initialSchema = SchemaParser.parse(
+      widgetName,
+      testData.initialDataset.dataSource,
+      {},
+    );
+
+    expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
+
+    // With null field
+    const nulledDataSource = cloneDeep(testData.initialDataset.dataSource);
+    set(nulledDataSource, "dob", null);
+
+    const expectedNulledSchema = cloneDeep(initialSchema);
+    set(expectedNulledSchema, "__root_schema__.children.dob.sourceData", null);
+    set(expectedNulledSchema, "__root_schema__.sourceData.dob", null);
+
+    const schemaWithNulledField = SchemaParser.parse(
+      widgetName,
+      nulledDataSource,
+      initialSchema,
+    );
+
+    expect(schemaWithNulledField).toEqual(expectedNulledSchema);
+
+    // With undefined field
+    const undefinedDataSource = cloneDeep(nulledDataSource);
+    set(undefinedDataSource, "boolean", undefined);
+
+    const expectedUndefinedSchema = cloneDeep(expectedNulledSchema);
+    set(
+      expectedUndefinedSchema,
+      "__root_schema__.children.boolean.sourceData",
+      undefined,
+    );
+    set(
+      expectedUndefinedSchema,
+      "__root_schema__.sourceData.boolean",
+      undefined,
+    );
+
+    const schemaWithUndefinedField = SchemaParser.parse(
+      widgetName,
+      undefinedDataSource,
+      schemaWithNulledField,
+    );
+
+    expect(schemaWithUndefinedField).toEqual(expectedUndefinedSchema);
   });
 });
 
@@ -1014,5 +1065,28 @@ describe(".checkIfArrayAndSubDataTypeChanged", () => {
     const result = checkIfArrayAndSubDataTypeChanged(currData, prevData);
 
     expect(result).toEqual(false);
+  });
+});
+
+describe(".hasNullOrUndefined", () => {
+  it("returns false when one of the parameter is null or undefined", () => {
+    const inputAndExpectedOutputs: [[any, any], boolean][] = [
+      [["1", "2"], false],
+      [[0, ""], false],
+      [[undefined, "2"], true],
+      [[undefined, null], true],
+      [[undefined, undefined], true],
+      [[null, null], true],
+      [[null, "null"], true],
+      [["null", "null"], false],
+      [["undefined", "undefined"], false],
+      [[0, 0], false],
+      [["", ""], false],
+    ];
+
+    inputAndExpectedOutputs.forEach(([input, expectedOutput]) => {
+      const result = hasNullOrUndefined(input);
+      expect(result).toEqual(expectedOutput);
+    });
   });
 });
