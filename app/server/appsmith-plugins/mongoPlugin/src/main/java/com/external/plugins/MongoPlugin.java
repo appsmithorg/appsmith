@@ -66,7 +66,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.constants.FieldName.ERROR;
 import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_DATA;
 import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_STATUS;
 import static com.external.plugins.constants.FieldName.SUCCESS;

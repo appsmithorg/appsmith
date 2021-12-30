@@ -2,12 +2,9 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minidev.json.JSONObject;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
