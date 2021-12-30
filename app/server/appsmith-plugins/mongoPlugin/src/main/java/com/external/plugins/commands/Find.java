@@ -207,9 +207,9 @@ public class Find extends MongoCommand {
         }
 
         /* Default to returning 10 documents if not mentioned */
-        int limit = 10;
+        String limit = "10";
         if (!isBlank(this.limit)) {
-            limit = Integer.parseInt(this.limit);
+            limit = this.limit;
         }
         sb.append("  \"limit\": " + limit + ",\n");
         sb.append("  \"batchSize\": " + limit + "\n");

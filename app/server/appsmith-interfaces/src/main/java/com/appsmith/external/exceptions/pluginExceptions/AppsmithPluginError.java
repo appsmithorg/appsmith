@@ -37,6 +37,9 @@ public enum AppsmithPluginError {
             AppsmithErrorAction.LOG_EXTERNALLY, "Appsmith In Memory Filtering Failed", ErrorType.INTERNAL_ERROR),
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN(500, 5011, "{0} is not a known conditional operator. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY, "Where condition could not be parsed", ErrorType.INTERNAL_ERROR),
+    PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR(500, 5011, "Plugin failed to convert formData into native query with " +
+            "error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, "Where condition could not be parsed",
+            ErrorType.INTERNAL_ERROR),
     ;
 
     private final Integer httpErrorCode;

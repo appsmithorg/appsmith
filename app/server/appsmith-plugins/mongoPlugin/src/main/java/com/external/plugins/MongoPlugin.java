@@ -24,7 +24,6 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
-import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -67,7 +66,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH;
+import static com.external.plugins.constants.FieldName.ERROR;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_DATA;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_STATUS;
+import static com.external.plugins.constants.FieldName.SUCCESS;
 import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
 import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
 import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
@@ -995,7 +997,7 @@ public class MongoPlugin extends BasePlugin {
          * switch easily from form based input to raw input mode by providing a readily available translation of the
          * form data to raw query.
          * @param actionConfiguration
-         * @return Mongo's native/raw query set at path `formData.formToNativeQuery`
+         * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
          */
         @Override
         public ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
@@ -1010,9 +1012,17 @@ public class MongoPlugin extends BasePlugin {
                      * to raw query when the user switches from form interface to raw input.
                      */
                     if (isBlank(actionConfiguration.getBody())) {
-                        String rawQuery = getRawQuery(actionConfiguration);
-                        if (rawQuery != null) {
-                            setValueSafelyInFormData(formData, NATIVE_QUERY_PATH, rawQuery);
+                        try {
+                            String rawQuery = getRawQuery(actionConfiguration);
+                            if (rawQuery != null) {
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_STATUS, SUCCESS);
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_DATA, rawQuery);
+                            }
+                        } catch (Exception e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR,
+                                    e.getMessage()
+                            );
                         }
                     }
                 }
