@@ -31,23 +31,29 @@ export interface RichtextEditorComponentProps {
   onValueChange: (valueAsString: string) => void;
 }
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
-  const [value, setValue] = React.useState<string>();
+  const [value, setValue] = React.useState<string>(props.defaultText as string);
   const editorRef = useRef<any>(null);
+  const isInit = useRef<boolean>(false);
 
   const toolbarConfig =
     "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help";
 
   useEffect(() => {
-    const timeOutId = setTimeout(
-      () => props.onValueChange(value as string),
-      1000,
-    );
+    if (!value) return;
+    // Prevent calling onTextChange when initialized
+    if (!isInit.current) return;
+    const timeOutId = setTimeout(() => props.onValueChange(value), 1000);
     return () => clearTimeout(timeOutId);
   }, [value]);
 
-  useEffect(() => {
-    setValue(props.defaultText);
-  }, [props.defaultText]);
+  const onEditorChange = (newValue: string) => {
+    if (!isInit.current) {
+      isInit.current = true;
+      return;
+    }
+    if (newValue === value) return;
+    setValue(newValue);
+  };
   return (
     <StyledRTEditor className={`container-${props.widgetId}`}>
       <Editor
@@ -67,10 +73,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           ],
         }}
         key={`editor_${props.isToolbarHidden}`}
-        onEditorChange={(newValue) => {
-          if (newValue === value) return;
-          setValue(newValue);
-        }}
+        onEditorChange={onEditorChange}
         onInit={(evt, editor) => {
           editorRef.current = editor;
         }}
