@@ -42,6 +42,12 @@ import {
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
+export const Classes = {
+  GUIDED_TOUR_BORDER: "guided-tour-border",
+  GUIDED_TOUR_SHOW_BORDER: "guided-tour-show-border",
+  GUIDED_TOUR_INDICATOR: "guided-tour-indicator",
+};
+
 // We are using widget blueprints to create the form like container widget
 export const onboardingContainerBlueprint = {
   view: [

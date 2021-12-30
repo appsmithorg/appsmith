@@ -1,5 +1,6 @@
 import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-indicator.json";
+import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
 
 // data-guided-tour-id - used for the rectangular highlight
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
@@ -84,7 +85,9 @@ class IndicatorHelper {
     }
 
     this.indicatorWrapper = document.createElement("div");
-    this.indicatorWrapper.classList.add("guided-tour-indicator");
+    this.indicatorWrapper.classList.add(
+      GuidedTourClasses.GUIDED_TOUR_INDICATOR,
+    );
     document.body.append(this.indicatorWrapper);
     this.anim = lottie.loadAnimation({
       animationData: indicator,
@@ -156,7 +159,7 @@ export function highlightSection(
   }
 
   const highlightBorder = document.createElement("div");
-  highlightBorder.classList.add("guided-tour-border");
+  highlightBorder.classList.add(GuidedTourClasses.GUIDED_TOUR_BORDER);
 
   const positionOffset = 5;
   const dimensionOffset = positionOffset * 2;
@@ -168,7 +171,7 @@ export function highlightSection(
   const removeElementDelay = hideAnimationDelay + 1000;
 
   setTimeout(() => {
-    highlightBorder.classList.add("show");
+    highlightBorder.classList.add(GuidedTourClasses.GUIDED_TOUR_SHOW_BORDER);
   }, showAnimationDelay);
 
   // Get the current position
@@ -179,7 +182,7 @@ export function highlightSection(
   }, 1000);
 
   setTimeout(() => {
-    highlightBorder.classList.remove("show");
+    highlightBorder.classList.remove(GuidedTourClasses.GUIDED_TOUR_SHOW_BORDER);
   }, hideAnimationDelay);
 
   setTimeout(() => {

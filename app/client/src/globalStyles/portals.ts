@@ -2,6 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import { Layers } from "constants/Layers";
 import { Classes } from "@blueprintjs/core";
 import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
+import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
 import { Colors } from "constants/Colors";
 
 export const replayHighlightClass = "ur--has-border";
@@ -31,10 +32,6 @@ export const PortalStyles = createGlobalStyle`
     z-index: ${Layers.appComments};
   }
 
-  .bp3-portal.guided-tour-indicator-portal {
-    pointer-events: none;
-  }
-
   .${GitSyncClasses.MERGE_DROPDOWN} .ads-dropdown-options-wrapper {
     border: none;
   }
@@ -48,7 +45,7 @@ export const PortalStyles = createGlobalStyle`
     }
   }
 
-  .guided-tour-border {
+  .${GuidedTourClasses.GUIDED_TOUR_BORDER} {
     position:fixed;
     border: 4px solid rgba(191, 65, 9, 0);
     border-radius: 4px;
@@ -58,16 +55,16 @@ export const PortalStyles = createGlobalStyle`
     pointer-events: none;
   }
 
-  .guided-tour-indicator {
+  .${GuidedTourClasses.GUIDED_TOUR_SHOW_BORDER} {
+    border-color: rgba(191, 65, 9, 1);
+  }
+  
+  .${GuidedTourClasses.GUIDED_TOUR_INDICATOR} {
     position: fixed;
     z-index: 3;
     pointer-events: none;
     height: 87px;
     width: 116px;
     transition: all 1s;
-  }
-
-  .show {
-    border-color: rgba(191, 65, 9, 1);
   }
 `;
