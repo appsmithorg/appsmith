@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+mkdir -p /root/appsmith
+
+cd /root/appsmith
+
+# Step 1: Download the templates
+echo "Downloading the Docker Compose file..."
+curl -L https://github.com/appsmithorg/appsmith/raw/master/deploy/aws_ami/docker-compose.yml -o $PWD/docker-compose.yml
+
+# Step 2: Pulling the latest container images
+echo ""
+echo "Pulling the latest container images"
+docker-compose pull
+
+# Step 3: Starting the Appsmith containers
+echo "Starting the Appsmith containers"
+docker-compose up --detach --remove-orphans

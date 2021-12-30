@@ -40,6 +40,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -452,12 +453,39 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     private JsonNode replaceStringInJsonNode(JsonNode jsonNode, Pattern oldNamePattern, String newName) {
-        // Is this is a text node, perform replacement directly
+        // If this is a text node, perform replacement directly
         if (jsonNode.isTextual()) {
             Matcher matcher = oldNamePattern.matcher(jsonNode.asText());
             String valueAfterReplacement = matcher.replaceAll(newName);
             return new TextNode(valueAfterReplacement);
         }
+
+        // TODO This is special handling for the list widget that has been added to allow refactoring of
+        //  just the default widgets inside the list. This is required because for the list, the widget names
+        //  exist as keys at the location List1.template(.Text1) [Ref #9281]
+        //  Ideally, we should avoid any non-structural elements as keys. This will be improved in list widget v2
+        if (jsonNode.has("type") && "LIST_WIDGET".equals(jsonNode.get("type").asText())) {
+            final JsonNode template = jsonNode.get("template");
+            JsonNode newJsonNode = null;
+            String fieldName = null;
+            final Iterator<String> templateIterator = template.fieldNames();
+            while (templateIterator.hasNext()) {
+                fieldName = templateIterator.next();
+
+                // For each element within template, check whether it would match the replacement pattern
+                final Matcher listWidgetTemplateKeyMatcher = oldNamePattern.matcher(fieldName);
+                if (listWidgetTemplateKeyMatcher.find()) {
+                    newJsonNode = template.get(fieldName);
+                    break;
+                }
+            }
+            if (newJsonNode != null) {
+                // If such a pattern is found, remove that element and attach it back with the new name
+                ((ObjectNode) template).remove(fieldName);
+                ((ObjectNode) template).set(newName, newJsonNode);
+            }
+        }
+        
         final Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         // Go through each field to recursively operate on it
         while (iterator.hasNext()) {

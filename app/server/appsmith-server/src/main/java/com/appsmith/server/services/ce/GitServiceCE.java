@@ -22,7 +22,7 @@ public interface GitServiceCE {
 
     Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId);
 
-    Mono<GitProfile> getGitProfileForUser();
+    Mono<GitProfile> getDefaultGitProfileOrCreateIfEmpty();
 
     Mono<GitProfile> getGitProfileForUser(String defaultApplicationId);
 

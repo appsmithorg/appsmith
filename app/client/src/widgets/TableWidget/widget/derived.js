@@ -123,16 +123,20 @@ export default {
         const sanitizedData = {};
 
         for (const [key, value] of Object.entries(entry)) {
-          const sanitizedKey = key
+          let sanitizedKey = key
             .split(separatorRegex)
             .join("_")
             .slice(0, 200);
+          sanitizedKey = _.isNaN(Number(sanitizedKey))
+            ? sanitizedKey
+            : `_${sanitizedKey}`;
           if (_.has(props.editedColumnData, `${sanitizedKey}.${index}`)) {
             sanitizedData[sanitizedKey] =
               props.editedColumnData[sanitizedKey][index];
           } else {
             sanitizedData[sanitizedKey] = value;
           }
+          sanitizedData[sanitizedKey] = value;
         }
         return sanitizedData;
       });

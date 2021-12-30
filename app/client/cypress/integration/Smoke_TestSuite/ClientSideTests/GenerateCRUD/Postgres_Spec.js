@@ -14,7 +14,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     // 2. Add 2 supported datasource and 1 not supported datasource with a fixed name to search.
   });
 
-  it("Add new Page and generate CRUD template using existing supported datasource & Verification of Bug 9334", function() {
+  it("1. Add new Page and generate CRUD template using existing supported datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click({ force: true });
     cy.fillPostgresDatasourceForm();
@@ -179,21 +179,21 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     cy.get("span:contains('GOT IT')").click();
 
-    // //Navigating between CRUD (Page3) & EmptyPage (Page2): //to uncomment below lines aft this bug is fixed
+    //Navigating between CRUD (Page3) & EmptyPage (Page2):
 
-    // cy.selectEntityByName("Page2");
-    // cy.wait(2000)
-    // cy.selectEntityByName("Page3");
-    // cy.VerifyErrorMsgAbsence('The action "SelectQuery" has failed.')
+    cy.selectEntityByName("Page2");
+    cy.wait(2000);
+    cy.selectEntityByName("Page3");
+    cy.VerifyErrorMsgAbsence('The action "SelectQuery" has failed.');
 
-    // //Navigating between CRUD (Page3) & CRUD (Page4):
-    // cy.selectEntityByName("Page4");
-    // cy.wait(2000)
-    // cy.selectEntityByName("Page3"); //Back to 3
-    // cy.VerifyErrorMsgAbsence('The action "SelectQuery" has failed.')
+    //Navigating between CRUD (Page3) & CRUD (Page4):
+    cy.selectEntityByName("Page4");
+    cy.wait(2000);
+    cy.selectEntityByName("Page3"); //Back to 3
+    cy.VerifyErrorMsgAbsence('The action "SelectQuery" has failed.');
   });
 
-  it("Create new app and Generate CRUD page using a new datasource", () => {
+  it("3. Create new app and Generate CRUD page using a new datasource", () => {
     cy.NavigateToHome();
     cy.get(homePage.createNew)
       .first()
@@ -256,7 +256,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Generate CRUD page from datasource ACTIVE section", () => {
+  it("4. Generate CRUD page from datasource ACTIVE section", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.wait(1000);

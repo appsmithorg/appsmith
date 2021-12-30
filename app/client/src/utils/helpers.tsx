@@ -23,6 +23,7 @@ import { sha256 } from "js-sha256";
 import moment from "moment";
 import log from "loglevel";
 import { extraLibrariesNames } from "./DynamicBindingUtils";
+import { ApiResponse } from "api/ApiResponses";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -628,4 +629,8 @@ export function unFocus(document: Document, window: Window) {
       // eslint-disable-next-line no-empty
     } catch (e) {}
   }
+}
+
+export function getLogToSentryFromResponse(response?: ApiResponse) {
+  return response && response?.responseMeta?.status >= 500;
 }
