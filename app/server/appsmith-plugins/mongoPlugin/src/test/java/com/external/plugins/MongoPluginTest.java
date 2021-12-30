@@ -1201,7 +1201,7 @@ public class MongoPluginTest {
         setValueSafelyInFormData(configMap, COMMAND, "UPDATE");
         setValueSafelyInFormData(configMap, COLLECTION, "users");
         setValueSafelyInFormData(configMap, UPDATE_QUERY, "{ name: \"Alden Cantrell\" }");
-        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ age: 31 }}");
+        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ $set: { age: 31 }}}");
         setValueSafelyInFormData(configMap, UPDATE_LIMIT, "SINGLE");
 
         actionConfiguration.setFormData(configMap);
@@ -1235,7 +1235,7 @@ public class MongoPluginTest {
         setValueSafelyInFormData(configMap, COLLECTION, "users");
         // Query for all the documents in the collection
         setValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
-        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ updatedByCommand: true }}");
+        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ $set: { updatedByCommand: true }}}");
         setValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);
