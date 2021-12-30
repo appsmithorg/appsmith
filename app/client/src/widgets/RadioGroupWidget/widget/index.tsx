@@ -90,7 +90,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
                 fn: defaultOptionValidation,
                 expected: {
                   type: "string | number",
-                  example: `1 | {{1}}`,
+                  example: `abc | {{1}}`,
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
