@@ -10,7 +10,10 @@ const dir = `${APP_ROOT}/traces/reports`;
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true });
 }
-glob("./tests/*.perf.js", {}, function(er, files) {
+
+glob("./tests/*.perf.js", {}, async function(er, files) {
+  // Initial setup
+  await cp.execSync(`node ./tests/initial-setup.js`, { stdio: "inherit" });
   files.forEach(async (file) => {
     await cp.execSync(`node ${file}`, { stdio: "inherit" }); // Logging to terminal, log it to a file in future?
   });
