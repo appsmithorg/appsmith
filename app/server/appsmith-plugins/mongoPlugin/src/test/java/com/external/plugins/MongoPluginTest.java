@@ -1952,7 +1952,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery", String.class));
+        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1997,12 +1997,12 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery", String.class));
+        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+                executeActionDTO, dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -2048,18 +2048,18 @@ public class MongoPluginTest {
         List<Param> params = new ArrayList<>();
         Param param1 = new Param();
         param1.setKey("Input1.text");
-        param1.setValue("{ $set: { \"updatedByCommand\": true }}");
+        param1.setValue("{ $set: { \"updatedByCommand\": false }}");
         params.add(param1);
         executeActionDTO.setParams(params);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery", String.class));
+        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO,
-                dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -2116,7 +2116,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery", String.class));
+        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2156,7 +2156,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery", String.class));
+        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2197,7 +2197,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery", String.class));
+        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2230,7 +2230,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery", String.class));
+        actionConfiguration.setBody(getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
