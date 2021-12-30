@@ -12,9 +12,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import {
-  getGuidedTourDatasource,
-  getQueryAction,
-  getTableWidget,
   getHadReachedStep,
   isQueryLimitUpdated,
   isQueryExecutionSuccessful,
@@ -45,9 +42,6 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
     hintCount: 0,
   };
   const dispatch = useDispatch();
-  const datasource = useSelector(getGuidedTourDatasource);
-  const query = useSelector(getQueryAction);
-  const tableWidget = useSelector(getTableWidget);
   const hadReachedStep = useSelector(getHadReachedStep);
   // 1
   const queryLimitUpdated = useSelector(isQueryLimitUpdated);
@@ -140,33 +134,6 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       step = 9;
     }
   }
-
-  useEffect(() => {
-    if (datasource?.id) {
-      dispatch({
-        type: "SET_DATASOURCE_ID",
-        payload: datasource.id,
-      });
-    }
-  }, [datasource]);
-
-  useEffect(() => {
-    if (query) {
-      dispatch({
-        type: "SET_QUERY_ID",
-        payload: query.config.id,
-      });
-    }
-  }, [query]);
-
-  useEffect(() => {
-    if (tableWidget) {
-      dispatch({
-        type: "SET_TABLE_WIDGET_ID",
-        payload: tableWidget?.widgetId,
-      });
-    }
-  }, [tableWidget]);
 
   useEffect(() => {
     dispatch(setCurrentStepInit(step));

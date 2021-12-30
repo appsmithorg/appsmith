@@ -5,7 +5,6 @@ import {
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsOrgs } from "./applicationSelectors";
-import { isEqual } from "lodash";
 import { getWidgets } from "sagas/selectors";
 import { getActionResponses, getActions } from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
@@ -44,10 +43,6 @@ export const isExploringSelector = (state: AppState) =>
 export const inGuidedTour = (state: AppState) => state.ui.onBoarding.guidedTour;
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
-export const getGuidedTourTableWidget = (state: AppState) =>
-  state.ui.onBoarding.tableWidgetId;
-export const getGuidedTourQuery = (state: AppState) =>
-  state.ui.onBoarding.queryId;
 export const wasTableWidgetSelected = (state: AppState) =>
   state.ui.onBoarding.tableWidgetWasSelected;
 export const showEndTourDialogSelector = (state: AppState) =>
@@ -59,88 +54,17 @@ export const showPostCompletionMessage = (state: AppState) =>
 export const forceShowContentSelector = (state: AppState) =>
   state.ui.onBoarding.forceShowContent;
 
-export const getQueryName = (state: AppState) => {
-  const queryId = getGuidedTourQuery(state);
-  const actions = getActions(state);
-  const query = actions.find((action) => action.config.id === queryId);
-
-  if (query?.config.name) return query?.config.name;
-  return "getCustomers";
-};
-export const getTableName = createSelector(
-  getGuidedTourTableWidget,
-  getWidgets,
-  (tableWidgetId, widgets) => {
-    const tableWidget = widgets[tableWidgetId];
-
-    if (tableWidget) {
-      return tableWidget.widgetName;
-    } else {
-      return "CustomersTable";
-    }
-  },
-);
-
-export const getTableWidget = createSelector(
-  getWidgets,
-  getGuidedTourTableWidget,
-  (widgets, guidedTourTableWidgetId) => {
-    const tableWidget = widgets[guidedTourTableWidgetId];
-
-    if (!tableWidget) {
-      return Object.values(widgets).find(
-        (widget) => widget.type === "TABLE_WIDGET",
-      );
-    } else {
-      return tableWidget;
-    }
-  },
-);
-
-export const getGuidedTourDatasource = (state: AppState) => {
-  const datasources = state.entities.datasources;
-  const dbConfig = {
-    connection: {
-      mode: "READ_WRITE",
-      ssl: {
-        authType: "DEFAULT",
-      },
-    },
-    endpoints: [
-      {
-        host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
-      },
-    ],
-    authentication: {
-      authenticationType: "dbAuth",
-      username: "users",
-      databaseName: "users",
-    },
-  };
-  const datasource = datasources.list.find((datasource) =>
-    isEqual(datasource.datasourceConfiguration, dbConfig),
+export const getTableWidget = createSelector(getWidgets, (widgets) => {
+  return Object.values(widgets).find(
+    (widget) => widget.widgetName === "CustomersTable",
   );
+});
 
-  return datasource;
-};
-
-export const getQueryAction = createSelector(
-  getActions,
-  getGuidedTourQuery,
-  (actions, guidedTourQueryId) => {
-    const query = actions.find(
-      (action) => action.config.id === guidedTourQueryId,
-    );
-
-    if (!query) {
-      return actions.find((action) => {
-        return action.config.name === "getCustomers";
-      });
-    } else {
-      return query;
-    }
-  },
-);
+export const getQueryAction = createSelector(getActions, (actions) => {
+  return actions.find((action) => {
+    return action.config.name === "getCustomers";
+  });
+});
 
 export const isQueryLimitUpdated = createSelector(getQueryAction, (query) => {
   if (query) {
@@ -160,21 +84,21 @@ export const isQueryLimitUpdated = createSelector(getQueryAction, (query) => {
 
 export const isQueryExecutionSuccessful = createSelector(
   getActionResponses,
-  getGuidedTourQuery,
-  (responses, queryId) => {
-    if (queryId && responses[queryId]) {
-      return responses[queryId]?.isExecutionSuccess;
+  getQueryAction,
+  (responses, query) => {
+    if (query?.config.id && responses[query.config.id]) {
+      return responses[query.config.id]?.isExecutionSuccess;
     }
   },
 );
 
 export const isTableWidgetSelected = createSelector(
-  getGuidedTourTableWidget,
+  getTableWidget,
   getSelectedWidget,
   wasTableWidgetSelected,
-  (tableWidgetId, selectedWidgetId, tableWidgetWasSelected) => {
+  (tableWidget, selectedWidgetId, tableWidgetWasSelected) => {
     if (!tableWidgetWasSelected) {
-      return tableWidgetId === selectedWidgetId;
+      return tableWidget?.widgetId === selectedWidgetId;
     }
 
     return true;
@@ -183,10 +107,9 @@ export const isTableWidgetSelected = createSelector(
 
 export const tableWidgetHasBinding = createSelector(
   getTableWidget,
-  getQueryName,
-  (tableWidget, queryName) => {
-    if (tableWidget && queryName) {
-      if (tableWidget.tableData === `{{${queryName}.data}}`) {
+  (tableWidget) => {
+    if (tableWidget) {
+      if (tableWidget.tableData === `{{getCustomers.data}}`) {
         return tableWidget.widgetId;
       }
     }

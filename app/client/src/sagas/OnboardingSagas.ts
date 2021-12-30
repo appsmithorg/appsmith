@@ -206,12 +206,13 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
       payload: newWidget,
     });
 
-    // Update widget names
-    yield take(ReduxActionTypes.UPDATE_LAYOUT);
-    yield delay(2000);
+    // Wait for widget names to be updated
+    // Updating widget names here as widget blueprints don't take widget names
+    yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
     const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
       getWidgets,
     );
+
     const nameInput = Object.values(widgets).find(
       (widget) => widget.widgetName === "Input1",
     );

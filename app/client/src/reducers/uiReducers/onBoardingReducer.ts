@@ -13,9 +13,6 @@ const initialState: OnboardingState = {
   guidedTour: false,
   loading: false,
   exploring: false,
-  tableWidgetId: "",
-  queryId: "",
-  datasourceId: "",
   currentStep: 1,
   showSuccessMessage: false,
   showInfoMessage: false,
@@ -37,9 +34,6 @@ export interface OnboardingState {
   guidedTour: boolean;
   loading: boolean;
   exploring: boolean;
-  tableWidgetId: string;
-  queryId: string;
-  datasourceId: string;
   currentStep: number;
   showSuccessMessage: boolean;
   showInfoMessage: boolean;
@@ -126,27 +120,6 @@ const onboardingReducer = createReducer(initialState, {
       ...state,
       loading: action.payload,
       exploring: !action.payload ? false : state.exploring,
-    };
-  },
-  SET_DATASOURCE_ID: (state: OnboardingState, action: ReduxAction<string>) => {
-    return {
-      ...state,
-      datasourceId: action.payload,
-    };
-  },
-  SET_QUERY_ID: (state: OnboardingState, action: ReduxAction<string>) => {
-    return {
-      ...state,
-      queryId: action.payload,
-    };
-  },
-  SET_TABLE_WIDGET_ID: (
-    state: OnboardingState,
-    action: ReduxAction<string>,
-  ) => {
-    return {
-      ...state,
-      tableWidgetId: action.payload,
     };
   },
   [ReduxActionTypes.SET_CURRENT_STEP]: (

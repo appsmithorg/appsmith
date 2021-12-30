@@ -131,3 +131,9 @@ export const focusWidgetProperty = (widgetName: string) => {
     payload: widgetName,
   };
 };
+
+export const onboardingCreateApplication = () => {
+  return {
+    type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
+  };
+};

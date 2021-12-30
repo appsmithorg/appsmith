@@ -54,6 +54,7 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
+import { onboardingCreateApplication } from "actions/onboardingActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -95,6 +96,7 @@ import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -472,9 +474,8 @@ function LeftPane() {
               }
               icon="guide"
               onSelect={() => {
-                dispatch({
-                  type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
-                });
+                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+                dispatch(onboardingCreateApplication());
               }}
               text={createMessage(WELCOME_TOUR)}
             />
