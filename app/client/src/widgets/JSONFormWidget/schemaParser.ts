@@ -158,8 +158,10 @@ export const fieldTypeFor = (value: any) => {
   }
 
   if (dataType === DataType.STRING) {
-    const date = moment(new Date(value));
-    if (date.isValid()) return FieldType.DATE;
+    const DateField = FIELD_MAP[FieldType.DATE];
+    if (DateField?.isValidType?.(value)) {
+      return FieldType.DATE;
+    }
   }
 
   return potentialFieldType;

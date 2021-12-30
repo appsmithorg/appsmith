@@ -843,40 +843,49 @@ describe(".normalizeArrayValue", () => {
 
 describe(".fieldTypeFor", () => {
   it("return default field type of data passed", () => {
-    const inputs = [
-      "string",
-      "10/10/2021",
-      10,
-      [{}],
-      [""],
-      [1],
-      [null],
-      null,
-      undefined,
-      { foo: "" },
-      () => {
-        10;
-      },
+    const inputAndExpectedOutputs: [any, FieldType][] = [
+      ["string", FieldType.TEXT],
+      ["2021-12-30T10:36:12.1212+05:30", FieldType.DATE],
+      ["December 30, 2021 10:36 AM", FieldType.DATE],
+      ["December 30, 2021", FieldType.DATE],
+      ["2021-12-30 10:36", FieldType.DATE],
+      ["2021-12-30T10:36:12", FieldType.DATE],
+      ["2021-12-30 10:36:12 AM", FieldType.DATE],
+      ["30/12/2021 10:36", FieldType.DATE],
+      ["30 December, 2021", FieldType.DATE],
+      ["10:36 AM 30 December, 2021", FieldType.DATE],
+      ["2021-12-30", FieldType.DATE],
+      ["12-30-2021", FieldType.DATE],
+      ["30-12-2021", FieldType.DATE],
+      ["12/30/2021", FieldType.DATE],
+      ["30/12/2021", FieldType.DATE],
+      ["30/12/21", FieldType.DATE],
+      ["12/30/21", FieldType.DATE],
+      ["40/10/40", FieldType.TEXT],
+      ["2000/10", FieldType.TEXT],
+      ["1", FieldType.TEXT],
+      ["#111", FieldType.TEXT],
+      ["999", FieldType.TEXT],
+      [10, FieldType.NUMBER],
+      [[{}], FieldType.ARRAY],
+      [[""], FieldType.MULTI_SELECT],
+      [[1], FieldType.MULTI_SELECT],
+      [[null], FieldType.MULTI_SELECT],
+      [null, FieldType.TEXT],
+      [undefined, FieldType.TEXT],
+      [{ foo: "" }, FieldType.OBJECT],
+      [
+        () => {
+          10;
+        },
+        FieldType.TEXT,
+      ],
     ];
 
-    const expectedOutputs = [
-      FieldType.TEXT,
-      FieldType.DATE,
-      FieldType.NUMBER,
-      FieldType.ARRAY,
-      FieldType.MULTI_SELECT,
-      FieldType.MULTI_SELECT,
-      FieldType.MULTI_SELECT,
-      FieldType.TEXT,
-      FieldType.TEXT,
-      FieldType.OBJECT,
-      FieldType.TEXT,
-    ];
-
-    inputs.forEach((input, index) => {
+    inputAndExpectedOutputs.forEach(([input, expectedOutput]) => {
       const result = fieldTypeFor(input);
 
-      expect(result).toEqual(expectedOutputs[index]);
+      expect(result).toEqual(expectedOutput);
     });
   });
 });

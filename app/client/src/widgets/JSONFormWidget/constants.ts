@@ -84,6 +84,7 @@ export type SchemaItem = FieldComponentBaseProps & {
 type FieldComponent = {
   (props: BaseFieldComponentProps): JSX.Element | null;
   componentDefaultValues: FieldComponentBaseProps;
+  isValidType?: (value: any) => boolean;
 };
 
 export type Schema = Record<string, SchemaItem>;

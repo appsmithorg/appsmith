@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { useContext } from "react";
 import { pick } from "lodash";
 
@@ -12,6 +13,7 @@ import {
   FieldEventProps,
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { dateFormatOptions } from "../widget/propertyConfig/properties/date";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -36,6 +38,11 @@ const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
 };
 
 type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
+
+export const isValidType = (value: string) =>
+  dateFormatOptions.some(({ value: format }) =>
+    moment(value, format, true).isValid(),
+  );
 
 const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
   schemaItem.isRequired ? Boolean(value?.trim()) : true;
@@ -112,5 +119,6 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
 }
 
 DateField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+DateField.isValidType = isValidType;
 
 export default DateField;
