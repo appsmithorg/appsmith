@@ -24,7 +24,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.ARRAY,
-              unique: ["value"],
               params: {
                 unique: ["value"],
                 default: [],
