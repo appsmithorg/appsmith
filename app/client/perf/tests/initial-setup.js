@@ -5,6 +5,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 (async () => {
   const browser = await puppeteer.launch({
     args: ["--window-size=1920,1080"],
+    ignoreHTTPSErrors: true,
   });
   let page = await browser.newPage();
   await page.goto("https://dev.appsmith.com/setup/welcome");
