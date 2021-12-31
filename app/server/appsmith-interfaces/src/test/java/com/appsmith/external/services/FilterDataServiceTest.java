@@ -768,6 +768,64 @@ public class FilterDataServiceTest {
     }
 
     @Test
+    public void testFilterInConditionForNumbersAndDecimals() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 0.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"EQ\",\n" +
+                "        \"value\": \"4.99\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 1);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testFilterInConditionForNumbersNew() {
         String data = "[\n" +
                 "  {\n" +

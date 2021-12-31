@@ -605,8 +605,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             DataType inputDataType = stringToKnownDataTypeConverter(value);
             if (DataType.NULL.equals(inputDataType)) {
                 dataType = DataType.NULL;
-            }else{
-                dataType =  inputDataType;
+            } else {
+                dataType = inputDataType;
             }
         }
 
