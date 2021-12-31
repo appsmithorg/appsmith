@@ -9,13 +9,13 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
-import ThemingApi from "api/AppThemingApi";
-import { all, takeLatest, put, select } from "redux-saga/effects";
+// import ThemingApi from "api/AppThemingApi";
+import { all, takeLatest, put } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { CHANGE_APP_THEME, createMessage } from "constants/messages";
-import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
+// import { getAppMode } from "selectors/applicationSelectors";
+// import { APP_MODE } from "entities/App";
 
 // eslint-disable-next-line
 const dummyThemes: AppTheme[] = [
@@ -175,6 +175,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -184,6 +185,9 @@ const dummyThemes: AppTheme[] = [
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
+      },
+      RATE_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -400,6 +404,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -409,6 +414,9 @@ const dummyThemes: AppTheme[] = [
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
+      },
+      RATE_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -626,6 +634,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -635,6 +644,9 @@ const dummyThemes: AppTheme[] = [
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
+      },
+      RATE_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -851,6 +863,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       MULTI_SELECT_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -860,6 +873,9 @@ const dummyThemes: AppTheme[] = [
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
+      },
+      RATE_WIDGET: {
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -930,7 +946,8 @@ const dummyThemes: AppTheme[] = [
  */
 export function* fetchAppThemes() {
   try {
-    const response = yield ThemingApi.fetchThemes();
+    // eslint-disable-next-line
+    // const response = yield ThemingApi.fetchThemes();
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -952,15 +969,17 @@ export function* fetchAppThemes() {
 export function* fetchAppSelectedTheme(
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ) {
+  // eslint-disable-next-line
   const { applicationId } = action.payload;
-  const mode: APP_MODE = yield select(getAppMode);
+  // const mode: APP_MODE = yield select(getAppMode);
 
   try {
-    const response = yield ThemingApi.fetchSelected(applicationId, mode);
+    // eslint-disable-next-line
+    // const response = yield ThemingApi.fetchSelected(applicationId, mode);
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: response.data,
+      payload: dummyThemes[0],
     });
   } catch (error) {
     yield put({
@@ -982,7 +1001,7 @@ export function* updateSelectedTheme(
   const { applicationId, theme } = action.payload;
 
   try {
-    yield ThemingApi.updateTheme(applicationId, theme);
+    // yield ThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -1008,7 +1027,7 @@ export function* changeSelectedTheme(
   const { applicationId, theme } = action.payload;
 
   try {
-    yield ThemingApi.changeTheme(applicationId, theme);
+    // yield ThemingApi.changeTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,

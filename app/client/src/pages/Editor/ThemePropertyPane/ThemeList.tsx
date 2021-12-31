@@ -2,10 +2,7 @@ import React from "react";
 import { ThemeCard } from "./ThemeCard";
 import { AppTheme } from "entities/AppTheming";
 import { useSelector } from "react-redux";
-import {
-  getPreviewAppTheme,
-  getSelectedAppTheme,
-} from "selectors/appThemingSelectors";
+import { getPreviewAppTheme } from "selectors/appThemingSelectors";
 
 interface ThemeListProps {
   themes: AppTheme[];

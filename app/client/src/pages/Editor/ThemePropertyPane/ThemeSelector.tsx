@@ -8,7 +8,6 @@ import {
   setPreviewAppThemeAction,
 } from "actions/appThemingActions";
 import {
-  AppThemingMode,
   getAppThemes,
   getAppThemingStack,
   getPreviewAppTheme,

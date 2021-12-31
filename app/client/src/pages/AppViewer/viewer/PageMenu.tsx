@@ -3,7 +3,7 @@ import {
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { getPageURL } from "utils/AppsmithUtils";
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";

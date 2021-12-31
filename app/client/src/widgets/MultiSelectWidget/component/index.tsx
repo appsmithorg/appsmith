@@ -168,7 +168,8 @@ function MultiSelectComponent({
   }, []);
 
   const id = _.uniqueId();
-  console.log("dropDownWidth", dropDownWidth);
+
+  console.log({ primaryColor });
   return (
     <MultiSelectContainer
       backgroundColor={backgroundColor}
@@ -210,6 +211,7 @@ function MultiSelectComponent({
         // autoFocus
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
+        defaultOpen
         disabled={disabled}
         dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
         dropdownRender={dropdownRender}

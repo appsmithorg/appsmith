@@ -49,6 +49,7 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
   border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => boxShadow};
 `;
 
 const MenuButtonWrapper = styled.div`

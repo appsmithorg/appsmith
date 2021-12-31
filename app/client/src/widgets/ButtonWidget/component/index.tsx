@@ -99,6 +99,7 @@ export const StyledButton = styled((props) => (
   font-weight: ${(props) => props.theme.fontWeights[2]};
   outline: none;
   padding: 0px 10px;
+  gap: 8px;
 
   ${({ buttonColor, buttonVariant, theme }) => `
     &:enabled {
@@ -141,6 +142,10 @@ export const StyledButton = styled((props) => (
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
+
+    & > * {
+      margin-right: 0;
+    }
 
     & > span {
       max-height: 100%;
