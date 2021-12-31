@@ -1,9 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const apiPage = require("../../../../locators/ApiEditor.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
   let apiData;
@@ -11,7 +8,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.addDsl(dsl);
   });
 
-  it("Test_Add users api and execute api", function() {
+  it("1. Test_Add users api and execute api", function() {
     cy.createAndFillApi(this.data.userApi, "/users");
     cy.RunAPI();
     cy.get(apiPage.responseBody)
@@ -27,7 +24,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       });
   });
 
-  it("Test_Validate the Api data is updated on Table widget", function() {
+  it("2. Test_Validate the Api data is updated on Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     //cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
@@ -46,7 +43,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(commonlocators.backToEditor).click();
   });
 
-  it("Validate onSearchTextChanged function is called when configured for search text", function() {
+  it("3. Validate onSearchTextChanged function is called when configured for search text", function() {
     cy.SearchEntityandOpen("Table1");
     cy.get(".t--widget-tablewidget .t--search-input")
       .first()
