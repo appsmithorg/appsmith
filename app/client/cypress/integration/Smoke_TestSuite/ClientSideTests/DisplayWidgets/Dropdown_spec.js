@@ -1,35 +1,25 @@
 const dsl = require("../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
-describe("Tree Select Widget", function() {
+describe("Dropdown Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Add new widget", () => {
+  it("Add new dropdown widget", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("singleselecttreewidget", { x: 300, y: 300 });
-    cy.get(".t--widget-singleselecttreewidget").should("exist");
+    cy.dragAndDropToCanvas("dropdownwidget", { x: 300, y: 300 });
+    cy.get(".t--widget-dropdownwidget").should("exist");
   });
 
   it("should check that empty value is allowed in options", () => {
-    cy.openPropertyPane("singleselecttreewidget");
+    cy.openPropertyPane("dropdownwidget");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
         {
           "label": "Blue",
-          "value": "",
-          "children": [
-            {
-              "label": "Dark Blue",
-              "value": "DARK BLUE"
-            },
-            {
-              "label": "Light Blue",
-              "value": "LIGHT BLUE"
-            }
-          ]
+          "value": ""
         },
         {
           "label": "Green",
@@ -47,23 +37,13 @@ describe("Tree Select Widget", function() {
   });
 
   it("should check that more thatn empty value is not allowed in options", () => {
-    cy.openPropertyPane("singleselecttreewidget");
+    cy.openPropertyPane("dropdownwidget");
     cy.updateCodeInput(
       ".t--property-control-options",
       `[
         {
           "label": "Blue",
-          "value": "",
-          "children": [
-            {
-              "label": "Dark Blue",
-              "value": "DARK BLUE"
-            },
-            {
-              "label": "Light Blue",
-              "value": "LIGHT BLUE"
-            }
-          ]
+          "value": ""
         },
         {
           "label": "Green",

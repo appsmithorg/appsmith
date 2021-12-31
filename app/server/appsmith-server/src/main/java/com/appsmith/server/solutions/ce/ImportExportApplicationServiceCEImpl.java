@@ -1368,27 +1368,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson) {
-        if(importedApplicationJson.getEditModeTheme() != null && importedApplicationJson.getPublishedTheme() != null) {
-            Mono<Theme> importedEditModeTheme = getOrSaveTheme(importedApplicationJson.getEditModeTheme());
-            Mono<Theme> importedPublishedModeTheme = getOrSaveTheme(importedApplicationJson.getPublishedTheme());
+        Mono<Theme> importedEditModeTheme = getOrSaveTheme(importedApplicationJson.getEditModeTheme());
+        Mono<Theme> importedPublishedModeTheme = getOrSaveTheme(importedApplicationJson.getPublishedTheme());
 
-            return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).map(importedThemesTuple -> {
-                application.setEditModeThemeId(importedThemesTuple.getT1().getId());
-                application.setPublishedModeThemeId(importedThemesTuple.getT2().getId());
-                return application;
-            });
-        } else {
-            return Mono.just(application);
-        }
+        return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).map(importedThemesTuple -> {
+            application.setEditModeThemeId(importedThemesTuple.getT1().getId());
+            application.setPublishedModeThemeId(importedThemesTuple.getT2().getId());
+            return application;
+        });
     }
 
     private Mono<Theme> getOrSaveTheme(Theme theme) {
-        if (theme.isSystemTheme()) {
+        if(theme == null) { // this application was exported without theme, assign the legacy theme to it
+            return themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
+        } else if (theme.isSystemTheme()) {
             return themeRepository.getSystemThemeByName(theme.getName());
         } else {
             return themeRepository.save(theme);
         }
     }
-
-
 }
