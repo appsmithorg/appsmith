@@ -208,6 +208,10 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     let id;
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.validateNSelectDropdown("Commands", "Find Document(s)");
+    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+      .find(explorer.collapse)
+      .first()
+      .click();
     cy.xpath(queryLocators.listingAndReviewContext).click({ force: true });
     cy.xpath("//div[text()='Find']")
       .click()
