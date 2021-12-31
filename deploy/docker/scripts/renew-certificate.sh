@@ -9,10 +9,10 @@ if [[ -f /appsmith-stacks/configuration/docker.env ]]; then
 	set +o allexport
 fi
 
-if [[ -n $CUSTOM_DOMAIN ]]; then
+if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
 	#then run script
 	local data_path="/appsmith-stacks/data/certificate"
-	domain="$CUSTOM_DOMAIN"
+	domain="$APPSMITH_CUSTOM_DOMAIN"
 	local rsa_key_size=4096
 
 	certbot certonly --webroot --webroot-path="$data_path/certbot" \
