@@ -126,6 +126,15 @@ function getCoords(elem: Element) {
   };
 }
 
+/**
+ * This shows a rectangular border around the target element
+ *
+ * @param {string} selector A selector which identifies the target element around which
+ * we want to show the border
+ * @param {string} widthSelector Another selector which identifies an element whose width
+ * we want to use instead of the primary selector
+ * @param {number} type Could be a `class` selector or a `data-attribute`
+ */
 export function highlightSection(
   selector: string,
   widthSelector?: string,
@@ -147,6 +156,8 @@ export function highlightSection(
 
   if (!primaryReference) return;
 
+  // We need to update the position and dimensions as and when the target's position
+  // or dimension changes
   function updatePosition(element: Element) {
     const coords = getCoords(element);
     highlightBorder.style.left = coords.left - positionOffset + "px";
@@ -166,6 +177,7 @@ export function highlightSection(
 
   document.body.append(highlightBorder);
 
+  // We show the highlight border for a few seconds and then remove it
   const showAnimationDelay = 0;
   const hideAnimationDelay = showAnimationDelay + 4000;
   const removeElementDelay = hideAnimationDelay + 1000;
