@@ -1,6 +1,6 @@
 import React from "react";
 
-import Dropdown from "components/ads/Dropdown";
+import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { AppTheme } from "entities/AppTheming";
 
 interface ThemeFontControlProps {
@@ -35,7 +35,8 @@ function ThemeFontControl(props: ThemeFontControlProps) {
                     ...theme.properties,
                     fontFamily: {
                       ...theme.properties.fontFamily,
-                      [sectionName]: option.value || selectedOption,
+                      [sectionName]:
+                        (option as DropdownOption).value || selectedOption,
                     },
                   },
                 });
@@ -45,7 +46,7 @@ function ThemeFontControl(props: ThemeFontControlProps) {
             <div className="flex items-center justify-center w-6 h-6 bg-trueGray-100">
               A
             </div>
-            <div>{option.label}</div>
+            <div>{(option as DropdownOption).label}</div>
           </div>
         )}
         selected={{

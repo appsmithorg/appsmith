@@ -57,6 +57,7 @@ export interface DataTreeAction
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
+  datasourceUrl: string;
 }
 
 export interface DataTreeJSAction {

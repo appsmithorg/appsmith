@@ -34,6 +34,10 @@ import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 import PoweredBy from "./PoweredBy";
+import {
+  BatchPropertyUpdatePayload,
+  batchUpdateWidgetProperty,
+} from "actions/controlActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -176,6 +180,15 @@ function AppViewer(props: Props) {
     [resetChildrenMetaProperty, dispatch],
   );
 
+  /**
+   * callback for initializing app
+   */
+  const batchUpdateWidgetPropertyCallback = useCallback(
+    (widgetId: string, updates: BatchPropertyUpdatePayload) =>
+      dispatch(batchUpdateWidgetProperty(widgetId, updates)),
+    [batchUpdateWidgetProperty, dispatch],
+  );
+
   return (
     <ThemeProvider theme={lightTheme}>
       <GlobalHotKeys>
@@ -184,6 +197,7 @@ function AppViewer(props: Props) {
             executeAction: executeActionCallback,
             updateWidgetMetaProperty: updateWidgetMetaPropertyCallback,
             resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
+            batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
           }}
         >
           <ContainerWithComments>

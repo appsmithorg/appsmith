@@ -1,7 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { ButtonVariantTypes } from "components/constants";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -12,6 +12,7 @@ export const CONFIG = {
     animateLoading: true,
     text: "Submit",
     buttonVariant: ButtonVariantTypes.PRIMARY,
+    placement: ButtonPlacementTypes.CENTER,
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Button",

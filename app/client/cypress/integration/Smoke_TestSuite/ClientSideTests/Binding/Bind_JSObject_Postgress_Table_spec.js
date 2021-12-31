@@ -3,7 +3,6 @@ const queryEditor = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/inputdsl.json");
 const homePage = require("../../../../locators/HomePage.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const pages = require("../../../../locators/Pages.json");
 
 let datasourceName;
 let currentUrl;
@@ -13,15 +12,13 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create a query and populate response by choosing addWidget and validate in Table Widget & Bug 7413", () => {
+  it("1. Create a query and populate response by choosing addWidget and validate in Table Widget & Bug 7413", () => {
     cy.addDsl(dsl);
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-      cy.NavigateToQueryEditor();
-      cy.contains(".t--datasource-name", datasourceName)
-        .find(queryLocators.createQuery)
-        .click();
+
+      cy.NavigateToActiveDSQueryPane(datasourceName);
       cy.get(queryLocators.templateMenu).click();
       cy.get(".CodeMirror textarea")
         .first()
@@ -40,7 +37,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "0").then((tabData) => {
-        const tabValue = tabData;
+        let tabValue = tabData;
         cy.log("the value is" + tabValue);
         expect(tabValue).to.be.equal("5");
       });
@@ -61,12 +58,20 @@ describe("Addwidget from Query and bind with other widgets", function() {
           200,
         );
         cy.wait(3000);
-        cy.tablefirstdataRow().then((tabValue) => {
+
+        cy.isSelectRow(1);
+        cy.readTabledataPublish("1", "0").then((tabData) => {
+          let tabValue = tabData;
+          cy.log("the value is after Publish: " + tabValue);
           expect(tabValue).to.be.equal("5");
-          //expect(tabValue).to.have.lengthOf(0); // verification while JS Object was still Beta!
-          //cy.log("Verified that JSObject is not visible for Public viewing");
           cy.log("Verified that JSObject is visible for Public viewing");
         });
+
+        // cy.tablefirstdataRow().then((tabValue) => {
+        //   expect(tabValue).to.be.equal("5");
+        //   //expect(tabValue).to.have.lengthOf(0); // verification while JS Object was still Beta!
+        //   //cy.log("Verified that JSObject is not visible for Public viewing");
+        // });
       });
     });
   });
