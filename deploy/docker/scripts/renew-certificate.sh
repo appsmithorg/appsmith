@@ -10,10 +10,9 @@ if [[ -f /appsmith-stacks/configuration/docker.env ]]; then
 fi
 
 if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
-	#then run script
-	local data_path="/appsmith-stacks/data/certificate"
+	data_path="/appsmith-stacks/data/certificate"
 	domain="$APPSMITH_CUSTOM_DOMAIN"
-	local rsa_key_size=4096
+	rsa_key_size=4096
 
 	certbot certonly --webroot --webroot-path="$data_path/certbot" \
 		--register-unsafely-without-email \
