@@ -22,7 +22,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
 const EntityInfoContainer = styled.div`
-  min-width: 220px;
+  min-width: 240px;
   max-width: 400px;
   max-height: 300px;
   overflow-y: hidden;

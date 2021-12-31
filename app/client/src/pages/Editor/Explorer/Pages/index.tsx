@@ -52,7 +52,7 @@ const StyledEntity = styled(Entity)`
   }
 `;
 
-function PagesContainer() {
+function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages = useSelector(getAllPages);
   const currentPageId = useSelector(getCurrentPageId);
@@ -179,6 +179,6 @@ function PagesContainer() {
   );
 }
 
-PagesContainer.displayName = "PagesContainer";
+Pages.displayName = "Pages";
 
-export default React.memo(PagesContainer);
+export default React.memo(Pages);
