@@ -41,17 +41,27 @@ init_mongodb() {
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
     echo "Fork process"
     openssl rand -base64 756 >"$MONGO_DB_KEY"
-    chmod go-rwx,u-wx "$MONGO_DB_KEY"
+    chmod-mongodb-key "$MONGO_DB_KEY"
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
     echo "Waiting 10s for mongodb init with replica set"
     sleep 10
     mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
+
+  else
+    if [[ -f "$MONGO_DB_KEY" ]]; then
+      chmod-mongodb-key "$MONGO_DB_KEY"
+    fi
+
   fi
 }
 
-# Keep Let's Encrypt directory persistent 
-mount_letsencrypt_directory() { 
+chmod-mongodb-key() {
+  chmod go-rwx,u-wx "$1"
+}
+
+# Keep Let's Encrypt directory persistent
+mount_letsencrypt_directory() {
   echo "Mounting Let's encrypt directory"
   rm -rf /etc/letsencrypt
   mkdir -p /appsmith-stacks/{letsencrypt,ssl}
