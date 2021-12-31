@@ -54,7 +54,7 @@ const generateMarkdown = (results) => {
   const size = getMaxSize(results);
   let markdown = `<details><summary>Click to view performance test results</summary>\n\n| `;
   for (let i = 0; i < size; i++) {
-    markdown = markdown + `| Run #${i + 1} `;
+    markdown = markdown + `| Run ${i + 1} `;
   }
   markdown = markdown + `| Mean | SD.Sample | SD.Population`;
 
@@ -67,9 +67,9 @@ const generateMarkdown = (results) => {
 
   Object.keys(results).forEach((key) => {
     const action = results[key];
-    markdown = markdown + key;
+    markdown += `**${key}**`;
     for (let i = 0; i <= size; i++) {
-      markdown = markdown + `| `;
+      markdown += `| `;
     }
     markdown += "|\n";
 
