@@ -7,11 +7,7 @@ get_variable_mongodb() {
   MONGODB_PROTOCOL=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "[a-z+]+(?=\:\/\/)") 
   MONGODB_USERNAME=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "(?<=\:\/\/)(.*\s?)(?=\:)")
   MONGODB_PASSWORD=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "\w+(?=@)")
-  MONGODB_HOST=$(echo "$MONGODB_URI" | grep -oP "(?<=\@)[a-z0-9.]+(?=\:)")
-  # If port is not defined in the URI, the above regex for the MongoDB Host will not be correct
-  if [[ -z $MONGODB_HOST ]]; then
-    MONGODB_HOST=$(echo "$MONGODB_URI" | grep -oP "[a-z0-9.]+(?=\/)")
-  fi
+  MONGODB_HOST=$(echo "$MONGODB_URI" | grep -oP "[a-z0-9.]+(?=\/)")
   MONGODB_DATABASE=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "\w+(?!\S)")
 }
 
@@ -72,15 +68,17 @@ init_replica_set() {
   if [[ $isUriLocal -gt 0 ]]; then
     # Check mongodb cloud replica set
     echo 'Check mongodb cloud replica set'
-    responseStatus=$(mongo "$APPSMITH_MONGODB_URI" --eval "rs.status()")
-    okString='"ok": 1'
-    indexString=${responseStatus%%$okString*}
+    responseStatus=$(mongo "$APPSMITH_MONGODB_URI" --eval "rs.status()" | grep ok | xargs)
+    okString='ok : 1'
 
-    if [[ ${#indexString} -gt 0 ]]; then
+    if [[ $responseStatus == *$okString* ]]; then
       echo "Mongodb cloud replica set is enabled"
-    else
-      echo "Mongodb cloud init with replica set"
       mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
+    else
+      echo -e '\033[0;31m********************************************************************\033[0m'
+      echo -e '\033[0;31m*          Mongodb cloud replica set is not enabled                *\033[0m'
+      echo -e '\033[0;31m********************************************************************\033[0m'
+      exit 1
     fi
   fi
 }
