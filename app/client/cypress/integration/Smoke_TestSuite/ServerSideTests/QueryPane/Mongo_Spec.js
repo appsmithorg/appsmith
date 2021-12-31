@@ -355,9 +355,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get("@dSName").then((dbName) => {
       cy.actionContextMenuByEntityName(dbName, "Refresh");
     });
-    cy.get(`.t--entity.datasource:contains(${dbName})`)
-      .find(explorer.collapse)
-      .click();
     cy.xpath("//div[text()='NonAsciiTest']").should("exist");
 
     //Verifying Suggested Widgets functionality
