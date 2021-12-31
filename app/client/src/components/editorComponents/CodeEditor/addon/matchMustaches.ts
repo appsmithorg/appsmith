@@ -1,20 +1,20 @@
 import CodeMirror from "codemirror";
-import { throttle } from "lodash";
+import { throttle, findIndex } from "lodash";
 
 interface CMEditor extends CodeMirror.Editor {
   findMatchingBracket: (
     pos: CodeMirror.Position,
-    config: any,
-    oldConfig: any,
+    config?: any,
+    oldConfig?: any,
   ) => {
     from: CodeMirror.Position;
     to: CodeMirror.Position;
     match: boolean;
-    forward: boolean;
+    forward?: boolean;
   };
 }
 
-function matchMustaches(cm: CMEditor, tr: boolean) {
+function matchMustaches(cm: CodeMirror.Editor, tr: boolean) {
   debugger;
   // cm.markText(match.from, Pos(match.from.line, match.from.ch + 1), {
   //   className: "binding-brackets",
@@ -37,7 +37,7 @@ function matchMustaches(cm: CMEditor, tr: boolean) {
 
 const mustacheScanned = false;
 
-function matchAppsmithBindingBrackets(cm: CMEditor, changeObj: any) {
+function matchAppsmithBindingBrackets(cm: CodeMirror.Editor, changeObj: any) {
   debugger;
 
   if (mustacheScanned) {
@@ -56,13 +56,19 @@ function onMountHandler(cm: CMEditor) {
   // 2. find matching closed curly braces and check if it is mustache,
   // 3. if yes then mark starting and ending as bold.
   // 4. repeat
-  const lines = [];
-  cm.eachLine((line, index) => {
-    debugger;
-    cm.findMatchingBracket(CodeMirror.Pos(index), config);
-  });
+  let lineCount = 0;
+  cm.eachLine((_line: CodeMirror.LineHandle) => {
+    const startMustacheIndex = _line.text.indexOf("{{");
 
-  debugger;
+    if (startMustacheIndex > -1) {
+      const endMustacheIndex = startMustacheIndex + 1;
+      const match = cm.findMatchingBracket(
+        CodeMirror.Pos(lineCount, endMustacheIndex),
+      );
+      debugger;
+    }
+    lineCount++;
+  });
 }
 
 CodeMirror.defineOption("matchMustaches", false, function(
@@ -73,10 +79,10 @@ CodeMirror.defineOption("matchMustaches", false, function(
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore: No types available
   if (old && old != CodeMirror.Init) {
-    cm.off("change", throttledChangeHandler);
+    cm.off("change", matchAppsmithBindingBrackets);
   }
   if (val) {
-    cm.on("change", throttledChangeHandler);
+    cm.on("change", matchAppsmithBindingBrackets);
   }
 });
 
