@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, NumericInput, Keys } from "@blueprintjs/core";
+import { Icon, NumericInput, Keys, Classes } from "@blueprintjs/core";
 import {
   RowWrapper,
   PaginationWrapper,
@@ -16,6 +16,7 @@ import {
 } from "./Constants";
 import TableDataDownload from "./TableDataDownload";
 import { Colors } from "constants/Colors";
+import { lightenColor } from "widgets/WidgetUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 const PageNumberInputWrapper = styled(NumericInput)<{
@@ -26,7 +27,6 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     border: 1px solid ${Colors.ALTO2};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
-    border-radius: ${({ borderRadius }) => borderRadius};
     box-sizing: border-box;
     width: 24px;
     height: 24px;
@@ -35,18 +35,31 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     text-align: center;
     font-size: 12px;
   }
-  &&& input:focus {
-    border: 1px solid ${Colors.FERN_GREEN};
-  }
   &&&.bp3-control-group > :only-child {
     border-radius: 0;
   }
   margin: 0 8px;
 `;
 
-const SearchComponentWrapper = styled.div`
+const SearchComponentWrapper = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor: string;
+}>`
   margin: 3px 10px;
   flex: 0 0 200px;
+
+  & .${Classes.INPUT} {
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+  }
+
+  & .${Classes.INPUT}:active, & .${Classes.INPUT}:focus {
+    border-radius: ${({ borderRadius }) => borderRadius};
+    border: 1px solid !important;
+    border-color: ${({ primaryColor }) => primaryColor} !important;
+    box-shadow: ${({ primaryColor }) =>
+      `0px 0px 0px 2px ${lightenColor(primaryColor)} !important;`};
+  }
 `;
 
 function PageNumberInput(props: {
@@ -132,13 +145,19 @@ interface TableHeaderProps {
   isVisibleSearch?: boolean;
   delimiter: string;
   borderRadius: string;
+  boxShadow?: string;
+  primaryColor: string;
 }
 
 function TableHeader(props: TableHeaderProps) {
   return (
     <>
       {props.isVisibleSearch && (
-        <SearchComponentWrapper>
+        <SearchComponentWrapper
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
+          primaryColor={props.primaryColor}
+        >
           <SearchComponent
             onSearch={props.searchTableData}
             placeholder="Search..."

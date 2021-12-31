@@ -4,7 +4,6 @@ import { Alignment, Switch } from "@blueprintjs/core";
 
 import { ThemeProp } from "components/ads/common";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
 
 export interface OptionProps {
   label?: string;
@@ -60,6 +59,7 @@ export interface StyledSwitchProps {
   inline?: boolean;
   optionCount: number;
   rowSpace: number;
+  primaryColor: string;
 }
 
 const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
@@ -72,7 +72,11 @@ const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
       alignIndicator === Alignment.RIGHT && `margin-right: 0`};
     input:checked ~ .bp3-control-indicator,
     &:hover input:checked ~ .bp3-control-indicator {
-      background-color: ${Colors.GREEN};
+      background-color: ${({ primaryColor }) => primaryColor};
+    }
+
+    & input:checked ~ .bp3-control-indicator {
+      border-color: ${({ primaryColor }) => primaryColor};
     }
   }
 `;
@@ -84,6 +88,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     inline,
     onChange,
     options,
+    primaryColor,
     rowSpace,
     selected,
     valid,
@@ -108,6 +113,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
             label={option.label}
             onChange={onChange(option.value)}
             optionCount={options.length}
+            primaryColor={primaryColor}
             rowSpace={rowSpace}
           />
         ))}
@@ -138,6 +144,7 @@ export interface SwitchGroupComponentProps {
   rowSpace: number;
   selected: string[];
   valid?: boolean;
+  primaryColor: string;
 }
 
 export default SwitchGroupComponent;

@@ -253,6 +253,7 @@ export function Table(props: TableProps) {
               <TableHeader
                 applyFilter={props.applyFilter}
                 borderRadius={props.borderRadius}
+                boxShadow={props.boxShadow}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
@@ -266,6 +267,7 @@ export function Table(props: TableProps) {
                 pageNo={props.pageNo}
                 pageOptions={pageOptions}
                 prevPageClick={props.prevPageClick}
+                primaryColor={props.primaryColor}
                 searchKey={props.searchKey}
                 searchTableData={props.searchTableData}
                 serverSidePaginationEnabled={props.serverSidePaginationEnabled}

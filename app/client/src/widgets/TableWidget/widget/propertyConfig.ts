@@ -1595,15 +1595,6 @@ export default [
         isTriggerProperty: false,
       },
       {
-        propertyName: "primaryColor",
-        helpText: "Sets the accent color of the widget",
-        label: "Accent color",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-      },
-      {
         propertyName: "borderRadius",
         label: "Border Radius",
         helpText: "Rounds the corners of the icon button's outer border edge",

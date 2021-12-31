@@ -81,8 +81,8 @@ export const CONFIG = {
                 {
                   type: "ICON_BUTTON_WIDGET",
                   size: {
-                    rows: 2 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 1.75 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 3.75 * GRID_DENSITY_MIGRATION_V1,
                   },
                   position: {
                     top: 2,

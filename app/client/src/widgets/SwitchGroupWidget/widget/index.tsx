@@ -166,6 +166,20 @@ class SwitchGroupWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "primaryColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
     ];
   }
 
@@ -205,6 +219,7 @@ class SwitchGroupWidget extends BaseWidget<
       isValid,
       options,
       parentRowSpace,
+      primaryColor,
       selectedValues,
     } = this.props;
 
@@ -215,6 +230,7 @@ class SwitchGroupWidget extends BaseWidget<
         inline={isInline}
         onChange={this.handleSwitchStateChange}
         options={options}
+        primaryColor={primaryColor}
         required={isRequired}
         rowSpace={parentRowSpace}
         selected={selectedValues}
@@ -259,6 +275,7 @@ export interface SwitchGroupWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   alignment: Alignment;
   onSelectionChange?: boolean;
+  primaryColor: string;
 }
 
 export default SwitchGroupWidget;
