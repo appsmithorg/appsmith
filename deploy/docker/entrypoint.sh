@@ -28,6 +28,10 @@ init_mongodb() {
 
   check_initialized_db
 
+  if [[ -f "$MONGO_DB_KEY" ]]; then
+    chmod-mongodb-key "$MONGO_DB_KEY"
+  fi
+
   if [[ $shouldPerformInitdb -gt 0 ]]; then
     # Start installed MongoDB service - Dependencies Layer
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
@@ -47,17 +51,11 @@ init_mongodb() {
     sleep 10
     mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-
-  else
-    if [[ -f "$MONGO_DB_KEY" ]]; then
-      chmod-mongodb-key "$MONGO_DB_KEY"
-    fi
-
   fi
 }
 
 chmod-mongodb-key() {
-  chmod go-rwx,u-wx "$1"
+  chmod 600 "$1"
 }
 
 # Keep Let's Encrypt directory persistent
