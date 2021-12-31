@@ -19,6 +19,8 @@ import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { deselectAllInitAction } from "actions/widgetSelectionActions";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 const minSize = 100;
 
@@ -45,17 +47,20 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
-            propertyName: "canOutsideClickClose",
-            label: "Quick Dismiss",
-            helpText: "Allows dismissing the modal when user taps outside",
+            propertyName: "animateLoading",
+            label: "Animate Loading",
             controlType: "SWITCH",
-            isBindProperty: false,
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the modal is closed",
@@ -108,6 +113,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
+    this.props.deselectAllWidgets();
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -230,6 +236,7 @@ export interface ModalWidgetProps extends WidgetProps {
   width: number;
   height: number;
   showPropertyPane: (widgetId?: string) => void;
+  deselectAllWidgets: () => void;
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;
@@ -252,6 +259,9 @@ const mapDispatchToProps = (dispatch: any) => ({
           : ReduxActionTypes.HIDE_PROPERTY_PANE,
       payload: { widgetId, callForDragOrResize, force },
     });
+  },
+  deselectAllWidgets: () => {
+    dispatch(deselectAllInitAction());
   },
 });
 

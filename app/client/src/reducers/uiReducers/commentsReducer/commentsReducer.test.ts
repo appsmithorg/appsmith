@@ -35,9 +35,14 @@ describe("Test comments reducer handles", () => {
   const useSelectorMock = jest.spyOn(reactRedux, "useSelector");
   let state: any;
   it("fetch application comments success", () => {
+    const commentThreads = fetchApplicationThreadsMockResponse.data as CommentThread[];
     state = commentsReducer(
       undefined,
-      fetchApplicationCommentsSuccess(fetchApplicationThreadsMockResponse.data),
+      fetchApplicationCommentsSuccess({
+        commentThreads,
+        applicationId:
+          fetchApplicationThreadsMockResponse.data[0].applicationId,
+      }),
     );
     useSelectorMock.mockReturnValue(state);
     const { result } = renderHook(() =>

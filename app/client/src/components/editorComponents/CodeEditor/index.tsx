@@ -43,7 +43,6 @@ import {
   HintHelper,
   isCloseKey,
   isModifierKey,
-  isNavKey,
   MarkHelper,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -83,8 +82,11 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
+import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
+import { replayHighlightClass } from "globalStyles/portals";
+
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -94,6 +96,7 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
+  startingEntityUpdation: () => void;
 }
 
 export type CodeEditorExpected = {
@@ -239,7 +242,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 600));
+        editor.on("change", this.startChange);
         editor.on("keyup", this.handleAutocompleteKeyup);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
@@ -300,8 +303,11 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    // return if component unmounts before editor is created
+    if (!this.editor) return;
+
     this.editor.off("beforeChange", this.handleBeforeChange);
-    this.editor.off("change", _.debounce(this.handleChange, 600));
+    this.editor.off("change", this.startChange);
     this.editor.off("keyup", this.handleAutocompleteKeyup);
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
@@ -394,6 +400,18 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
+  handleDebouncedChange = _.debounce(this.handleChange, 600);
+
+  startChange = (instance?: any, changeObj?: any) => {
+    /* This action updates the status of the savingEntity to true so that any
+      shortcut commands do not execute before updating the entity in the store */
+    const entity = this.getEntityInformation();
+    if (entity.entityId) {
+      this.props.startingEntityUpdation();
+    }
+    this.handleDebouncedChange(instance, changeObj);
+  };
+
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: FieldEntityInformation = {
@@ -461,9 +479,26 @@ class CodeEditor extends Component<Props, State> {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       cm.closeHint();
-    } else if (!isNavKey(event.code)) {
-      this.handleAutocompleteVisibility(cm);
+      return;
     }
+    const cursor = cm.getCursor();
+    const line = cm.getLine(cursor.line);
+    let showAutocomplete = false;
+    /* Check if the character before cursor is completable to show autocomplete which backspacing */
+    if (key === "/") {
+      showAutocomplete = true;
+    } else if (event.code === "Backspace") {
+      const prevChar = line[cursor.ch - 1];
+      showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
+    } else if (key === "{") {
+      /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
+      const prevChar = line[cursor.ch - 2];
+      showAutocomplete = prevChar === "{";
+    } else if (key.length == 1) {
+      showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
+      /* Autocomplete should be triggered only for characters that make up valid variable names */
+    }
+    showAutocomplete && this.handleAutocompleteVisibility(cm);
   };
 
   lintCode(editor: CodeMirror.Editor) {
@@ -626,7 +661,9 @@ class CodeEditor extends Component<Props, State> {
           <EditorWrapper
             border={border}
             borderLess={borderLess}
-            className={className}
+            className={`${className} ${replayHighlightClass} ${
+              isInvalid ? "t--codemirror-has-error" : ""
+            }`}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
@@ -694,6 +731,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
+  startingEntityUpdation: () => dispatch(startingEntityUpdation()),
 });
 
 export default Sentry.withProfiler(

@@ -80,7 +80,6 @@ export enum AUTOCOMPLETE_CLOSE_KEY {
   Semicolon,
   Space,
   Delete,
-  Backspace,
   "Ctrl+Backspace",
   OSLeft,
   "(",
@@ -108,6 +107,12 @@ export enum AUTOCOMPLETE_NAVIGATION {
   ArrowRight,
   ArrowLeft,
 }
+
+export const INDENTATION_CHARACTERS = {
+  " ": " ",
+  "\t": "\t",
+  "\n": "\n",
+};
 
 export const isNavKey = (key: any): key is AUTOCOMPLETE_NAVIGATION => {
   return AUTOCOMPLETE_NAVIGATION.hasOwnProperty(key);

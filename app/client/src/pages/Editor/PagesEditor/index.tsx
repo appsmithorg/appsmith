@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import styled, { useTheme } from "styled-components";
 import { useParams, useHistory } from "react-router";
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -116,6 +116,20 @@ function PagesEditor() {
     history.push(BUILDER_PAGE_URL({ applicationId, pageId: params.pageId }));
   }, []);
 
+  /**
+   * Draggable List Render item
+   *
+   *
+   * @return JSX.Element
+   */
+  const draggableListRenderItem = useMemo(
+    () =>
+      function renderer({ item }: any) {
+        return <PageListItem item={item} />;
+      },
+    [],
+  );
+
   return (
     <Wrapper>
       <Header>
@@ -141,7 +155,7 @@ function PagesEditor() {
       </Header>
 
       <DraggableList
-        ItemRenderer={({ item }: any) => <PageListItem item={item} />}
+        ItemRenderer={draggableListRenderItem}
         itemHeight={70}
         items={pages}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {

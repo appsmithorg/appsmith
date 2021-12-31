@@ -57,9 +57,9 @@ function PropertyHelpLabel(props: Props) {
               ? {
                   borderBottom: "1px dashed",
                   width: "100%",
-                  display: "inline-block",
+                  display: "flex",
                   position: "relative",
-                  top: "-15px",
+                  top: "-3px",
                 }
               : {}
           }

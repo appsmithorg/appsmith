@@ -90,7 +90,6 @@ import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
 // import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
 import { RenderModes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
-import { forceOpenPropertyPane } from "actions/widgetActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   batchUpdateWidgetProperty,
@@ -395,7 +394,7 @@ function* createOnboardingDatasource() {
           },
           endpoints: [
             {
-              host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+              host: "mockdb.internal.appsmith.com",
               port: 5432,
             },
           ],
@@ -428,7 +427,7 @@ function* createOnboardingDatasource() {
     });
 
     // Navigate to that datasource page
-    yield put(changeDatasource(onboardingDatasource));
+    yield put(changeDatasource({ datasource: onboardingDatasource }));
 
     yield take(ReduxActionTypes.SHOW_ONBOARDING_LOADER);
     yield put(
@@ -721,7 +720,6 @@ function* addWidget(widgetConfig: any) {
       type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
     });
-    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {}
 }
 
@@ -835,7 +833,6 @@ function* addOnSubmitHandler() {
         type: ReduxActionTypes.SELECT_WIDGET_INIT,
         payload: { widgetId: inputWidget.widgetId },
       });
-      yield put(forceOpenPropertyPane(inputWidget.widgetId));
 
       yield put(
         updateWidgetPropertyRequest(
@@ -956,6 +953,29 @@ function* undoEndFirstTimeUserOnboardingSaga(action: ReduxAction<string>) {
   });
 }
 
+function* firstTimeUserOnboardingInitSaga(
+  action: ReduxAction<{ applicationId: string; pageId: string }>,
+) {
+  yield put({
+    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+    payload: true,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+    payload: action.payload.applicationId,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+    payload: true,
+  });
+  history.replace(
+    BUILDER_PAGE_URL({
+      applicationId: action.payload.applicationId,
+      pageId: action.payload.pageId,
+    }),
+  );
+}
+
 function* onboardingActionSagas() {
   yield all([
     takeLatest(
@@ -1020,6 +1040,10 @@ function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
       undoEndFirstTimeUserOnboardingSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
+      firstTimeUserOnboardingInitSaga,
     ),
   ]);
 }

@@ -1,0 +1,64 @@
+{
+  "identifier": "UPLOAD_MULTIPLE_FILES_FROM_BODY",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Bucket to Query",
+      "children": [
+        {
+          "label": "Bucket Name",
+          "configProperty": "actionConfiguration.formData.bucket",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Optional",
+      "children": [
+        {
+          "label": "Common File Path",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": ""
+        },
+        {
+          "label": "File Data Type",
+          "configProperty": "actionConfiguration.formData.create.dataType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Base64",
+              "value": "YES"
+            },
+            {
+              "label": "Text / Binary",
+              "value": "NO"
+            }
+          ]
+        },
+        {
+          "label": "Expiry Duration of Signed URL (Minutes)",
+          "configProperty": "actionConfiguration.formData.create.expiry",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5"
+        },
+        {
+          "label": "Content",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}

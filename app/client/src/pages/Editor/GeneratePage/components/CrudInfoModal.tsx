@@ -18,11 +18,10 @@ import {
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
-import { CheckmarkWrapper } from "./styles";
-import { ReactComponent as CheckmarkSvg } from "assets/svg/checkmark.svg";
 import ProgressiveImage, {
   Container as ProgressiveImageContainer,
 } from "components/ads/ProgressiveImage";
+import SuccessTick from "pages/common/SuccessTick";
 
 type Props = {
   crudInfoModalOpen: boolean;
@@ -190,9 +189,7 @@ function GenCRUDSuccessModal(props: Props) {
       <Wrapper>
         {step === STEP.SHOW_SUCCESS_GIF ? (
           <SuccessContentWrapper>
-            <CheckmarkWrapper>
-              <CheckmarkSvg />
-            </CheckmarkWrapper>
+            <SuccessTick height="80px" width="80px" />
             <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
           </SuccessContentWrapper>
         ) : null}

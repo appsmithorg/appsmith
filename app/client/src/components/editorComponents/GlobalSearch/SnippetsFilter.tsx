@@ -160,14 +160,19 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
       showFilter={showSnippetFilter}
       snippetsEmpty={snippetsEmpty}
     >
-      <button onClick={() => toggleSnippetFilter(!showSnippetFilter)}>
+      <button
+        className="flex items-center justify-center space-x-1"
+        onClick={() => toggleSnippetFilter(!showSnippetFilter)}
+      >
         {!showSnippetFilter && <FilterIcon />}
+
         {!showSnippetFilter &&
           refinements.entities &&
           refinements.entities &&
-          refinements.entities.length > 0 &&
-          ` ${refinements.entities.length}`}
-        {!showSnippetFilter && " Filter"}
+          refinements.entities.length > 0 && (
+            <span>{refinements.entities.length}</span>
+          )}
+        {!showSnippetFilter && <span> Filter</span>}
         {showSnippetFilter && <CloseFilterIcon />}
       </button>
       <div className="filter-list">

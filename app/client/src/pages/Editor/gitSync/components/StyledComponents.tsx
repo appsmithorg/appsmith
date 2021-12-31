@@ -2,12 +2,13 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
-export const Title = styled.h1`
+export const Title = styled.p`
   ${(props) => getTypographyByKey(props, "h1")};
-  margin-top: ${(props) => props.theme.spaces[7]}px;
+  margin: ${(props) =>
+    `${props.theme.spaces[7]}px 0px ${props.theme.spaces[4]}px 0px`};
 `;
 
-export const Subtitle = styled.p`
+export const Subtitle = styled.span`
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.BLACK};
 `;

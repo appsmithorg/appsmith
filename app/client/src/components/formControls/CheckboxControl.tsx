@@ -1,28 +1,53 @@
 import React from "react";
-import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
+import Checkbox from "components/ads/Checkbox";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
+import {
+  Field,
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form";
 import styled from "styled-components";
 
-const StyledCheckbox = styled(CheckboxField)`
-  &&& {
-    font-size: 14px;
-    margin-top: 10px;
-  }
-`;
+const StyledCheckbox = styled(Checkbox)``;
 
 class CheckboxControl extends BaseControl<CheckboxControlProps> {
   getControlType(): ControlType {
     return "CHECKBOX";
   }
-
   render() {
-    const { configProperty, info, label } = this.props;
-
-    return <StyledCheckbox info={info} label={label} name={configProperty} />;
+    return (
+      <Field
+        component={renderComponent}
+        name={this.props.configProperty}
+        props={{ ...this.props }}
+        type="checkbox"
+      />
+    );
   }
 }
 
+type renderComponentProps = CheckboxControlProps & {
+  input?: WrappedFieldInputProps;
+  meta?: WrappedFieldMetaProps;
+};
+
+function renderComponent(props: renderComponentProps) {
+  const onChangeHandler = (value: boolean) => {
+    props.input && props.input.onChange && props.input.onChange(value);
+  };
+
+  return (
+    <StyledCheckbox
+      isDefaultChecked={props?.input?.checked as boolean}
+      {...props}
+      info={undefined}
+      label={""}
+      name={props?.input?.name}
+      onCheckChange={onChangeHandler}
+    />
+  );
+}
 export interface CheckboxControlProps extends ControlProps {
   info?: string;
 }

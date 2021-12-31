@@ -267,6 +267,7 @@ function AddCommentInput({
 
   const filteredSuggestions = useMemo(() => {
     let suggestionResults = suggestions;
+    let hasExactMatch = false;
     if (!suggestionsQuery) return suggestionResults;
     else {
       const filter = suggestionsQuery.toLowerCase();
@@ -274,14 +275,18 @@ function AddCommentInput({
         .filter((suggestion) => {
           const name = suggestion.name.toLowerCase();
           const username = suggestion.user?.username.toLowerCase() || "";
+          hasExactMatch = name === filter || username === filter;
           return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
         })
         .sort(sortMentionData(filter));
     }
-
-    if (suggestionResults.length !== 0) return suggestionResults;
-
-    return [{ name: suggestionsQuery, isInviteTrigger: true }];
+    const couldBeNewEmail = isEmail(suggestionsQuery);
+    const inviteNew = [{ name: suggestionsQuery, isInviteTrigger: true }];
+    // Show invite prompt only if there is no exact match and user has typed email.
+    return [
+      ...suggestionResults,
+      ...(couldBeNewEmail && !hasExactMatch ? inviteNew : []),
+    ];
   }, [suggestionsQuery, suggestions, trigger]);
 
   const onAddMention = (mention: MentionData) => {
@@ -332,6 +337,7 @@ function AddCommentInput({
             <Button
               category={Category.tertiary}
               className={"cancel-button"}
+              data-cy="add-comment-cancel"
               onClick={_onCancel}
               text={createMessage(CANCEL)}
             />

@@ -20,6 +20,7 @@ export enum MenuTypes {
 export interface MenuItemData {
   text: string;
   label?: string;
+  labelElement?: React.ReactNode;
   onClick?: typeof noop;
   children?: MenuItemData[];
   type: MenuTypes;
@@ -104,9 +105,11 @@ export function NavigationMenuItem({
 
   if (!isVisible) return null;
 
-  const labelElement = isOpensNewWindow && (
-    <ShareIcon color={"#4b4848"} height={12} width={12} />
-  );
+  const labelElement =
+    menuItemData.labelElement ||
+    (isOpensNewWindow && (
+      <ShareIcon color={"#4b4848"} height={12} width={12} />
+    ));
 
   const handleClick = (e: React.SyntheticEvent) => {
     setIsPopoverOpen(false);

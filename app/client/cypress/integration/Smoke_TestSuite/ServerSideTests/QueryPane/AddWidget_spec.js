@@ -3,7 +3,7 @@ const queryEditor = require("../../../../locators/QueryEditor.json");
 
 let datasourceName;
 
-describe("Add widget", function() {
+describe("Add widget - Postgress DataSource", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
@@ -12,12 +12,8 @@ describe("Add widget", function() {
     });
   });
 
-  it("Add widget", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
+  it("1. Verify 'Add to widget [Widget Suggestion]' functionality - Postgress", () => {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -25,12 +21,7 @@ describe("Add widget", function() {
       .type("select * from configs");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.WaitAutoSave();
-    cy.get(queryEditor.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.runQuery();
     cy.get(queryEditor.suggestedTableWidget).click();
     cy.SearchEntityandOpen("Table1");
     cy.isSelectRow(1);

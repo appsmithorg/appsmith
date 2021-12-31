@@ -23,6 +23,9 @@ import {
   migrateTableWidgetDelimiterProperties,
   migrateTableWidgetSelectedRowBindings,
   migrateTableSanitizeColumnKeys,
+  isSortableMigration,
+  migrateTableWidgetIconButtonVariant,
+  migrateTableWidgetNumericColumnName,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -38,6 +41,9 @@ import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButton
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
+import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
+import { DSLWidget } from "widgets/constants";
 
 /**
  * adds logBlackList key for all list widget children
@@ -288,6 +294,24 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     }
     return children;
   });
+  return currentDSL;
+};
+
+const mapAllowHorizontalScrollMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+    if (child.type === "CHART_WIDGET") {
+      child.allowScroll = child.allowHorizontalScroll;
+      delete child.allowHorizontalScroll;
+    }
+
+    if (Array.isArray(child.children) && child.children.length > 0)
+      child = mapAllowHorizontalScrollMigration(child);
+
+    return child;
+  });
+
   return currentDSL;
 };
 
@@ -943,6 +967,35 @@ export const transformDSL = (
 
   if (currentDSL.version === 41) {
     currentDSL = migrateButtonVariant(currentDSL);
+    currentDSL.version = 42;
+  }
+
+  if (currentDSL.version === 42) {
+    currentDSL = migrateMapWidgetIsClickedMarkerCentered(currentDSL);
+    currentDSL.version = 43;
+  }
+
+  if (currentDSL.version === 43) {
+    currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
+    currentDSL.version = 44;
+  }
+  if (currentDSL.version === 44) {
+    currentDSL = isSortableMigration(currentDSL);
+    currentDSL.version = 45;
+  }
+
+  if (currentDSL.version === 45) {
+    currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
+    currentDSL.version = 46;
+  }
+
+  if (currentDSL.version === 46) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
+    currentDSL.version = 47;
+  }
+
+  if (currentDSL.version === 47) {
+    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

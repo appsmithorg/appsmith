@@ -8,11 +8,17 @@ export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<Variable>;
+  isAsync: boolean;
 };
 
 export type ParsedBody = {
   actions: Array<ParsedJSSubAction>;
   variables: Array<Variable>;
+};
+
+export type JSUpdate = {
+  id: string;
+  parsedBody: ParsedBody | undefined;
 };
 
 export const getDifferenceInJSCollection = (
@@ -38,6 +44,7 @@ export const getDifferenceInJSCollection = (
               ...preExisted.actionConfiguration,
               body: action.body,
               jsArguments: action.arguments,
+              isAsync: action.isAsync,
             },
           });
         }
@@ -119,11 +126,36 @@ export const getDifferenceInJSCollection = (
       jsAction.actions.splice(deleteArchived, 1);
     }
   }
+  //change in variables
+  const varList = jsAction.variables;
+  let changedVariables: Array<Variable> = [];
+  if (parsedBody.variables.length) {
+    for (let i = 0; i < parsedBody.variables.length; i++) {
+      const newVar = parsedBody.variables[i];
+      const existedVar = varList.find((item) => item.name === newVar.name);
+      if (!!existedVar) {
+        const existedValue = existedVar.value;
+        if (
+          (!!existedValue &&
+            existedValue.toString() !==
+              (newVar.value && newVar.value.toString())) ||
+          (!existedValue && !!newVar.value)
+        ) {
+          changedVariables.push(newVar);
+        }
+      } else {
+        changedVariables.push(newVar);
+      }
+    }
+  } else {
+    changedVariables = jsAction.variables;
+  }
   return {
     newActions: toBeAddedActions,
     updateActions: toBeUpdatedActions,
     deletedActions: toBearchivedActions,
     nameChangedActions: nameChangedActions,
+    changedVariables: changedVariables,
   };
 };
 
@@ -143,4 +175,43 @@ export const pushLogsForObjectUpdate = (
       },
     });
   }
+};
+
+export const createDummyJSCollectionActions = (
+  pageId: string,
+  organizationId: string,
+) => {
+  const body =
+    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: () => {\n\t\t//write code here\n\t}\n}";
+
+  const actions = [
+    {
+      name: "myFun1",
+      pageId,
+      organizationId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "() => {\n\t\t//write code here\n\t}",
+        isAsync: false,
+        timeoutInMilliseconds: 0,
+        jsArguments: [],
+      },
+    },
+    {
+      name: "myFun2",
+      pageId,
+      organizationId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "() => {\n\t\t//write code here\n\t}",
+        isAsync: false,
+        timeoutInMilliseconds: 0,
+        jsArguments: [],
+      },
+    },
+  ];
+  return {
+    actions,
+    body,
+  };
 };

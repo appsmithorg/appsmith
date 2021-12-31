@@ -12,6 +12,7 @@ import { ReactComponent as RecorderNoPermissionIcon } from "assets/icons/widget/
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { hexToRgb, ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 export enum RecorderStatusTypes {
   PERMISSION_PROMPT = "PERMISSION_PROMPT",
@@ -62,7 +63,7 @@ const RightContainer = styled.div`
 `;
 
 const TimerContainer = styled.div<ThemeProp>`
-  color: ${({ theme }) => theme.colors.button.disabled.bgColor};
+  color: ${Colors.GREY_4};
 `;
 
 interface RecorderLeftButtonStyleProps {
@@ -157,6 +158,11 @@ const StyledRecorderLeftButton = styled(Button)<
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      > svg {
+        path, circle {
+          fill: ${theme.colors.button.disabled.textColor};
+        }
+      } 
     }
   `}
 `;
@@ -538,19 +544,19 @@ export interface RecorderComponentProps {
   isDisabled: boolean;
   onRecordingStart: () => void;
   onRecordingComplete: (blobUrl?: string, blob?: Blob) => void;
-  value?: Blob;
+  blobUrl?: string;
   width: number;
 }
 
 function AudioRecorderComponent(props: RecorderComponentProps) {
   const {
     backgroundColor,
+    blobUrl,
     height,
     iconColor,
     isDisabled,
     onRecordingComplete,
     onRecordingStart,
-    value,
     width,
   } = props;
 
@@ -600,10 +606,14 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
   }, [error]);
 
   useEffect(() => {
-    if (recorderStatus !== RecorderStatusTypes.DEFAULT && value === undefined) {
+    if (
+      recorderStatus !== RecorderStatusTypes.PERMISSION_PROMPT &&
+      recorderStatus !== RecorderStatusTypes.DEFAULT &&
+      blobUrl === undefined
+    ) {
       resetRecorder();
     }
-  }, [value]);
+  }, [blobUrl]);
 
   const dimension = useMemo(() => {
     if (containerWidth > height) {

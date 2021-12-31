@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -69,4 +70,13 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain 
     @Transient
     public Set<String> userPermissions = new HashSet<>();
 
+    // This field will be used to store the default/root resource IDs for branched resources generated for git
+    // connected applications and will be used to connect resources across the branches
+    @JsonIgnore
+    DefaultResources defaultResources;
+
+    // This field will only be used for git related functionality to sync the action object across different instances.
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
+    String gitSyncId;
 }

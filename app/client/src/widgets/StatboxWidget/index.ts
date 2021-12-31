@@ -13,6 +13,7 @@ export const CONFIG = {
   defaults: {
     rows: 3.5 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     widgetName: "Statbox",
     backgroundColor: "white",
     children: [],

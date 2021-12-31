@@ -79,6 +79,27 @@ describe("Input Widget Functionality", function() {
       .should("contain", this.data.placeholder);
     cy.get(publish.backToEditor).click({ force: true });
   });
+
+  it("isSpellCheck: true", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.togglebar(commonlocators.spellCheck + " " + "input");
+    cy.PublishtheApp();
+    cy.get(publish.inputWidget + " " + "input")
+      .invoke("attr", "spellcheck")
+      .should("eq", "true");
+    cy.get(publish.backToEditor).click({ force: true });
+  });
+
+  it("isSpellCheck: false", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.togglebarDisable(commonlocators.spellCheck + " " + "input");
+    cy.PublishtheApp();
+    cy.get(publish.inputWidget + " " + "input")
+      .invoke("attr", "spellcheck")
+      .should("eq", "false");
+    cy.get(publish.backToEditor).click({ force: true });
+  });
+
   it("Input Widget Functionality To Check Disabled Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
@@ -136,22 +157,26 @@ describe("Input Widget Functionality", function() {
 
   it("Input Functionality To check currency input type", function() {
     cy.openPropertyPane("inputwidget");
-    cy.selectDropdownValue(commonlocators.dataType, "Currency");
-    cy.togglebar(commonlocators.allowCurrencyChange);
     cy.testJsontext("regex", "");
-    cy.selectDropdownValue(commonlocators.currencyType, "EUR - Euro");
-    cy.selectDropdownValue(commonlocators.decimalType, "1");
-
     cy.get(widgetsPage.innertext)
       .click()
       .clear()
       .type("13242.2");
-
+    cy.selectDropdownValue(commonlocators.dataType, "Currency");
+    cy.selectDropdownValue(commonlocators.decimalType, "1");
+    cy.togglebar(commonlocators.allowCurrencyChange);
+    cy.selectDropdownValue(commonlocators.currencyType, "EUR - Euro");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .focus({ force: true })
+      .blur();
+    cy.wait(1000);
     cy.get(commonlocators.inputCurrencyChangeType)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal("€");
       });
+    cy.closePropertyPane("inputwidget");
     cy.get(widgetsPage.innertext)
       .invoke("attr", "value")
       .then((text) => {
@@ -160,10 +185,11 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input Functionality To check phone number input type", function() {
-    // cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.innertext)
       .click()
       .clear();
+    cy.openPropertyPane("inputwidget");
+    cy.wait(1000);
     cy.selectDropdownValue(commonlocators.dataType, "Phone Number");
     cy.get(commonlocators.inputCountryCodeChangeType)
       .invoke("text")

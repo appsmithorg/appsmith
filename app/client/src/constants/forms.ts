@@ -33,3 +33,4 @@ export const WELCOME_FORM_ROLE_NAME_FIELD_NAME = "role_name";
 export const WELCOME_FORM_USECASE_FIELD_NAME = "useCase";
 
 export const SETTINGS_FORM_NAME = "SettingsForm";
+export const WELCOME_NON_SUPER_FORM_NAME = "WelcomeNonSuperSetupForm";

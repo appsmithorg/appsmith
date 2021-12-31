@@ -55,14 +55,19 @@ export default function Link({ setting }: SettingComponentProps) {
   } else if (setting.action) {
     linkProps.onClick = () => {
       if (setting.action) {
-        dispatch(setting.action());
+        setting.action(dispatch);
       }
     };
   }
   return (
-    <LinkWrapper className={setting.isHidden ? "hide" : ""}>
-      <StyledLink {...linkProps}>
-        <LinkLabel>{createMessage(() => setting.label || "")}</LinkLabel>
+    <LinkWrapper
+      className={setting.isHidden ? "hide" : ""}
+      data-testid="admin-settings-link"
+    >
+      <StyledLink data-testid="admin-settings-link-anchor" {...linkProps}>
+        <LinkLabel data-testid="admin-settings-link-label">
+          {createMessage(() => setting.label || "")}
+        </LinkLabel>
         &nbsp;
         <StyledText type={TextType.P1}>READ MORE</StyledText>
         &nbsp;

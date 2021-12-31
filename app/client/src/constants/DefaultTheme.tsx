@@ -43,43 +43,6 @@ export enum Skin {
   DARK,
 }
 
-export const hideScrollbar = css`
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-    -webkit-appearance: none;
-  }
-`;
-
-export const thinScrollbar = css`
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-  }
-  &:hover {
-    ::-webkit-scrollbar-thumb {
-      background: ${Colors.PORCELAIN};
-      border-radius: 10px;
-    }
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
-`;
-
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -99,67 +62,45 @@ export const getTypographyByKey = (
 
 export const BlueprintControlTransform = css`
   && {
+    .${Classes.CONTROL}.${Classes.DISABLED} {
+      color: ${Colors.GREY_8};
+    }
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
         background: ${(props) => props.theme.colors.primaryOld};
         box-shadow: none;
-        border: 2px solid ${(props) => props.theme.colors.primaryOld};
+        border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        background: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &.${Classes.SWITCH}
-        input:checked:disabled
-        ~ .${Classes.CONTROL_INDICATOR} {
+      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
         opacity: 0.5;
       }
-    }
-
-    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
-      border-radius: 0;
+      & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid ${Colors.GREY_5};
+      }
     }
 
     .${Classes.SWITCH} {
+      & .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
       input:checked ~ .${Classes.CONTROL_INDICATOR} {
         &::before {
           left: calc(105% - 1em);
         }
       }
-
-      & .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
-        &::before {
-          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
-        }
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${(props) => props.theme.colors.primaryOld};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
+      input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${Colors.GREY_3};
+        border: 1px solid ${Colors.GREY_5};
       }
     }
 
     .${Classes.CONTROL_INDICATOR} {
-      box-shadow: none;
-      background: none;
-      border: 2px solid ${Colors.SLATE_GRAY};
       &::before {
         position: absolute;
-        left: -2px;
-        top: -2px;
+        left: -1px;
+        top: -1px;
       }
     }
   }
@@ -505,6 +446,42 @@ export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+  }
+`;
 // export const adsTheme: any = {
 //   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
 // };
@@ -568,6 +545,7 @@ const darkShades = [
   "#FFFFFF",
   "#157A96",
   "#090707",
+  "#FFDEDE",
 ] as const;
 
 const lightShades = [
@@ -589,6 +567,7 @@ const lightShades = [
   "#858282",
   "#000000",
   "#F86A2B",
+  "#FFDEDE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -602,19 +581,19 @@ type buttonVariant = {
 };
 
 type ButtonVariantColor = {
-  solid: {
+  primary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
     textColor: Color;
   };
-  outline: {
+  secondary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
     textColor: Color;
   };
-  ghost: {
+  tertiary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
@@ -754,6 +733,7 @@ type ColorType = {
       disabledBg: ShadeColor;
     };
     menu: {
+      border: ShadeColor;
       bg: ShadeColor;
       hover: ShadeColor;
       text: ShadeColor;
@@ -898,6 +878,7 @@ type ColorType = {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
+    iconBg: ShadeColor;
     user: {
       textColor: ShadeColor;
     };
@@ -1534,81 +1515,81 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
-      solid: {
+      primary: {
         bgColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
-      solid: {
+      primary: {
         bgColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_OUTLINE_HOVER,
         textColor: Colors.WARNING_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
-      solid: {
+      primary: {
         bgColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
         textColor: Colors.DANGER_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
-      solid: {
+      primary: {
         bgColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
         textColor: Colors.INFO_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
-      solid: {
+      primary: {
         bgColor: Colors.GRAY,
         hoverColor: Colors.CHARCOAL,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GRAY,
         hoverColor: Colors.Gallery,
         textColor: Colors.GRAY,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.MERCURY,
       },
     },
@@ -1720,6 +1701,7 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menu: {
+      border: darkShades[3],
       bg: darkShades[3],
       text: darkShades[9],
       hover: darkShades[4],
@@ -1863,6 +1845,7 @@ export const dark: ColorType = {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
+    iconBg: darkShades[12],
     user: {
       textColor: darkShades[7],
     },
@@ -2170,81 +2153,81 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
-      solid: {
+      primary: {
         bgColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
-      solid: {
+      primary: {
         bgColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_OUTLINE_HOVER,
         textColor: Colors.WARNING_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
-      solid: {
+      primary: {
         bgColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
         textColor: Colors.DANGER_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
-      solid: {
+      primary: {
         bgColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
         textColor: Colors.INFO_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
-      solid: {
+      primary: {
         bgColor: Colors.GRAY,
         hoverColor: Colors.CHARCOAL,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GRAY,
         hoverColor: Colors.Gallery,
         textColor: Colors.GRAY,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.MERCURY,
       },
     },
@@ -2356,7 +2339,8 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menu: {
-      bg: lightShades[11],
+      border: lightShades[13],
+      bg: lightShades[0],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
@@ -2500,6 +2484,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: lightShades[5],
+    iconBg: lightShades[18],
     user: {
       textColor: lightShades[9],
     },
@@ -2572,7 +2557,7 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[0],
+    bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
     dividerBg: lightShades[13],

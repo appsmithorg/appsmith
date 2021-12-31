@@ -5,7 +5,7 @@ import { CommentThreadPopoverStyles } from "./commentThreadPopovers";
 import { UppyStyles } from "./uppy";
 import { PortalStyles } from "./portals";
 import { DialogStyles } from "./dialogs";
-import { CodemirrorHintStyles } from "./CodmirrorHintStyles";
+import { CodemirrorHintStyles } from "./CodemirrorHintStyles";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export default function GlobalStyles() {

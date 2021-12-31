@@ -40,7 +40,7 @@ const is404orAuthPath = () => {
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   const branch = getCurrentGitBranch(store.getState());
   if (branch) {
-    config.headers.branch = branch;
+    config.headers.branchName = branch;
   }
   return { ...config, timer: performance.now() };
 };
@@ -122,7 +122,8 @@ export const apiFailureResponseInterceptor = (error: any) => {
       const errorData = error.response.data.responseMeta;
       if (
         errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-        errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND
+        (errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND ||
+          errorData.error.code === SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE)
       ) {
         return Promise.reject({
           code: ERROR_CODES.PAGE_NOT_FOUND,

@@ -88,6 +88,17 @@ class RichTextEditorWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "isToolbarHidden",
             label: "Hide toolbar",
             helpText: "Controls the visibility of the toolbar",
@@ -100,7 +111,7 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the text is changed",
@@ -151,9 +162,15 @@ class RichTextEditorWidget extends BaseWidget<
       const converter = new showdown.Converter();
       defaultValue = converter.makeHtml(defaultValue);
     }
+    let defaultText = this.props.defaultText || "";
+    if (this.props.inputType === RTEFormats.MARKDOWN) {
+      const converter = new showdown.Converter();
+      defaultText = converter.makeHtml(defaultText);
+    }
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
+          defaultText={defaultText}
           defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
           isToolbarHidden={!!this.props.isToolbarHidden}
