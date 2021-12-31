@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import styled from "styled-components";
 import { pick } from "lodash";
 
@@ -53,6 +53,7 @@ function SelectField({
   schemaItem,
   ...rest
 }: SelectFieldProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction, updateWidgetMetaProperty } = useContext(FormContext);
 
   const { onFieldValidityChange } = useRegisterFieldValidity({
@@ -113,11 +114,11 @@ function SelectField({
         onFieldValidityChange(isValueValid);
 
         return (
-          <StyledSelectWrapper>
+          <StyledSelectWrapper ref={wrapperRef}>
             <DropDownComponent
               compactMode={false}
               disabled={schemaItem.isDisabled}
-              dropDownWidth={100}
+              dropDownWidth={wrapperRef.current?.clientWidth || 100}
               height={10}
               isFilterable={schemaItem.isFilterable}
               isLoading={false}
