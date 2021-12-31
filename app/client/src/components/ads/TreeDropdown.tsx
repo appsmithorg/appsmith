@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { find, findIndex, noop } from "lodash";
+import React, { useEffect, useRef, useState } from "react";
+import { find, findIndex, isEqual } from "lodash";
 import {
   PopoverInteractionKind,
   PopoverPosition,
@@ -22,12 +22,14 @@ export type TreeDropdownOption = DropdownOption & {
   className?: string;
   type?: string;
   icon?: React.ReactNode;
+  isChildrenOpen?: boolean;
+  selfIndex?: number[];
   args?: Array<any>;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 
-type TreeDropdownProps = {
+export type TreeDropdownProps = {
   optionTree: TreeDropdownOption[];
   selectedValue: string;
   getDefaults?: (value: any) => any;
@@ -122,13 +124,86 @@ const DropdownTarget = styled.div`
       border-color: var(--appsmith-input-focus-border-color);
     }
   }
-  &&&& .${Classes.BUTTON}:focus-visible {
-    border: 1px solid #191919;
-  }
   &&&& .${Classes.ICON} {
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
   }
 `;
+
+export function calculateNext(arr: number[], max: number) {
+  return [
+    ...arr.slice(0, arr.length - 1),
+    (arr[arr.length - 1] + 1) % (max + 1),
+  ];
+}
+
+export function calculatePrev(arr: number[], max: number) {
+  let lastNum = arr[arr.length - 1];
+  if (lastNum <= 0) lastNum = max;
+  else lastNum--;
+  return [...arr.slice(0, arr.length - 1), lastNum];
+}
+
+export function getItem(
+  arr: TreeDropdownOption[],
+  index: number[],
+): TreeDropdownOption | undefined {
+  if (index.length === 0) return undefined;
+  const firstIndex = index[0] ?? 0;
+  if (index.length === 1) return arr[firstIndex];
+  return getItem(arr[firstIndex]?.children ?? [], index.slice(1));
+}
+
+export function setItem(
+  arr: TreeDropdownOption[],
+  index: number[],
+  item: TreeDropdownOption,
+): TreeDropdownOption[] | undefined {
+  if (index.length === 0) return undefined;
+  const firstIndex = index[0] ?? 0;
+
+  let subItem = { ...arr[firstIndex] };
+  if (subItem.children && index.length > 1)
+    subItem.children = setItem(subItem.children, index.slice(1), item);
+  else subItem = item;
+
+  return [...arr.slice(0, firstIndex), subItem, ...arr.slice(firstIndex + 1)];
+}
+
+export function closeAllChildren(tree: TreeDropdownOption[]) {
+  return tree.map((x) => {
+    let data = x;
+    if (x.isChildrenOpen)
+      data = {
+        ...x,
+        isChildrenOpen: false,
+      };
+    if (x.children) data["children"] = closeAllChildren(x.children);
+    return data;
+  });
+}
+
+export function deepOpenChildren(tree: TreeDropdownOption[], index: number[]) {
+  return tree.map((x, i) => {
+    if (i !== index[0]) return x;
+    const data = x;
+    data["isChildrenOpen"] = true;
+    if (x?.children)
+      data["children"] = deepOpenChildren(data?.children ?? [], index.slice(1));
+    return x;
+  });
+}
+
+export function setSelfIndex(
+  tree: TreeDropdownOption[],
+  prevIndex = [],
+): TreeDropdownOption[] {
+  return tree.map((x, i) => {
+    const ob: any = { ...x };
+    ob.selfIndex = [...prevIndex, i];
+    if (ob.children) ob.children = setSelfIndex(ob.children, ob.selfIndex);
+    return ob;
+  });
+}
 
 function getSelectedOption(
   selectedValue: string,
@@ -162,16 +237,24 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     displayValue,
     getDefaults,
     onSelect,
-    optionTree,
     selectedLabelModifier,
     selectedValue,
     toggle,
   } = props;
+  const [optionTree, setOptionTree] = useState<TreeDropdownOption[]>(
+    setSelfIndex(props.optionTree),
+  );
   const [selectedOption, setSelectedOption] = useState<TreeDropdownOption>(
     getSelectedOption(selectedValue, defaultText, optionTree),
   );
-
+  const selectedOptionIndex = useRef([findIndex(optionTree, selectedOption)]);
+  const isKeyPressed = useRef(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isOpen) setOptionTree(closeAllChildren);
+  }, [isOpen]);
 
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
@@ -180,23 +263,54 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
       onSelect(option, defaultVal);
     }
+    setSelectedOption(option);
   };
 
   const handleOptionClick = (option: TreeDropdownOption) => {
-    return option.children
-      ? noop
-      : (e: any) => {
-          handleSelect(option);
-          setIsOpen(false);
-          props.onMenuToggle && props.onMenuToggle(false);
-          e?.stopPropagation && e.stopPropagation();
-        };
+    if (option.children)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return (e: any) => {
+        const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
+        if (
+          option?.children &&
+          selectedOpt?.children &&
+          isEqual(option, selectedOpt)
+        ) {
+          setOptionTree((prev) => {
+            if (selectedOpt.isChildrenOpen)
+              return (
+                setItem(closeAllChildren(prev), selectedOptionIndex.current, {
+                  ...selectedOpt,
+                  isChildrenOpen: false,
+                }) ?? prev
+              );
+            else
+              return deepOpenChildren(
+                closeAllChildren(prev),
+                selectedOptionIndex.current,
+              );
+          });
+          buttonRef.current?.focus();
+          if (isKeyPressed.current) {
+            setSelectedOption(selectedOpt.children[0]);
+            if (selectedOpt?.children[0]?.selfIndex)
+              selectedOptionIndex.current = selectedOpt.children[0].selfIndex;
+          }
+        }
+      };
+    return (e: any) => {
+      handleSelect(option);
+      setIsOpen(false);
+      props.onMenuToggle && props.onMenuToggle(false);
+      e?.stopPropagation && e.stopPropagation();
+    };
   };
 
   function renderTreeOption(option: TreeDropdownOption) {
     const isSelected =
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
+
     return (
       <MenuItem
         active={isSelected}
@@ -205,8 +319,16 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         intent={option.intent}
         key={option.value}
         onClick={handleOptionClick(option)}
+        onMouseEnter={() => {
+          if (!isKeyPressed.current) {
+            if (option.selfIndex)
+              selectedOptionIndex.current = option.selfIndex;
+          }
+          isKeyPressed.current = false;
+        }}
         popoverProps={{
           minimal: true,
+          isOpen: option.isChildrenOpen,
           interactionKind: PopoverInteractionKind.CLICK,
           position: PopoverPosition.RIGHT_TOP,
           targetProps: { onClick: (e: any) => e.stopPropagation() },
@@ -226,6 +348,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const shouldOpen = useRef(true);
 
   const handleKeydown = (e: React.KeyboardEvent) => {
+    isKeyPressed.current = true;
     switch (e.key) {
       case "Escape":
         if (isOpen) {
@@ -240,22 +363,35 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       case " ":
       case "Enter":
         if (isOpen) {
-          handleOptionClick(selectedOption)(e);
-          shouldOpen.current = false;
+          const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
+          if (selectedOpt?.children) {
+            handleOptionClick(selectedOpt)(e);
+          } else if (selectedOpt) {
+            handleOptionClick(selectedOpt)(e);
+            shouldOpen.current = false;
+          }
         } else {
           setIsOpen(true);
+          selectedOptionIndex.current = [findIndex(optionTree, selectedOption)];
           shouldOpen.current = true;
         }
         break;
       case "ArrowUp":
         e.preventDefault();
         if (isOpen) {
-          setSelectedOption((prevSelected: TreeDropdownOption) => {
-            let index = findIndex(optionTree, prevSelected);
-            if (index === 0) index = optionTree.length - 1;
-            else index--;
-            return optionTree[index];
-          });
+          let currentLength = optionTree.length;
+          if (selectedOptionIndex.current.length > 1)
+            currentLength =
+              getItem(optionTree, selectedOptionIndex.current.slice(0, -1))
+                ?.children?.length ?? 0;
+          selectedOptionIndex.current = calculatePrev(
+            selectedOptionIndex.current,
+            currentLength - 1,
+          );
+          const nextItem =
+            getItem(optionTree, selectedOptionIndex.current) ??
+            getSelectedOption(selectedValue, defaultText, optionTree);
+          setSelectedOption(nextItem);
         } else {
           setIsOpen(true);
         }
@@ -263,12 +399,19 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       case "ArrowDown":
         e.preventDefault();
         if (isOpen) {
-          setSelectedOption((prevSelected: TreeDropdownOption) => {
-            let index = findIndex(optionTree, prevSelected);
-            if (index === optionTree.length - 1) index = 0;
-            else index++;
-            return optionTree[index];
-          });
+          let currentLength = optionTree.length;
+          if (selectedOptionIndex.current.length > 1)
+            currentLength =
+              getItem(optionTree, selectedOptionIndex.current.slice(0, -1))
+                ?.children?.length ?? 0;
+          selectedOptionIndex.current = calculateNext(
+            selectedOptionIndex.current,
+            currentLength - 1,
+          );
+          const nextItem =
+            getItem(optionTree, selectedOptionIndex.current) ??
+            getSelectedOption(selectedValue, defaultText, optionTree);
+          setSelectedOption(nextItem);
         } else {
           setIsOpen(true);
         }
@@ -295,6 +438,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             ? "code-highlight " + replayHighlightClass
             : replayHighlightClass
         }`}
+        elementRef={buttonRef}
         onKeyDown={handleKeydown}
         rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={
