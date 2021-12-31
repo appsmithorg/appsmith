@@ -17,6 +17,8 @@ import java.util.Set;
 @Setter
 public class ApplicationJson {
 
+    Integer version = 1;
+
     Application exportedApplication;
 
     List<Datasource> datasourceList;

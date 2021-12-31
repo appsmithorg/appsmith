@@ -44,6 +44,7 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
+import { limitDecimalValue, getSeparators } from "./utilities";
 
 /**
  * All design system component specific logic goes here.
@@ -309,10 +310,74 @@ class InputComponent extends React.Component<
   InputComponentProps,
   InputComponentState
 > {
+  groupSeparator: string;
+  decimalSeparator: string;
   constructor(props: InputComponentProps) {
     super(props);
     this.state = { showPassword: false };
+    const separators = getSeparators();
+    this.groupSeparator = separators.groupSeparator;
+    this.decimalSeparator = separators.decimalSeparator;
   }
+
+  componentDidMount() {
+    if (this.props.inputType === InputTypes.CURRENCY) {
+      const element: any = document.querySelectorAll(
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+      );
+      if (element !== null) {
+        element[0].addEventListener("click", this.onIncrementButtonClick);
+        element[1].addEventListener("click", this.onDecrementButtonClick);
+      }
+    }
+  }
+
+  componentDidUpdate(prevProps: InputComponentProps) {
+    if (
+      this.props.inputType === InputTypes.CURRENCY &&
+      this.props.inputType !== prevProps.inputType
+    ) {
+      const element: any = document.querySelectorAll(
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+      );
+      if (element !== null) {
+        element[0].addEventListener("click", this.onIncrementButtonClick);
+        element[1].addEventListener("click", this.onDecrementButtonClick);
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.inputType === InputTypes.CURRENCY) {
+      const element: any = document.querySelectorAll(
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+      );
+      if (element !== null) {
+        element[0].removeEventListener("click", this.onIncrementButtonClick);
+        element[1].removeEventListener("click", this.onDecrementButtonClick);
+      }
+    }
+  }
+
+  updateValueOnButtonClick = (type: number) => {
+    const deFormattedValue: string | number = this.props.value
+      .split(this.groupSeparator)
+      .join("");
+    const stepSize = this.props.stepSize || 1;
+    this.props.onValueChange(
+      String(Number(deFormattedValue) + stepSize * type),
+    );
+  };
+
+  onIncrementButtonClick = (e: React.MouseEvent) => {
+    this.updateValueOnButtonClick(1);
+    e.preventDefault();
+  };
+
+  onDecrementButtonClick = (e: React.MouseEvent) => {
+    this.updateValueOnButtonClick(-1);
+    e.preventDefault();
+  };
 
   setFocusState = (isFocused: boolean) => {
     this.props.onFocusChange(isFocused);
@@ -326,40 +391,33 @@ class InputComponent extends React.Component<
     this.props.onValueChange(event.target.value);
   };
 
-  onNumberChange = (valueAsNum: number, valueAsString: string) => {
+  onNumberChange = (
+    valueAsNum: number,
+    valueAsString: string,
+    inputElement: HTMLInputElement,
+  ) => {
     if (this.props.inputType === InputTypes.CURRENCY) {
-      const fractionDigits = this.props.decimalsInCurrency || 0;
-      const currentIndexOfDecimal = valueAsString.indexOf(".");
-      const indexOfDecimal = valueAsString.length - fractionDigits - 1;
-      if (
-        valueAsString.includes(".") &&
-        currentIndexOfDecimal <= indexOfDecimal
-      ) {
-        let value = valueAsString.split(",").join("");
-        if (value) {
-          const locale = navigator.languages?.[0] || "en-US";
-          const formatter = new Intl.NumberFormat(locale, {
-            style: "decimal",
-            minimumFractionDigits: fractionDigits,
-          });
-          const decimalValueArray = value.split(".");
-          //remove extra digits after decimal point
-          if (
-            this.props.decimalsInCurrency &&
-            decimalValueArray[1].length > this.props.decimalsInCurrency
-          ) {
-            value =
-              decimalValueArray[0] +
-              "." +
-              decimalValueArray[1].substr(0, this.props.decimalsInCurrency);
-          }
-          const formattedValue = formatter.format(parseFloat(value));
-          this.props.onValueChange(formattedValue);
+      //handle this only when input is focussed
+      if (inputElement.className.includes("focus-visible")) {
+        const fractionDigits = this.props.decimalsInCurrency || 0;
+        const currentIndexOfDecimal = valueAsString.indexOf(
+          this.decimalSeparator,
+        );
+        const indexOfDecimal = valueAsString.length - fractionDigits - 1;
+        if (
+          valueAsString.includes(this.decimalSeparator) &&
+          currentIndexOfDecimal <= indexOfDecimal
+        ) {
+          const value = limitDecimalValue(
+            this.props.decimalsInCurrency,
+            valueAsString,
+            this.decimalSeparator,
+            this.groupSeparator,
+          );
+          this.props.onValueChange(value);
         } else {
-          this.props.onValueChange("");
+          this.props.onValueChange(valueAsString);
         }
-      } else {
-        this.props.onValueChange(valueAsString);
       }
     } else {
       this.props.onValueChange(valueAsString);
@@ -436,6 +494,14 @@ class InputComponent extends React.Component<
     }
   };
 
+  onNumberInputBlur = () => {
+    this.setFocusState(false);
+  };
+
+  onNumberInputFocus = () => {
+    this.setFocusState(true);
+  };
+
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon(
       this.props.inputType,
@@ -463,8 +529,8 @@ class InputComponent extends React.Component<
         minorStepSize={
           minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
         }
-        onBlur={() => this.setFocusState(false)}
-        onFocus={() => this.setFocusState(true)}
+        onBlur={this.onNumberInputBlur}
+        onFocus={this.onNumberInputFocus}
         onKeyDown={this.onKeyDown}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
