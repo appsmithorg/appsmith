@@ -18,6 +18,7 @@ import {
   Schema,
   SchemaItem,
   getBindingTemplate,
+  FieldComponentBaseProps,
 } from "./constants";
 
 type Obj = Record<string, any>;
@@ -311,10 +312,12 @@ class SchemaParser {
     const fieldType = options.fieldType || fieldTypeFor(currSourceData);
     const FieldComponent = FIELD_MAP[fieldType];
     const { label, name } = SchemaParser.nameAndLabel(key);
-    const { endTemplate, startTemplate } = getBindingTemplate(widgetName);
+    const bindingTemplate = getBindingTemplate(widgetName);
 
     const defaultValue = (() => {
       if (isCustomField) return "";
+
+      const { endTemplate, startTemplate } = bindingTemplate;
 
       const path = sourceDataPath
         ? `${startTemplate}${sourceDataPath}${endTemplate}`
@@ -336,18 +339,36 @@ class SchemaParser {
       children = SchemaParser.convertArrayToSchema(sanitizedOptions);
     }
 
+    const componentDefaultValues = (() => {
+      const { componentDefaultValues } = FieldComponent;
+      let defaultValues = componentDefaultValues as FieldComponentBaseProps;
+      if (typeof componentDefaultValues === "function") {
+        defaultValues = componentDefaultValues({
+          sourceDataPath,
+          fieldType,
+          bindingTemplate,
+          isCustomField,
+          sourceData: currSourceData,
+        });
+      }
+
+      return {
+        ...defaultValues,
+        label: label || defaultValues.label,
+      };
+    })();
+
     return {
-      ...FieldComponent.componentDefaultValues,
       children,
       dataType,
       defaultValue,
       fieldType,
       sourceData: currSourceData,
       isCustomField,
-      label,
       name,
       identifier: name,
       position: -1,
+      ...componentDefaultValues,
     };
   };
 

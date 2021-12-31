@@ -80,10 +80,23 @@ export type SchemaItem = FieldComponentBaseProps & {
   identifier: string;
 };
 
+export type ComponentDefaultValuesFnProps<TSourceData = any> = {
+  sourceDataPath?: string;
+  fieldType: FieldType;
+  bindingTemplate: {
+    endTemplate: string;
+    startTemplate: string;
+  };
+  isCustomField: boolean;
+  sourceData: TSourceData;
+};
+
 // This defines a react component with componentDefaultValues property attached to it.
 type FieldComponent = {
   (props: BaseFieldComponentProps): JSX.Element | null;
-  componentDefaultValues: FieldComponentBaseProps;
+  componentDefaultValues:
+    | FieldComponentBaseProps
+    | ((props: ComponentDefaultValuesFnProps) => FieldComponentBaseProps);
   isValidType?: (value: any, options?: any) => boolean;
 };
 

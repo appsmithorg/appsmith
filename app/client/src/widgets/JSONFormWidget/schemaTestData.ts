@@ -61,7 +61,7 @@ const initialDataset = {
         },
         dob: {
           closeOnSelection: false,
-          dateFormat: "YYYY-MM-DD HH:mm",
+          dateFormat: "MM/DD/YYYY",
           isDisabled: false,
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
@@ -71,7 +71,8 @@ const initialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            // eslint-disable-next-line prettier/prettier
+            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATE,
           sourceData: "10/12/2021",
           isCustomField: false,
@@ -161,7 +162,7 @@ const initialDataset = {
                 },
                 graduationDate: {
                   closeOnSelection: false,
-                  dateFormat: "YYYY-MM-DD HH:mm",
+                  dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
@@ -171,7 +172,7 @@ const initialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                    '{{((sourceData, formData, fieldState) => (moment(sourceData.education[0].graduationDate, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -369,7 +370,7 @@ const withRemovedKeyFromInitialDataset = {
         },
         dob: {
           closeOnSelection: false,
-          dateFormat: "YYYY-MM-DD HH:mm",
+          dateFormat: "MM/DD/YYYY",
           isDisabled: false,
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
@@ -379,7 +380,8 @@ const withRemovedKeyFromInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            // eslint-disable-next-line prettier/prettier
+            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATE,
           sourceData: "10/12/2021",
           isCustomField: false,
@@ -453,7 +455,7 @@ const withRemovedKeyFromInitialDataset = {
                 },
                 graduationDate: {
                   closeOnSelection: false,
-                  dateFormat: "YYYY-MM-DD HH:mm",
+                  dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
@@ -463,7 +465,7 @@ const withRemovedKeyFromInitialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                    '{{((sourceData, formData, fieldState) => (moment(sourceData.education[0].graduationDate, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -661,7 +663,7 @@ const withRemovedAddedKeyToInitialDataset = {
         },
         dob: {
           closeOnSelection: false,
-          dateFormat: "YYYY-MM-DD HH:mm",
+          dateFormat: "MM/DD/YYYY",
           isDisabled: false,
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
@@ -671,7 +673,8 @@ const withRemovedAddedKeyToInitialDataset = {
           children: {},
           dataType: DataType.STRING,
           defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.dob))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            // eslint-disable-next-line prettier/prettier
+            '{{((sourceData, formData, fieldState) => (moment(sourceData.dob, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
           fieldType: FieldType.DATE,
           sourceData: "10/12/2021",
           isCustomField: false,
@@ -745,7 +748,7 @@ const withRemovedAddedKeyToInitialDataset = {
                 },
                 graduationDate: {
                   closeOnSelection: false,
-                  dateFormat: "YYYY-MM-DD HH:mm",
+                  dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
@@ -755,7 +758,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   children: {},
                   dataType: DataType.STRING,
                   defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].graduationDate))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                    '{{((sourceData, formData, fieldState) => (moment(sourceData.education[0].graduationDate, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,

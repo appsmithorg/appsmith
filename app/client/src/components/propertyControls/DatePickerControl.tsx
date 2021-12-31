@@ -1,4 +1,5 @@
 import React from "react";
+import { get } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import moment from "moment-timezone";
 import styled from "styled-components";
@@ -55,8 +56,15 @@ class DatePickerControl extends BaseControl<
 
   constructor(props: DatePickerControlProps) {
     super(props);
+
+    const evaluatedValue = get(
+      props.widgetProperties.__evaluation__?.evaluatedValues || {},
+      props.propertyName,
+      "",
+    ) as string;
+
     this.state = {
-      selectedDate: props.propertyValue,
+      selectedDate: evaluatedValue,
     };
   }
 
@@ -70,10 +78,10 @@ class DatePickerControl extends BaseControl<
       ? this.validateDate(moment(this.state.selectedDate, dateFormat).toDate())
       : true;
     const value =
-      this.props.propertyValue && isValid
+      this.state.selectedDate && isValid
         ? version === 2
-          ? new Date(this.props.propertyValue)
-          : this.parseDate(this.props.propertyValue)
+          ? new Date(this.state.selectedDate)
+          : this.parseDate(this.state.selectedDate)
         : null;
     return (
       <DatePickerControlWrapper isValid>

@@ -11,9 +11,11 @@ import {
   FieldComponentBaseProps,
   BaseFieldComponentProps,
   FieldEventProps,
+  ComponentDefaultValuesFnProps,
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dateFormatOptions } from "../widget/propertyConfig/properties/date";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -26,7 +28,7 @@ type DateComponentProps = FieldComponentBaseProps &
     shortcuts: boolean;
   };
 
-const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
+const COMPONENT_DEFAULT_VALUES = {
   closeOnSelection: false,
   dateFormat: "YYYY-MM-DD HH:mm",
   isDisabled: false,
@@ -35,6 +37,38 @@ const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
   minDate: "1920-12-31T18:30:00.000Z",
   shortcuts: false,
   isVisible: true,
+};
+
+const componentDefaultValues = ({
+  bindingTemplate,
+  isCustomField,
+  sourceData,
+  sourceDataPath,
+}: ComponentDefaultValuesFnProps<string>): DateComponentProps => {
+  let defaultValue = "";
+  let dateFormat = COMPONENT_DEFAULT_VALUES.dateFormat;
+
+  if (!isCustomField) {
+    const format = dateFormatOptions.find(({ value: format }) => {
+      return moment(sourceData, format, true).isValid();
+    });
+
+    if (format) {
+      dateFormat = format.value;
+    }
+
+    if (sourceDataPath && format) {
+      const { endTemplate, startTemplate } = bindingTemplate;
+      const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
+      defaultValue = `${startTemplate}${defaultValueString}${endTemplate}`;
+    }
+  }
+
+  return {
+    ...COMPONENT_DEFAULT_VALUES,
+    defaultValue,
+    dateFormat,
+  };
 };
 
 type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
@@ -118,7 +152,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
   );
 }
 
-DateField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+DateField.componentDefaultValues = componentDefaultValues;
 DateField.isValidType = isValidType;
 
 export default DateField;
