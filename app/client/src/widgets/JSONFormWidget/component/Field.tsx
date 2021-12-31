@@ -23,7 +23,8 @@ type StyledWrapperProps = {
 };
 
 const StyledWrapper = styled.div<StyledWrapperProps>`
-  margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
+  margin-bottom: ${({ direction }) =>
+    direction === "row" ? 0 : FIELD_MARGIN_BOTTOM}px;
   display: flex;
   flex-direction: ${({ direction }) => direction};
 
