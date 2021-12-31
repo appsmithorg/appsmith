@@ -41,7 +41,7 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import PagesContainer from "pages/Editor/Explorer/Pages/PagesContainer";
+import Pages from "pages/Editor/Explorer/Pages";
 import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 
@@ -216,7 +216,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         {/* PagesContainer */}
-        <PagesContainer />
+        <Pages />
         {/* Popover that contains the bindings info */}
         <EntityProperties />
         {/* SWITCHER */}
