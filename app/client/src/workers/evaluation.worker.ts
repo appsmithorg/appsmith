@@ -1,5 +1,5 @@
 // Workers do not have access to log.error
-/* eslint-disable no-console */
+/* eslint-disable no-console,@typescript-eslint/no-unused-vars */
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
@@ -86,6 +86,7 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
+          metaUpdatePaths,
           shouldReplay = true,
           unevalTree,
           widgets,
@@ -129,7 +130,10 @@ ctx.addEventListener(
             if (shouldReplay) {
               replayMap[CANVAS]?.update(widgets);
             }
-            const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
+            const updateResponse = dataTreeEvaluator.updateDataTree(
+              unevalTree,
+              metaUpdatePaths,
+            );
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
@@ -218,7 +222,7 @@ ctx.addEventListener(
         if (!dataTreeEvaluator) {
           return true;
         }
-        dataTreeEvaluator.clearPropertyCache(propertyPath);
+        // dataTreeEvaluator.clearPropertyCache(propertyPath);
         return true;
       }
       case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
@@ -226,7 +230,7 @@ ctx.addEventListener(
         if (!dataTreeEvaluator) {
           return true;
         }
-        dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
+        // dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {

@@ -2,12 +2,12 @@ import {
   actionChannel,
   all,
   call,
+  delay,
   fork,
   put,
   select,
   spawn,
   take,
-  delay,
 } from "redux-saga/effects";
 
 import {
@@ -52,7 +52,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isUndefined } from "lodash";
+import { get, find, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -89,12 +89,17 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 const worker = new GracefulWorkerService(Worker);
 
 function* evaluateTreeSaga(
+  metaUpdates: ReduxAction<any>[],
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   shouldReplay?: boolean,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
   log.debug({ unevalTree });
+  const metaUpdatePaths = metaUpdates.map((update) => {
+    const widget = find(widgets, { widgetId: update.payload.widgetId });
+    return `${widget ? widget.widgetName : ""}.${update.payload.propertyName}`;
+  });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -106,6 +111,7 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
       widgets,
       shouldReplay,
+      metaUpdatePaths,
     },
   );
   const {
@@ -364,12 +370,19 @@ export function* validateProperty(
 function evalQueueBuffer() {
   let canTake = false;
   let postEvalActions: any = [];
+  const metaUpdates: Set<string> = new Set<string>();
   const take = () => {
     if (canTake) {
-      const resp = postEvalActions;
+      const postEval = postEvalActions;
+      const meta = Array.from(metaUpdates);
       postEvalActions = [];
+      metaUpdates.clear();
       canTake = false;
-      return { postEvalActions: resp, type: "BUFFERED_ACTION" };
+      return {
+        postEvalActions: postEval,
+        metaUpdates: meta,
+        type: "BUFFERED_ACTION",
+      };
     }
   };
   const flush = () => {
@@ -390,6 +403,15 @@ function evalQueueBuffer() {
     if (action.postEvalActions) {
       postEvalActions.push(...action.postEvalActions);
     }
+    if (action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      action.payload.forEach((batchedAction) => {
+        if (batchedAction.type === ReduxActionTypes.SET_META_PROP) {
+          metaUpdates.add(batchedAction);
+        }
+      });
+    }
   };
 
   return {
@@ -409,7 +431,7 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions);
+  yield fork(evaluateTreeSaga, [], initAction.postEvalActions);
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -418,9 +440,22 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const metaUpdates: ReduxAction<any>[] = action.metaUpdates || [];
     if (shouldProcessBatchedAction(action)) {
+      if (action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        action.payload.forEach((batchedAction) => {
+          if (batchedAction.type === ReduxActionTypes.SET_META_PROP) {
+            metaUpdates.push(batchedAction);
+          }
+        });
+      }
       yield call(
         evaluateTreeSaga,
+        metaUpdates,
         action.postEvalActions,
         get(action, "payload.shouldReplay"),
       );

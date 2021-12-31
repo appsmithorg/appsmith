@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
   DependencyMap,
   EvalError,
@@ -50,7 +51,6 @@ import {
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
-import equal from "fast-deep-equal/es6";
 import {
   EXECUTION_PARAM_KEY,
   THIS_DOT_PARAMS_KEY,
@@ -83,13 +83,6 @@ export default class DataTreeEvaluator {
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
-  parsedValueCache: Map<
-    string,
-    {
-      value: any;
-      version: number;
-    }
-  > = new Map();
   logs: any[] = [];
   public hasCyclicalDependency = false;
   constructor(widgetConfigMap: WidgetTypeConfigMap) {
@@ -210,6 +203,7 @@ export default class DataTreeEvaluator {
 
   updateDataTree(
     unEvalTree: DataTree,
+    metaUpdatePaths?: string[],
   ): {
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
@@ -253,6 +247,26 @@ export default class DataTreeEvaluator {
       diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
+    if (metaUpdatePaths) {
+      metaUpdatePaths.forEach((path) => {
+        if (
+          differences.find(
+            // @ts-ignore
+            (diff) => convertPathToString(diff.path) === path,
+          ) === undefined
+        ) {
+          differences.push({
+            kind: "E",
+            // @ts-ignore
+            lhs: "",
+            // @ts-ignore
+            rhs: "",
+            path: _.toPath(path),
+          });
+        }
+      });
+    }
+
     if (differences.length === 0) {
       return {
         evaluationOrder: [],
@@ -559,7 +573,7 @@ export default class DataTreeEvaluator {
     const tree = _.cloneDeep(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
-        (currentTree: DataTree, fullPropertyPath: string) => {
+        (currentTree: DataTree, fullPropertyPath: string, i) => {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
@@ -621,11 +635,12 @@ export default class DataTreeEvaluator {
             const widgetEntity = entity;
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
               .defaultProperties;
-            const isDefaultProperty = !!Object.values(
-              defaultPropertyMap,
-            ).filter(
-              (defaultPropertyName) => propertyPath === defaultPropertyName,
-            ).length;
+            // const isDefaultProperty = !!Object.values(
+            //   defaultPropertyMap,
+            // ).filter(
+            //   (defaultPropertyName) => propertyPath === defaultPropertyName,
+            // ).length;
+            const hasDefaultProperty = propertyPath in defaultPropertyMap;
             if (propertyPath) {
               let parsedValue = this.validateAndParseWidgetProperty(
                 fullPropertyPath,
@@ -634,17 +649,13 @@ export default class DataTreeEvaluator {
                 resolvedFunctions,
                 evalPropertyValue,
                 unEvalPropertyValue,
-                isDefaultProperty,
               );
-              const hasDefaultProperty = propertyPath in defaultPropertyMap;
               if (hasDefaultProperty) {
                 const defaultProperty = defaultPropertyMap[propertyPath];
-                parsedValue = this.overwriteDefaultDependentProps(
-                  defaultProperty,
-                  parsedValue,
-                  fullPropertyPath,
-                  widgetEntity,
-                );
+                const defaultPropertyPath = `${entity.widgetName}.${defaultProperty}`;
+                if (sortedDependencies[i - 1] === defaultPropertyPath) {
+                  parsedValue = _.get(currentTree, defaultPropertyPath);
+                }
               }
               return _.set(currentTree, fullPropertyPath, parsedValue);
             }
@@ -730,29 +741,6 @@ export default class DataTreeEvaluator {
       this.hasCyclicalDependency = true;
       throw new CrashingError(e.message);
     }
-  }
-
-  getParsedValueCache(propertyPath: string) {
-    return (
-      this.parsedValueCache.get(propertyPath) || {
-        value: undefined,
-        version: 0,
-      }
-    );
-  }
-
-  clearPropertyCache(propertyPath: string) {
-    this.parsedValueCache.delete(propertyPath);
-  }
-
-  clearPropertyCacheOfWidget(widgetName: string) {
-    // TODO check if this loop mutating itself is safe
-    this.parsedValueCache.forEach((value, key) => {
-      const match = key.match(`${widgetName}.`);
-      if (match) {
-        this.parsedValueCache.delete(key);
-      }
-    });
   }
 
   getDynamicValue(
@@ -895,7 +883,6 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
-    isDefaultProperty: boolean,
   ): any {
     const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
     if (isPathADynamicTrigger(widget, propertyPath)) {
@@ -937,36 +924,8 @@ export default class DataTreeEvaluator {
     if (isPathADynamicTrigger(widget, propertyPath)) {
       return unEvalPropertyValue;
     } else {
-      const parsedCache = this.getParsedValueCache(fullPropertyPath);
-      // In case this is a default property, always set the cache even if the value remains the same so that the version
-      // in cache gets updated and the property dependent on default property updates accordingly.
-      if (!equal(parsedCache.value, parsed) || isDefaultProperty) {
-        this.parsedValueCache.set(fullPropertyPath, {
-          value: parsed,
-          version: Date.now(),
-        });
-      }
       return parsed;
     }
-  }
-
-  overwriteDefaultDependentProps(
-    defaultProperty: string,
-    propertyValue: any,
-    propertyPath: string,
-    entity: DataTreeWidget,
-  ) {
-    const defaultPropertyCache = this.getParsedValueCache(
-      `${entity.widgetName}.${defaultProperty}`,
-    );
-    const propertyCache = this.getParsedValueCache(propertyPath);
-    if (
-      propertyValue === undefined ||
-      propertyCache.version < defaultPropertyCache.version
-    ) {
-      return defaultPropertyCache.value;
-    }
-    return propertyValue;
   }
 
   saveResolvedFunctionsAndJSUpdates(
