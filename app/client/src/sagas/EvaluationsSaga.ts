@@ -88,18 +88,28 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
-function* evaluateTreeSaga(
-  metaUpdates: ReduxAction<any>[],
-  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-  shouldReplay?: boolean,
-) {
-  const unevalTree = yield select(getUnevaluatedDataTree);
-  const widgets = yield select(getWidgets);
-  log.debug({ unevalTree });
-  const metaUpdatePaths = metaUpdates.map((update) => {
+type MetaUpdates = ReduxAction<any>[];
+type evaluateTreeSagaParams = {
+  metaUpdates: MetaUpdates;
+  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>;
+  shouldReplay?: boolean;
+};
+
+const getWidgetMetaUpdatePaths = (widgets: any, metaUpdates: MetaUpdates) => {
+  return metaUpdates.map((update) => {
     const widget = find(widgets, { widgetId: update.payload.widgetId });
     return `${widget ? widget.widgetName : ""}.${update.payload.propertyName}`;
   });
+};
+
+function* evaluateTreeSaga({
+  metaUpdates,
+  postEvalActions,
+  shouldReplay,
+}: evaluateTreeSagaParams) {
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  const widgets = yield select(getWidgets);
+  log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -111,7 +121,7 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
       widgets,
       shouldReplay,
-      metaUpdatePaths,
+      metaUpdatePaths: getWidgetMetaUpdatePaths(widgets, metaUpdates),
     },
   );
   const {
@@ -431,7 +441,10 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, [], initAction.postEvalActions);
+  yield fork(evaluateTreeSaga, {
+    metaUpdates: [],
+    postEvalActions: initAction.postEvalActions,
+  });
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -453,12 +466,11 @@ function* evaluationChangeListenerSaga() {
           }
         });
       }
-      yield call(
-        evaluateTreeSaga,
+      yield call(evaluateTreeSaga, {
         metaUpdates,
-        action.postEvalActions,
-        get(action, "payload.shouldReplay"),
-      );
+        postEvalActions: action.postEvalActions,
+        shouldReplay: get(action, "payload.shouldReplay"),
+      });
     }
   }
 }
