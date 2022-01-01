@@ -4,6 +4,7 @@ import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.UQIDataFilterParams;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.Test;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -439,6 +439,56 @@ public class FilterDataServiceTest {
     }
 
     @Test
+    public void testFilterData_withTimestampClause_returnsCorrectValues() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"date\": \"2021-09-01 00:01:00\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"date\": \"2021-09-02 00:02:00\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"date\": \"2021-09-03 00:03:00\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
+                "  }\n" +
+                "]";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            List<Condition> conditionList = new ArrayList<>();
+
+            Condition condition = new Condition("date", "GTE", "2021-09-02 00:02:00");
+            conditionList.add(condition);
+
+            ArrayNode filteredData = filterDataService.filterData(items, conditionList);
+
+            assertEquals(2, filteredData.size());
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void generateLogicalOperatorTest() {
 
         String data = "[\n" +
@@ -523,7 +573,7 @@ public class FilterDataServiceTest {
             ConditionalOperator operator = condition.getOperator();
             List<Condition> conditions = (List<Condition>) condition.getValue();
 
-            String expression = filterDataService.generateLogicalExpression(conditions, new LinkedHashMap<>(), schema, operator);
+            String expression = filterDataService.generateLogicalExpression(conditions, new ArrayList<>(), schema, operator);
             assertThat(expression.equals("( \"i\" >= ? )  and (  ( \"d\" <= ? )  and (  ( \"a\" <= ? )  )  )  and (  ( \"u\" <= ? )  ) "));
 
         } catch (IOException e) {
@@ -580,7 +630,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -643,7 +694,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 1);
 
@@ -707,7 +759,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -771,7 +824,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 1);
 
@@ -834,7 +888,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -893,7 +948,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -961,7 +1017,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -980,7 +1037,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Michael Lawson\",\n" +
                 "    \"productName\": \"Chicken Sandwich\",\n" +
                 "    \"orderAmount\": 4.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"id\": \"\",\n" +
@@ -988,7 +1046,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
                 "    \"orderAmount\": 9.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"id\": \"\",\n" +
@@ -996,7 +1055,8 @@ public class FilterDataServiceTest {
                 "    \"userName\": \"Tobias Funke\",\n" +
                 "    \"productName\": \"Beef steak\",\n" +
                 "    \"orderAmount\": 19.99,\n" +
-                "    \"date\": \"2021-09-01\"\n" +
+                "    \"date\": \"2021-09-01\",\n" +
+                "    \"datetime\": \"2021-09-01T00:01:00.000Z\"\n" +
                 "  }\n" +
                 "]";
 
@@ -1020,7 +1080,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
@@ -1081,7 +1142,7 @@ public class FilterDataServiceTest {
 
             // Since the data type expected for orderAmount is float, but the value given is String, assert exception
             assertThrows(AppsmithPluginException.class,
-                    () -> filterDataService.filterDataNew(items, condition));
+                    () -> filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null)));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1131,7 +1192,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 3);
 
@@ -1189,7 +1251,8 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             // Since there are no null orderAmounts, the filtered data would be empty.
             assertEquals(filteredData.size(), 0);
@@ -1248,10 +1311,345 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, null));
 
             assertEquals(filteredData.size(), 2);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFilterDataNew_withTimestampClause_returnsCorrectValues() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"date\": \"2021-09-01 00:01:00\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"date\": \"2021-09-02 00:02:00\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"date\": \"2021-09-03 00:03:00\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"date\",\n" +
+                "        \"condition\": \"GTE\",\n" +
+                "        \"value\": \"2021-09-02 00:02:00\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items,new UQIDataFilterParams(condition, null,
+                    null, null));
+
+            assertEquals(filteredData.size(), 2);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testProjection() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
+                    List.of("id", "email"), null, null));
+
+            assertEquals(filteredData.size(), 2);
+
+            List<String> expectedColumns = List.of("id", "email");
+            List<String> returnedColumns = new ArrayList<>();
+            filteredData.get(0).fieldNames().forEachRemaining(columnName -> returnedColumns.add(columnName));
+            assertEquals(expectedColumns, returnedColumns);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testSortBy() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            List<Map<String, Object>> sortBy = new ArrayList<>();
+            Map<String, Object> sortCondition = new HashMap<>();
+            sortCondition.put("columnName", "orderAmount");
+            sortCondition.put("type", "DESCENDING");
+            sortBy.add(sortCondition);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    sortBy, null));
+
+            assertEquals(filteredData.size(), 2);
+
+            List<String> expectedOrder = List.of("9.99", "4.99");
+            List<String> returnedOrder = new ArrayList<>();
+            returnedOrder.add(filteredData.get(0).get("orderAmount").asText());
+            returnedOrder.add(filteredData.get(1).get("orderAmount").asText());
+            assertEquals(expectedOrder, returnedOrder);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testPagination() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"25\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            HashMap<String, String> paginateBy = new HashMap<>();
+            paginateBy.put("limit", "2");
+            paginateBy.put("offset", "1");
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
+                    null, paginateBy));
+
+            assertEquals(filteredData.size(), 2);
+
+            List<String> expectedOrderAmountValues = List.of("9.99", "19.99");
+            List<String> returnedOrderAmountValues = new ArrayList<>();
+            returnedOrderAmountValues.add(filteredData.get(0).get("orderAmount").asText());
+            returnedOrderAmountValues.add(filteredData.get(1).get("orderAmount").asText());
+            assertEquals(expectedOrderAmountValues, returnedOrderAmountValues);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testProjectionSortingAndPaginationTogether() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"20\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            List<String> projectColumns = List.of("id", "email", "orderAmount");
+
+            List<Map<String, Object>> sortBy = new ArrayList<>();
+            Map<String, Object> sortCondition = new HashMap<>();
+            sortCondition.put("columnName", "orderAmount");
+            sortCondition.put("type", "DESCENDING");
+            sortBy.add(sortCondition);
+
+            HashMap<String, String> paginateBy = new HashMap<>();
+            paginateBy.put("limit", "1");
+            paginateBy.put("offset", "1");
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
+                    projectColumns, sortBy,paginateBy));
+
+            assertEquals(filteredData.size(), 1);
+
+            String expectedOrderAmount = "9.99";
+            String returnedOrderAmount = filteredData.get(0).get("orderAmount").asText();
+            assertEquals(expectedOrderAmount, returnedOrderAmount);
         } catch (IOException e) {
             e.printStackTrace();
         }

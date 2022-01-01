@@ -18,7 +18,11 @@ import {
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
+import {
+  BatchPropertyUpdatePayload,
+  batchUpdateWidgetProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -28,7 +32,6 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
-import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -36,6 +39,7 @@ import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 
 import { getSearchQuery } from "utils/helpers";
+import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -86,6 +90,10 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -150,10 +158,11 @@ class AppViewer extends Component<Props> {
               executeAction: this.props.executeAction,
               updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
               resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+              batchUpdateWidgetProperty: this.props.batchUpdateWidgetProperty,
             }}
           >
             <ContainerWithComments>
-              <AppComments isInline />
+              <AppViewerCommentsSidebar />
               <AppViewerBodyContainer>
                 <AppViewerBody hasPages={this.props.pages.length > 1}>
                   {isInitialized && this.state.registered && (
@@ -217,6 +226,10 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: params,
     });
   },
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => dispatch(batchUpdateWidgetProperty(widgetId, updates)),
 });
 
 export default withRouter(

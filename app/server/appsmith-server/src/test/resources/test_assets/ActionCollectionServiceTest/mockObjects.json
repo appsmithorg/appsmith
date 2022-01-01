@@ -2,6 +2,9 @@
   "newPage": {
     "id": "testPageId",
     "applicationId": "testApplicationId",
+    "defaultResources": {
+      "pageId" : "testPageId"
+    },
     "unpublishedPage": {
       "name": "TestPage",
       "layouts": [
@@ -51,9 +54,13 @@
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1",
-        "testActionId2"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        },
+        {
+          "defaultTestActionId2": "testActionId2"
+        }
       ],
       "actions": [
         {
@@ -68,8 +75,10 @@
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        }
       ]
     }
   },
@@ -80,12 +89,18 @@
     "name": "testCollection",
     "pageId": "testPageId",
     "pluginId": "testPluginId",
-    "actionIds": [
-      "testActionId1",
-      "testActionId3"
+    "defaultToBranchedActionIdsMap": [
+      {
+        "defaultTestActionId1": "testActionId1"
+      },
+      {
+        "defaultTestActionId3": "testActionId3"
+      }
     ],
-    "archivedActionIds": [
-      "testActionId2"
+    "defaultToBranchedArchivedActionIdsMap": [
+      {
+        "defaultTestActionId2": "testActionId2"
+      }
     ],
     "actions": [
       {
@@ -107,17 +122,22 @@
     "organizationId": "testOrganizationId",
     "unpublishedCollection": {
       "id": "testCollectionId",
-      "applicationId": "testApplicationId",
       "organizationId": "testOrganizationId",
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1",
-        "testActionId3"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        },
+        {
+          "defaultTestActionId3": "testActionId3"
+        }
       ],
-      "archivedActionIds": [
-        "testActionId2"
+      "defaultToBranchedArchivedActionIdsMap": [
+        {
+          "defaultTestActionId2": "testActionId2"
+        }
       ],
       "actions": [
         {
@@ -137,8 +157,10 @@
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        }
       ]
     }
   }

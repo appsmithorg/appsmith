@@ -81,7 +81,11 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
               text="Sign In"
             />
           ) : (
-            <ProfileDropdown name={user.name} userName={user.username} />
+            <ProfileDropdown
+              name={user.name}
+              photoId={user?.photoId}
+              userName={user.username}
+            />
           )}
         </StyledDropDownContainer>
       )}

@@ -46,7 +46,6 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();
     cy.get(publish.backToEditor)
@@ -59,6 +58,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(explorer.property)
       .last()
       .click({ force: true });
+    cy.SearchEntityAndUnfold("FormTest");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

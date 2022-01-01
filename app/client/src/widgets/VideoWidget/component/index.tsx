@@ -46,6 +46,7 @@ export default function VideoComponent(props: VideoComponentProps) {
     <ReactPlayer
       controls={controls || true}
       height="100%"
+      muted={autoplay}
       onEnded={onEnded}
       onError={onError}
       onPause={onPause}

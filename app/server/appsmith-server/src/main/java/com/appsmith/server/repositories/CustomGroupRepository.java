@@ -1,8 +1,7 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Group;
-import reactor.core.publisher.Flux;
+import com.appsmith.server.repositories.ce.CustomGroupRepositoryCE;
 
-public interface CustomGroupRepository extends AppsmithRepository<Group> {
-    Flux<Group> getAllByOrganizationId(String organizationId);
+public interface CustomGroupRepository extends CustomGroupRepositoryCE {
+
 }

@@ -3,6 +3,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {
@@ -35,7 +36,6 @@ describe("Table Widget Functionality", function() {
     //   .first()
     //   .find("> .bp3-button-text")
     //   .should("have.text", "{{navigateTo()}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Table Widget Functionality To Verify The Data", function() {
@@ -360,6 +360,7 @@ describe("Table Widget Functionality", function() {
     });
   });
 */
+
   afterEach(() => {
     // put your clean up code if any
   });

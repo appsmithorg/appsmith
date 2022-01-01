@@ -27,12 +27,12 @@ export const getCurrentWidgetId = createSelector(
 
 export const getCurrentWidgetProperties = createSelector(
   getCanvasWidgets,
-  getPropertyPaneState,
+  getSelectedWidgets,
   (
     widgets: CanvasWidgetsReduxState,
-    pane: PropertyPaneReduxState,
+    selectedWidgetIds: string[],
   ): WidgetProps | undefined => {
-    return get(widgets, `${pane.widgetId}`);
+    return get(widgets, `${selectedWidgetIds[0]}`);
   },
 );
 

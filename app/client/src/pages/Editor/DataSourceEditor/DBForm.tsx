@@ -167,7 +167,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         </Header>
         {messages &&
           messages.map((msg, i) => (
-            <Callout fill key={i} text={msg} variant={Variant.warning} />
+            <Callout
+              addMarginTop
+              fill
+              key={i}
+              text={msg}
+              variant={Variant.warning}
+            />
           ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
@@ -242,5 +248,6 @@ const mapStateToProps = (state: AppState, props: any) => {
 export default connect(mapStateToProps)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
     form: DATASOURCE_DB_FORM,
+    enableReinitialize: true,
   })(DatasourceDBEditor),
 );

@@ -155,7 +155,9 @@ export default function Pagination(props: PaginationProps) {
             </StepTitle>
             <Step type={TextType.P1}>Configure Next and Previous URL </Step>
             <Step type={TextType.P1}>Previous url</Step>
-            <PaginationFieldWrapper>
+            <PaginationFieldWrapper
+              data-replay-id={btoa("actionConfiguration.prev")}
+            >
               <DynamicTextField
                 border={CodeEditorBorder.ALL_SIDE}
                 className="t--apiFormPaginationPrev"
@@ -178,7 +180,9 @@ export default function Pagination(props: PaginationProps) {
               />
             </PaginationFieldWrapper>
             <Step type={TextType.P1}>Next url</Step>
-            <PaginationFieldWrapper>
+            <PaginationFieldWrapper
+              data-replay-id={btoa("actionConfiguration.next")}
+            >
               <DynamicTextField
                 border={CodeEditorBorder.ALL_SIDE}
                 className="t--apiFormPaginationNext"

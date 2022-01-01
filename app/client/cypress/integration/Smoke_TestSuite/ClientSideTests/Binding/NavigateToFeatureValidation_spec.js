@@ -17,7 +17,6 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {

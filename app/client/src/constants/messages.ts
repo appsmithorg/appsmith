@@ -404,6 +404,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
+export const GET_GEO_LOCATION = () => `Get Geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
@@ -524,6 +527,7 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
+export const CONNECTED_TO_GIT = () => "Connected to git";
 
 export const GIT_DISCONNECT_POPUP_TITLE = () =>
   `This will disconnect the git repository from this application`;
@@ -535,18 +539,19 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
+export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, Make commits, add deploy your application";
+  "Checkout branches, make commits, add deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
-  `Create an empty git repository and paste the remote URL`;
-"Checkout branches, make commits, add deploy your application";
+  `Create an empty git repository and paste the remote URL here.`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
 export const AUTHOR_NAME = () => "Author name";
+export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
 
 export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
@@ -562,10 +567,8 @@ export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
-export const COMMIT = () => "COMMIT";
+export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
-export const PUSH = () => "PUSH";
-export const PULL = () => "PULL";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
@@ -573,8 +576,9 @@ export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
   "COMMITTING AND PUSHING CHANGES...";
+export const IS_MERGING = () => "MERGING CHANGES...";
 
-export const MERGE_CHANGES = () => "Merge Changes";
+export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const RETRY = () => "RETRY";
@@ -598,10 +602,37 @@ export const NO_MERGE_CONFLICT = () =>
 export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
 export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
 export const GIT_UPSTREAM_CHANGES = () =>
-  "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
+  "Looks like there are pending upstream changes. We will pull the changes and push them to your repo.";
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the conflicts manually on your repository.";
+export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
+  "You have uncommitted changes. Please commit before pulling the remote changes";
+export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
+  "Your current branch has uncommitted changes. Please commit before proceeding to merge";
 
+export const DISCONNECT_EXISTING_REPOSITORIES = () =>
+  "Disconnect existing Repositories";
+export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+  "To make space for newer repositories you can remove existing repositories.";
+export const CONTACT_SALES = () => "Contact Sales";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
+export const REPOSITORY_LIMIT_REACHED_INFO = () =>
+  "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
+export const NONE_REVERSIBLE_MESSAGE = () =>
+  "This action is non reversible. Proceed with caution";
+export const CONTACT_SUPPORT_TO_UPGRADE = () =>
+  "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
+export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
+  "Disconnect might cause the application to break.";
+export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT = () => "DISCONNECT";
+export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
+export const DISCONNECT_FROM_GIT = (name: string) =>
+  `Disconnect ${name} from Git`;
+export const TYPE_PROMO_CODE = (name: string) =>
+  `Type “${name}” in the input box to disconnect.`;
+export const APPLICATION_NAME = () => "Application Name";
+export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";
@@ -626,6 +657,7 @@ export const COMING_SOON = () => "Coming Soon!";
 export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
+export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -635,7 +667,13 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
-export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+export const TRIGGER_ACTION_VALIDATION_ERROR = (
+  functionName: string,
+  argumentName: string,
+  expectedType: string,
+  received: string,
+) =>
+  `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
 export const MORE_OPTIONS = () => "More Options";
@@ -848,3 +886,17 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   "Are you sure you want to perform this action?";
+export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
+export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
+  `Select a widget to see it's properties`;
+export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
+
+export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
+  "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
+
+// Add datasource
+export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_DESCRIPTION = () =>
+  "Quickly generate a page to perform CRUD operations on your database tables";
+
+export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";

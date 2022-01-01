@@ -19,7 +19,7 @@
   </h3>
 
 <p align="center">
-Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
+Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop UI components to build pages, connect to any API, database or GraphQL source and write logic with JavaScript objects.  
 <br />
 <br />
 <img src="static/images/integrations.png" width="320px">

@@ -14,6 +14,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import CheckboxGroupComponent, { OptionProps } from "../component";
+import { CheckboxGroupAlignmentTypes } from "components/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -84,7 +85,6 @@ class CheckboxGroupWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                     ],
@@ -163,10 +163,74 @@ class CheckboxGroupWidget extends BaseWidget<
               type: ValidationTypes.BOOLEAN,
             },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "optionAlignment",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            helpText: "Sets alignment between options.",
+            options: [
+              {
+                label: "None",
+                value: CheckboxGroupAlignmentTypes.NONE,
+              },
+              {
+                label: "Start",
+                value: CheckboxGroupAlignmentTypes.START,
+              },
+              {
+                label: "End",
+                value: CheckboxGroupAlignmentTypes.END,
+              },
+              {
+                label: "Center",
+                value: CheckboxGroupAlignmentTypes.CENTER,
+              },
+              {
+                label: "Between",
+                value: CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
+              },
+              {
+                label: "Around",
+                value: CheckboxGroupAlignmentTypes.SPACE_AROUND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  CheckboxGroupAlignmentTypes.NONE,
+                  CheckboxGroupAlignmentTypes.START,
+                  CheckboxGroupAlignmentTypes.END,
+                  CheckboxGroupAlignmentTypes.CENTER,
+                  CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
+                  CheckboxGroupAlignmentTypes.SPACE_AROUND,
+                ],
+              },
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the check state is changed",
@@ -243,6 +307,7 @@ class CheckboxGroupWidget extends BaseWidget<
         isValid={this.props.isValid}
         key={this.props.widgetId}
         onChange={this.handleCheckboxChange}
+        optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
@@ -285,6 +350,7 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   isValid?: boolean;
   onCheckChanged?: string;
+  optionAlignment?: string;
 }
 
 export default CheckboxGroupWidget;

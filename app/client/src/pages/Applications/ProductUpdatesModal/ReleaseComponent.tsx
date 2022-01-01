@@ -49,6 +49,26 @@ const StyledContent = styled.div<{ maxHeight: number }>`
     color: ${(props) => props.theme.colors.modal.title};
   }
 
+  h2 {
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+  }
+
+  ul {
+    display: block;
+    list-style-type: disc;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+  }
+
   transition: max-height 0.15s ease-out;
   overflow: hidden;
   max-height: ${(props) => props.maxHeight}px;

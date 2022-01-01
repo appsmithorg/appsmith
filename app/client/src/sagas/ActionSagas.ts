@@ -35,10 +35,7 @@ import {
   updateActionProperty,
   updateActionSuccess,
 } from "actions/pluginActionActions";
-import {
-  getDynamicBindingsChangesSaga,
-  removeBindingsFromActionObject,
-} from "utils/DynamicBindingUtils";
+import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
@@ -50,6 +47,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Action,
   ActionViewMode,
+  isAPIAction,
   PluginType,
   SlashCommand,
   SlashCommandPayload,
@@ -110,7 +108,7 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import { getSelectedWidget, getWidgetById } from "./selectors";
+import { getSelectedWidget, getWidgetByID } from "./selectors";
 import {
   onApiEditor,
   onQueryEditor,
@@ -297,17 +295,19 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
+export function* updateActionSaga(
+  actionPayload: ReduxAction<{ id: string; action?: Action }>,
+) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action = yield select(getAction, actionPayload.payload.id);
+    let action = actionPayload.payload.action;
+    if (!action) action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
-    const isApi = action.pluginType === PluginType.API;
 
-    if (isApi) {
+    if (isAPIAction(action)) {
       action = transformRestAction(action);
     }
 
@@ -316,7 +316,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const pageName = yield select(
+      const pageName: string = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
       );
@@ -447,11 +447,10 @@ function* moveActionSaga(
   }>,
 ) {
   const actionObject: Action = yield select(getAction, action.payload.id);
-  const withoutBindings = removeBindingsFromActionObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
       action: {
-        ...withoutBindings,
+        ...actionObject,
         pageId: action.payload.originalPageId,
         name: action.payload.name,
       },
@@ -490,12 +489,9 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  let actionObject: Action = yield select(getAction, action.payload.id);
+  const actionObject: Action = yield select(getAction, action.payload.id);
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
-    if (action.payload.destinationPageId !== actionObject.pageId) {
-      actionObject = removeBindingsFromActionObject(actionObject);
-    }
 
     const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
@@ -646,12 +642,14 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   }
 }
 
-function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
-  const { actionId, propertyName, value } = action.payload;
+export function* setActionPropertySaga(
+  action: ReduxAction<SetActionPropertyPayload>,
+) {
+  const { actionId, propertyName, skipSave, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
 
-  const actionObj = yield select(getAction, actionId);
+  const actionObj: Action = yield select(getAction, actionId);
   const fieldToBeUpdated = propertyName.replace(
     "actionConfiguration",
     "config",
@@ -694,7 +692,8 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
     });
     return;
   }
-  yield put(updateAction({ id: actionId }));
+  //skipSave property is added to skip API calls when the updateAction needs to be called from the caller
+  if (!skipSave) yield put(updateAction({ id: actionId }));
 }
 
 function* toggleActionExecuteOnLoadSaga(
@@ -796,8 +795,7 @@ function* buildMetaForSnippets(
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
-      getWidgetById,
-      entityId,
+      getWidgetByID(entityId),
     );
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
@@ -806,7 +804,10 @@ function* buildMetaForSnippets(
   return { refinements, fieldMeta };
 }
 
-function* getCurrentEntity(pageId: string, params: Record<string, string>) {
+export function* getCurrentEntity(
+  pageId: string,
+  params: Record<string, string>,
+) {
   let entityId = "",
     entityType = "";
   if (onApiEditor() || onQueryEditor()) {
@@ -873,7 +874,10 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
           hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
         }),
       );
-      AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
+        source:
+          typeof callback === "function" ? "SLASH_COMMAND" : "SNIPPET_BUTTON",
+      });
       const effectRaceResult: { failure: any; success: any } = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
@@ -929,6 +933,17 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   }
 }
 
+function* updateEntitySavingStatus() {
+  yield race([
+    take(ReduxActionTypes.UPDATE_ACTION_SUCCESS),
+    take(ReduxActionTypes.SAVE_PAGE_SUCCESS),
+  ]);
+
+  yield put({
+    type: ReduxActionTypes.ENTITY_UPDATE_SUCCESS,
+  });
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -957,5 +972,9 @@ export function* watchActionSagas() {
       toggleActionExecuteOnLoadSaga,
     ),
     takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommandSaga),
+    takeLatest(
+      ReduxActionTypes.ENTITY_UPDATE_STARTED,
+      updateEntitySavingStatus,
+    ),
   ]);
 }

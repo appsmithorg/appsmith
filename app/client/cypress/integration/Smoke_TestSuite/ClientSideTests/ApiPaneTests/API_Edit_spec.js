@@ -1,5 +1,6 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("API Panel Test Functionality", function() {
   it("Test Search API fetaure", function() {
@@ -28,6 +29,27 @@ describe("API Panel Test Functionality", function() {
     cy.ClearSearch();
   });
 
+  it("Should update loading state after cancellation of confirmation for run query", function() {
+    cy.NavigateToAPI_Panel();
+    cy.log("Navigation to API Panel screen successful");
+    cy.CreateAPI("FirstAPI");
+    cy.get(".CodeMirror-placeholder")
+      .first()
+      .should("have.text", "https://mock-api.appsmith.com/users");
+    cy.log("Creation of FirstAPI Action successful");
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    cy.get(apiwidget.settings).click({ force: true });
+    cy.get(apiwidget.confirmBeforeExecute).click({ force: true });
+    cy.get(apiwidget.runQueryButton).click();
+    cy.get(".bp3-dialog")
+      .find("button")
+      .contains("Cancel")
+      .click();
+    cy.get(apiwidget.runQueryButton)
+      .children()
+      .should("have.length", 1);
+  });
+
   it("Should not crash on key delete", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("CrashTestAPI");
@@ -51,5 +73,16 @@ describe("API Panel Test Functionality", function() {
       key: "q",
       value: "mimeType='application/vnd.google-apps.spreadsheet'",
     });
+  });
+
+  it("Shows evaluated value pane when url field is focused", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("TestAPI");
+    cy.get(".CodeMirror-placeholder")
+      .first()
+      .click({
+        force: true,
+      });
+    cy.get(commonlocators.evaluatedTypeTitle).should("be.visible");
   });
 });

@@ -10,6 +10,7 @@ import {
 } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TextInput = styled(({ hasError, ...rest }) => (
@@ -30,7 +31,9 @@ export const TextInput = styled(({ hasError, ...rest }) => (
       props.hasError ? Colors.DANGER_SOLID : Colors.CODE_GRAY};
     &:focus {
       border-color: ${(props) =>
-        props.hasError ? props.theme.colors.error : Colors.CRUSTA};
+        props.hasError
+          ? props.theme.colors.error
+          : "var(--appsmith-input-focus-border-color)"};
       background-color: ${(props) => props.theme.colors.textOnDarkBG};
       outline: 0;
       box-shadow: none;
@@ -144,6 +147,7 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}
           {...rest}
+          className={replayHighlightClass}
         />
         {hasError && <TextInputError>{meta ? meta.error : ""}</TextInputError>}
       </InputContainer>

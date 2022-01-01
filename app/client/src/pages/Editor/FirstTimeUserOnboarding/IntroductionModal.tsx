@@ -49,38 +49,10 @@ const ModalImgWrapper = styled.div`
   justify-content: center;
 `;
 
-const ModalContentWrapper = styled.div`
-  display: flex;
-  & div:nth-child(1) {
-    flex-basis: 165px;
-  }
-  & div:nth-child(2) {
-    flex-basis: 265px;
-    margin-left: 73px;
-  }
-  & div:nth-child(3) {
-    flex-basis: 135px;
-    margin-left: 72px;
-  }
-`;
+const ModalContentWrapper = styled.div``;
 
 const StyledImgWrapper = styled.div`
   text-align: center;
-  &:nth-child(1) {
-    width: 25%;
-    position: relative;
-    right: -2px;
-  }
-  &:nth-child(2) {
-    padding-top: 28px;
-    width: 50%;
-  }
-  &:nth-child(3) {
-    padding-top: 22px;
-    width: 25%;
-    position: relative;
-    left: -24px;
-  }
 `;
 
 const StyledImg = styled.img`
@@ -104,7 +76,6 @@ const StyledButton = styled(Button)`
   width: 145px;
   height: 38px;
   display: inline-block;
-  margin: 33px 0px 30px;
 `;
 
 const ModalFooterNote = styled.p`
@@ -157,28 +128,28 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           </ModalHeader>
           <ModalBody>
             <ModalImgWrapper>
-              <StyledImgWrapper>
-                <StyledImg src={getConnectDataImg()} width="135" />
-                <StyledImg src={getArrowImg()} width="42" />
+              <StyledImgWrapper className="flex">
+                <StyledImg src={getConnectDataImg()} />
+                <StyledImg src={getArrowImg()} />
               </StyledImgWrapper>
-              <StyledImgWrapper>
-                <StyledImg src={getQueryDataImg()} width="330" />
+              <StyledImgWrapper className="flex flex-grow px-5">
+                <StyledImg src={getQueryDataImg()} />
               </StyledImgWrapper>
-              <StyledImgWrapper>
-                <StyledImg src={getArrowImg()} width="42" />
-                <StyledImg src={getPublishAppsImg()} width="92" />
+              <StyledImgWrapper className="flex pr-12">
+                <StyledImg src={getArrowImg()} />
+                <StyledImg src={getPublishAppsImg()} />
               </StyledImgWrapper>
             </ModalImgWrapper>
-            <ModalContentWrapper>
+            <ModalContentWrapper className="flex">
               <div>
                 <StyledCount>1.</StyledCount>
                 <ModalContent>
                   {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
                 </ModalContent>
               </div>
-              <div>
+              <div className="px-5">
                 <StyledCount>2.</StyledCount>
-                <ModalContent>
+                <ModalContent className="px-4">
                   {createMessage(ONBOARDING_INTRO_CONNECT_DATA_WIDGET)}
                 </ModalContent>
               </div>
@@ -193,12 +164,12 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           <ModalFooter>
             <StyledButton
               category={Category.primary}
-              className="t--introduction-modal-build-button"
+              className="t--introduction-modal-build-button my-6"
               onClick={onBuildApp}
               tag="button"
               text={createMessage(BUILD_MY_FIRST_APP)}
             />
-            <ModalFooterNote>
+            <ModalFooterNote className="pb-4">
               {createMessage(ONBOARDING_INTRO_FOOTER)}&nbsp;
               <span
                 className="t--introduction-modal-welcome-tour-button"

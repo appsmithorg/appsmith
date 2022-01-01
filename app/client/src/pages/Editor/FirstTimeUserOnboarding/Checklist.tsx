@@ -120,6 +120,10 @@ const CompeleteMarkerIcon = styled.div<{ success: boolean }>`
   border-color: ${(props) =>
     props.success ? props.theme.colors.success.main : Colors.SILVER_CHALICE};
   padding: 2px 2px;
+
+  .bp3-icon {
+    vertical-align: initial;
+  }
 `;
 
 const StyledCompleteMarker = styled.div`
@@ -155,13 +159,13 @@ const BannerText = styled.p`
 
 const StyledImg = styled.img`
   width: 20px;
-  transform: translate(0px, 5px);
   margin-right: 5px;
 `;
 
 const StyledFooter = styled.div`
   cursor: pointer;
-  display: inline-block;
+  display: flex;
+  align-items: center;
   margin-top: ${(props) => props.theme.spaces[9]}px;
 `;
 
@@ -291,7 +295,9 @@ export default function OnboardingChecklist() {
           />
         </Banner>
       )}
-      <Pageheader>{createMessage(ONBOARDING_CHECKLIST_HEADER)}</Pageheader>
+      <Pageheader className="font-bold py-6">
+        {createMessage(ONBOARDING_CHECKLIST_HEADER)}
+      </Pageheader>
       <PageSubHeader>{createMessage(ONBOARDING_CHECKLIST_BODY)}</PageSubHeader>
       <StatusWrapper>
         <span
@@ -309,6 +315,7 @@ export default function OnboardingChecklist() {
               success={!!datasources.length || !!actions.length}
             >
               <Icon
+                className="flex"
                 color={
                   datasources.length || actions.length
                     ? theme.colors.success.main
@@ -366,6 +373,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!actions.length}>
               <Icon
+                className="flex"
                 color={
                   actions.length
                     ? theme.colors.success.main
@@ -418,6 +426,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={Object.keys(widgets).length > 1}>
               <Icon
+                className="flex"
                 color={
                   Object.keys(widgets).length > 1
                     ? theme.colors.success.main
@@ -464,6 +473,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!isConnectionPresent}>
               <Icon
+                className="flex"
                 color={
                   isConnectionPresent
                     ? theme.colors.success.main
@@ -508,6 +518,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!isDeployed}>
               <Icon
+                className="flex"
                 color={
                   isDeployed ? theme.colors.success.main : Colors.SILVER_CHALICE
                 }
@@ -555,7 +566,10 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
       </StyledList>
-      <StyledFooter onClick={() => triggerWelcomeTour(dispatch)}>
+      <StyledFooter
+        className="flex"
+        onClick={() => triggerWelcomeTour(dispatch)}
+      >
         <StyledImg src="https://assets.appsmith.com/Rocket.png" />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
           {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
