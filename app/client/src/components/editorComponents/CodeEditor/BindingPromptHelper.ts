@@ -7,7 +7,8 @@ export const showBindingPrompt = (
   isHinterOpen: boolean,
 ): boolean => {
   const isDynamicInputValue = inputValue && isDynamicValue(inputValue);
-  const lastCharacterOfSlash = inputValue && inputValue.slice(-1);
+  const lastCharacterOfSlash =
+    inputValue && isString(inputValue) && inputValue.slice(-1);
 
   return (
     showEvaluatedValue &&
