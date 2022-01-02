@@ -11,6 +11,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -47,6 +48,17 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "disableLink",
             helpText: "Controls parsing text as Link",
             label: "Disable Link",
@@ -66,8 +78,19 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             label: "Cell Background",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^((?![<|{{]).+){0,1}/,
+                expected: {
+                  type: "string (HTML color name or HEX value)",
+                  example: `red | #9C0D38`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
           },
           {
             propertyName: "textColor",
@@ -141,8 +164,20 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "HEADING1",
+                  "HEADING2",
+                  "HEADING3",
+                  "PARAGRAPH",
+                  "PARAGRAPH2",
+                ],
+              },
+            },
           },
           {
             propertyName: "fontStyle",

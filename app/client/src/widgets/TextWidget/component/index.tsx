@@ -13,9 +13,30 @@ import {
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 export const TextContainer = styled.div`
-  && {
+  & {
     height: 100%;
     width: 100%;
+  }
+
+  ul {
+    list-style-type: disc;
+    list-style-position: inside;
+  }
+  ol {
+    list-style-type: decimal;
+    list-style-position: inside;
+  }
+  ul ul,
+  ol ul {
+    list-style-type: circle;
+    list-style-position: inside;
+    margin-left: 15px;
+  }
+  ol ol,
+  ul ol {
+    list-style-type: lower-latin;
+    list-style-position: inside;
+    margin-left: 15px;
   }
 `;
 

@@ -56,6 +56,7 @@ interface TableProps {
   pageNo: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
+  isSortable?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
@@ -229,9 +230,13 @@ export function Table(props: TableProps) {
           width={props.width}
         >
           <Scrollbars
+            autoHide
             renderThumbHorizontal={ScrollbarHorizontalThumb}
             renderThumbVertical={ScrollbarVerticalThumb}
-            style={{ width: props.width, height: 38 }}
+            style={{
+              width: props.width,
+              height: 38,
+            }}
           >
             <TableHeaderInnerWrapper
               backgroundColor={Colors.WHITE}
@@ -305,9 +310,11 @@ export function Table(props: TableProps) {
                             column={column}
                             columnIndex={columnIndex}
                             columnName={column.Header}
+                            editMode={props.editMode}
                             isAscOrder={column.isAscOrder}
                             isHidden={column.isHidden}
                             isResizingColumn={isResizingColumn.current}
+                            isSortable={props.isSortable}
                             key={columnIndex}
                             sortTableColumn={props.sortTableColumn}
                           />

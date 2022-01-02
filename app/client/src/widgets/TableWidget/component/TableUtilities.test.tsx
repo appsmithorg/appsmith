@@ -161,4 +161,34 @@ describe("Test table columnType Image render", () => {
 
     expect(expected).toEqual(renderedCell.props.children);
   });
+
+  it("columnType Number accepts 0 as value and renders 0 ", () => {
+    const value = 0;
+    const expected = "0";
+    const renderedCell = renderCell(
+      value,
+      ColumnTypes.NUMBER,
+      false,
+      { isCellVisible: true },
+      930,
+      true,
+    );
+
+    expect(expected).toEqual(renderedCell.props.children);
+  });
+
+  it("columnType Number accepts NaN as value and renders empty string ", () => {
+    const value = NaN;
+    const expected = "";
+    const renderedCell = renderCell(
+      value,
+      ColumnTypes.NUMBER,
+      false,
+      { isCellVisible: true },
+      930,
+      true,
+    );
+
+    expect(expected).toEqual(renderedCell.props.children);
+  });
 });

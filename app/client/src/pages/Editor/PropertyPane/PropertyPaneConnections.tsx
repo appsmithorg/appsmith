@@ -26,21 +26,23 @@ import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
+import { Position } from "@blueprintjs/core";
 
-const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
 
 const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  background-color: ${Colors.GREY_1};
 
   .connection-dropdown {
     box-shadow: none;
     border: none;
-    background-color: ${Colors.GREY_1};
+    background-color: ${Colors.WHITE};
+    padding: 0;
+    width: auto;
   }
+
   .error {
     border: 1px solid
       ${(props) => props.theme.colors.propertyPane.connections.error};
@@ -51,16 +53,17 @@ const TopLayer = styled.div`
 const SelectedNodeWrapper = styled.div<{
   entityCount: number;
   hasError: boolean;
+  justifyContent: string;
 }>`
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  justify-content: ${(props) => props.justifyContent};
   color: ${(props) =>
     props.hasError
       ? props.theme.colors.propertyPane.connections.error
       : props.theme.colors.propertyPane.connections.connectionsCount};
   ${(props) => getTypographyByKey(props, "p3")}
-  width: 113px;
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {
@@ -167,6 +170,8 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   iconAlignment: "LEFT" | "RIGHT";
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
+  justifyContent: string;
+  tooltipPosition?: Position;
 };
 
 const doConnectionsHaveErrors = (
@@ -274,6 +279,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
       className={props.hasError ? "t--connection-error" : "t--connection"}
       entityCount={props.entityCount}
       hasError={props.hasError}
+      justifyContent={props.justifyContent}
       onClick={onClick}
     >
       {props.iconAlignment === "LEFT" && (
@@ -285,7 +291,11 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
         />
       )}
       <span>
-        <Tooltip content={tooltipText} disabled={props.isOpen}>
+        <Tooltip
+          content={tooltipText}
+          disabled={props.isOpen}
+          position={props.tooltipPosition}
+        >
           {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
         </Tooltip>
       </span>
@@ -303,6 +313,8 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
 });
 
 TriggerNode.displayName = "TriggerNode";
+
+const selectedOption = { label: "", value: "" };
 
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
@@ -329,10 +341,12 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"LEFT"}
+            justifyContent={"flex-start"}
             {...selectedValueProps}
             connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
             hasError={errorIncomingConnections}
+            tooltipPosition="bottom-left"
           />
         )}
         className={`connection-dropdown ${
@@ -345,20 +359,22 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         renderOption={(optionProps) => {
           return <OptionNode option={optionProps.option} />;
         }}
-        selected={{ label: "", value: "" }}
+        selected={selectedOption}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width="100%"
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
+            justifyContent={"flex-end"}
             {...selectedValueProps}
             connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
             hasError={errorOutgoingConnections}
+            tooltipPosition="bottom-right"
           />
         )}
         className={`connection-dropdown ${
@@ -375,7 +391,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width={`100%`}
       />
     </TopLayer>
   );

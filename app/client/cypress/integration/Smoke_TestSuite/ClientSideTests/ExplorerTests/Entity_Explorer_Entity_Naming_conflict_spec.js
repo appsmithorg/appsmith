@@ -4,6 +4,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/basicTabledsl.json");
 const pages = require("../../../../locators/Pages.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const tabname = "UpdatedTab";
 
 describe("Tab widget test", function() {
@@ -18,6 +19,10 @@ describe("Tab widget test", function() {
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateApiAndValidateUniqueEntityName(apiName);
+    cy.get(apiwidget.apiTxt)
+      .clear()
+      .type(tableName, { force: true })
+      .should("have.value", tableName);
   });
 
   it("Rename Table widget with api name validation test", function() {

@@ -17,13 +17,9 @@ import Icon from "components/ads/Icon";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
-  margin-top: 2px;
   .bp3-popover-target {
     display: flex;
   }

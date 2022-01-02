@@ -39,8 +39,8 @@ describe("getKeyPositionsInString()", () => {
 });
 
 describe("getLintAnnotations()", () => {
-  const { LINT } = PropertyEvaluationErrorType;
-  const { WARNING } = Severity;
+  const { LINT, PARSE } = PropertyEvaluationErrorType;
+  const { ERROR, WARNING } = Severity;
   it("should return proper annotations", () => {
     const value = `Hello {{ world == test }}`;
     const errors: EvaluationError[] = [
@@ -122,6 +122,51 @@ describe("getLintAnnotations()", () => {
         },
         message: "'test' is not defined.",
         severity: "warning",
+      },
+    ]);
+  });
+
+  it("Return correct annotation with newline in original binding", () => {
+    const value = `Hello {{ world
+    }}`;
+    const errors: EvaluationError[] = [
+      {
+        errorType: LINT,
+        raw:
+          "\n  function closedFunction () {\n    const result =  world\n\n    return result;\n  }\n  closedFunction()\n  ",
+        severity: ERROR,
+        errorMessage: "'world' is not defined.",
+        errorSegment: "    const result =  world",
+        originalBinding: " world\n",
+        variables: ["world", null, null, null],
+        code: "W117",
+        line: 0,
+        ch: 2,
+      },
+      {
+        errorMessage: "ReferenceError: world is not defined",
+        severity: ERROR,
+        raw:
+          "\n  function closedFunction () {\n    const result = world\n\n    return result;\n  }\n  closedFunction()\n  ",
+        errorType: PARSE,
+        originalBinding: " world\n",
+      },
+    ];
+
+    const res = getLintAnnotations(value, errors);
+
+    expect(res).toEqual([
+      {
+        from: {
+          line: 0,
+          ch: 9,
+        },
+        to: {
+          line: 0,
+          ch: 14,
+        },
+        message: "'world' is not defined.",
+        severity: "error",
       },
     ]);
   });

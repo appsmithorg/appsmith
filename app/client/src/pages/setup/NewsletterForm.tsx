@@ -36,8 +36,8 @@ const NewsletterContainer = styled.div`
 export default memo(function NewsletterForm() {
   return (
     <NewsletterContainer>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>3.</FormHeaderIndex>
+      <FormHeaderWrapper className="relative flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">3.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_NEWLETTER_HEADER)}
         </FormHeaderLabel>
@@ -45,7 +45,12 @@ export default memo(function NewsletterForm() {
       <FormBodyWrapper>
         <AllowToggleWrapper>
           <AllowToggle>
-            <Toggle name="signupForNewsletter" onToggle={() => noop} value />
+            <Toggle
+              className="t--welcome-form-newsletter"
+              name="signupForNewsletter"
+              onToggle={() => noop}
+              value
+            />
           </AllowToggle>
           <AllowToggleLabel>
             {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
@@ -54,6 +59,7 @@ export default memo(function NewsletterForm() {
         <ButtonWrapper>
           <StyledButton
             category={Category.primary}
+            className="t--welcome-form-create-button"
             size={Size.medium}
             tag="button"
             text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}

@@ -23,16 +23,19 @@ import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
-import { parseJSCollection, executeFunction } from "./EvaluationsSaga";
+import { executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
+  JSUpdate,
   pushLogsForObjectUpdate,
+  createDummyJSCollectionActions,
 } from "../utils/JSPaneUtils";
 import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
 import {
   updateJSCollectionSuccess,
   refactorJSCollectionAction,
+  updateJSCollectionBodySuccess,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -55,10 +58,8 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { updateReplayEntity } from "actions/pageActions";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -74,36 +75,28 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
-    const sampleBody =
-      "export default {\n\tresults: [],\n\trun: () => {\n\t\t//write code here\n\t}\n}";
-    const sampleActions = [
-      {
-        name: "run",
-        pageId,
-        organizationId,
-        executeOnLoad: false,
-        actionConfiguration: {
-          body: "() => {\n\t\t//write code here\n\t}",
-          isAsync: false,
-          timeoutInMilliseconds: 0,
-          jsArguments: [],
-        },
-      },
-    ];
+    const { actions, body } = createDummyJSCollectionActions(
+      pageId,
+      organizationId,
+    );
     yield put(
       createJSCollectionRequest({
         name: newJSCollectionName,
         pageId,
         organizationId,
         pluginId,
-        body: sampleBody,
+        body: body,
         variables: [
           {
-            name: "results",
+            name: "myVar1",
             value: [],
           },
+          {
+            name: "myVar2",
+            value: {},
+          },
         ],
-        actions: sampleActions,
+        actions: actions,
         applicationId,
         pluginType: PluginType.JS,
       }),
@@ -120,18 +113,15 @@ function* handleJSCollectionCreatedSaga(
   history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
-function* handleUpdateJSCollection(
-  actionPayload: ReduxAction<{ body: string }>,
-) {
-  const { body } = actionPayload.payload;
-  const jsActionId = getJSCollectionIdFromURL();
+function* handleEachUpdateJSCollection(update: JSUpdate) {
+  const jsActionId = update.id;
   const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
-    const parsedBody = yield call(parseJSCollection, body, jsAction);
+    const parsedBody = update.parsedBody;
     const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
     if (parsedBody) {
-      jsActionTobeUpdated.body = body;
+      // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
       if (data.nameChangedActions.length) {
         for (let i = 0; i < data.nameChangedActions.length; i++) {
@@ -152,8 +142,11 @@ function* handleUpdateJSCollection(
         let newActions: Partial<JSAction>[] = [];
         let updateActions: JSAction[] = [];
         let deletedActions: JSAction[] = [];
-        if (parsedBody.variables) {
+        let updateCollection = false;
+        const changedVariables = data.changedVariables;
+        if (changedVariables.length) {
           jsActionTobeUpdated.variables = parsedBody.variables;
+          updateCollection = true;
         }
         if (data.newActions.length) {
           newActions = data.newActions;
@@ -163,6 +156,7 @@ function* handleUpdateJSCollection(
               organizationId: organizationId,
             });
           }
+          updateCollection = true;
         }
         if (data.updateActions.length > 0) {
           updateActions = data.updateActions;
@@ -175,6 +169,7 @@ function* handleUpdateJSCollection(
                 ) || js,
             );
           }
+          updateCollection = true;
           jsActionTobeUpdated.actions = changedActions;
         }
         if (data.deletedActions.length > 0) {
@@ -186,24 +181,35 @@ function* handleUpdateJSCollection(
               });
             },
           );
+          updateCollection = true;
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
-        yield call(updateJSCollection, {
-          jsCollection: jsActionTobeUpdated,
-          newActions: newActions,
-          updatedActions: updateActions,
-          deletedActions: deletedActions,
-        });
+        if (updateCollection) {
+          yield call(updateJSCollection, {
+            jsCollection: jsActionTobeUpdated,
+            newActions: newActions,
+            updatedActions: updateActions,
+            deletedActions: deletedActions,
+          });
+        }
       }
     }
   }
 }
 
+export function* makeUpdateJSCollection(jsUpdates: Record<string, JSUpdate>) {
+  yield all(
+    Object.keys(jsUpdates).map((key) =>
+      call(handleEachUpdateJSCollection, jsUpdates[key]),
+    ),
+  );
+}
+
 function* updateJSCollection(data: {
   jsCollection: JSCollection;
-  newActions: Partial<JSAction>[];
-  updatedActions: JSAction[];
-  deletedActions: JSAction[];
+  newActions?: Partial<JSAction>[];
+  updatedActions?: JSAction[];
+  deletedActions?: JSAction[];
 }) {
   let jsAction = {};
   const jsActionId = getJSCollectionIdFromURL();
@@ -216,21 +222,21 @@ function* updateJSCollection(data: {
       const response = yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
-        if (newActions.length) {
+        if (newActions && newActions.length) {
           pushLogsForObjectUpdate(
             newActions,
             jsCollection,
             createMessage(JS_FUNCTION_CREATE_SUCCESS),
           );
         }
-        if (updatedActions.length) {
+        if (updatedActions && updatedActions.length) {
           pushLogsForObjectUpdate(
             updatedActions,
             jsCollection,
             createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
         }
-        if (deletedActions.length) {
+        if (deletedActions && deletedActions.length) {
           pushLogsForObjectUpdate(
             deletedActions,
             jsCollection,
@@ -284,23 +290,7 @@ function* handleExecuteJSFunctionSaga(
   const { action, collectionId, collectionName } = data.payload;
   const actionId = action.id;
   try {
-    const { result, triggers } = yield call(
-      executeFunction,
-      collectionName,
-      action,
-    );
-    if (triggers && triggers.length) {
-      yield all(
-        triggers.map((trigger: ActionDescription) =>
-          call(executeActionTriggers, trigger, EventType.ON_CLICK, {
-            source: {
-              id: action.collectionId || "",
-              name: data.payload.collectionName,
-            },
-          }),
-        ),
-      );
-    }
+    const result = yield call(executeFunction, collectionName, action);
 
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
@@ -342,6 +332,38 @@ function* handleExecuteJSFunctionSaga(
       showDebugButton: true,
     });
   }
+}
+
+function* handleUpdateJSCollectionBody(
+  actionPayload: ReduxAction<{ body: string; id: string; isReplay: boolean }>,
+) {
+  const jsCollection = yield select(getJSCollection, actionPayload.payload.id);
+  jsCollection.body = actionPayload.payload.body;
+  try {
+    if (jsCollection) {
+      const response = yield JSActionAPI.updateJSCollection(jsCollection);
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put(updateJSCollectionBodySuccess({ data: response?.data }));
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_JS_ACTION_BODY_ERROR,
+      payload: { error, data: jsCollection },
+    });
+  }
+  if (!actionPayload.payload.isReplay)
+    yield put(
+      updateReplayEntity(
+        actionPayload.payload.id,
+        {
+          id: actionPayload.payload.id,
+          body: actionPayload.payload.body,
+        },
+        ENTITY_TYPE.JSACTION,
+      ),
+    );
 }
 
 function* handleRefactorJSActionNameSaga(
@@ -406,11 +428,6 @@ export default function* root() {
       ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
       handleJSCollectionCreatedSaga,
     ),
-    debounce(
-      100,
-      ReduxActionTypes.UPDATE_JS_ACTION_INIT,
-      handleUpdateJSCollection,
-    ),
     takeEvery(
       ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
       handleJSObjectNameChangeSuccessSaga,
@@ -422,6 +439,11 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
       handleRefactorJSActionNameSaga,
+    ),
+    debounce(
+      100,
+      ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT,
+      handleUpdateJSCollectionBody,
     ),
   ]);
 }

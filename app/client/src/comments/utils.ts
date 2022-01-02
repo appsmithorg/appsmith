@@ -2,6 +2,7 @@ import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import {
   BUILDER_PAGE_URL,
   getApplicationViewerPageURL,
+  GIT_BRANCH_QUERY_KEY,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -117,12 +118,14 @@ export const getOffsetPos = (
 
 export const getCommentThreadURL = ({
   applicationId,
+  branch,
   commentThreadId,
   isResolved,
   pageId,
   mode = APP_MODE.PUBLISHED,
 }: {
   applicationId: string;
+  branch?: string;
   commentThreadId: string;
   isResolved?: boolean;
   pageId: string;
@@ -135,6 +138,10 @@ export const getCommentThreadURL = ({
 
   if (isResolved) {
     queryParams.isResolved = true;
+  }
+
+  if (branch) {
+    queryParams[GIT_BRANCH_QUERY_KEY] = branch;
   }
 
   const urlBuilder =
@@ -159,8 +166,8 @@ export const getCommentThreadURL = ({
  * can change dynamically
  */
 export const getPosition = (props: {
-  top: number;
-  left: number;
+  top?: number;
+  left?: number;
   leftPercent: number;
   topPercent: number;
   positionAbsolutely: boolean;
@@ -170,10 +177,12 @@ export const getPosition = (props: {
 }) => {
   const xOffset = props.xOffset || props.offset || 0;
   const yOffset = props.yOffset || props.offset || 0;
+  const top = props.top || 0;
+  const left = props.left || 0;
   if (props.positionAbsolutely) {
     return `
-      top: ${props.top - 29}px;
-      left: ${props.left - 29}px;
+      top: ${top - 29}px;
+      left: ${left - 29}px;
     `;
   } else {
     // The folling syntax is supported: bottom: calc(50% + -6px);

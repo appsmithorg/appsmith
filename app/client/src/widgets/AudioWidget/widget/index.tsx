@@ -38,7 +38,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
                 expected: {
                   type: "Audio URL",
                   example:
-                    "https://cdn.simplecast.com/audio/10488ddf-3ca4-4300-9391-c2967d806334/episodes/8c8341f0-0a3a-4f2c-bfe0-0abb6b3c1c87/audio/03e2e3d8-e703-4953-adc0-e72687f31178/default_tc.mp3",
+                    "https://assets.appsmith.com/widgets/birds_chirping.mp3",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -64,10 +64,21 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the audio is played",
@@ -130,7 +141,16 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             });
           }}
           onPause={() => {
-            //TODO: We do not want the pause event for onSeek or onEnd.
+            //TODO: We do not want the pause event for onSeek.
+            // Don't set playState to paused on onEnd
+            if (
+              this._player.current &&
+              this._player.current.getDuration() ===
+                this._player.current.getCurrentTime()
+            ) {
+              return;
+            }
+
             this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
               triggerPropertyName: "onPause",
               dynamicString: onPause,

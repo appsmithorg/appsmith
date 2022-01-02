@@ -26,8 +26,8 @@ export type CreateCommentThreadRequest = {
   refId: string; // could be an id to refer any parent based on parent type
   tabId?: string;
   position: {
-    top: number;
-    left: number;
+    top?: number;
+    left?: number;
     leftPercent: number;
     topPercent: number;
   };

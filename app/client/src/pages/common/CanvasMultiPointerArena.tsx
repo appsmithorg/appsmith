@@ -10,6 +10,8 @@ import {
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 
 export const POINTERS_CANVAS_ID = "collab-pointer-sharing-canvas";
 
@@ -78,6 +80,7 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const dispatch = useDispatch();
   const animationStepIdRef = useRef<number>(0);
   const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
+  const currentGitBranch = useSelector(getCurrentGitBranch);
   let selectionCanvas: any;
 
   // Setup for painting on canvas
@@ -97,12 +100,20 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   // Initialize the page editing events to share pointer.
   useEffect(() => {
     if (isWebsocketConnected) {
-      dispatch(collabStartSharingPointerEvent(pageId));
+      dispatch(
+        collabStartSharingPointerEvent(
+          getPageLevelSocketRoomId(pageId, currentGitBranch),
+        ),
+      );
     }
     return () => {
-      dispatch(collabStopSharingPointerEvent());
+      dispatch(
+        collabStopSharingPointerEvent(
+          getPageLevelSocketRoomId(pageId, currentGitBranch),
+        ),
+      );
     };
-  }, [isWebsocketConnected, pageId]);
+  }, [isWebsocketConnected, pageId, currentGitBranch]);
 
   const previousAnimationStep = useRef<number>();
 

@@ -59,92 +59,6 @@
           "encrypted": true
         },
         {
-          "label": "Region",
-          "configProperty": "datasourceConfiguration.properties[0].value",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "hidden": {
-            "path": "datasourceConfiguration.properties[1].value",
-            "comparison": "NOT_EQUALS",
-            "value": "amazon-s3"
-          },
-          "initialValue": "ap-south-1",
-          "options": [
-            {
-              "label": "ap-south-1",
-              "value": "ap-south-1"
-            },
-            {
-              "label": "us-gov-west-1",
-              "value": "us-gov-west-1"
-            },
-            {
-              "label": "us-east-1",
-              "value": "us-east-1"
-            },
-            {
-              "label": "us-east-2",
-              "value": "us-east-2"
-            },
-            {
-              "label": "us-west-1",
-              "value": "us-west-1"
-            },
-            {
-              "label": "us-west-2",
-              "value": "us-west-2"
-            },
-            {
-              "label": "eu-west-1",
-              "value": "eu-west-1"
-            },
-            {
-              "label": "eu-west-2",
-              "value": "eu-west-2"
-            },
-            {
-              "label": "eu-west-3",
-              "value": "eu-west-3"
-            },
-            {
-              "label": "eu-central-1",
-              "value": "eu-central-1"
-            },
-            {
-              "label": "ap-southeast-1",
-              "value": "ap-southeast-1"
-            },
-            {
-              "label": "ap-southeast-2",
-              "value": "ap-southeast-2"
-            },
-            {
-              "label": "ap-northeast-1",
-              "value": "ap-northeast-1"
-            },
-            {
-              "label": "ap-northeast-2",
-              "value": "ap-northeast-2"
-            },
-            {
-              "label": "sa-east-1",
-              "value": "sa-east-1"
-            },
-            {
-              "label": "cn-north-1",
-              "value": "cn-north-1"
-            },
-            {
-              "label": "cn-northwest-1",
-              "value": "cn-northwest-1"
-            },
-            {
-              "label": "ca-central-1",
-              "value": "ca-central-1"
-            }
-          ]
-        },
-        {
           "label": "Endpoint URL",
           "configProperty": "datasourceConfiguration.endpoints[0].host",
           "controlType": "INPUT_TEXT",
@@ -171,8 +85,8 @@
           "placeholderText": "de-fra1",
           "hidden": {
             "path": "datasourceConfiguration.properties[1].value",
-            "comparison": "EQUALS",
-            "value": "amazon-s3"
+            "comparison": "NOT_EQUALS",
+            "value": "other"
           }
         }
       ]

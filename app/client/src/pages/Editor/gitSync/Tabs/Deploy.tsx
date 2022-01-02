@@ -1,45 +1,59 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Title } from "../components/StyledComponents";
 import {
   DEPLOY_YOUR_APPLICATION,
   COMMIT_TO,
-  COMMIT,
-  // PUSH_CHANGES_IMMEDIATELY_TO,
-  // PUSH_CHANGES,
-  // PUSH_TO,
   createMessage,
   COMMIT_AND_PUSH,
-  // COMMITTED_SUCCESSFULLY,
-  // PUSHED_SUCCESSFULLY,
+  COMMITTING_AND_PUSHING_CHANGES,
+  FETCH_GIT_STATUS,
+  GIT_NO_UPDATED_TOOLTIP,
+  GIT_UPSTREAM_CHANGES,
+  PULL_CHANGES,
+  READ_DOCUMENTATION,
 } from "constants/messages";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
 import Button, { Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
 
-// import { DEFAULT_REMOTE } from "../constants";
-
 import {
   getGitStatus,
   getIsFetchingGitStatus,
-  // getIsCommitSuccessful,
   getIsCommittingInProgress,
-  // getIsPushingToGit,
-  // getIsPushSuccessful,
+  getIsPullingProgress,
+  getPullFailed,
+  getGitCommitAndPushError,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { commitToRepoInit } from "actions/gitSyncActions";
 
 import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-// import { pushToRepoInit } from "actions/gitSyncActions";
 import DeployPreview from "../components/DeployPreview";
-import { fetchGitStatusInit } from "actions/gitSyncActions";
-import { getGitPushError } from "selectors/gitSyncSelectors";
+import {
+  commitToRepoInit,
+  fetchGitStatusInit,
+  gitPullInit,
+} from "actions/gitSyncActions";
+import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
+import StatusLoader from "../components/StatusLoader";
+import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
+import GitChanged from "../components/GitChanged";
+import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import InfoWrapper from "../components/InfoWrapper";
+import Link from "../components/Link";
+import ConflictInfo from "../components/ConflictInfo";
+import Icon, { IconSize } from "components/ads/Icon";
+
+import { isMac } from "utils/helpers";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -53,8 +67,13 @@ const Row = styled.div`
 const SectionTitle = styled.div`
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.CHARCOAL};
+  display: inline-flex;
   & .branch {
     color: ${Colors.CRUSTA};
+    width: 240px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 `;
 
@@ -63,201 +82,196 @@ const Container = styled.div`
   && ${LabelContainer} span {
     color: ${Colors.CHARCOAL};
   }
-`;
-
-const ErrorContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  .error-text {
-    color: ${Colors.POMEGRANATE2};
-  }
-  .see-more-text {
-    font-size: 12px;
-    cursor: pointer;
-    color: ${Colors.GRAY};
+  .bp3-popover-target {
+    width: fit-content;
   }
 `;
 
-const ErrorMsgWrapper = styled.div<{ $hide: boolean }>`
-  margin-top: ${(props) => props.theme.spaces[8]}px;
-  max-height: 160px;
-  max-width: 96%;
-  overflow-y: ${(props) => (props.$hide ? "hidden" : "scroll")};
-  .git-error-text {
-    height: 100%;
-    margin: 0px;
-    padding: 0px;
-    font-size: 12px;
-    white-space: pre-line;
-    word-break: break-word;
-  }
-`;
+const INITIAL_COMMIT = "Initial Commit";
+const NO_CHANGES_TO_COMMIT = "No changes to commit";
+
+function SubmitWrapper(props: {
+  children: React.ReactNode;
+  onSubmit: () => void;
+}) {
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const triggerSubmit = isMac()
+      ? e.metaKey && e.key === "Enter"
+      : e.ctrlKey && e.key === "Enter";
+    if (triggerSubmit) props.onSubmit();
+  };
+
+  return <div onKeyDown={onKeyDown}>{props.children}</div>;
+}
 
 function Deploy() {
-  // const [pushImmediately, setPushImmediately] = useState(true);
-  const [commitMessage, setCommitMessage] = useState("Initial Commit");
-  const [showCompleteError, setShowCompleteError] = useState(false);
+  const [commitMessage, setCommitMessage] = useState(INITIAL_COMMIT);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
-  // const isPushingToGit = useSelector(getIsPushingToGit);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
-  const gitPushError = useSelector(getGitPushError);
-  const errorMsgRef = useRef<HTMLDivElement>(null);
-
+  const isPullingProgress = useSelector(getIsPullingProgress);
+  const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
-  // (gitStatus && gitStatus?.uncommitted?.length > 0) ||
-  // (gitStatus && gitStatus?.untracked?.length > 0);
-
-  // const hasCommitsToPush = gitStatus?.isClean;
-
-  // const isCommitSuccessful = useSelector(getIsCommitSuccessful);
-  // const isPushSuccessful = useSelector(getIsPushSuccessful);
+  const gitError = useSelector(getGitCommitAndPushError);
+  const pullFailed = useSelector(getPullFailed);
+  const commitInputRef = useRef<HTMLInputElement>(null);
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
 
-  const handleCommit = () => {
+  const handleCommit = (doPush: boolean) => {
     if (currentBranch) {
       dispatch(
         commitToRepoInit({
           commitMessage,
-          doPush: true,
-          // pushImmediately
+          doPush,
         }),
       );
     }
   };
 
-  // const handlePushToGit = () => {
-  //   dispatch(pushToRepoInit());
-  // };
+  const handlePull = () => {
+    if (currentBranch) {
+      dispatch(gitPullInit());
+    }
+  };
 
-  let commitButtonText = "";
-
-  // if (isCommitSuccessful) {
-  // if (pushImmediately) {
-  //   commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
-  // } else {
-  //   commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
-  // }
-  // } else {
-  if (true) {
-    commitButtonText = createMessage(COMMIT_AND_PUSH);
-  } else {
-    commitButtonText = createMessage(COMMIT);
-  }
-  // }
-
-  // const pushButtonText = createMessage(PUSH_CHANGES);
+  const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
   useEffect(() => {
     dispatch(fetchGitStatusInit());
+    return () => {
+      dispatch(clearCommitSuccessfulState());
+    };
   }, []);
-
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
-  const commitButtonLoading = isCommittingInProgress || isFetchingGitStatus;
-  // const pushButtonDisabled = !hasCommitsToPush;
-  const errorMsgShowMoreEnabled = useMemo(() => {
-    let showMoreEnabled = false;
-    if (errorMsgRef && errorMsgRef.current) {
-      const element = errorMsgRef.current;
-      if (element && element?.offsetHeight && element?.scrollHeight) {
-        showMoreEnabled = element?.offsetHeight < element?.scrollHeight;
-      }
+  const commitButtonLoading = isCommittingInProgress;
+  const commitInputDisabled = !hasChangesToCommit || isCommittingInProgress;
+
+  const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
+  const isConflicting = !isFetchingGitStatus && pullFailed;
+  // const pullRequired =
+  //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
+
+  // TODO improve this check
+  let pullRequired = false;
+  if (!isFetchingGitStatus && gitError && gitError.code === 4044) {
+    pullRequired = gitError.message.indexOf("git  push failed") > -1;
+  }
+  const showCommitButton =
+    // hasChangesToCommit &&
+    !isConflicting &&
+    !pullRequired &&
+    !isFetchingGitStatus &&
+    !isCommittingInProgress;
+  const isProgressing =
+    commitButtonLoading && (commitRequired || showCommitButton);
+  const commitMessageDisplay = hasChangesToCommit
+    ? commitMessage
+    : NO_CHANGES_TO_COMMIT;
+
+  const theme = useTheme() as Theme;
+
+  useEffect(() => {
+    if (!commitInputDisabled && commitInputRef.current) {
+      commitInputRef.current.focus();
     }
-    return showMoreEnabled;
-  }, [errorMsgRef.current, gitPushError]);
+  }, [commitInputDisabled]);
 
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
       <Section>
+        <GitChanged />
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
-            <span className="branch">&nbsp;{currentBranch}</span>
+            <div className="branch">&nbsp;{currentBranch}</div>
           </SectionTitle>
         </Row>
         <Space size={3} />
-        <TextInput
-          autoFocus
-          defaultValue={commitMessage}
-          disabled={!hasChangesToCommit}
-          fill
-          onChange={setCommitMessage}
-        />
-        {/* <Space size={3} />
-        <Checkbox
-          disabled={hasCommitsToPush}
-          isDefaultChecked
-          label={`${createMessage(
-            PUSH_CHANGES_IMMEDIATELY_TO,
-          )} ${DEFAULT_REMOTE}/${currentBranch}`}
-          onCheckChange={(checked: boolean) => setPushImmediately(checked)}
-        /> */}
+        <SubmitWrapper
+          onSubmit={() => {
+            if (!commitButtonDisabled) handleCommit(true);
+          }}
+        >
+          <TextInput
+            autoFocus
+            disabled={commitInputDisabled}
+            fill
+            onChange={setCommitMessage}
+            ref={commitInputRef}
+            trimValue={false}
+            value={commitMessageDisplay}
+          />
+        </SubmitWrapper>
+        {isFetchingGitStatus && (
+          <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
+        )}
         <Space size={11} />
-        <Button
-          className="t--commit-button"
-          disabled={commitButtonDisabled}
-          isLoading={commitButtonLoading}
-          onClick={handleCommit}
-          size={Size.medium}
-          tag="button"
-          text={commitButtonText}
-          width="max-content"
-        />
-      </Section>
-      {/** TODO: handle error cases and create new branch for push */}
-      {/* {!pushImmediately ? (
-        <Section>
-          <Space size={10} />
-          <Row>
-            <SectionTitle
-              style={{
-                marginRight: -1 * theme.spaces[2],
-                top: -1,
-                position: "relative",
-              }}
-            >
-              {createMessage(PUSH_TO)}
-              <span className="branch">&nbsp;{currentBranch}</span>
-            </SectionTitle>
-          </Row>
-          <Space size={3} />
+        {pullRequired && !isConflicting && (
+          <InfoWrapper>
+            <Icon
+              fillColor={Colors.YELLOW_LIGHT}
+              name="info"
+              size={IconSize.XXXL}
+            />
+            <div style={{ display: "block" }}>
+              <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
+                {createMessage(GIT_UPSTREAM_CHANGES)}
+              </Text>
+              <Link
+                link={DOCS_BASE_URL}
+                text={createMessage(READ_DOCUMENTATION)}
+              />
+            </div>
+          </InfoWrapper>
+        )}
+        {pullRequired && !isConflicting && (
           <Button
-            category={Category.tertiary}
-            disabled={pushButtonDisabled}
-            isLoading={isPushingToGit}
-            onClick={handlePushToGit}
-            size={Size.medium}
+            className="t--commit-button"
+            isLoading={isPullingProgress}
+            onClick={handlePull}
+            size={Size.large}
             tag="button"
-            text={pushButtonText}
+            text={createMessage(PULL_CHANGES)}
             width="max-content"
           />
-        </Section>
-      ) : null} */}
-
-      {!hasChangesToCommit && <DeployPreview />}
-      {/* Disabled currently */}
-      {gitPushError && false && (
-        <ErrorContainer>
-          <Text className="error-text" type={TextType.P1}>
-            Error while pushing
-          </Text>
-          {/* Add Show More toggle */}
-          <ErrorMsgWrapper $hide={!showCompleteError} ref={errorMsgRef}>
-            <pre className="git-error-text error-text">{gitPushError}</pre>
-          </ErrorMsgWrapper>
-          {errorMsgShowMoreEnabled && (
-            <span
-              className="see-more-text"
-              onClick={() => setShowCompleteError(!showCompleteError)}
-            >
-              {showCompleteError ? "SEE LESS" : "SEE MORE"}
-            </span>
-          )}
-        </ErrorContainer>
+        )}
+        <ConflictInfo isConflicting={isConflicting} />
+        {showCommitButton && (
+          <Tooltip
+            autoFocus={false}
+            content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+            disabled={showCommitButton && !commitButtonLoading}
+            donotUsePortal
+            position="top"
+          >
+            <Button
+              className="t--commit-button"
+              disabled={commitButtonDisabled}
+              isLoading={commitButtonLoading}
+              onClick={() => handleCommit(true)}
+              size={Size.large}
+              tag="button"
+              text={commitButtonText}
+              width="max-content"
+            />
+          </Tooltip>
+        )}
+        {isProgressing && (
+          <StatusbarWrapper>
+            <Statusbar
+              completed={!commitButtonLoading}
+              message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
+              period={2}
+            />
+          </StatusbarWrapper>
+        )}
+      </Section>
+      {!pullRequired && !isConflicting && (
+        <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
     </Container>
   );

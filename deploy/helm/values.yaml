@@ -4,14 +4,12 @@
 ## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
 ##
 
-## @param global.imageRegistry Global Docker image registry
-## @param global.imagePullSecrets Global Docker registry secret names as an array
 ## @param global.storageClass Global StorageClass for Persistent Volume(s)
 ## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
 ##
 global:
   storageClass: ""
-  namespaceOverride: "appsmith"
+  namespaceOverride: ""
 ## @param fullnameOverride String to fully override appsmith.fullname template
 ##
 fullnameOverride: ""
@@ -34,15 +32,19 @@ schedulerName: ""
 ## @param strategyType StrategyType for Appsmith&reg; statefulset
 ## It can be set to RollingUpdate or Recreate by default.
 ##
-strategyType: RollingUpdate 
-## Image 
+strategyType: RollingUpdate
+## Image
 ##
 image:
   registry: index.docker.io
-  repository: appsmith/appsmith-editor
+  repository: appsmith/appsmith-ce
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
+## Namespace
+##
+namespace:
+  create: true
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
@@ -78,13 +80,16 @@ service:
   ## @param service.port; service port
   ##
   port: 80
+  ## @param service.nodePort; Node port to expose if service type is "LoadBalancer" or "NodePort"
+  ##
+  nodePort: 8000
   ## @param service.portName Appsmith; service port name
   ##
   portName: appsmith
   ## @param service.clusterIP Appsmith; service cluster IP
   ## e.g:
   ## clusterIP: None
-  ##  
+  ##
   clusterIP: ""
   ## @param service.loadBalancerIP loadBalancerIP for Appsmith&reg; Service
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
@@ -152,6 +157,11 @@ ingress:
   ##       - appsmith-domain.me
   ##     secretName: appsmith-tls
   certManagerTls: []
+  ## @parm ingress.className Configure Ingress class that being used in ingress resource
+  ## e.g:
+  ## className: "nginx"
+  ##
+  className: ""
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -184,9 +194,12 @@ persistence:
   ## @param persistence.enabled - Enable data persistence using PVC
   ##
   enabled: true
-  ## @param persistence.storageClass PVC Storage Class 
+  ## @param persistence.storageClass PVC Storage Class
   ##
   storageClass: ""
+  ## @param persistence.annotations Additional custom annotations for the PVC
+  ##
+  annotations: {}
   ## @param persistence.localStorage - Use local storage for PVC
   ##
   localStorage: false
@@ -195,13 +208,13 @@ persistence:
   storagePath: /tmp/hostpath_pv
   ## @param persistence.localCluster
   ##
-  localCluster: 
+  localCluster:
     - minikube
   ## @param persistence.accessModes PV Access Mode
   ##
   accessModes:
     - ReadWriteOnce
-  ## @param persistence.size PVC Storage Request 
+  ## @param persistence.size PVC Storage Request
   ##
   size: 10Gi
   ## Fine tuning for volumeClaimTemplates
@@ -223,11 +236,11 @@ persistence:
 # tags:
 #   install-ingress-nginx: true
 storageClass:
-  ## @param storageClass.enabled - Enable config storage class 
+  ## @param storageClass.enabled - Enable config storage class
   ##
   enabled: false
   ## @param storageClass.bindingMode - the binding mode for PVCs using this storage class
-  ## 
+  ##
   bindingMode: Immediate
   ## @param storageClass.defaultClass - boolean to set annotation designating this object as the default storage class
   ##
@@ -252,7 +265,7 @@ storageClass:
   parameters: {}
 
 autoupdate:
-  ## @param autoupdate.enabled - Enable config autoupdate 
+  ## @param autoupdate.enabled - Enable config autoupdate
   ##
   enabled: true
   ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image

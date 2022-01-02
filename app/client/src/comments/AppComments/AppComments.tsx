@@ -1,20 +1,22 @@
+import { tailwindLayers } from "constants/Layers";
 import React from "react";
 import { useSelector } from "react-redux";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import AppCommentsHeader from "./AppCommentsHeader";
 import AppCommentThreads from "./AppCommentThreads";
-import Container from "./Container";
 
-function AppComments(props: { isInline?: boolean }) {
+function AppComments() {
   const isCommentMode = useSelector(commentModeSelector);
 
   if (!isCommentMode) return null;
 
   return (
-    <Container isInline={props.isInline}>
+    <div
+      className={`absolute top-0 left-0 flex flex-col w-full h-full bg-white ${tailwindLayers.appComments}`}
+    >
       <AppCommentsHeader />
       <AppCommentThreads />
-    </Container>
+    </div>
   );
 }
 

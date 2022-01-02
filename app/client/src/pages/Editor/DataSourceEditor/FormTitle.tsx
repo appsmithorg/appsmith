@@ -75,7 +75,7 @@ function FormTitle(props: FormTitleProps) {
       if (!name || name.trim().length === 0) {
         return "Please enter a valid name";
       } else if (hasNameConflict(name)) {
-        return `${name} is already being used.`;
+        return `${name} is already being used or is a restricted keyword.`;
       }
       return false;
     },
@@ -113,6 +113,7 @@ function FormTitle(props: FormTitleProps) {
         hideEditIcon={hideEditIcon}
         isEditingDefault={props.focusOnMount && !hideEditIcon}
         isInvalid={isInvalidDatasourceName}
+        maxLength={30}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         type="text"

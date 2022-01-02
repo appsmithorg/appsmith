@@ -11,6 +11,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -60,7 +61,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                     ],
@@ -93,6 +93,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             dependencies: ["selectionType"],
           },
           {
+            helpText: "Sets a Label Text",
+            propertyName: "labelText",
+            label: "Label Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter Label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
@@ -132,6 +143,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "isFilterable",
             label: "Filterable",
             helpText: "Makes the dropdown list filterable",
@@ -150,6 +172,79 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "PARAGRAPH",
+            options: [
+              {
+                label: "Heading 1",
+                value: "HEADING1",
+                subText: "24px",
+                icon: "HEADING_ONE",
+              },
+              {
+                label: "Heading 2",
+                value: "HEADING2",
+                subText: "18px",
+                icon: "HEADING_TWO",
+              },
+              {
+                label: "Heading 3",
+                value: "HEADING3",
+                subText: "16px",
+                icon: "HEADING_THREE",
+              },
+              {
+                label: "Paragraph",
+                value: "PARAGRAPH",
+                subText: "14px",
+                icon: "PARAGRAPH",
+              },
+              {
+                label: "Paragraph 2",
+                value: "PARAGRAPH2",
+                subText: "12px",
+                icon: "PARAGRAPH_TWO",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -183,42 +278,66 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{this.isRequired  ? !!this.selectedOption : true}}`,
-      selectedOption: `{{  _.find(this.options, { value:  this.defaultValue }) }}`,
-      selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
-      value: `{{  this.defaultValue }}`,
-      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.label; })()}}`,
-      selectedOptionValue: `{{(()=>{const index = _.findIndex(this.options, { value: this.defaultValue }); return this.options[index]?.value; })()}}`,
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue : true}}`,
+      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.value }); return this.options[index]?.label; })()}}`,
+      selectedOptionValue: `{{(()=>{const index = _.findIndex(this.options, { value: this.value }); return this.options[index]?.value; })()}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       defaultValue: "defaultOptionValue",
+      value: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       defaultValue: undefined,
+      value: undefined,
     };
+  }
+
+  componentDidMount() {
+    this.changeSelectedOption();
+  }
+  componentDidUpdate(prevProps: DropdownWidgetProps): void {
+    // removing selectedOptionValue if defaultValueChanges
+    if (
+      prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
+      prevProps.option !== this.props.option
+    ) {
+      this.changeSelectedOption();
+    }
   }
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     const selectedIndex = _.findIndex(this.props.options, {
-      value: this.props.defaultValue,
+      value: this.props.selectedOptionValue,
     });
-
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         disabled={this.props.isDisabled}
+        dropDownWidth={dropDownWidth}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
-        label={`${this.props.label}`}
+        isValid={this.props.isValid}
+        labelStyle={this.props.labelStyle}
+        labelText={this.props.labelText}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
@@ -239,20 +358,22 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     if (this.props.selectedOptionValue) {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
-
     if (isChanged) {
-      this.props.updateWidgetMetaProperty(
-        "defaultValue",
-        selectedOption.value,
-        {
-          triggerPropertyName: "onOptionChange",
-          dynamicString: this.props.onOptionChange,
-          event: {
-            type: EventType.ON_OPTION_CHANGE,
-          },
+      this.props.updateWidgetMetaProperty("value", selectedOption.value, {
+        triggerPropertyName: "onOptionChange",
+        dynamicString: this.props.onOptionChange as string,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
         },
-      );
+      });
     }
+  };
+  changeSelectedOption = () => {
+    const index = _.findIndex(this.props.options, {
+      value: this.props.selectedOptionValue ?? this.props.defaultOptionValue,
+    });
+    const value = this.props.options?.[index]?.value;
+    this.props.updateWidgetMetaProperty("value", value);
   };
 
   onFilterChange = (value: string) => {
@@ -279,7 +400,8 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange?: string;
-  defaultOptionValue?: string | string[];
+  defaultOptionValue?: string;
+  value?: string;
   isRequired: boolean;
   isFilterable: boolean;
   defaultValue: string;

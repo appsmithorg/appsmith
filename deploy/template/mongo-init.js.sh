@@ -642,8 +642,8 @@ let res = [
                         {
                             "id" : "13.1.4",
                             "helpText" : "Enables scrolling inside the chart",
-                            "propertyName" : "allowHorizontalScroll",
-                            "label" : "Allow horizontal scroll",
+                            "propertyName" : "allowScroll",
+                            "label" : "Allow scroll",
                             "controlType" : "SWITCH"
                         }, 
                         {
