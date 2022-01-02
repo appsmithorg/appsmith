@@ -44,6 +44,7 @@ import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget"
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
+import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -996,6 +997,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 47) {
     currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
+    currentDSL.version = 48;
+  }
+
+  if (currentDSL.version === 48) {
+    currentDSL = migrateRecaptchaType(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
