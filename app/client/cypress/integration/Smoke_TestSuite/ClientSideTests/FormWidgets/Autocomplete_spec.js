@@ -110,6 +110,9 @@ describe("Autocomplete using slash command and mustache tests", function() {
         // validates autocomplete binding on entering {{}} in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
+          .should("have.text", "Button1.recaptchaToken");
+        cy.get(`${dynamicInputLocators.hints} li`)
+          .eq(2)
           .should("have.text", "Button1.text");
       });
   });
