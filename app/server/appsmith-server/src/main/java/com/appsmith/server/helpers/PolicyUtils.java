@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -17,9 +18,11 @@ import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,6 +38,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_THEME;
 
 @Component
 @AllArgsConstructor
@@ -47,6 +51,7 @@ public class PolicyUtils {
     private final NewActionRepository newActionRepository;
     private final CommentThreadRepository commentThreadRepository;
     private final ActionCollectionRepository actionCollectionRepository;
+    private final ThemeRepository themeRepository;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -229,6 +234,31 @@ public class PolicyUtils {
                 .collectList()
                 .flatMapMany(updatedPages -> newPageRepository
                         .saveAll(updatedPages));
+    }
+
+    public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
+        Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEME);
+        if(StringUtils.hasLength(application.getEditModeThemeId())) {
+            applicationThemes = applicationThemes.concatWith(
+                    themeRepository.findById(application.getEditModeThemeId(), READ_THEME)
+            );
+        }
+        if(StringUtils.hasLength(application.getPublishedModeThemeId())) {
+            applicationThemes = applicationThemes.concatWith(
+                    themeRepository.findById(application.getPublishedModeThemeId(), READ_THEME)
+            );
+        }
+        return applicationThemes
+                .filter(theme -> !theme.isSystemTheme()) // skip the system themes
+                .map(theme -> {
+                    if (addPolicyToObject) {
+                        return addPoliciesToExistingObject(themePolicyMap, theme);
+                    } else {
+                        return removePoliciesFromExistingObject(themePolicyMap, theme);
+                    }
+                })
+                .collectList()
+                .flatMapMany(themeRepository::saveAll);
     }
 
     public Flux<CommentThread> updateCommentThreadPermissions(

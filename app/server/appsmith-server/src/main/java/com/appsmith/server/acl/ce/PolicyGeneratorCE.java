@@ -30,6 +30,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEME;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
@@ -42,6 +43,7 @@ import static com.appsmith.server.acl.AclPermission.READ_COMMENT;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_THEME;
 import static com.appsmith.server.acl.AclPermission.READ_THREAD;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
@@ -81,6 +83,7 @@ public class PolicyGeneratorCE {
         createPagePolicyGraph();
         createActionPolicyGraph();
         createCommentPolicyGraph();
+        createThemePolicyGraph();
     }
 
     /**
@@ -147,6 +150,12 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(COMMENT_ON_THREAD, READ_THREAD);
 
         hierarchyGraph.addEdge(COMMENT_ON_THREAD, READ_COMMENT);
+    }
+
+    private void createThemePolicyGraph() {
+        hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEME);
+        hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEME);
+        lateralGraph.addEdge(MANAGE_THEME, READ_THEME);
     }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class<? extends BaseDomain> destinationEntity) {

@@ -105,5 +105,6 @@ public class FieldName {
     public static final String PAGE_LIST = "pageList";
     public static final String ACTION_LIST = "actionList";
     public static final String DECRYPTED_FIELDS = "decryptedFields";
+    public static final String THEME = "theme";
 
 }
