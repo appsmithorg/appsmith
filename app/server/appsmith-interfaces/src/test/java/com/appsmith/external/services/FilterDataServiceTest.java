@@ -775,7 +775,7 @@ public class FilterDataServiceTest {
                 "    \"email\": \"michael.lawson@reqres.in\",\n" +
                 "    \"userName\": \"Michael Lawson\",\n" +
                 "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderAmount\": 0.99,\n" +
                 "    \"orderStatus\": \"READY\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -783,7 +783,31 @@ public class FilterDataServiceTest {
                 "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
-                "    \"orderAmount\": 0.99,\n" +
+                "    \"orderAmount\": 7.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736213,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 7.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736214,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 7.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736214,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 19,\n" +
                 "    \"orderStatus\": \"NOT READY\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -802,7 +826,7 @@ public class FilterDataServiceTest {
                 "      {\n" +
                 "        \"key\": \"orderAmount\",\n" +
                 "        \"condition\": \"EQ\",\n" +
-                "        \"value\": \"4.99\"\n" +
+                "        \"value\": \"7.99\"\n" +
                 "      }\n" +
                 "    ],\n" +
                 "    \"condition\": \"AND\"\n" +
@@ -818,7 +842,7 @@ public class FilterDataServiceTest {
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
 
-            assertEquals(filteredData.size(), 1);
+            assertEquals(filteredData.size(), 3);
 
         } catch (IOException e) {
             e.printStackTrace();
