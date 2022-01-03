@@ -44,7 +44,6 @@ describe("MySQL datasource test cases", function() {
   });
 
   it("3. Create a new query from the datasource editor", function() {
-    cy.saveDatasource();
     // cy.get(datasource.createQuerty).click();
     cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
       .last()

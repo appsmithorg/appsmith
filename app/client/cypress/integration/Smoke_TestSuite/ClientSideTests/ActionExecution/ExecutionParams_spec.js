@@ -1,6 +1,5 @@
 const dsl = require("../../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
@@ -12,7 +11,7 @@ describe("API Panel Test Functionality", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
-  it("Create a postgres datasource", function() {
+  it("1. Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -22,11 +21,9 @@ describe("API Panel Test Functionality", function() {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
-  it("Create and runs query", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+
+  it("2. Create and runs query", () => {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch)
@@ -44,7 +41,7 @@ describe("API Panel Test Functionality", function() {
     cy.runQuery();
   });
 
-  it("Will pass execution params", function() {
+  it("3. Will pass execution params", function() {
     // Bind the table
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{Query1.data}}");
