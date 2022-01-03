@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Alignment, Switch } from "@blueprintjs/core";
+import { Alignment } from "@blueprintjs/core";
 
 import { ThemeProp } from "components/ads/common";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
@@ -71,7 +71,6 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     inline,
     onChange,
     options,
-    rowSpace,
     selected,
     valid,
   } = props;

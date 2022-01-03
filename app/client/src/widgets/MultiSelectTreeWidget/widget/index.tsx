@@ -448,6 +448,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         placeholder={this.props.placeholderText as string}
         primaryColor={this.props.primaryColor}
         value={filteredValue}
+        widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );

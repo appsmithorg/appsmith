@@ -19,7 +19,6 @@ import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import _ from "lodash";
 import { Colors } from "constants/Colors";
 
 const menuItemSelectedIcon = (props: {

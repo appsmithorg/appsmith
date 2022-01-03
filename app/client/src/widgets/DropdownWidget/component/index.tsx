@@ -291,7 +291,6 @@ class DropDownComponent extends React.Component<
     this.setState({ activeItemIndex });
   };
   render() {
-    const id = _.uniqueId();
     const {
       compactMode,
       disabled,
@@ -322,7 +321,7 @@ class DropDownComponent extends React.Component<
           borderRadius={this.props.borderRadius}
           dropDownWidth={this.props.dropDownWidth}
           fontFamily={this.props.fontFamily}
-          id={id}
+          id={this.props.widgetId}
           parentWidth={this.props.width - WidgetContainerDiff}
           primaryColor={this.props.primaryColor}
         />
@@ -380,7 +379,7 @@ class DropDownComponent extends React.Component<
                   enabled: false,
                 },
               },
-              popoverClassName: `select-popover-wrapper select-popover-width-${id}`,
+              popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
             primaryColor={this.props.primaryColor}
           >

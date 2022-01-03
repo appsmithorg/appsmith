@@ -36,7 +36,7 @@ export interface ButtonStyleProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: string;
 
-  backgroundColor: string;
+  buttonColor: string;
   buttonVariant?: ButtonVariant;
   dimension?: number;
   hasOnClickAction?: boolean;
@@ -59,11 +59,11 @@ export const StyledButton = styled((props) => (
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   min-height: auto !important;
   min-width: auto !important;
-  ${({ backgroundColor, buttonVariant, hasOnClickAction, theme }) => `
+  ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
-        getCustomBackgroundColor(buttonVariant, backgroundColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, backgroundColor)
+        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
+          ? getCustomBackgroundColor(buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
           ? theme.colors.button.primary.primary.bgColor
           : "none"
@@ -74,8 +74,8 @@ export const StyledButton = styled((props) => (
       hasOnClickAction
         ? `&:hover:enabled, &:active:enabled {
         background: ${
-          getCustomHoverColor(theme, buttonVariant, backgroundColor) !== "none"
-            ? getCustomHoverColor(theme, buttonVariant, backgroundColor)
+          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
+            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
             : buttonVariant === ButtonVariantTypes.SECONDARY
             ? theme.colors.button.primary.secondary.hoverColor
             : buttonVariant === ButtonVariantTypes.TERTIARY
@@ -99,8 +99,8 @@ export const StyledButton = styled((props) => (
     }
 
     border: ${
-      getCustomBorderColor(buttonVariant, backgroundColor) !== "none"
-        ? `1px solid ${getCustomBorderColor(buttonVariant, backgroundColor)}`
+      getCustomBorderColor(buttonVariant, buttonColor) !== "none"
+        ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
@@ -115,15 +115,12 @@ export const StyledButton = styled((props) => (
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, backgroundColor)
+          ? getCustomTextColor(theme, buttonColor)
           : getCustomBackgroundColor(
               ButtonVariantTypes.PRIMARY,
-              backgroundColor,
+              buttonColor,
             ) !== "none"
-          ? getCustomBackgroundColor(
-              ButtonVariantTypes.PRIMARY,
-              backgroundColor,
-            )
+          ? getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
           : `${theme.colors.button.primary.secondary.textColor}`
       } !important;
     }
@@ -142,7 +139,7 @@ export const StyledButton = styled((props) => (
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
-  backgroundColor: string;
+  buttonColor: string;
   buttonVariant: ButtonVariant;
   borderRadius: string;
   boxShadow: string;
@@ -156,9 +153,9 @@ export interface IconButtonComponentProps extends ComponentProps {
 
 function IconButtonComponent(props: IconButtonComponentProps) {
   const {
-    backgroundColor,
     borderRadius,
     boxShadow,
+    buttonColor,
     buttonVariant,
     hasOnClickAction,
     height,
@@ -183,9 +180,9 @@ function IconButtonComponent(props: IconButtonComponentProps) {
   return (
     <IconButtonContainer disabled={isDisabled}>
       <StyledButton
-        backgroundColor={backgroundColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
+        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         dimension={dimension}
         disabled={isDisabled}

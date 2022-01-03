@@ -1,12 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { Checkbox } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
-import { Colors } from "constants/Colors";
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
