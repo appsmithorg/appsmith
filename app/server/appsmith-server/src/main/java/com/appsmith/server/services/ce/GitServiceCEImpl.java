@@ -925,6 +925,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             || StringUtils.isEmptyOrNull(gitData.getBranchName())
                             || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                             || StringUtils.isEmptyOrNull(gitData.getGitAuth().getPrivateKey())) {
+
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION, "Please reconfigure the application to connect to git repo"
                         ));
@@ -1214,10 +1215,17 @@ public class GitServiceCEImpl implements GitServiceCE {
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
-            return applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, READ_APPLICATIONS)
-                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, finalBranchName))
-                    .map(application -> {
-                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists");
+            return listBranchForApplication(defaultApplicationId, false)
+                    .flatMap(gitBranchDTOList -> {
+                        long branchMatchCount = gitBranchDTOList
+                                .stream()
+                                .filter(gitBranchDTO -> gitBranchDTO.getBranchName()
+                                        .equals(finalBranchName)).count();
+                        if(branchMatchCount == 0) {
+                            return checkoutRemoteBranch(defaultApplicationId, finalBranchName);
+                        } else {
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists"));
+                        }
                     });
         }
 
@@ -1279,7 +1287,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return applicationService.save(srcApplication)
                             .flatMap(application1 -> {
                                 try {
-                                    return fileUtils.reconstructApplicationFromGitRepo(srcApplication.getOrganizationId(), application1.getId(), srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
+                                    return fileUtils.reconstructApplicationFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(application1));
                                 } catch (GitAPIException | IOException e) {
                                     log.error("Error while constructing the application from the git repo ", e);
@@ -1292,7 +1300,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     ApplicationJson applicationJson = tuple.getT1();
                     Application application = tuple.getT2();
                     return importExportApplicationService
-                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), branchName);
+                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), branchName)
+                            .map(responseUtils::updateApplicationWithDefaultResources);
                 })
                 // Add BE analytics
                 .flatMap(application -> addAnalyticsForGitOperation(
@@ -1499,18 +1508,40 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
 
-                    // Fetch default branch from DB if the ignoreCache is false else fetch from remote
-                    Mono<List<GitBranchDTO>> gitBranchDTOMono = gitExecutor.listBranches(
-                            repoPath,
-                            gitApplicationMetadata.getRemoteUrl(),
-                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                            gitApplicationMetadata.getGitAuth().getPublicKey(),
-                            pruneBranches)
-                            .onErrorResume(error -> Mono.error(new AppsmithException(
-                                    AppsmithError.GIT_ACTION_FAILED,
-                                    "branch --list",
-                                    "Error while accessing the file system. Details :" + error.getMessage()))
-                            );
+                    Mono<List<GitBranchDTO>> gitBranchDTOMono;
+                    // Fetch remote first if the prune branch is valid
+                    if(Boolean.TRUE.equals(pruneBranches)) {
+                        gitBranchDTOMono = gitExecutor.fetchRemote(
+                                repoPath,
+                                gitApplicationMetadata.getGitAuth().getPublicKey(),
+                                gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                false
+                        )
+                                .flatMap(s -> gitExecutor.listBranches(
+                                        repoPath,
+                                        gitApplicationMetadata.getRemoteUrl(),
+                                        gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                        gitApplicationMetadata.getGitAuth().getPublicKey(),
+                                        true)
+                                        .onErrorResume(error -> Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED,
+                                                "branch --list",
+                                                "Error while accessing the file system. Details :" + error.getMessage()))
+                                        ));
+                    } else {
+                        // Fetch default branch from DB if the pruneBranches is false else fetch from remote
+                        gitBranchDTOMono = gitExecutor.listBranches(
+                                repoPath,
+                                gitApplicationMetadata.getRemoteUrl(),
+                                gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                gitApplicationMetadata.getGitAuth().getPublicKey(),
+                                false)
+                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED,
+                                        "branch --list",
+                                        "Error while accessing the file system. Details :" + error.getMessage()))
+                                );
+                    }
                     return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath));
 
                 })
