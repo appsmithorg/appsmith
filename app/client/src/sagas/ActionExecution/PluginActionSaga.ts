@@ -61,6 +61,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getCurrentPageId,
+  getIsSavingEntity,
   getLayoutOnLoadActions,
 } from "selectors/editorSelectors";
 import PerformanceTracker, {
@@ -410,7 +411,8 @@ function* runActionSaga(
   const actionId = reduxAction.payload.id;
   const isSaving = yield select(isActionSaving(actionId));
   const isDirty = yield select(isActionDirty(actionId));
-  if (isSaving || isDirty) {
+  const isSavingEntity = yield select(getIsSavingEntity);
+  if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
     }

@@ -79,7 +79,7 @@
   "toastmsg": ".Toastify__toast-body span",
   "copyWidget": ".t--copy-widget",
   "deleteWidget": ".t--delete-widget",
-  "dropTarget":".t--drop-target",
+  "dropTarget": ".t--drop-target",
   "toastAction": ".t--toast-action",
   "toastBody": ".Toastify__toast-body",
   "videoInner": ".t--draggable-videowidget span.t--widget-name",
@@ -110,6 +110,7 @@
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype .bp3-popover-target",
+  "recaptchaVersion": ".t--property-control-googlerecaptchaversion .bp3-popover-target",
   "evaluateMsg": ".t--evaluatedPopup-error",
   "globalSearchModal": ".t--global-search-modal",
   "globalSearchInput": ".t--global-search-input",
@@ -129,8 +130,8 @@
   "inputCountryCodeChangeType": ".t--input-country-code-change",
   "viewerPage": ".t--app-viewer-page",
   "dropDownOptSelected": "//span[@type='p1']",
-  "generalChevran":".t--property-pane-section-collapse-general  [icon=chevron-right]",
-  "generalSection":".t--property-pane-section-general",
+  "generalChevran": ".t--property-pane-section-collapse-general  [icon=chevron-right]",
+  "generalSection": ".t--property-pane-section-general",
   "selectedIcon": ".t--property-control-icon .icon-select-container .bp3-button .bp3-button-text",
   "isSortable": ".t--property-control-sortable input[type='checkbox']",
   "labelSection": ".cm-keyword",
@@ -144,5 +145,7 @@
   "debugErrorMsg": ".t--debugger-message",
   "debuggerLabel": "span.debugger-label",
   "selectInner": ".t--draggable-dropdownwidget span.t--widget-name, Select1",
-  "toastifyError": "//div[@class='Toastify']//span]"
+  "toastifyError": "//div[@class='Toastify']//span]",
+  "dropdownWidget": ".t--draggable-dropdownwidget",
+  "textWidget": ".t--draggable-textwidget"
 }

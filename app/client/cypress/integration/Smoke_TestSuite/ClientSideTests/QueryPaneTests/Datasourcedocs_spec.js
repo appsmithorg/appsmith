@@ -1,5 +1,4 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 
@@ -10,7 +9,7 @@ describe("Check datasource doc links", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create postgres datasource", function() {
+  it("1. Create postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.generateUUID().then((uid) => {
@@ -32,19 +31,14 @@ describe("Check datasource doc links", function() {
     cy.testSaveDatasource();
   });
 
-  it("Check that documentation opens global modal", function() {
-    cy.NavigateToQueryEditor();
-
-    cy.contains(".t--datasource-name", postgresDatasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
+  it("2. Check that documentation opens global modal", function() {
+    cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
     cy.get(".t--datasource-documentation-link").click();
     cy.get(commonlocators.globalSearchModal);
     cy.get("body").click(0, 0);
   });
 
-  it("Delete the query and datasources", function() {
+  it("3. Delete the query and datasources", function() {
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(

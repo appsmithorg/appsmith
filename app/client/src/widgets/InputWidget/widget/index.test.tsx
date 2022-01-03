@@ -108,4 +108,19 @@ describe("#defaultValueValidation", () => {
       expect(response).toStrictEqual(expectedOutputs[index]);
     });
   });
+
+  it("validates correctly for Number type with undefined value", () => {
+    const props = {
+      ...defaultInputWidgetProps,
+      inputType: "NUMBER",
+    };
+
+    const response = defaultValueValidation(undefined, props, _);
+
+    expect(response).toStrictEqual({
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
+    });
+  });
 });

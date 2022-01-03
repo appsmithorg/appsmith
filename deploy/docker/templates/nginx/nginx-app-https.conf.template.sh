@@ -45,6 +45,10 @@ server {
   root /opt/appsmith/editor;
   index index.html index.htm;
 
+  location /.well-known/acme-challenge/ {
+    root /appsmith-stacks/data/certificate/certbot;
+  }
+
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$host;
 

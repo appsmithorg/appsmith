@@ -1,4 +1,7 @@
 import React, { JSXElementConstructor } from "react";
+import styled from "styled-components";
+
+import { Colors } from "constants/Colors";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as SpinnerIcon } from "assets/icons/widget/alert.svg";
 import { ReactComponent as ButtonIcon } from "assets/icons/widget/button.svg";
@@ -34,9 +37,9 @@ import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
 import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
+import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
 import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
+import { ReactComponent as CameraIcon } from "assets/icons/widget/camera.svg";
 
 /* eslint-disable react/display-name */
 
@@ -226,9 +229,19 @@ export const WidgetIcons: {
       <ButtonGroupIcon />
     </StyledIconWrapper>
   ),
+  PROGRESSBAR_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <ProgressBarIcon />
+    </StyledIconWrapper>
+  ),
   SWITCH_GROUP_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <SwitchGroupIcon />
+    </StyledIconWrapper>
+  ),
+  CAMERA_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CameraIcon />
     </StyledIconWrapper>
   ),
 };
