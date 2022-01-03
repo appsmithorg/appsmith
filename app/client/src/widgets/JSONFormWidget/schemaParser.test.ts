@@ -276,6 +276,54 @@ describe("#getSchemaItemByFieldType", () => {
 
     expect(result).toEqual(expectedOutput);
   });
+
+  it("returns modified schemaItem structure when field type is changed from text to array", () => {
+    const schema = testData.initialDataset.schemaOutput;
+    const schemaItemPath = "schema.__root_schema__.children.name";
+    const schemaItem = get({ schema }, schemaItemPath);
+
+    const expectedOutput = {
+      isDisabled: false,
+      label: "Name",
+      isVisible: true,
+      children: {
+        __array_item__: {
+          isDisabled: false,
+          label: "Array Item",
+          isVisible: true,
+          children: {},
+          dataType: DataType.OBJECT,
+          defaultValue:
+            "{{((sourceData, formData, fieldState) => (sourceData.name[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          fieldType: FieldType.OBJECT,
+          sourceData: {},
+          isCustomField: false,
+          name: "__array_item__",
+          identifier: "__array_item__",
+          position: -1,
+        },
+      },
+      dataType: DataType.STRING,
+      defaultValue:
+        "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+      fieldType: FieldType.ARRAY,
+      sourceData: "Test name",
+      isCustomField: false,
+      name: "name",
+      identifier: "name",
+      isCollapsible: true,
+      position: 0,
+    };
+
+    const result = SchemaParser.getSchemaItemByFieldType(FieldType.ARRAY, {
+      widgetName,
+      schema,
+      schemaItem,
+      schemaItemPath,
+    });
+
+    expect(result).toEqual(expectedOutput);
+  });
 });
 
 describe("#getSchemaItemFor", () => {

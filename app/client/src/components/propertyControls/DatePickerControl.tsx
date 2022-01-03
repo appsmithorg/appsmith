@@ -57,6 +57,8 @@ class DatePickerControl extends BaseControl<
   constructor(props: DatePickerControlProps) {
     super(props);
 
+    // We are using the evaluated value as the JSONForm widget might
+    // pass a binding as propertyValue which might lead to out of range error.
     const evaluatedValue = get(
       props.widgetProperties.__evaluation__?.evaluatedValues || {},
       props.propertyName,

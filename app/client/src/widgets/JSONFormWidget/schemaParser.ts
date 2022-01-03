@@ -263,14 +263,26 @@ class SchemaParser {
     options: SchemaItemsByFieldOptions,
   ) => {
     const { schema, schemaItem, schemaItemPath, widgetName } = options;
-    const currSourceData = schemaItem.isCustomField
-      ? FIELD_TYPE_TO_POTENTIAL_DATA[fieldType]
-      : schemaItem.sourceData;
-
     const sourceDataPath = getSourceDataPathFromSchemaItemPath(
       schema,
       schemaItemPath,
     );
+
+    const currSourceData = (() => {
+      const potentialData = FIELD_TYPE_TO_POTENTIAL_DATA[fieldType];
+      if (schemaItem.isCustomField) {
+        return potentialData;
+      }
+
+      if (
+        fieldType === FieldType.ARRAY &&
+        dataTypeFor(schemaItem.sourceData) !== DataType.ARRAY
+      ) {
+        return [{}];
+      }
+
+      return schemaItem.sourceData;
+    })();
 
     const newSchemaItem = SchemaParser.getSchemaItemFor(schemaItem.identifier, {
       isCustomField: schemaItem.isCustomField,
@@ -283,12 +295,17 @@ class SchemaParser {
     const oldSchemaItemProperties = pick(schemaItem, [
       "name",
       "position",
+      "identifier",
       "label",
-      "defaultValue",
     ]);
 
     if (schemaItem.isCustomField) {
-      oldSchemaItemProperties.defaultValue = currSourceData;
+      newSchemaItem.defaultValue = currSourceData;
+    }
+
+    if (!schemaItem.isCustomField) {
+      newSchemaItem.dataType = schemaItem.dataType;
+      newSchemaItem.sourceData = schemaItem.sourceData;
     }
 
     return {
