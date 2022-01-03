@@ -190,7 +190,8 @@ export type EventName =
   | "LEARN_MORE_LINK_FOR_SSH_CLICK"
   | "DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
   | "DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
-  | "CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK";
+  | "CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
+  | "REFLOW_BETA_FLAG";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

@@ -22,6 +22,7 @@ import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 import styled from "styled-components";
 import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { setReflowBetaFlag } from "utils/storage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -112,6 +113,9 @@ export function MainContainerLayoutControl() {
   const reflowBetaToggle = (isChecked: boolean) => {
     setReflowBetaFlag(isChecked);
     dispatch(setEnableReflow(isChecked));
+    AnalyticsUtil.logEvent("REFLOW_BETA_FLAG", {
+      enabled: isChecked,
+    });
   };
 
   return (
