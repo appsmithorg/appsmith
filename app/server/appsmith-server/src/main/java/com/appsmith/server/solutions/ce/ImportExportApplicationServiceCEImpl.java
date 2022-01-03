@@ -51,7 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
@@ -376,8 +375,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
 
-        final Flux<DataBuffer> contentCache = filePart.content().cache();
-        Mono<String> stringifiedFile = DataBufferUtils.join(contentCache)
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
                 .map(dataBuffer -> {
                     byte[] data = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(data);

@@ -28,12 +28,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -83,7 +83,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,7 +105,7 @@ public class ImportExportApplicationServiceTests {
     private PluginRepository pluginRepository;
 
     @Autowired
-    private ApplicationService applicationService;
+    private ApplicationRepository applicationRepository;
 
     @Autowired
     private DatasourceService datasourceService;
@@ -159,7 +158,6 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Before
-    @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito
                 .when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -469,7 +467,7 @@ public class ImportExportApplicationServiceTests {
 
         final Mono<ApplicationJson> resultMono = Mono.zip(
                 organizationService.getById(orgId),
-                applicationService.findById(testAppId)
+                applicationRepository.findById(testAppId)
             )
             .flatMap(tuple -> {
 
@@ -730,11 +728,11 @@ public class ImportExportApplicationServiceTests {
 
         importExportApplicationService
                 .extractFileAndSaveApplication(newOrganization.getId(), filePart)
-                .timeout(Duration.ofMillis(100))
+                .timeout(Duration.ofMillis(10))
                 .subscribe();
 
         // Wait for cloning to complete
-        Mono<Application> importedAppFromDbMono = organizationService.findById(newOrganization.getId(), READ_ORGANIZATIONS)
+        Mono<Application> importedAppFromDbMono = Mono.just(newOrganization)
                 .flatMap(organization -> {
                     try {
                         // Before fetching the imported application, sleep for 5 seconds to ensure that the import completes
@@ -742,14 +740,13 @@ public class ImportExportApplicationServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS)
-                            .filter(application -> "valid_application".equals(application.getName()))
+                    return applicationRepository.findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                             .next();
                 });
 
         StepVerifier.create(importedAppFromDbMono)
                 .assertNext(application -> {
-                    assertThat(application.getId()).isNullOrEmpty();
+                    assertThat(application.getId()).isNotEmpty();
                 })
                 .verifyComplete();
     }
