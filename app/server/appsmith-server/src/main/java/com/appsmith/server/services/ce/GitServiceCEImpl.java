@@ -1469,19 +1469,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 commitDTO.setDoPush(true);
                                 // Make commit and push after pull is successful to have a clean repo
                                 return this.commitApplication(commitDTO, application1.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
-                                        .thenReturn(getPullDTO(application1, status));
+                                        .thenReturn(getPullDTO(application1, status))
+                                        .zipWith(Mono.just(application1));
                             });
                 })
                 // Add BE analytics
-                .flatMap(gitPullDTO -> {
+                .flatMap(tuple -> {
+                    Application application = tuple.getT2();
+                    GitPullDTO gitPullDTO = tuple.getT1();
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_PULL.getEventName(),
-                            gitPullDTO.getApplication().getOrganizationId(),
+                            application.getOrganizationId(),
                             applicationId,
-                            gitPullDTO.getApplication().getId(),
+                            application.getId(),
                             ",",
                             "",
-                            gitPullDTO.getApplication().getGitApplicationMetadata().getIsRepoPrivate()
+                            application.getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(gitPullDTO);
                 });
     }
@@ -1735,7 +1738,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     destinationBranch
                             ),
                             Mono.just(defaultApplication))
-                            // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab handleMergeConflict
+                            // On merge conflict throw error
                             .onErrorResume(error -> {
                                 if (error.getMessage().contains("Merge conflict")) {
                                     return addAnalyticsForGitOperation(
@@ -1801,19 +1804,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             GitPullDTO gitPullDTO = new GitPullDTO();
                                             gitPullDTO.setMergeStatus(mergeStatusDTO);
                                             return gitPullDTO;
-                                        });
+                                        }).zipWith(Mono.just(application1));
                             });
                 })
                 // Add BE analytics
-                .flatMap(gitPullDTO -> {
+                .flatMap(tuple -> {
+                    Application application = tuple.getT2();
+                    GitPullDTO gitPullDTO = tuple.getT1();
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_MERGE.getEventName(),
-                            gitPullDTO.getApplication().getOrganizationId(),
+                            application.getOrganizationId(),
                             defaultApplicationId,
-                            gitPullDTO.getApplication().getId(),
+                            application.getId(),
                             "",
                             "",
-                            gitPullDTO.getApplication().getGitApplicationMetadata().getIsRepoPrivate()
+                            application.getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(gitPullDTO);
                 });
     }
