@@ -11,6 +11,7 @@ import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
+import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -33,7 +34,7 @@ export const generatePropertyControl = (
             sectionConfig.sectionName !== "General" &&
             props.type === "TABLE_WIDGET"
           }
-          step={3}
+          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
           <PropertySection
             hidden={sectionConfig.hidden}
@@ -54,7 +55,7 @@ export const generatePropertyControl = (
             (config as PropertyPaneControlConfig).propertyName !==
               "tableData" && props.type === "TABLE_WIDGET"
           }
-          step={3}
+          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
           <PropertyControl
             key={config.id + props.id}

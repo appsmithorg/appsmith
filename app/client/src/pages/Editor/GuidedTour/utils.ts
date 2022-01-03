@@ -136,7 +136,7 @@ function getCoords(elem: Element) {
  * @param {number} type Could be a `class` selector or a `data-attribute`
  */
 export function highlightSection(
-  selector: string,
+  selector?: string,
   widthSelector?: string,
   type = "data-attribute",
 ) {

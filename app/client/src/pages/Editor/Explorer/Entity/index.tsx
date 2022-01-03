@@ -24,6 +24,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -244,7 +245,10 @@ export const Entity = forwardRef(
     useClick(itemRef, handleClick, noop);
 
     return (
-      <Boxed show={props.name === "updateCustomerInfo"} step={5}>
+      <Boxed
+        show={props.name === "updateCustomerInfo"}
+        step={GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS}
+      >
         <Wrapper
           active={!!props.active}
           className={`${EntityClassNames.WRAPPER} ${props.className}`}

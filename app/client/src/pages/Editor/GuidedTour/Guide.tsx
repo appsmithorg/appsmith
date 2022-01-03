@@ -20,7 +20,7 @@ import {
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Steps } from "./constants";
+import { GUIDED_TOUR_STEPS, Steps } from "./constants";
 import useComputeCurrentStep from "./useComputeCurrentStep";
 import {
   BUTTON_TEXT,
@@ -311,7 +311,8 @@ function GuideStepsContent(props: {
               <Title>{content.title}</Title>
             </TitleWrapper>
             <div className="count">
-              {props.currentStep - 1}/9{"  "}
+              {props.currentStep - 1}/{GUIDED_TOUR_STEPS.DEPLOY}
+              {"  "}
               <span className="complete">{createMessage(COMPLETE)}</span>
             </div>
           </div>

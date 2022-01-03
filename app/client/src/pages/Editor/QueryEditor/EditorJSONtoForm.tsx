@@ -75,6 +75,7 @@ import Guide from "pages/Editor/GuidedTour/Guide";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -887,7 +888,7 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <Boxed step={1}>
+            <Boxed step={GUIDED_TOUR_STEPS.RUN_QUERY}>
               <TabbedViewContainer ref={panelRef}>
                 <Resizable
                   panelRef={panelRef}

@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 
 export const enableGuidedTour = (payload: boolean) => {
@@ -41,14 +42,14 @@ export const tableWidgetWasSelected = (payload: boolean) => {
   };
 };
 
-export const setCurrentStepInit = (payload: number) => {
+export const setCurrentStepInit = (payload: GUIDED_TOUR_STEPS) => {
   return {
     type: ReduxActionTypes.SET_CURRENT_STEP_INIT,
     payload,
   };
 };
 
-export const setCurrentStep = (payload: number) => {
+export const setCurrentStep = (payload: GUIDED_TOUR_STEPS) => {
   return {
     type: ReduxActionTypes.SET_CURRENT_STEP,
     payload,
@@ -96,7 +97,7 @@ export const showPostCompletionMessage = (payload: boolean) => {
   };
 };
 
-export const forceShowContent = (payload: number) => {
+export const forceShowContent = (payload: GUIDED_TOUR_STEPS) => {
   return {
     type: ReduxActionTypes.FORCE_SHOW_CONTENT,
     payload,

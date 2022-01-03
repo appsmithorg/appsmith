@@ -48,6 +48,19 @@ export const Classes = {
   GUIDED_TOUR_INDICATOR: "guided-tour-indicator",
 };
 
+export enum GUIDED_TOUR_STEPS {
+  DEFAULT = 0,
+  RUN_QUERY = 1,
+  SELECT_TABLE_WIDGET = 2,
+  TABLE_WIDGET_BINDING = 3,
+  NAME_INPUT_BINDING = 4,
+  BIND_OTHER_FORM_WIDGETS = 5,
+  ADD_BUTTON_WIDGET = 6,
+  BUTTON_ONCLICK_BINDING = 7,
+  BUTTON_ONSUCCESS_BINDING = 8,
+  DEPLOY = 9,
+}
+
 // We are using widget blueprints to create the form like container widget
 export const onboardingContainerBlueprint = {
   view: [
@@ -241,7 +254,7 @@ const RunButton = styled.div`
 `;
 
 export const Steps: StepsType = {
-  1: {
+  [GUIDED_TOUR_STEPS.RUN_QUERY]: {
     title: createMessage(STEP_ONE_TITLE),
     elementSelector: "query-table-response",
     hints: [
@@ -265,10 +278,10 @@ export const Steps: StepsType = {
       text: createMessage(STEP_ONE_SUCCESS_TEXT),
       onClick: (dispatch) => {
         dispatch(setExplorerPinnedAction(true));
-        dispatch(setCurrentStepInit(2));
+        dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='CustomersTable']`, "right", {
-            top: 1,
+            top: 3,
             left: 0,
           });
         }, 1000);
@@ -277,7 +290,7 @@ export const Steps: StepsType = {
       timed: true,
     },
   },
-  2: {
+  [GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET]: {
     title: createMessage(STEP_TWO_TITLE),
     hints: [
       {
@@ -290,7 +303,7 @@ export const Steps: StepsType = {
       },
     ],
   },
-  3: {
+  [GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING]: {
     title: createMessage(STEP_THREE_TITLE),
     hints: [
       {
@@ -312,7 +325,8 @@ export const Steps: StepsType = {
     success: {
       text: createMessage(STEP_THREE_SUCCESS_TEXT),
       onClick: (dispatch) => {
-        dispatch(forceShowContent(3));
+        // Stop hiding rest of the properties in the propery pane
+        dispatch(forceShowContent(GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING));
         setTimeout(() => {
           highlightSection("property-pane");
         }, 1000);
@@ -329,7 +343,7 @@ export const Steps: StepsType = {
         </>
       ),
       onClick: (dispatch) => {
-        dispatch(setCurrentStepInit(4));
+        dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.NAME_INPUT_BINDING));
         dispatch(
           addOnboardingWidget({
             type: "CONTAINER_WIDGET",
@@ -347,7 +361,7 @@ export const Steps: StepsType = {
       buttonText: "GOT IT",
     },
   },
-  4: {
+  [GUIDED_TOUR_STEPS.NAME_INPUT_BINDING]: {
     title: createMessage(STEP_FOUR_TITLE),
     hints: [
       {
@@ -395,7 +409,7 @@ export const Steps: StepsType = {
       text: createMessage(STEP_FOUR_SUCCESS_TEXT),
       timed: true,
       onClick: (dispatch) => {
-        dispatch(setCurrentStepInit(5));
+        dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS));
         dispatch(focusWidget("EmailInput", "defaultText"));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='defaultText']`, "top", {
@@ -407,7 +421,7 @@ export const Steps: StepsType = {
       buttonText: createMessage(STEP_FOUR_SUCCESS_BUTTON_TEXT),
     },
   },
-  5: {
+  [GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS]: {
     title: createMessage(STEP_FIVE_TITLE),
     hints: [
       {
@@ -440,7 +454,7 @@ export const Steps: StepsType = {
     success: {
       text: createMessage(STEP_FIVE_SUCCESS_TEXT),
       onClick: (dispatch) => {
-        dispatch(setCurrentStepInit(6));
+        dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.ADD_BUTTON_WIDGET));
         dispatch(setExplorerPinnedAction(true));
         dispatch(forceOpenWidgetPanel(true));
         setTimeout(() => {
@@ -451,7 +465,7 @@ export const Steps: StepsType = {
       buttonText: createMessage(STEP_FIVE_SUCCESS_BUTTON_TEXT),
     },
   },
-  6: {
+  [GUIDED_TOUR_STEPS.ADD_BUTTON_WIDGET]: {
     title: createMessage(STEP_SIX_TITLE),
     hints: [
       {
@@ -484,7 +498,7 @@ export const Steps: StepsType = {
         </>
       ),
       onClick: (dispatch) => {
-        dispatch(setCurrentStepInit(7));
+        dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.BUTTON_ONCLICK_BINDING));
         showIndicator(`[data-guided-tour-iid='onClick']`, "top", {
           top: 25,
           left: 0,
@@ -492,7 +506,7 @@ export const Steps: StepsType = {
       },
     },
   },
-  7: {
+  [GUIDED_TOUR_STEPS.BUTTON_ONCLICK_BINDING]: {
     title: createMessage(STEP_SEVEN_TITLE),
     hints: [
       {
@@ -506,7 +520,7 @@ export const Steps: StepsType = {
       },
     ],
   },
-  8: {
+  [GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING]: {
     title: createMessage(STEP_EIGHT_TITLE),
     hints: [
       {
@@ -521,7 +535,7 @@ export const Steps: StepsType = {
     success: {
       text: createMessage(STEP_EIGHT_SUCCESS_TEXT),
       onClick: (dispatch) => {
-        dispatch(setCurrentStepInit(9));
+        dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.DEPLOY));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='deploy']`, "bottom", {
             top: -6,
@@ -532,7 +546,7 @@ export const Steps: StepsType = {
       timed: true,
     },
   },
-  9: {
+  [GUIDED_TOUR_STEPS.DEPLOY]: {
     title: createMessage(STEP_NINE_TITLE),
     hints: [
       {

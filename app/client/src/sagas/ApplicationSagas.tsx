@@ -79,6 +79,7 @@ import {
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -118,7 +119,7 @@ export function* publishApplicationSaga(
         applicationId,
         pageId: currentPageId,
       });
-      if (guidedTour && currentStep === 9) {
+      if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
         appicationViewPageUrl += "?&guidedTourComplete=true";
         yield call(setPostWelcomeTourState, true);
       }

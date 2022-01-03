@@ -82,6 +82,7 @@ import {
 } from "actions/explorerActions";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
+import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -425,7 +426,10 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection className="space-x-3">
           <EditorSaveIndicator />
-          <Boxed alternative={<EndTour />} step={8}>
+          <Boxed
+            alternative={<EndTour />}
+            step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
+          >
             <RealtimeAppEditors applicationId={applicationId} />
             <FormDialogComponent
               Form={AppInviteUsersForm}

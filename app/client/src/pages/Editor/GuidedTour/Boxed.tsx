@@ -39,7 +39,9 @@ function Boxed(props: BoxedProps): JSX.Element | null {
 
 Boxed.defaultProps = {
   show: true,
-  step: 10,
+  // Some out of bound value as by default the children
+  // of this component is to be hidden
+  step: 99,
 };
 
 export default Boxed;
