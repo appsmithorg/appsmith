@@ -1090,7 +1090,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         application.getId(),
                         "",
                         "",
-                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                        false
                 ).thenReturn(application));
     }
 
