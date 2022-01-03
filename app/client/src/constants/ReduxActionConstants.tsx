@@ -828,6 +828,7 @@ export const ReflowReduxActionTypes = {
   STOP_REFLOW: "STOP_REFLOW",
   REFLOW_MOVE: "REFLOW_MOVE",
   ENABLE_REFLOW: "ENABLE_REFLOW",
+  ONBOARDING_UPDATE: "ONBOARDING_UPDATE",
 };
 
 export const WidgetReduxActionTypes: { [key: string]: string } = {

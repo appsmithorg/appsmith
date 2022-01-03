@@ -2,6 +2,7 @@ import {
   ReduxAction,
   ReflowReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
 import { ReflowedSpaceMap } from "reflow/reflowTypes";
 
 export const reflowMove = (
@@ -22,6 +23,15 @@ export const stopReflow = () => {
 export const setEnableReflow = (payload: boolean) => {
   return {
     type: ReflowReduxActionTypes.ENABLE_REFLOW,
+    payload,
+  };
+};
+
+export const updateReflowOnBoarding = (
+  payload: widgetReflowOnBoardingState,
+) => {
+  return {
+    type: ReflowReduxActionTypes.ONBOARDING_UPDATE,
     payload,
   };
 };

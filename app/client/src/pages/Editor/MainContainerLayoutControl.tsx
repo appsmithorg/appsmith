@@ -23,6 +23,7 @@ import styled from "styled-components";
 import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { setReflowBetaFlag } from "utils/storage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import ReflowCarouselModal from "reflow/betascreens/ReflowCarousel";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -159,6 +160,7 @@ export function MainContainerLayoutControl() {
           onCheckChange={reflowBetaToggle}
         />
         <BetaIcon className="beta-icon" />
+        <ReflowCarouselModal />
       </ReflowBetaWrapper>
     </div>
   );

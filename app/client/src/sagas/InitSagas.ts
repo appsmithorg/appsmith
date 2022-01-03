@@ -1,4 +1,4 @@
-import { get, isBoolean } from "lodash";
+import { get } from "lodash";
 import {
   all,
   call,
@@ -65,8 +65,6 @@ import {
   updateBranchLocally,
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { getReflowBetaFlag, setReflowBetaFlag } from "utils/storage";
-import { setEnableReflow } from "actions/reflowActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -215,13 +213,6 @@ function* initializeEditorSaga(
     );
 
     yield put(fetchCommentThreadsInit());
-
-    const enableReflow: boolean = yield getReflowBetaFlag();
-    const enableReflowHasBeenSet = isBoolean(enableReflow);
-    yield put(setEnableReflow(enableReflowHasBeenSet ? enableReflow : true));
-    if (!enableReflowHasBeenSet) {
-      setReflowBetaFlag(true);
-    }
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: appId,
