@@ -49,7 +49,7 @@ public class DefaultResourcesUtils {
                         }
                     });
 
-            if (!CollectionUtils.isNullOrEmpty(page.getPublishedPage().getLayouts())) {
+            if (page.getPublishedPage() != null && !CollectionUtils.isNullOrEmpty(page.getPublishedPage().getLayouts())) {
                 page.getPublishedPage()
                         .getLayouts()
                         .forEach(layout -> {
@@ -78,10 +78,12 @@ public class DefaultResourcesUtils {
             collectionDTO.setDefaultResources(defaultResources);
 
             Map<String, String> updatedActionIds = new HashMap<>();
-            collectionDTO.getDefaultToBranchedActionIdsMap()
-                    .values()
-                    .forEach(val -> updatedActionIds.put(val, val));
-            collectionDTO.setDefaultToBranchedActionIdsMap(updatedActionIds);
+            if (!CollectionUtils.isNullOrEmpty(collectionDTO.getDefaultToBranchedActionIdsMap())) {
+                collectionDTO.getDefaultToBranchedActionIdsMap()
+                        .values()
+                        .forEach(val -> updatedActionIds.put(val, val));
+                collectionDTO.setDefaultToBranchedActionIdsMap(updatedActionIds);
+            }
         }
         return resource;
     }

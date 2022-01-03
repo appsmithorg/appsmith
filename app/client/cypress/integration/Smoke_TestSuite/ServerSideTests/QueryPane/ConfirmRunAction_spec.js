@@ -14,9 +14,8 @@ describe("Confirm run action", function() {
     });
   });
 
-  it("Confirm run action", () => {
+  it("1. Confirm run action", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()

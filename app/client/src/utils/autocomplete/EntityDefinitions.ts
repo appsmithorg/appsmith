@@ -203,6 +203,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -283,6 +284,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -423,6 +425,12 @@ export const entityDefinitions: Record<string, unknown> = {
     blobUrl: "string",
     dataURL: "string",
     rawBinary: "string",
+  },
+  PROGRESSBAR_WIDGET: {
+    "!doc": "Progress bar is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/progressbar",
+    isVisible: isVisible,
+    progress: "number",
   },
   SWITCH_GROUP_WIDGET: {
     "!doc":

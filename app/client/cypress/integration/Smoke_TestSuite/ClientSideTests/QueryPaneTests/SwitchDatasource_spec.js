@@ -52,16 +52,11 @@ describe("Switch datasource", function() {
     );
 
     cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource(false);
+    cy.testSaveDatasource();
   });
 
   it("3. By switching datasources execute a query with both the datasources", function() {
-    cy.NavigateToQueryEditor();
-
-    cy.contains(".t--datasource-name", postgresDatasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
+    cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.get(".CodeMirror textarea")
       .first()
