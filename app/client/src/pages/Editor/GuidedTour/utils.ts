@@ -29,43 +29,46 @@ class IndicatorHelper {
       this.destroy();
       return;
     }
-    const coords = getCoords(primaryReference);
+    const coordinates = getCoordinates(primaryReference);
 
     // Remove previous indicator if it is unable to find the
     // correct position
-    if (coords.width === 0) {
+    if (coordinates.width === 0) {
       this.destroy();
       return;
     }
 
     if (position === "top") {
       this.indicatorWrapper.style.top =
-        coords.top - this.indicatorHeightOffset * 2 + offset.top + "px";
+        coordinates.top - this.indicatorHeightOffset * 2 + offset.top + "px";
       this.indicatorWrapper.style.left =
-        coords.width / 2 + coords.left - this.indicatorWidthOffset + "px";
+        coordinates.width / 2 +
+        coordinates.left -
+        this.indicatorWidthOffset +
+        "px";
     } else if (position === "bottom") {
-      this.indicatorWrapper.style.top = coords.height + offset.top + "px";
+      this.indicatorWrapper.style.top = coordinates.height + offset.top + "px";
       this.indicatorWrapper.style.left =
-        coords.width / 2 +
-        coords.left -
+        coordinates.width / 2 +
+        coordinates.left -
         this.indicatorWidthOffset +
         offset.left +
         "px";
     } else if (position === "left") {
       this.indicatorWrapper.style.top =
-        coords.top + this.indicatorHeightOffset - 18 + offset.top + "px";
+        coordinates.top + this.indicatorHeightOffset - 18 + offset.top + "px";
       this.indicatorWrapper.style.left =
-        coords.left - this.indicatorWidthOffset + offset.left + "px";
+        coordinates.left - this.indicatorWidthOffset + offset.left + "px";
     } else {
       this.indicatorWrapper.style.left =
-        coords.width +
-        coords.left +
+        coordinates.width +
+        coordinates.left +
         18 -
         this.indicatorWidthOffset +
         offset.left +
         "px";
       this.indicatorWrapper.style.top =
-        coords.top - this.indicatorHeightOffset + offset.top + "px";
+        coordinates.top - this.indicatorHeightOffset + offset.top + "px";
     }
   }
 
@@ -113,7 +116,7 @@ class IndicatorHelper {
 }
 const indicatorHelperInstance = new IndicatorHelper();
 
-function getCoords(elem: Element) {
+function getCoordinates(elem: Element) {
   const box = elem.getBoundingClientRect();
 
   return {
@@ -159,14 +162,14 @@ export function highlightSection(
   // We need to update the position and dimensions as and when the target's position
   // or dimension changes
   function updatePosition(element: Element) {
-    const coords = getCoords(element);
-    highlightBorder.style.left = coords.left - positionOffset + "px";
-    highlightBorder.style.left = coords.left - positionOffset + "px";
-    highlightBorder.style.top = coords.top - positionOffset + "px";
+    const coordinates = getCoordinates(element);
+    highlightBorder.style.left = coordinates.left - positionOffset + "px";
+    highlightBorder.style.left = coordinates.left - positionOffset + "px";
+    highlightBorder.style.top = coordinates.top - positionOffset + "px";
     highlightBorder.style.width = !!widthReference
       ? widthReference.clientWidth + dimensionOffset + "px"
-      : coords.width + dimensionOffset + "px";
-    highlightBorder.style.height = coords.height + dimensionOffset + "px";
+      : coordinates.width + dimensionOffset + "px";
+    highlightBorder.style.height = coordinates.height + dimensionOffset + "px";
   }
 
   const highlightBorder = document.createElement("div");
@@ -193,10 +196,12 @@ export function highlightSection(
     primaryReference && updatePosition(primaryReference);
   }, 1000);
 
+  // Fade out the border
   setTimeout(() => {
     highlightBorder.classList.remove(GuidedTourClasses.GUIDED_TOUR_SHOW_BORDER);
   }, hideAnimationDelay);
 
+  // Remove element from the dom
   setTimeout(() => {
     highlightBorder.remove();
     clearInterval(timerId);
