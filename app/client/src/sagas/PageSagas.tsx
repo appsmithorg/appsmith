@@ -108,6 +108,7 @@ import {
 import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -496,6 +497,12 @@ export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
+    const guidedTourEnabled = yield select(inGuidedTour);
+    // Prevent user from creating a new page during the guided tour
+    if (guidedTourEnabled) {
+      yield put(toggleShowDeviationDialog(true));
+      return;
+    }
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse: boolean = yield validateResponse(response);
