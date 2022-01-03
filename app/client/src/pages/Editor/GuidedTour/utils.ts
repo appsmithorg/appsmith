@@ -8,11 +8,13 @@ import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants"
 class IndicatorHelper {
   timerId!: number;
   indicatorWrapper!: HTMLDivElement;
-  anim!: AnimationItem;
+  animationItem!: AnimationItem;
   indicatorHeightOffset: number;
   indicatorWidthOffset: number;
 
   constructor() {
+    // The lottie animation has empty content around it.
+    // These offsets are to compensate for the same to help with positioning it correctly.
     this.indicatorHeightOffset = 23;
     this.indicatorWidthOffset = 58;
   }
@@ -56,14 +58,13 @@ class IndicatorHelper {
         "px";
     } else if (position === "left") {
       this.indicatorWrapper.style.top =
-        coordinates.top + this.indicatorHeightOffset - 18 + offset.top + "px";
+        coordinates.top + this.indicatorHeightOffset + offset.top + "px";
       this.indicatorWrapper.style.left =
         coordinates.left - this.indicatorWidthOffset + offset.left + "px";
     } else {
       this.indicatorWrapper.style.left =
         coordinates.width +
-        coordinates.left +
-        18 -
+        coordinates.left -
         this.indicatorWidthOffset +
         offset.left +
         "px";
@@ -92,7 +93,7 @@ class IndicatorHelper {
       GuidedTourClasses.GUIDED_TOUR_INDICATOR,
     );
     document.body.append(this.indicatorWrapper);
-    this.anim = lottie.loadAnimation({
+    this.animationItem = lottie.loadAnimation({
       animationData: indicator,
       autoplay: true,
       container: this.indicatorWrapper,
@@ -110,7 +111,7 @@ class IndicatorHelper {
 
   destroy() {
     this.timerId && clearInterval(this.timerId);
-    this.anim && this.anim.destroy();
+    this.animationItem && this.animationItem.destroy();
     this.indicatorWrapper && this.indicatorWrapper.remove();
   }
 }

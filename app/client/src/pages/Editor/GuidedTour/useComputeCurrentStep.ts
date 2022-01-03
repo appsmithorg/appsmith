@@ -177,7 +177,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       if (!queryLimitUpdated) {
         showIndicator(`span[role="presentation"]`, "right", {
           top: -4,
-          left: 0,
+          left: 18,
         });
       } else if (queryExecutedSuccessfully) {
         dispatch(forceShowContent(GUIDED_TOUR_STEPS.RUN_QUERY));
@@ -345,9 +345,9 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
         dispatch(markStepComplete());
         hideIndicator();
       } else {
-        showIndicator(`[data-guided-tour-iid='onSuccess']`, "left", {
-          top: 0,
-          left: -10,
+        showIndicator(`[data-guided-tour-iid='onSuccess']`, "top", {
+          top: 20,
+          left: 0,
         });
       }
     }

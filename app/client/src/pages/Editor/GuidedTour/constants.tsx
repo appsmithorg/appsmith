@@ -282,7 +282,7 @@ export const Steps: StepsType = {
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='CustomersTable']`, "right", {
             top: 3,
-            left: 0,
+            left: 18,
           });
         }, 1000);
       },
