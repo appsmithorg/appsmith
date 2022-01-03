@@ -385,7 +385,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
-        return stringifiedFile
+        Mono<Application> importedApplicationMono = stringifiedFile
                 .flatMap(data -> {
                     Gson gson = new Gson();
                     Type fileType = new TypeToken<ApplicationJson>() {
@@ -393,6 +393,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
                 });
+
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**

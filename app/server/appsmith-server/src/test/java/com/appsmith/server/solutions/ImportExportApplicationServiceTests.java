@@ -67,6 +67,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,6 +82,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -139,12 +141,13 @@ public class ImportExportApplicationServiceTests {
     private ThemeRepository themeRepository;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
-    private Plugin installedPlugin;
-    private String orgId;
-    private String testAppId;
-    private Datasource jsDatasource;
-    private Map<String, Datasource> datasourceMap = new HashMap<>();
-    private Plugin installedJsPlugin;
+    private static Plugin installedPlugin;
+    private static String orgId;
+    private static String testAppId;
+    private static Datasource jsDatasource;
+    private static final Map<String, Datasource> datasourceMap = new HashMap<>();
+    private static Plugin installedJsPlugin;
+    private static Boolean isSetupDone = false;
 
     private Flux<ActionDTO> getActionsInApplication(Application application) {
         return newPageService
@@ -157,9 +160,14 @@ public class ImportExportApplicationServiceTests {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
+        Mockito
+                .when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
+        if (Boolean.TRUE.equals(isSetupDone)) {
+            return;
+        }
+        installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Organization organization = new Organization();
         organization.setName("Import-Export-Test-Organization");
         Organization savedOrganization = organizationService.create(organization).block();
@@ -207,6 +215,7 @@ public class ImportExportApplicationServiceTests {
         ds2 = datasourceService.create(ds2).block();
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
+        isSetupDone = true;
     }
     
     @Test
@@ -695,6 +704,42 @@ public class ImportExportApplicationServiceTests {
                 assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
             })
             .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importFromValidJson_cancelledMidway_importSuccess() {
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Midway cancel import app organization");
+        newOrganization = organizationService.create(newOrganization).block();
+
+        importExportApplicationService
+                .extractFileAndSaveApplication(newOrganization.getId(), filePart)
+                .timeout(Duration.ofMillis(100))
+                .subscribe();
+
+        // Wait for cloning to complete
+        Mono<Application> importedAppFromDbMono = organizationService.findById(newOrganization.getId(), READ_ORGANIZATIONS)
+                .flatMap(organization -> {
+                    try {
+                        // Before fetching the imported application, sleep for 5 seconds to ensure that the import completes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                            .filter(application -> "valid_application".equals(application.getName()))
+                            .next();
+                });
+
+        StepVerifier.create(importedAppFromDbMono)
+                .assertNext(application -> {
+                    assertThat(application.getId()).isNullOrEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test
