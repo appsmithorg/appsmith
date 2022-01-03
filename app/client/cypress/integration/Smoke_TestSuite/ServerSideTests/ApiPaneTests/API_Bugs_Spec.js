@@ -36,7 +36,7 @@ describe("Rest Bugs tests", function() {
     );
     cy.wait(1000);
 
-    cy.contains(commonlocators.entityName, "Page1").click();
+    cy.contains(commonlocators.entityName, "Page1").click({ force: true });
     cy.clickButton("Get Facts!");
     cy.wait(8000); // for all api calls to complete!
 
@@ -56,7 +56,7 @@ describe("Rest Bugs tests", function() {
     });
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      //cy.log("4th response is :"+ JSON.stringify(response.body))
+      //cy.log("Response is :"+ JSON.stringify(response.body))
 
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.type).to.eq("dog");

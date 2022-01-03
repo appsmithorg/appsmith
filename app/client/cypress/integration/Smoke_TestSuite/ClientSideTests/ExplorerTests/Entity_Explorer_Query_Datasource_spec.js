@@ -1,6 +1,5 @@
 /// <reference types="Cypress" />
 
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -21,15 +20,11 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create a page/moveQuery/rename/delete in explorer", function() {
+  it("1. Create a page/moveQuery/rename/delete in explorer", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
     cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
-
-    cy.testSaveDatasource();
 
     // checking that conflicting names are not allowed
     cy.get(".t--edit-datasource-name").click();
@@ -47,16 +42,8 @@ describe("Entity explorer tests related to query and datasource", function() {
       .should("have.value", datasourceName)
       .blur();
 
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
-    cy.get("@getPluginForm").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.testSaveDatasource();
+    cy.NavigateToActiveDSQueryPane(datasourceName);
 
     /* eslint-disable */
     cy.wait(2000);

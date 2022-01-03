@@ -108,6 +108,9 @@ import SingleSelectTreeWidget, {
 import MultiSelectTreeWidget, {
   CONFIG as MULTI_SELECT_TREE_WIDGET_CONFIG,
 } from "widgets/MultiSelectTreeWidget";
+import ProgressBarWidget, {
+  CONFIG as PROGRESSBAR_WIDGET_CONFIG,
+} from "widgets/ProgressBarWidget";
 import SwitchGroupWidget, {
   CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
 } from "widgets/SwitchGroupWidget";
@@ -162,6 +165,7 @@ export const registerWidgets = () => {
   registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG);
   registerWidget(AudioWidget, AUDIO_WIDGET_CONFIG);
+  registerWidget(ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG);
   registerWidget(CameraWidget, CAMERA_WIDGET_CONFIG);
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
