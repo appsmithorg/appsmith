@@ -74,7 +74,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -186,8 +186,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      PROGRESSBAR_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
       RATE_WIDGET: {
-        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        activeColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -206,6 +210,9 @@ const dummyThemes: AppTheme[] = [
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         boxShadow: "none",
+      },
+      SWITCH_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -303,7 +310,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -415,8 +422,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      PROGRESSBAR_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
       RATE_WIDGET: {
-        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        activeColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -435,6 +446,9 @@ const dummyThemes: AppTheme[] = [
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         boxShadow: "none",
+      },
+      SWITCH_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -533,7 +547,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -645,8 +659,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      PROGRESSBAR_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
       RATE_WIDGET: {
-        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        activeColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -665,6 +683,9 @@ const dummyThemes: AppTheme[] = [
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         boxShadow: "none",
+      },
+      SWITCH_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -762,7 +783,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       BUTTON_GROUP_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -874,8 +895,12 @@ const dummyThemes: AppTheme[] = [
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
       },
+      PROGRESSBAR_WIDGET: {
+        fillColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      },
       RATE_WIDGET: {
-        primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+        activeColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       RADIO_GROUP_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -894,6 +919,9 @@ const dummyThemes: AppTheme[] = [
       SWITCH_WIDGET: {
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         boxShadow: "none",
+      },
+      SWITCH_GROUP_WIDGET: {
+        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
       },
       TABLE_WIDGET: {
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",

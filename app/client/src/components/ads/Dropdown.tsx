@@ -436,6 +436,7 @@ const SelectedDropDownHolder = styled.div`
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
+  width: 100%;
 
   & ${Text} {
     max-width: 100%;

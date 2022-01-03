@@ -391,6 +391,7 @@ class MultiSelectWidget extends BaseWidget<
         primaryColor={this.props.primaryColor}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
+        widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );

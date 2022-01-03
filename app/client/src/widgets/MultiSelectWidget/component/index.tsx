@@ -59,6 +59,7 @@ export interface MultiSelectProps
   boxShadow?: string;
   primaryColor: string;
   allowSelectAll?: boolean;
+  widgetId: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -85,6 +86,7 @@ function MultiSelectComponent({
   primaryColor,
   serverSideFiltering,
   value,
+  widgetId,
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -167,9 +169,6 @@ function MultiSelectComponent({
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
-  const id = _.uniqueId();
-
-  console.log({ primaryColor });
   return (
     <MultiSelectContainer
       backgroundColor={backgroundColor}
@@ -184,7 +183,7 @@ function MultiSelectComponent({
       <DropdownStyles
         borderRadius={borderRadius}
         dropDownWidth={dropDownWidth}
-        id={id}
+        id={widgetId}
         parentWidth={width - WidgetContainerDiff}
         primaryColor={primaryColor}
       />
@@ -211,9 +210,8 @@ function MultiSelectComponent({
         // autoFocus
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
-        defaultOpen
         disabled={disabled}
-        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
+        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}

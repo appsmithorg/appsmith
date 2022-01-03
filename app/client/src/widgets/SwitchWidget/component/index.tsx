@@ -27,19 +27,21 @@ const SwitchComponentContainer = styled.div<{
     justify-content: flex-end;
   }
   ${BlueprintControlTransform}
+`;
 
-  && {
-    .${Classes.CONTROL} {
-      & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${({ backgroundColor }) => `${backgroundColor}`};
-        border: 1px solid ${({ backgroundColor }) => `${backgroundColor}`};
-      }
+export const StyledSwitch = styled(Switch)<{
+  backgroundColor: string;
+}>`
+  &.${Classes.CONTROL} {
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ backgroundColor }) => `${backgroundColor}`} !important;
+      border: 1px solid ${({ backgroundColor }) => `${backgroundColor}`} !important;
     }
+  }
 
-    .${Classes.SWITCH} {
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${({ backgroundColor }) => `${backgroundColor}`};
-      }
+  &.${Classes.SWITCH} {
+    & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ backgroundColor }) => `${backgroundColor}`} !important;
     }
   }
 `;
@@ -61,8 +63,9 @@ export function SwitchComponent({
       backgroundColor={backgroundColor}
       className={switchAlignClass}
     >
-      <Switch
+      <StyledSwitch
         alignIndicator={switchAlignClass}
+        backgroundColor={backgroundColor}
         checked={isSwitchedOn}
         className={
           isLoading

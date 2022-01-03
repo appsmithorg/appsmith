@@ -15,7 +15,6 @@ export const CONFIG = {
     rows: 0.9 * GRID_DENSITY_MIGRATION_V1,
     columns: 7 * GRID_DENSITY_MIGRATION_V1,
     isVisible: true,
-    fillColor: Colors.GREEN,
     showResult: false,
     barType: BarType.INDETERMINATE,
     progress: 50,

@@ -9,9 +9,11 @@ import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
   ButtonVariant,
+  ButtonVariantTypes,
+  RecaptchaTypes,
+  RecaptchaType,
   ButtonPlacementTypes,
   ButtonPlacement,
-  ButtonVariantTypes,
 } from "components/constants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
@@ -62,23 +64,29 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "recaptchaV2",
+            propertyName: "recaptchaType",
             label: "Google reCAPTCHA Version",
             controlType: "DROP_DOWN",
             helpText: "Select reCAPTCHA version",
             options: [
               {
                 label: "reCAPTCHA v3",
-                value: false,
+                value: RecaptchaTypes.V3,
               },
               {
                 label: "reCAPTCHA v2",
-                value: true,
+                value: RecaptchaTypes.V2,
               },
             ],
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [RecaptchaTypes.V3, RecaptchaTypes.V2],
+                default: RecaptchaTypes.V3,
+              },
+            },
           },
           {
             propertyName: "isVisible",
@@ -343,7 +351,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
-        recaptchaV2={this.props.recaptchaV2}
+        recaptchaType={this.props.recaptchaType}
         text={this.props.text}
         tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}
@@ -363,7 +371,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
-  recaptchaV2?: boolean;
+  recaptchaType?: RecaptchaType;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
   buttonVariant?: ButtonVariant;

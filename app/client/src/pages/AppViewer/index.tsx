@@ -41,20 +41,15 @@ import {
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section<{ hasPages: boolean }>`
+const AppViewerBody = styled.section<{
+  hasPages: boolean;
+  headerHeight: number;
+}>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(
-    100vh -
-      ${(props) => {
-        // NOTE: we need to substract the header height from app body otherwise you will two scrollbars
-        return !props.hasPages
-          ? `${props.theme.smallHeaderHeight} - 1px`
-          : "87px";
-      }}
-  );
+  height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
 `;
 
 const ContainerWithComments = styled.div`
@@ -84,6 +79,7 @@ function AppViewer(props: Props) {
   const dispatch = useDispatch();
   const { search } = props.location;
   const { applicationId, pageId } = props.match.params;
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [registered, setRegistered] = useState(false);
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getViewModePageList);
@@ -108,6 +104,12 @@ function AppViewer(props: Props) {
       initializeAppViewerCallback(branch, applicationId, pageId);
     }
   }, [branch, pageId, applicationId]);
+
+  useEffect(() => {
+    const header = document.querySelector(".js-appviewer-header");
+
+    setHeaderHeight(header?.clientHeight || 0);
+  }, [pages.length, isInitialized]);
 
   /**
    * loads font for canvas based on theme
@@ -205,7 +207,10 @@ function AppViewer(props: Props) {
             <AppViewerBodyContainer
               backgroundColor={selectedTheme.properties.colors.backgroundColor}
             >
-              <AppViewerBody hasPages={pages.length > 1}>
+              <AppViewerBody
+                hasPages={pages.length > 1}
+                headerHeight={headerHeight}
+              >
                 {isInitialized && registered && (
                   <Switch>
                     <SentryRoute

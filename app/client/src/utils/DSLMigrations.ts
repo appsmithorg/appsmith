@@ -50,6 +50,7 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxG
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
+import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1006,6 +1007,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 48) {
+    currentDSL = migrateRecaptchaType(currentDSL);
+    currentDSL.version = 49;
+  }
+
+  if (currentDSL.version === 49) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
@@ -1559,15 +1565,25 @@ export const migrateStylingPropertiesForTheming = (
         "TABS_WIDGET",
         "SINGLE_SELECT_TREE_WIDGET",
         "TABLE_WIDGET",
+        "BUTTON_GROUP_WIDGET",
       ].indexOf(child.type) > -1
     ) {
       child.primaryColor = "{{appsmith.theme.colors.primaryColor}}";
-      child.dynamicBindingPathList = [
-        ...(child.dynamicBindingPathList || []),
-        {
-          key: "primaryColor",
+
+      const findIndex = (child.dynamicBindingPathList || []).findIndex(
+        (bindingPath) => {
+          return bindingPath.key === "primaryColor";
         },
-      ];
+      );
+
+      if (findIndex > -1 === false) {
+        child.dynamicBindingPathList = [
+          ...(child.dynamicBindingPathList || []),
+          {
+            key: "primaryColor",
+          },
+        ];
+      }
     }
 
     if (child.children && child.children.length > 0) {

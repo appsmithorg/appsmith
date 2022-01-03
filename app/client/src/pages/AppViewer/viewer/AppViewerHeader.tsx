@@ -143,7 +143,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   return (
     <ThemeProvider theme={props.lightTheme}>
       <>
-        <HeaderWrapper className="relative" hasPages={pages.length > 1}>
+        <HeaderWrapper
+          className="relative js-appviewer-header"
+          hasPages={pages.length > 1}
+        >
           <HtmlTitle name={currentApplicationDetails?.name} />
           <HeaderRow className="justify-between px-3 py-2 md:px-6">
             <HeaderSection className="justify-start space-x-3">

@@ -170,7 +170,7 @@ class SwitchGroupWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "primaryColor",
+            propertyName: "backgroundColor",
             helpText: "Sets the background color of the widget",
             label: "Background color",
             controlType: "COLOR_PICKER",
@@ -213,24 +213,24 @@ class SwitchGroupWidget extends BaseWidget<
   getPageView() {
     const {
       alignment,
+      backgroundColor,
       isDisabled,
       isInline,
       isRequired,
       isValid,
       options,
       parentRowSpace,
-      primaryColor,
       selectedValues,
     } = this.props;
 
     return (
       <SwitchGroupComponent
         alignment={alignment}
+        backgroundColor={backgroundColor}
         disabled={isDisabled}
         inline={isInline}
         onChange={this.handleSwitchStateChange}
         options={options}
-        primaryColor={primaryColor}
         required={isRequired}
         rowSpace={parentRowSpace}
         selected={selectedValues}
@@ -275,7 +275,7 @@ export interface SwitchGroupWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   alignment: Alignment;
   onSelectionChange?: boolean;
-  primaryColor: string;
+  backgroundColor: string;
 }
 
 export default SwitchGroupWidget;

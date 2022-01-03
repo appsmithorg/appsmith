@@ -29,8 +29,8 @@ const StyledContainerComponent = styled.div<
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
-
-    overflow: hidden;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
 
   ${(props) =>
     props.shouldScrollContents === true

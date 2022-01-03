@@ -4,6 +4,7 @@ import { Alignment, Switch } from "@blueprintjs/core";
 
 import { ThemeProp } from "components/ads/common";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
+import { StyledSwitch } from "widgets/SwitchWidget/component";
 
 export interface OptionProps {
   label?: string;
@@ -59,36 +60,17 @@ export interface StyledSwitchProps {
   inline?: boolean;
   optionCount: number;
   rowSpace: number;
-  primaryColor: string;
+  backgroundColor: string;
 }
-
-const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
-  height: ${({ rowSpace }) => rowSpace}px;
-
-  &.bp3-control.bp3-switch {
-    margin-top: ${({ inline, optionCount }) =>
-      (inline || optionCount === 1) && `4px`};
-    ${({ alignIndicator }) =>
-      alignIndicator === Alignment.RIGHT && `margin-right: 0`};
-    input:checked ~ .bp3-control-indicator,
-    &:hover input:checked ~ .bp3-control-indicator {
-      background-color: ${({ primaryColor }) => primaryColor};
-    }
-
-    & input:checked ~ .bp3-control-indicator {
-      border-color: ${({ primaryColor }) => primaryColor};
-    }
-  }
-`;
 
 function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   const {
     alignment,
+    backgroundColor,
     disabled,
     inline,
     onChange,
     options,
-    primaryColor,
     rowSpace,
     selected,
     valid,
@@ -106,15 +88,13 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
         options.map((option: OptionProps) => (
           <StyledSwitch
             alignIndicator={alignment}
+            backgroundColor={backgroundColor}
             checked={selected.includes(option.value)}
             disabled={disabled}
             inline={inline}
             key={option.value}
             label={option.label}
             onChange={onChange(option.value)}
-            optionCount={options.length}
-            primaryColor={primaryColor}
-            rowSpace={rowSpace}
           />
         ))}
     </SwitchGroupContainer>
@@ -144,7 +124,7 @@ export interface SwitchGroupComponentProps {
   rowSpace: number;
   selected: string[];
   valid?: boolean;
-  primaryColor: string;
+  backgroundColor: string;
 }
 
 export default SwitchGroupComponent;
