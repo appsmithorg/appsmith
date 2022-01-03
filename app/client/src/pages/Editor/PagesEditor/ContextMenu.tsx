@@ -24,7 +24,11 @@ import { Position } from "@blueprintjs/core";
 const Container = styled.div`
   padding: 12px;
   padding-top: 6px;
-  width: 280px;
+
+  /* min width to be 280px i.e. 17.5rem to wrap long page names */
+  max-width: inherit;
+  min-width: 17.5rem;
+
   background-color: ${Colors.GREY_1};
 
   h4 {
