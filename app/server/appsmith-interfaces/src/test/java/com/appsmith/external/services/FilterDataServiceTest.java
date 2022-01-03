@@ -767,6 +767,11 @@ public class FilterDataServiceTest {
         }
     }
 
+    /**
+     * When there is a combination of numbers and decimals in a specific column,
+     * the google sheeet was not filtering correctly due to code issue.
+     * After fixing that issue, this testcase was added with multiple rows of data to test the filtering.
+     */
     @Test
     public void testFilterInConditionForNumbersAndDecimals() {
         String data = "[\n" +
