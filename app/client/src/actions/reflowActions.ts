@@ -19,9 +19,9 @@ export const stopReflow = () => {
   };
 };
 
-export const setShouldResize = (payload: boolean) => {
+export const setEnableReflow = (payload: boolean) => {
   return {
-    type: ReflowReduxActionTypes.RESIZE_RESIZING,
+    type: ReflowReduxActionTypes.ENABLE_REFLOW,
     payload,
   };
 };

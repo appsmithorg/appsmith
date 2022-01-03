@@ -18,6 +18,7 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 
 export interface XYCord {
   x: number;
@@ -39,6 +40,7 @@ export const useCanvasDragging = (
   const canvasZoomLevel = useSelector(getZoomLevel);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   const { devicePixelRatio: scale = 1 } = window;
+  const reflowEnabled = useSelector(isReflowEnabled);
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -460,6 +462,7 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               const isReflowing = !isEmpty(currentReflowParams.movementMap);
               const canReflow =
+                reflowEnabled &&
                 currentRectanglesToDraw.length === 1 &&
                 !currentRectanglesToDraw[0].detachFromLayout;
               const currentBlock = currentRectanglesToDraw[0];
@@ -775,7 +778,14 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
+  }, [
+    isDragging,
+    isResizing,
+    blocksToDraw,
+    snapRows,
+    canExtend,
+    reflowEnabled,
+  ]);
   return {
     showCanvas: isDragging && !isResizing,
   };

@@ -5,8 +5,8 @@ import { createSelector } from "reselect";
 export const getReflow = (state: AppState): widgetReflowState =>
   state.ui.widgetReflow;
 
-export const getShouldResize = (state: any): boolean =>
-  state.ui.widgetReflow.shouldResize;
+export const isReflowEnabled = (state: any): boolean =>
+  state.ui.widgetReflow.enableReflow;
 
 export const getIsReflowing = (state: AppState): boolean =>
   state.ui.widgetReflow.isReflowing;

@@ -6,7 +6,6 @@ import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
-import { getShouldResize } from "selectors/widgetReflowSelectors";
 import { useSelector } from "store";
 import { Colors } from "constants/Colors";
 import {
@@ -17,8 +16,12 @@ import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { updateApplicationLayout } from "actions/applicationActions";
 
-import { setShouldResize } from "actions/reflowActions";
+import { setEnableReflow } from "actions/reflowActions";
 import Checkbox from "components/ads/Checkbox";
+import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
+import styled from "styled-components";
+import { isReflowEnabled } from "selectors/widgetReflowSelectors";
+import { setReflowBetaFlag } from "utils/storage";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -57,12 +60,25 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "mobile",
   },
 ];
+const ReflowBetaWrapper = styled.div`
+  display: inline-flex;
+  flex-direction: row;
+  .beta-icon {
+    fill: #feb811;
+    rect {
+      stroke: #feb811;
+    }
+    path {
+      fill: #fff;
+    }
+  }
+`;
 
 export function MainContainerLayoutControl() {
   const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const shouldResize = useSelector(getShouldResize);
+  const shouldResize = useSelector(isReflowEnabled);
   /**
    * return selected layout. if there is no app
    * layout, use the default one ( fluid )
@@ -92,6 +108,11 @@ export function MainContainerLayoutControl() {
     },
     [dispatch, appLayout],
   );
+
+  const reflowBetaToggle = (isChecked: boolean) => {
+    setReflowBetaFlag(isChecked);
+    dispatch(setEnableReflow(isChecked));
+  };
 
   return (
     <div className="px-3 space-y-2 t--layout-control-wrapper">
@@ -127,13 +148,14 @@ export function MainContainerLayoutControl() {
           );
         })}
       </div>
-      <div>
+      <ReflowBetaWrapper>
         <Checkbox
           isDefaultChecked={shouldResize}
-          label="Resize others while Reflowing"
-          onCheckChange={(isChecked) => dispatch(setShouldResize(isChecked))}
+          label="New Reflow & Resize"
+          onCheckChange={reflowBetaToggle}
         />
-      </div>
+        <BetaIcon className="beta-icon" />
+      </ReflowBetaWrapper>
     </div>
   );
 }

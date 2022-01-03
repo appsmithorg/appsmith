@@ -4,7 +4,6 @@ import { isEmpty, throttle } from "lodash";
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
-import { getShouldResize } from "selectors/widgetReflowSelectors";
 import { reflow } from "reflow";
 import {
   CollidingSpace,
@@ -35,7 +34,6 @@ export const useReflow = (
 
   const isReflowing = useRef<boolean>(false);
 
-  const shouldResize = useSelector(getShouldResize);
   const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
@@ -48,7 +46,8 @@ export const useReflow = (
   );
   const prevCollidingSpaces = useRef<WidgetCollidingSpaceMap>();
   const prevMovementMap = useRef<ReflowedSpaceMap>({});
-
+  // will become a state if we decide that resize should be a "toggle on-demand" feature
+  const shouldResize = true;
   return function reflowSpaces(
     newPositions: OccupiedSpace,
     OGPositions: OccupiedSpace,

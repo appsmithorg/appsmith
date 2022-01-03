@@ -18,7 +18,7 @@ export function reflow(
   direction: ReflowDirection,
   gridProps: GridProps,
   forceDirection = false,
-  shouldResize = false,
+  shouldResize = true,
   immediateExitContainer?: string,
   prevPositions?: OccupiedSpace,
   prevCollidingSpaces?: CollidingSpaceMap,

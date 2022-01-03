@@ -8,31 +8,31 @@ import { ReflowedSpaceMap } from "reflow/reflowTypes";
 const initialState: widgetReflow = {
   isReflowing: false,
   reflowingWidgets: {},
-  shouldResize: true,
+  enableReflow: true,
 };
 
 export const widgetReflowReducer = createReducer(initialState, {
-  [ReflowReduxActionTypes.STOP_REFLOW]: ({ shouldResize }: widgetReflow) => {
+  [ReflowReduxActionTypes.STOP_REFLOW]: ({ enableReflow }: widgetReflow) => {
     return {
       isReflowing: false,
-      shouldResize,
+      enableReflow,
     };
   },
   [ReflowReduxActionTypes.REFLOW_MOVE]: (
-    { shouldResize }: widgetReflow,
+    { enableReflow }: widgetReflow,
     action: ReduxAction<{ reflowingWidgets: ReflowedSpaceMap }>,
   ) => {
     return {
       isReflowing: true,
       reflowingWidgets: { ...action.payload },
-      shouldResize,
+      enableReflow,
     };
   },
-  [ReflowReduxActionTypes.RESIZE_RESIZING]: (
+  [ReflowReduxActionTypes.ENABLE_REFLOW]: (
     state: widgetReflow,
     action: ReduxAction<boolean>,
   ) => {
-    return { ...state, shouldResize: action.payload };
+    return { ...state, enableReflow: action.payload };
   },
 });
 
@@ -42,7 +42,7 @@ export type widgetReflowState = {
 };
 
 export type widgetReflow = widgetReflowState & {
-  shouldResize: boolean;
+  enableReflow: boolean;
 };
 
 export type Reflow = {

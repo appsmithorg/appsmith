@@ -18,6 +18,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
+  REFLOW_BETA_FLAG: "REFLOW_BETA_FLAG",
 };
 
 const store = localforage.createInstance({
@@ -52,6 +53,14 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
     log.error("An error occurred when storing copied widget: ", error);
     return false;
   }
+};
+
+export const setReflowBetaFlag = (enable: boolean) => {
+  store.setItem(STORAGE_KEYS.REFLOW_BETA_FLAG, enable);
+};
+
+export const getReflowBetaFlag = () => {
+  return store.getItem(STORAGE_KEYS.REFLOW_BETA_FLAG);
 };
 
 export const getCopiedWidgets = async () => {

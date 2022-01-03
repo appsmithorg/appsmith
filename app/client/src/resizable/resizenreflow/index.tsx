@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, useRef } from "react";
+import React, { ReactNode, useState, useEffect, useRef, useMemo } from "react";
 import styled, { StyledComponent } from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDrag } from "react-use-gesture";
@@ -7,11 +7,16 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useReflow } from "utils/hooks/useReflow";
-import { getReflowSelector } from "selectors/widgetReflowSelectors";
+import {
+  getReflowSelector,
+  isReflowEnabled,
+} from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridProps, ReflowDirection, ReflowedSpace } from "reflow/reflowTypes";
 import { getNearestParentCanvas } from "utils/generators";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
@@ -47,6 +52,12 @@ export type DimensionProps = {
 type ResizableHandleProps = {
   allowResize: boolean;
   scrollParent: HTMLDivElement | null;
+  checkForCollision: (widgetNewSize: {
+    left: number;
+    top: number;
+    bottom: number;
+    right: number;
+  }) => boolean;
   dragCallback: (x: number, y: number) => void;
   component: StyledComponent<"div", Record<string, unknown>>;
   onStart: () => void;
@@ -147,6 +158,26 @@ type ResizableProps = {
 export function Resizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
+  const reflowEnabled = useSelector(isReflowEnabled);
+
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
+  const occupiedSpacesBySiblingWidgets = useMemo(() => {
+    return occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
+      ? occupiedSpaces[props.parentId]
+      : undefined;
+  }, [occupiedSpaces, props.parentId]);
+  const checkForCollision = (widgetNewSize: {
+    left: number;
+    top: number;
+    bottom: number;
+    right: number;
+  }) => {
+    return isDropZoneOccupied(
+      widgetNewSize,
+      props.widgetId,
+      occupiedSpacesBySiblingWidgets,
+    );
+  };
   // Performance tracking start
   const sentryPerfTags = props.zWidgetType
     ? [{ name: "widget_type", value: props.zWidgetType }]
@@ -203,21 +234,29 @@ export function Resizable(props: ResizableProps) {
       canResizeVertically,
       resizedPositions,
     } = props.getResizedPositions({ width, height }, { x, y });
+    const canResize = canResizeHorizontally || canResizeVertically;
 
-    if (canResizeHorizontally || canResizeVertically) {
+    if (canResize) {
       set((prevState) => {
         let newRect = { ...rect };
 
         let canVerticalMove = true,
           canHorizontalMove = true,
           bottomMostRow = 0;
-        if (resizedPositions)
+        if (!reflowEnabled && resizedPositions) {
+          const isColliding = checkForCollision(resizedPositions);
+          if (isColliding) {
+            return prevState;
+          }
+        }
+        if (resizedPositions) {
           ({ bottomMostRow, canHorizontalMove, canVerticalMove } = reflow(
             resizedPositions,
             props.originalPositions,
             direction,
             true,
           ));
+        }
 
         if (!canHorizontalMove || !canResizeHorizontally) {
           newRect = {
@@ -411,6 +450,7 @@ export function Resizable(props: ResizableProps) {
     <ResizableHandle
       {...handle}
       allowResize={props.allowResize}
+      checkForCollision={checkForCollision}
       key={index}
       onStart={() => {
         togglePointerEvents(false);

@@ -32,7 +32,7 @@ export function getMovementMap(
   collidingSpaceMap: CollidingSpaceMap,
   gridProps: GridProps,
   delta = { X: 0, Y: 0 },
-  shouldResize = false,
+  shouldResize = true,
 ) {
   const movementMap: ReflowedSpaceMap = {};
   const collisionTree = getCollisionTree(
