@@ -19,20 +19,23 @@ const initialState: widgetReflowState = {
 export const widgetReflowReducer = createReducer(initialState, {
   [ReflowReduxActionTypes.STOP_REFLOW]: ({
     enableReflow,
+    onBoarding,
   }: widgetReflowState) => {
     return {
       isReflowing: false,
       enableReflow,
+      onBoarding,
     };
   },
   [ReflowReduxActionTypes.REFLOW_MOVE]: (
-    { enableReflow }: widgetReflowState,
+    { enableReflow, onBoarding }: widgetReflowState,
     action: ReduxAction<{ reflowingWidgets: ReflowedSpaceMap }>,
   ) => {
     return {
       isReflowing: true,
       reflowingWidgets: { ...action.payload },
       enableReflow,
+      onBoarding,
     };
   },
   [ReflowReduxActionTypes.ENABLE_REFLOW]: (
