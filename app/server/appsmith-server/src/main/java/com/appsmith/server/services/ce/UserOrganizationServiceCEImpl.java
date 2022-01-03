@@ -13,6 +13,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -172,6 +173,9 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, CommentThread.class
         );
+        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Theme.class
+        );
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
@@ -179,7 +183,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
-                .cache();
+                .cache(); // .cache is very important, as we will execute once and reuse the results multiple times
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
@@ -188,14 +192,18 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, true));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(application.getId(), commentThreadPolicyMap, user.getUsername(), true));
-
+        Flux<Theme> updatedThemesFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateThemePolicies(
+                        application, themePolicyMap, true
+                ));
         return Mono.zip(
                 updatedDatasourcesFlux.collectList(),
                 updatedPagesFlux.collectList(),
                 updatedActionsFlux.collectList(),
                 updatedActionCollectionsFlux.collectList(),
                 Mono.just(updatedOrganization),
-                updatedThreadsFlux.collectList()
+                updatedThreadsFlux.collectList(),
+                updatedThemesFlux.collectList()
         )
         .flatMap(tuple -> {
             //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
@@ -256,6 +264,9 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, CommentThread.class
         );
+        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Theme.class
+        );
 
         //Now update the organization policies
         Organization updatedOrganization = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
@@ -264,7 +275,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         // Update the underlying application/page/action
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, false);
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, false)
-                .cache();
+                .cache(); // .cache is very important, as we will execute once and reuse the results multiple times
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, false));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
@@ -275,6 +286,10 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, user.getUsername(), false
                 ));
+        Flux<Theme> updatedThemesFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateThemePolicies(
+                        application, themePolicyMap, false
+                ));
 
         return Mono.zip(
                 updatedDatasourcesFlux.collectList(),
@@ -282,7 +297,8 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 updatedActionsFlux.collectList(),
                 updatedActionCollectionsFlux.collectList(),
                 updatedThreadsFlux.collectList(),
-                Mono.just(updatedOrganization)
+                Mono.just(updatedOrganization),
+                updatedThemesFlux.collectList()
         ).flatMap(tuple -> {
                 //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
             Organization updatedOrgBeforeSave = tuple.getT6();
@@ -435,6 +451,9 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 applicationPolicyMap, Application.class, CommentThread.class
         );
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
+        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Theme.class
+        );
 
         // Now update the organization policies
         Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
@@ -454,13 +473,19 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, null, true
                 ));
+        Flux<Theme> updatedThemesFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateThemePolicies(
+                        application, themePolicyMap, true
+                ));
 
         return Mono.when(
-                updatedDatasourcesFlux.collectList(),
-                updatedPagesFlux.collectList(),
-                updatedActionsFlux.collectList(),
-                updatedActionCollectionsFlux.collectList(),
-                updatedThreadsFlux.collectList())
+                        updatedDatasourcesFlux.collectList(),
+                        updatedPagesFlux.collectList(),
+                        updatedActionsFlux.collectList(),
+                        updatedActionCollectionsFlux.collectList(),
+                        updatedThreadsFlux.collectList(),
+                        updatedThemesFlux.collectList()
+                )
                 // By now all the
                 // data sources/applications/pages/actions/action collections/comment threads
                 // have been updated. Just save the organization now
