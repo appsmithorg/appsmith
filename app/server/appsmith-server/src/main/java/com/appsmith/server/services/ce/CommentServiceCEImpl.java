@@ -62,6 +62,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_COMMENT;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THREAD;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
@@ -395,7 +396,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         final String defaultPageId = commentThread.getPageId();
         return Mono.zip(
                         applicationService.findBranchedApplicationId(branchName, defaultAppId, COMMENT_ON_APPLICATIONS),
-                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES))
+                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, READ_PAGES))
                 .flatMap(tuple -> {
                     String branchedApplicationId = tuple.getT1();
                     String branchedPageId = tuple.getT2().getId();

@@ -1516,7 +1516,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
       });
   });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(2500); //Allowing time for Evaluate value to capture value
 });
 
 /**
