@@ -82,7 +82,7 @@ class BaseInputWidget<
             propertyName: "tooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
-            placeholderText: "Passwords must be atleast 6 chars",
+            placeholderText: "Value must be atleast 6 chars",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

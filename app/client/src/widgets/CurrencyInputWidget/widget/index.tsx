@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import CurrencyInputComponent, {
   CurrencyInputComponentProps,
 } from "../component";
@@ -280,6 +280,20 @@ class CurrencyInputWidget extends BaseInputWidget<
       "currencyCode",
       getCurrencyCodeFromCountryCode(countryCode),
     );
+
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("currencyCountryCode", currencyCountryCode);
+    } else {
+      this.props.updateWidgetMetaProperty("countryCode", countryCode);
+      this.props.updateWidgetMetaProperty(
+        "currencyCode",
+        getCurrencyCodeFromCountryCode(countryCode),
+      );
+    }
+  };
+
+  onCurrencyTypeChange = (code?: string) => {
+    const currencyCountryCode = code;
   };
 
   onSubmitSuccess = (result: ExecutionResult) => {
@@ -334,8 +348,8 @@ class CurrencyInputWidget extends BaseInputWidget<
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const countryCode = this.props.selectedCurrencyCountryCode
-      ? this.props.selectedCurrencyCountryCode
+    const countryCode = this.props.selectedCountryCode
+      ? this.props.selectedCountryCode
       : this.props.countryCode;
     const conditionalProps: Partial<CurrencyInputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
