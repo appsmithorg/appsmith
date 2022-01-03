@@ -15,10 +15,11 @@ function ReflowCarouselModal() {
   const onBoardingState = useSelector(
     (state: AppState) => state.ui.widgetReflow.onBoarding,
   );
-  const { done: isReflowOnBoardingDone, finishedStep = 0 } = onBoardingState;
+  const { done: isReflowOnBoardingDone, finishedStep = -1 } = onBoardingState;
+  const numberOfSteps = ReflowBetaScreenSteps.length;
   const stepChange = (current: number) => {
     const onBoardingState: widgetReflowOnBoardingState = {
-      done: current === 4,
+      done: current === numberOfSteps,
       finishedStep: current,
     };
     dispatch(updateReflowOnBoarding(onBoardingState));
@@ -26,14 +27,14 @@ function ReflowCarouselModal() {
   };
   const [showModal, setShowModal] = useState(!isReflowOnBoardingDone);
   const onFinish = () => {
-    stepChange(4);
+    stepChange(numberOfSteps);
     closeDialog();
   };
   const closeDialog = () => {
     setShowModal(false);
   };
   const reflowSteps = ReflowBetaScreenSteps.map((step, i) => {
-    if (i === ReflowBetaScreenSteps.length - 1) {
+    if (i === numberOfSteps - 1) {
       return {
         ...step,
         props: {
