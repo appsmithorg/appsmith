@@ -14,21 +14,24 @@ const initialState: widgetReflowState = {
     done: true,
     finishedStep: ReflowBetaScreenSteps.length,
   },
+  forceStopOnBoarding: false,
 };
 
 export const widgetReflowReducer = createReducer(initialState, {
   [ReflowReduxActionTypes.STOP_REFLOW]: ({
     enableReflow,
+    forceStopOnBoarding,
     onBoarding,
   }: widgetReflowState) => {
     return {
       isReflowing: false,
       enableReflow,
       onBoarding,
+      forceStopOnBoarding,
     };
   },
   [ReflowReduxActionTypes.REFLOW_MOVE]: (
-    { enableReflow, onBoarding }: widgetReflowState,
+    { enableReflow, forceStopOnBoarding, onBoarding }: widgetReflowState,
     action: ReduxAction<{ reflowingWidgets: ReflowedSpaceMap }>,
   ) => {
     return {
@@ -36,6 +39,7 @@ export const widgetReflowReducer = createReducer(initialState, {
       reflowingWidgets: { ...action.payload },
       enableReflow,
       onBoarding,
+      forceStopOnBoarding,
     };
   },
   [ReflowReduxActionTypes.ENABLE_REFLOW]: (
@@ -49,6 +53,11 @@ export const widgetReflowReducer = createReducer(initialState, {
     action: ReduxAction<widgetReflowOnBoardingState>,
   ) => {
     return { ...state, onBoarding: action.payload };
+  },
+  [ReflowReduxActionTypes.FORCE_STOP_ON_BOARDING]: (
+    state: widgetReflowState,
+  ) => {
+    return { ...state, forceStopOnBoarding: true };
   },
 });
 
@@ -65,6 +74,7 @@ export type widgetReflowOnBoardingState = {
 export type widgetReflowState = widgetReflow & {
   enableReflow: boolean;
   onBoarding: widgetReflowOnBoardingState;
+  forceStopOnBoarding: boolean;
 };
 
 export type Reflow = {

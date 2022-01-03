@@ -5,7 +5,10 @@ import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
 import { noop } from "utils/AppsmithUtils";
 import { ReflowBetaScreenSteps } from "./ReflowBetaScreenSteps";
 import { useDispatch, useSelector } from "react-redux";
-import { updateReflowOnBoarding } from "actions/reflowActions";
+import {
+  forceStopOnBoardingAction,
+  updateReflowOnBoarding,
+} from "actions/reflowActions";
 import { AppState } from "reducers";
 import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
 import { setReflowOnBoardingFlag } from "utils/storage";
@@ -14,6 +17,9 @@ function ReflowCarouselModal() {
   const dispatch = useDispatch();
   const onBoardingState = useSelector(
     (state: AppState) => state.ui.widgetReflow.onBoarding,
+  );
+  const forceStopOnBoarding = useSelector(
+    (state: AppState) => state.ui.widgetReflow.forceStopOnBoarding,
   );
   const { done: isReflowOnBoardingDone, finishedStep = -1 } = onBoardingState;
   const numberOfSteps = ReflowBetaScreenSteps.length;
@@ -25,12 +31,15 @@ function ReflowCarouselModal() {
     dispatch(updateReflowOnBoarding(onBoardingState));
     setReflowOnBoardingFlag(onBoardingState);
   };
-  const [showModal, setShowModal] = useState(!isReflowOnBoardingDone);
+  const [showModal, setShowModal] = useState(
+    !forceStopOnBoarding && !isReflowOnBoardingDone,
+  );
   const onFinish = () => {
     stepChange(numberOfSteps);
     closeDialog();
   };
   const closeDialog = () => {
+    dispatch(forceStopOnBoardingAction());
     setShowModal(false);
   };
   const reflowSteps = ReflowBetaScreenSteps.map((step, i) => {

@@ -35,3 +35,9 @@ export const updateReflowOnBoarding = (
     payload,
   };
 };
+
+export const forceStopOnBoardingAction = () => {
+  return {
+    type: ReflowReduxActionTypes.FORCE_STOP_ON_BOARDING,
+  };
+};
