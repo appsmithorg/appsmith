@@ -214,7 +214,7 @@ export default function Merge() {
     status = MERGE_STATUS_STATE.NOT_MERGEABLE;
   }
 
-  const isConflicting = mergeStatus && !mergeStatus.isMergeAble;
+  const isConflicting = status === MERGE_STATUS_STATE.NOT_MERGEABLE;
   const showMergeButton = !isConflicting && !isFetchingGitStatus && !isMerging;
 
   return (
