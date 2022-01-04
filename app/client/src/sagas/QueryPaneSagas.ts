@@ -116,8 +116,6 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  // eslint-disable-next-line no-console
-  console.log(actionPayload, "formValueChangeSaga");
   const { field, form } = actionPayload.meta;
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
