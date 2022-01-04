@@ -1469,22 +1469,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 commitDTO.setDoPush(true);
                                 // Make commit and push after pull is successful to have a clean repo
                                 return this.commitApplication(commitDTO, application1.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
-                                        .thenReturn(getPullDTO(application1, status))
-                                        .zipWith(Mono.just(application1));
+                                        .thenReturn(getPullDTO(application1, status));
                             });
                 })
                 // Add BE analytics
-                .flatMap(tuple -> {
-                    Application application = tuple.getT2();
-                    GitPullDTO gitPullDTO = tuple.getT1();
+                .flatMap(gitPullDTO -> {
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_PULL.getEventName(),
-                            application.getOrganizationId(),
+                            gitPullDTO.getApplication().getOrganizationId(),
                             applicationId,
-                            application.getId(),
+                            gitPullDTO.getApplication().getId(),
                             ",",
                             "",
-                            application.getGitApplicationMetadata().getIsRepoPrivate()
+                            gitPullDTO.getApplication().getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(gitPullDTO);
                 });
     }
