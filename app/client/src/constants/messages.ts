@@ -742,15 +742,22 @@ export const ONBOARDING_CHECKLIST_FOOTER = () =>
 export const HOW_APPSMITH_WORKS = () =>
   "Here’s a quick overview of how Appsmith works. ";
 export const ONBOARDING_INTRO_CONNECT_YOUR_DATABASE = () =>
-  "Connect your database or API";
-export const ONBOARDING_INTRO_CONNECT_DATA_WIDGET = () =>
-  "Connect queried data to pre-built widgets and customise with Javascript.";
+  "Connect to your database or APIs";
+export const DRAG_AND_DROP = () =>
+  "Drag and drop pre-built widgets to build UI";
+export const CUSTOMIZE_WIDGET_STYLING = () =>
+  "Customise the styling of every widget. Then bind your data to the widget and use JS to write any logic.";
 export const ONBOARDING_INTRO_PUBLISH = () =>
-  "Instantly publish and share your apps";
+  "Publish & Share with permissions";
+export const CHOOSE_ACCESS_CONTROL_ROLES = () =>
+  "Instantly publish & share your apps with users. Choose from pre-defined access control roles.";
 export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
-  "Want more help getting started, let’s";
-export const BUILD_APP_TOGETHER = () => "build an app together.";
+  "Let’s start building your first application";
+export const START_TUTORIAL = () => "START TUTORIAL";
+export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
+export const QUERY_YOUR_DATABASE = () =>
+  "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
 
 //Statusbar
 export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a datasource";

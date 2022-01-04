@@ -4,6 +4,15 @@ import {
   HOW_APPSMITH_WORKS,
   BUILD_MY_FIRST_APP,
   createMessage,
+  WELCOME_TO_APPSMITH,
+  ONBOARDING_INTRO_CONNECT_YOUR_DATABASE,
+  QUERY_YOUR_DATABASE,
+  DRAG_AND_DROP,
+  CUSTOMIZE_WIDGET_STYLING,
+  ONBOARDING_INTRO_PUBLISH,
+  CHOOSE_ACCESS_CONTROL_ROLES,
+  ONBOARDING_INTRO_FOOTER,
+  START_TUTORIAL,
 } from "constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import React from "react";
@@ -142,7 +151,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             onClick={onBuildApp}
           />
           <ModalHeaderWrapper className="t--how-appsmith-works-modal-header">
-            <ModalHeader>Welcome to Appsmith!</ModalHeader>
+            <ModalHeader>{createMessage(WELCOME_TO_APPSMITH)}</ModalHeader>
             <ModalSubHeader>{createMessage(HOW_APPSMITH_WORKS)}</ModalSubHeader>
           </ModalHeaderWrapper>
 
@@ -153,11 +162,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   <StyledCount>1</StyledCount>
                   <ModalContent>
                     <ModalContentHeader>
-                      Connect to your database or APIs
+                      {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
                     </ModalContentHeader>
                     <ModalContentDescription>
-                      Query your own database or API inside Appsmith. Write JS
-                      to construct dynamic queries.
+                      {createMessage(QUERY_YOUR_DATABASE)}
                     </ModalContentDescription>
                   </ModalContent>
                 </ModalContentTextWrapper>
@@ -170,11 +178,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   <StyledCount>2</StyledCount>
                   <ModalContent>
                     <ModalContentHeader>
-                      Drag and drop pre-built widgets to build UI
+                      {createMessage(DRAG_AND_DROP)}
                     </ModalContentHeader>
                     <ModalContentDescription>
-                      Customise the styling of every widget. Then bind your data
-                      to the widget and use JS to write any logic.
+                      {createMessage(CUSTOMIZE_WIDGET_STYLING)}
                     </ModalContentDescription>
                   </ModalContent>
                 </ModalContentTextWrapper>
@@ -187,11 +194,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   <StyledCount>3</StyledCount>
                   <ModalContent>
                     <ModalContentHeader>
-                      Publish & Share with permissions
+                      {createMessage(ONBOARDING_INTRO_PUBLISH)}
                     </ModalContentHeader>
                     <ModalContentDescription>
-                      Instantly publish & share your apps with users. Choose
-                      from pre-defined access control roles.
+                      {createMessage(CHOOSE_ACCESS_CONTROL_ROLES)}
                     </ModalContentDescription>
                   </ModalContent>
                 </ModalContentTextWrapper>
@@ -203,7 +209,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           </ModalBody>
           <ModalFooter>
             <ModalFooterText>
-              Let’s start building your first application{" "}
+              {createMessage(ONBOARDING_INTRO_FOOTER)}
             </ModalFooterText>
             <div>
               <StyledButton
@@ -212,7 +218,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 onClick={() => triggerWelcomeTour(dispatch)}
                 size={Size.large}
                 tag="button"
-                text={"START TUTORIAL"}
+                text={createMessage(START_TUTORIAL)}
               />
               <StyledButton
                 category={Category.primary}
