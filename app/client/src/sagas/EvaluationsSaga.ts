@@ -587,7 +587,7 @@ export function* evalFormConfig(
 ) {
   const workerResponse: any = yield call(
     worker.request,
-    operation,
+    operation as string,
     formEvaluationConfigObj,
   );
   return workerResponse;
