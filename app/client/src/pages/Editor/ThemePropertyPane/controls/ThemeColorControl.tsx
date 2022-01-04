@@ -41,6 +41,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
       {selectedColor && (
         <div className="pt-1">
           <ColorPickerComponent
+            autoFocus
             changeColor={(color: string) => {
               updateTheme({
                 ...theme,
@@ -54,6 +55,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
               });
             }}
             color={userDefinedColors[selectedColor]}
+            key={selectedColor}
           />
         </div>
       )}

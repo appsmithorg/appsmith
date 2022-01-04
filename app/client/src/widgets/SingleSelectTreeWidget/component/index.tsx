@@ -23,7 +23,6 @@ import {
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import _ from "lodash";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 
@@ -54,6 +53,7 @@ export interface TreeSelectProps
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  widgetId: string;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -112,6 +112,7 @@ function SingleSelectTreeComponent({
   placeholder,
   primaryColor,
   value,
+  widgetId,
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
@@ -133,7 +134,7 @@ function SingleSelectTreeComponent({
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
   const onClear = useCallback(() => onChange([], []), []);
-  const id = _.uniqueId();
+  const id = widgetId;
 
   return (
     <TreeSelectContainer

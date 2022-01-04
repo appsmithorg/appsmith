@@ -39,7 +39,7 @@ export const CONFIG = {
                   position: { top: 1, left: 1.5 },
                   props: {
                     text: "Form",
-                    fontSize: "HEADING1",
+                    fontSize: "1.25rem",
                     version: 1,
                   },
                 },

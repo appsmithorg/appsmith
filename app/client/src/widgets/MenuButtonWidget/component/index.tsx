@@ -30,7 +30,6 @@ import {
   WidgetContainerDiff,
   lightenColor,
 } from "widgets/WidgetUtils";
-import _ from "lodash";
 
 type MenuButtonContainerProps = {
   disabled?: boolean;
@@ -415,6 +414,7 @@ export interface MenuButtonComponentProps {
   backgroundColor?: string;
   placement?: ButtonPlacement;
   width: number;
+  widgetId: string;
   menuDropDownWidth: number;
 }
 
@@ -433,9 +433,10 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     menuVariant,
     onItemClicked,
     placement,
+    widgetId,
     width,
   } = props;
-  const id = _.uniqueId();
+  const id = widgetId;
 
   return (
     <MenuButtonContainer disabled={isDisabled}>

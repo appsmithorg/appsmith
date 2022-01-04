@@ -24,8 +24,8 @@ function ThemeFontControl(props: ThemeFontControlProps) {
         }))}
         renderOption={({ isSelectedNode, option }) => (
           <div
-            className={`flex py-2 space-x-2 w-full ${
-              isSelectedNode ? "" : "px-2 hover:bg-gray-100 cursor-pointer"
+            className={`flex  space-x-2 w-full ${
+              isSelectedNode ? "" : "px-2 py-2 hover:bg-gray-100 cursor-pointer"
             }`}
             onClick={() => {
               if (!isSelectedNode) {

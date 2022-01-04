@@ -18,6 +18,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
+import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 
 /**
  * ----------------------------------------------------------------------------
@@ -30,6 +31,7 @@ interface ColorPickerProps {
   showThemeColors?: boolean;
   showApplicationColors?: boolean;
   evaluatedColorValue?: string;
+  autoFocus?: boolean;
 }
 
 /**
@@ -88,10 +90,16 @@ const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer 
  */
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<any>();
+  const popoverRef = useRef<any>();
+  const [focussed, setFocussed] = React.useState(false);
   const [color, setColor] = React.useState(props.color);
   const widgets = useSelector(getWidgets);
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
   const applicationColors = extractColorsFromString(JSON.stringify(widgets));
+
+  useOnClickOutside([inputRef, popoverRef], () => {
+    setFocussed(false);
+  });
 
   /**
    * debounced onChange
@@ -117,134 +125,145 @@ function ColorPickerComponent(props: ColorPickerProps) {
   }, [props.color]);
 
   return (
-    <Popover
-      enforceFocus={false}
-      interactionKind={PopoverInteractionKind.CLICK}
-      key={`color-picker-v2-popover-${color}`}
-      minimal
-      openOnTargetFocus
-      usePortal
-    >
-      <StyledInputGroup
-        leftIcon={
-          color ? (
-            <ColorIcon color={props.evaluatedColorValue || color || ""} />
-          ) : (
-            <ColorPickerIconContainer>
-              <ColorPickerIcon />
-            </ColorPickerIconContainer>
-          )
-        }
-        onChange={handleChangeColor}
-        placeholder="enter color name or hex"
-        ref={inputRef}
-        value={props.evaluatedColorValue || color || ""}
-      />
-      <div className="p-3 space-y-2 w-72">
-        {props.showThemeColors && (
-          <div className="space-y-2">
-            <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
-            <section className="space-y-2">
-              <h3 className="text-xs">Theme Colors</h3>
-              <div className="flex space-x-1">
-                {Object.keys(themeColors).map((colorKey) => (
-                  <div
-                    className={`${COLOR_BOX_CLASSES} ${
-                      props.color ===
-                      getThemePropertyBinding(
-                        `${colorsPropertyName}.${colorKey}`,
-                      )
-                        ? "ring-1"
-                        : ""
-                    }`}
-                    key={`color-picker-v2-${colorKey}`}
-                    onClick={() => {
-                      setColor(themeColors[colorKey]);
-                      props.changeColor(
+    <div ref={inputRef}>
+      <Popover
+        interactionKind={PopoverInteractionKind.CLICK}
+        isOpen={focussed}
+        minimal
+        openOnTargetFocus
+        usePortal
+      >
+        <StyledInputGroup
+          autoFocus={props.autoFocus}
+          leftIcon={
+            color ? (
+              <ColorIcon color={props.evaluatedColorValue || color || ""} />
+            ) : (
+              <ColorPickerIconContainer>
+                <ColorPickerIcon />
+              </ColorPickerIconContainer>
+            )
+          }
+          onChange={handleChangeColor}
+          onFocus={() => {
+            setFocussed(true);
+          }}
+          placeholder="enter color name or hex"
+          value={props.evaluatedColorValue || color || ""}
+        />
+        <div className="p-3 space-y-2 w-72" ref={popoverRef}>
+          {props.showThemeColors && (
+            <div className="space-y-2">
+              <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
+              <section className="space-y-2">
+                <h3 className="text-xs">Theme Colors</h3>
+                <div className="flex space-x-1">
+                  {Object.keys(themeColors).map((colorKey) => (
+                    <div
+                      className={`${COLOR_BOX_CLASSES} ${
+                        props.color ===
                         getThemePropertyBinding(
                           `${colorsPropertyName}.${colorKey}`,
-                        ),
-                      );
+                        )
+                          ? "ring-1"
+                          : ""
+                      }`}
+                      key={`color-picker-v2-${colorKey}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setColor(themeColors[colorKey]);
+                        setFocussed(false);
+                        props.changeColor(
+                          getThemePropertyBinding(
+                            `${colorsPropertyName}.${colorKey}`,
+                          ),
+                        );
+                      }}
+                      style={{ backgroundColor: themeColors[colorKey] }}
+                    />
+                  ))}
+                </div>
+              </section>
+            </div>
+          )}
+          {props.showApplicationColors && applicationColors.length > 0 && (
+            <section className="space-y-2">
+              <h3 className="text-xs">Application Colors</h3>
+              <div className="flex space-x-1">
+                {Object.values(applicationColors).map((colorCode: string) => (
+                  <div
+                    className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
+                      props.color === colorCode ? "ring-1" : ""
+                    }`}
+                    key={colorCode}
+                    onClick={() => {
+                      setColor(colorCode);
+                      setFocussed(false);
+                      props.changeColor(colorCode);
                     }}
-                    style={{ backgroundColor: themeColors[colorKey] }}
+                    style={{ backgroundColor: colorCode }}
                   />
                 ))}
               </div>
             </section>
-          </div>
-        )}
-        {props.showApplicationColors && applicationColors.length > 0 && (
+          )}
+
           <section className="space-y-2">
-            <h3 className="text-xs">Application Colors</h3>
+            <h3 className="text-xs">All Colors</h3>
+            {Object.keys(TAILWIND_COLORS).map((colorKey) => (
+              <div className="flex space-x-1" key={colorKey}>
+                {Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
+                  (singleColorKey) => (
+                    <div
+                      className={`${COLOR_BOX_CLASSES}  ${
+                        props.color ===
+                        TAILWIND_COLORS[colorKey][singleColorKey]
+                          ? "ring-1"
+                          : ""
+                      }`}
+                      key={`all-colors-${colorKey}-${singleColorKey}`}
+                      onClick={(e) => {
+                        setFocussed(false);
+                        e.stopPropagation();
+                        setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
+                        props.changeColor(
+                          TAILWIND_COLORS[colorKey][singleColorKey],
+                        );
+                      }}
+                      style={{
+                        backgroundColor:
+                          TAILWIND_COLORS[colorKey][singleColorKey],
+                      }}
+                    />
+                  ),
+                )}
+              </div>
+            ))}
             <div className="flex space-x-1">
-              {Object.values(applicationColors).map((colorCode: string) => (
-                <div
-                  className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
-                    props.color === colorCode ? "ring-1" : ""
-                  }`}
-                  key={colorCode}
-                  onClick={() => {
-                    setColor(colorCode);
-                    props.changeColor(colorCode);
-                  }}
-                  style={{ backgroundColor: colorCode }}
-                />
-              ))}
+              <div
+                className={`${COLOR_BOX_CLASSES}  ${
+                  props.color === "#fff" ? "ring-1" : ""
+                }`}
+                onClick={() => {
+                  setColor("#fff");
+                  props.changeColor("#fff");
+                }}
+              />
+              <div
+                className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
+                  props.color === "transparent" ? "ring-1" : ""
+                }`}
+                onClick={() => {
+                  setColor("transparent");
+                  props.changeColor("transparent");
+                }}
+              />
             </div>
           </section>
-        )}
-
-        <section className="space-y-2">
-          <h3 className="text-xs">All Colors</h3>
-          {Object.keys(TAILWIND_COLORS).map((colorKey) => (
-            <div className="flex space-x-1" key={colorKey}>
-              {Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
-                (singleColorKey) => (
-                  <div
-                    className={`${COLOR_BOX_CLASSES}  ${
-                      props.color === TAILWIND_COLORS[colorKey][singleColorKey]
-                        ? "ring-1"
-                        : ""
-                    }`}
-                    key={`a-${colorKey}`}
-                    onClick={() => {
-                      setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
-                      props.changeColor(
-                        TAILWIND_COLORS[colorKey][singleColorKey],
-                      );
-                    }}
-                    style={{
-                      backgroundColor:
-                        TAILWIND_COLORS[colorKey][singleColorKey],
-                    }}
-                  />
-                ),
-              )}
-            </div>
-          ))}
-          <div className="flex space-x-1">
-            <div
-              className={`${COLOR_BOX_CLASSES}  ${
-                props.color === "#fff" ? "ring-1" : ""
-              }`}
-              onClick={() => {
-                setColor("#fff");
-                props.changeColor("#fff");
-              }}
-            />
-            <div
-              className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
-                props.color === "transparent" ? "ring-1" : ""
-              }`}
-              onClick={() => {
-                setColor("transparent");
-                props.changeColor("transparent");
-              }}
-            />
-          </div>
-        </section>
-      </div>
-    </Popover>
+        </div>
+      </Popover>
+    </div>
   );
 }
 

@@ -12,7 +12,6 @@ import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import {
-  ButtonBorderRadiusTypes,
   ButtonStyleType,
   ButtonVariant,
   ButtonVariantTypes,
@@ -40,7 +39,7 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   width: 100%;
   position: relative;
   display: flex;
-  gap: 2px;
+  gap: 1px;
   justify-content: stretch;
   align-items: stretch;
   overflow: hidden;
@@ -48,8 +47,8 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
 
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
-  border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
+  border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
 const MenuButtonWrapper = styled.div`
@@ -132,26 +131,14 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     } ${buttonVariant === ButtonVariantTypes.PRIMARY ? "" : "!important"};
 
     border-radius: ${
-      borderRadius === ButtonBorderRadiusTypes.ROUNDED
-        ? borderRadOnStart // first button
-          ? isHorizontal
-            ? "8px 0px 0px 8px"
-            : "8px 8px 0px 0px"
-          : borderRadOnEnd // last button
-          ? isHorizontal
-            ? "0px 8px 8px 0px"
-            : "0px 0px 8px 8px"
-          : "0px"
-        : borderRadius === ButtonBorderRadiusTypes.CIRCLE
-        ? borderRadOnStart // first button
-          ? isHorizontal
-            ? "32px 0px 0px 32px"
-            : "32px 32px 0px 0px"
-          : borderRadOnEnd // last button
-          ? isHorizontal
-            ? "0px 32px 32px 0px"
-            : "0px 0px 32px 32px"
-          : "0px"
+      borderRadOnStart // first button
+        ? isHorizontal
+          ? `${borderRadius} 0px 0px ${borderRadius}`
+          : `${borderRadius} ${borderRadius} 0px 0px`
+        : borderRadOnEnd // last button
+        ? isHorizontal
+          ? `0px ${borderRadius} ${borderRadius} 0px`
+          : `0px 0px ${borderRadius} ${borderRadius}`
         : "0px"
     };
 
