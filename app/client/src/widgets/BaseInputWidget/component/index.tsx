@@ -449,6 +449,7 @@ class BaseInputComponent extends React.Component<
             undefined
           )
         }
+        spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputHTMLType)}
         value={this.props.value}
       />
@@ -476,7 +477,7 @@ class BaseInputComponent extends React.Component<
   componentDidMount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element: any = document.querySelector(
-        `#${this.props.widgetId} .bp3-button-group`,
+        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {
@@ -495,7 +496,7 @@ class BaseInputComponent extends React.Component<
   componentWillUnmount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element: any = document.querySelectorAll(
-        `#${this.props.widgetId} .bp3-button`,
+        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
       );
 
       if (element !== null && element.childNodes) {
@@ -629,6 +630,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   maxChars?: number;
   widgetId: string;
   onStep?: (direction: number) => void;
+  spellCheck?: boolean;
 }
 
 export default BaseInputComponent;

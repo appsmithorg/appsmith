@@ -330,6 +330,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
+        spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
         value={value}
@@ -347,6 +348,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 export interface InputWidgetProps extends BaseInputWidgetProps {
   defaultText?: string | number;
   maxChars?: number;
+  isSpellCheck?: boolean;
 }
 
 export default InputWidget;

@@ -21,6 +21,7 @@ export const CONFIG = {
     resetOnSubmit: true,
     isRequired: false,
     isDisabled: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

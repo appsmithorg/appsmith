@@ -8,6 +8,7 @@ import CurrencyTypeDropdown, {
 import BaseInputComponent, {
   BaseInputComponentProps,
 } from "../../BaseInputWidget/component";
+import { RenderModes } from "constants/WidgetConstants";
 
 class CurrencyInputComponent extends React.Component<
   CurrencyInputComponentProps
@@ -44,6 +45,15 @@ class CurrencyInputComponent extends React.Component<
 
   componentDidMount() {
     if (this.props.countryCode) {
+      this.props.onCurrencyTypeChange(this.props.countryCode);
+    }
+  }
+
+  componentDidUpdate(prevProps: CurrencyInputComponentProps) {
+    if (
+      this.props.renderMode === RenderModes.CANVAS &&
+      prevProps.countryCode !== this.props.countryCode
+    ) {
       this.props.onCurrencyTypeChange(this.props.countryCode);
     }
   }
@@ -93,6 +103,7 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
   decimals?: number;
   onCurrencyTypeChange: (code?: string) => void;
   onStep: (direction: number) => void;
+  renderMode: string;
 }
 
 export default CurrencyInputComponent;

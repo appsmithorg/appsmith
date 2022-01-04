@@ -275,25 +275,14 @@ class CurrencyInputWidget extends BaseInputWidget<
   };
 
   onCurrencyTypeChange = (countryCode?: string) => {
-    this.props.updateWidgetMetaProperty("countryCode", countryCode);
-    this.props.updateWidgetMetaProperty(
-      "currencyCode",
-      getCurrencyCodeFromCountryCode(countryCode),
-    );
-
+    const currencyCode = getCurrencyCodeFromCountryCode(countryCode);
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("currencyCountryCode", currencyCountryCode);
+      super.updateWidgetProperty("countryCode", countryCode);
+      super.updateWidgetProperty("currencyCode", currencyCode);
     } else {
       this.props.updateWidgetMetaProperty("countryCode", countryCode);
-      this.props.updateWidgetMetaProperty(
-        "currencyCode",
-        getCurrencyCodeFromCountryCode(countryCode),
-      );
+      this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
     }
-  };
-
-  onCurrencyTypeChange = (code?: string) => {
-    const currencyCountryCode = code;
   };
 
   onSubmitSuccess = (result: ExecutionResult) => {
@@ -382,6 +371,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         onStep={this.onStep}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        renderMode={this.props.renderMode}
         showError={!!this.props.isFocused}
         tooltip={this.props.tooltip}
         value={value}

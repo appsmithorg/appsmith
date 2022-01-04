@@ -11,6 +11,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { InputType } from "../constants";
 import BaseInputComponent from "../component";
+import { InputTypes } from "widgets/InputWidgetV2/constants";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -136,6 +137,32 @@ class BaseInputWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isSpellCheck",
+            label: "Spellcheck",
+            helpText:
+              "Defines whether the text input may be checked for spelling errors",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: BaseInputWidgetProps) => {
+              return props.inputType !== InputTypes.TEXT;
+            },
+            dependencies: ["inputType"],
           },
         ],
       },

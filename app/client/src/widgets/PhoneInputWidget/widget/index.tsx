@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import PhoneInputComponent, { PhoneInputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -148,10 +148,26 @@ class PhoneInputWidget extends BaseInputWidget<
     }
   }
 
+  componentDidUpdate(prevProps: PhoneInputWidgetProps) {
+    if (
+      this.props.renderMode === RenderModes.CANVAS &&
+      prevProps.dialCode !== this.props.dialCode
+    ) {
+      this.onISDCodeChange(this.props.dialCode);
+    }
+  }
+
   onISDCodeChange = (dialCode?: string) => {
     const countryCode = getCountryCode(dialCode);
-    this.props.updateWidgetMetaProperty("dialCode", dialCode);
-    this.props.updateWidgetMetaProperty("countryCode", countryCode);
+
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("dialCode", dialCode);
+      super.updateWidgetProperty("countryCode", countryCode);
+    } else {
+      this.props.updateWidgetMetaProperty("dialCode", dialCode);
+      this.props.updateWidgetMetaProperty("countryCode", countryCode);
+    }
+
     if (this.props.text) {
       const parsedValue: string = new AsYouType(
         countryCode as CountryCode,

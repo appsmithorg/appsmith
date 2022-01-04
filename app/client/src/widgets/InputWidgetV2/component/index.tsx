@@ -73,6 +73,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
         showError={this.props.showError}
+        spellCheck={this.props.spellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
         value={this.props.value}
@@ -83,6 +84,7 @@ class InputComponent extends React.Component<InputComponentProps> {
 }
 export interface InputComponentProps extends BaseInputComponentProps {
   maxChars?: number;
+  spellCheck?: boolean;
 }
 
 export default InputComponent;
