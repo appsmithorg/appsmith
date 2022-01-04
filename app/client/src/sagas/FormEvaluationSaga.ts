@@ -11,14 +11,15 @@ import { workerComputeFormEvals } from "./EvaluationsSaga";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
 import { ActionConfig } from "entities/Action";
+import { FormConfig } from "components/formControls/BaseControl";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
 
 export type FormEvalActionPayload = {
   formId: string;
   actionConfiguration?: ActionConfig;
-  editorConfig?: any;
-  settingConfig?: any;
+  editorConfig?: FormConfig[];
+  settingConfig?: FormConfig[];
 };
 
 const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
@@ -58,7 +59,9 @@ function* setFormEvaluationSagaAsync(
       setIsEvaluating(false);
       // If there are any actions in the queue, run them
       if (evalQueue.length > 0) {
-        const nextAction = evalQueue.shift() as ReduxAction<any>;
+        const nextAction = evalQueue.shift() as ReduxAction<
+          FormEvalActionPayload
+        >;
         yield fork(setFormEvaluationSagaAsync, nextAction);
       }
     } catch (e) {

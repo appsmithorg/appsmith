@@ -40,7 +40,7 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
   }
 
   if ("children" in formConfig && !!formConfig.children)
-    formConfig.children.forEach((config: any) =>
+    formConfig.children.forEach((config: FormConfig) =>
       generateInitialEvalState(config),
     );
 };
@@ -75,7 +75,7 @@ function getFormEvaluation(
   formId: string,
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvaluationState,
-): any {
+): FormEvaluationState {
   // Only change the form evaluation state if the form ID is same or the evaluation state is present
   if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
     currentEvalState[formId] = evaluate(
@@ -102,7 +102,7 @@ export function setFormEvaluationSaga(
       !!payload.editorConfig &&
       payload.editorConfig.length > 0
     ) {
-      payload.editorConfig.forEach((config: any) => {
+      payload.editorConfig.forEach((config: FormConfig) => {
         generateInitialEvalState(config);
       });
     }
@@ -113,7 +113,7 @@ export function setFormEvaluationSaga(
       !!payload.settingConfig &&
       payload.settingConfig.length > 0
     ) {
-      payload.settingConfig.forEach((config: any) => {
+      payload.settingConfig.forEach((config: FormConfig) => {
         generateInitialEvalState(config);
       });
     }
