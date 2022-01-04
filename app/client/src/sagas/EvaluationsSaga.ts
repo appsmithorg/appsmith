@@ -2,12 +2,12 @@ import {
   actionChannel,
   all,
   call,
+  delay,
   fork,
   put,
   select,
   spawn,
   take,
-  delay,
 } from "redux-saga/effects";
 
 import {
@@ -206,7 +206,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       keepAlive = false;
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
-       * We raise an error telling the user that an uncaught error has occured
+       * We raise an error telling the user that an uncaught error has occurred
        * */
       if (requestData.result.errors.length) {
         throw new UncaughtPromiseError(
@@ -296,12 +296,6 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* clearEvalPropertyCache(propertyPath: string) {
-  yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE, {
-    propertyPath,
-  });
-}
-
 export function* executeFunction(collectionName: string, action: JSAction) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
@@ -329,21 +323,6 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   const { errors, result } = response;
   yield call(evalErrorHandler, errors);
   return result;
-}
-
-/**
- * clears all cache keys of a widget
- *
- * @param widgetName
- */
-export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
-  yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
-    {
-      widgetName,
-    },
-  );
 }
 
 export function* validateProperty(
@@ -552,23 +531,17 @@ export function* updateReplayEntitySaga(
   //Delay updates to replay object to not persist every keystroke
   yield delay(REPLAY_DELAY);
   const { entity, entityId, entityType } = actionPayload.payload;
-  const workerResponse = yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
-    {
-      entityId,
-      entity,
-      entityType,
-    },
-  );
-  return workerResponse;
+  return yield call(worker.request, EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT, {
+    entityId,
+    entity,
+    entityType,
+  });
 }
 
 export function* workerComputeUndoRedo(operation: string, entityId: string) {
-  const workerResponse: any = yield call(worker.request, operation, {
+  return yield call(worker.request, operation, {
     entityId,
   });
-  return workerResponse;
 }
 
 export function* setAppVersionOnWorkerSaga(action: {
