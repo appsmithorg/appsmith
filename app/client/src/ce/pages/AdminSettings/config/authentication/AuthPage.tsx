@@ -7,8 +7,7 @@ import { createMessage, ADD, EDIT } from "constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "pages/Settings/Callout";
-import Breadcrumbs, { BreadcrumbCategories } from "components/ads/Breadcrumbs";
-import { IBreadcrumbProps } from "@blueprintjs/core";
+import SettingsBreadcrumbs from "pages/Settings/SettingsBreadcrumbs";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -113,17 +112,11 @@ const Label = styled.span`
   margin: 4px 0;
 `;
 
-const breadcrumbList: IBreadcrumbProps[] = [
-  BreadcrumbCategories.HOMEPAGE,
-  BreadcrumbCategories.DEFAULT_SETTINGS,
-  BreadcrumbCategories[SettingCategories.AUTHENTICATION],
-];
-
 export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
   const history = useHistory();
   return (
     <Wrapper>
-      <Breadcrumbs items={breadcrumbList} />
+      <SettingsBreadcrumbs category={SettingCategories.AUTHENTICATION} />
       <SettingsFormWrapper>
         <SettingsHeader>Select Authentication Method</SettingsHeader>
         <SettingsSubHeader>

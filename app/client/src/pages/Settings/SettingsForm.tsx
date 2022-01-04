@@ -22,8 +22,7 @@ import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import SaveAdminSettings from "./SaveSettings";
-import Breadcrumbs, { BreadcrumbCategories } from "components/ads/Breadcrumbs";
-import { IBreadcrumbProps } from "@blueprintjs/core";
+import SettingsBreadcrumbs from "./SettingsBreadcrumbs";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -105,21 +104,13 @@ export function SettingsForm(
     });
   }, []);
 
-  const breadcrumbList: IBreadcrumbProps[] = [
-    BreadcrumbCategories.HOMEPAGE,
-    ...(category !== "general" ? [BreadcrumbCategories.DEFAULT_SETTINGS] : []),
-    ...(subCategory
-      ? [BreadcrumbCategories[category], BreadcrumbCategories[subCategory]]
-      : [BreadcrumbCategories[category]]),
-  ];
-
   return (
     <Wrapper>
       {/*<BackButton className="t--admin-settings-back-button" onClick={onBack}>
         <Icon icon="chevron-left" iconSize={16} />
         <BackButtonText>&nbsp;Back</BackButtonText>
       </BackButton>*/}
-      <Breadcrumbs items={breadcrumbList} />
+      <SettingsBreadcrumbs category={category} subCategory={subCategory} />
       <SettingsFormWrapper>
         <SettingsHeader>
           {getSettingLabel(subCategory ?? category)} settings
