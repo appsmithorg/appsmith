@@ -85,7 +85,6 @@ class CheckboxGroupWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                     ],
