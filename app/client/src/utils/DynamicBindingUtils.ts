@@ -145,6 +145,12 @@ export enum EVAL_WORKER_ACTIONS {
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
 }
 
+// Evaluation actions related to form evaluation
+export const FORM_EVAL_ACTIONS = [EVAL_WORKER_ACTIONS.INIT_FORM_EVAL];
+
+// Type of evaluation actions that are allowed for form evaluations
+export type FormEvalReduxActionType = typeof FORM_EVAL_ACTIONS[keyof typeof FORM_EVAL_ACTIONS];
+
 export type ExtraLibrary = {
   version: string;
   docsURL: string;

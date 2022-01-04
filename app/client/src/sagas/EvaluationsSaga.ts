@@ -27,6 +27,7 @@ import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
+  FormEvalReduxActionType,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
@@ -580,20 +581,16 @@ export interface FormEvaluationConfig
 }
 
 // Function to trigger the form eval job in the worker
-export function* workerComputeFormEvals(
-  operation: string,
-  evalFormConfig: FormEvaluationConfig,
+export function* evalFormConfig(
+  operation: FormEvalReduxActionType,
+  formEvaluationConfigObj: FormEvaluationConfig,
 ) {
-  if (operation === EVAL_WORKER_ACTIONS.INIT_FORM_EVAL) {
-    const workerResponse: any = yield call(
-      worker.request,
-      operation,
-      evalFormConfig,
-    );
-    return workerResponse;
-  } else {
-    return null;
-  }
+  const workerResponse: any = yield call(
+    worker.request,
+    operation,
+    formEvaluationConfigObj,
+  );
+  return workerResponse;
 }
 
 export function* setAppVersionOnWorkerSaga(action: {

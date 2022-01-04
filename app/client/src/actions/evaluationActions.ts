@@ -62,7 +62,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
-// All the topics this saga listens to
+// Topics used for datsource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [
   ReduxActionTypes.INIT_FORM_EVALUATION,
   ReduxActionTypes.RUN_FORM_EVALUATION,

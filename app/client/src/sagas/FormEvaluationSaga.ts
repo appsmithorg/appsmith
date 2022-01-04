@@ -7,7 +7,7 @@ import log from "loglevel";
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "../selectors/formSelectors";
-import { workerComputeFormEvals } from "./EvaluationsSaga";
+import { evalFormConfig } from "./EvaluationsSaga";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
 import { ActionConfig } from "entities/Action";
@@ -45,7 +45,7 @@ function* setFormEvaluationSagaAsync(
       );
       // Trigger the worker to compute the new eval state
       const workerResponse = yield call(
-        workerComputeFormEvals,
+        evalFormConfig,
         EVAL_WORKER_ACTIONS.INIT_FORM_EVAL,
         { ...action, currentEvalState },
       );
