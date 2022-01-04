@@ -3,6 +3,7 @@ import React from "react";
 import DraggableList from "./DraggableList";
 
 type RenderComponentProps = {
+  focusedIndex: number | null | undefined;
   index: number;
   item: {
     label: string;
@@ -16,6 +17,8 @@ type RenderComponentProps = {
 };
 
 interface DroppableComponentProps {
+  fixedHeight?: number | boolean;
+  focusedIndex?: number | null | undefined;
   items: Array<Record<string, unknown>>;
   itemHeight: number;
   renderComponent: (props: RenderComponentProps) => JSX.Element;
@@ -37,8 +40,15 @@ export class DroppableComponent extends React.Component<
   shouldComponentUpdate(prevProps: DroppableComponentProps) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
-
-    return !isEqual(presentOrder, previousOrder);
+    console.log(
+      "SSUP Should update  : ",
+      prevProps.focusedIndex,
+      this.props.focusedIndex,
+    );
+    return (
+      !isEqual(presentOrder, previousOrder) ||
+      this.props.focusedIndex !== prevProps.focusedIndex
+    );
   }
 
   getVisibleObject(item: Record<string, unknown>) {
@@ -52,14 +62,23 @@ export class DroppableComponent extends React.Component<
     };
   }
 
-  onUpdate = (itemsOrder: number[]) => {
+  onUpdate = (
+    itemsOrder: number[],
+    originalIndex: number,
+    newIndex: number,
+  ) => {
     const newOrderedItems = itemsOrder.map((each) => this.props.items[each]);
     this.props.updateItems(newOrderedItems);
+    console.log("SSUP : HEREEE", { newIndex, originalIndex });
+    if (this.props.updateFocus && originalIndex !== newIndex) {
+      this.props.updateFocus(newIndex, this.props.focusedIndex !== null);
+    }
   };
 
   renderItem = ({ index, item }: any) => {
     const {
       deleteOption,
+      focusedIndex,
       onEdit,
       renderComponent,
       toggleVisibility,
@@ -73,6 +92,7 @@ export class DroppableComponent extends React.Component<
       updateOption,
       toggleVisibility,
       onEdit,
+      focusedIndex,
       item,
       index,
     });
@@ -82,6 +102,8 @@ export class DroppableComponent extends React.Component<
     return (
       <DraggableList
         ItemRenderer={this.renderItem}
+        fixedHeight={this.props.fixedHeight}
+        focusedIndex={this.props.focusedIndex}
         itemHeight={45}
         items={this.props.items}
         onUpdate={this.onUpdate}
