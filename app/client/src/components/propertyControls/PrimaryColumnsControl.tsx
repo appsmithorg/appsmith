@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState, Component } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  Component,
+  useRef,
+} from "react";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
 import { Placement } from "popper.js";
@@ -84,6 +90,7 @@ type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
 };
 
 type RenderComponentProps = {
+  focusedIndex: number | null | undefined;
   index: number;
   item: {
     label: string;
@@ -121,6 +128,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
 
   const {
     deleteOption,
+    focusedIndex,
     index,
     item,
     onEdit,
@@ -129,8 +137,17 @@ function ColumnControlComponent(props: RenderComponentProps) {
     updateOption,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
+  const ref = useRef<HTMLInputElement | null>(null);
   const debouncedUpdate = _.debounce(updateOption, 1000);
   const debouncedFocus = updateFocus ? _.debounce(updateFocus, 400) : noop;
+
+  useEffect(() => {
+    if (focusedIndex === index) {
+      ref && ref.current && ref?.current.focus();
+    } else {
+      ref && ref.current && ref?.current.blur();
+    }
+  }, [focusedIndex]);
   const onChange = useCallback(
     (index: number, value: string) => {
       setValue(value);
@@ -140,10 +157,12 @@ function ColumnControlComponent(props: RenderComponentProps) {
   );
 
   const onFocus = () => {
+    console.log("SSUP FOCUS : ", index);
     setEditing(false);
     debouncedFocus(index, true);
   };
   const onBlur = () => {
+    console.log("SSUP BLUR : ", index);
     setEditing(false);
     debouncedFocus(index, false);
   };
@@ -154,6 +173,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
     >
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
+        autoFocus={index === focusedIndex}
         dataType="text"
         onBlur={onBlur}
         onChange={(value: string) => {
@@ -161,6 +181,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Column Title"
+        ref={ref}
         value={value}
         width="100%"
       />
@@ -236,6 +257,21 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     };
   }
 
+  componentDidUpdate(prevProps: ControlProps, prevState: any): void {
+    console.log("SSUP : Props ", prevState, this.state);
+    if (
+      Object.keys(prevProps.propertyValue).length + 1 ===
+      Object.keys(this.props.propertyValue).length
+    ) {
+      console.log(
+        "SSUP : ",
+        Object.keys(prevProps.propertyValue).length,
+        Object.keys(this.props.propertyValue).length,
+      );
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
+  }
+
   render() {
     // Get columns from widget properties
     const columns: Record<string, ColumnProperties> =
@@ -286,6 +322,8 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
         <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
           <DroppableComponent
             deleteOption={this.deleteOption}
+            fixedHeight={370}
+            focusedIndex={this.state.focusedIndex}
             itemHeight={45}
             items={draggableComponentColumns}
             onEdit={this.onEdit}
@@ -437,8 +475,11 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
   };
 
   updateFocus = (index: number, isFocused: boolean) => {
+    console.log("SSUP : I am called", index, isFocused);
     this.setState({ focusedIndex: isFocused ? index : null });
   };
+
+  // updateCurrentFocusedInput = (index: number | null) => {};
 
   static getControlType() {
     return "PRIMARY_COLUMNS";
