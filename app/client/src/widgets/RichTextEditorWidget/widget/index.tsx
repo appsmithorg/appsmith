@@ -197,6 +197,8 @@ class RichTextEditorWidget extends BaseWidget<
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
           defaultText={defaultText}
           defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
