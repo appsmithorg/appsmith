@@ -1612,13 +1612,13 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void generateSSHKey_DataNotExistsInCollection_Success() {
-        Mono<String> publicKey = gitDataService.generateSSHKey();
+        Mono<GitAuth> publicKey = gitDataService.generateSSHKey();
 
         StepVerifier
                 .create(publicKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
-                    assertThat(s).contains("appsmith");
+                    assertThat(s.getPublicKey()).contains("appsmith");
                 })
                 .verifyComplete();
     }
@@ -1626,16 +1626,17 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void generateSSHKey_KeyExistsInCollection_Success() {
-        String publicKey = gitDataService.generateSSHKey().block();
+        GitAuth publicKey = gitDataService.generateSSHKey().block();
 
-        Mono<String> newKey = gitDataService.generateSSHKey();
+        Mono<GitAuth> newKey = gitDataService.generateSSHKey();
 
         StepVerifier
                 .create(newKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
-                    assertThat(s).contains("appsmith");
-                    assertThat(s).isNotEqualTo(publicKey);
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
+                    assertThat(s.getPrivateKey()).isNull();
                 })
                 .verifyComplete();
     }

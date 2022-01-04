@@ -1944,7 +1944,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<String> generateSSHKey() {
+    public Mono<GitAuth> generateSSHKey() {
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
@@ -1956,9 +1956,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return gitDeployKeysRepository.findByEmail(user.getEmail())
                             .switchIfEmpty(gitDeployKeysRepository.save(gitDeployKeys))
                             .flatMap(gitDeployKeys1 -> gitDeployKeysRepository.delete(gitDeployKeys1)
-                                    .then(gitDeployKeysRepository.save(gitDeployKeys1)));
+                                    .then(gitDeployKeysRepository.save(gitDeployKeys)));
                 })
-                .then(Mono.just(gitAuth.getPublicKey()));
+                .map(gitDeployKey -> {
+                    gitDeployKey.getGitAuth().setPrivateKey(null);
+                    return gitDeployKey.getGitAuth();
+                });
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {

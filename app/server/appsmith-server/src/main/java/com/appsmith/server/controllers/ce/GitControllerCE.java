@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -186,7 +187,7 @@ public class GitControllerCE {
     }
 
     @GetMapping("/import/keys")
-    public Mono<ResponseDTO<String>> generateKeyForGitImport() {
+    public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport() {
         return service.generateSSHKey().map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
