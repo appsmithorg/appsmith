@@ -20,9 +20,9 @@ import styled from "styled-components";
 import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import SaveAdminSettings from "./SaveSettings";
-import SettingsBreadcrumbs from "./SettingsBreadcrumbs";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import CE_SettingsBreadcrumbs from "@appsmith/pages/AdminSettings/SettingsBreadcrumbs";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -110,7 +110,7 @@ export function SettingsForm(
         <Icon icon="chevron-left" iconSize={16} />
         <BackButtonText>&nbsp;Back</BackButtonText>
       </BackButton>*/}
-      <SettingsBreadcrumbs category={category} subCategory={subCategory} />
+      <CE_SettingsBreadcrumbs category={category} subCategory={subCategory} />
       <SettingsFormWrapper>
         <SettingsHeader>
           {getSettingLabel(subCategory ?? category)} settings

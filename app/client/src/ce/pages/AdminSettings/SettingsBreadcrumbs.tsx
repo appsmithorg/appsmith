@@ -1,11 +1,11 @@
 import React from "react";
 import Breadcrumbs from "components/ads/Breadcrumbs";
 import { IBreadcrumbProps } from "@blueprintjs/core";
-import { SettingCategories } from "ce/pages/AdminSettings/config/types";
 import {
   APPLICATIONS_URL,
   getAdminSettingsCategoryUrl,
 } from "constants/routes";
+import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 
 export const BreadcrumbCategories = {
   HOMEPAGE: {
@@ -63,6 +63,18 @@ export const BreadcrumbCategories = {
   },
 };
 
+export const getBreadcrumbList = (category: string, subCategory?: string) => {
+  const breadcrumbList: IBreadcrumbProps[] = [
+    BreadcrumbCategories.HOMEPAGE,
+    ...(category !== "general" ? [BreadcrumbCategories.DEFAULT_SETTINGS] : []),
+    ...(subCategory
+      ? [BreadcrumbCategories[category], BreadcrumbCategories[subCategory]]
+      : [BreadcrumbCategories[category]]),
+  ];
+
+  return breadcrumbList;
+};
+
 function SettingsBreadcrumbs({
   category,
   subCategory,
@@ -70,21 +82,7 @@ function SettingsBreadcrumbs({
   category: string;
   subCategory?: string;
 }) {
-  const getBreadcrumbList = () => {
-    const breadcrumbList: IBreadcrumbProps[] = [
-      BreadcrumbCategories.HOMEPAGE,
-      ...(category !== "general"
-        ? [BreadcrumbCategories.DEFAULT_SETTINGS]
-        : []),
-      ...(subCategory
-        ? [BreadcrumbCategories[category], BreadcrumbCategories[subCategory]]
-        : [BreadcrumbCategories[category]]),
-    ];
-
-    return breadcrumbList;
-  };
-
-  return <Breadcrumbs items={getBreadcrumbList()} />;
+  return <Breadcrumbs items={getBreadcrumbList(category, subCategory)} />;
 }
 
 export default SettingsBreadcrumbs;
