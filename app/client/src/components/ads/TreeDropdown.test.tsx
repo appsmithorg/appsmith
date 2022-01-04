@@ -202,7 +202,7 @@ describe("<TreeDropdown/>", () => {
     );
   });
 
-  it("{enter} or ' ' on an item with children should open child menu", async () => {
+  it.only("{enter} or '{ArrowRight}' or ' ' on an item with children should open child menu", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
     userEvent.tab();
@@ -216,9 +216,28 @@ describe("<TreeDropdown/>", () => {
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
 
-    // TODO: Predding {ArrowLeft} should close the child menu
-    // expect(screen.queryAllByRole("list")).not.toBeNull();
+    // {ArrowLeft} should close the child menu
+    userEvent.keyboard("{ArrowLeft}");
+    await waitForElementToBeRemoved(
+      queryByRole(screen.queryAllByRole("list")[0], "list"),
+    );
+
+    userEvent.keyboard(" ");
+    expect(
+      queryByRole(screen.queryAllByRole("list")[0], "list"),
+    ).toBeInTheDocument();
+
+    // {ArrowLeft} should close the child menu
+    userEvent.keyboard("{ArrowLeft}");
+    await waitForElementToBeRemoved(
+      queryByRole(screen.queryAllByRole("list")[0], "list"),
+    );
+    userEvent.keyboard("{ArrowRight}");
+    expect(
+      queryByRole(screen.queryAllByRole("list")[0], "list"),
+    ).toBeInTheDocument();
   });
+
   it("child menu should be navigatable using arrow keys", () => {
     render(testComponent());
     userEvent.tab();
@@ -253,6 +272,7 @@ describe("<TreeDropdown/>", () => {
       else expect(item.querySelector("a")).not.toHaveClass("bp3-active");
     }
   });
+
   it("{enter} or ' ' on a child menu item should trigger onSelect", () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
@@ -272,6 +292,7 @@ describe("<TreeDropdown/>", () => {
       undefined,
     );
   });
+
   it("{enter} or ' ' on a child menu item with children should open it's child menu", () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));

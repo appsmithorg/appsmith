@@ -362,15 +362,16 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         break;
       case " ":
       case "Enter":
+      case "ArrowRight":
         if (isOpen) {
           const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
           if (selectedOpt?.children) {
             handleOptionClick(selectedOpt)(e);
-          } else if (selectedOpt) {
+          } else if (selectedOpt && e.key !== "ArrowRight") {
             handleOptionClick(selectedOpt)(e);
             shouldOpen.current = false;
           }
-        } else {
+        } else if (e.key !== "ArrowRight") {
           setIsOpen(true);
           selectedOptionIndex.current = [findIndex(optionTree, selectedOption)];
           shouldOpen.current = true;
@@ -423,6 +424,25 @@ export default function TreeDropdown(props: TreeDropdownProps) {
           setSelectedOption(
             getSelectedOption(selectedValue, defaultText, optionTree),
           );
+        }
+        break;
+      case "ArrowLeft":
+        if (selectedOptionIndex.current.length > 1) {
+          setOptionTree((prev) => {
+            const prevIndex = selectedOptionIndex.current.slice(0, -1);
+            const prevItem = getItem(prev, prevIndex);
+            if (prevItem) {
+              selectedOptionIndex.current = prevIndex;
+              setSelectedOption(prevItem);
+              return (
+                setItem(prev, prevIndex, {
+                  ...prevItem,
+                  isChildrenOpen: false,
+                }) ?? prev
+              );
+            }
+            return prev;
+          });
         }
         break;
     }
