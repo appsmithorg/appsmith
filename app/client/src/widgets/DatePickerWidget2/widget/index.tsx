@@ -9,6 +9,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 import moment from "moment";
+import derivedProperties from "./parseDerivedProperties";
 import { DatePickerType, TimePrecision } from "../constants";
 
 function allowedRange(value: any) {
@@ -294,7 +295,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
+      isValid: `{{(()=>{${derivedProperties.isValidDate}})()}}`,
       selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
       formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
     };

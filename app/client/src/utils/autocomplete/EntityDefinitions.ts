@@ -203,6 +203,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -283,6 +284,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
