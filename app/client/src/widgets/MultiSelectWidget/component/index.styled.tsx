@@ -526,3 +526,11 @@ export const StyledLabel = styled(Label)<{
   font-style: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
 `;
+
+export const SpinnerContainer = styled.div`
+  width: 100%;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;

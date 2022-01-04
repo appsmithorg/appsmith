@@ -343,6 +343,7 @@ class MultiSelectWidget extends BaseWidget<
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
+        filterText={this.props.filterText}
         isValid={this.props.isValid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
@@ -370,7 +371,7 @@ class MultiSelectWidget extends BaseWidget<
     });
 
     // Empty filter after Selection
-    this.onFilterChange("");
+    this.props.filterText && this.onFilterChange("");
   };
 
   onFilterChange = (value: string) => {

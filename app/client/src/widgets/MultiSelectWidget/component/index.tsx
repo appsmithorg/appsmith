@@ -8,6 +8,7 @@ import {
   StyledCheckbox,
   TextLabelWrapper,
   StyledLabel,
+  SpinnerContainer,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
@@ -15,11 +16,12 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
+import Spinner from "components/ads/Spinner";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -46,6 +48,7 @@ export interface MultiSelectProps
   compactMode: boolean;
   isValid: boolean;
   allowSelectAll?: boolean;
+  filterText?: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -56,6 +59,7 @@ function MultiSelectComponent({
   disabled,
   dropdownStyle,
   dropDownWidth,
+  filterText,
   isValid,
   labelStyle,
   labelText,
@@ -108,20 +112,25 @@ function MultiSelectComponent({
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
-    ) => (
-      <div className={loading ? Classes.SKELETON : ""}>
-        {options.length && allowSelectAll ? (
-          <StyledCheckbox
-            alignIndicator="left"
-            checked={isSelectAll}
-            className={`all-options ${isSelectAll ? "selected" : ""}`}
-            label="Select all"
-            onChange={handleSelectAll}
-          />
-        ) : null}
-        {menu}
-      </div>
-    ),
+    ) =>
+      loading ? (
+        <SpinnerContainer>
+          <Spinner size={IconSize.XXL} />
+        </SpinnerContainer>
+      ) : (
+        <div>
+          {options.length && allowSelectAll ? (
+            <StyledCheckbox
+              alignIndicator="left"
+              checked={isSelectAll}
+              className={`all-options ${isSelectAll ? "selected" : ""}`}
+              label="Select all"
+              onChange={handleSelectAll}
+            />
+          ) : null}
+          {menu}
+        </div>
+      ),
     [isSelectAll, options, loading, allowSelectAll],
   );
 
@@ -138,7 +147,14 @@ function MultiSelectComponent({
     [],
   );
 
-  const onClose = useCallback((open) => !open && onFilterChange(""), []);
+  const onClose = useCallback(
+    (open) => {
+      if (!open && filterText) {
+        onFilterChange("");
+      }
+    },
+    [filterText, open],
+  );
 
   const serverSideSearch = React.useMemo(() => {
     const updateFilter = (filterValue: string) => {
@@ -151,7 +167,6 @@ function MultiSelectComponent({
   console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
-      className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
       isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
@@ -170,9 +185,7 @@ function MultiSelectComponent({
             $labelText={labelText}
             $labelTextColor={labelTextColor}
             $labelTextSize={labelTextSize}
-            className={`tree-multiselect-label ${
-              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }`}
+            className={`tree-multiselect-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
           >
             {labelText}
           </StyledLabel>
