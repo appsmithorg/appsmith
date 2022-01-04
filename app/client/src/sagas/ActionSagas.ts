@@ -874,7 +874,10 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
           hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
         }),
       );
-      AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
+        source:
+          typeof callback === "function" ? "SLASH_COMMAND" : "SNIPPET_BUTTON",
+      });
       const effectRaceResult: { failure: any; success: any } = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
@@ -930,6 +933,17 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   }
 }
 
+function* updateEntitySavingStatus() {
+  yield race([
+    take(ReduxActionTypes.UPDATE_ACTION_SUCCESS),
+    take(ReduxActionTypes.SAVE_PAGE_SUCCESS),
+  ]);
+
+  yield put({
+    type: ReduxActionTypes.ENTITY_UPDATE_SUCCESS,
+  });
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -958,5 +972,9 @@ export function* watchActionSagas() {
       toggleActionExecuteOnLoadSaga,
     ),
     takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommandSaga),
+    takeLatest(
+      ReduxActionTypes.ENTITY_UPDATE_STARTED,
+      updateEntitySavingStatus,
+    ),
   ]);
 }

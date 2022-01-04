@@ -22,7 +22,7 @@ public interface GitServiceCE {
 
     Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId);
 
-    Mono<GitProfile> getGitProfileForUser();
+    Mono<GitProfile> getDefaultGitProfileOrCreateIfEmpty();
 
     Mono<GitProfile> getGitProfileForUser(String defaultApplicationId);
 
@@ -36,7 +36,7 @@ public interface GitServiceCE {
 
     Mono<String> pushApplication(String defaultApplicationId, String branchName);
 
-    Mono<Application> detachRemote(String applicationId);
+    Mono<Application> detachRemote(String defaultApplicationId);
 
     Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch);
 

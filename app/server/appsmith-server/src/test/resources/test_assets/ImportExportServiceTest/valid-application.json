@@ -603,6 +603,30 @@
         ]
       },
       "new": false
+    },
+    {
+      "id": "collection_wo_action",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "unpublishedCollection": {
+        "name": "JSObject2",
+        "pageId": "Page1",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {results: []}",
+        "variables": [
+          {
+            "name": "results",
+            "value": []
+          }
+        ]
+      },
+      "new": false
     }
   ],
   "decryptedFields": {
@@ -628,5 +652,15 @@
     "60aca056136c4b7178f67906": [
       "Table1"
     ]
+  },
+  "editModeTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedTheme": {
+    "name": "Classic",
+    "new": true,
+    "isSystemTheme": true
   }
 }

@@ -162,9 +162,15 @@ class RichTextEditorWidget extends BaseWidget<
       const converter = new showdown.Converter();
       defaultValue = converter.makeHtml(defaultValue);
     }
+    let defaultText = this.props.defaultText || "";
+    if (this.props.inputType === RTEFormats.MARKDOWN) {
+      const converter = new showdown.Converter();
+      defaultText = converter.makeHtml(defaultText);
+    }
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
+          defaultText={defaultText}
           defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
           isToolbarHidden={!!this.props.isToolbarHidden}

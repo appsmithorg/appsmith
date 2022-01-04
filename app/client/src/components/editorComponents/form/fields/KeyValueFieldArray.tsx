@@ -141,7 +141,9 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   }, [props.fields, props.pushFields]);
 
   return (
-    <KeyValueStackContainer removeTopPadding={props.hideHeader}>
+    <KeyValueStackContainer
+      removeTopPadding={props.hideHeader || props.removeTopPadding}
+    >
       {!props.hideHeader && (
         <FlexContainer>
           <Flex className="key-value" size={1}>
@@ -304,6 +306,7 @@ type Props = {
   hideHeader?: boolean;
   theme?: EditorTheme;
   hasType?: boolean;
+  removeTopPadding?: boolean;
 };
 
 function KeyValueFieldArray(props: Props) {

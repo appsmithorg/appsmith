@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -157,5 +158,34 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return mongoOperations.find(query, Application.class)
                 .map(BaseDomain::getId)
                 .collectList();
+    }
+
+    @Override
+    public Mono<Long> countByOrganizationId(String organizationId) {
+        Criteria orgIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
+        return this.count(List.of(orgIdCriteria));
+    }
+
+    @Override
+    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+        Query query = new Query();
+        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
+        query.addCriteria(where(fieldName(QApplication.application.deleted)).is(Boolean.FALSE));
+        return mongoOperations.count(query, Application.class);
+    }
+
+    @Override
+    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
+        Update updateObj = new Update();
+        if(StringUtils.hasLength(editModeThemeId)) {
+            updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
+        }
+        if(StringUtils.hasLength(publishedModeThemeId)) {
+            updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
+        }
+
+        return this.updateById(applicationId, updateObj, aclPermission);
     }
 }
