@@ -8,6 +8,9 @@ import EditableTextSubComponent, {
   EditInteractionKind,
   SavingState,
 } from "./EditableTextSubComponent";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { focusWidgetTitle } from "actions/propertyPaneActions";
 
 export { EditInteractionKind, SavingState };
 
@@ -50,6 +53,21 @@ export const EditableTextWrapper = styled.div<{
   }
 `;
 
+function useIsEditing(
+  defaultValue: boolean,
+): [boolean, (value: boolean) => void] {
+  const isEditing = useSelector(
+    (state: AppState) => state.ui.propertyPane.isWidgetTitleEditing,
+  );
+
+  const dispatch = useDispatch();
+  const setIsEditing = useCallback((value: boolean) => {
+    dispatch(focusWidgetTitle(value));
+  }, []);
+
+  return [isEditing, setIsEditing];
+}
+
 export function EditableText(props: EditableTextProps) {
   const {
     defaultValue,
@@ -58,7 +76,7 @@ export function EditableText(props: EditableTextProps) {
     savingState: defaultSavingState,
     ...others
   } = props;
-  const [isEditing, setIsEditing] = useState(!!isEditingDefault);
+  const [isEditing, setIsEditing] = useIsEditing(!!isEditingDefault);
   const [isInvalid, setIsInvalid] = useState<string | boolean>(false);
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,

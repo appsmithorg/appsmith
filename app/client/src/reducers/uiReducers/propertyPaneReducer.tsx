@@ -10,6 +10,7 @@ const initialState: PropertyPaneReduxState = {
   widgetId: undefined,
   lastWidgetId: undefined,
   isNew: false,
+  isWidgetTitleEditing: false,
 };
 
 const propertyPaneReducer = createReducer(initialState, {
@@ -67,6 +68,12 @@ const propertyPaneReducer = createReducer(initialState, {
       return { ...state, isNew: action.payload.enable };
     return state;
   },
+  [ReduxActionTypes.FOCUS_WIDGET_TITLE]: (
+    state: PropertyPaneReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return { ...state, isWidgetTitleEditing: action.payload };
+  },
 });
 
 export interface PropertyPaneReduxState {
@@ -77,6 +84,7 @@ export interface PropertyPaneReduxState {
   isNew: boolean;
   propertyControlId?: string;
   widgetChildProperty?: string;
+  isWidgetTitleEditing: boolean;
 }
 
 export default propertyPaneReducer;

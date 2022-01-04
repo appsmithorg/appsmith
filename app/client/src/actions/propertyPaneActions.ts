@@ -24,3 +24,8 @@ export const setSnipingMode = (payload: boolean) => ({
 export const resetSnipingMode = () => ({
   type: ReduxActionTypes.RESET_SNIPING_MODE,
 });
+
+export const focusWidgetTitle = (payload: boolean) => ({
+  type: ReduxActionTypes.FOCUS_WIDGET_TITLE,
+  payload,
+});

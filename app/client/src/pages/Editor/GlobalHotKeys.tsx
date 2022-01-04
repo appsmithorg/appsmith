@@ -23,7 +23,10 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
-import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
+import {
+  resetSnipingMode as resetSnipingModeAction,
+  focusWidgetTitle as focusWidgetTitleAction,
+} from "actions/propertyPaneActions";
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
@@ -76,6 +79,7 @@ type Props = {
   isExplorerPinned: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
+  focusWidgetTitle: () => void;
 };
 
 @HotkeysTarget
@@ -380,6 +384,14 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.showCommitModal();
           }}
         />
+        <Hotkey
+          combo="f2"
+          global
+          label="Focus widget title"
+          onKeyDown={() => {
+            this.props.focusWidgetTitle();
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -425,6 +437,7 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(
         setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
       ),
+    focusWidgetTitle: () => dispatch(focusWidgetTitleAction(true)),
   };
 };
 
