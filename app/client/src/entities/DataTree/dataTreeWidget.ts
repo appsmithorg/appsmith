@@ -9,6 +9,10 @@ export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown>,
 ): DataTreeWidget => {
+  const derivedProps: any = {};
+  const blockedDerivedProps: Record<string, true> = {};
+  const unInitializedDefaultProps: Record<string, undefined> = {};
+  const overridingProperties: Record<string, string> = {};
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
@@ -21,8 +25,8 @@ export const generateDataTreeWidget = (
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
-  const derivedProps: any = {};
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+  // Ensure all dynamic bindings are strings as they will be evaluated
   dynamicBindingPathList.forEach((dynamicPath) => {
     const propertyPath = dynamicPath.key;
     const propertyValue = _.get(widget, propertyPath);
@@ -31,26 +35,35 @@ export const generateDataTreeWidget = (
       _.set(widget, propertyPath, JSON.stringify(propertyValue));
     }
   });
+  // Derived props are stored in different maps for further treatment
   Object.keys(derivedPropertyMap).forEach((propertyName) => {
     // TODO regex is too greedy
+    // Replace the references to `this` with the widget name reference
+    // in the derived property bindings
     derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
       /this./g,
       `${widget.widgetName}.`,
     );
+    // Add these to the dynamicBindingPathList as well
     dynamicBindingPathList.push({
       key: propertyName,
     });
-  });
-  const unInitializedDefaultProps: Record<string, undefined> = {};
-  Object.values(defaultProps).forEach((propertyName) => {
-    if (!(propertyName in widget)) {
-      unInitializedDefaultProps[propertyName] = undefined;
-    }
-  });
-  const blockedDerivedProps: Record<string, true> = {};
-  Object.keys(derivedProps).forEach((propertyName) => {
+    // Do not log errors for the derived property bindings
     blockedDerivedProps[propertyName] = true;
   });
+
+  Object.entries(defaultProps).forEach(
+    ([metaPropertyName, defaultPropertyName]) => {
+      // All meta values need to exist in the tree, so we initialize them if they don't exist
+      if (!(metaPropertyName in widget)) {
+        unInitializedDefaultProps[metaPropertyName] = undefined;
+      }
+      // Overriding properties will override the values of a property when evaluated
+      overridingProperties[`meta.${metaPropertyName}`] = metaPropertyName;
+      overridingProperties[defaultPropertyName] = metaPropertyName;
+    },
+  );
+
   const {
     bindingPaths,
     triggerPaths,
@@ -64,7 +77,6 @@ export const generateDataTreeWidget = (
   return {
     ...widget,
     ...defaultMetaProps,
-    ...widgetMetaProps,
     ...derivedProps,
     ...unInitializedDefaultProps,
     defaultProps,
@@ -74,6 +86,8 @@ export const generateDataTreeWidget = (
       ...widget.logBlackList,
       ...blockedDerivedProps,
     },
+    meta: widgetMetaProps,
+    overridingProperties,
     bindingPaths,
     triggerPaths,
     validationPaths,
