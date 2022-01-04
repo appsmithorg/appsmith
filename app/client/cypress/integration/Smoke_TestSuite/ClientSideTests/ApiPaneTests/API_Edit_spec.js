@@ -1,8 +1,12 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const dsl = require("../../../../fixtures/uiBindDsl.json");
 
 describe("API Panel Test Functionality", function() {
+  before(() => {
+    cy.addDsl(dsl);
+  });
   it("Test Search API fetaure", function() {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
@@ -78,11 +82,18 @@ describe("API Panel Test Functionality", function() {
   it("Shows evaluated value pane when url field is focused", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("TestAPI");
-    cy.get(".CodeMirror-placeholder")
+    cy.get(".CodeMirror textarea")
       .first()
       .click({
         force: true,
-      });
-    cy.get(commonlocators.evaluatedTypeTitle).should("be.visible");
+      })
+      .type(
+        "https://www.facebook.com/users/{{Button2.text}}?key=test&val={{Button2.text}}",
+        { force: true, parseSpecialCharSequences: false },
+      )
+      .wait(1000)
+      .type("{enter}", { parseSpecialCharSequences: true });
+
+    cy.contains("https://www.facebook.com/users/Cancel?key=test&val=Cancel");
   });
 });

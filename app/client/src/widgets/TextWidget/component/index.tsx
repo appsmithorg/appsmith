@@ -9,13 +9,20 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import Icon, { IconSize } from "components/ads/Icon";
+import { isEqual, get } from "lodash";
+import ModalComponent from "components/designSystems/appsmith/ModalComponent";
+import { Colors } from "constants/Colors";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
+
+const ELLIPSIS_HEIGHT = 15;
 
 export const TextContainer = styled.div`
   & {
     height: 100%;
     width: 100%;
+    position: relative;
   }
 
   ul {
@@ -40,22 +47,38 @@ export const TextContainer = styled.div`
   }
 `;
 
+const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
+  cursor: pointer;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: ${ELLIPSIS_HEIGHT}px;
+  background: ${(props) =>
+    props.backgroundColor ? props.backgroundColor : "transparent"};
+`;
+
 export const StyledText = styled(Text)<{
   scroll: boolean;
+  truncate: boolean;
+  isTruncated: boolean;
   textAlign: string;
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
 }>`
-  height: 100%;
-  overflow-y: ${(props) => (props.scroll ? "auto" : "hidden")};
+  height: ${(props) =>
+    props.isTruncated ? `calc(100% - ${ELLIPSIS_HEIGHT}px)` : "100%"};
+  overflow-y: ${(props) =>
+    props.scroll ? (props.isTruncated ? "hidden" : "auto") : "hidden"};
   text-overflow: ellipsis;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   display: flex;
   width: 100%;
   justify-content: flex-start;
-  align-items: ${(props) => (props.scroll ? "flex-start" : "center")};
+  flex-direction: ${(props) => (props.isTruncated ? "column" : "unset")};
+  align-items: ${(props) =>
+    props.scroll || props.truncate ? "flex-start" : "center"};
   background: ${(props) => props?.backgroundColor};
   color: ${(props) => props?.textColor};
   font-style: ${(props) =>
@@ -72,6 +95,36 @@ export const StyledText = styled(Text)<{
   }
 `;
 
+const ModalContent = styled.div`
+  background: ${Colors.WHITE};
+  padding: 24px;
+  padding-top: 16px;
+`;
+
+const Heading = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title {
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 24px;
+    letter-spacing: -0.24px;
+    color: ${Colors.GREY_10};
+  }
+
+  .icon > svg > path {
+    stroke: ${Colors.GREY_9};
+  }
+`;
+
+const Content = styled.div`
+  padding-top: 16px;
+  color: ${Colors.GREY_9};
+  max-height: 70vh;
+  overflow: auto;
+`;
 export interface TextComponentProps extends ComponentProps {
   text?: string;
   textAlign: TextAlign;
@@ -83,9 +136,69 @@ export interface TextComponentProps extends ComponentProps {
   textColor?: string;
   fontStyle?: string;
   disableLink: boolean;
+  shouldTruncate: boolean;
+  truncateButtonColor?: string;
+  // helpers to detect and re-calculate content width
+  bottomRow?: number;
+  leftColumn?: number;
+  rightColumn?: number;
+  topRow?: number;
 }
 
-class TextComponent extends React.Component<TextComponentProps> {
+type State = {
+  isTruncated: boolean;
+  showModal: boolean;
+};
+
+type TextRef = React.Ref<Text> | undefined;
+
+class TextComponent extends React.Component<TextComponentProps, State> {
+  state = {
+    isTruncated: false,
+    showModal: false,
+  };
+
+  textRef = React.createRef() as TextRef;
+
+  getTruncate = (element: any) => {
+    const { isTruncated } = this.state;
+    // add ELLIPSIS_HEIGHT and check content content is overflowing or not
+    return (
+      element.scrollHeight >
+      element.offsetHeight + (isTruncated ? ELLIPSIS_HEIGHT : 0)
+    );
+  };
+
+  componentDidMount = () => {
+    const textRef = get(this.textRef, "current.textRef");
+    if (textRef && this.props.shouldTruncate) {
+      const isTruncated = this.getTruncate(textRef);
+      this.setState({ isTruncated });
+    }
+  };
+
+  componentDidUpdate = (prevProps: TextComponentProps) => {
+    if (!isEqual(prevProps, this.props)) {
+      if (this.props.shouldTruncate) {
+        const textRef = get(this.textRef, "current.textRef");
+        if (textRef) {
+          const isTruncated = this.getTruncate(textRef);
+          this.setState({ isTruncated });
+        }
+      } else if (prevProps.shouldTruncate && !this.props.shouldTruncate) {
+        this.setState({ isTruncated: false });
+      }
+    }
+  };
+
+  handleModelOpen = () => {
+    this.setState({ showModal: true });
+  };
+
+  handleModelClose = () => {
+    this.setState({ showModal: false });
+  };
+
   render() {
     const {
       backgroundColor,
@@ -93,33 +206,86 @@ class TextComponent extends React.Component<TextComponentProps> {
       ellipsize,
       fontSize,
       fontStyle,
+      shouldScroll,
+      shouldTruncate,
       text,
       textAlign,
       textColor,
+      truncateButtonColor,
     } = this.props;
+
     return (
-      <TextContainer>
-        <StyledText
-          backgroundColor={backgroundColor}
-          className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
-          ellipsize={ellipsize}
-          fontSize={fontSize}
-          fontStyle={fontStyle}
-          scroll={!!this.props.shouldScroll}
-          textAlign={textAlign}
-          textColor={textColor}
+      <>
+        <TextContainer>
+          <StyledText
+            backgroundColor={backgroundColor}
+            className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
+            ellipsize={ellipsize}
+            fontSize={fontSize}
+            fontStyle={fontStyle}
+            isTruncated={this.state.isTruncated}
+            ref={this.textRef}
+            scroll={!!shouldScroll}
+            textAlign={textAlign}
+            textColor={textColor}
+            truncate={!!shouldTruncate}
+          >
+            <Interweave
+              content={text}
+              matchers={
+                disableLink
+                  ? []
+                  : [new EmailMatcher("email"), new UrlMatcher("url")]
+              }
+              newWindow
+            />
+          </StyledText>
+          {this.state.isTruncated && (
+            <StyledIcon
+              backgroundColor={backgroundColor}
+              className="t--widget-textwidget-truncate"
+              fillColor={truncateButtonColor}
+              name="context-menu"
+              onClick={this.handleModelOpen}
+              size={IconSize.XXXL}
+            />
+          )}
+        </TextContainer>
+        <ModalComponent
+          canEscapeKeyClose
+          canOutsideClickClose
+          className="t--widget-textwidget-truncate-modal"
+          hasBackDrop
+          isOpen={this.state.showModal}
+          onClose={this.handleModelClose}
+          overlayClassName="text-widget-truncate"
+          scrollContents
+          width={500}
         >
-          <Interweave
-            content={text}
-            matchers={
-              disableLink
-                ? []
-                : [new EmailMatcher("email"), new UrlMatcher("url")]
-            }
-            newWindow
-          />
-        </StyledText>
-      </TextContainer>
+          <ModalContent>
+            <Heading>
+              <div className="title">Show More</div>
+              <Icon
+                className="icon"
+                name="cross"
+                onClick={this.handleModelClose}
+                size={IconSize.MEDIUM}
+              />
+            </Heading>
+            <Content>
+              <Interweave
+                content={text}
+                matchers={
+                  disableLink
+                    ? []
+                    : [new EmailMatcher("email"), new UrlMatcher("url")]
+                }
+                newWindow
+              />
+            </Content>
+          </ModalContent>
+        </ModalComponent>
+      </>
     );
   }
 }
