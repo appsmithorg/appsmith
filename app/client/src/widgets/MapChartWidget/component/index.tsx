@@ -12,8 +12,6 @@ import World from "fusioncharts/maps/fusioncharts.world";
 // Include the theme as fusion
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-
 // Import the dataset and the colorRange of the map
 import { dataSetForWorld, MapTypes, MapColorObject } from "../constants";
 import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
@@ -25,6 +23,11 @@ const MapChartContainer = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
+  background: white;
+
+  & > div {
+    width: 100%;
+  }
 `;
 
 export interface MapData {
@@ -60,11 +63,9 @@ function MapChartComponent(props: MapChartComponentProps) {
     caption,
     colorRange,
     data,
-    height,
     onDataPointClick,
     showLabels,
     type,
-    width,
   } = props;
 
   // Creating the JSON object to store the chart configurations
@@ -103,23 +104,12 @@ function MapChartComponent(props: MapChartComponentProps) {
       ...chartConfigs,
     };
     newChartConfigs["events"]["entityClick"] = onDataPointClick;
+    setChartConfigs(newChartConfigs);
 
     return () => {
       chart.removeEventListener("entityClick", onDataPointClick);
     };
   }, [onDataPointClick]);
-
-  useEffect(() => {
-    const newHeight = height - WIDGET_PADDING * 2;
-    const newWidth = width - WIDGET_PADDING * 2;
-
-    const newChartConfigs = {
-      ...chartConfigs,
-      height: newHeight,
-      width: newWidth,
-    };
-    setChartConfigs(newChartConfigs);
-  }, [height, width]);
 
   useEffect(() => {
     const newChartConfigs: any = {
@@ -218,12 +208,10 @@ export interface MapChartComponentProps {
   caption: string;
   colorRange: MapColorObject[];
   data: MapData[];
-  height: number;
   isVisible: boolean;
   onDataPointClick: (evt: any) => void;
   showLabels: boolean;
   type: MapType;
-  width: number;
 }
 
 export default MapChartComponent;

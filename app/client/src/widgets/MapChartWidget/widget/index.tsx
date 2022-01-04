@@ -306,18 +306,12 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
 
   getPageView() {
     const {
-      bottomRow,
       colorRange,
       data,
       isVisible,
-      leftColumn,
       mapTitle,
       mapType,
-      parentColumnSpace,
-      parentRowSpace,
-      rightColumn,
       showLabels,
-      topRow,
     } = this.props;
 
     return (
@@ -326,12 +320,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
           caption={mapTitle}
           colorRange={colorRange}
           data={data}
-          height={(bottomRow - topRow) * parentRowSpace}
           isVisible={isVisible}
           onDataPointClick={this.handleDataPointClick}
           showLabels={showLabels}
           type={mapType}
-          width={(rightColumn - leftColumn) * parentColumnSpace}
         />
       </Suspense>
     );
