@@ -29,6 +29,11 @@ type ParserOptions = {
   fieldType?: FieldType;
   isCustomField?: boolean;
   prevSchema?: Schema;
+  schemaItem?: SchemaItem;
+  // Why skip default value processing?
+  // When an array type is detected, by default we want to process default value
+  // only for the array level and keep every every field below it as empty default.
+  skipDefaultValueProcessing: boolean;
   sourceDataPath?: string;
   widgetName: string;
 };
@@ -251,6 +256,7 @@ class SchemaParser {
       prevSchema,
       sourceDataPath: "sourceData",
       widgetName,
+      skipDefaultValueProcessing: false,
     });
 
     return {
@@ -290,6 +296,7 @@ class SchemaParser {
       fieldType,
       widgetName,
       sourceDataPath,
+      skipDefaultValueProcessing: false,
     });
 
     const oldSchemaItemProperties = pick(schemaItem, [
@@ -321,6 +328,7 @@ class SchemaParser {
     const {
       currSourceData,
       isCustomField = false,
+      skipDefaultValueProcessing,
       sourceDataPath,
       widgetName,
     } = options || {};
@@ -332,7 +340,7 @@ class SchemaParser {
     const bindingTemplate = getBindingTemplate(widgetName);
 
     const defaultValue = (() => {
-      if (isCustomField) return "";
+      if (isCustomField || skipDefaultValueProcessing) return;
 
       const { endTemplate, startTemplate } = bindingTemplate;
 
@@ -366,6 +374,7 @@ class SchemaParser {
           bindingTemplate,
           isCustomField,
           sourceData: currSourceData,
+          skipDefaultValueProcessing,
         });
       }
 
@@ -389,20 +398,18 @@ class SchemaParser {
     };
   };
 
-  static getUnModifiedSchemaItemFor = (
-    currData: JSON | string,
-    schemaItem: SchemaItem,
-    sourceDataPath: string,
-    widgetName: string,
-  ) => {
+  static getUnModifiedSchemaItemFor = ({
+    currSourceData,
+    schemaItem = {} as SchemaItem,
+    ...rest
+  }: ParserOptions) => {
     let { children } = schemaItem;
     const { dataType, fieldType } = schemaItem;
 
     const options = {
-      currSourceData: currData,
+      ...rest,
+      currSourceData,
       prevSchema: children,
-      sourceDataPath,
-      widgetName,
     };
 
     if (dataType === DataType.OBJECT) {
@@ -415,7 +422,7 @@ class SchemaParser {
 
     return {
       ...schemaItem,
-      sourceData: currData,
+      sourceData: currSourceData,
       children,
     };
   };
@@ -439,14 +446,16 @@ class SchemaParser {
         widgetName,
         currSourceData: currData,
         sourceDataPath: getSourcePath(0, sourceDataPath),
+        skipDefaultValueProcessing: true,
       });
     } else {
-      schema[ARRAY_ITEM_KEY] = SchemaParser.getUnModifiedSchemaItemFor(
-        currData,
-        schema[ARRAY_ITEM_KEY],
-        getSourcePath(0, sourceDataPath),
+      schema[ARRAY_ITEM_KEY] = SchemaParser.getUnModifiedSchemaItemFor({
+        currSourceData: currData,
+        schemaItem: schema[ARRAY_ITEM_KEY],
+        sourceDataPath: getSourcePath(0, sourceDataPath),
         widgetName,
-      );
+        skipDefaultValueProcessing: true,
+      });
     }
 
     return schema;
@@ -509,12 +518,13 @@ class SchemaParser {
 
         schema[modifiedKey].position = prevSchemaItem.position;
       } else {
-        schema[modifiedKey] = SchemaParser.getUnModifiedSchemaItemFor(
-          currObj[modifiedKey],
-          schema[modifiedKey],
-          getSourcePath(modifiedKey, sourceDataPath),
+        schema[modifiedKey] = SchemaParser.getUnModifiedSchemaItemFor({
+          ...rest,
+          currSourceData: currObj[modifiedKey],
+          schemaItem: schema[modifiedKey],
+          sourceDataPath: getSourcePath(modifiedKey, sourceDataPath),
           widgetName,
-        );
+        });
       }
     });
 

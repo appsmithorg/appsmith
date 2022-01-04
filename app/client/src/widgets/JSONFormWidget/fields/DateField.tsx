@@ -42,10 +42,11 @@ const COMPONENT_DEFAULT_VALUES = {
 const componentDefaultValues = ({
   bindingTemplate,
   isCustomField,
+  skipDefaultValueProcessing,
   sourceData,
   sourceDataPath,
 }: ComponentDefaultValuesFnProps<string>): DateComponentProps => {
-  let defaultValue = "";
+  let defaultValue;
   let dateFormat = COMPONENT_DEFAULT_VALUES.dateFormat;
 
   if (!isCustomField) {
@@ -57,7 +58,7 @@ const componentDefaultValues = ({
       dateFormat = format.value;
     }
 
-    if (sourceDataPath && format) {
+    if (sourceDataPath && !skipDefaultValueProcessing) {
       const { endTemplate, startTemplate } = bindingTemplate;
       const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
       defaultValue = `${startTemplate}${defaultValueString}${endTemplate}`;

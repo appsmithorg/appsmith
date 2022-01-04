@@ -244,8 +244,7 @@ describe("#getSchemaItemByFieldType", () => {
           isVisible: true,
           children: {},
           dataType: DataType.STRING,
-          defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          defaultValue: undefined,
           fieldType: FieldType.TEXT,
           sourceData: "travelling",
           isCustomField: false,
@@ -293,8 +292,7 @@ describe("#getSchemaItemByFieldType", () => {
           isVisible: true,
           children: {},
           dataType: DataType.OBJECT,
-          defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.name[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          defaultValue: undefined,
           fieldType: FieldType.OBJECT,
           sourceData: {},
           isCustomField: false,
@@ -351,6 +349,7 @@ describe("#getSchemaItemFor", () => {
       widgetName,
       currSourceData: "John",
       sourceDataPath: "sourceData.firstName",
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -365,7 +364,7 @@ describe("#getSchemaItemFor", () => {
       isVisible: true,
       children: {},
       dataType: DataType.STRING,
-      defaultValue: "",
+      defaultValue: undefined,
       fieldType: FieldType.TEXT,
       sourceData: "John",
       isCustomField: true,
@@ -380,6 +379,7 @@ describe("#getSchemaItemFor", () => {
       currSourceData: "John",
       sourceDataPath: "sourceData.firstName",
       isCustomField: true,
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -394,7 +394,7 @@ describe("#getSchemaItemFor", () => {
       isVisible: true,
       children: {},
       dataType: DataType.STRING,
-      defaultValue: "",
+      defaultValue: undefined,
       fieldType: FieldType.SWITCH,
       sourceData: "John",
       isCustomField: true,
@@ -410,6 +410,7 @@ describe("#getSchemaItemFor", () => {
       sourceDataPath: "sourceData.firstName",
       isCustomField: true,
       fieldType: FieldType.SWITCH,
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -444,6 +445,7 @@ describe("#getSchemaItemFor", () => {
       widgetName,
       currSourceData: ["one", "two"],
       sourceDataPath: "sourceData.hobbies",
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -471,12 +473,13 @@ describe("#getUnModifiedSchemaItemFor", () => {
     const currData = "John";
     const sourceDataPath = "sourceData.firstName";
 
-    const result = SchemaParser.getUnModifiedSchemaItemFor(
-      currData,
+    const result = SchemaParser.getUnModifiedSchemaItemFor({
+      currSourceData: currData,
       schemaItem,
       sourceDataPath,
       widgetName,
-    );
+      skipDefaultValueProcessing: false,
+    });
 
     expect(result).toEqual(schemaItem);
   });
@@ -507,12 +510,13 @@ describe("#getUnModifiedSchemaItemFor", () => {
     const currData = "John";
     const sourceDataPath = "sourceData.firstName";
 
-    const result = SchemaParser.getUnModifiedSchemaItemFor(
-      currData,
+    const result = SchemaParser.getUnModifiedSchemaItemFor({
+      currSourceData: currData,
       schemaItem,
       sourceDataPath,
       widgetName,
-    );
+      skipDefaultValueProcessing: false,
+    });
 
     expect(result).toEqual(schemaItem);
   });
@@ -538,8 +542,7 @@ describe("#convertArrayToSchema", () => {
             isVisible: true,
             children: {},
             dataType: DataType.STRING,
-            defaultValue:
-              "{{((sourceData, formData, fieldState) => (sourceData.entries[0].firstName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            defaultValue: undefined,
             fieldType: FieldType.TEXT,
             sourceData: "John",
             isCustomField: false,
@@ -550,8 +553,7 @@ describe("#convertArrayToSchema", () => {
           },
         },
         dataType: DataType.OBJECT,
-        defaultValue:
-          "{{((sourceData, formData, fieldState) => (sourceData.entries[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+        defaultValue: undefined,
         fieldType: FieldType.OBJECT,
         sourceData: {
           firstName: "John",
@@ -567,6 +569,7 @@ describe("#convertArrayToSchema", () => {
       currSourceData,
       widgetName,
       sourceDataPath: "sourceData.entries",
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedSchema);
@@ -645,8 +648,7 @@ describe("#convertArrayToSchema", () => {
             isVisible: true,
             children: {},
             dataType: DataType.STRING,
-            defaultValue:
-              "{{((sourceData, formData, fieldState) => (sourceData.entries[0].lastName))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            defaultValue: undefined,
             fieldType: FieldType.TEXT,
             sourceData: "Doe",
             isCustomField: false,
@@ -676,6 +678,7 @@ describe("#convertArrayToSchema", () => {
       widgetName,
       sourceDataPath: "sourceData.entries",
       prevSchema,
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedSchema);
@@ -711,6 +714,7 @@ describe("#convertObjectToSchema", () => {
       currSourceData,
       widgetName,
       sourceDataPath: "sourceData.entry",
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedSchema);
@@ -781,6 +785,7 @@ describe("#convertObjectToSchema", () => {
       widgetName,
       sourceDataPath: "sourceData.entries",
       prevSchema,
+      skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedSchema);

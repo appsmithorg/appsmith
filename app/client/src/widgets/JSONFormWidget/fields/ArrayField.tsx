@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { ControllerRenderProps, useFormContext } from "react-hook-form";
 import { Icon } from "@blueprintjs/core";
-import { pick } from "lodash";
+import { cloneDeep, pick } from "lodash";
 
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
+import useDeepEffect from "utils/hooks/useDeepEffect";
 import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
@@ -19,6 +20,7 @@ import { generateReactKey } from "utils/generators";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   isCollapsible: boolean;
+  defaultValue?: any[];
 };
 
 type ArrayItemSchemaItemProps = SchemaItem & {
@@ -67,12 +69,18 @@ const StyledDeleteButton = styled(StyledButton)`
   color: ${Colors.CRIMSON};
 `;
 function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
-  const formMethods = useFormContext();
+  const { getValues, setValue } = useFormContext();
   const [keys, setKeys] = useState<string[]>([]);
 
   const { children, isVisible = true, label, tooltip } = schemaItem;
   const arrayItemSchema: ArrayItemSchemaItemProps = children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
+
+  const defaultValue = (() => {
+    return !Array.isArray(schemaItem.defaultValue)
+      ? []
+      : (schemaItem.defaultValue as any[]);
+  })();
 
   const options = {
     hideLabel: true,
@@ -91,7 +99,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
 
   const remove = (removedKey: string) => {
     const removedIndex = keys.findIndex((key) => key === removedKey);
-    const values = formMethods.getValues(name);
+    const values = getValues(name);
 
     if (values === undefined) {
       return;
@@ -103,10 +111,21 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
       (_val: any, index: number) => index !== removedIndex,
     );
 
-    formMethods.setValue(name, newValues);
+    setValue(name, newValues);
 
     setKeys((prevKeys) => prevKeys.filter((prevKey) => prevKey !== removedKey));
   };
+
+  const reset = (values: any[]) => {
+    const newKeys = values?.map(generateReactKey);
+
+    setKeys(newKeys);
+    setValue(name, cloneDeep(values));
+  };
+
+  useDeepEffect(() => {
+    reset(defaultValue);
+  }, [defaultValue]);
 
   if (!isVisible) {
     return null;

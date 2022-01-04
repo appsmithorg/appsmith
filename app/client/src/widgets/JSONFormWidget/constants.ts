@@ -89,6 +89,7 @@ export type ComponentDefaultValuesFnProps<TSourceData = any> = {
   };
   isCustomField: boolean;
   sourceData: TSourceData;
+  skipDefaultValueProcessing: boolean;
 };
 
 // This defines a react component with componentDefaultValues property attached to it.

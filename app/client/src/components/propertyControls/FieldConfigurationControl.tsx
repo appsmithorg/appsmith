@@ -220,6 +220,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
       currSourceData: "",
       widgetName,
       isCustomField: true,
+      skipDefaultValueProcessing: true,
     });
 
     schemaItem.position = lastSchemaItemPosition + 1;

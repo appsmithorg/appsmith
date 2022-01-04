@@ -135,8 +135,7 @@ const initialDataset = {
                   isSpellCheck: false,
                   children: {},
                   dataType: DataType.STRING,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.TEXT,
                   sourceData: "String field ",
                   isCustomField: false,
@@ -151,8 +150,7 @@ const initialDataset = {
                   isSpellCheck: false,
                   children: {},
                   dataType: DataType.NUMBER,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.NUMBER,
                   sourceData: 1,
                   isCustomField: false,
@@ -171,8 +169,7 @@ const initialDataset = {
                   isVisible: true,
                   children: {},
                   dataType: DataType.STRING,
-                  defaultValue:
-                    '{{((sourceData, formData, fieldState) => (moment(sourceData.education[0].graduationDate, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+                  defaultValue: undefined,
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -187,8 +184,7 @@ const initialDataset = {
                   label: "Boolean",
                   children: {},
                   dataType: DataType.BOOLEAN,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.SWITCH,
                   sourceData: true,
                   isCustomField: false,
@@ -198,8 +194,7 @@ const initialDataset = {
                 },
               },
               dataType: DataType.OBJECT,
-              defaultValue:
-                "{{((sourceData, formData, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              defaultValue: undefined,
               fieldType: FieldType.OBJECT,
               sourceData: {
                 college: "String field ",
@@ -428,8 +423,7 @@ const withRemovedKeyFromInitialDataset = {
                   isSpellCheck: false,
                   children: {},
                   dataType: DataType.STRING,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.TEXT,
                   sourceData: "String field ",
                   isCustomField: false,
@@ -444,8 +438,7 @@ const withRemovedKeyFromInitialDataset = {
                   isSpellCheck: false,
                   children: {},
                   dataType: DataType.NUMBER,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.NUMBER,
                   sourceData: 1,
                   isCustomField: false,
@@ -464,8 +457,7 @@ const withRemovedKeyFromInitialDataset = {
                   isVisible: true,
                   children: {},
                   dataType: DataType.STRING,
-                  defaultValue:
-                    '{{((sourceData, formData, fieldState) => (moment(sourceData.education[0].graduationDate, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+                  defaultValue: undefined,
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -480,8 +472,7 @@ const withRemovedKeyFromInitialDataset = {
                   label: "Boolean",
                   children: {},
                   dataType: DataType.BOOLEAN,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.SWITCH,
                   sourceData: true,
                   isCustomField: false,
@@ -491,8 +482,7 @@ const withRemovedKeyFromInitialDataset = {
                 },
               },
               dataType: DataType.OBJECT,
-              defaultValue:
-                "{{((sourceData, formData, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              defaultValue: undefined,
               fieldType: FieldType.OBJECT,
               sourceData: {
                 college: "String field ",
@@ -721,8 +711,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isSpellCheck: false,
                   children: {},
                   dataType: DataType.STRING,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].college))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.TEXT,
                   sourceData: "String field ",
                   isCustomField: false,
@@ -737,8 +726,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isSpellCheck: false,
                   children: {},
                   dataType: DataType.NUMBER,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].number))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.NUMBER,
                   sourceData: 1,
                   isCustomField: false,
@@ -757,8 +745,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isVisible: true,
                   children: {},
                   dataType: DataType.STRING,
-                  defaultValue:
-                    '{{((sourceData, formData, fieldState) => (moment(sourceData.education[0].graduationDate, "MM/DD/YYYY").format("YYYY-MM-DDTHH:mm:ss.sssZ")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+                  defaultValue: undefined,
                   fieldType: FieldType.DATE,
                   sourceData: "10/12/2021",
                   isCustomField: false,
@@ -773,8 +760,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   label: "Boolean",
                   children: {},
                   dataType: DataType.BOOLEAN,
-                  defaultValue:
-                    "{{((sourceData, formData, fieldState) => (sourceData.education[0].boolean))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  defaultValue: undefined,
                   fieldType: FieldType.SWITCH,
                   sourceData: true,
                   isCustomField: false,
@@ -784,8 +770,7 @@ const withRemovedAddedKeyToInitialDataset = {
                 },
               },
               dataType: DataType.OBJECT,
-              defaultValue:
-                "{{((sourceData, formData, fieldState) => (sourceData.education[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              defaultValue: undefined,
               fieldType: FieldType.OBJECT,
               sourceData: {
                 college: "String field ",
