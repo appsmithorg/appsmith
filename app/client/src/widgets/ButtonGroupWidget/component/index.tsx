@@ -365,9 +365,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                     borderRadOnEnd={borderRadOnEnd}
                     borderRadOnStart={borderRadOnStart}
                     borderRadius={this.props.borderRadius}
-                    buttonColor={
-                      button.buttonColor || this.props.backgroundColor
-                    }
+                    buttonColor={button.buttonColor || this.props.primaryColor}
                     buttonVariant={buttonVariant}
                     iconAlign={button.iconAlign}
                     isDisabled={isButtonDisabled}
@@ -395,7 +393,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
               borderRadOnEnd={borderRadOnEnd}
               borderRadOnStart={borderRadOnStart}
               borderRadius={this.props.borderRadius}
-              buttonColor={button.buttonColor || this.props.backgroundColor}
+              buttonColor={button.buttonColor || this.props.primaryColor}
               buttonVariant={buttonVariant}
               iconAlign={button.iconAlign}
               isDisabled={isButtonDisabled}
@@ -460,7 +458,7 @@ export interface ButtonGroupComponentProps {
   buttonVariant: ButtonVariant;
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
-  backgroundColor?: string;
+  primaryColor?: string;
 }
 
 export default ButtonGroupComponent;

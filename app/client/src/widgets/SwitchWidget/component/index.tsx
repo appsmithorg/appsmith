@@ -20,9 +20,6 @@ const SwitchComponentContainer = styled.div<{
   display: flex;
   flex-direction: row;
   align-items: center;
-  .${Classes.CONTROL} {
-    margin: 0;
-  }
   &.${Alignment.RIGHT} {
     justify-content: flex-end;
   }
@@ -32,6 +29,10 @@ const SwitchComponentContainer = styled.div<{
 export const StyledSwitch = styled(Switch)<{
   backgroundColor: string;
 }>`
+  &.${Classes.CONTROL} {
+    margin: 0;
+  }
+
   &.${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
       background: ${({ backgroundColor }) => `${backgroundColor}`} !important;

@@ -125,7 +125,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -361,7 +361,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -598,7 +598,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",
@@ -834,7 +834,7 @@ const dummyThemes: AppTheme[] = [
         boxShadow: "none",
       },
       ICON_BUTTON_WIDGET: {
-        backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
         boxShadow: "none",

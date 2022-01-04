@@ -486,7 +486,6 @@ class ButtonGroupWidget extends BaseWidget<
   getPageView() {
     return (
       <ButtonGroupComponent
-        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonClickHandler={this.handleClick}
@@ -494,6 +493,7 @@ class ButtonGroupWidget extends BaseWidget<
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
         orientation={this.props.orientation}
+        primaryColor={this.props.primaryColor}
       />
     );
   }
@@ -509,6 +509,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
   borderRadius?: string;
   boxShadow?: string;
   buttonVariant: ButtonVariant;
+  primaryColor?: string;
   groupButtons: Record<
     string,
     {

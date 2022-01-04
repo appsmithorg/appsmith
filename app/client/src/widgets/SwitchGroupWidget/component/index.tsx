@@ -50,7 +50,6 @@ export const SwitchGroupContainer = styled.div<
     `
     border: 1px solid ${theme.colors.error};
   `}
-  padding: 2px 4px;
 
   ${BlueprintControlTransform}
 `;

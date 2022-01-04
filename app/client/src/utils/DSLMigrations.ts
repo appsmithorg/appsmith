@@ -1586,6 +1586,22 @@ export const migrateStylingPropertiesForTheming = (
       }
     }
 
+    // specific fixes
+    if (child.type === "AUDIO_RECORDER_WIDGET") {
+      child.borderRadius = "9999px";
+    }
+
+    if (child.type === "FILE_PICKER_WIDGET_V2") {
+      child.buttonColor = Colors.GREEN;
+    }
+
+    if (
+      child.type === "CHECKBOX_WIDGET" ||
+      child.type === "CHECKBOX_GROUP_WIDGET"
+    ) {
+      child.backgroundColor = Colors.GREEN;
+    }
+
     if (child.children && child.children.length > 0) {
       child = migrateStylingPropertiesForTheming(child);
     }
