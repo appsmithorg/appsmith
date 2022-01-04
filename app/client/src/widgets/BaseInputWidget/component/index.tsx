@@ -25,7 +25,7 @@ import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { IconWrapper } from "constants/IconConstants";
 
 import { Colors } from "constants/Colors";
-import _ from "lodash";
+import _, { isNil } from "lodash";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
@@ -374,6 +374,15 @@ class BaseInputComponent extends React.Component<
 
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon();
+    const conditionalProps: Record<string, number> = {};
+
+    if (!isNil(this.props.maxNum)) {
+      conditionalProps.max = this.props.maxNum;
+    }
+
+    if (!isNil(this.props.minNum)) {
+      conditionalProps.min = this.props.minNum;
+    }
 
     return (
       <StyledNumericInput
@@ -392,6 +401,7 @@ class BaseInputComponent extends React.Component<
         placeholder={this.props.placeholder}
         stepSize={this.props.stepSize}
         value={this.props.value}
+        {...conditionalProps}
       />
     );
   };
@@ -631,6 +641,8 @@ export interface BaseInputComponentProps extends ComponentProps {
   widgetId: string;
   onStep?: (direction: number) => void;
   spellCheck?: boolean;
+  maxNum?: number;
+  minNum?: number;
 }
 
 export default BaseInputComponent;

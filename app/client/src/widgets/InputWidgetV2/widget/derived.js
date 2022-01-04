@@ -72,11 +72,27 @@ export default {
         } else {
           return true;
         }
-      case "NUMBER":
-      case "INTEGER":
       case "TEXT":
       case "PASSWORD":
         if (parsedRegex) {
+          return parsedRegex.test(props.text);
+        } else {
+          return hasValidValue;
+        }
+      case "NUMBER":
+        if (
+          !_.isNil(props.maxNum) &&
+          Number.isFinite(props.maxNum) &&
+          props.maxNum < value
+        ) {
+          return false;
+        } else if (
+          !_.isNil(props.minNum) &&
+          Number.isFinite(props.minNum) &&
+          props.minNum > value
+        ) {
+          return false;
+        } else if (parsedRegex) {
           return parsedRegex.test(props.text);
         } else {
           return hasValidValue;

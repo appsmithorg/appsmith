@@ -67,6 +67,8 @@ class InputComponent extends React.Component<InputComponentProps> {
         labelTextSize={this.props.labelTextSize}
         leftIcon={this.getIcon(this.props.inputType)}
         maxChars={this.props.maxChars}
+        maxNum={this.props.maxNum}
+        minNum={this.props.minNum}
         multiline={this.props.multiline}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.props.onKeyDown}
@@ -85,6 +87,8 @@ class InputComponent extends React.Component<InputComponentProps> {
 export interface InputComponentProps extends BaseInputComponentProps {
   maxChars?: number;
   spellCheck?: boolean;
+  maxNum?: number;
+  minNum?: number;
 }
 
 export default InputComponent;

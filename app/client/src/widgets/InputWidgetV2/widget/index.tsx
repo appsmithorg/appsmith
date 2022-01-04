@@ -17,7 +17,7 @@ import { InputTypes } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import _ from "lodash";
+import _, { isNil } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
@@ -102,6 +102,69 @@ export function defaultValueValidation(
   }
 }
 
+function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
+  const max = props.maxNum;
+  const value = min;
+  min = Number(min);
+
+  if (_?.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
+    };
+  } else if (!Number.isFinite(min)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be number"],
+    };
+  } else if (max !== undefined && min >= max) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be lesser than max value"],
+    };
+  } else {
+    return {
+      isValid: true,
+      parsed: Number(min),
+      messages: [""],
+    };
+  }
+}
+
+function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
+  const min = props.minNum;
+  const value = max;
+  max = Number(max);
+
+  if (_?.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
+    };
+  } else if (!Number.isFinite(max)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be number"],
+    };
+  } else if (min !== undefined && max <= min) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be greater than min value"],
+    };
+  } else {
+    return {
+      isValid: true,
+      parsed: Number(max),
+      messages: [""],
+    };
+  }
+}
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
     super(props);
@@ -174,6 +237,46 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               },
               dependencies: ["inputType"],
             },
+            {
+              helpText: "Sets the minimum allowed value",
+              propertyName: "minNum",
+              label: "Min",
+              controlType: "INPUT_TEXT",
+              placeholderText: "1",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: minValueValidation,
+                },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.NUMBER;
+              },
+              dependencies: ["inputType"],
+            },
+            {
+              helpText: "Sets the maximum allowed value",
+              propertyName: "maxNum",
+              label: "Max",
+              controlType: "INPUT_TEXT",
+              placeholderText: "100",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: maxValueValidation,
+                },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.NUMBER;
+              },
+              dependencies: ["inputType"],
+            },
           ],
         },
         {
@@ -232,7 +335,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     let parsedValue;
     switch (this.props.inputType) {
       case "NUMBER":
-      case "INTEGER":
         try {
           if (value === "") {
             parsedValue = null;
@@ -277,6 +379,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
+
+    if (!isNil(this.props.maxNum)) {
+      conditionalProps.maxNum = this.props.maxNum;
+    }
+
+    if (!isNil(this.props.minNum)) {
+      conditionalProps.minNum = this.props.minNum;
+    }
+
     if (this.props.inputType === "TEXT" && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
@@ -349,6 +460,8 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   defaultText?: string | number;
   maxChars?: number;
   isSpellCheck?: boolean;
+  maxNum?: number;
+  minNum?: number;
 }
 
 export default InputWidget;
