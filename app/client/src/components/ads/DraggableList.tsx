@@ -63,7 +63,15 @@ const DraggableListWrapper = styled.div`
 `;
 
 function DraggableList(props: any) {
-  const { fixedHeight, itemHeight, ItemRenderer, items, onUpdate } = props;
+  const {
+    fixedHeight,
+    focusedIndex,
+    itemHeight,
+    ItemRenderer,
+    items,
+    onUpdate,
+  } = props;
+
   const listContainerHeight =
     fixedHeight && fixedHeight < items.length * itemHeight
       ? fixedHeight
@@ -91,6 +99,33 @@ function DraggableList(props: any) {
       setSprings(updateSpringStyles(order.current, itemHeight));
     }
   }, [items]);
+
+  useEffect(() => {
+    console.log("SSUP : ", { focusedIndex }, listRef.current);
+    // setTimeout(() => {
+    if (focusedIndex && listRef && listRef.current) {
+      const container = listRef.current;
+
+      if (focusedIndex * itemHeight < container.scrollTop) {
+        listRef.current.scrollTo({
+          top: (focusedIndex - 1) * itemHeight,
+          left: 0,
+          behavior: "smooth",
+        });
+      } else if (
+        (focusedIndex + 1) * itemHeight >
+        listRef.current.scrollTop + listRef.current.clientHeight
+      ) {
+        listRef.current.scrollTo({
+          top: (focusedIndex + 1) * itemHeight - listRef.current.clientHeight,
+          left: 0,
+          behavior: "smooth",
+        });
+        console.log("SSUP HERE", listRef);
+      }
+    }
+    // }, 1000);
+  }, [focusedIndex]);
 
   const [springs, setSprings] = useSprings<any>(
     items.length,
