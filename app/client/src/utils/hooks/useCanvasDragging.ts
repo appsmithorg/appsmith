@@ -240,6 +240,8 @@ export const useCanvasDragging = (
       isDragging &&
       blocksToDraw.length > 0
     ) {
+      // doing throttling coz reflow moves are also throttled and resetCanvas can be called multiple times
+      const throttledStopReflowing = throttle(stopReflowing, 50);
       const scrollParent: Element | null = getNearestParentCanvas(
         canvasRef.current,
       );
@@ -269,7 +271,7 @@ export const useCanvasDragging = (
       };
 
       const resetCanvasState = () => {
-        stopReflowing();
+        throttledStopReflowing();
         if (canvasDrawRef.current && canvasRef.current) {
           const canvasCtx: any = canvasDrawRef.current.getContext("2d");
           canvasCtx.clearRect(
