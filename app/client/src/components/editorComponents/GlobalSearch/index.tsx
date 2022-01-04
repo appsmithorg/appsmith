@@ -190,7 +190,7 @@ function GlobalSearch() {
   const setCategory = useCallback(
     (category: SearchCategory) => {
       if (isSnippet(category)) {
-        AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+        AnalyticsUtil.logEvent("SNIPPET_LOOKUP", { source: "OMNIBAR_MENU" });
       }
       dispatch(setGlobalSearchFilterContext({ category: category }));
     },
