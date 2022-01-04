@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 import styled from "styled-components";
 import { noop } from "lodash";
@@ -63,6 +63,12 @@ function useIsEditing(
   const dispatch = useDispatch();
   const setIsEditing = useCallback((value: boolean) => {
     dispatch(focusWidgetTitle(value));
+  }, []);
+
+  useEffect(() => {
+    if (isEditing !== defaultValue) {
+      setIsEditing(defaultValue);
+    }
   }, []);
 
   return [isEditing, setIsEditing];
