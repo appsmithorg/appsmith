@@ -1467,9 +1467,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
                                 commitDTO.setDoPush(true);
+
+                                GitPullDTO gitPullDTO = new GitPullDTO();
+                                gitPullDTO.setMergeStatus(status);
+                                gitPullDTO.setApplication(responseUtils.updateApplicationWithDefaultResources(application1));
+
                                 // Make commit and push after pull is successful to have a clean repo
                                 return this.commitApplication(commitDTO, application1.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
-                                        .thenReturn(getPullDTO(application1, status));
+                                        .thenReturn(gitPullDTO);
                             });
                 })
                 // Add BE analytics
@@ -1484,14 +1489,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitPullDTO.getApplication().getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(gitPullDTO);
                 });
-    }
-
-    private GitPullDTO getPullDTO(Application application, MergeStatusDTO status) {
-        GitPullDTO gitPullDTO = new GitPullDTO();
-        responseUtils.updateApplicationWithDefaultResources(application);
-        gitPullDTO.setMergeStatus(status);
-        gitPullDTO.setApplication(application);
-        return gitPullDTO;
     }
 
     @Override
