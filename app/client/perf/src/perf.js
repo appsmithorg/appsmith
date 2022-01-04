@@ -1,21 +1,59 @@
 const Tracelib = require("tracelib");
 const puppeteer = require("puppeteer");
+var sanitize = require("sanitize-filename");
 const fs = require("fs");
+const path = require("path");
+
 const {
   delay,
   login,
   getFormattedTime,
   sortObjectKeys,
 } = require("./utils/utils");
-
+const selectors = {
+  appMoreIcon: "span.t--options-icon",
+  orgImportAppOption: '[data-cy*="t--org-import-app"]',
+  fileInput: "#fileInput",
+  importButton: '[data-cy*="t--org-import-app-button"]',
+  createNewApp: ".createnew",
+};
 module.exports = class Perf {
   constructor(launchOptions = {}) {
     this.launchOptions = {
+      defaultViewport: null,
+      args: ["--window-size=1920,1080"],
+      ignoreHTTPSErrors: true, // @todo Remove it after initial testing
       ...launchOptions,
     };
+
+    if (process.env.PERF_TEST_ENV === "dev") {
+      this.launchOptions.executablePath =
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+      this.launchOptions.devtools = true;
+      this.launchOptions.headless = false;
+    }
+
     this.traces = [];
-    this.traceInProgress = false;
+    this.currentTrace = null;
     this.browser = null;
+
+    // Initial setup
+    this.currentTestFile = process.argv[1]
+      .split("/")
+      .pop()
+      .replace(".perf.js", "");
+    global.APP_ROOT = path.join(__dirname, ".."); //Going back one level from src folder to /perf
+    process.on("unhandledRejection", async (reason, p) => {
+      console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
+      const fileName = sanitize(
+        `${this.currentTestFile}__${this.currentTrace}`,
+      );
+      const screenshotPath = `${APP_ROOT}/traces/reports/${fileName}-${getFormattedTime()}.png`;
+      await this.page.screenshot({
+        path: screenshotPath,
+      });
+      this.browser.close();
+    });
   }
   /**
    * Launches the browser and, gives you the page
@@ -33,12 +71,12 @@ module.exports = class Perf {
   };
 
   startTrace = async (action = "foo") => {
-    if (this.traceInProgress) {
+    if (this.currentTrace) {
       console.warn("Trace progress. You can run only one trace at a time");
       return;
     }
 
-    this.traceInProgress = true;
+    this.currentTrace = action;
     await delay(3000, `before starting trace ${action}`);
     const path = `${APP_ROOT}/traces/${action}-${getFormattedTime()}-chrome-profile.json`;
     await this.page.tracing.start({
@@ -49,8 +87,8 @@ module.exports = class Perf {
   };
 
   stopTrace = async () => {
-    this.traceInProgress = false;
-    await delay(5000, "before stoping the trace");
+    this.currentTrace = null;
+    await delay(3000, "before stopping the trace");
     await this.page.tracing.stop();
   };
 
@@ -60,7 +98,7 @@ module.exports = class Perf {
   };
 
   loadDSL = async (dsl) => {
-    const selector = ".createnew";
+    const selector = selectors.createNewApp;
     await this.page.waitForSelector(selector);
     await this.page.click(selector);
     // We goto the newly created app.
@@ -104,6 +142,20 @@ module.exports = class Perf {
       waitUntil: "networkidle2",
       timeout: 60000,
     });
+  };
+
+  importApplication = async (jsonPath) => {
+    await this.page.waitForSelector(selectors.appMoreIcon);
+    await this.page.click(selectors.appMoreIcon);
+    await this.page.waitForSelector(selectors.orgImportAppOption);
+    await this.page.click(selectors.orgImportAppOption);
+
+    const elementHandle = await this.page.$(selectors.fileInput);
+    await elementHandle.uploadFile(jsonPath);
+    await this.page.click(selectors.importButton);
+
+    await this.page.waitForNavigation();
+    await this.page.reload();
   };
 
   generateReport = async () => {

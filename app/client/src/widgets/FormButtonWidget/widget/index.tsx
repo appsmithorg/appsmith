@@ -12,6 +12,8 @@ import {
   ButtonBorderRadius,
   ButtonBoxShadow,
   ButtonVariant,
+  RecaptchaType,
+  RecaptchaTypes,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
@@ -100,14 +102,29 @@ class FormButtonWidget extends ButtonWidget {
           validation: { type: ValidationTypes.TEXT },
         },
         {
-          propertyName: "recaptchaV2",
-          label: "Google reCAPTCHA v2",
-          controlType: "SWITCH",
-          helpText: "Use reCAPTCHA v2",
-          isJSConvertible: true,
+          propertyName: "recaptchaType",
+          label: "Google reCAPTCHA Version",
+          controlType: "DROP_DOWN",
+          helpText: "Select reCAPTCHA version",
+          options: [
+            {
+              label: "reCAPTCHA v3",
+              value: RecaptchaTypes.V3,
+            },
+            {
+              label: "reCAPTCHA v2",
+              value: RecaptchaTypes.V2,
+            },
+          ],
           isBindProperty: true,
           isTriggerProperty: false,
-          validation: { type: ValidationTypes.BOOLEAN },
+          validation: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [RecaptchaTypes.V3, RecaptchaTypes.V2],
+              default: RecaptchaTypes.V3,
+            },
+          },
         },
       ],
     });
@@ -188,7 +205,7 @@ export interface FormButtonWidgetProps extends WidgetProps {
   onReset?: () => void;
   disabledWhenInvalid?: boolean;
   googleRecaptchaKey?: string;
-  recaptchaV2?: boolean;
+  recaptchaType: RecaptchaType;
   buttonVariant?: ButtonVariant;
   buttonColor?: string;
   borderRadius?: ButtonBorderRadius;
