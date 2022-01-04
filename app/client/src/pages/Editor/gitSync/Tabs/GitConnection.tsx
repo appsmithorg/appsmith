@@ -256,6 +256,11 @@ function GitConnection({ isImport }: Props) {
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
+
+    // if changed remote url, sshkey should be regenarated automatically
+    if (value !== remoteUrlInStore) {
+      generateSSHKey();
+    }
     AnalyticsUtil.logEvent("REPO_URL_EDIT", {
       repoUrl: value,
     });
@@ -428,7 +433,10 @@ function GitConnection({ isImport }: Props) {
                 category={Category.primary}
                 className="t--submit-repo-url-button"
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
-                onClick={() => generateSSHKey()}
+                onClick={() => {
+                  generateSSHKey();
+                  AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
+                }}
                 size={Size.large}
                 tag="button"
                 text={createMessage(GENERATE_KEY)}
