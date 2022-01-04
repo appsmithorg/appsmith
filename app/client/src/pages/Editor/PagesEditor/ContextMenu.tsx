@@ -46,6 +46,10 @@ const Container = styled.div`
   & [class^="Name__Wrapper"] {
     width: 10rem;
   }
+
+  & .editing {
+    width: 10rem;
+  }
 `;
 
 const Header = styled.div`
