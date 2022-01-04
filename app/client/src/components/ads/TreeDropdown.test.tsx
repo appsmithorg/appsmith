@@ -171,7 +171,7 @@ describe("<TreeDropdown/>", () => {
     }
   });
 
-  it("After selecting an option using arrow, {enter} or ' ' should trigger onSelect", () => {
+  it("After selecting an option using arrow, {enter} or ' ' should trigger onSelect", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
     userEvent.tab();
@@ -191,7 +191,8 @@ describe("<TreeDropdown/>", () => {
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       {
         label: optionTree[4].label,
@@ -202,7 +203,7 @@ describe("<TreeDropdown/>", () => {
     );
   });
 
-  it.only("{enter} or '{ArrowRight}' or ' ' on an item with children should open child menu", async () => {
+  it("{enter} or '{ArrowRight}' or ' ' on an item with children should open child menu", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
     userEvent.tab();
