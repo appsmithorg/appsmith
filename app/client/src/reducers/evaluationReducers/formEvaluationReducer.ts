@@ -2,14 +2,24 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { FetchPageRequest } from "api/PageApi";
 
-export type FormEvaluationState = Record<string, any>;
+export type ConditonalObject = Record<string, string>;
+
+export type FormEvalOutput = Record<
+  string,
+  {
+    visible?: boolean;
+    conditionals?: ConditonalObject;
+  }
+>;
+
+export type FormEvaluationState = Record<string, FormEvalOutput>;
 
 const initialState: FormEvaluationState = {};
 
 const formEvaluation = createReducer(initialState, {
   [ReduxActionTypes.SET_FORM_EVALUATION]: (
     state: FormEvaluationState,
-    action: ReduxAction<Set<string>>,
+    action: ReduxAction<FormEvaluationState>,
   ): FormEvaluationState => action.payload,
   [ReduxActionTypes.FETCH_PAGE_INIT]: (
     state: FormEvaluationState,

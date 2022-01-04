@@ -9,22 +9,28 @@ import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "../selectors/formSelectors";
 import { workerComputeFormEvals } from "./EvaluationsSaga";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
-
-// All the topics this saga listens to
-const FORM_EVALUATION_REDUX_ACTIONS = [
-  ReduxActionTypes.INIT_FORM_EVALUATION,
-  ReduxActionTypes.RUN_FORM_EVALUATION,
-];
+import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
+import { ActionConfig } from "entities/Action";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
-const evalQueue: ReduxAction<any>[] = [];
+
+export type FormEvalActionPayload = {
+  formId: string;
+  actionConfiguration?: ActionConfig;
+  editorConfig?: any;
+  settingConfig?: any;
+};
+
+const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
 
 // Function to set isEvaluating flag
 const setIsEvaluating = (newState: boolean) => {
   isEvaluating = newState;
 };
 
-function* setFormEvaluationSagaAsync(action: ReduxAction<any>): any {
+function* setFormEvaluationSagaAsync(
+  action: ReduxAction<FormEvalActionPayload>,
+): any {
   // We have to add a queue here because the eval cannot happen before the initial state is set
   if (isEvaluating) {
     evalQueue.push(action);

@@ -1,6 +1,11 @@
-import { FormEvaluationState } from "../reducers/evaluationReducers/formEvaluationReducer";
+import {
+  FormEvalOutput,
+  FormEvaluationState,
+} from "../reducers/evaluationReducers/formEvaluationReducer";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
+import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
+import { FormConfig } from "components/formControls/BaseControl";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -8,22 +13,22 @@ export enum ConditionType {
 }
 
 // Object to hold the initial eval object
-let finalEvalObj: { [x: string]: { visible: boolean; conditionals: any } };
+let finalEvalObj: FormEvalOutput;
 
 // Recursive function to generate the evaluation state for form config
-const generateInitialEvalState = (formConfig: any) => {
+const generateInitialEvalState = (formConfig: FormConfig) => {
   const visible = false;
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
-  if (formConfig.hasOwnProperty("conditionals")) {
+  if ("conditionals" in formConfig && !!formConfig.conditionals) {
     let key = "unknowns";
 
     // A unique key is used to refer the object in the eval state, can be propertyName, configProperty or identifier
-    if (formConfig.hasOwnProperty("propertyName")) {
+    if ("propertyName" in formConfig && !!formConfig.propertyName) {
       key = formConfig.propertyName;
-    } else if (formConfig.hasOwnProperty("configProperty")) {
+    } else if ("configProperty" in formConfig && !!formConfig.configProperty) {
       key = formConfig.configProperty;
-    } else if (formConfig.hasOwnProperty("identifier")) {
+    } else if ("identifier" in formConfig && !!formConfig.identifier) {
       key = formConfig.identifier;
     }
 
@@ -34,7 +39,7 @@ const generateInitialEvalState = (formConfig: any) => {
     };
   }
 
-  if (formConfig.children)
+  if ("children" in formConfig && !!formConfig.children)
     formConfig.children.forEach((config: any) =>
       generateInitialEvalState(config),
     );
@@ -43,20 +48,22 @@ const generateInitialEvalState = (formConfig: any) => {
 // Function to run the eval for the whole form when data changes
 function evaluate(
   actionConfiguration: ActionConfig,
-  currentEvalState: FormEvaluationState,
+  currentEvalState: FormEvalOutput,
 ) {
   Object.keys(currentEvalState).forEach((key: string) => {
     try {
       if (currentEvalState[key].hasOwnProperty("conditionals")) {
         const conditionBlock = currentEvalState[key].conditionals;
-        Object.keys(conditionBlock).forEach((conditionType) => {
-          const output = eval(conditionBlock[conditionType]);
-          if (conditionType === ConditionType.HIDE) {
-            currentEvalState[key].visible = !output;
-          } else if (conditionType === ConditionType.SHOW) {
-            currentEvalState[key].visible = output;
-          }
-        });
+        if (!!conditionBlock) {
+          Object.keys(conditionBlock).forEach((conditionType: string) => {
+            const output = eval(conditionBlock[conditionType]);
+            if (conditionType === ConditionType.HIDE) {
+              currentEvalState[key].visible = !output;
+            } else if (conditionType === ConditionType.SHOW) {
+              currentEvalState[key].visible = output;
+            }
+          });
+        }
       }
     } catch (e) {}
   });
@@ -83,7 +90,7 @@ function getFormEvaluation(
 // Filter function to assign a function to the Action dispatched
 export function setFormEvaluationSaga(
   type: string,
-  payload: any,
+  payload: FormEvalActionPayload,
   currentEvalState: FormEvaluationState,
 ) {
   if (type === ReduxActionTypes.INIT_FORM_EVALUATION) {
@@ -116,7 +123,7 @@ export function setFormEvaluationSaga(
   } else {
     const { actionConfiguration, formId } = payload;
     // In case the formData is not ready or the form is not of type UQI, return empty state
-    if (!actionConfiguration.formData) {
+    if (!actionConfiguration || !actionConfiguration.formData) {
       return currentEvalState;
     } else {
       return getFormEvaluation(formId, actionConfiguration, currentEvalState);

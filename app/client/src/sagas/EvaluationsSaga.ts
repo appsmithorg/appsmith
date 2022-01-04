@@ -84,6 +84,7 @@ import {
 import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import { FormEvalActionPayload } from "./FormEvaluationSaga";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -573,21 +574,26 @@ export function* workerComputeUndoRedo(operation: string, entityId: string) {
 }
 
 // Type to represent the state of the evaluation reducer
-export interface FormEvaluationObject extends ReduxAction<any> {
+export interface FormEvaluationConfig
+  extends ReduxAction<FormEvalActionPayload> {
   currentEvalState: FormEvaluationState;
 }
 
 // Function to trigger the form eval job in the worker
 export function* workerComputeFormEvals(
   operation: string,
-  evaluationObject: FormEvaluationObject,
+  evalFormConfig: FormEvaluationConfig,
 ) {
-  const workerResponse: any = yield call(
-    worker.request,
-    operation,
-    evaluationObject,
-  );
-  return workerResponse;
+  if (operation === EVAL_WORKER_ACTIONS.INIT_FORM_EVAL) {
+    const workerResponse: any = yield call(
+      worker.request,
+      operation,
+      evalFormConfig,
+    );
+    return workerResponse;
+  } else {
+    return null;
+  }
 }
 
 export function* setAppVersionOnWorkerSaga(action: {
