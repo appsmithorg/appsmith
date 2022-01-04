@@ -342,7 +342,12 @@ class ImageComponent extends React.Component<
     }
   };
 
-  onMouseEnter = () => this.setState({ showImageControl: true });
+  onMouseEnter = () => {
+    const { defaultImageUrl, imageUrl } = this.props;
+    if (defaultImageUrl || imageUrl) {
+      this.setState({ showImageControl: true });
+    }
+  };
 
   onMouseLeave = () => this.setState({ showImageControl: false });
 

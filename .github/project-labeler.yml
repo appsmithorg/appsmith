@@ -1,4 +1,0 @@
-projects:
-  - match: '[a-zA-Z0-9_ ]*' # RegExp for project name
-    labels: # List of label's rules
-      - required: ["Project"] # Labels that should be on issues from matching projects

@@ -17,6 +17,8 @@ import java.util.Set;
 @Setter
 public class ApplicationJson {
 
+    Integer version = 1;
+
     Application exportedApplication;
 
     List<Datasource> datasourceList;
@@ -32,6 +34,9 @@ public class ApplicationJson {
     List<ActionCollection> actionCollectionList;
 
     Map<String, DecryptedSensitiveFields> decryptedFields;
+
+    Theme editModeTheme;
+    Theme publishedTheme;
 
     /**
      * Mapping mongoEscapedWidgets with layoutId
