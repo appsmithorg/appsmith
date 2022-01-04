@@ -1,5 +1,6 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("API Panel Test Functionality", function() {
   it("Test Search API fetaure", function() {
@@ -38,7 +39,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.get(apiwidget.settings).click({ force: true });
-    cy.get(apiwidget.confirmBeforeExecute).click();
+    cy.get(apiwidget.confirmBeforeExecute).click({ force: true });
     cy.get(apiwidget.runQueryButton).click();
     cy.get(".bp3-dialog")
       .find("button")
@@ -72,5 +73,16 @@ describe("API Panel Test Functionality", function() {
       key: "q",
       value: "mimeType='application/vnd.google-apps.spreadsheet'",
     });
+  });
+
+  it("Shows evaluated value pane when url field is focused", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("TestAPI");
+    cy.get(".CodeMirror-placeholder")
+      .first()
+      .click({
+        force: true,
+      });
+    cy.get(commonlocators.evaluatedTypeTitle).should("be.visible");
   });
 });
