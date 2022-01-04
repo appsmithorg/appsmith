@@ -50,6 +50,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -111,15 +113,17 @@ export function Login(props: LoginFormProps) {
       <AuthCardHeader>
         <h1>{createMessage(LOGIN_PAGE_TITLE)}</h1>
       </AuthCardHeader>
-      <SignUpLinkSection>
-        {createMessage(NEW_TO_APPSMITH)}
-        <AuthCardNavLink
-          style={{ marginLeft: props.theme.spaces[3] }}
-          to={signupURL}
-        >
-          {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
-        </AuthCardNavLink>
-      </SignUpLinkSection>
+      {!disableLoginForm && (
+        <SignUpLinkSection>
+          {createMessage(NEW_TO_APPSMITH)}
+          <AuthCardNavLink
+            style={{ marginLeft: props.theme.spaces[3] }}
+            to={signupURL}
+          >
+            {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
+          </AuthCardNavLink>
+        </SignUpLinkSection>
+      )}
       {showError && (
         <FormMessage
           actions={
@@ -146,53 +150,59 @@ export function Login(props: LoginFormProps) {
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNIN"} />
       )}
-      <SpacedSubmitForm action={loginURL} method="POST">
-        <FormGroup
-          intent={error ? "danger" : "none"}
-          label={createMessage(LOGIN_PAGE_EMAIL_INPUT_LABEL)}
-        >
-          <FormTextField
-            autoFocus
-            name={LOGIN_FORM_EMAIL_FIELD_NAME}
-            placeholder={createMessage(LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER)}
-            type="email"
-          />
-        </FormGroup>
-        <FormGroup
-          intent={error ? "danger" : "none"}
-          label={createMessage(LOGIN_PAGE_PASSWORD_INPUT_LABEL)}
-        >
-          <FormTextField
-            name={LOGIN_FORM_PASSWORD_FIELD_NAME}
-            placeholder={createMessage(LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER)}
-            type="password"
-          />
-        </FormGroup>
+      {!disableLoginForm && (
+        <>
+          <SpacedSubmitForm action={loginURL} method="POST">
+            <FormGroup
+              intent={error ? "danger" : "none"}
+              label={createMessage(LOGIN_PAGE_EMAIL_INPUT_LABEL)}
+            >
+              <FormTextField
+                autoFocus
+                name={LOGIN_FORM_EMAIL_FIELD_NAME}
+                placeholder={createMessage(LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER)}
+                type="email"
+              />
+            </FormGroup>
+            <FormGroup
+              intent={error ? "danger" : "none"}
+              label={createMessage(LOGIN_PAGE_PASSWORD_INPUT_LABEL)}
+            >
+              <FormTextField
+                name={LOGIN_FORM_PASSWORD_FIELD_NAME}
+                placeholder={createMessage(
+                  LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER,
+                )}
+                type="password"
+              />
+            </FormGroup>
 
-        <FormActions>
-          <Button
-            disabled={!isFormValid}
-            fill
-            onClick={() => {
-              PerformanceTracker.startTracking(
-                PerformanceTransactionName.LOGIN_CLICK,
-              );
-              AnalyticsUtil.logEvent("LOGIN_CLICK", {
-                loginMethod: "EMAIL",
-              });
-            }}
-            size={Size.large}
-            tag="button"
-            text={createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
-            type="submit"
-          />
-        </FormActions>
-      </SpacedSubmitForm>
-      <ForgotPasswordLink>
-        <Link to={forgotPasswordURL}>
-          {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
-        </Link>
-      </ForgotPasswordLink>
+            <FormActions>
+              <Button
+                disabled={!isFormValid}
+                fill
+                onClick={() => {
+                  PerformanceTracker.startTracking(
+                    PerformanceTransactionName.LOGIN_CLICK,
+                  );
+                  AnalyticsUtil.logEvent("LOGIN_CLICK", {
+                    loginMethod: "EMAIL",
+                  });
+                }}
+                size={Size.large}
+                tag="button"
+                text={createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
+                type="submit"
+              />
+            </FormActions>
+          </SpacedSubmitForm>
+          <ForgotPasswordLink>
+            <Link to={forgotPasswordURL}>
+              {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
+            </Link>
+          </ForgotPasswordLink>
+        </>
+      )}
     </>
   );
 }
