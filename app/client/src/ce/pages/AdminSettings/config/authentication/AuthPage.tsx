@@ -7,12 +7,12 @@ import { createMessage, ADD, EDIT } from "constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "pages/Settings/Callout";
-import Breadcrumbs from "components/ads/Breadcrumbs";
+import Breadcrumbs, { BreadcrumbCategories } from "components/ads/Breadcrumbs";
 import { IBreadcrumbProps } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding-left: 112px;
+  margin-left: 112px;
   padding-top: 40px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
@@ -114,8 +114,9 @@ const Label = styled.span`
 `;
 
 const breadcrumbList: IBreadcrumbProps[] = [
-  { href: "/applications", text: "Homepage" },
-  { href: "/settings/general", text: "Settings" },
+  BreadcrumbCategories.HOMEPAGE,
+  BreadcrumbCategories.DEFAULT_SETTINGS,
+  BreadcrumbCategories[SettingCategories.AUTHENTICATION],
 ];
 
 export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {

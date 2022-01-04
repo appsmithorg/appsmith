@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from "react";
-import { Icon } from "@blueprintjs/core";
+// import { Icon } from "@blueprintjs/core";
 import { saveSettings } from "actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
+// import { APPLICATIONS_URL } from "constants/routes";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
@@ -16,12 +16,14 @@ import {
   getShowReleaseNotes,
 } from "selectors/settingsSelectors";
 import styled from "styled-components";
-import history from "utils/history";
+// import history from "utils/history";
 import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import SaveAdminSettings from "./SaveSettings";
+import Breadcrumbs, { BreadcrumbCategories } from "components/ads/Breadcrumbs";
+import { IBreadcrumbProps } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -31,12 +33,12 @@ const Wrapper = styled.div`
   overflow: auto;
 `;
 
-const BackButton = styled.div`
+/*const BackButton = styled.div`
   display: inline-block;
   cursor: pointer;
 `;
 
-const BackButtonText = styled.span``;
+const BackButtonText = styled.span``;*/
 
 const SettingsFormWrapper = styled.div``;
 
@@ -76,9 +78,9 @@ export function SettingsForm(
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
   );
-  const onBack = () => {
+  /*const onBack = () => {
     history.push(APPLICATIONS_URL);
-  };
+  };*/
   const onSave = () => {
     dispatch(saveSettings(props.settings));
   };
@@ -103,12 +105,21 @@ export function SettingsForm(
     });
   }, []);
 
+  const breadcrumbList: IBreadcrumbProps[] = [
+    BreadcrumbCategories.HOMEPAGE,
+    ...(category !== "general" ? [BreadcrumbCategories.DEFAULT_SETTINGS] : []),
+    ...(subCategory
+      ? [BreadcrumbCategories[category], BreadcrumbCategories[subCategory]]
+      : [BreadcrumbCategories[category]]),
+  ];
+
   return (
     <Wrapper>
-      <BackButton className="t--admin-settings-back-button" onClick={onBack}>
+      {/*<BackButton className="t--admin-settings-back-button" onClick={onBack}>
         <Icon icon="chevron-left" iconSize={16} />
         <BackButtonText>&nbsp;Back</BackButtonText>
-      </BackButton>
+      </BackButton>*/}
+      <Breadcrumbs items={breadcrumbList} />
       <SettingsFormWrapper>
         <SettingsHeader>
           {getSettingLabel(subCategory ?? category)} settings
