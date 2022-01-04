@@ -69,7 +69,7 @@ export function* fetchJSCollectionsSaga(
     const response = yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      payload: response.data,
+      payload: response.data || [],
     });
   } catch (error) {
     yield put({

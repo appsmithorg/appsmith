@@ -117,16 +117,10 @@ class FilePickerWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                allowedValues: [
-                  "*",
-                  "image/*",
-                  "video/*",
-                  "audio/*",
-                  "text/*",
-                  ".doc",
-                  "image/jpeg",
-                  ".png",
-                ],
+                unique: true,
+                children: {
+                  type: ValidationTypes.TEXT,
+                },
               },
             },
             evaluationSubstitutionType:
@@ -184,10 +178,21 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText:

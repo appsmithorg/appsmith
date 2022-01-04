@@ -29,6 +29,40 @@
           "configProperty": "actionConfiguration.formData.list.prefix",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
+        },
+        {
+          "label": "Where",
+          "configProperty": "actionConfiguration.formData.list.where",
+          "nestedLevels": 3,
+          "controlType": "WHERE_CLAUSE",
+          "logicalTypes": [
+            {
+              "label": "AND",
+              "value": "AND"
+            },
+            {
+              "label": "OR",
+              "value": "OR"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": "!=",
+              "value": "NOT_EQ"
+            },
+            {
+              "label": "in",
+              "value": "IN"
+            },
+            {
+              "label": "not in",
+              "value": "NOT_IN"
+            }
+          ]
         }
       ]
     },

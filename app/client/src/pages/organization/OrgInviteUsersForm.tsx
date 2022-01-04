@@ -80,7 +80,7 @@ const StyledInviteFieldGroup = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-right: 5px;
+    margin-right: ${(props) => props.theme.spaces[3]}px;
     border-right: 0px;
   }
 `;
@@ -203,6 +203,8 @@ const validate = (values: any) => {
 
 const { mailEnabled } = getAppsmithConfigs();
 
+export const InviteButtonWidth = "88px";
+
 function OrgInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const userRef = React.createRef<HTMLDivElement>();
@@ -271,7 +273,7 @@ function OrgInviteUsersForm(props: any) {
         <>
           <Divider />
           <OrgInviteTitle>
-            <Text type={TextType.H5}>Invite Users to {currentOrg?.name} </Text>
+            <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
           </OrgInviteTitle>
         </>
       )}
@@ -313,6 +315,7 @@ function OrgInviteUsersForm(props: any) {
             tag="button"
             text="Invite"
             variant={Variant.info}
+            width={InviteButtonWidth}
           />
         </StyledInviteFieldGroup>
         {isLoading ? (

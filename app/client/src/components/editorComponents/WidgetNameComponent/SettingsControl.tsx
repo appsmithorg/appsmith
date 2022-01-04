@@ -93,7 +93,7 @@ const getStyles = (
       };
     case Activities.SELECTED:
       return {
-        background: Colors.OUTER_SPACE,
+        background: Colors.JAFFA_DARK,
         color: Colors.WHITE,
       };
   }

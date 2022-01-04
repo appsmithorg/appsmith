@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
@@ -46,6 +46,16 @@ sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-m
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
+sudo docker run -d -p 127.0.0.1:28017:27017 --name Cypress-mongodb -e MONGO_INITDB_DATABASE=appsmith -v `pwd`/cypress/mongodb:/data/db mongo
+echo "Sleeping for 30 seconds to let the servers start"
+sleep 30
+
+sudo docker cp `pwd`/cypress/sample_airbnb Cypress-mongodb:/sample_airbnb
+
+sudo docker exec -i Cypress-mongodb /usr/bin/mongorestore --db sample_airbnb /sample_airbnb/sample_airbnb
+
+sleep 10
+
 echo "Checking if the containers have started"
 sudo docker ps -a
 for fcid in $(sudo docker ps -a | awk '/Exited/ { print $1 }'); do
@@ -77,42 +87,6 @@ if [ "$status_code" -eq "502" ]; then
   echo "Unable to connect to server"
   exit 1
 fi
-
-# Create the test user
-curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name" : "'"$CYPRESS_USERNAME"'",
-	"email" : "'"$CYPRESS_USERNAME"'",
-	"source" : "FORM",
-	"state" : "ACTIVATED",
-	"isEnabled" : "true",
-	"password": "'"$CYPRESS_PASSWORD"'"
-}'
-
-#Create another testUser1
-curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name" : "'"$CYPRESS_TESTUSERNAME1"'",
-	"email" : "'"$CYPRESS_TESTUSERNAME1"'",
-	"source" : "FORM",
-	"state" : "ACTIVATED",
-	"isEnabled" : "true",
-	"password": "'"$CYPRESS_TESTPASSWORD1"'"
-}'
-
-#Create another testUser2
-curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name" : "'"$CYPRESS_TESTUSERNAME2"'",
-	"email" : "'"$CYPRESS_TESTUSERNAME2"'",
-	"source" : "FORM",
-	"state" : "ACTIVATED",
-	"isEnabled" : "true",
-	"password": "'"$CYPRESS_TESTPASSWORD2"'"
-}'
 
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml

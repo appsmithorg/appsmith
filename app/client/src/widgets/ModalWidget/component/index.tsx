@@ -10,7 +10,7 @@ import React, {
 import { Overlay, Classes } from "@blueprintjs/core";
 import { get, omit } from "lodash";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
@@ -25,6 +25,7 @@ import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { closeTableFilterPane } from "actions/widgetActions";
 
 const Container = styled.div<{
   width?: number;
@@ -73,11 +74,6 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        ${(props) => {
-          if (props.isEditMode)
-            return `transform: translate(${parseInt(props.theme.sidebarWidth) /
-              2}px) !important`;
-        }}
       }
     }
   }
@@ -144,6 +140,11 @@ export default function ModalComponent(props: ModalComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
 
+  const dispatch = useDispatch();
+  const isTableFilterPaneVisible = useSelector(
+    (state: AppState) => state.ui.tableFilterPane.isVisible,
+  );
+
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -172,6 +173,12 @@ export default function ModalComponent(props: ModalComponentProps) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.scrollContents]);
+
+  useEffect(() => {
+    if (props.isOpen && isTableFilterPaneVisible) {
+      dispatch(closeTableFilterPane());
+    }
+  }, [props.isOpen]);
 
   const onResizeStop = (dimensions: UIElementSize) => {
     props.resizeModal && props.resizeModal(dimensions);

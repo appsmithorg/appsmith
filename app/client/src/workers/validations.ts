@@ -10,6 +10,7 @@ import _, {
   isArray,
   isObject,
   isPlainObject,
+  isRegExp,
   isString,
   toString,
   uniq,
@@ -107,15 +108,15 @@ function validateArray(
   const _messages: string[] = [];
   const whiteList = config.params?.allowedValues;
   if (whiteList) {
-    value.forEach((entry) => {
+    for (const entry of value) {
       if (!whiteList.includes(entry)) {
         return {
           isValid: false,
-          parsed: value,
+          parsed: config.params?.default || [],
           messages: [`Disallowed value: ${entry}`],
         };
       }
-    });
+    }
   }
   // Check uniqueness of object elements in an array
   if (
@@ -237,6 +238,9 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
         const allowed = config.params.allowedValues.join(" | ");
         result = result + ` ( ${allowed} )`;
       }
+      if (config.params?.regex) {
+        result = config.params?.regex.source;
+      }
       if (config.params?.expected?.type) result = config.params?.expected.type;
       return result;
     case ValidationTypes.REGEX:
@@ -296,7 +300,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
         return {
           isValid: false,
@@ -338,13 +342,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return stringValidationError;
       }
     }
-    // If the value is an empty string we skip
-    // as we do not mark the field as an error
-    if (config.params?.allowedValues && value !== "") {
+    if (config.params?.allowedValues) {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {
           parsed: config.params?.default || "",
-          messages: ["Value is not allowed"],
+          messages: [`Disallowed value: ${parsed}`],
           isValid: false,
         };
       }
@@ -352,13 +354,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     if (
       config.params?.regex &&
-      isString(config.params?.regex) &&
+      isRegExp(config.params?.regex) &&
       !config.params?.regex.test(parsed as string)
     ) {
       return {
         parsed: config.params?.default || "",
         messages: [
-          `Value does not match expected regex: ${config.params?.regex.source}`,
+          `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],
         isValid: false,
       };
@@ -432,12 +434,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     // check for min and max limits
     let parsed: number = value as number;
     if (isString(value)) {
-      if (/^\d+\.?\d*$/.test(value)) {
+      if (/^-?\d+\.?\d*$/.test(value)) {
         parsed = Number(value);
       } else {
         return {
           isValid: false,
-          parsed: config.params?.default || 0,
+          parsed: value || config.params?.default || 0,
           messages: [
             `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
           ],
@@ -452,7 +454,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed < Number(config.params.min)) {
         return {
           isValid: false,
-          parsed,
+          parsed: parsed || config.params.min || 0,
           messages: [`Minimum allowed value: ${config.params.min}`],
         };
       }
@@ -465,7 +467,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed > Number(config.params.max)) {
         return {
           isValid: false,
-          parsed,
+          parsed: config.params.max || parsed || 0,
           messages: [`Maximum allowed value: ${config.params.max}`],
         };
       }
@@ -473,7 +475,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     if (config.params?.natural && (parsed < 0 || !Number.isInteger(parsed))) {
       return {
         isValid: false,
-        parsed,
+        parsed: config.params.default || parsed || 0,
         messages: [`Value should be a positive integer`],
       };
     }
@@ -745,7 +747,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
-      parsed: config.params?.default || moment().toISOString(true),
+      parsed: config.params?.default,
       messages: [`Value does not match: ${getExpectedType(config)}`],
     };
     if (value === undefined || value === null || !isString(value)) {
@@ -761,8 +763,10 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (value === "" && !config.params?.required) {
         return {
           isValid: true,
-          parsed: config.params?.default || moment().toISOString(true),
+          parsed: config.params?.default,
         };
+      } else if (value === "" && config.params?.required) {
+        return invalidResponse;
       }
 
       if (!moment(value).isValid()) return invalidResponse;
@@ -793,7 +797,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, {}, [
+        const { result } = evaluate(config.params.fnString, {}, {}, undefined, [
           value,
           props,
           _,
@@ -861,5 +865,59 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     } else {
       return invalidResponse;
     }
+  },
+
+  /**
+   *
+   * TABLE_PROPERTY can be used in scenarios where we wanted to validate
+   * using ValidationTypes.ARRAY or ValidationTypes.* at the same time.
+   * This is needed in case of properties inside Table widget where we use COMPUTE_VALUE
+   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
+   *
+   */
+  [ValidationTypes.TABLE_PROPERTY]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    if (!config.params?.type)
+      return {
+        isValid: false,
+        parsed: undefined,
+        messages: ["Invalid validation"],
+      };
+
+    // Validate when JS mode is disabled
+    const result = VALIDATORS[config.params.type as ValidationTypes](
+      config.params as ValidationConfig,
+      value,
+      props,
+    );
+    if (result.isValid) return result;
+
+    // Validate when JS mode is enabled
+    const resultValue = [];
+    if (_.isArray(value)) {
+      for (const item of value) {
+        const result = VALIDATORS[config.params.type](
+          config.params as ValidationConfig,
+          item,
+          props,
+        );
+        if (!result.isValid) return result;
+        resultValue.push(result.parsed);
+      }
+    } else {
+      return {
+        isValid: false,
+        parsed: config.params?.params?.default,
+        messages: result.messages,
+      };
+    }
+
+    return {
+      isValid: true,
+      parsed: resultValue,
+    };
   },
 };

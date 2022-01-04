@@ -1,0 +1,8 @@
+---
+- include_tasks: preflight.yml
+
+- include_tasks: setup-ubuntu.yml
+
+- include_tasks: setup-docker.yml
+
+- include_tasks: setup-appsmith.yml

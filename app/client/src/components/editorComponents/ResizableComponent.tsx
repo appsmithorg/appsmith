@@ -38,7 +38,10 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
+import {
+  getOccupiedSpaces,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -63,6 +66,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -318,7 +322,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     isWidgetFocused &&
     !props.resizeDisabled &&
     !isCommentMode &&
-    !isSnipingMode;
+    !isSnipingMode &&
+    !isPreviewMode;
   const isMultiSelectedWidget =
     selectedWidgets &&
     selectedWidgets.length > 1 &&

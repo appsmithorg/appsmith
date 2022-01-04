@@ -58,7 +58,12 @@ import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { updateBranchLocally } from "actions/gitSyncActions";
+import {
+  fetchGitStatusInit,
+  remoteUrlInputValue,
+  resetPullMergeStatus,
+  updateBranchLocally,
+} from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* failFastApiCalls(
@@ -101,7 +106,7 @@ function* initializeEditorSaga(
   yield put(resetEditorSuccess());
   const { applicationId, branch, pageId } = initializeEditorAction.payload;
   try {
-    if (branch) yield put(updateBranchLocally(branch));
+    yield put(updateBranchLocally(branch || ""));
 
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
@@ -214,6 +219,9 @@ function* initializeEditorSaga(
       appName: appName,
     });
 
+    // init of temporay remote url from old application
+    yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
+
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
@@ -233,10 +241,13 @@ function* initializeEditorSaga(
       history.replace(pathname);
     }
 
-    // add branch query to path
+    // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
+      yield put(fetchGitStatusInit());
     }
+
+    yield put(resetPullMergeStatus());
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);

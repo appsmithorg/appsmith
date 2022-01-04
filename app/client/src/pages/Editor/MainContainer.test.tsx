@@ -695,8 +695,8 @@ describe("Drag and Drop widgets into Main container", () => {
             cancelable: true,
           }),
           {
-            offsetX: 500,
-            offsetY: 500,
+            offsetX: 100,
+            offsetY: 100,
           },
         ),
       );

@@ -22,12 +22,13 @@
     "property": ".language-appsmith-binding",
     "editNameField": ".editing input",
     "editEntityField": ".bp3-editable-text-input",
-    "entity":".t--entity-name",
-    "addWidget":".widgets .t--entity-add-btn",
-    "dropHere":"#canvas-dragging-0",
-    "closeWidgets":".t--close-widgets-sidebar",
+    "entity": ".t--entity-name",
+    "addWidget": ".widgets .t--entity-add-btn",
+    "dropHere": "#canvas-dragging-0",
+    "closeWidgets": ".t--close-widgets-sidebar",
     "addDBQueryEntity": ".datasources .t--entity-add-btn",
     "editEntity": ".t--entity-name input",
     "explorerSwitchId": "#switcher--explorer",
-    "widgetSwitchId": "#switcher--widgets"
+    "widgetSwitchId": "#switcher--widgets",
+    "activeTab": "span:contains('Active')"
 }

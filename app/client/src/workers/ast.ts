@@ -1,7 +1,8 @@
 import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
-import { isString } from "lodash";
+import _ from "lodash";
 import { ECMA_VERSION } from "workers/constants";
+import { sanitizeScript } from "./evaluate";
 
 /*
  * Valuable links:
@@ -30,6 +31,7 @@ enum NodeTypes {
   Identifier = "Identifier",
   VariableDeclarator = "VariableDeclarator",
   FunctionDeclaration = "FunctionDeclaration",
+  FunctionExpression = "FunctionExpression",
   AssignmentPattern = "AssignmentPattern",
   Literal = "Literal",
 }
@@ -59,10 +61,19 @@ interface VariableDeclaratorNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#functions
-interface FunctionDeclarationNode extends Node {
-  type: NodeTypes.FunctionDeclaration;
-  id: IdentifierNode;
+interface Function extends Node {
+  id: IdentifierNode | null;
   params: Pattern[];
+}
+
+// doc: https://github.com/estree/estree/blob/master/es5.md#functiondeclaration
+interface FunctionDeclarationNode extends Node, Function {
+  type: NodeTypes.FunctionDeclaration;
+}
+
+// doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
+interface FunctionExpressionNode extends Node, Function {
+  type: NodeTypes.FunctionExpression;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es2015.md#assignmentpattern
@@ -94,12 +105,33 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
   return node.type === NodeTypes.FunctionDeclaration;
 };
 
+const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
+  return node.type === NodeTypes.FunctionExpression;
+};
+
 const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
   return node.type === NodeTypes.AssignmentPattern;
 };
 
 const isLiteralNode = (node: Node): node is LiteralNode => {
   return node.type === NodeTypes.Literal;
+};
+
+const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
+  return (
+    isMemberExpressionNode(node) &&
+    node.computed &&
+    isLiteralNode(node.property) &&
+    _.isFinite(node.property.value)
+  );
+};
+
+const wrapCode = (code: string) => {
+  return `
+    (function() {
+      return ${code}
+    })
+  `;
 };
 
 export const getAST = (code: string) =>
@@ -118,10 +150,21 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   // List of variables declared within the script. This will be removed from identifier list
   const variableDeclarations = new Set<string>();
   // List of functionalParams found. This will be removed from the identifier list
-  const functionalParams = new Set<string>();
+  let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
-    ast = getAST(code);
+    const sanitizedScript = sanitizeScript(code);
+    /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
+       Some syntax won't be valid unless they're at the RHS of a statement.
+       Since we're assigning all code/script to RHS during evaluation, we do the same here.
+       So that during ast parse, those errors are neglected.
+    */
+    /* e.g. IIFE without braces
+      function() { return 123; }() -> is invalid
+      let result = function() { return 123; }() -> is valid
+    */
+    const wrappedCode = wrapCode(sanitizedScript);
+    ast = getAST(wrappedCode);
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return 0 identifiers
@@ -146,15 +189,20 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       let candidateTopLevelNode:
         | IdentifierNode
         | MemberExpressionNode = node as IdentifierNode;
-      let depth = ancestors.length - 1;
+      let depth = ancestors.length - 2; // start "depth" with first parent
       while (depth > 0) {
-        const parent = ancestors[depth - 1];
+        const parent = ancestors[depth];
         if (
           isMemberExpressionNode(parent) &&
-          // We will ignore member expressions that are "computed" (with index [ ]  search)
-          // and the ones that have optional chaining ( a.b?.c ).
-          // We will stop looking for further parents and consider this node to be top level
-          !parent.computed &&
+          /* Member expressions that are "computed" (with [ ] search)
+             and the ones that have optional chaining ( a.b?.c )
+             will be considered top level node.
+             We will stop looking for further parents */
+          /* "computed" exception - isArrayAccessorNode
+             Member expressions that are array accessors with static index - [9]
+             will not be considered top level.
+             We will continue looking further. */
+          (!parent.computed || isArrayAccessorNode(parent)) &&
           !parent.optional
         ) {
           candidateTopLevelNode = parent;
@@ -184,19 +232,22 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       }
     },
     FunctionDeclaration(node: Node) {
-      // params in functions are also counted as identifiers so we keep
-      // track of them as well and remove them from the final list of identifiers
-      if (isFunctionDeclaration(node)) {
-        node.params.forEach((paramNode) => {
-          if (isIdentifierNode(paramNode)) {
-            functionalParams.add(paramNode.name);
-          } else if (isAssignmentPatternNode(paramNode)) {
-            if (isIdentifierNode(paramNode.left)) {
-              functionalParams.add(paramNode.left.name);
-            }
-          }
-        });
-      }
+      // params in function declarations are also counted as identifiers so we keep
+      // track of them and remove them from the final list of identifiers
+      if (!isFunctionDeclaration(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamsFromNode(node),
+      ]);
+    },
+    FunctionExpression(node: Node) {
+      // params in function experssions are also counted as identifiers so we keep
+      // track of them and remove them from the final list of identifiers
+      if (!isFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamsFromNode(node),
+      ]);
     },
   });
 
@@ -207,29 +258,44 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   return Array.from(identifiers);
 };
 
+const getFunctionalParamsFromNode = (
+  node: FunctionDeclarationNode | FunctionExpressionNode,
+): Set<string> => {
+  const functionalParams = new Set<string>();
+  node.params.forEach((paramNode) => {
+    if (isIdentifierNode(paramNode)) {
+      functionalParams.add(paramNode.name);
+    } else if (isAssignmentPatternNode(paramNode)) {
+      if (isIdentifierNode(paramNode.left)) {
+        functionalParams.add(paramNode.left.name);
+      }
+    }
+  });
+  return functionalParams;
+};
+
 const constructFinalMemberExpIdentifier = (
   node: MemberExpressionNode,
   child = "",
 ): string => {
+  const propertyAccessor = getPropertyAccessor(node.property);
   if (isIdentifierNode(node.object)) {
-    const propertyName = getPropertyName(node);
-    return `${node.object.name}.${propertyName}${child ? "." + child : ""}`;
+    return `${node.object.name}${propertyAccessor}${child}`;
   } else {
-    const propertyName = getPropertyName(node);
-    const nestedChild = `${propertyName}${child ? "." + child : ""}`;
+    const propertyAccessor = getPropertyAccessor(node.property);
+    const nestedChild = `${propertyAccessor}${child}`;
     return constructFinalMemberExpIdentifier(node.object, nestedChild);
   }
 };
 
-const getPropertyName = (node: MemberExpressionNode) => {
-  let propertyName = "";
-  if (isIdentifierNode(node.property)) {
-    propertyName = node.property.name;
+const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
+  if (isIdentifierNode(propertyNode)) {
+    return `.${propertyNode.name}`;
+  } else if (isLiteralNode(propertyNode) && _.isString(propertyNode.value)) {
+    // is string literal search a['b']
+    return `.${propertyNode.value}`;
+  } else if (isLiteralNode(propertyNode) && _.isFinite(propertyNode.value)) {
+    // is array index search - a[9]
+    return `[${propertyNode.value}]`;
   }
-  if (isLiteralNode(node.property)) {
-    if (isString(node.property.value)) {
-      propertyName = node.property.value;
-    }
-  }
-  return propertyName;
 };

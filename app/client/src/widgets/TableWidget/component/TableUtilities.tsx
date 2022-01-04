@@ -50,6 +50,7 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import { generateTableColumnId } from "./TableHelpers";
 
 export const renderCell = (
   value: any,
@@ -187,6 +188,7 @@ interface RenderIconButtonProps {
   boxShadowColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
+  disabled: boolean;
 }
 export const renderIconButton = (
   props: RenderIconButtonProps,
@@ -211,6 +213,7 @@ export const renderIconButton = (
             boxShadowColor={props.boxShadowColor}
             buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
+            disabled={props.disabled}
             iconName={props.iconName}
             isSelected={props.isSelected}
             key={index}
@@ -231,6 +234,7 @@ function IconButton(props: {
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
+  disabled: boolean;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -257,6 +261,7 @@ function IconButton(props: {
         boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
+        disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
         onClick={handleClick}
@@ -628,10 +633,11 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
 ): ColumnProperties {
+  const id = generateTableColumnId(accessor);
   const columnProps = {
     index: index,
     width: 150,
-    id: accessor,
+    id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
@@ -647,7 +653,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
 
   return columnProps;

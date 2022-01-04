@@ -10,7 +10,7 @@ import {
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
 import { getApplicationViewerPageURL } from "constants/routes";
-import OrgInviteUsersForm from "./OrgInviteUsersForm";
+import OrgInviteUsersForm, { InviteButtonWidth } from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
@@ -95,7 +95,10 @@ function AppInviteUsersForm(props: any) {
       <Title>
         <Text type={TextType.H5}>Get shareable link for this application</Text>
       </Title>
-      <CopyToClipBoard copyText={getViewApplicationURL()} />
+      <CopyToClipBoard
+        btnWidth={InviteButtonWidth}
+        copyText={getViewApplicationURL()}
+      />
 
       {canInviteToOrg && (
         <OrgInviteUsersForm isApplicationInvite orgId={props.orgId} />

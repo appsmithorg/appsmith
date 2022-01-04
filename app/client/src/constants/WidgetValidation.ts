@@ -15,6 +15,7 @@ export enum ValidationTypes {
   IMAGE_URL = "IMAGE_URL",
   FUNCTION = "FUNCTION",
   SAFE_URL = "SAFE_URL",
+  TABLE_PROPERTY = "TABLE_PROPERTY",
 }
 
 export type ValidationResponse = {
@@ -118,6 +119,7 @@ export const WINDOW_OBJECT_PROPERTIES = {
   self: "self",
   status: "status",
   top: "top",
+  evaluationVersion: "evaluationVersion",
 };
 
 export const WINDOW_OBJECT_METHODS = {

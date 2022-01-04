@@ -19,7 +19,7 @@ import { calculateDropTargetRows } from "components/editorComponents/DropTargetU
 import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 export type WidgetMoveParams = {
   widgetId: string;

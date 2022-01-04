@@ -13,6 +13,10 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariant,
   ButtonVariantTypes,
+  RecaptchaTypes,
+  RecaptchaType,
+  ButtonPlacement,
+  ButtonPlacementTypes,
 } from "components/constants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
@@ -63,23 +67,29 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "recaptchaV2",
+            propertyName: "recaptchaType",
             label: "Google reCAPTCHA Version",
             controlType: "DROP_DOWN",
             helpText: "Select reCAPTCHA version",
             options: [
               {
                 label: "reCAPTCHA v3",
-                value: false,
+                value: RecaptchaTypes.V3,
               },
               {
                 label: "reCAPTCHA v2",
-                value: true,
+                value: RecaptchaTypes.V2,
               },
             ],
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [RecaptchaTypes.V3, RecaptchaTypes.V2],
+                default: RecaptchaTypes.V3,
+              },
+            },
           },
           {
             propertyName: "isVisible",
@@ -101,10 +111,21 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -243,6 +264,41 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             },
           },
           {
+            propertyName: "placement",
+            label: "Placement",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the space between items",
+            options: [
+              {
+                label: "Start",
+                value: ButtonPlacementTypes.START,
+              },
+              {
+                label: "Between",
+                value: ButtonPlacementTypes.BETWEEN,
+              },
+              {
+                label: "Center",
+                value: ButtonPlacementTypes.CENTER,
+              },
+            ],
+            defaultValue: ButtonPlacementTypes.CENTER,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonPlacementTypes.START,
+                  ButtonPlacementTypes.BETWEEN,
+                  ButtonPlacementTypes.CENTER,
+                ],
+                default: ButtonPlacementTypes.CENTER,
+              },
+            },
+          },
+          {
             propertyName: "iconAlign",
             label: "Icon Alignment",
             helpText: "Sets the icon alignment of the button",
@@ -329,7 +385,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
-        recaptchaV2={this.props.recaptchaV2}
+        placement={this.props.placement}
+        recaptchaType={this.props.recaptchaType}
         text={this.props.text}
         tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}
@@ -349,7 +406,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
-  recaptchaV2?: boolean;
+  recaptchaType?: RecaptchaType;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
   buttonVariant?: ButtonVariant;
@@ -359,6 +416,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 }
 
 interface ButtonWidgetState extends WidgetState {

@@ -51,14 +51,39 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["Table5.data.map", "c.name"],
       },
       {
-        // Index literal property search
+        // Literal property search
         script: "Table6['data']",
         expectedResults: ["Table6"],
       },
       {
-        // Index literal array search
+        // Deep literal property search
+        script: "TableDataOptionalReference['data'].details",
+        expectedResults: ["TableDataOptionalReference"],
+      },
+      {
+        // Array index search
+        script: "array[8]",
+        expectedResults: ["array[8]"],
+      },
+      {
+        // Deep array index search
         script: "Table7.data[4]",
-        expectedResults: ["Table7.data"],
+        expectedResults: ["Table7.data[4]"],
+      },
+      {
+        // Deep array index search
+        script: "Table7.data[4].value",
+        expectedResults: ["Table7.data[4].value"],
+      },
+      {
+        // string literal and array index search
+        script: "Table['data'][9]",
+        expectedResults: ["Table"],
+      },
+      {
+        // array index and string literal search
+        script: "Array[9]['data']",
+        expectedResults: ["Array[9]"],
       },
       {
         // Index identifier search
@@ -87,9 +112,70 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["JSObject1.run", "Api1.data", "Api2.data"],
       },
       {
+        // IIFE - without braces
+        script: `function() {
+          const index = Input1.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      }()`,
+        expectedResults: ["Input1.text"],
+      },
+      {
+        // IIFE
+        script: `(function() {
+          const index = Input2.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      })()`,
+        expectedResults: ["Input2.text"],
+      },
+      {
+        // arrow IIFE - without braces - will fail
+        script: `() => {
+          const index = Input3.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      }()`,
+        expectedResults: [],
+      },
+      {
+        // arrow IIFE
+        script: `(() => {
+          const index = Input4.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      })()`,
+        expectedResults: ["Input4.text"],
+      },
+      {
+        // Direct object access
+        script: `{ "a": 123 }[Input5.text]`,
+        expectedResults: ["Input5.text"],
+      },
+      {
         // Function declaration and default arguments
-        script: `function run(data = Api1.data) {
-          return data;
+        script: `function run(apiData = Api1.data) {
+          return apiData;
         }`,
         expectedResults: ["Api1.data"],
       },

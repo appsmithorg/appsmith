@@ -42,7 +42,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testRemoveDuplicatesWhenThereAreDuplicates() {
+    public void removeDuplicatesWhenThereAreDuplicates() {
         List<String> sampleList = new ArrayList<>(4);
         sampleList.add("a");
         sampleList.add("b");
@@ -55,7 +55,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testRemoveDuplicatesWhenThereAreNoDuplicates() {
+    public void removeDuplicatesWhenThereAreNoDuplicates() {
         List<String> sampleList = new ArrayList<>(4);
         sampleList.add("a");
         sampleList.add("b");
@@ -67,12 +67,26 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testRemoveDuplicatesWhenThereAreMulipleDuplicates() {
+    public void removeDuplicatesWhenThereAreMultipleDuplicates() {
         List<String> sampleList = new ArrayList<>(5);
         sampleList.add("a");
         sampleList.add("b");
         sampleList.add("c");
         sampleList.add("c");
+        sampleList.add("b");
+
+        CollectionUtils.removeDuplicates(sampleList);
+        Assert.assertEquals(3, sampleList.size());
+        Assert.assertArrayEquals(new String[]{ "a", "b", "c" }, sampleList.toArray());
+    }
+
+    @Test
+    public void removeDuplicates_WhenThereAreDuplicates_DuplicatesRemovedFromFirst() {
+        List<String> sampleList = new ArrayList<>(5);
+        sampleList.add("a");
+        sampleList.add("b");
+        sampleList.add("c");
+        sampleList.add("a");
         sampleList.add("b");
 
         CollectionUtils.removeDuplicates(sampleList);
