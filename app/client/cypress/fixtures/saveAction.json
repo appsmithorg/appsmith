@@ -21,14 +21,11 @@
       },
       "endpoints": [
         {
-          "host": "cypress-test.zljea.mongodb.net"
+          "host": "localhost"
         }
       ],
       "authentication": {
-        "authenticationType": "dbAuth",
-        "authType": "SCRAM_SHA_1",
-        "username": "cypress-test",
-        "databaseName": "admin"
+        "databaseName": "sample_airbnb"
       },
       "sshProxyEnabled": false
     },

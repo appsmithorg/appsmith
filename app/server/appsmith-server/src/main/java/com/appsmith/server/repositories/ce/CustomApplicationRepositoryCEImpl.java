@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -173,5 +174,18 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
         query.addCriteria(where(fieldName(QApplication.application.deleted)).is(Boolean.FALSE));
         return mongoOperations.count(query, Application.class);
+    }
+
+    @Override
+    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
+        Update updateObj = new Update();
+        if(StringUtils.hasLength(editModeThemeId)) {
+            updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
+        }
+        if(StringUtils.hasLength(publishedModeThemeId)) {
+            updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
+        }
+
+        return this.updateById(applicationId, updateObj, aclPermission);
     }
 }

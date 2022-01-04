@@ -13,24 +13,16 @@ describe("Entity explorer tests related to copy query", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create a query with dataSource in explorer", function() {
+  it("1. Create a query with dataSource in explorer", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
     cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
-
     cy.testSaveDatasource();
-
-    cy.NavigateToQueryEditor();
 
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-
-      cy.contains(".t--datasource-name", datasourceName)
-        .find(queryLocators.createQuery)
-        .click();
+      cy.NavigateToActiveDSQueryPane(datasourceName);
     });
 
     cy.get("@getPluginForm").should(
@@ -65,7 +57,7 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("Create a page and copy query in explorer", function() {
+  it("2. Create a page and copy query in explorer", function() {
     cy.Createpage(pageid);
     cy.GlobalSearchEntity("Query1");
     cy.xpath(apiwidget.popover)
@@ -89,7 +81,7 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("Delete query and rename datasource in explorer", function() {
+  it("3. Delete query and rename datasource in explorer", function() {
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.NavigateToDatasourceEditor();
     cy.GlobalSearchEntity(`${datasourceName}`);

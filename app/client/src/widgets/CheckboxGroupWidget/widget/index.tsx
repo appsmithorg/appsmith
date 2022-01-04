@@ -11,6 +11,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { CheckboxGroupAlignmentTypes } from "components/constants";
 
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
@@ -84,7 +85,6 @@ class CheckboxGroupWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                     ],
@@ -189,6 +189,59 @@ class CheckboxGroupWidget extends BaseWidget<
         ],
       },
       {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "optionAlignment",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            helpText: "Sets alignment between options.",
+            options: [
+              {
+                label: "None",
+                value: CheckboxGroupAlignmentTypes.NONE,
+              },
+              {
+                label: "Start",
+                value: CheckboxGroupAlignmentTypes.START,
+              },
+              {
+                label: "End",
+                value: CheckboxGroupAlignmentTypes.END,
+              },
+              {
+                label: "Center",
+                value: CheckboxGroupAlignmentTypes.CENTER,
+              },
+              {
+                label: "Between",
+                value: CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
+              },
+              {
+                label: "Around",
+                value: CheckboxGroupAlignmentTypes.SPACE_AROUND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  CheckboxGroupAlignmentTypes.NONE,
+                  CheckboxGroupAlignmentTypes.START,
+                  CheckboxGroupAlignmentTypes.END,
+                  CheckboxGroupAlignmentTypes.CENTER,
+                  CheckboxGroupAlignmentTypes.SPACE_BETWEEN,
+                  CheckboxGroupAlignmentTypes.SPACE_AROUND,
+                ],
+              },
+            },
+          },
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -268,6 +321,7 @@ class CheckboxGroupWidget extends BaseWidget<
         key={this.props.widgetId}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}
+        optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
@@ -335,6 +389,7 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   isValid?: boolean;
   onCheckChanged?: string;
+  optionAlignment?: string;
 }
 
 export default CheckboxGroupWidget;

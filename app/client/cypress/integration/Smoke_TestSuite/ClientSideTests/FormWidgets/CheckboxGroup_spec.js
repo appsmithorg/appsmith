@@ -102,6 +102,33 @@ describe("Checkbox Group Widget Functionality", function() {
     // Should get 2 checked option inputs
     cy.get(checkedOptionInputs).should("have.length", 2);
   });
+
+  it("Checkbox Group Functionality To alignment options", function() {
+    cy.openPropertyPane("checkboxgroupwidget");
+    // check default value
+    cy.get(".t--property-control-alignment").should("exist");
+    cy.get(".t--property-control-alignment span[type='p1']").should(
+      "have.text",
+      "No selection.",
+    );
+
+    cy.get(
+      ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
+    ).should("have.css", "justify-content", "space-between");
+
+    // change alignment
+    cy.get(".t--property-control-alignment span[type='p1']").click({
+      force: true,
+    });
+    cy.wait(200);
+    cy.get(".t--dropdown-option")
+      .contains("Start")
+      .click({ force: true });
+    cy.wait(400);
+    cy.get(
+      ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
+    ).should("have.css", "justify-content", "flex-start");
+  });
 });
 afterEach(() => {
   // put your clean up code if any

@@ -41,14 +41,6 @@ export const clearCommitSuccessfulState = () => ({
   type: ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE,
 });
 
-export const pushToRepoInit = () => ({
-  type: ReduxActionTypes.PUSH_TO_GIT_INIT,
-});
-
-export const pushToRepoSuccess = () => ({
-  type: ReduxActionTypes.PUSH_TO_GIT_SUCCESS,
-});
-
 export type ConnectToGitResponse = {
   gitApplicationMetadata: GitApplicationMetadata;
 };
