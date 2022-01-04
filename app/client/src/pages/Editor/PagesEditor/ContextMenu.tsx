@@ -42,6 +42,10 @@ const Container = styled.div`
   main {
     padding: 4px;
   }
+
+  & [class^="Name__Wrapper"] {
+    width: 10rem;
+  }
 `;
 
 const Header = styled.div`

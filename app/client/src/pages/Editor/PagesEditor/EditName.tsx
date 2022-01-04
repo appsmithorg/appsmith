@@ -35,6 +35,10 @@ export const EditNameContainer = styled.div`
     visibility: visible; /* on Hover display the element */
   }
 
+  & .editing {
+    width: 10rem;
+  }
+
   & > div {
     display: flex;
     min-height: 36px;
