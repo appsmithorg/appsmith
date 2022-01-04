@@ -22,7 +22,7 @@ import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
-import CE_SettingsBreadcrumbs from "@appsmith/pages/AdminSettings/SettingsBreadcrumbs";
+import SettingsBreadcrumbs from "@appsmith/pages/AdminSettings/SettingsBreadcrumbs";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -110,7 +110,7 @@ export function SettingsForm(
         <Icon icon="chevron-left" iconSize={16} />
         <BackButtonText>&nbsp;Back</BackButtonText>
       </BackButton>*/}
-      <CE_SettingsBreadcrumbs category={category} subCategory={subCategory} />
+      <SettingsBreadcrumbs category={category} subCategory={subCategory} />
       <SettingsFormWrapper>
         <SettingsHeader>
           {getSettingLabel(subCategory ?? category)} settings
