@@ -1,11 +1,12 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/apiParallelDsl.json");
-const testdata = require("../../../../fixtures/testdata.json");
+const dslParallel = require("../../../../fixtures/apiParallelDsl.json");
+const dslTable = require("../../../../fixtures/apiTableDsl.json");
 const pages = require("../../../../locators/Pages.json");
+const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Rest Bugs tests", function() {
   it("Bug 5550: Not able to run APIs in parallel", function() {
-    cy.addDsl(dsl);
+    cy.addDsl(dslParallel);
 
     //Api 1
     cy.NavigateToAPI_Panel();
@@ -35,9 +36,9 @@ describe("Rest Bugs tests", function() {
     );
     cy.wait(1000);
 
-    cy.contains(commonlocators.entityName, "Page1").click();
+    cy.contains(commonlocators.entityName, "Page1").click({ force: true });
     cy.clickButton("Get Facts!");
-    cy.wait(6000); // for all api calls to complete!
+    cy.wait(8000); // for all api calls to complete!
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
@@ -55,7 +56,7 @@ describe("Rest Bugs tests", function() {
     });
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      //cy.log("4th response is :"+ JSON.stringify(response.body))
+      //cy.log("Response is :"+ JSON.stringify(response.body))
 
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body.type).to.eq("dog");
@@ -106,6 +107,39 @@ describe("Rest Bugs tests", function() {
       .invoke("text")
       .then(($text) => {
         expect($text).to.eq("Execution failed");
+      });
+  });
+
+  it("Bug 4775: No Cyclical dependency when Api returns an error", function() {
+    cy.addDsl(dslTable);
+    //Api 1
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("Currencies");
+    cy.enterDatasource("https://api.coinbase.com/v2/currencies");
+    cy.WaitAutoSave();
+    cy.onlyQueryRun();
+    cy.ResponseStatusCheck(testdata.successStatusCode);
+    cy.selectEntityByName("Widgets");
+    cy.selectEntityByName("Table1"); //expand
+    cy.selectEntityByName("Table1"); //collapse
+    cy.selectEntityByName("Currencies");
+    cy.get(".t--dataSourceField").then(($el) => {
+      cy.updateCodeInput($el, "https://api.coinbase.com/v2/");
+    });
+    cy.WaitAutoSave();
+    cy.onlyQueryRun();
+    cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
+    cy.ResponseStatusCheck("404 NOT_FOUND");
+    cy.get(commonlocators.debugger)
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(commonlocators.errorTab)
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(commonlocators.debuggerLabel)
+      .invoke("text")
+      .then(($text) => {
+        expect($text).to.eq("Execution failed with status 404 NOT_FOUND");
       });
   });
 

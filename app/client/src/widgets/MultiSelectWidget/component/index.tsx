@@ -45,11 +45,13 @@ export interface MultiSelectProps
   labelStyle?: string;
   compactMode: boolean;
   isValid: boolean;
+  allowSelectAll?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
+  allowSelectAll,
   compactMode,
   disabled,
   dropdownStyle,
@@ -108,7 +110,7 @@ function MultiSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <div className={loading ? Classes.SKELETON : ""}>
-        {options.length ? (
+        {options.length && allowSelectAll ? (
           <StyledCheckbox
             alignIndicator="left"
             checked={isSelectAll}
@@ -120,7 +122,7 @@ function MultiSelectComponent({
         {menu}
       </div>
     ),
-    [isSelectAll, options, loading],
+    [isSelectAll, options, loading, allowSelectAll],
   );
 
   // Convert the values to string before searching.

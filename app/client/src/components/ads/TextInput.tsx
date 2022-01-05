@@ -20,6 +20,7 @@ import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type InputType = "text" | "password" | "number" | "email" | "tel";
 
@@ -224,7 +225,7 @@ const InputWrapper = styled.div<{
       border: 1.2px solid
       ${
         props.isValid
-          ? props.theme.colors.info.main
+          ? "var(--appsmith-input-focus-border-color)"
           : props.theme.colors.danger.main
       };
       `
@@ -315,8 +316,8 @@ const TextInput = forwardRef(
         setInputValue(inputValue);
         const inputValueValidation =
           props.validator && props.validator(inputValue);
-        if (inputValueValidation) {
-          props.validator && setValidation(validation);
+        if (inputValueValidation && inputValueValidation.isValid) {
+          props.validator && setValidation(inputValueValidation);
           return (
             inputValueValidation.isValid &&
             props.onChange &&
@@ -367,6 +368,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper
         $isLoading={props.isLoading}
+        className={replayHighlightClass}
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}
@@ -408,6 +410,7 @@ const TextInput = forwardRef(
           data-cy={props.cypressSelector}
           hasLeftIcon={hasLeftIcon}
           inputRef={ref}
+          name={props?.name}
           onBlur={onBlurHandler}
           onChange={memoizedChangeHandler}
           onFocus={onFocusHandler}

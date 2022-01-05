@@ -9,6 +9,7 @@ import {
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
+  API_EDITOR_TABS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -53,7 +54,10 @@ import { useParams } from "react-router";
 import get from "lodash/get";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
-import { getActionResponses } from "../../../selectors/entitiesSelector";
+import {
+  getAction,
+  getActionResponses,
+} from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
@@ -63,6 +67,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const Form = styled.form`
   display: flex;
@@ -113,7 +118,7 @@ const ActionButtons = styled.div`
 
 const HelpSection = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px ${(props) => props.theme.spaces[6]}px
     ${(props) => props.theme.spaces[12]}px;
 `;
 
@@ -236,7 +241,9 @@ interface APIFormProps {
   appName: string;
   httpMethodFromForm: string;
   actionConfigurationHeaders?: any;
+  actionConfigurationParams?: any;
   datasourceHeaders?: any;
+  datasourceParams?: any;
   actionName: string;
   apiId: string;
   apiName: string;
@@ -383,10 +390,10 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-function ImportedHeaderKeyValue(props: { headers: any }) {
+function ImportedKeyValue(props: { datas: any }) {
   return (
     <>
-      {props.headers.map((header: any, index: number) => {
+      {props.datas.map((data: any, index: number) => {
         return (
           <FormRowWithLabel key={index}>
             <FlexContainer>
@@ -395,21 +402,21 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
                 size={1}
               >
                 <TooltipComponent
-                  content={header.key}
+                  content={data.key}
                   hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                   position={Position.BOTTOM_LEFT}
                 >
-                  <Text type={TextType.H6}>{header.key}</Text>
+                  <Text type={TextType.H6}>{data.key}</Text>
                 </TooltipComponent>
               </Flex>
               <Flex className="key-value disabled possible-overflow" size={3}>
                 <Text type={TextType.H6}>
                   <TooltipComponent
-                    content={header.value}
+                    content={data.value}
                     hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                     position={Position.BOTTOM_LEFT}
                   >
-                    {header.value}
+                    {data.value}
                   </TooltipComponent>
                 </Text>
               </Flex>
@@ -426,10 +433,11 @@ const BoundaryContainer = styled.div`
   border-right: none;
 `;
 
-function renderImportedHeadersButton(
-  headersCount: number,
+function renderImportedDatasButton(
+  dataCount: number,
   onClick: any,
   showInheritedAttributes: boolean,
+  attributeName: string,
 ) {
   return (
     <KeyValueStackContainer>
@@ -447,8 +455,8 @@ function renderImportedHeadersButton(
         &nbsp;&nbsp;
         <Text case={Case.CAPITALIZE} type={TextType.P2}>
           {showInheritedAttributes
-            ? "Showing inherited headers"
-            : `${headersCount} headers`}
+            ? `Showing inherited ${attributeName}`
+            : `${dataCount} ${attributeName}`}
         </Text>
       </ShowHideImportedHeaders>
     </KeyValueStackContainer>
@@ -485,14 +493,15 @@ function renderHelpSection(
   );
 }
 
-function ImportedHeaders(props: { headers: any }) {
-  const [showHeaders, toggleHeaders] = useState(false);
+function ImportedDatas(props: { data: any; attributeName: string }) {
+  const [showDatas, toggleDatas] = useState(false);
   return (
     <>
-      {renderImportedHeadersButton(
-        props.headers.length,
-        toggleHeaders,
-        showHeaders,
+      {renderImportedDatasButton(
+        props.data.length,
+        toggleDatas,
+        showDatas,
+        props.attributeName,
       )}
       <KeyValueStackContainer>
         <FormRowWithLabel>
@@ -509,7 +518,7 @@ function ImportedHeaders(props: { headers: any }) {
             </Flex>
           </FlexContainer>
         </FormRowWithLabel>
-        {showHeaders && <ImportedHeaderKeyValue headers={props.headers} />}
+        {showDatas && <ImportedKeyValue datas={props.data} />}
       </KeyValueStackContainer>
     </>
   );
@@ -524,6 +533,7 @@ function ApiEditorForm(props: Props) {
 
   const {
     actionConfigurationHeaders,
+    actionConfigurationParams,
     actionName,
     handleSubmit,
     headersCount,
@@ -592,9 +602,11 @@ function ApiEditorForm(props: Props) {
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">
-            <BoundaryContainer>
+            <BoundaryContainer
+              data-replay-id={btoa("actionConfiguration.httpMethod")}
+            >
               <RequestDropdownField
-                className="t--apiFormHttpMethod"
+                className={`t--apiFormHttpMethod ${replayHighlightClass}`}
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
@@ -605,6 +617,7 @@ function ApiEditorForm(props: Props) {
             </BoundaryContainer>
             <DatasourceWrapper className="t--dataSourceField">
               <EmbeddedDatasourcePathField
+                actionName={actionName}
                 name="actionConfiguration.path"
                 placeholder="https://mock-api.appsmith.com/users"
                 pluginId={pluginId}
@@ -628,7 +641,7 @@ function ApiEditorForm(props: Props) {
                 selectedIndex={selectedIndex}
                 tabs={[
                   {
-                    key: "headers",
+                    key: API_EDITOR_TABS.HEADERS,
                     title: createMessage(API_EDITOR_TAB_TITLES.HEADERS),
                     count: headersCount,
                     panelComponent: (
@@ -639,7 +652,10 @@ function ApiEditorForm(props: Props) {
                             setApiBindHelpSectionVisible,
                           )}
                         {props.datasourceHeaders.length > 0 && (
-                          <ImportedHeaders headers={props.datasourceHeaders} />
+                          <ImportedDatas
+                            attributeName="headers"
+                            data={props.datasourceHeaders}
+                          />
                         )}
                         <KeyValueFieldArray
                           actionConfig={actionConfigurationHeaders}
@@ -655,23 +671,32 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
-                    key: "params",
+                    key: API_EDITOR_TABS.PARAMS,
                     title: createMessage(API_EDITOR_TAB_TITLES.PARAMS),
                     count: paramsCount,
                     panelComponent: (
                       <TabSection>
+                        {props.datasourceParams.length > 0 && (
+                          <ImportedDatas
+                            attributeName={"params"}
+                            data={props.datasourceParams}
+                          />
+                        )}
                         <KeyValueFieldArray
+                          actionConfig={actionConfigurationParams}
                           dataTreePath={`${actionName}.config.queryParameters`}
+                          hideHeader={!!props.datasourceParams.length}
                           label="Params"
                           name="actionConfiguration.queryParameters"
                           pushFields
+                          removeTopPadding
                           theme={theme}
                         />
                       </TabSection>
                     ),
                   },
                   {
-                    key: "body",
+                    key: API_EDITOR_TABS.BODY,
                     title: createMessage(API_EDITOR_TAB_TITLES.BODY),
                     panelComponent: allowPostBody ? (
                       <PostBodyData
@@ -687,7 +712,7 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
-                    key: "pagination",
+                    key: API_EDITOR_TABS.PAGINATION,
                     title: createMessage(API_EDITOR_TAB_TITLES.PAGINATION),
                     panelComponent: (
                       <Pagination
@@ -698,12 +723,12 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
-                    key: "authentication",
+                    key: API_EDITOR_TABS.AUTHENTICATION,
                     title: createMessage(API_EDITOR_TAB_TITLES.AUTHENTICATION),
                     panelComponent: <ApiAuthentication />,
                   },
                   {
-                    key: "settings",
+                    key: API_EDITOR_TABS.SETTINGS,
                     title: createMessage(API_EDITOR_TAB_TITLES.SETTINGS),
                     panelComponent: (
                       <SettingsWrapper>
@@ -755,14 +780,25 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
   const actionConfigurationHeaders =
     selector(state, "actionConfiguration.headers") || [];
+  const actionConfigurationParams =
+    selector(state, "actionConfiguration.queryParameters") || [];
   let datasourceFromAction = selector(state, "datasource");
   if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
     datasourceFromAction = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
     );
   }
+
+  // get messages from action itself
+  const actionId = selector(state, "id");
+  const action = getAction(state, actionId);
+  const hintMessages = action?.messages;
+
   const datasourceHeaders =
     get(datasourceFromAction, "datasourceConfiguration.headers") || [];
+  const datasourceParams =
+    get(datasourceFromAction, "datasourceConfiguration.queryParameters") || [];
+
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");
@@ -789,7 +825,13 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     const validParams = params.filter((value) => value.key && value.key !== "");
     paramsCount = validParams.length;
   }
-  const hintMessages = selector(state, "datasource.messages");
+
+  if (Array.isArray(datasourceParams)) {
+    const validParams = datasourceParams.filter(
+      (value: any) => value.key && value.key !== "",
+    );
+    paramsCount += validParams.length;
+  }
 
   const responses = getActionResponses(state);
   let hasResponse = false;
@@ -806,7 +848,9 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     apiId,
     httpMethodFromForm,
     actionConfigurationHeaders,
+    actionConfigurationParams,
     datasourceHeaders,
+    datasourceParams,
     headersCount,
     paramsCount,
     hintMessages,
@@ -821,5 +865,6 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 }, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
+    enableReinitialize: true,
   })(ApiEditorForm),
 );

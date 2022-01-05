@@ -76,6 +76,8 @@ import {
   parseUrlForQueryParams,
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
+import { updateReplayEntity } from "actions/pageActions";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -217,17 +219,12 @@ function* initializeExtraFormDataSaga() {
 }
 
 function* changeApiSaga(
-  actionPayload: ReduxAction<{ id: string; isSaas: boolean }>,
+  actionPayload: ReduxAction<{ id: string; isSaas: boolean; action?: Action }>,
 ) {
-  // // Typescript says Element does not have blur function but it does;
-  // document.activeElement &&
-  //   "blur" in document.activeElement &&
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore: No types available
-  //   document.activeElement.blur();
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id, isSaas } = actionPayload.payload;
-  const action = yield select(getAction, id);
+  let { action } = actionPayload.payload;
+  if (!action) action = yield select(getAction, id);
   if (!action) return;
   if (isSaas) {
     yield put(initialize(SAAS_EDITOR_FORM, action));
@@ -255,7 +252,13 @@ function* changeApiSaga(
     }
   }
 
+  //Retrieve form data with synced query params to start tracking change history.
+  const { values: actionPostProcess } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
   PerformanceTracker.stopTracking();
+  yield put(updateReplayEntity(id, actionPostProcess, ENTITY_TYPE.ACTION));
 }
 
 function* setHeaderFormat(apiId: string, headers?: Property[]) {
@@ -294,7 +297,7 @@ function* setHeaderFormat(apiId: string, headers?: Property[]) {
   });
 }
 
-function* updateFormFields(
+export function* updateFormFields(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
   const field = actionPayload.meta.field;
@@ -375,11 +378,24 @@ function* formValueChangeSaga(
       }),
     );
   }
-
   yield all([
     call(syncApiParamsSaga, actionPayload, values.id),
     call(updateFormFields, actionPayload),
   ]);
+
+  // We need to refetch form values here since syncApuParams saga and updateFormFields directly update reform form values.
+  const { values: formValuesPostProcess } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
+
+  yield put(
+    updateReplayEntity(
+      formValuesPostProcess.id,
+      formValuesPostProcess,
+      ENTITY_TYPE.ACTION,
+    ),
+  );
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
@@ -389,8 +405,8 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",

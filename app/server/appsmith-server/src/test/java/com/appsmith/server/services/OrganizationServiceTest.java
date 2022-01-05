@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -9,7 +10,6 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
@@ -1079,6 +1079,75 @@ public class OrganizationServiceTest {
                     assertThat(x.getLogoAssetId()).isNull();
                     log.debug("Deleted logo for org: {}", x.getId());
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void delete_WhenOrgHasApp_ThrowsException() {
+        Organization organization = new Organization();
+        organization.setName("Test org to test delete org");
+
+        Mono<Organization> deleteOrgMono = organizationService.create(organization)
+                .flatMap(savedOrg -> {
+                    Application application = new Application();
+                    application.setOrganizationId(savedOrg.getId());
+                    application.setName("Test app to test delete org");
+                    return applicationPageService.createApplication(application);
+                }).flatMap(application ->
+                        organizationService.delete(application.getOrganizationId())
+                );
+
+        StepVerifier
+                .create(deleteOrgMono)
+                .expectErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage())
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void delete_WithoutManagePermission_ThrowsException() {
+        Organization organization = new Organization();
+        organization.setName("Test org to test delete org");
+        Policy readOrgPolicy = Policy.builder()
+                .permission(READ_ORGANIZATIONS.getValue())
+                .users(Set.of("api_user", "test_user@example.com"))
+                .build();
+        Policy manageOrgPolicy = Policy.builder()
+                .permission(MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of("test_user@example.com"))
+                .build();
+
+        // api user has read org permission but no manage org permission
+        organization.setPolicies(Set.of(readOrgPolicy, manageOrgPolicy));
+
+        Mono<Organization> deleteOrgMono = organizationRepository.save(organization)
+                .flatMap(savedOrg ->
+                        organizationService.delete(savedOrg.getId())
+                );
+
+        StepVerifier
+                .create(deleteOrgMono)
+                .expectError(AppsmithException.class)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void delete_WhenOrgHasNoApp_OrgIsDeleted() {
+        Organization organization = new Organization();
+        organization.setName("Test org to test delete org");
+
+        Mono<Organization> deleteOrgMono = organizationService.create(organization)
+                .flatMap(savedOrg ->
+                    organizationService.delete(savedOrg.getId())
+                            .then(organizationRepository.findById(savedOrg.getId()))
+                );
+
+        // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
+        // as it doesn't expect an onNext signal at this point.
+        StepVerifier
+                .create(deleteOrgMono)
                 .verifyComplete();
     }
 }

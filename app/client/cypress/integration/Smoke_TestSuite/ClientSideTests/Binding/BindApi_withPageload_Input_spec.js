@@ -1,6 +1,5 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");

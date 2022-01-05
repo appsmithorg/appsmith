@@ -121,7 +121,11 @@ public class RestApiPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        actionConfig.setBodyFormData(List.of(new Property("key", "value"), new Property("key1", "value1")));
+        actionConfig.setBodyFormData(List.of(
+                new Property("key", "value"),
+                new Property("key1", "value1"),
+                new Property(null, "irrelevantValue")
+        ));
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
@@ -443,9 +447,10 @@ public class RestApiPluginTest {
         final Property key1 = new Property("key1", "onlyValue");
         final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
         final Property key3 = new Property("key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
+        final Property key4 = new Property(null, "irrelevantValue");
         key2.setType("FILE");
         key3.setType("FILE");
-        List<Property> formData = List.of(key1, key2, key3);
+        List<Property> formData = List.of(key1, key2, key3, key4);
         actionConfig.setBodyFormData(formData);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -921,6 +926,36 @@ public class RestApiPluginTest {
                             "of the authentication mechanisms also implicitly define a param.");
 
                     assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testQueryParamsInDatasource() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "body";
+        actionConfig.setBody(requestBody);
+        actionConfig.setEncodeParamsToggle(true);
+
+        List<Property> queryParams = new ArrayList<>();
+        queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
+        dsConfig.setQueryParameters(queryParams);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
+                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
+                    assertEquals(expected_url, url.toString());
                 })
                 .verifyComplete();
     }
