@@ -101,8 +101,6 @@ function DraggableList(props: any) {
   }, [items]);
 
   useEffect(() => {
-    console.log("SSUP : ", { focusedIndex }, listRef.current);
-    // setTimeout(() => {
     if (focusedIndex && listRef && listRef.current) {
       const container = listRef.current;
 
@@ -121,10 +119,8 @@ function DraggableList(props: any) {
           left: 0,
           behavior: "smooth",
         });
-        console.log("SSUP HERE", listRef);
       }
     }
-    // }, 1000);
   }, [focusedIndex]);
 
   const [springs, setSprings] = useSprings<any>(
