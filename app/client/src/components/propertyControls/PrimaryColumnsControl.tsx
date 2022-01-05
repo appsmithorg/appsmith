@@ -157,12 +157,10 @@ function ColumnControlComponent(props: RenderComponentProps) {
   );
 
   const onFocus = () => {
-    console.log("SSUP FOCUS : ", index);
     setEditing(false);
     debouncedFocus(index, true);
   };
   const onBlur = () => {
-    console.log("SSUP BLUR : ", index);
     setEditing(false);
     debouncedFocus(index, false);
   };
@@ -257,17 +255,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     };
   }
 
-  componentDidUpdate(prevProps: ControlProps, prevState: any): void {
-    console.log("SSUP : Props ", prevState, this.state);
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
     if (
       Object.keys(prevProps.propertyValue).length + 1 ===
       Object.keys(this.props.propertyValue).length
     ) {
-      console.log(
-        "SSUP : ",
-        Object.keys(prevProps.propertyValue).length,
-        Object.keys(this.props.propertyValue).length,
-      );
       this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
     }
   }
@@ -475,7 +468,6 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
   };
 
   updateFocus = (index: number, isFocused: boolean) => {
-    console.log("SSUP : I am called", index, isFocused);
     this.setState({ focusedIndex: isFocused ? index : null });
   };
 
