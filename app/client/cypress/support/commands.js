@@ -3096,7 +3096,7 @@ Cypress.Commands.add("callApi", (apiname) => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess, { timeout: 20000 }).should("exist");
+  cy.get(commonlocators.saveStatusSuccess, { timeout: 40000 }).should("exist");
 });
 
 Cypress.Commands.add(

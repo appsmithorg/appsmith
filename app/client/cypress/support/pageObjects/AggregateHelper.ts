@@ -17,7 +17,7 @@ export class AggregateHelper {
             currentURL = url;
             const myRegexp = /pages(.*)/;
             const match = myRegexp.exec(currentURL);
-            pageid = match[1].split("/")[1];
+            pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
             //Fetch the layout id
             cy.server()

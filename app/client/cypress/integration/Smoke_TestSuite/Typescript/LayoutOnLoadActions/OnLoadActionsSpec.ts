@@ -1,20 +1,26 @@
 import { ApiPage } from "../../../../support/pageObjects/ApiPage";
 import { AggregateHelper } from "../../../../support/pageObjects/AggregateHelper";
-const onLoadActionsDsl = require("../../../../fixtures/onPageLoadActionsDsl.json");
 
 const apiPage = new ApiPage();
 const agHelper = new AggregateHelper();
 
 describe("Layout OnLoad Actions tests", function () {
 
+    let dsl: any;
+    before(() => {
+      cy.fixture('onPageLoadActionsDsl').then((val: any) => {
+        dsl = val;
+      });
+    });
+
     it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
-        agHelper.AddDsl(onLoadActionsDsl)
+        agHelper.AddDsl(dsl)
         agHelper.SelectEntityByName('Page1')
         cy.url().then((url) => {
             let currentURL = url;
             const myRegexp = /pages(.*)/;
             const match = myRegexp.exec(currentURL);
-            let pageid = match[1].split("/")[1];
+            let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
             cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
@@ -26,7 +32,7 @@ describe("Layout OnLoad Actions tests", function () {
     });
 
     it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
-        agHelper.AddDsl(onLoadActionsDsl)
+        agHelper.AddDsl(dsl)
         agHelper.NavigateToCreateNewTabPage()
         apiPage.CreateAPI("RandomFlora")
         apiPage.EnterURL("https://source.unsplash.com/collection/1599413")
@@ -66,7 +72,7 @@ describe("Layout OnLoad Actions tests", function () {
             let currentURL = url;
             const myRegexp = /pages(.*)/;
             const match = myRegexp.exec(currentURL);
-            let pageid = match[1].split("/")[1];
+            let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
             cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
@@ -95,7 +101,7 @@ describe("Layout OnLoad Actions tests", function () {
         agHelper.NavigateToHome()
         agHelper.CreateNewApplication()
         
-        agHelper.AddDsl(onLoadActionsDsl)
+        agHelper.AddDsl(dsl)
         agHelper.NavigateToCreateNewTabPage()
         apiPage.CreateAPI("RandomFlora")
         apiPage.EnterURL("https://source.unsplash.com/collection/1599413")
@@ -134,7 +140,7 @@ describe("Layout OnLoad Actions tests", function () {
             let currentURL = url;
             const myRegexp = /pages(.*)/;
             const match = myRegexp.exec(currentURL);
-            let pageid = match[1].split("/")[1];
+            let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
             cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
