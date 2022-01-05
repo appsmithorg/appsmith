@@ -132,7 +132,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   }
 
   return (
-    <>
+    <div className={`t--jsonformfield-${name}`}>
       <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip} />
       <StyledWrapper>
         {keys.map((key, index) => {
@@ -175,7 +175,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
           Add New
         </StyledButton>
       </StyledWrapper>
-    </>
+    </div>
   );
 }
 

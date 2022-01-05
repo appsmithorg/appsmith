@@ -77,7 +77,10 @@ function ObjectField({
   const field = <StyledFieldsWrapper>{renderFields()}</StyledFieldsWrapper>;
 
   return (
-    <StyledWrapper withBottomMargin={!hideAccordion}>
+    <StyledWrapper
+      className={`t--jsonformfield-${name}`}
+      withBottomMargin={!hideAccordion}
+    >
       {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
       {isRootField || hideAccordion ? (
         field
