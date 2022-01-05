@@ -304,6 +304,24 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
+        "primaryColumns.name.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            },
+          },
+        },
+        "primaryColumns.createdAt.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            },
+          },
+        },
       },
     };
 

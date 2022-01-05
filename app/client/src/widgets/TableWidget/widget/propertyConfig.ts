@@ -604,6 +604,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["LEFT", "CENTER", "RIGHT"],
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
