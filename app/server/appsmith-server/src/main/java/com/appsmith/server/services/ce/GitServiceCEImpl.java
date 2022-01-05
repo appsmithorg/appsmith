@@ -1576,12 +1576,18 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                         localBranch.removeAll(remoteBranches);
 
+                        // Remove the branches which are not in remote from the list before sending
+                        gitBranchListDTOS = gitBranchListDTOS.stream()
+                                .filter(gitBranchDTO -> !localBranch.contains(gitBranchDTO.getBranchName()))
+                                .collect(Collectors.toList());
+
                         return Flux.fromIterable(localBranch)
-                                .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+                                .flatMap(gitBranch ->
+                                        applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
                                         .flatMap(applicationPageService::deleteApplicationByResource)
-                                        .flatMap(application1 -> gitExecutor.deleteBranch(repoPath, application1.getGitApplicationMetadata().getBranchName())))
-                                .then(applicationService.save(application)
-                                        .then(Mono.just(gitBranchListDTOS)).zipWith(Mono.just(application)));
+                                        .then(gitExecutor.deleteBranch(repoPath, gitBranch)))
+                                .then(Mono.just(gitBranchListDTOS))
+                                .zipWith(applicationService.save(application));
                     } else {
 
                         gitBranchListDTOS
