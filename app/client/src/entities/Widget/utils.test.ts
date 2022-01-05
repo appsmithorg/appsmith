@@ -364,6 +364,24 @@ describe("getAllPathsFromPropertyConfig", () => {
             type: ValidationTypes.TEXT,
           },
         },
+        "primaryColumns.createdAt.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+          },
+        },
+        "primaryColumns.name.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+          },
+        },
       },
     };
 

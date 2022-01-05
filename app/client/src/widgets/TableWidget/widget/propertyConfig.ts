@@ -740,6 +740,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["TOP", "CENTER", "BOTTOM"],
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
