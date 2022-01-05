@@ -9,6 +9,8 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -44,16 +46,25 @@ function renderDropdown(props: {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
   props: DropDownControlProps & { width?: string };
-  options: { label: string; value: string }[];
+  options: DropdownOption[];
+  fetchOptionsCondtionally: boolean;
+  formName: string;
+  dynamicFormData: DropdownOption[];
 }): JSX.Element {
+  let options = [];
+  if ("fetchOptionsCondtionally" in props && props.fetchOptionsCondtionally) {
+    options = props.dynamicFormData;
+  } else {
+    options = props.options;
+  }
+
   let selectedValue = props.input?.value;
   if (_.isUndefined(props.input?.value)) {
     selectedValue = props?.props?.initialValue;
   }
   const selectedOption =
-    props?.options.find(
-      (option: DropdownOption) => option.value === selectedValue,
-    ) || {};
+    options.find((option: DropdownOption) => option.value === selectedValue) ||
+    {};
   return (
     <Dropdown
       boundary="window"
@@ -64,7 +75,7 @@ function renderDropdown(props: {
       isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth="50vh"
-      options={props.options}
+      options={options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
@@ -81,6 +92,23 @@ export interface DropDownControlProps extends ControlProps {
   isMultiSelect?: boolean;
   isDisabled?: boolean;
   isSearchable?: boolean;
+  fetchOptionsCondtionally?: boolean;
 }
+const mapStateToProps = (state: AppState, ownProps: DropDownControlProps) => {
+  let dynamicFormData: DropdownOption[] = [];
 
-export default DropDownControl;
+  // if the component has an option enabled to fetch the options dynamically,
+  if (ownProps.fetchOptionsCondtionally) {
+    // TODO: this is just a test, will be updated once the fetchDynamicFormData is implemented
+    dynamicFormData = [
+      { label: "Test1", value: "SINGLE" },
+      { label: "Test2", value: "ALL" },
+    ];
+  }
+
+  return {
+    dynamicFormData,
+  };
+};
+
+export default connect(mapStateToProps)(DropDownControl);
