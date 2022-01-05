@@ -352,6 +352,18 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
+        "primaryColumns.createdAt.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+          },
+        },
+        "primaryColumns.name.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+          },
+        },
       },
     };
 

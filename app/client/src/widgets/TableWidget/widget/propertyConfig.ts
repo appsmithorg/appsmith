@@ -705,6 +705,12 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                    },
+                  },
                 },
                 {
                   propertyName: "verticalAlignment",
