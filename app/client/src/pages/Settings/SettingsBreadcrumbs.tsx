@@ -1,10 +1,9 @@
 import React from "react";
 import Breadcrumbs from "components/ads/Breadcrumbs";
-import { IBreadcrumbProps } from "@blueprintjs/core";
 import { BreadcrumbCategories } from "@appsmith/pages/AdminSettings/SettingsBreadcrumbs";
 
 export const getBreadcrumbList = (category: string, subCategory?: string) => {
-  const breadcrumbList: IBreadcrumbProps[] = [
+  const breadcrumbList = [
     BreadcrumbCategories.HOMEPAGE,
     ...(category !== "general" ? [BreadcrumbCategories.DEFAULT_SETTINGS] : []),
     ...(subCategory
