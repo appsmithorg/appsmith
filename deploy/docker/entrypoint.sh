@@ -2,6 +2,102 @@
 
 set -e
 
+init_env_file() {
+  CONF_PATH="/appsmith-stacks/configuration"
+  ENV_PATH="$CONF_PATH/docker.env"
+  TEMPLATES_PATH="/opt/appsmith/templates"
+  echo "Initialize .env file"
+  if ! [[ -e "$ENV_PATH" ]]; then
+    # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
+    echo "Generating default configuration file"
+    mkdir -p "$CONF_PATH"
+    AUTO_GEN_MONGO_PASSWORD=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    AUTO_GEN_ENCRYPTION_PASSWORD=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    AUTO_GEN_ENCRYPTION_SALT=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    bash "$TEMPLATES_PATH/docker.env.sh" > "$TEMPLATES_PATH/docker.env.temp"
+    
+    if [[ -z "${APPSMITH_DISABLE_TELEMETRY}" ]]; then
+      export APPSMITH_DISABLE_TELEMETRY=false
+    fi
+
+    if [[ -z "${APPSMITH_MONGODB_URI}" ]]; then
+      export APPSMITH_MONGODB_URI=mongodb://appsmith:$AUTO_GEN_MONGO_PASSWORD@localhost/appsmith
+    fi
+
+    if [[ -z "${APPSMITH_REDIS_URL}" ]]; then
+      export APPSMITH_REDIS_URL=redis://127.0.0.1:6379
+    fi
+
+    if [[ -z "${APPSMITH_ENCRYPTION_PASSWORD}" ]]; then
+      export APPSMITH_ENCRYPTION_PASSWORD=$AUTO_GEN_ENCRYPTION_PASSWORD
+    fi
+
+    if [[ -z "$APPSMITH_ENCRYPTION_SALT" ]]; then
+      export APPSMITH_ENCRYPTION_SALT=$AUTO_GEN_ENCRYPTION_SALT
+    fi
+    cat "$TEMPLATES_PATH/docker.env.temp" | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\$APPSMITH_[A-Z0-9_]*||g' > "$ENV_PATH"
+  else
+    # Write existing environment variables which is loaded by predefined/system environment variables (ConfigMap in K8S/Docker environment file)
+    echo "Generating configuration file based on config from system environment variables"
+    bash "$TEMPLATES_PATH/docker.env.sh" > "$TEMPLATES_PATH/docker.env.temp"
+    
+    echo 'Load former environment configuration'
+    set -o allexport
+    . "$ENV_PATH"
+    set +o allexport
+
+    echo "Write former environment variables into temporary .env"
+    cat "$TEMPLATES_PATH/docker.env.temp" | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\$APPSMITH_[A-Z0-9_]*||g' > "$ENV_PATH"
+  fi
+}
+
+load_configuration() {
+  if [[ -f "$ENV_PATH" ]]; then
+    sed -i 's/APPSMITH_MONGO_USERNAME/MONGO_INITDB_ROOT_USERNAME/; s/APPSMITH_MONGO_PASSWORD/MONGO_INITDB_ROOT_PASSWORD/; s/APPSMITH_MONGO_DATABASE/MONGO_INITDB_DATABASE/' "$ENV_PATH"
+    echo 'Load environment configuration'
+    set -o allexport
+    . "$ENV_PATH"
+    set +o allexport
+  fi
+}
+
+unset_unused_variables() {
+  # Check for enviroment vairalbes
+  echo 'Checking environment configuration'
+  if [[ -z "${APPSMITH_MAIL_ENABLED}" ]]; then
+    unset APPSMITH_MAIL_ENABLED # If this field is empty is might cause application crash
+  fi
+
+  if [[ -z "${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET}" ]]; then
+    unset APPSMITH_OAUTH2_GITHUB_CLIENT_ID # If this field is empty is might cause application crash
+    unset APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET
+  fi
+
+  if [[ -z "${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET}" ]]; then
+    unset APPSMITH_OAUTH2_GOOGLE_CLIENT_ID # If this field is empty is might cause application crash
+    unset APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET
+  fi
+
+  if [[ -z "${APPSMITH_GOOGLE_MAPS_API_KEY}" ]]; then
+    unset APPSMITH_GOOGLE_MAPS_API_KEY
+  fi
+
+  if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECRET_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_ENABLED}" ]]; then
+    unset APPSMITH_RECAPTCHA_SITE_KEY # If this field is empty is might cause application crash
+    unset APPSMITH_RECAPTCHA_SECRET_KEY
+    unset APPSMITH_RECAPTCHA_ENABLED
+  fi
+}
+
 check_initialized_db() {
   echo 'Check initialized database'
   shouldPerformInitdb=1
@@ -80,62 +176,10 @@ configure_supervisord() {
   fi
 }
 
-echo 'Checking configuration file'
-CONF_PATH="/appsmith-stacks/configuration"
-ENV_PATH="$CONF_PATH/docker.env"
-if ! [[ -e "$ENV_PATH" ]]; then
-  echo "Generating default configuration file"
-  mkdir -p "$CONF_PATH"
-  AUTO_GEN_MONGO_PASSWORD=$(
-    tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-    echo ''
-  )
-  AUTO_GEN_ENCRYPTION_PASSWORD=$(
-    tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-    echo ''
-  )
-  AUTO_GEN_ENCRYPTION_SALT=$(
-    tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-    echo ''
-  )
-  bash "/opt/appsmith/templates/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" >"$ENV_PATH"
-fi
-
-if [[ -f "$ENV_PATH" ]]; then
-  sed -i 's/APPSMITH_MONGO_USERNAME/MONGO_INITDB_ROOT_USERNAME/; s/APPSMITH_MONGO_PASSWORD/MONGO_INITDB_ROOT_PASSWORD/; s/APPSMITH_MONGO_DATABASE/MONGO_INITDB_DATABASE/' "$ENV_PATH"
-  echo 'Load environment configuration'
-  set -o allexport
-  . "$ENV_PATH"
-  set +o allexport
-fi
-
-# Check for enviroment vairalbes
-echo 'Checking environment configuration'
-if [[ -z "${APPSMITH_MAIL_ENABLED}" ]]; then
-  unset APPSMITH_MAIL_ENABLED # If this field is empty is might cause application crash
-fi
-
-if [[ -z "${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET}" ]]; then
-  unset APPSMITH_OAUTH2_GITHUB_CLIENT_ID # If this field is empty is might cause application crash
-  unset APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET
-fi
-
-if [[ -z "${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET}" ]]; then
-  unset APPSMITH_OAUTH2_GOOGLE_CLIENT_ID # If this field is empty is might cause application crash
-  unset APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET
-fi
-
-if [[ -z "${APPSMITH_GOOGLE_MAPS_API_KEY}" ]]; then
-  unset APPSMITH_GOOGLE_MAPS_API_KEY
-fi
-
-if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECRET_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_ENABLED}" ]]; then
-  unset APPSMITH_RECAPTCHA_SITE_KEY # If this field is empty is might cause application crash
-  unset APPSMITH_RECAPTCHA_SECRET_KEY
-  unset APPSMITH_RECAPTCHA_ENABLED
-fi
-
 # Main Section
+init_env_file
+load_configuration
+unset_unused_variables
 init_mongodb
 mount_letsencrypt_directory
 configure_supervisord
