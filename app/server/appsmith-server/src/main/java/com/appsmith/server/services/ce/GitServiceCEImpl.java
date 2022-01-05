@@ -1090,7 +1090,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         application.getId(),
                         "",
                         "",
-                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                        false
                 ).thenReturn(application));
     }
 
@@ -1467,9 +1467,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
                                 commitDTO.setDoPush(true);
+
+                                GitPullDTO gitPullDTO = new GitPullDTO();
+                                gitPullDTO.setMergeStatus(status);
+                                gitPullDTO.setApplication(responseUtils.updateApplicationWithDefaultResources(application1));
+
                                 // Make commit and push after pull is successful to have a clean repo
                                 return this.commitApplication(commitDTO, application1.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
-                                        .thenReturn(getPullDTO(application1, status));
+                                        .thenReturn(gitPullDTO);
                             });
                 })
                 // Add BE analytics
@@ -1484,14 +1489,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitPullDTO.getApplication().getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(gitPullDTO);
                 });
-    }
-
-    private GitPullDTO getPullDTO(Application application, MergeStatusDTO status) {
-        GitPullDTO gitPullDTO = new GitPullDTO();
-        responseUtils.updateApplicationWithDefaultResources(application);
-        gitPullDTO.setMergeStatus(status);
-        gitPullDTO.setApplication(application);
-        return gitPullDTO;
     }
 
     @Override
@@ -1735,7 +1732,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     destinationBranch
                             ),
                             Mono.just(defaultApplication))
-                            // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab handleMergeConflict
+                            // On merge conflict throw error
                             .onErrorResume(error -> {
                                 if (error.getMessage().contains("Merge conflict")) {
                                     return addAnalyticsForGitOperation(
@@ -1801,19 +1798,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             GitPullDTO gitPullDTO = new GitPullDTO();
                                             gitPullDTO.setMergeStatus(mergeStatusDTO);
                                             return gitPullDTO;
-                                        });
+                                        }).zipWith(Mono.just(application1));
                             });
                 })
                 // Add BE analytics
-                .flatMap(gitPullDTO -> {
+                .flatMap(tuple -> {
+                    Application application = tuple.getT2();
+                    GitPullDTO gitPullDTO = tuple.getT1();
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_MERGE.getEventName(),
-                            gitPullDTO.getApplication().getOrganizationId(),
+                            application.getOrganizationId(),
                             defaultApplicationId,
-                            gitPullDTO.getApplication().getId(),
+                            application.getId(),
                             "",
                             "",
-                            gitPullDTO.getApplication().getGitApplicationMetadata().getIsRepoPrivate()
+                            application.getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(gitPullDTO);
                 });
     }
