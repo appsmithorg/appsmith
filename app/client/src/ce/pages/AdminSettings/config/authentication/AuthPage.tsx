@@ -7,7 +7,7 @@ import { createMessage, ADD, EDIT } from "constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "pages/Settings/Callout";
-import SettingsBreadcrumbs from "../../SettingsBreadcrumbs";
+import SettingsBreadcrumbs from "pages/Settings/SettingsBreadcrumbs";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);

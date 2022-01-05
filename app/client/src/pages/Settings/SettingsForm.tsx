@@ -22,7 +22,7 @@ import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
-import SettingsBreadcrumbs from "@appsmith/pages/AdminSettings/SettingsBreadcrumbs";
+import SettingsBreadcrumbs from "./SettingsBreadcrumbs";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
