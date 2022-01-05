@@ -1955,13 +1955,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     gitDeployKeys.setEmail(user.getEmail());
                     return gitDeployKeysRepository.findByEmail(user.getEmail())
                             .switchIfEmpty(gitDeployKeysRepository.save(gitDeployKeys))
-                            .flatMap(gitDeployKeys1 -> gitDeployKeysRepository.delete(gitDeployKeys1)
-                                    .then(gitDeployKeysRepository.save(gitDeployKeys)));
+                            // Over write the existing keys
+                            .flatMap(gitDeployKeys1 -> {
+                                gitDeployKeys1.setGitAuth(gitDeployKeys.getGitAuth());
+                                return gitDeployKeysRepository.save(gitDeployKeys1);
+                            });
                 })
-                .map(gitDeployKey -> {
-                    gitDeployKey.getGitAuth().setPrivateKey(null);
-                    return gitDeployKey.getGitAuth();
-                });
+                .thenReturn(gitAuth);
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {
