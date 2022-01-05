@@ -238,6 +238,12 @@ describe("getAllPathsFromPropertyConfig", () => {
             type: ValidationTypes.BOOLEAN,
           },
         },
+        "primaryColumns.status.isDisabled": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
       },
     };
 
