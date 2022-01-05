@@ -1,5 +1,8 @@
 const fs = require("fs");
 const path = require("path");
+const sd = require("node-stdev");
+
+global.APP_ROOT = path.resolve(__dirname);
 
 exports.summaries = async (directory) => {
   const files = await fs.promises.readdir(directory);
@@ -14,62 +17,79 @@ exports.summaries = async (directory) => {
         if (!results[key]?.scripting) {
           results[key].scripting = [];
         }
-        results[key].scripting.push(content[key].summary.scripting);
+        results[key].scripting.push(
+          parseFloat(content[key].summary.scripting.toFixed(2)),
+        );
 
         if (!results[key]?.painting) {
           results[key].painting = [];
         }
-        results[key].painting.push(content[key].summary.painting);
+        results[key].painting.push(
+          parseFloat(content[key].summary.painting.toFixed(2)),
+        );
 
         if (!results[key]?.rendering) {
           results[key].rendering = [];
         }
-        results[key].rendering.push(content[key].summary.rendering);
+        results[key].rendering.push(
+          parseFloat(content[key].summary.rendering.toFixed(2)),
+        );
       });
     }
   });
-  generateReport(results);
+  generateMarkdown(results);
 };
 
-const generateReport = (results) => {
-  var size = 5;
+const getMaxSize = (results) => {
+  let size = 0;
   Object.keys(results).forEach((key) => {
     const action = results[key];
-    Object.keys(action).forEach((key) => {
-      size = action[key].length;
-      const sum = action[key].reduce((sum, val) => sum + val, 0);
-      const avg = (sum / action[key].length).toFixed(2);
-      action[key].push(avg);
-    });
+    size = Math.max(action["scripting"].length, size);
   });
 
-  generateMarkdown(results, size);
+  return size;
 };
 
-const generateMarkdown = (results, size = 5) => {
+const generateMarkdown = (results) => {
+  const size = getMaxSize(results);
   let markdown = `<details><summary>Click to view performance test results</summary>\n\n| `;
   for (let i = 0; i < size; i++) {
-    markdown = markdown + `| Run #${i + 1} `;
+    markdown = markdown + `| Run ${i + 1} `;
   }
-  markdown = markdown + `| Avg `;
+  markdown = markdown + `| Mean | SD.Sample | SD.Population`;
 
   markdown += "|\n";
 
-  for (let i = 0; i <= size + 1; i++) {
+  for (let i = 0; i <= size + 3; i++) {
     markdown = markdown + `| ------------- `;
   }
   markdown += "|\n";
 
   Object.keys(results).forEach((key) => {
     const action = results[key];
-    markdown = markdown + key;
+    markdown += `**${key}**`;
     for (let i = 0; i <= size; i++) {
-      markdown = markdown + `| `;
+      markdown += `| `;
     }
     markdown += "|\n";
+
     Object.keys(action).forEach((key) => {
+      const length = action[key].length;
       markdown += `| ${key} | `;
       markdown += action[key].reduce((sum, val) => `${sum} | ${val} `);
+      if (length < size) {
+        for (let i = 0; i < size - action[key].length; i++) {
+          markdown += " | ";
+        }
+      }
+      // Add average
+      const avg = parseFloat(
+        (action[key].reduce((sum, val) => sum + val, 0) / length).toFixed(2),
+      );
+      markdown += `| ${avg} | ${((sd.sample(action[key]) / avg) * 100).toFixed(
+        2,
+      )} | ${((sd.population(action[key]) / avg) * 100).toFixed(2)}`;
+
       markdown += "| \n";
     });
   });

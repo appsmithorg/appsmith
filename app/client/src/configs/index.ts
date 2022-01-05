@@ -16,6 +16,7 @@ export type INJECTED_CONFIGS = {
   };
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
+  disableLoginForm: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -79,6 +80,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     enableGithubOAuth: process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID.length > 0
       : false,
+    disableLoginForm: !!process.env.APPSMITH_FORM_LOGIN_DISABLED,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
       ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",
@@ -258,6 +260,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     enableGithubOAuth:
       ENV_CONFIG.enableGithubOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGithubOAuth,
+    disableLoginForm:
+      ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
     enableGoogleOAuth:
       ENV_CONFIG.enableGoogleOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,

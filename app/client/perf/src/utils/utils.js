@@ -40,7 +40,7 @@ exports.startReactProfile = async (reactProfiler) => {
     "#container > div > div > div > div > div.Toolbar___30kHu > button.Button___1-PiG.InactiveRecordToggle___2CUtF";
   await reactProfiler.waitForSelector(recordButton);
   const container = await reactProfiler.$(recordButton);
-  console.log("Satring recording");
+  console.log("Starting recording");
   await reactProfiler.evaluate((el) => el.click(), container);
   console.log("Recording started");
 };
@@ -61,7 +61,7 @@ exports.downloadReactProfile = async (reactProfiler) => {
   await reactProfiler.waitForSelector(saveProfileButton);
   const container = await reactProfiler.$(saveProfileButton);
   await reactProfiler.evaluate((el) => el.click(), container);
-  console.log("Downlaoded the profile");
+  console.log("Downloaded the profile");
 };
 
 exports.saveProfile = async (reactProfiler, name) => {
@@ -92,7 +92,7 @@ exports.login = async (page) => {
   const url = "https://dev.appsmith.com/user/login";
 
   await page.goto(url);
-  await page.setViewport({ width: 1440, height: 714 });
+  await page.setViewport({ width: 1920, height: 1080 });
 
   await delay(1000, "before login");
 
@@ -100,23 +100,12 @@ exports.login = async (page) => {
   const passwordSelector = "input[name='password']";
   const buttonSelector = "button[type='submit']";
 
-  try {
-    await page.waitForSelector(emailSelector);
-    await page.waitForSelector(passwordSelector);
-    await page.waitForSelector(buttonSelector);
-  } catch (e) {
-    console.error(e);
-    console.log(
-      "Screenshot:",
-      `${APP_ROOT}/traces/reports/login-selector-error.png`,
-    );
-    await page.screenshot({
-      path: `${APP_ROOT}/traces/reports/login-selector-error.png`,
-    });
-  }
+  await page.waitForSelector(emailSelector);
+  await page.waitForSelector(passwordSelector);
+  await page.waitForSelector(buttonSelector);
 
-  await page.type(emailSelector, process.env.CYPRESS_TESTUSERNAME1);
-  await page.type(passwordSelector, process.env.CYPRESS_TESTPASSWORD1);
+  await page.type(emailSelector, "hello@myemail.com");
+  await page.type(passwordSelector, "qwerty1234");
   delay(1000, "before clicking login button");
   await page.click(buttonSelector);
 };
