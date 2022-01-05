@@ -57,7 +57,7 @@ public interface GitServiceCE {
 
     Mono<String> createConflictedBranch(String defaultApplicationId, String branchName);
 
-    Mono<Application> importApplicationFromGit();
+    Mono<Application> importApplicationFromGit(String organisationId, String remoteUrl);
 
     Mono<GitAuth> generateSSHKey();
 
