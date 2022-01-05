@@ -1264,8 +1264,18 @@ describe("Validate Validators", () => {
     });
   });
 
-  it.only("correctly validates CSV validation", () => {
-    const inputs = ["a", ["a", "b"], "x", ["a", "b", "x"], "a,b", "a,b,x", ""];
+  it("correctly validates CSV validation", () => {
+    const inputs = [
+      "a",
+      ["a", "b"],
+      "x",
+      ["a", "b", "x"],
+      "a,b",
+      "a,b,x",
+      "",
+      "[a,b,c]",
+      "[a,q]",
+    ];
     const config = {
       type: ValidationTypes.CSV,
       params: {
@@ -1277,25 +1287,27 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: "a",
-      },
-      {
-        isValid: false,
-        parsed: "z",
-        messages: ["This value does not evaluate to type CSV"],
-      },
-      {
-        isValid: false,
-        parsed: "z",
-        messages: ["Disallowed value: x"],
-      },
-      {
-        isValid: false,
-        parsed: "z",
-        messages: ["This value does not evaluate to type CSV"],
+        messages: [],
       },
       {
         isValid: true,
         parsed: "a,b",
+        messages: [],
+      },
+      {
+        isValid: false,
+        parsed: "z",
+        messages: ["Disallowed value: x"],
+      },
+      {
+        isValid: false,
+        parsed: "z",
+        messages: ["Disallowed value: x"],
+      },
+      {
+        isValid: true,
+        parsed: "a,b",
+        messages: [],
       },
       {
         isValid: false,
@@ -1305,6 +1317,16 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: "z",
+      },
+      {
+        isValid: true,
+        parsed: "a,b,c",
+        messages: [],
+      },
+      {
+        isValid: false,
+        parsed: "z",
+        messages: ["Disallowed value: q"],
       },
     ];
     inputs.forEach((input, i) => {

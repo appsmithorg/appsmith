@@ -276,6 +276,7 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       return type;
     case ValidationTypes.ARRAY:
     case ValidationTypes.NESTED_OBJECT_ARRAY:
+    case ValidationTypes.CSV:
       if (config.params?.allowedValues) {
         const allowed = config.params?.allowedValues.join("' | '");
         return `Array<'${allowed}'>`;
@@ -291,8 +292,6 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       return `base64 encoded image | data uri | image url`;
     case ValidationTypes.SAFE_URL:
       return "URL";
-    case ValidationTypes.CSV:
-      return "CSV";
   }
 }
 
@@ -923,12 +922,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
   },
 
+  // Note: This validation should be removed in the future and we should only be allowing usage of Array
   [ValidationTypes.CSV]: (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
   ) => {
-    if (value === undefined || value === null || value === "") {
+    if (value === undefined || value === null || value === "" || value === []) {
       if (config?.params?.required) {
         return {
           isValid: false,
@@ -944,28 +944,32 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         parsed: config.params?.default ?? "",
       };
     }
-    if (!isString(value))
-      return {
-        isValid: false,
-        parsed: config?.params?.default ?? "",
-        messages: [
-          `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
-        ],
-      };
-    const csv = value.split(",").map((x) => x.trim());
-    if (config?.params?.allowedValues) {
-      for (const x of csv) {
-        if (!config.params.allowedValues.includes(x))
-          return {
-            isValid: false,
-            parsed: config?.params?.default ?? "",
-            messages: [`Disallowed value: ${x}`],
-          };
+
+    let values: string[] = [];
+    if (typeof value === "string") {
+      try {
+        values = JSON.parse(value);
+        if (!Array.isArray(values)) {
+          throw new Error();
+        }
+      } catch {
+        values = value.length
+          ? value
+              .replace(/\[/g, "")
+              .replace(/\]/g, "")
+              .split(",")
+          : [];
+        if (values.length > 0) {
+          values = values.map((_v: string) => _v.trim());
+        }
       }
     }
-    return {
-      isValid: true,
-      parsed: csv.join(","),
-    };
+    if (Array.isArray(value)) {
+      values = Array.from(new Set(value));
+    }
+
+    const result = VALIDATORS[ValidationTypes.ARRAY](config, values, props);
+    if (isArray(result.parsed)) result.parsed = result.parsed.join(",");
+    return result;
   },
 };

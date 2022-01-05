@@ -2,7 +2,7 @@ import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
-import { random, sample, sampleSize } from "lodash";
+import { sample } from "lodash";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
@@ -117,6 +117,7 @@ export function getExpectedValue(
       };
     case ValidationTypes.ARRAY:
     case ValidationTypes.NESTED_OBJECT_ARRAY:
+    case ValidationTypes.CSV:
       if (config.params?.allowedValues) {
         const allowed = config.params?.allowedValues.join("' | '");
         return {
@@ -158,25 +159,5 @@ export function getExpectedValue(
       };
     case ValidationTypes.TABLE_PROPERTY:
       return getExpectedValue(config.params as ValidationConfig);
-    case ValidationTypes.CSV: {
-      const result: CodeEditorExpected = {
-        type: "CSV",
-        example: "a,b,c",
-        autocompleteDataType: AutocompleteDataType.STRING,
-      };
-      if (config.params?.allowedValues) {
-        const allowed = config.params.allowedValues.join(" | ");
-        result.type = result.type + ` ( ${allowed} )`;
-        result.example = sampleSize(
-          config.params.allowedValues,
-          random(1, config.params.allowedValues.length - 1),
-        ).join(",");
-      }
-      if (config.params?.expected?.type)
-        result.type = config.params?.expected.type;
-      if (config.params?.expected?.example)
-        result.example = config.params?.expected.example;
-      return result;
-    }
   }
 }
