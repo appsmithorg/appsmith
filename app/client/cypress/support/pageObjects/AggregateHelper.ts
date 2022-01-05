@@ -38,7 +38,7 @@ export class AggregateHelper {
         });
     }
 
-    NavigateToCreateNewTabPage() {
+    public NavigateToCreateNewTabPage() {
         cy.get(this._addEntityAPI).last()
             .should("be.visible")
             .click({ force: true });
@@ -48,12 +48,12 @@ export class AggregateHelper {
         cy.get(this._loading).should("not.exist");
     }
 
-    StartServerAndRoutes() {
+    public StartServerAndRoutes() {
         cy.intercept("POST", "/api/v1/actions").as("createNewApi");
         cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
     }
 
-    RenameWithInPane(renameVal: string) {
+    public RenameWithInPane(renameVal: string) {
         cy.get(this._actionName).click({ force: true });
         cy.get(this._actionTxt)
             .clear()
@@ -62,19 +62,19 @@ export class AggregateHelper {
             .blur();
     }
 
-    WaitAutoSave() {
+    public WaitAutoSave() {
         // wait for save query to trigger & n/w call to finish occuring
         cy.wait("@saveAction", { timeout: 8000 });
     }
 
-    SelectEntityByName(entityNameinLeftSidebar: string) {
+    public SelectEntityByName(entityNameinLeftSidebar: string) {
         cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
             .click({ force: true })
             .wait(2000);
     }
 
-    NavigateToHome() {
+    public NavigateToHome() {
         cy.get(this._homeIcon).click({ force: true });
         cy.wait(3000);
         cy.wait("@applications");
@@ -82,7 +82,7 @@ export class AggregateHelper {
         //cy.get(this._homePageAppCreateBtn);
     }
 
-    CreateNewApplication(){
+    public CreateNewApplication(){
         cy.get(this._homePageAppCreateBtn).click({ force: true })
         cy.wait("@createNewApplication").should(
             "have.nested.property",
