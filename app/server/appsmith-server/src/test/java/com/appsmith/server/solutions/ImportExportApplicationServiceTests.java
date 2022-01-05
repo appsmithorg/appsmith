@@ -93,52 +93,52 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ImportExportApplicationServiceTests {
 
     @Autowired
-    private ImportExportApplicationService importExportApplicationService;
+    ImportExportApplicationService importExportApplicationService;
 
     @Autowired
-    private ApplicationPageService applicationPageService;
+    ApplicationPageService applicationPageService;
 
     @Autowired
-    private UserService userService;
+    UserService userService;
 
     @Autowired
-    private PluginRepository pluginRepository;
+    PluginRepository pluginRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    ApplicationRepository applicationRepository;
 
     @Autowired
-    private DatasourceService datasourceService;
+    DatasourceService datasourceService;
 
     @Autowired
-    private NewPageService newPageService;
+    NewPageService newPageService;
 
     @Autowired
-    private NewActionService newActionService;
+    NewActionService newActionService;
     
     @Autowired
-    private OrganizationService organizationService;
+    OrganizationService organizationService;
 
     @Autowired
-    private SessionUserService sessionUserService;
+    SessionUserService sessionUserService;
 
     @Autowired
-    private LayoutActionService layoutActionService;
+    LayoutActionService layoutActionService;
 
     @Autowired
-    private NewPageRepository newPageRepository;
+    NewPageRepository newPageRepository;
 
     @Autowired
-    private LayoutCollectionService layoutCollectionService;
+    LayoutCollectionService layoutCollectionService;
 
     @Autowired
-    private ActionCollectionService actionCollectionService;
+    ActionCollectionService actionCollectionService;
 
     @MockBean
-    private PluginExecutorHelper pluginExecutorHelper;
+    PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    private ThemeRepository themeRepository;
+    ThemeRepository themeRepository;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;

@@ -110,6 +110,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
     private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please " +
             "resolve merge conflicts in remote and pull again";
+    private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
+            "with git to use version control service";
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -367,6 +369,9 @@ public class GitServiceCEImpl implements GitServiceCE {
         return this.getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
+                    if (Optional.ofNullable(defaultGitMetadata).isEmpty()) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+                    }
                     Boolean dbIsRepoPrivate = defaultGitMetadata.getIsRepoPrivate();
                     if (!Boolean.TRUE.equals(dbIsRepoPrivate)) {
                         try {
@@ -404,17 +409,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(branchedApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
                     if (gitApplicationMetadata == null) {
-                        return addAnalyticsForGitOperation(
-                                AnalyticsEvents.GIT_COMMIT.getEventName(),
-                                branchedApplication.getOrganizationId(),
-                                defaultApplicationId,
-                                branchedApplication.getId(),
-                                AppsmithError.INVALID_GIT_CONFIGURATION.getTitle(),
-                                AppsmithError.INVALID_GIT_CONFIGURATION.getMessage("Unable to find the git " +
-                                        "configuration, please configure the your application to use version control service"),
-                                branchedApplication.getGitApplicationMetadata().getIsRepoPrivate()
-                        ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find the git " +
-                                "configuration, please configure the your application to use version control service")));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
                     String errorEntity = "";
                     if (StringUtils.isEmptyOrNull(gitApplicationMetadata.getBranchName())) {
@@ -440,27 +435,28 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitData = childApplication.getGitApplicationMetadata();
                     Path baseRepoSuffix =
                             Paths.get(childApplication.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+
+                    Mono<Path> repoPathMono;
                     try {
-                        return Mono.zip(
-                                fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName()),
-                                currentUserMono,
-                                Mono.just(childApplication)
-                        );
+                        repoPathMono = fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName());
                     } catch (IOException | GitAPIException e) {
-                        log.error("Unable to open git directory, with error : ", e);
-                        if (e instanceof RepositoryNotFoundException) {
-                            return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_COMMIT.getEventName(),
-                                    childApplication.getOrganizationId(),
-                                    defaultApplicationId,
-                                    childApplication.getId(),
-                                    ((RepositoryNotFoundException) e).getClass().getName(),
-                                    e.getMessage(),
-                                    childApplication.getGitApplicationMetadata().getIsRepoPrivate()
-                            ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e)));
-                        }
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                        return Mono.error(e);
                     }
+
+                    return Mono.zip(
+                            repoPathMono,
+                            currentUserMono,
+                            Mono.just(childApplication)
+                    );
+                })
+                .onErrorResume(e -> {
+                    log.error("Unable to open git directory, with error : ", e);
+                    if (e instanceof RepositoryNotFoundException) {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e));
+                    } else if (e instanceof AppsmithException) {
+                        return Mono.error(e);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                 })
                 .flatMap(tuple -> {
                     Path baseRepoPath = tuple.getT1();
@@ -481,19 +477,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
 
                     if (authorProfile == null || StringUtils.isEmptyOrNull(authorProfile.getAuthorName())) {
+                        String errorMessage = "Unable to find git author configuration for logged-in user. You can set " +
+                                "up a git profile from the user profile section.";
                         return addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_COMMIT.getEventName(),
                                 childApplication.getOrganizationId(),
                                 defaultApplicationId,
                                 childApplication.getId(),
                                 AppsmithError.INVALID_GIT_CONFIGURATION.getTitle(),
-                                AppsmithError.INVALID_GIT_CONFIGURATION.getMessage("Unable to find git author configuration for logged-in user." +
-                                        " You can set up a git profile from the user profile section."),
+                                AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(errorMessage),
                                 childApplication.getGitApplicationMetadata().getIsRepoPrivate()
-                        ).flatMap(user -> Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
-                                " You can set up a git profile from the user profile section."
-                        )));
+                        ).flatMap(user -> Mono.error(
+                                new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, errorMessage))
+                        );
                     }
                     result.append("Commit Result : ");
                     return Mono.zip(
@@ -1311,7 +1307,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     Mono<Application> getApplicationById(String applicationId) {
-        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
