@@ -14,7 +14,7 @@ const ToggleWrapper = styled.div``;
 
 const ToggleStatus = styled.span`
   position: relative;
-  top: -5px;
+  top: -10px;
   left: 68px;
 `;
 

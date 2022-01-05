@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
-import { RouteComponentProps, useLocation, withRouter } from "react-router-dom";
+import {
+  RouteComponentProps,
+  useHistory,
+  useLocation,
+  withRouter,
+} from "react-router-dom";
 import {
   AuthCardHeader,
   AuthCardNavLink,
@@ -57,7 +62,7 @@ declare global {
     grecaptcha: any;
   }
 }
-const { googleRecaptchaSiteKey } = getAppsmithConfigs();
+const { disableLoginForm, googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -81,6 +86,12 @@ type SignUpFormProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
+  const history = useHistory();
+  useEffect(() => {
+    if (disableLoginForm) {
+      history.replace(AUTH_LOGIN_URL);
+    }
+  }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const socialLoginList = SocialLoginsFactory.methods;
