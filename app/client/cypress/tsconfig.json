@@ -35,5 +35,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["cypress"]
   },
-  "include": ["./cypress/**/*"]
+  "include": ["/**/*.ts"]
 }
