@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect } from "react";
-// import { Icon } from "@blueprintjs/core";
 import { saveSettings } from "actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-// import { APPLICATIONS_URL } from "constants/routes";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";

@@ -52,7 +52,7 @@ function BreadcrumbList(props: BreadcrumbProps) {
 
   const lastIndex = children.length - 1;
 
-  const children_new = children.reduce((acc: ReactNode[], child, index) => {
+  const childrenNew = children.reduce((acc: ReactNode[], child, index) => {
     const notLast = index < lastIndex;
 
     if (notLast) {
@@ -68,7 +68,7 @@ function BreadcrumbList(props: BreadcrumbProps) {
     return acc;
   }, []);
 
-  return <StyledBreadcrumbList>{children_new}</StyledBreadcrumbList>;
+  return <StyledBreadcrumbList>{childrenNew}</StyledBreadcrumbList>;
 }
 
 function Breadcrumbs(props: BreadcrumbsProps) {
