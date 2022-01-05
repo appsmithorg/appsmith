@@ -1046,19 +1046,22 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: [
-                        "NONE",
-                        "VARIANT1",
-                        "VARIANT2",
-                        "VARIANT3",
-                        "VARIANT4",
-                        "VARIANT5",
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: [
+                          "NONE",
+                          "VARIANT1",
+                          "VARIANT2",
+                          "VARIANT3",
+                          "VARIANT4",
+                          "VARIANT5",
+                        ],
+                      },
                     },
                   },
                 },
