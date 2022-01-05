@@ -1068,7 +1068,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<ActionCollection> saveNewCollectionAndUpdateDefaultResources(ActionCollection actionCollection, String branchName) {
-        return actionCollectionService.save(actionCollection)
+        return actionCollectionService.create(actionCollection)
                 .flatMap(actionCollection1 -> {
                     if (actionCollection1.getDefaultResources() == null) {
                         ActionCollection update = new ActionCollection();

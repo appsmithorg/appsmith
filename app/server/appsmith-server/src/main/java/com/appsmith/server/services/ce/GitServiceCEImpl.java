@@ -1,15 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.dtos.GitBranchDTO;
-import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Assets;
@@ -25,21 +22,19 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.GitConnectionLimitDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
-import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
@@ -56,8 +51,6 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -65,7 +58,6 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,18 +102,14 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
-    private final CommonConfig commonConfig;
-    private final ConfigService configService;
-    private final CloudServicesConfig cloudServicesConfig;
     private final AnalyticsService analyticsService;
+    private final GitCloudServicesUtils gitCloudServicesUtils;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
     private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please " +
             "resolve merge conflicts in remote and pull again";
-
-    private final static Map<String, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -393,7 +381,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 // check if the commit application will be allowed if the repo is made private
                                 return applicationService.save(defaultApplication)
                                         //Check the limit for number of private repo
-                                        .flatMap(application -> getPrivateRepoLimitForOrg(application.getOrganizationId(), false)
+                                        .flatMap(application -> gitCloudServicesUtils.getPrivateRepoLimitForOrg(application.getOrganizationId(), false)
                                                 .flatMap(limitCount -> {
                                                     //get git connected apps count from db
                                                     return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
@@ -652,7 +640,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     } catch (IOException e) {
                         log.debug("Error while checking if the repo is private: ", e);
                     }
-                    return getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
+                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(application.getOrganizationId(), true)
                         .flatMap(limitCount -> {
                             // get git connected apps count from db
                             return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
@@ -864,47 +852,6 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> connectApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
-    }
-
-    private Mono<Integer> getPrivateRepoLimitForOrg(String orgId, boolean isClearCache) {
-        final String baseUrl = cloudServicesConfig.getBaseUrl();
-        return configService.getInstanceId().map(instanceId -> {
-            if (commonConfig.isCloudHosting()) {
-                return instanceId + "_" + orgId;
-            } else {
-                return instanceId;
-            }
-        }).flatMap(key -> {
-            // check the cache for the repo limit
-            if(Boolean.FALSE.equals(isClearCache) && gitLimitCache.containsKey(key)) {
-                return Mono.just(gitLimitCache.get(key).getRepoLimit());
-            }
-            // Call the cloud service API
-            return WebClient
-                    .create(baseUrl + "/api/v1/git/limit/" + key)
-                    .get()
-                    .exchange()
-                    .flatMap(response -> {
-                        if (response.statusCode().is2xxSuccessful()) {
-                            return response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Integer>>() {
-                            });
-                        } else {
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.CLOUD_SERVICES_ERROR,
-                                    "Unable to connect to cloud-services with error status {}", response.statusCode()));
-                        }
-                    })
-                    .map(ResponseDTO::getData)
-                    // cache the repo limit
-                    .map(limit -> {
-                        GitConnectionLimitDTO gitConnectionLimitDTO = new GitConnectionLimitDTO();
-                        gitConnectionLimitDTO.setRepoLimit(limit);
-                        gitConnectionLimitDTO.setExpiryTime(Instant.now().plusSeconds(24 * 60 * 60));
-                        gitLimitCache.put(key, gitConnectionLimitDTO);
-                        return limit;
-                    })
-                    .doOnError(error -> log.error("Error fetching config from cloud services", error));
-        });
     }
 
     @Override
@@ -2039,9 +1986,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                    String errorType,
                                                    String errorMessage,
                                                    Boolean repoType) {
-        if (!analyticsService.isActive()) {
-            return Mono.empty();
-        }
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {

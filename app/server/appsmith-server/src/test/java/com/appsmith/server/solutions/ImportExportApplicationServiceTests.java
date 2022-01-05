@@ -731,7 +731,7 @@ public class ImportExportApplicationServiceTests {
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
-        // Wait for cloning to complete
+        // Wait for import to complete
         Mono<Application> importedAppFromDbMono = Mono.just(newOrganization)
                 .flatMap(organization -> {
                     try {
