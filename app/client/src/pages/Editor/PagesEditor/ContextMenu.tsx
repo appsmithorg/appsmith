@@ -43,7 +43,7 @@ const Container = styled.div`
     padding: 4px;
   }
 
-  & [class^="Name__Wrapper"] {
+  & .ContextMenuPopOver .ContextMenu {
     width: 10rem;
   }
 
@@ -134,7 +134,9 @@ function ContextMenu(props: Props) {
         <Container>
           <Header>
             <PageName>
-              <EditName page={page} />
+              <div className="ContextMenuPopOver">
+                <EditName page={page} />
+              </div>
             </PageName>
             <Actions>
               <Action>
