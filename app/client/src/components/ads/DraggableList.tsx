@@ -76,6 +76,9 @@ function DraggableList(props: any) {
   const shouldReRender = get(props, "shouldReRender", true);
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
+  const displacement = useRef<number>(0);
+
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const onDrop = (originalIndex: number, newIndex: number) => {
     onUpdate(order.current, originalIndex, newIndex);
@@ -189,35 +192,46 @@ function DraggableList(props: any) {
     }
   });
   return (
-    <DraggableListWrapper
-      className="content"
-      onMouseDown={() => {
-        // set events to null to stop other parent draggable elements execution(ex: Property pane)
-        document.onmouseup = null;
-        document.onmousemove = null;
+    <div
+      ref={listRef}
+      style={{
+        height: listContainerHeight,
+        overflowY: "auto",
+        zIndex: 1,
       }}
-      style={{ height: items.length * itemHeight }}
     >
-      {springs.map(({ scale, y, zIndex }, i) => (
-        <animated.div
-          {...bind(i)}
-          data-rbd-draggable-id={items[i].id}
-          key={i}
-          style={{
-            zIndex,
-            width: "100%",
-            transform: to(
-              [y, scale],
-              (y, s) => `translate3d(0,${y}px,0) scale(${s})`,
-            ),
-          }}
-        >
-          <div>
-            <ItemRenderer index={i} item={items[i]} />
-          </div>
-        </animated.div>
-      ))}
-    </DraggableListWrapper>
+      <DraggableListWrapper
+        className="content"
+        onMouseDown={() => {
+          // set events to null to stop other parent draggable elements execution(ex: Property pane)
+          document.onmouseup = null;
+          document.onmousemove = null;
+        }}
+        style={{
+          height: "100%",
+        }}
+      >
+        {springs.map(({ scale, y, zIndex }, i) => (
+          <animated.div
+            {...bind(i)}
+            data-rbd-draggable-id={items[i].id}
+            key={i}
+            style={{
+              zIndex,
+              width: "100%",
+              transform: interpolate(
+                [y, scale],
+                (y, s) => `translate3d(0,${y}px,0) scale(${s})`,
+              ),
+            }}
+          >
+            <div>
+              <ItemRenderer index={i} item={items[i]} />
+            </div>
+          </animated.div>
+        ))}
+      </DraggableListWrapper>
+    </div>
   );
 }
 DraggableList.displayName = "DraggableList";
