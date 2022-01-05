@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.path.json",
   "compilerOptions": {
     "target": "es5",
     "lib": [
@@ -12,7 +11,7 @@
       "es2020.string"
     ],
     "strict": true,
-    "outDir": "./out/js/src",
+    "outDir": "./out/js/cypress",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -32,10 +31,9 @@
       "./node_modules/@types"
     ],
     "sourceMap": true,
-    "baseUrl": "./src",
-    "noFallthroughCasesInSwitch": true
+    "baseUrl": "./cypress",
+    "noFallthroughCasesInSwitch": true,
+    "types": ["cypress"]
   },
-  "include": [
-    "./src/**/*"
-  ]
+  "include": ["**/*.ts"]
 }
