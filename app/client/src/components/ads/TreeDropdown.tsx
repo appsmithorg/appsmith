@@ -253,12 +253,25 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!isOpen) setOptionTree(closeAllChildren);
+    if (!isOpen) {
+      if (selectedOptionIndex.current.length > 1)
+        setOptionTree(closeAllChildren);
+      // reset selected option
+      const defaultSelectedOption = getSelectedOption(
+        selectedValue,
+        defaultText,
+        optionTree,
+      );
+      setSelectedOption((prev) => {
+        if (prev.value === defaultSelectedOption.value) return prev;
+        return defaultSelectedOption;
+      });
+    }
   }, [isOpen]);
 
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
-      option.onSelect(option, props.onSelect);
+      option.onSelect(option, onSelect);
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
       onSelect(option, defaultVal);
@@ -268,7 +281,6 @@ export default function TreeDropdown(props: TreeDropdownProps) {
 
   const handleOptionClick = (option: TreeDropdownOption) => {
     if (option.children)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       return (e: any) => {
         const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
         if (
@@ -279,24 +291,29 @@ export default function TreeDropdown(props: TreeDropdownProps) {
           setOptionTree((prev) => {
             if (selectedOpt.isChildrenOpen)
               return (
-                setItem(closeAllChildren(prev), selectedOptionIndex.current, {
-                  ...selectedOpt,
-                  isChildrenOpen: false,
-                }) ?? prev
+                setItem(
+                  deepOpenChildren(
+                    closeAllChildren(prev),
+                    selectedOptionIndex.current,
+                  ),
+                  selectedOptionIndex.current,
+                  {
+                    ...selectedOpt,
+                    isChildrenOpen: false,
+                  },
+                ) ?? prev
               );
-            else
-              return deepOpenChildren(
-                closeAllChildren(prev),
-                selectedOptionIndex.current,
-              );
+            return deepOpenChildren(
+              closeAllChildren(prev),
+              selectedOptionIndex.current,
+            );
           });
           buttonRef.current?.focus();
-          if (isKeyPressed.current) {
-            setSelectedOption(selectedOpt.children[0]);
-            if (selectedOpt?.children[0]?.selfIndex)
-              selectedOptionIndex.current = selectedOpt.children[0].selfIndex;
-          }
+          setSelectedOption(selectedOpt.children[0]);
+          if (selectedOpt?.children[0]?.selfIndex)
+            selectedOptionIndex.current = selectedOpt.children[0].selfIndex;
         }
+        e?.stopPropagation && e.stopPropagation();
       };
     return (e: any) => {
       handleSelect(option);
@@ -306,7 +323,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     };
   };
 
-  function renderTreeOption(option: TreeDropdownOption) {
+  const renderTreeOption = (option: TreeDropdownOption) => {
     const isSelected =
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
@@ -338,7 +355,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         {option.children && option.children.map(renderTreeOption)}
       </MenuItem>
     );
-  }
+  };
 
   /**
    * shouldOpen flag is used to differentiate between a Keyboard
@@ -353,10 +370,6 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       case "Escape":
         if (isOpen) {
           setIsOpen(false);
-          // reset selected option
-          setSelectedOption(
-            getSelectedOption(selectedValue, defaultText, optionTree),
-          );
           e.nativeEvent.stopImmediatePropagation();
         }
         break;

@@ -239,6 +239,26 @@ describe("<TreeDropdown/>", () => {
     ).toBeInTheDocument();
   });
 
+  it("When a child menu is opened, first item of the menu should be active", async () => {
+    render(testComponent());
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{Enter}");
+    expect(
+      queryByRole(screen.queryAllByRole("list")[0], "list"),
+    ).toBeInTheDocument();
+
+    for (const [i, item] of queryAllByRole(
+      screen.queryAllByRole("list")[1],
+      "listitem",
+    ).entries()) {
+      if (i === 0) expect(item.querySelector("a")).toHaveClass("bp3-active");
+      else expect(item.querySelector("a")).not.toHaveClass("bp3-active");
+    }
+  });
+
   it("child menu should be navigatable using arrow keys", () => {
     render(testComponent());
     userEvent.tab();
