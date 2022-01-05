@@ -7,7 +7,7 @@ get_variable_mongodb() {
   MONGODB_PROTOCOL=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "[a-z+]+(?=\:\/\/)") 
   MONGODB_USERNAME=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "(?<=\:\/\/)(.*\s?)(?=\:)")
   MONGODB_PASSWORD=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "\w+(?=@)")
-  MONGODB_HOST=$(echo "$MONGODB_URI" | grep -oP "[a-z0-9.]+(?=\/)")
+  MONGODB_HOST=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "[a-z0-9.]+(?=\/)")
   MONGODB_DATABASE=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "\w+(?!\S)")
 }
 
