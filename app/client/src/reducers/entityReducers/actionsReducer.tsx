@@ -392,6 +392,14 @@ const actionsReducer = createReducer(initialState, {
       });
     });
   },
+
+  [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: (
+    state: ActionDataState,
+  ): ActionDataState =>
+    state.map((action) => ({
+      ...action,
+      data: undefined,
+    })),
 });
 
 export default actionsReducer;

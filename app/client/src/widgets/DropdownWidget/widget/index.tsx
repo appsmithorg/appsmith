@@ -370,7 +370,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   };
   changeSelectedOption = () => {
     const index = _.findIndex(this.props.options, {
-      value: this.props.defaultOptionValue,
+      value: this.props.selectedOptionValue ?? this.props.defaultOptionValue,
     });
     const value = this.props.options?.[index]?.value;
     this.props.updateWidgetMetaProperty("value", value);

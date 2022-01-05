@@ -51,6 +51,16 @@ public class GsonISOStringToInstantConverterTest {
         assertThat(sameDateDTO.getInstant().toString()).isEqualTo("2021-12-30T08:58:31Z");
     }
 
+    @Test
+    public void parse_DateInDoublePrecisionTimestampFormat_ParsesDate() {
+        String data = "{\"instant\": 1640854711.292000000}";
+        Type fileType = new TypeToken<SameDateDTO>() {
+        }.getType();
+        SameDateDTO sameDateDTO = gson.fromJson(data, fileType);
+        assertThat(sameDateDTO.getInstant()).isNotNull();
+        assertThat(sameDateDTO.getInstant().toString()).isEqualTo("2021-12-30T08:58:31Z");
+    }
+
     @Data
     public static class SameDateDTO {
         private Instant instant;

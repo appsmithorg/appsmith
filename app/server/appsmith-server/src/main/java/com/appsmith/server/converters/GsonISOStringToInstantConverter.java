@@ -18,6 +18,12 @@ public class GsonISOStringToInstantConverter implements JsonDeserializer<Instant
         if(jsonString.length() == 0) {
             return null;
         }
+        try {
+            Double aDouble = Double.parseDouble(jsonString);
+            return Instant.ofEpochSecond(aDouble.longValue());
+        } catch (NumberFormatException e) {
+            // do nothing, let's try to parse with Instant.parse assuming it's in ISO format
+        }
         return Instant.parse(jsonString);
     }
 }
