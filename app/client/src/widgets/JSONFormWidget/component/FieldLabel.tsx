@@ -15,19 +15,37 @@ import {
 type StyledLabelTextProps = {
   color: string;
   fontSize: string;
-  fontWeight: string;
   fontStyle: string;
+  fontWeight: string;
   textDecoration: string;
+};
+
+type LabelStyles = {
+  labelStyle?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+};
+
+export type FieldLabelProps = PropsWithChildren<{
+  label: string;
+  tooltip?: string;
+  labelStyles?: LabelStyles;
+  direction?: "row" | "column";
+}>;
+
+type StyledLabelTextWrapperProps = {
+  direction: FieldLabelProps["direction"];
 };
 
 const LABEL_TEXT_WRAPPER_MARGIN_BOTTOM = 4;
 const LABEL_TEXT_MARGIN_RIGHT = 10;
 const TOOLTIP_CLASSNAME = "tooltip-wrapper";
 
-const StyledLabelTextWrapper = styled.div`
-  align-items: center;
+const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   display: flex;
-  margin-bottom: ${LABEL_TEXT_WRAPPER_MARGIN_BOTTOM}px;
+  flex-direction: ${({ direction }) => direction};
+  margin-bottom: ${({ direction }) =>
+    direction === "row" ? 0 : LABEL_TEXT_WRAPPER_MARGIN_BOTTOM}px;
 
   & .${TOOLTIP_CLASSNAME} {
     line-height: 0;
@@ -55,20 +73,9 @@ const ToolTipIcon = styled(IconWrapper)`
   }
 `;
 
-type LabelStyles = {
-  labelStyle?: string;
-  labelTextColor?: string;
-  labelTextSize?: TextSize;
-};
-
-export type FieldLabelProps = PropsWithChildren<{
-  label: string;
-  tooltip?: string;
-  labelStyles?: LabelStyles;
-}>;
-
 function FieldLabel({
   children,
+  direction = "column",
   label,
   labelStyles,
   tooltip,
@@ -89,7 +96,7 @@ function FieldLabel({
 
   return (
     <label>
-      <StyledLabelTextWrapper>
+      <StyledLabelTextWrapper direction={direction}>
         <StyledLabelText {...labelStyleProps}>{label}</StyledLabelText>
         {tooltip && (
           <Tooltip

@@ -23,10 +23,7 @@ type StyledWrapperProps = {
 };
 
 const StyledWrapper = styled.div<StyledWrapperProps>`
-  margin-bottom: ${({ direction }) =>
-    direction === "row" ? 0 : FIELD_MARGIN_BOTTOM}px;
-  display: flex;
-  flex-direction: ${({ direction }) => direction};
+  margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
 
   &:last-of-type {
     margin-bottom: 0;
@@ -77,18 +74,18 @@ function Field<TValue>({
   const direction = inlineLabel ? "row" : "column";
 
   return (
-    <StyledWrapper direction={direction}>
+    <StyledWrapper className={`t--jsonformfield-${name}`} direction={direction}>
       {hideLabel ? (
         controller
       ) : (
-        <>
-          <FieldLabel
-            label={label}
-            labelStyles={labelStyles}
-            tooltip={tooltip}
-          />
+        <FieldLabel
+          direction={direction}
+          label={label}
+          labelStyles={labelStyles}
+          tooltip={tooltip}
+        >
           {controller}
-        </>
+        </FieldLabel>
       )}
     </StyledWrapper>
   );
