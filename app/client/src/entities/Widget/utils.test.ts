@@ -244,6 +244,36 @@ describe("getAllPathsFromPropertyConfig", () => {
             type: ValidationTypes.BOOLEAN,
           },
         },
+        "primaryColumns.createdAt.inputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
       },
     };
 
