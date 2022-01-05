@@ -478,6 +478,16 @@ export default class DataTreeEvaluator {
           dependencies[`${entityName}.${key}`] = [];
         });
       }
+      Object.entries(entity.overridingProperties).forEach(
+        ([overridingProperty, overriddenProperty]) => {
+          const existingDependencies =
+            dependencies[`${entityName}.${overriddenProperty}`] || [];
+          existingDependencies.push(`${entityName}.${overridingProperty}`);
+          dependencies[
+            `${entityName}.${overriddenProperty}`
+          ] = existingDependencies;
+        },
+      );
     }
     if (isAction(entity) || isJSAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
@@ -608,6 +618,12 @@ export default class DataTreeEvaluator {
                 evalPropertyValue,
                 unEvalPropertyValue,
               });
+              this.overrideWidgetProperties(
+                entity,
+                propertyPath,
+                parsedValue,
+                currentTree,
+              );
               return _.set(currentTree, fullPropertyPath, parsedValue);
             }
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
@@ -1488,6 +1504,18 @@ export default class DataTreeEvaluator {
       jsSnippets[0],
       EvaluationScriptType.TRIGGERS,
     );
+  }
+
+  private overrideWidgetProperties(
+    entity: DataTreeWidget,
+    propertyPath: string,
+    value: unknown,
+    currentTree: DataTree,
+  ) {
+    if (propertyPath in entity.overridingProperties) {
+      const path = `${entity.widgetName}.${entity.overridingProperties[propertyPath]}`;
+      _.set(currentTree, path, value);
+    }
   }
 }
 
