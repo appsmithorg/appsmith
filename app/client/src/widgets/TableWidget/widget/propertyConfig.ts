@@ -242,6 +242,12 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
+                  },
                   isTriggerProperty: false,
                   dependencies: [
                     "primaryColumns",
