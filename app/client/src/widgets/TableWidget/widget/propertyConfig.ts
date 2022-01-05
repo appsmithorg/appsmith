@@ -197,6 +197,12 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
+                  },
                 },
                 {
                   propertyName: "isDisabled",

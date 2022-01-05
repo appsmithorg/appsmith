@@ -4,6 +4,7 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -217,6 +218,24 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "OBJECT_ARRAY",
           params: {
             default: [],
+          },
+        },
+        "primaryColumns.createdAt.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.name.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.status.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
           },
         },
       },
