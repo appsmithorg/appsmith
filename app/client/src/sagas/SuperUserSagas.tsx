@@ -1,5 +1,5 @@
 import React from "react";
-import UserApi from "api/UserApi";
+import UserApi, { SendTestEmailPayload } from "api/UserApi";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -53,25 +53,31 @@ function* FetchAdminSettingsErrorSaga() {
 
 function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
   const settings = action.payload;
-  const response = yield call(UserApi.saveAdminSettings, settings);
-  const isValidResponse = yield validateResponse(response);
+  try {
+    const response = yield call(UserApi.saveAdminSettings, settings);
+    const isValidResponse = yield validateResponse(response);
 
-  if (isValidResponse) {
-    Toaster.show({
-      text: "Successfully Saved",
-      variant: Variant.success,
-    });
-    yield put({
-      type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
-    });
-    yield put({
-      type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
-      payload: settings,
-    });
-    yield put({
-      type: ReduxActionTypes.RESTART_SERVER_POLL,
-    });
-  } else {
+    if (isValidResponse) {
+      Toaster.show({
+        text: "Successfully Saved",
+        variant: Variant.success,
+      });
+      yield put({
+        type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
+        payload: settings,
+      });
+      yield put({
+        type: ReduxActionTypes.RESTART_SERVER_POLL,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_ERROR,
+      });
+    }
+  } catch (e) {
     yield put({
       type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_ERROR,
     });
@@ -100,9 +106,9 @@ function* RestartServerPoll() {
   });
 }
 
-function* SendTestEmail() {
+function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
-    const response = yield call(UserApi.sendTestEmail);
+    const response = yield call(UserApi.sendTestEmail, action.payload);
     const currentUser = yield select(getCurrentUser);
     let actionElement;
     if (response.data) {

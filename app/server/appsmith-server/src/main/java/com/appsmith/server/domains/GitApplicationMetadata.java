@@ -13,8 +13,17 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     String branchName;
 
+    // Git default branch corresponding to the remote git repo to which the application is connected to
+    String defaultBranchName;
+
     // Git remote url will be used while pushing and pulling changes
     String remoteUrl;
+
+    // Git remote https url will be used while checking if the repo is public or private
+    String browserSupportedRemoteUrl;
+
+    // If remote repo is private and will be stored only with default application
+    Boolean isRepoPrivate;
 
     // The name of git repo
     String repoName;
@@ -23,7 +32,8 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
     String defaultApplicationId;
 
-    // Git credentials used to push changes to remote repo
+    // Git credentials used to push changes to remote repo and will be stored with default application only to optimise
+    // space requirement and update operation
     @JsonIgnore
     GitAuth gitAuth;
 
@@ -32,4 +42,8 @@ public class GitApplicationMetadata implements AppsmithDomain {
 
     @Transient
     String publicKey;
+
+    // Deploy key documentation url
+    @Transient
+    String docUrl;
 }

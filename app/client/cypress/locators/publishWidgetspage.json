@@ -9,6 +9,7 @@
   "switchwidget": ".t--widget-switchwidget",
   "radioWidget": ".t--widget-radiogroupwidget",
   "checkboxGroupWidget": ".t--widget-checkboxgroupwidget",
+  "switchGroupWidget": ".t--widget-switchgroupwidget",
   "formWidget": ".t--widget-formwidget",
   "imageWidget": ".t--widget-imagewidget",
   "dropdownWidget": ".t--widget-dropdownwidget",

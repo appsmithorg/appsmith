@@ -18,6 +18,7 @@ export const CONFIG = {
     buttonVariant: ButtonVariantTypes.PRIMARY,
     isVisible: true,
     version: 1,
+    animateLoading: true,
     groupButtons: {
       groupButton1: {
         label: "Favorite",
@@ -26,6 +27,7 @@ export const CONFIG = {
         widgetId: "",
         buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
+        placement: "CENTER",
         isVisible: true,
         isDisabled: false,
         index: 0,
@@ -37,6 +39,7 @@ export const CONFIG = {
         id: "groupButton2",
         buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
+        placement: "CENTER",
         widgetId: "",
         isVisible: true,
         isDisabled: false,
@@ -48,6 +51,7 @@ export const CONFIG = {
         iconName: "more",
         id: "groupButton3",
         buttonType: "MENU",
+        placement: "CENTER",
         buttonColor: Colors.GREEN,
         widgetId: "",
         isVisible: true,

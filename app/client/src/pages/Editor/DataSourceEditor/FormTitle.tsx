@@ -113,6 +113,7 @@ function FormTitle(props: FormTitleProps) {
         hideEditIcon={hideEditIcon}
         isEditingDefault={props.focusOnMount && !hideEditIcon}
         isInvalid={isInvalidDatasourceName}
+        maxLength={30}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         type="text"

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Statusbar from "components/ads/Statusbar";
+import styled from "styled-components";
 
 type StatusbarProps = {
   completed: boolean;
@@ -7,6 +8,11 @@ type StatusbarProps = {
   period: number; // as seconds
   onHide?: () => void;
 };
+
+export const StatusbarWrapper = styled.div`
+  width: 252px;
+  height: 38px;
+`;
 
 export default function GitSyncStatusbar(props: StatusbarProps) {
   const { completed, message, period } = props;
@@ -28,5 +34,12 @@ export default function GitSyncStatusbar(props: StatusbarProps) {
       }
     }
   });
-  return <Statusbar active={false} message={message} percentage={percentage} />;
+  return (
+    <Statusbar
+      active={false}
+      message={message}
+      percentage={percentage}
+      showOnlyMessage
+    />
+  );
 }

@@ -1,13 +1,17 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
@@ -21,6 +25,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -38,6 +43,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -91,29 +97,51 @@ public class PageServiceTest {
     @Autowired
     LayoutActionService layoutActionService;
 
-    Application application = null;
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
 
-    String applicationId = null;
+    static Application application = null;
 
-    String orgId;
+    static Application gitConnectedApplication = null;
+
+    static String applicationId = null;
+
+    static String orgId;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
-
+        if (StringUtils.isEmpty(orgId)) {
+            User apiUser = userService.findByEmail("api_user").block();
+            orgId = apiUser.getOrganizationIds().iterator().next();
+        }
     }
 
     public void setupTestApplication() {
         if (application == null) {
-            User apiUser = userService.findByEmail("api_user").block();
-            orgId = apiUser.getOrganizationIds().iterator().next();
-
             Application newApp = new Application();
             newApp.setName(UUID.randomUUID().toString());
             application = applicationPageService.createApplication(newApp, orgId).block();
             applicationId = application.getId();
         }
+    }
+
+    private Application setupGitConnectedTestApplication(String uniquePrefix) {
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName(uniquePrefix + "_pageServiceTest");
+        newApp.setGitApplicationMetadata(gitData);
+        return applicationPageService.createApplication(newApp, orgId)
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    return applicationService.save(application)
+                            .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
+                })
+                // Assign the branchName to all the resources connected to the application
+                .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .block();
     }
 
     @Test
@@ -158,7 +186,7 @@ public class PageServiceTest {
         setupTestApplication();
         testPage.setApplicationId(application.getId());
 
-        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage);
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage).cache();
 
         Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
         StepVerifier
@@ -176,6 +204,17 @@ public class PageServiceTest {
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
                     assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
+                })
+                .verifyComplete();
+
+        // Check if defaultResources
+        Mono<NewPage> newPageMono = pageMono.flatMap(pageDTO -> newPageService.getById(pageDTO.getId()));
+        StepVerifier
+                .create(newPageMono)
+                .assertNext(newPage -> {
+                   assertThat(newPage.getDefaultResources()).isNotNull();
+                   assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
+                   assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(newPage.getApplicationId());
                 })
                 .verifyComplete();
     }
@@ -259,7 +298,7 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void clonePage() throws ParseException {
+    public void clonePage() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
@@ -353,6 +392,117 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void clonePage_whenPageCloned_defaultIdsRetained() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        gitConnectedApplication = setupGitConnectedTestApplication("clonePage");
+        final String pageId = gitConnectedApplication.getPages().get(0).getId();
+        final String branchName = gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+
+        final PageDTO page = newPageService.findPageById(pageId, READ_PAGES, false).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("PageAction");
+        action.setActionConfiguration(new ActionConfiguration());
+        Datasource datasource = new Datasource();
+        datasource.setOrganizationId(orgId);
+        datasource.setName("datasource test for clone page");
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        action.setDatasource(datasource);
+        action.setExecuteOnLoad(true);
+
+        assert page != null;
+        Layout layout = page.getLayouts().get(0);
+        JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+        dsl.put("widgetName", "firstWidget");
+
+        JSONObject dsl2 = new JSONObject();
+        dsl2.put("widgetName", "Table1");
+        dsl2.put("type", "TABLE_WIDGET");
+        Map<String, Object> primaryColumns = new HashMap<>();
+        JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+        primaryColumns.put("_id", "{{ PageAction.data }}");
+        primaryColumns.put("_class", jsonObject);
+        dsl2.put("primaryColumns", primaryColumns);
+        final ArrayList<Object> objects = new ArrayList<>();
+        JSONArray temp2 = new JSONArray();
+        temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+        dsl2.put("dynamicBindingPathList", temp2);
+        objects.add(dsl2);
+        dsl.put("children", objects);
+
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+
+        action.setPageId(page.getId());
+
+        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), layout.getId(), layout).block();
+
+        layoutActionService.createSingleAction(action).block();
+
+        final Mono<NewPage> pageMono = applicationPageService.clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
+                .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), MANAGE_PAGES))
+                .cache();
+
+        Mono<List<NewAction>> actionsMono =
+                pageMono
+                        .flatMapMany(
+                                page1 -> newActionService
+                                        .findByPageId(page1.getId(), READ_ACTIONS))
+                        .collectList();
+
+        StepVerifier
+                .create(Mono.zip(pageMono, actionsMono))
+                .assertNext(tuple -> {
+                    NewPage clonedPage = tuple.getT1();
+                    PageDTO unpublishedPage = clonedPage.getUnpublishedPage();
+                    assertThat(clonedPage).isNotNull();
+                    assertThat(clonedPage.getId()).isNotNull();
+                    Assert.assertEquals(page.getName() + " Copy", clonedPage.getUnpublishedPage().getName());
+
+                    assertThat(clonedPage.getPolicies()).isNotEmpty();
+                    assertThat(clonedPage.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                    assertThat(unpublishedPage.getLayouts()).isNotEmpty();
+                    assertThat(unpublishedPage.getLayouts().get(0).getDsl().get("widgetName")).isEqualTo("firstWidget");
+                    assertThat(unpublishedPage.getLayouts().get(0).getWidgetNames()).isNotEmpty();
+                    assertThat(unpublishedPage.getLayouts().get(0).getMongoEscapedWidgetNames()).isNotEmpty();
+                    assertThat(unpublishedPage.getLayouts().get(0).getPublishedDsl()).isNullOrEmpty();
+                    DefaultResources clonedPageDefaultRes = clonedPage.getDefaultResources();
+                    assertThat(clonedPageDefaultRes).isNotNull();
+                    assertThat(clonedPageDefaultRes.getPageId()).isNotEqualTo(page.getDefaultResources().getPageId());
+                    assertThat(clonedPageDefaultRes.getApplicationId()).isEqualTo(page.getDefaultResources().getApplicationId());
+                    assertThat(clonedPageDefaultRes.getBranchName()).isEqualTo(branchName);
+
+                    // Confirm that the page action got copied as well
+                    List<NewAction> actions = tuple.getT2();
+                    assertThat(actions.size()).isEqualTo(1);
+                    NewAction clonedAction = actions.get(0);
+                    DefaultResources clonedActionDefaultRes = clonedAction.getDefaultResources();
+                    assertThat(clonedAction.getUnpublishedAction().getName()).isEqualTo("PageAction");
+                    assertThat(clonedActionDefaultRes).isNotNull();
+                    assertThat(clonedActionDefaultRes.getActionId()).isEqualTo(clonedAction.getId());
+                    assertThat(clonedActionDefaultRes.getApplicationId()).isEqualTo(clonedAction.getApplicationId());
+                    assertThat(clonedActionDefaultRes.getPageId()).isNull();
+                    assertThat(clonedActionDefaultRes.getBranchName()).isEqualTo(branchName);
+                    assertThat(clonedAction.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
+
+                    // Confirm that executeOnLoad is cloned as well.
+                    assertThat(Boolean.TRUE.equals(actions.get(0).getUnpublishedAction().getExecuteOnLoad()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void reuseDeletedPageName() {
 
         PageDTO testPage = new PageDTO();
@@ -426,7 +576,7 @@ public class PageServiceTest {
                     pageIds[1] = application.getPages().get(1).getId();
                     pageIds[2] = application.getPages().get(2).getId();
                     pageIds[3] = application.getPages().get(3).getId();
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 1);
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 1, null);
                 });
 
         StepVerifier
@@ -477,7 +627,7 @@ public class PageServiceTest {
                     pageIds[1] = application.getPages().get(1).getId();
                     pageIds[2] = application.getPages().get(2).getId();
                     pageIds[3] = application.getPages().get(3).getId();
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3);
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3, null);
                 });
 
         StepVerifier
@@ -490,6 +640,55 @@ public class PageServiceTest {
                     assertThat(pages.get(1).getId()).isEqualTo(pageIds[2]);
                     assertThat(pages.get(2).getId()).isEqualTo(pageIds[3]);
                 } )
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value ="api_user")
+    public void reorderPage_pageReordered_success() {
+
+        gitConnectedApplication = setupGitConnectedTestApplication("reorderPage");
+        final String branchName = gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+        final ApplicationPage[] pageIds = new ApplicationPage[4];
+
+        PageDTO testPage1 = new PageDTO();
+        testPage1.setName("Page2");
+        testPage1.setApplicationId(gitConnectedApplication.getId());
+        Mono<ApplicationPagesDTO> applicationPageReOrdered = applicationPageService.createPageWithBranchName(testPage1, branchName)
+                .flatMap(pageDTO -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page3");
+                    testPage.setApplicationId(gitConnectedApplication.getId());
+                    return applicationPageService.createPageWithBranchName(testPage, branchName);
+                })
+                .flatMap(pageDTO -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page4");
+                    testPage.setApplicationId(gitConnectedApplication.getId());
+                    return applicationPageService.createPageWithBranchName(testPage, branchName);
+                })
+                .flatMap(pageDTO -> applicationService.getById(pageDTO.getApplicationId()))
+                .flatMap( application -> {
+                    pageIds[0] = application.getPages().get(0);
+                    pageIds[1] = application.getPages().get(1);
+                    pageIds[2] = application.getPages().get(2);
+                    pageIds[3] = application.getPages().get(3);
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3, null);
+                });
+
+        StepVerifier
+                .create(applicationPageReOrdered)
+                .assertNext(application -> {
+                    final List<PageNameIdDTO> pages = application.getPages();
+                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages.get(3).getId()).isEqualTo(pageIds[0].getId());
+                    assertThat(pages.get(0).getId()).isEqualTo(pageIds[1].getId());
+                    assertThat(pages.get(1).getId()).isEqualTo(pageIds[2].getId());
+                    assertThat(pages.get(2).getId()).isEqualTo(pageIds[3].getId());
+
+                    // Check if the defaultIds are intact
+                    assertThat(pages.get(3).getDefaultPageId()).isEqualTo(pageIds[0].getDefaultPageId());
+                })
                 .verifyComplete();
     }
 

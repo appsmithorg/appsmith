@@ -93,7 +93,6 @@ import FilePickerWidgetV2, {
 import AudioWidget, {
   CONFIG as AUDIO_WIDGET_CONFIG,
 } from "widgets/AudioWidget";
-
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
@@ -103,14 +102,24 @@ import DocumentViewerWidget, {
 import ButtonGroupWidget, {
   CONFIG as BUTTON_GROUP_CONFIG,
 } from "widgets/ButtonGroupWidget";
-
-import log from "loglevel";
 import SingleSelectTreeWidget, {
   CONFIG as SINGLE_SELECT_TREE_WIDGET_CONFIG,
 } from "widgets/SingleSelectTreeWidget";
 import MultiSelectTreeWidget, {
   CONFIG as MULTI_SELECT_TREE_WIDGET_CONFIG,
 } from "widgets/MultiSelectTreeWidget";
+import ProgressBarWidget, {
+  CONFIG as PROGRESSBAR_WIDGET_CONFIG,
+} from "widgets/ProgressBarWidget";
+import SwitchGroupWidget, {
+  CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
+} from "widgets/SwitchGroupWidget";
+
+import log from "loglevel";
+
+import CameraWidget, {
+  CONFIG as CAMERA_WIDGET_CONFIG,
+} from "widgets/CameraWidget";
 
 export const ALL_WDIGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -153,7 +162,10 @@ export const ALL_WDIGETS_AND_CONFIG = [
   [ButtonGroupWidget, BUTTON_GROUP_CONFIG],
   [MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG],
   [SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG],
+  [SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG],
   [AudioWidget, AUDIO_WIDGET_CONFIG],
+  [ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG],
+  [CameraWidget, CAMERA_WIDGET_CONFIG],
 ];
 
 export const registerWidgets = () => {
