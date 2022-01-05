@@ -34,10 +34,7 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,
-    "types": ["cypress"],
-    "strictNullChecks": false,
-    "strictPropertyInitialization": false,
-    "strictFunctionTypes" : false
+    "types": ["cypress"]
   },
   "include": ["**/*.ts"]
 }
