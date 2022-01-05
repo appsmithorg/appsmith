@@ -400,6 +400,24 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
+        "primaryColumns.createdAt.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.name.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
       },
     };
 
