@@ -322,6 +322,36 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
+        "primaryColumns.name.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+            },
+          },
+        },
       },
     };
 

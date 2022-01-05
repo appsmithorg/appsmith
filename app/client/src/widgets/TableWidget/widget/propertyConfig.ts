@@ -661,6 +661,21 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: [
+                          "HEADING1",
+                          "HEADING2",
+                          "HEADING3",
+                          "PARAGRAPH",
+                          "PARAGRAPH2",
+                        ],
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "fontStyle",
