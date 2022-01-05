@@ -324,10 +324,12 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.MERGE_BRANCH_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isMerging: true,
+    mergeError: null,
   }),
   [ReduxActionTypes.MERGE_BRANCH_SUCCESS]: (state: GitSyncReducerState) => ({
     ...state,
     isMerging: false,
+    mergeError: null,
   }),
   [ReduxActionErrorTypes.MERGE_BRANCH_ERROR]: (
     state: GitSyncReducerState,
