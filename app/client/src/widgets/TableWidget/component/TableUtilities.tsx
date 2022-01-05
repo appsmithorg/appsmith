@@ -250,9 +250,9 @@ function IconButton(props: {
   return (
     <div onClick={handlePropagation}>
       <StyledButton
-        backgroundColor={props.buttonColor}
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
+        buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
         icon={props.iconName}

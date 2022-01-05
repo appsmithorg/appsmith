@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -92,10 +92,14 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<any>();
   const popoverRef = useRef<any>();
   const [focussed, setFocussed] = React.useState(false);
-  const [color, setColor] = React.useState(props.color);
+  const [color, setColor] = React.useState(
+    props.evaluatedColorValue || props.color,
+  );
   const widgets = useSelector(getWidgets);
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
-  const applicationColors = extractColorsFromString(JSON.stringify(widgets));
+  const applicationColors = useMemo(() => {
+    return extractColorsFromString(JSON.stringify(widgets));
+  }, [widgets.length]);
 
   useOnClickOutside([inputRef, popoverRef], () => {
     setFocussed(false);
@@ -106,7 +110,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
    *
    */
   const debouncedOnChange = React.useCallback(
-    debounce(props.changeColor, 500),
+    debounce((color: string) => {
+      props.changeColor(color);
+    }, 250),
     [props.changeColor],
   );
 
@@ -124,6 +130,8 @@ function ColorPickerComponent(props: ColorPickerProps) {
     }
   }, [props.color]);
 
+  const evaluatedValue = color || "";
+
   return (
     <div ref={inputRef}>
       <Popover
@@ -133,24 +141,26 @@ function ColorPickerComponent(props: ColorPickerProps) {
         openOnTargetFocus
         usePortal
       >
-        <StyledInputGroup
-          autoFocus={props.autoFocus}
-          leftIcon={
-            color ? (
-              <ColorIcon color={props.evaluatedColorValue || color || ""} />
-            ) : (
-              <ColorPickerIconContainer>
-                <ColorPickerIcon />
-              </ColorPickerIconContainer>
-            )
-          }
-          onChange={handleChangeColor}
-          onFocus={() => {
-            setFocussed(true);
-          }}
-          placeholder="enter color name or hex"
-          value={props.evaluatedColorValue || color || ""}
-        />
+        <div>
+          <StyledInputGroup
+            autoFocus={props.autoFocus}
+            leftIcon={
+              color ? (
+                <ColorIcon color={evaluatedValue} />
+              ) : (
+                <ColorPickerIconContainer>
+                  <ColorPickerIcon />
+                </ColorPickerIconContainer>
+              )
+            }
+            onChange={handleChangeColor}
+            onFocus={() => {
+              setFocussed(true);
+            }}
+            placeholder="enter color name or hex"
+            value={evaluatedValue}
+          />
+        </div>
         <div className="p-3 space-y-2 w-72" ref={popoverRef}>
           {props.showThemeColors && (
             <div className="space-y-2">

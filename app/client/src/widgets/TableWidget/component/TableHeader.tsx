@@ -34,6 +34,7 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
+    border-radius: ${({ borderRadius }) => borderRadius};
   }
   &&&.bp3-control-group > :only-child {
     border-radius: 0;
