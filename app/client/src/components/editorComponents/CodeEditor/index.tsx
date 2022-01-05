@@ -405,8 +405,13 @@ class CodeEditor extends Component<Props, State> {
   startChange = (instance?: any, changeObj?: any) => {
     /* This action updates the status of the savingEntity to true so that any
       shortcut commands do not execute before updating the entity in the store */
-    const entity = this.getEntityInformation();
-    if (entity.entityId) {
+    const value = this.editor.getValue() || "";
+    const inputValue = this.props.input.value || "";
+    if (
+      this.props.input.onChange &&
+      value !== inputValue &&
+      this.state.isFocused
+    ) {
       this.props.startingEntityUpdation();
     }
     this.handleDebouncedChange(instance, changeObj);
