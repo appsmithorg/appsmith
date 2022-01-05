@@ -1016,12 +1016,15 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                      },
                     },
                   },
                 },
