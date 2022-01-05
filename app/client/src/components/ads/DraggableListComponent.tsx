@@ -40,14 +40,10 @@ export class DroppableComponent extends React.Component<
   shouldComponentUpdate(prevProps: DroppableComponentProps) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
-    console.log(
-      "SSUP Should update  : ",
-      prevProps.focusedIndex,
-      this.props.focusedIndex,
-    );
     return (
       !isEqual(presentOrder, previousOrder) ||
-      this.props.focusedIndex !== prevProps.focusedIndex
+      (!!this.props.focusedIndex &&
+        this.props.focusedIndex !== prevProps.focusedIndex)
     );
   }
 
@@ -69,9 +65,8 @@ export class DroppableComponent extends React.Component<
   ) => {
     const newOrderedItems = itemsOrder.map((each) => this.props.items[each]);
     this.props.updateItems(newOrderedItems);
-    console.log("SSUP : HEREEE", { newIndex, originalIndex });
     if (this.props.updateFocus && originalIndex !== newIndex) {
-      this.props.updateFocus(newIndex, this.props.focusedIndex !== null);
+      this.props.updateFocus(newIndex, true);
     }
   };
 
