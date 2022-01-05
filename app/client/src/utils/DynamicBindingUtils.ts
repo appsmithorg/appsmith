@@ -115,7 +115,6 @@ export enum EvalErrorTypes {
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
-  EVAL_TRIGGER_ERROR = "EVAL_TRIGGER_ERROR",
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
@@ -132,17 +131,17 @@ export enum EVAL_WORKER_ACTIONS {
   EVAL_TREE = "EVAL_TREE",
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
+  PROCESS_TRIGGER = "PROCESS_TRIGGER",
   CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
   CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
   CLEAR_CACHE = "CLEAR_CACHE",
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
   UNDO = "undo",
   REDO = "redo",
-  PARSE_JS_FUNCTION_BODY = "PARSE_JS_FUNCTION_BODY",
-  EVAL_JS_FUNCTION = "EVAL_JS_FUNCTION",
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
   UPDATE_REPLAY_OBJECT = "UPDATE_REPLAY_OBJECT",
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
+  EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
 }
 
 export type ExtraLibrary = {
@@ -397,6 +396,21 @@ export function getDynamicBindingsChangesSaga(
   const bindingField = field.replace("actionConfiguration.", "");
   let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
+  if (
+    action.datasource &&
+    "datasourceConfiguration" in action.datasource &&
+    field === "datasource"
+  ) {
+    // only the datasource.datasourceConfiguration.url can be a dynamic field
+    dynamicBindings = dynamicBindings.filter(
+      (binding) => binding.key !== "datasourceUrl",
+    );
+    const datasourceUrl = action.datasource.datasourceConfiguration.url;
+    isDynamicValue(datasourceUrl) &&
+      dynamicBindings.push({ key: "datasourceUrl" });
+    return dynamicBindings;
+  }
+
   // When a key-value pair is added or deleted from a fieldArray
   // Value is an Array representing the new fieldArray.
 
@@ -434,6 +448,5 @@ export function getDynamicBindingsChangesSaga(
       dynamicBindings.push({ key: bindingField });
     }
   }
-
   return dynamicBindings;
 }

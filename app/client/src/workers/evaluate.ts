@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
@@ -7,15 +8,16 @@ import {
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
-import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
+import { completePromise } from "workers/PromisifyAction";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
   result: any;
-  triggers?: ActionDescription[];
   errors: EvaluationError[];
+  triggers?: ActionDescription[];
 };
 
 export enum EvaluationScriptType {
@@ -43,20 +45,20 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   callback(${ScriptTemplate})
   `,
   [EvaluationScriptType.TRIGGERS]: `
-  function closedFunction () {
-    const result = ${ScriptTemplate}
-    return result
+  async function closedFunction () {
+    const result = await ${ScriptTemplate};
+    return result;
   }
   closedFunction.call(THIS_CONTEXT);
   `,
 };
 
 const getScriptType = (
-  evalArguments?: Array<any>,
+  evalArgumentsExist = false,
   isTriggerBased = false,
 ): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
-  if (evalArguments) {
+  if (evalArgumentsExist) {
     scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
   } else if (isTriggerBased) {
     scriptType = EvaluationScriptType.TRIGGERS;
@@ -94,7 +96,6 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export const createGlobalData = (
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
-  isTriggerBased: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) => {
@@ -113,20 +114,15 @@ export const createGlobalData = (
       });
     }
   }
-  ///// Mocking Promise class
-  GLOBAL_DATA.Promise = AppsmithPromise;
-  if (isTriggerBased) {
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
-    ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
-  } else {
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
-    });
-  }
+  //// Add internal functions to dataTree;
+  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+    dataTree,
+    context?.requestId,
+  );
+  ///// Adding Data tree with functions
+  Object.keys(dataTreeWithFunctions).forEach((datum) => {
+    GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+  });
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
@@ -156,45 +152,71 @@ export function sanitizeScript(js: string) {
 export type EvaluateContext = {
   thisContext?: Record<string, any>;
   globalContext?: Record<string, any>;
+  requestId?: string;
 };
 
-export default function evaluate(
-  js: string,
-  data: DataTree,
+export const getUserScriptToEvaluate = (
+  userScript: string,
+  GLOBAL_DATA: Record<string, unknown>,
+  isTriggerBased: boolean,
+  evalArguments?: Array<any>,
+) => {
+  const unescapedJS = sanitizeScript(userScript);
+  // If nothing is present to evaluate, return instead of linting
+  if (!unescapedJS.length) {
+    return {
+      lintErrors: [],
+      script: "",
+    };
+  }
+  const scriptType = getScriptType(!!evalArguments, isTriggerBased);
+  const script = getScriptToEval(unescapedJS, scriptType);
+  // We are linting original js binding,
+  // This will make sure that the character count is not messed up when we do unescapejs
+  const scriptToLint = getScriptToEval(userScript, scriptType);
+  const lintErrors = getLintingErrors(
+    scriptToLint,
+    GLOBAL_DATA,
+    userScript,
+    scriptType,
+  );
+  return { script, lintErrors };
+};
+
+export default function evaluateSync(
+  userScript: string,
+  dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
-  isTriggerBased = false,
 ): EvalResult {
-  const sanitizedScript = sanitizeScript(js);
-
-  // If nothing is present to evaluate, return back instead of evaluating
-  if (!sanitizedScript.length) {
-    return {
-      errors: [],
-      result: undefined,
-      triggers: [],
-    };
-  }
-
-  const scriptType = getScriptType(evalArguments, isTriggerBased);
-  const script = getScriptToEval(sanitizedScript, scriptType);
-  // We are linting original js binding,
-  // This will make sure that the character count is not messed up when we do unescapejs
-  const scriptToLint = getScriptToEval(js, scriptType);
-
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
-    let triggers: any[] = [];
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
-      data,
+      dataTree,
       resolvedFunctions,
-      isTriggerBased,
       context,
       evalArguments,
     );
+    GLOBAL_DATA.ALLOW_ASYNC = false;
+    const { lintErrors, script } = getUserScriptToEvaluate(
+      userScript,
+      GLOBAL_DATA,
+      false,
+      evalArguments,
+    );
+    // If nothing is present to evaluate, return instead of evaluating
+    if (!script.length) {
+      return {
+        errors: [],
+        result: undefined,
+        triggers: [],
+      };
+    }
+
+    errors = lintErrors;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -204,14 +226,9 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[entity] = GLOBAL_DATA[entity];
     }
-    errors = getLintingErrors(scriptToLint, GLOBAL_DATA, js, scriptType);
 
     try {
       result = eval(script);
-      if (isTriggerBased) {
-        triggers = self.triggers.slice();
-        self.triggers = [];
-      }
     } catch (e) {
       const errorMessage = `${e.name}: ${e.message}`;
       errors.push({
@@ -219,28 +236,120 @@ export default function evaluate(
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
-        originalBinding: js,
+        originalBinding: userScript,
       });
+    } finally {
+      for (const entity in GLOBAL_DATA) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
+        delete self[entity];
+      }
     }
 
-    if (!isEmpty(resolvedFunctions)) {
-      Object.keys(resolvedFunctions).forEach((datum: any) => {
-        const resolvedObject = resolvedFunctions[datum];
-        Object.keys(resolvedObject).forEach((key: any) => {
-          if (resolvedObject[key]) {
-            self[datum][key] = resolvedObject[key].toString();
-          }
-        });
-      });
-    }
-    // Remove it from self
-    // This is needed so that next eval can have a clean sheet
+    return { result, errors };
+  })();
+}
+
+export async function evaluateAsync(
+  userScript: string,
+  dataTree: DataTree,
+  requestId: string,
+  resolvedFunctions: Record<string, any>,
+  context?: EvaluateContext,
+  evalArguments?: Array<any>,
+) {
+  return (async function() {
+    const errors: EvaluationError[] = [];
+    let result;
+    /**** Setting the eval context ****/
+    const GLOBAL_DATA: Record<string, any> = createGlobalData(
+      dataTree,
+      resolvedFunctions,
+      { ...context, requestId },
+      evalArguments,
+    );
+    const { script } = getUserScriptToEvaluate(
+      userScript,
+      GLOBAL_DATA,
+      true,
+      evalArguments,
+    );
+    GLOBAL_DATA.ALLOW_ASYNC = true;
+    // Set it to self so that the eval function can have access to it
+    // as global data. This is what enables access all appsmith
+    // entity properties from the global context
     Object.keys(GLOBAL_DATA).forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
-      delete self[key];
+      self[key] = GLOBAL_DATA[key];
     });
 
-    return { result, triggers, errors };
+    try {
+      result = await eval(script);
+    } catch (error) {
+      const errorMessage = `UncaughtPromiseRejection: ${error.message}`;
+      errors.push({
+        errorMessage: errorMessage,
+        severity: Severity.ERROR,
+        raw: script,
+        errorType: PropertyEvaluationErrorType.PARSE,
+        originalBinding: userScript,
+      });
+    } finally {
+      completePromise(requestId, {
+        result,
+        errors,
+        triggers: Array.from(self.TRIGGER_COLLECTOR),
+      });
+      for (const entity in GLOBAL_DATA) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
+        delete self[entity];
+      }
+    }
+  })();
+}
+
+export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
+  return (function() {
+    /**** Setting the eval context ****/
+    const GLOBAL_DATA: Record<string, any> = {
+      ALLOW_ASYNC: false,
+      IS_ASYNC: false,
+    };
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+    // Set it to self so that the eval function can have access to it
+    // as global data. This is what enables access all appsmith
+    // entity properties from the global context
+    Object.keys(GLOBAL_DATA).forEach((key) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      self[key] = GLOBAL_DATA[key];
+    });
+    try {
+      if (typeof userFunction === "function") {
+        const returnValue = userFunction();
+        if (!!returnValue && returnValue instanceof Promise) {
+          self.IS_ASYNC = true;
+        }
+        if (self.TRIGGER_COLLECTOR.length) {
+          self.IS_ASYNC = true;
+        }
+      }
+    } catch (e) {
+      console.error("Error when determining async function", e);
+    }
+    const isAsync = !!self.IS_ASYNC;
+    for (const entity in GLOBAL_DATA) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      delete self[entity];
+    }
+    return isAsync;
   })();
 }

@@ -167,6 +167,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/audio-recorder",
     searchKey: "Audio Recorder",
   },
+  PROGRESSBAR_WIDGET: {
+    path: "/widget-reference/progressbar",
+    searchKey: "Progress Bar",
+  },
   SWITCH_GROUP_WIDGET: {
     path: "/widget-reference/switch-group",
     searchKey: "Switch Group",
