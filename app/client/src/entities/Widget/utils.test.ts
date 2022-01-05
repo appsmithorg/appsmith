@@ -382,6 +382,24 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
+        "primaryColumns.createdAt.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.name.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
       },
     };
 

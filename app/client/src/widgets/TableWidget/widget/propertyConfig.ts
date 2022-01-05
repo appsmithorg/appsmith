@@ -764,6 +764,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
