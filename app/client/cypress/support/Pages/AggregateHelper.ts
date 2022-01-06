@@ -1,13 +1,7 @@
-export class AggregateHelper {
+import { CommonLocators } from "../Objects/CommonLocators";
 
-    private _addEntityAPI = ".datasources .t--entity-add-btn"
-    private _integrationCreateNew = "[data-cy=t--tab-CREATE_NEW]"
-    _loading = "#loading"
-    private _actionName = ".t--action-name-edit-field span"
-    private _actionTxt = ".t--action-name-edit-field input"
-    private _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
-    private _homeIcon = ".t--appsmith-logo"
-    private _homePageAppCreateBtn = ".t--applications-container .createnew"
+const locator = new CommonLocators();
+export class AggregateHelper {
 
     public AddDsl(dsl: string) {
         let currentURL;
@@ -39,13 +33,13 @@ export class AggregateHelper {
     }
 
     public NavigateToCreateNewTabPage() {
-        cy.get(this._addEntityAPI).last()
+        cy.get(locator._addEntityAPI).last()
             .should("be.visible")
             .click({ force: true });
-        cy.get(this._integrationCreateNew)
+        cy.get(locator._integrationCreateNew)
             .should("be.visible")
             .click({ force: true });
-        cy.get(this._loading).should("not.exist");
+        cy.get(locator._loading).should("not.exist");
     }
 
     public StartServerAndRoutes() {
@@ -54,8 +48,8 @@ export class AggregateHelper {
     }
 
     public RenameWithInPane(renameVal: string) {
-        cy.get(this._actionName).click({ force: true });
-        cy.get(this._actionTxt)
+        cy.get(locator._actionName).click({ force: true });
+        cy.get(locator._actionTxt)
             .clear()
             .type(renameVal, { force: true })
             .should("have.value", renameVal)
@@ -64,26 +58,26 @@ export class AggregateHelper {
 
     public WaitAutoSave() {
         // wait for save query to trigger & n/w call to finish occuring
-        cy.wait("@saveAction", { timeout: 8000 });
+        cy.get(locator._saveStatusSuccess, { timeout: 40000 }).should("exist");
     }
 
     public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
+        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
             .click({ force: true })
-            .wait(2000);
+        this.Sleep(2000)
     }
 
     public NavigateToHome() {
-        cy.get(this._homeIcon).click({ force: true });
-        cy.wait(3000);
+        cy.get(locator._homeIcon).click({ force: true });
+        this.Sleep(3000)
         cy.wait("@applications");
-        cy.get(this._homePageAppCreateBtn).should("be.visible").should("be.enabled");
+        cy.get(locator._homePageAppCreateBtn).should("be.visible").should("be.enabled");
         //cy.get(this._homePageAppCreateBtn);
     }
 
     public CreateNewApplication() {
-        cy.get(this._homePageAppCreateBtn).click({ force: true })
+        cy.get(locator._homePageAppCreateBtn).click({ force: true })
         cy.wait("@createNewApplication").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -91,10 +85,32 @@ export class AggregateHelper {
         );
     }
 
-    public validateCodeEditorContent(selector: string, contentToValidate: any) {
+    public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
         cy.get(selector).within(() => {
             cy.get(".CodeMirror-code").should("have.text", contentToValidate);
         });
+    }
+
+    public DeployApp () {
+        cy.server();
+        cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+        // Wait before publish
+        this.Sleep(2000)
+        this.WaitAutoSave()
+        // Stubbing window.open to open in the same tab
+        cy.window().then((window) => {
+          cy.stub(window, "open").callsFake((url) => {
+            window.location.href = Cypress.config().baseUrl + url.substring(1);
+          });
+        });      
+        cy.get(locator._publishButton).click();
+        cy.wait("@publishApp");      
+        cy.url().should("include", "/pages");
+        cy.log("Pagename: " + localStorage.getItem("PageName"));
+      }
+
+    public Sleep(timeout = 1000) {
+        cy.wait(timeout)
     }
 }
 

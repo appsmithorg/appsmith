@@ -1,11 +1,10 @@
-import { ApiPage } from "../../../../support/pageObjects/ApiPage";
-import { AggregateHelper } from "../../../../support/pageObjects/AggregateHelper";
+import { ApiPage } from "../../../../support/Pages/ApiPage";
+import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 
 const apiPage = new ApiPage();
 const agHelper = new AggregateHelper();
 
 describe("Layout OnLoad Actions tests", function () {
-
     let dsl: any;
     before(() => {
         cy.fixture('onPageLoadActionsDsl').then((val: any) => {
@@ -33,37 +32,22 @@ describe("Layout OnLoad Actions tests", function () {
 
     it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
         agHelper.AddDsl(dsl)
-        agHelper.NavigateToCreateNewTabPage()
-        apiPage.CreateAPI("RandomFlora")
-        apiPage.EnterURL("https://source.unsplash.com/collection/1599413")
-        apiPage.SetAPITimeout(30000)
+        apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")
         apiPage.RunAPI()
 
-        agHelper.NavigateToCreateNewTabPage()
-        apiPage.CreateAPI("RandomUser")
-        apiPage.EnterURL("https://randomuser.me/api/")
-        apiPage.SetAPITimeout(30000)
+        apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
         apiPage.RunAPI()
 
-        agHelper.NavigateToCreateNewTabPage()
-        apiPage.CreateAPI("InspiringQuotes")
-        apiPage.EnterURL("https://favqs.com/api/qotd")
+        apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
         apiPage.EnterHeader('dependency', '{{RandomUser.data}}')
-        apiPage.SetAPITimeout(30000)
         apiPage.RunAPI()
 
-        agHelper.NavigateToCreateNewTabPage()
-        apiPage.CreateAPI("Suggestions")
-        apiPage.EnterURL("https://www.boredapi.com/api/activity")
+        apiPage.CreateAndFillApi("https://www.boredapi.com/api/activity", "Suggestions")
         apiPage.EnterHeader('dependency', '{{InspiringQuotes.data}}')
-        apiPage.SetAPITimeout(30000)
         apiPage.RunAPI()
 
-        agHelper.NavigateToCreateNewTabPage()
-        apiPage.CreateAPI("Genderize")
-        apiPage.EnterURL("https://api.genderize.io")
+        apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize")
         apiPage.EnterParams('name', '{{RandomUser.data.results[0].name.first}}')
-        apiPage.SetAPITimeout(30000)
         apiPage.RunAPI()
 
         agHelper.SelectEntityByName('Page1')
@@ -100,40 +84,25 @@ describe("Layout OnLoad Actions tests", function () {
     // it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
     //     agHelper.NavigateToHome()
     //     agHelper.CreateNewApplication()
-
     //     agHelper.AddDsl(dsl)
-    //     agHelper.NavigateToCreateNewTabPage()
-    //     apiPage.CreateAPI("RandomFlora")
-    //     apiPage.EnterURL("https://source.unsplash.com/collection/1599413")
-    //     apiPage.SetAPITimeout(30000)
-    //     apiPage.RunAPI()
 
-    //     agHelper.NavigateToCreateNewTabPage()
-    //     apiPage.CreateAPI("RandomUser")
-    //     apiPage.EnterURL("https://randomuser.me/api/")
-    //     apiPage.SetAPITimeout(30000)
-    //     apiPage.RunAPI()
+    // apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")
+    // apiPage.RunAPI()
 
-    //     agHelper.NavigateToCreateNewTabPage()
-    //     apiPage.CreateAPI("InspiringQuotes")
-    //     apiPage.EnterURL("https://favqs.com/api/qotd")
-    //     apiPage.EnterHeader('dependency', '{{RandomUser.data}}')
-    //     apiPage.SetAPITimeout(30000)
-    //     apiPage.RunAPI()
+    // apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
+    // apiPage.RunAPI()
 
-    //     agHelper.NavigateToCreateNewTabPage()
-    //     apiPage.CreateAPI("Suggestions")
-    //     apiPage.EnterURL("https://www.boredapi.com/api/activity")
-    //     apiPage.EnterHeader('dependency', '{{InspiringQuotes.data}}')
-    //     apiPage.SetAPITimeout(30000)
-    //     apiPage.RunAPI()
+    // apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
+    // apiPage.EnterHeader('dependency', '{{RandomUser.data}}')
+    // apiPage.RunAPI()
 
-    //     agHelper.NavigateToCreateNewTabPage()
-    //     apiPage.CreateAPI("Genderize")
-    //     apiPage.EnterURL("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}")
-    //     apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
-    //     apiPage.SetAPITimeout(30000)
-    //     apiPage.RunAPI()
+    // apiPage.CreateAndFillApi("https://www.boredapi.com/api/activity", "Suggestions")
+    // apiPage.EnterHeader('dependency', '{{InspiringQuotes.data}}')
+    // apiPage.RunAPI()
+
+    // apiPage.CreateAndFillApi("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}", "Genderize")
+    // apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
+    // apiPage.RunAPI()
 
     //     agHelper.SelectEntityByName('Page1')
 
