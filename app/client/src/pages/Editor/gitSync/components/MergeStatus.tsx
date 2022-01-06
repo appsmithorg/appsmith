@@ -15,6 +15,7 @@ export const MERGE_STATUS_STATE = {
   MERGEABLE: "MERGEABLE",
   NOT_MERGEABLE: "NOT_MERGEABLE",
   NONE: "NONE",
+  ERROR: "ERROR",
 };
 
 const Wrapper = styled.div`
@@ -54,6 +55,7 @@ function MergeStatus({
         </Flex>
       );
     case MERGE_STATUS_STATE.NOT_MERGEABLE:
+    case MERGE_STATUS_STATE.ERROR:
       return (
         <Flex>
           <Wrapper>
