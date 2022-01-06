@@ -29,7 +29,7 @@
                 },
                 "endpoints": [
                     {
-                        "host": "host.docker.internal",
+                        "host": "localhost",
                         "port": 5432
                     }
                 ],
@@ -676,7 +676,7 @@
             "dbAuth": {
                 "authenticationType": "dbAuth",
                 "username": "postgres",
-                "databaseName": "postgres"
+                "databaseName": "fakeapi"
             }
         }
     },
