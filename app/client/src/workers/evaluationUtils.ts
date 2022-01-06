@@ -378,7 +378,7 @@ export function getValidatedTree(tree: DataTree) {
       );
       if (!isValid) {
         const evalErrors: EvaluationError[] =
-          messages?.map((message) => ({
+          messages?.map((message: any) => ({
             errorType: PropertyEvaluationErrorType.VALIDATION,
             errorMessage: message,
             severity: Severity.ERROR,

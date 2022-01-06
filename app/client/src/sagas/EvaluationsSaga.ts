@@ -515,7 +515,7 @@ export function* evaluateArgumentSaga(action: any) {
     if (workerResponse.result) {
       const validation = validate({ type }, workerResponse.result, {});
       if (!validation.isValid)
-        validation.messages?.map((message) => {
+        validation.messages?.map((message: any) => {
           lintErrors.unshift({
             ...validation,
             ...{

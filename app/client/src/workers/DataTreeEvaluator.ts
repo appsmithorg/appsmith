@@ -923,7 +923,7 @@ export default class DataTreeEvaluator {
     );
     if (!isValid) {
       const evalErrors: EvaluationError[] =
-        messages?.map((message) => {
+        messages?.map((message: any) => {
           return {
             raw: unEvalPropertyValue,
             errorMessage: message || "",
