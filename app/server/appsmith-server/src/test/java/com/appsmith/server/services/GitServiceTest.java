@@ -1609,6 +1609,35 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
-    // TODO pending TCs
-    // Commit, Push, Commit History, Merge, isMergeable
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKey_DataNotExistsInCollection_Success() {
+        Mono<GitAuth> publicKey = gitDataService.generateSSHKey();
+
+        StepVerifier
+                .create(publicKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKey_KeyExistsInCollection_Success() {
+        GitAuth publicKey = gitDataService.generateSSHKey().block();
+
+        Mono<GitAuth> newKey = gitDataService.generateSSHKey();
+
+        StepVerifier
+                .create(newKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
+                    assertThat(s.getPrivateKey()).isNull();
+                })
+                .verifyComplete();
+    }
 }
