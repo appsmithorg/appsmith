@@ -848,7 +848,7 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+            ArrayNode filteredData = filterDataService.filterDataNew(items,  new UQIDataFilterParams(condition, null, null, null));
 
             assertEquals(filteredData.size(), 3);
 
