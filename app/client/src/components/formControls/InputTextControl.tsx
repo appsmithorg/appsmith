@@ -76,8 +76,8 @@ class InputTextControl extends BaseControl<InputControlProps> {
     const {
       configProperty,
       dataType,
+      disabled,
       encrypted,
-      isDisabled,
       isValid,
       label,
       placeholderText,
@@ -89,7 +89,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     return (
       <InputText
         dataType={this.getType(dataType)}
-        disabled={isDisabled}
+        disabled={disabled}
         encrypted={encrypted}
         isValid={isValid}
         label={label}

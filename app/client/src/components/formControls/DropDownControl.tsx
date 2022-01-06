@@ -52,7 +52,7 @@ function renderDropdown(props: {
   fetchOptionsCondtionally: boolean;
   formName: string;
   dropDownOptions: DropdownOption[];
-  isDisabled?: boolean;
+  disabled?: boolean;
 }): JSX.Element {
   let selectedValue = props.input?.value;
   if (_.isUndefined(props.input?.value)) {
@@ -65,7 +65,7 @@ function renderDropdown(props: {
   return (
     <Dropdown
       boundary="window"
-      disabled={props.isDisabled}
+      disabled={props.disabled}
       dontUsePortal={false}
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}

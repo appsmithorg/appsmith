@@ -669,7 +669,7 @@ export function EditorJSONtoForm(props: Props) {
         const { configProperty } = section;
         let modifiedSection;
         if (!enabled) {
-          modifiedSection = { ...section, isDisabled: true };
+          modifiedSection = { ...section, disabled: true };
         } else {
           modifiedSection = { ...section };
         }

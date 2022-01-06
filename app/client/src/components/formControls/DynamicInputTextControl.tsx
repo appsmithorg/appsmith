@@ -88,8 +88,8 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
       actionName,
       configProperty,
       customStyles,
+      disabled,
       inputType,
-      isDisabled,
       label,
       placeholderText,
     } = this.props;
@@ -103,7 +103,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
       <InputText
         actionName={actionName}
         customStyles={customStyles}
-        disabled={isDisabled}
+        disabled={disabled}
         inputType={inputTypeProp}
         label={label}
         name={configProperty}

@@ -14,15 +14,15 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
     const {
       configProperty,
       dataType,
+      disabled,
       fixedKey,
-      isDisabled,
       placeholderText,
     } = this.props;
 
     return (
       <Wrapper>
         <TextField
-          disabled={isDisabled}
+          disabled={disabled}
           format={(value) => {
             // Get the value property
             if (value) {
