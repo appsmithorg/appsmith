@@ -10,12 +10,17 @@ import {
   AdminConfigType,
 } from "@appsmith/pages/AdminSettings/config/types";
 
-import { AuthPage, AuthCallout } from "./AuthPage";
+import { AuthPage, AuthMethodType } from "./AuthPage";
 import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
-
+import { getAppsmithConfigs } from "../../../../configs";
+const {
+  disableLoginForm,
+  enableGithubOAuth,
+  enableGoogleOAuth,
+} = getAppsmithConfigs();
 const Form_Auth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
@@ -128,31 +133,33 @@ const Github_Auth: AdminConfigType = {
   ],
 };
 
-export const Form_Auth_Callout: AuthCallout = {
+export const Form_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_FORM_LOGIN_AUTH",
   category: SettingCategories.FORM_AUTH,
   label: "Form Login",
   subText: "Enable your organization to sign in with Google (OAuth).",
   image: Lock,
   type: "LINK",
-  isConnected: true,
-  calloutBanner: {
-    actionLabel: "Learn More",
-    title: "User Emails Ids are not verified.",
-    type: "Warning",
-  },
+  isConnected: !disableLoginForm,
+  // Keeping this here for reference
+  // calloutBanner: {
+  //   actionLabel: "Learn More",
+  //   title: "User Emails Ids are not verified.",
+  //   type: "Warning",
+  // },
 };
 
-export const Google_Auth_Callout: AuthCallout = {
+export const Google_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_GOOGLE_AUTH",
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
   subText: "Enable your organization to sign in with Google (OAuth).",
   image: Google,
   type: "LINK",
+  isConnected: enableGoogleOAuth,
 };
 
-export const Github_Auth_Callout: AuthCallout = {
+export const Github_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
@@ -160,10 +167,10 @@ export const Github_Auth_Callout: AuthCallout = {
       Identity, Google SAML, Keycloak, or VMware Identity Manager.`,
   image: Github,
   type: "LINK",
-  isConnected: true,
+  isConnected: enableGithubOAuth,
 };
 
-export const Saml_Auth_Callout: AuthCallout = {
+export const Saml_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   label: "SAML 2.0",
   subText: `Enable your organization to sign in with your preferred SAML2 compliant provider like Ping
@@ -173,7 +180,7 @@ export const Saml_Auth_Callout: AuthCallout = {
   type: "OTHER",
 };
 
-const AuthCallouts = [
+const AuthMethods = [
   Google_Auth_Callout,
   Saml_Auth_Callout,
   Github_Auth_Callout,
@@ -181,7 +188,7 @@ const AuthCallouts = [
 ];
 
 function AuthMain() {
-  return <AuthPage authCallouts={AuthCallouts} />;
+  return <AuthPage authMethods={AuthMethods} />;
 }
 
 export const config: AdminConfigType = {

@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
 import Button, { Category } from "components/ads/Button";
-import { createMessage, ADD, EDIT } from "constants/messages";
+import { ADD, createMessage, EDIT, UPGRADE } from "constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Callout, CalloutType } from "pages/Settings/Callout";
@@ -31,10 +31,14 @@ const SettingsSubHeader = styled.div`
   margin-bottom: 0;
 `;
 
-const MethodCard = styled.div`
+const MethodCard = styled.div<{ isDisabled: boolean }>`
   display: flex;
+  width: 648px;
   align-items: center;
-  margin: 32px 0;
+  justify-content: space-between;
+  margin: 16px 0;
+  padding: 8px 10px;
+  ${(props) => props.isDisabled && `background-color: #EDEDED;`}
 `;
 
 const Image = styled.img`
@@ -73,7 +77,7 @@ export type banner = {
   type: CalloutType;
 };
 
-export type AuthCallout = {
+export type AuthMethodType = {
   id: string;
   category?: string;
   label: string;
@@ -93,7 +97,7 @@ const EditButton = styled.span`
 
 const AddButton = styled(Button)`
   height: 30px;
-  width: 58px;
+  //width: 58px;
   padding: 8px 16px;
 `;
 
@@ -103,16 +107,16 @@ const ButtonTitle = styled.span`
   font-size: 11px;
 `;
 
-const Label = styled.span`
+const Label = styled.span<{ enterprise?: boolean }>`
   display: inline;
   color: #fff;
-  background: #03b365;
+  background: ${(props) => (props.enterprise ? "#979797" : "#03b365")};
   padding: 2px 6px;
   font-size: 12px;
   margin: 4px 0;
 `;
 
-export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
+export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const history = useHistory();
   return (
     <Wrapper>
@@ -122,32 +126,35 @@ export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
         <SettingsSubHeader>
           Select a protocol you want to authenticate users with
         </SettingsSubHeader>
-        {authCallouts &&
-          authCallouts.map((callout) => {
+        {authMethods &&
+          authMethods.map((method) => {
             return (
-              <MethodCard key={callout.id}>
-                <Image alt={callout.label} src={callout.image} />
+              <MethodCard isDisabled={!!method.needsUpgrade} key={method.id}>
+                <Image alt={method.label} src={method.image} />
                 <MethodDetailsWrapper>
                   <MethodTitle>
-                    {callout.label}{" "}
-                    {callout.isConnected && <Label>Enabled</Label>}
+                    {method.label}&nbsp;
+                    {method.isConnected && <Label>Enabled</Label>}
+                    {method.needsUpgrade && (
+                      <Label enterprise>Enterprise</Label>
+                    )}
                   </MethodTitle>
-                  <MethodDets>{callout.subText}</MethodDets>
-                  {callout.calloutBanner && (
+                  <MethodDets>{method.subText}</MethodDets>
+                  {method.calloutBanner && (
                     <Callout
-                      actionLabel={callout.calloutBanner.actionLabel}
-                      title={callout.calloutBanner.title}
-                      type={callout.calloutBanner.type}
+                      actionLabel={method.calloutBanner.actionLabel}
+                      title={method.calloutBanner.title}
+                      type={method.calloutBanner.type}
                     />
                   )}
                 </MethodDetailsWrapper>
-                {callout.isConnected ? (
+                {method.isConnected ? (
                   <EditButton
                     onClick={() =>
                       history.push(
                         getAdminSettingsCategoryUrl(
                           SettingCategories.AUTHENTICATION,
-                          callout.category,
+                          method.category,
                         ),
                       )
                     }
@@ -157,18 +164,23 @@ export function AuthPage({ authCallouts }: { authCallouts: AuthCallout[] }) {
                   </EditButton>
                 ) : (
                   <AddButton
-                    category={Category.tertiary}
+                    category={
+                      !!method.needsUpgrade
+                        ? Category.primary
+                        : Category.tertiary
+                    }
                     className={"add-button"}
                     data-cy="add-auth-account"
                     onClick={() =>
+                      !method.needsUpgrade &&
                       history.push(
                         getAdminSettingsCategoryUrl(
                           SettingCategories.AUTHENTICATION,
-                          callout.category,
+                          method.category,
                         ),
                       )
                     }
-                    text={createMessage(ADD)}
+                    text={createMessage(!!method.needsUpgrade ? UPGRADE : ADD)}
                   />
                 )}
               </MethodCard>
