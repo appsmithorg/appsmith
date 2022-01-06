@@ -393,7 +393,7 @@ function GitConnection({ isImport }: Props) {
             <Link
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
-              link={RepoUrlDocumentUrl as string}
+              link={RepoUrlDocumentUrl || ""}
               onClick={() => {
                 AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_REMOTEURL_CLICK");
                 window.open(RepoUrlDocumentUrl, "_blank");
