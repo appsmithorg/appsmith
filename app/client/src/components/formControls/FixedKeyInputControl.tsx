@@ -11,11 +11,18 @@ const Wrapper = styled.div`
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   render() {
-    const { configProperty, dataType, fixedKey, placeholderText } = this.props;
+    const {
+      configProperty,
+      dataType,
+      fixedKey,
+      isDisabled,
+      placeholderText,
+    } = this.props;
 
     return (
       <Wrapper>
         <TextField
+          disabled={isDisabled}
           format={(value) => {
             // Get the value property
             if (value) {
