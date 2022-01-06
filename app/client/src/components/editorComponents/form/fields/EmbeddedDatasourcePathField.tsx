@@ -327,7 +327,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     if (!entity) return "";
 
     if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-      const evaluatedPath = "path" in entity.config ? entity.config.path : "";
+      let evaluatedPath = "path" in entity.config ? entity.config.path : "";
+
+      if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
+        evaluatedPath = evaluatedPath.slice(0, evaluatedPath.indexOf("?"));
+      }
       const evaluatedQueryParameters = entity.config.queryParameters
         ?.filter((p: KeyValuePair) => p.key)
         .map(
