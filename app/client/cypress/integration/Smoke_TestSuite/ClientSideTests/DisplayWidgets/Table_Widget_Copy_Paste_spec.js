@@ -10,7 +10,6 @@ before(() => {
 describe("Test Suite to validate copy/paste table Widget", function() {
   it("Copy paste table widget and valdiate application status", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    cy.wait(20000);
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.get("body").type(`{${modifierKey}}c`);
