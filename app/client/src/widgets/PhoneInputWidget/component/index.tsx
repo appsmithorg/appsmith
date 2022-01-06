@@ -63,7 +63,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         fill={this.props.fill}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        inputHTMLType="TEXT"
+        inputHTMLType="TEL"
         inputType={InputTypes.PHONE_NUMBER}
         intent={this.props.intent}
         isInvalid={this.props.isInvalid}

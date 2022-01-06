@@ -308,7 +308,7 @@ const TextInputWrapper = styled.div`
   flex: 1;
 `;
 
-type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL";
+type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
 
 export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
@@ -350,6 +350,10 @@ class BaseInputComponent extends React.Component<
     switch (inputType) {
       case "PASSWORD":
         return this.state.showPassword ? "text" : "password";
+      case "TEL":
+        return "tel";
+      case "EMAIL":
+        return "email";
       default:
         return "text";
     }

@@ -50,47 +50,40 @@ export default {
     }
   },
   //
-  defaultValueValidation(value, props, _) {
-    const NUMBER_ERROR_MESSAGE = "This value must be number";
-    const EMPTY_ERROR_MESSAGE = "";
-    if (_.isObject(value)) {
-      return {
-        isValid: false,
-        parsed: JSON.stringify(value, null, 2),
-        messages: [NUMBER_ERROR_MESSAGE],
-      };
+  value: (props, moment, _) => {
+    const text = props.text;
+
+    function getLocale() {
+      return navigator.languages?.[0] || "en-US";
     }
 
-    let parsed = Number(value);
-    let isValid, messages;
+    function getLocaleDecimalSeperator() {
+      return Intl.NumberFormat(getLocale())
+        .format(1.1)
+        .replace(/\p{Number}/gu, "");
+    }
 
-    if (_.isString(value) && value.trim() === "") {
-      /*
-       *  When value is emtpy string
-       */
-      isValid = true;
-      messages = [EMPTY_ERROR_MESSAGE];
-      parsed = undefined;
-    } else if (!Number.isFinite(parsed)) {
-      /*
-       *  When parsed value is not a finite numer
-       */
-      isValid = false;
-      messages = [NUMBER_ERROR_MESSAGE];
-      parsed = undefined;
+    function getLocaleThousandSeparator() {
+      return Intl.NumberFormat(getLocale())
+        .format(11111)
+        .replace(/\p{Number}/gu, "");
+    }
+
+    if (text) {
+      const parsed = parseFloat(
+        text
+          .replace(new RegExp("\\" + getLocaleThousandSeparator(), "g"), "")
+          .replace(new RegExp("\\" + getLocaleDecimalSeperator()), "."),
+      );
+
+      if (_.isNaN(parsed)) {
+        parsed = undefined;
+      }
+
+      return parsed;
     } else {
-      /*
-       *  When parsed value is a Number
-       */
-      isValid = true;
-      messages = [EMPTY_ERROR_MESSAGE];
+      return undefined;
     }
-
-    return {
-      isValid,
-      parsed,
-      messages,
-    };
   },
   //
 };

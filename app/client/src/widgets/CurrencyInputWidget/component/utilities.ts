@@ -30,7 +30,7 @@ export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
     style: "decimal",
     minimumFractionDigits: isDecimal ? fractionDigits : 0,
   });
-  const parsedValue = parseFloat(value);
+  const parsedValue = parseLocaleFormattedStringToNumber(value);
   return formatter.format(isNaN(parsedValue) ? 0 : parsedValue);
 };
 

@@ -12,8 +12,9 @@ const getInputHTMLType = (inputType: InputType) => {
       return "NUMBER";
     case "PHONE_NUMBER":
     case "TEXT":
-    case "EMAIL":
       return "TEXT";
+    case "EMAIL":
+      return "EMAIL";
     case "PASSWORD":
       return "PASSWORD";
     default:
@@ -65,7 +66,6 @@ class InputComponent extends React.Component<InputComponentProps> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        leftIcon={this.getIcon(this.props.inputType)}
         maxChars={this.props.maxChars}
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}

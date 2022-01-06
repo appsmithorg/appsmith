@@ -16,7 +16,7 @@ import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   CurrencyDropdownOptions,
-  getCurrencyCodeFromCountryCode,
+  getCountryCodeFromCurrencyCode,
 } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import _ from "lodash";
@@ -69,9 +69,17 @@ export function defaultValueValidation(
     /*
      *  When parsed value is a Number
      */
+
+    // Check whether value is honoring the decimals property
+    if (parsed !== Number(parsed.toFixed(props.decimals))) {
+      isValid = false;
+      messages = ["Default value should honor decimal property"];
+    } else {
+      isValid = true;
+      messages = [EMPTY_ERROR_MESSAGE];
+    }
+
     parsed = String(parsed);
-    isValid = true;
-    messages = [EMPTY_ERROR_MESSAGE];
   }
 
   return {
@@ -106,14 +114,15 @@ class CurrencyInputWidget extends BaseInputWidget<
             },
             {
               helpText: "Changes the type of currency",
-              propertyName: "countryCode",
+              propertyName: "currencyCode",
               label: "Currency",
               enableSearch: true,
               dropdownHeight: "195px",
               controlType: "DROP_DOWN",
               placeholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
-              isBindProperty: false,
+              isJSConvertible: true,
+              isBindProperty: true,
               isTriggerProperty: false,
             },
             {
@@ -170,34 +179,39 @@ class CurrencyInputWidget extends BaseInputWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
+      value: `{{(()=>{${derivedProperties.value}})()}}`,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
-      value: undefined,
       text: undefined,
     });
   }
 
   componentDidMount() {
     //format the defaultText and store it in text
+    this.formatText();
+  }
+
+  componentDidUpdate(prevProps: CurrencyInputWidgetProps) {
+    if (
+      prevProps.text !== this.props.text &&
+      !this.props.isFocused &&
+      this.props.text === String(this.props.defaultText)
+    ) {
+      this.formatText();
+    }
+  }
+
+  formatText() {
     if (!!this.props.text) {
       try {
         const formattedValue = formatCurrencyNumber(
           this.props.decimals,
-          this.props.text,
+          String(this.props.value),
         );
         this.props.updateWidgetMetaProperty("text", formattedValue);
-
-        let parsed: number | undefined = parseLocaleFormattedStringToNumber(
-          formattedValue,
-        );
-
-        if (isNaN(parsed)) {
-          parsed = undefined;
-        }
-        this.props.updateWidgetMetaProperty("value", parsed);
       } catch (e) {
         log.error(e);
         Sentry.captureException(e);
@@ -228,19 +242,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
-    //value is stored as number
-    let parsed;
-    try {
-      parsed = parseLocaleFormattedStringToNumber(formattedValue);
-      if (isNaN(parsed)) {
-        parsed = undefined;
-      }
-    } catch (e) {
-      parsed = formattedValue;
-      log.error(e);
-      Sentry.captureException(e);
-    }
-    this.props.updateWidgetMetaProperty("value", parsed);
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -260,7 +262,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
-            String(this.props.text),
+            String(this.props.value),
           );
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
@@ -274,13 +276,14 @@ class CurrencyInputWidget extends BaseInputWidget<
     super.handleFocusChange(!!isFocused);
   };
 
-  onCurrencyTypeChange = (countryCode?: string) => {
-    const currencyCode = getCurrencyCodeFromCountryCode(countryCode);
+  onCurrencyTypeChange = (currencyCode?: string) => {
+    const countryCode = getCountryCodeFromCurrencyCode(currencyCode);
+
+    this.props.updateWidgetMetaProperty("countryCode", countryCode);
+
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("countryCode", countryCode);
       super.updateWidgetProperty("currencyCode", currencyCode);
     } else {
-      this.props.updateWidgetMetaProperty("countryCode", countryCode);
       this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
     }
   };
@@ -294,7 +297,6 @@ class CurrencyInputWidget extends BaseInputWidget<
           type: EventType.ON_TEXT_CHANGE,
         },
       });
-      this.props.updateWidgetMetaProperty("value", undefined);
     }
   };
 
@@ -319,7 +321,6 @@ class CurrencyInputWidget extends BaseInputWidget<
 
   onStep = (direction: number) => {
     const value = Number(this.props.value) + direction;
-    this.props.updateWidgetMetaProperty("value", value);
     const formattedValue = formatCurrencyNumber(
       this.props.decimals,
       String(value),
@@ -337,9 +338,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const countryCode = this.props.selectedCountryCode
-      ? this.props.selectedCountryCode
-      : this.props.countryCode;
+    const currencyCode = this.props.currencyCode;
     const conditionalProps: Partial<CurrencyInputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -351,7 +350,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
         compactMode
-        countryCode={countryCode}
+        currencyCode={currencyCode}
         decimals={this.props.decimals}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}

@@ -243,13 +243,17 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Min",
               controlType: "INPUT_TEXT",
               placeholderText: "1",
-              isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
                 type: ValidationTypes.FUNCTION,
                 params: {
                   fn: minValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `1`,
+                    autocompleteDataType: AutocompleteDataType.NUMBER,
+                  },
                 },
               },
               hidden: (props: InputWidgetProps) => {
@@ -263,13 +267,17 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Max",
               controlType: "INPUT_TEXT",
               placeholderText: "100",
-              isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
                 type: ValidationTypes.FUNCTION,
                 params: {
                   fn: maxValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `100`,
+                    autocompleteDataType: AutocompleteDataType.NUMBER,
+                  },
                 },
               },
               hidden: (props: InputWidgetProps) => {

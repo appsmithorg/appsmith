@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "./utilities";
-import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
+import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes_v2";
 import { Colors } from "constants/Colors";
 
 type DropdownTriggerIconWrapperProp = {
@@ -66,7 +66,7 @@ const StyledIcon = styled(Icon)`
 const getISDCodeOptions = (): Array<DropdownOption> => {
   return ISDCodeOptions.map((item: ISDCodeProps) => {
     return {
-      leftElement: countryToFlag(item.code),
+      leftElement: countryToFlag(item.dial_code),
       searchText: item.name,
       label: `${item.name} (${item.dial_code})`,
       value: item.dial_code,

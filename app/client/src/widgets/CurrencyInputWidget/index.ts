@@ -13,7 +13,7 @@ export const CONFIG = {
     widgetName: "CurrencyInput",
     version: 1,
     allowCurrencyChange: false,
-    countryCode: getDefaultCurrency().code,
+    currencyCode: getDefaultCurrency().currency,
     decimals: 0,
   },
   properties: {

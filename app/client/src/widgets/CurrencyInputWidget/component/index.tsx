@@ -19,7 +19,7 @@ class CurrencyInputComponent extends React.Component<
 
   getLeftIcon = () => {
     const selectedCurrencyCountryCode = getSelectedCurrency(
-      this.props.countryCode,
+      this.props.currencyCode,
     );
     return (
       <CurrencyTypeDropdown
@@ -44,17 +44,17 @@ class CurrencyInputComponent extends React.Component<
   };
 
   componentDidMount() {
-    if (this.props.countryCode) {
-      this.props.onCurrencyTypeChange(this.props.countryCode);
+    if (this.props.currencyCode) {
+      this.props.onCurrencyTypeChange(this.props.currencyCode);
     }
   }
 
   componentDidUpdate(prevProps: CurrencyInputComponentProps) {
     if (
       this.props.renderMode === RenderModes.CANVAS &&
-      prevProps.countryCode !== this.props.countryCode
+      prevProps.currencyCode !== this.props.currencyCode
     ) {
-      this.props.onCurrencyTypeChange(this.props.countryCode);
+      this.props.onCurrencyTypeChange(this.props.currencyCode);
     }
   }
 
@@ -97,7 +97,7 @@ class CurrencyInputComponent extends React.Component<
 }
 
 export interface CurrencyInputComponentProps extends BaseInputComponentProps {
-  countryCode?: string;
+  currencyCode?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
   decimals?: number;

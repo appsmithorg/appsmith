@@ -1,4 +1,4 @@
-import { ISDCodeOptions } from "constants/ISDCodes";
+import { ISDCodeOptions } from "constants/ISDCodes_v2";
 
 export const countryToFlag = (dialCode: string) => {
   const country = ISDCodeOptions.find((item) => item.dial_code === dialCode);

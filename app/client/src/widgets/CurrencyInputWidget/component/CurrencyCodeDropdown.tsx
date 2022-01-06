@@ -53,7 +53,7 @@ const getCurrencyOptions = (): Array<DropdownOption> => {
       leftElement: countryToFlag(item.code),
       searchText: item.label,
       label: `${item.currency} - ${item.currency_name}`,
-      value: item.code,
+      value: item.currency,
       id: item.symbol_native,
     };
   });
@@ -72,12 +72,10 @@ export const getDefaultCurrency = () => {
   };
 };
 
-export const getSelectedCurrency = (
-  currencyCountryCode?: string,
-): DropdownOption => {
-  let selectedCurrency: CurrencyOptionProps | undefined = currencyCountryCode
+export const getSelectedCurrency = (currencyCode?: string): DropdownOption => {
+  let selectedCurrency: CurrencyOptionProps | undefined = currencyCode
     ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
-        return item.code === currencyCountryCode;
+        return item.currency === currencyCode;
       })
     : undefined;
   if (!selectedCurrency) {
@@ -86,18 +84,18 @@ export const getSelectedCurrency = (
   return {
     label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
     searchText: selectedCurrency.label,
-    value: selectedCurrency.code,
+    value: selectedCurrency.currency,
     id: selectedCurrency.symbol_native,
   };
 };
 
-export const getCurrencyCodeFromCountryCode = (countryCode?: string) => {
+export const getCountryCodeFromCurrencyCode = (currencyCode?: string) => {
   const option = CurrencyTypeOptions.find(
-    (option) => option.code === countryCode,
+    (option) => option.currency === currencyCode,
   );
 
   if (option) {
-    return option.currency;
+    return option.code;
   } else {
     return "";
   }
