@@ -1,24 +1,11 @@
 const path = require("path");
-const Perf = require("./perf.js");
+const Perf = require("../src/perf.js");
 const dsl = require("./dsl/simple-typing").dsl;
-var fs = require("fs");
-const { summaries } = require("./summary");
-
-// Set the perf directory as APP_ROOT on the global level
-global.APP_ROOT = path.resolve(__dirname);
-
-// Create the directory
-const dir = `${APP_ROOT}/traces/reports`;
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, { recursive: true });
-}
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 async function testTyping() {
-  const perf = new Perf({
-    ignoreHTTPSErrors: true, // @todo Remove it after initial testing
-  });
+  const perf = new Perf();
   await perf.launch();
   const page = perf.getPage();
   await perf.loadDSL(dsl);
@@ -50,6 +37,5 @@ async function runTests() {
   await testTyping();
   await testTyping();
   await testTyping();
-  summaries(`${APP_ROOT}/traces/reports`);
 }
 runTests();
