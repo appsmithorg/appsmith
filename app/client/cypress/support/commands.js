@@ -2749,7 +2749,7 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
-    cy.expect(response.response.body.responseMeta.success).to.eq(true);
+    expect(response.response.body.responseMeta.success).to.eq(true);
     cy.get(ApiEditor.ApiNameField)
       .click()
       .invoke("text")
@@ -3427,6 +3427,7 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
 Cypress.Commands.add(
   "actionContextMenuByEntityName",
   (entityNameinLeftSidebar, action = "Delete") => {
+    cy.wait(2000);
     cy.xpath(
       "//div[text()='" +
         entityNameinLeftSidebar +
