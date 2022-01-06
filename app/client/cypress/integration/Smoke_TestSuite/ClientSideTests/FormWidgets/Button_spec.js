@@ -149,6 +149,13 @@ describe("Button Widget Functionality", function() {
     cy.get(publishPage.buttonWidget).should("be.visible");
   });
 
+  it("Button-Check recaptcha type can be selected", function() {
+    cy.selectDropdownValue(commonlocators.recaptchaVersion, "reCAPTCHA v2");
+    cy.get(commonlocators.recaptchaVersion)
+      .last()
+      .should("have.text", "reCAPTCHA v2");
+  });
+
   it("Button-Copy Verification", function() {
     //Copy button and verify all properties
     cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);

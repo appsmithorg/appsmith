@@ -1,0 +1,632 @@
+{
+  "exportedApplication": {
+    "userPermissions": [
+      "canComment:applications",
+      "manage:applications",
+      "read:applications",
+      "publish:applications",
+      "makePublic:applications"
+    ],
+    "name": "valid_application",
+    "isPublic": false,
+    "appIsExample": false,
+    "color": "#EA6179",
+    "icon": "medical",
+    "new": true
+  },
+  "datasourceList": [
+    {
+      "userPermissions": [
+        "execute:datasources",
+        "manage:datasources",
+        "read:datasources"
+      ],
+      "name": "db-auth",
+      "pluginId": "mongo-plugin",
+      "gitSyncId": "datasource1_git",
+      "datasourceConfiguration": {
+        "connection": {
+          "mode": "READ_WRITE",
+          "type": "REPLICA_SET",
+          "ssl": {
+            "authType": "DEFAULT"
+          }
+        },
+        "endpoints": [
+          {
+            "host": "db-auth-uri.net"
+          }
+        ],
+        "sshProxyEnabled": false,
+        "properties": [
+          {
+            "key": "Use Mongo Connection String URI",
+            "value": "No"
+          }
+        ]
+      },
+      "invalids": [],
+      "isValid": true,
+      "new": true
+    },
+    {
+      "userPermissions": [
+        "execute:datasources",
+        "manage:datasources",
+        "read:datasources"
+      ],
+      "name": "api_ds_wo_auth",
+      "pluginId": "restapi-plugin",
+      "gitSyncId": "datasource2_git",
+      "datasourceConfiguration": {
+        "sshProxyEnabled": false,
+        "properties": [
+          {
+            "key": "isSendSessionEnabled",
+            "value": "N"
+          },
+          {
+            "key": "sessionSignatureKey",
+            "value": ""
+          }
+        ],
+        "url": "https://api-ds-wo-auth-uri.com",
+        "headers": []
+      },
+      "invalids": [],
+      "isValid": true,
+      "new": true
+    }
+  ],
+  "pageList": [
+    {
+      "userPermissions": [
+        "read:pages",
+        "manage:pages"
+      ],
+      "gitSyncId": "page1_git",
+      "applicationId": "valid_application",
+      "unpublishedPage": {
+        "name": "Page1",
+        "layouts": [
+          {
+            "id": "60aca056136c4b7178f67906",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1280,
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 800,
+              "containerStyle": "none",
+              "snapRows": 33,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 4,
+              "minHeight": 840,
+              "parentColumnSpace": 1,
+              "dynamicTriggerPathList": [],
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": [
+                {
+                  "widgetName": "Table1",
+                  "columnOrder": [
+                    "_id",
+                    "username",
+                    "active"
+                  ],
+                  "dynamicPropertyPathList": [],
+                  "topRow": 4,
+                  "bottomRow": 15,
+                  "parentRowSpace": 40,
+                  "type": "TABLE_WIDGET",
+                  "parentColumnSpace": 77.5,
+                  "dynamicTriggerPathList": [],
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "tableData"
+                    },
+                    {
+                      "key": "primaryColumns._id.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.username.computedValue"
+                    },
+                    {
+                      "key": "primaryColumns.active.computedValue"
+                    }
+                  ],
+                  "leftColumn": 0,
+                  "primaryColumns": {
+                    "appsmith_mongo_escape_id": {
+                      "isDerived": false,
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._id ))}}",
+                      "textSize": "PARAGRAPH",
+                      "index": 4,
+                      "isVisible": true,
+                      "label": "_id",
+                      "columnType": "text",
+                      "horizontalAlignment": "LEFT",
+                      "width": 150,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "id": "_id",
+                      "verticalAlignment": "CENTER"
+                    },
+                    "active": {
+                      "isDerived": false,
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.active ))}}",
+                      "textSize": "PARAGRAPH",
+                      "index": 8,
+                      "isVisible": true,
+                      "label": "active",
+                      "columnType": "text",
+                      "horizontalAlignment": "LEFT",
+                      "width": 150,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "id": "active",
+                      "verticalAlignment": "CENTER"
+                    },
+                    "username": {
+                      "isDerived": false,
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.username ))}}",
+                      "textSize": "PARAGRAPH",
+                      "index": 7,
+                      "isVisible": true,
+                      "label": "username",
+                      "columnType": "text",
+                      "horizontalAlignment": "LEFT",
+                      "width": 150,
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "id": "username",
+                      "verticalAlignment": "CENTER"
+                    }
+                  },
+                  "derivedColumns": {},
+                  "rightColumn": 8,
+                  "textSize": "PARAGRAPH",
+                  "widgetId": "aisibaxwhb",
+                  "tableData": "{{get_users.data}}",
+                  "isVisible": true,
+                  "label": "Data",
+                  "searchKey": "",
+                  "version": 1,
+                  "parentId": "0",
+                  "isLoading": false,
+                  "horizontalAlignment": "LEFT",
+                  "verticalAlignment": "CENTER",
+                  "columnSizeMap": {
+                    "task": 245,
+                    "step": 62,
+                    "status": 75
+                  }
+                },
+                {
+                  "widgetName": "Form1",
+                  "backgroundColor": "white",
+                  "rightColumn": 16,
+                  "widgetId": "ut3l54pzqw",
+                  "topRow": 4,
+                  "bottomRow": 11,
+                  "parentRowSpace": 40,
+                  "isVisible": true,
+                  "type": "FORM_WIDGET",
+                  "parentId": "0",
+                  "isLoading": false,
+                  "parentColumnSpace": 77.5,
+                  "leftColumn": 9,
+                  "children": [
+                    {
+                      "widgetName": "Canvas1",
+                      "rightColumn": 542.5,
+                      "detachFromLayout": true,
+                      "widgetId": "mcsltg1l0j",
+                      "containerStyle": "none",
+                      "topRow": 0,
+                      "bottomRow": 320,
+                      "parentRowSpace": 1,
+                      "isVisible": true,
+                      "canExtend": false,
+                      "type": "CANVAS_WIDGET",
+                      "version": 1,
+                      "parentId": "ut3l54pzqw",
+                      "minHeight": 520,
+                      "isLoading": false,
+                      "parentColumnSpace": 1,
+                      "leftColumn": 0,
+                      "children": [
+                        {
+                          "widgetName": "Text1",
+                          "rightColumn": 6,
+                          "textAlign": "LEFT",
+                          "widgetId": "7b4x786lxp",
+                          "topRow": 0,
+                          "bottomRow": 1,
+                          "isVisible": true,
+                          "fontStyle": "BOLD",
+                          "type": "TEXT_WIDGET",
+                          "textColor": "#231F20",
+                          "version": 1,
+                          "parentId": "mcsltg1l0j",
+                          "isLoading": false,
+                          "leftColumn": 0,
+                          "fontSize": "HEADING1",
+                          "text": "Form"
+                        },
+                        {
+                          "widgetName": "Text2",
+                          "rightColumn": 16,
+                          "textAlign": "LEFT",
+                          "widgetId": "d0axuxiosp",
+                          "topRow": 3,
+                          "bottomRow": 6,
+                          "parentRowSpace": 40,
+                          "isVisible": true,
+                          "fontStyle": "BOLD",
+                          "type": "TEXT_WIDGET",
+                          "textColor": "#231F20",
+                          "version": 1,
+                          "parentId": "mcsltg1l0j",
+                          "isLoading": false,
+                          "parentColumnSpace": 31.40625,
+                          "dynamicTriggerPathList": [],
+                          "leftColumn": 0,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "text"
+                            }
+                          ],
+                          "fontSize": "PARAGRAPH2",
+                          "text": "{{api_wo_auth.data.body}}"
+                        },
+                        {
+                          "widgetName": "Text3",
+                          "rightColumn": 4,
+                          "textAlign": "LEFT",
+                          "widgetId": "lmfer0622c",
+                          "topRow": 2,
+                          "bottomRow": 3,
+                          "parentRowSpace": 40,
+                          "isVisible": true,
+                          "fontStyle": "BOLD",
+                          "type": "TEXT_WIDGET",
+                          "textColor": "#231F20",
+                          "version": 1,
+                          "parentId": "mcsltg1l0j",
+                          "isLoading": false,
+                          "parentColumnSpace": 31.40625,
+                          "dynamicTriggerPathList": [],
+                          "leftColumn": 0,
+                          "dynamicBindingPathList": [
+                            {
+                              "key": "text"
+                            }
+                          ],
+                          "fontSize": "PARAGRAPH",
+                          "text": "{{api_wo_auth.data.id}}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "layoutOnLoadActions": [
+              [
+                {
+                  "id": "60aca24c136c4b7178f6790d",
+                  "name": "api_wo_auth",
+                  "pluginType": "API",
+                  "jsonPathKeys": [],
+                  "timeoutInMillisecond": 10000
+                },
+                {
+                  "id": "60aca092136c4b7178f6790a",
+                  "name": "get_users",
+                  "pluginType": "DB",
+                  "jsonPathKeys": [],
+                  "timeoutInMillisecond": 10000
+                }
+              ]
+            ],
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "publishedPage": {
+        "name": "Page1",
+        "layouts": [
+          {
+            "id": "60aca056136c4b7178f67906",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224,
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 1254,
+              "containerStyle": "none",
+              "snapRows": 33,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 4,
+              "minHeight": 1292,
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": []
+            },
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "new": true
+    },
+    {
+      "userPermissions": [
+        "read:pages",
+        "manage:pages"
+      ],
+      "gitSyncId": "page2_git",
+      "applicationId": "valid_application",
+      "unpublishedPage": {
+        "name": "Page2",
+        "layouts": [
+          {
+            "id": "60aca056136c4b7178f67999",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1280,
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 800,
+              "containerStyle": "none",
+              "snapRows": 33,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 4,
+              "minHeight": 840,
+              "parentColumnSpace": 1,
+              "dynamicTriggerPathList": [],
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": []
+            },
+            "layoutOnLoadActions": [
+              []
+            ],
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "new": true
+    }
+  ],
+  "actionList": [
+    {
+      "id": "60aca092136c4b7178f6790a",
+      "userPermissions": [],
+      "applicationId": "valid_application",
+      "pluginType": "DB",
+      "pluginId": "mongo-plugin",
+      "gitSyncId": "action1_git",
+      "unpublishedAction": {
+        "name": "get_users",
+        "datasource": {
+          "id": "db-auth",
+          "userPermissions": [],
+          "isValid": true,
+          "new": false
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "{\n \"find\": \"users\",\n \"sort\": {\n \"id\": 1\n },\n \"limit\": 10\n}",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": false
+            }
+          ]
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "isValid": true,
+          "new": true
+        },
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "60aca24c136c4b7178f6790d",
+      "userPermissions": [],
+      "applicationId": "valid_application",
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "gitSyncId": "action2_git",
+      "unpublishedAction": {
+        "name": "api_wo_auth",
+        "datasource": {
+          "id": "api_ds_wo_auth",
+          "userPermissions": [],
+          "isValid": true,
+          "new": false
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "path": "/params",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "encodeParamsToggle": true,
+          "queryParameters": [],
+          "body": "",
+          "httpMethod": "GET",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": false
+            }
+          ]
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "isValid": true,
+          "new": true
+        },
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "61518b8548b30155375f5275",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "run",
+        "fullyQualifiedName": "JSObject1.run",
+        "datasource": {
+          "userPermissions": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Page1",
+        "collectionId": "61518b8548b30155375f5276",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\t//write code here\n\t\treturn \"Hi\"\n\t}",
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "jsonPathKeys": [
+          "() => {\n\t\t//write code here\n\t\treturn \"Hi\"\n\t}"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "JSObject1.run"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "isValid": true,
+          "new": true
+        },
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "gitSyncId": "614b5f42a25cb80bca4ccf35_2021-09-27T09:14:45.330186Z",
+      "new": false
+    }
+  ],
+  "actionCollectionList": [
+    {
+      "id": "61518b8548b30155375f5276",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "unpublishedCollection": {
+        "name": "JSObject1",
+        "pageId": "Page1",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tresults: [],\n\trun: () => {\n\t\t//write code here\n\t\treturn \"Hi\"\n\t}\n}",
+        "variables": [
+          {
+            "name": "results",
+            "value": []
+          }
+        ]
+      },
+      "new": false
+    }
+  ],
+  "decryptedFields": {
+    "db-auth": {
+      "password": "CreativePassword",
+      "authType": "com.appsmith.external.models.DBAuth",
+      "dbAuth": {
+        "authenticationType": "dbAuth",
+        "authType": "SCRAM_SHA_1",
+        "username": "CreativeUser",
+        "databaseName": "db-name"
+      }
+    }
+  },
+  "publishedDefaultPageName": "Page1",
+  "unpublishedDefaultPageName": "Page1",
+  "publishedLayoutmongoEscapedWidgets": {
+    "60aca056136c4b7178f67906": [
+      "Table1"
+    ]
+  },
+  "unpublishedLayoutmongoEscapedWidgets": {
+    "60aca056136c4b7178f67906": [
+      "Table1"
+    ]
+  }
+}

@@ -4,7 +4,6 @@ const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/newFormDsl.json");
 const data = require("../../../../fixtures/example.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 
@@ -13,7 +12,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Dropdown-Modal Validation", function() {
+  it("1. Dropdown-Modal Validation", function() {
     cy.SearchEntityandOpen("Dropdown1");
     cy.testJsontext("options", JSON.stringify(data.input));
     //creating the Modal and verify Modal name
@@ -33,7 +32,7 @@ describe("Dropdown Widget Functionality", function() {
     );
   });
 
-  it("Dropdown-Call-Api Validation", function() {
+  it("2. Dropdown-Call-Api Validation", function() {
     //creating an api and calling it from the onOptionChangeAction of the Dropdown widget.
     // Creating the api
     cy.NavigateToAPI_Panel();
@@ -63,7 +62,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Dropdown-Call-Query Validation", function() {
+  it("3. Dropdown-Call-Query Validation", function() {
     //creating a query and calling it from the onOptionChangeAction of the Dropdown widget.
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
@@ -81,14 +80,16 @@ describe("Dropdown Widget Functionality", function() {
         .type(postgresDatasourceName, { force: true })
         .should("have.value", postgresDatasourceName)
         .blur();
+
+      cy.wait("@saveDatasource").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.fillPostgresDatasourceForm();
+      cy.saveDatasource();
+      cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
     });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.fillPostgresDatasourceForm();
-    cy.saveDatasource();
 
     cy.CreateMockQuery("Query1");
 
@@ -113,7 +114,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Toggle JS - Dropdown-Call-Query Validation", function() {
+  it("4. Toggle JS - Dropdown-Call-Query Validation", function() {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
     cy.SearchEntityandOpen("Dropdown1");
@@ -134,7 +135,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Toggle JS - Dropdown-CallAnApi Validation", function() {
+  it("5. Toggle JS - Dropdown-CallAnApi Validation", function() {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
     cy.SearchEntityandOpen("Dropdown1");
@@ -165,7 +166,7 @@ describe("Dropdown Widget Functionality", function() {
       .click();
   });
 
-  it("Dropdown Widget Functionality to Verify On Option Change Action", function() {
+  it("6. Dropdown Widget Functionality to Verify On Option Change Action", function() {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
     // Dropdown On Option Change
