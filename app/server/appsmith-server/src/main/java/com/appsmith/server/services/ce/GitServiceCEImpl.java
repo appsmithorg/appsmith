@@ -366,7 +366,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.just(userData);
                 });
 
-        return this.getApplicationById(defaultApplicationId)
+        Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
                     if (Optional.ofNullable(defaultGitMetadata).isEmpty()) {
@@ -547,6 +547,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             application.getGitApplicationMetadata().getIsRepoPrivate()
                     ).thenReturn(status);
                 });
+
+        return Mono.create(sink -> commitMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
