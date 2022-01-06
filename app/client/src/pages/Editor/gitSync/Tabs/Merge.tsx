@@ -221,9 +221,9 @@ export default function Merge() {
   }
 
   // should check after added error code for conflicting
-  const isConflicting =
-    !!mergeError || (mergeStatus && !mergeStatus?.isMergeAble);
-  const showMergeButton = !isConflicting && !isFetchingGitStatus && !isMerging;
+  const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
+  const showMergeButton =
+    !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
 
   return (
     <>
