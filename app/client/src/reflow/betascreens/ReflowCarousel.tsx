@@ -14,8 +14,10 @@ import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
 import { setReflowOnBoardingFlag } from "utils/storage";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import { inOnboarding } from "sagas/OnboardingSagas";
 
 function ReflowCarouselModal() {
+  const onboarding = useSelector(inOnboarding);
   const dispatch = useDispatch();
   const onBoardingState = useSelector(
     (state: AppState) => state.ui.widgetReflow.onBoarding,
@@ -39,7 +41,7 @@ function ReflowCarouselModal() {
     }
   };
   const [showModal, setShowModal] = useState(
-    !forceStopOnBoarding && !isReflowOnBoardingDone,
+    !forceStopOnBoarding && !isReflowOnBoardingDone && !onboarding,
   );
   const onFinish = () => {
     stepChange(numberOfSteps - 1, numberOfSteps);
