@@ -273,6 +273,7 @@ const gitSyncReducer = createReducer(initialState, {
     isFetchingMergeStatus: true,
     connectError: null,
     commitAndPushError: null,
+    mergeStatus: null,
     pullError: null,
     mergeError: null,
   }),

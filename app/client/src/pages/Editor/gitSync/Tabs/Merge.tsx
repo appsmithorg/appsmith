@@ -193,6 +193,7 @@ export default function Merge() {
           destinationBranch: selectedBranchOption.value,
         }),
       );
+      setShowMergeSuccessIndicator(false);
     }
   }, [currentBranch, selectedBranchOption.value, dispatch]);
 
@@ -219,7 +220,9 @@ export default function Merge() {
     mergeStatusMessage = mergeError.error.message;
   }
 
-  const isConflicting = status === MERGE_STATUS_STATE.NOT_MERGEABLE;
+  // should check after added error code for conflicting
+  const isConflicting =
+    !!mergeError || (mergeStatus && !mergeStatus?.isMergeAble);
   const showMergeButton = !isConflicting && !isFetchingGitStatus && !isMerging;
 
   return (
