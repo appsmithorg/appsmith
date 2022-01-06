@@ -14,11 +14,14 @@ import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
+import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
+import { ReactComponent as Close } from "assets/icons/control/remove.svg";
 import { replayHighlightClass } from "globalStyles/portals";
 import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
+import { findIndex } from "lodash";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -44,7 +47,7 @@ export interface DropdownSearchProps {
 
 export interface RenderDropdownOptionType {
   index?: number;
-  option: DropdownOption;
+  option: DropdownOption | DropdownOption[];
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
   isSelectedNode?: boolean;
   extraProps?: any;
@@ -63,8 +66,9 @@ type RenderOption = ({
 export type DropdownProps = CommonComponentProps &
   DropdownSearchProps & {
     options: DropdownOption[];
-    selected: DropdownOption;
+    selected: DropdownOption | DropdownOption[];
     onSelect?: DropdownOnSelect;
+    isMultiSelect?: boolean;
     width?: string;
     height?: string;
     showLabelOnly?: boolean;
@@ -91,16 +95,19 @@ export type DropdownProps = CommonComponentProps &
     fillOptions?: boolean;
     dontUsePortal?: boolean;
     hideSubText?: boolean;
+    removeSelectedOption?: DropdownOnSelect;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
   };
 export interface DefaultDropDownValueNodeProps {
-  selected: DropdownOption;
+  selected: DropdownOption | DropdownOption[];
   showLabelOnly?: boolean;
+  isMultiSelect?: boolean;
   isOpen?: boolean;
   hasError?: boolean;
   renderNode?: RenderOption;
+  selectedOptionClickHandler?: (option: DropdownOption) => void;
   placeholder?: string;
   showDropIcon?: boolean;
   optionWidth: string;
@@ -108,18 +115,9 @@ export interface DefaultDropDownValueNodeProps {
 }
 
 export interface RenderDropdownOptionType {
-  option: DropdownOption;
+  option: DropdownOption | DropdownOption[];
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
 }
-
-export const DropdownContainer = styled.div<{ width: string; height?: string }>`
-  width: ${(props) => props.width};
-  height: ${(props) => props.height || `38px`};
-  position: relative;
-  span.bp3-popover-target {
-    display: inline-block;
-  }
-`;
 
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
@@ -146,6 +144,41 @@ const DropdownTriggerWrapper = styled.div<{
   }
 `;
 
+const StyledCheckmark = styled(Check)`
+  width: 14px;
+  height: 14px;
+  position: absolute;
+  top: -1px;
+  left: -1px;
+`;
+
+const StyledClose = styled(Close)`
+  width: 24px;
+  height: 24px;
+  padding: 3px;
+  padding-right: 10px;
+  &:hover {
+    background-color: #ebebeb;
+  }
+`;
+const SquareBox = styled.div<{
+  backgroundColor?: string;
+  borderColor?: string;
+}>`
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  position: relative;
+  margin-right: 10px;
+  background-color: ${(props) =>
+    props.backgroundColor ? props.backgroundColor : "transparent"};
+  border: ${(props) =>
+    props.borderColor
+      ? `1.8px solid ${props.borderColor}`
+      : "1.8px solid #A9A7A7"};
+  border-width: 1.8px;
+`;
+
 const Selected = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
@@ -154,6 +187,7 @@ const Selected = styled.div<{
   hasError?: boolean;
   selected?: boolean;
   isLoading?: boolean;
+  isMultiSelect?: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
@@ -170,7 +204,7 @@ const Selected = styled.div<{
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: ${(props) => props.height};
+  min-height: ${(props) => props.height};
   cursor: ${(props) =>
     props.disabled || props.isLoading ? "not-allowed" : "pointer"};
   ${(props) =>
@@ -184,7 +218,9 @@ const Selected = styled.div<{
       ? `border: 1px solid ${props.theme.colors.danger.main}`
       : props.isOpen
       ? `border: 1px solid ${
-          !!props.bgColor ? props.bgColor : props.theme.colors.info.main
+          !!props.bgColor
+            ? props.bgColor
+            : "var(--appsmith-input-focus-border-color)"
         }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
@@ -207,9 +243,23 @@ const Selected = styled.div<{
   }
   &:hover {
     background: ${(props) =>
-      props.hasError
-        ? Colors.FAIR_PINK
-        : props.theme.colors.dropdown.hovered.bg};
+      !props.isMultiSelect
+        ? props.hasError
+          ? Colors.FAIR_PINK
+          : props.theme.colors.dropdown.hovered.bg
+        : Colors.WHITE}
+`;
+
+export const DropdownContainer = styled.div<{ width: string; height?: string }>`
+  width: ${(props) => props.width};
+  height: ${(props) => props.height || `38px`};
+  position: relative;
+  span.bp3-popover-target {
+    display: inline-block;
+  }
+
+  &:focus-visible ${Selected} {
+    border: 1px solid var(--appsmith-input-focus-border-color);
   }
 `;
 
@@ -281,7 +331,6 @@ const OptionWrapper = styled.div<{
   align-items: center;
   min-height: 36px;
   background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
-
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -381,7 +430,7 @@ const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
-  width: 100%;
+  max-width: 100%;
   overflow: hidden;
 
   & ${Text} {
@@ -400,7 +449,6 @@ const SelectedIcon = styled(Icon)`
     svg {
       height: 18px;
       width: 18px;
-
       rect {
         fill: ${(props) => props.theme.colors.dropdownIconBg};
         rx: 0;
@@ -476,26 +524,64 @@ function TooltipWrappedText(
 function DefaultDropDownValueNode({
   hasError,
   hideSubText,
+  isMultiSelect,
   optionWidth,
   placeholder,
   renderNode,
   selected,
+  selectedOptionClickHandler,
   showDropIcon,
   showLabelOnly,
 }: DefaultDropDownValueNodeProps) {
-  const LabelText = selected
-    ? showLabelOnly
-      ? selected.label
-      : selected.value
-    : placeholder
-    ? placeholder
-    : "Please select a option.";
+  const LabelText =
+    !Array.isArray(selected) && selected
+      ? showLabelOnly
+        ? selected.label
+        : selected.value
+      : placeholder
+      ? placeholder
+      : "Please select a option.";
+
   function Label() {
-    return hasError ? (
-      <ErrorLabel>{LabelText}</ErrorLabel>
-    ) : (
-      <Text type={TextType.P1}>{LabelText}</Text>
-    );
+    if (isMultiSelect && Array.isArray(selected) && selected.length) {
+      return (
+        <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
+          {selected?.map((s: DropdownOption) => {
+            return (
+              <div
+                key={s.value}
+                style={{
+                  border: "1.2px solid #E0DEDE",
+                  display: "flex",
+                  alignItems: "center",
+                  lineHeight: "19px",
+                  margin: "2px 2px",
+                }}
+              >
+                <span style={{ padding: "3px" }}>
+                  <Text type={TextType.P1}>{s.label}</Text>
+                </span>
+                <StyledClose
+                  onClick={(event: any) => {
+                    event.stopPropagation();
+                    if (selectedOptionClickHandler) {
+                      selectedOptionClickHandler(s as DropdownOption);
+                    }
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+    } else
+      return hasError ? (
+        <ErrorLabel>{LabelText}</ErrorLabel>
+      ) : (
+        <span style={{ width: "100%" }}>
+          <Text type={TextType.P1}>{LabelText}</Text>
+        </span>
+      );
   }
 
   return (
@@ -507,29 +593,33 @@ function DefaultDropDownValueNode({
           hasError,
           optionWidth,
         })
+      ) : isMultiSelect && Array.isArray(selected) && selected.length ? (
+        <Label />
       ) : (
-        <>
-          {selected?.icon ? (
-            <SelectedIcon
-              fillColor={hasError ? Colors.POMEGRANATE2 : selected?.iconColor}
-              hoverFillColor={
-                hasError ? Colors.POMEGRANATE2 : selected?.iconColor
-              }
-              name={selected.icon}
-              size={selected.iconSize || IconSize.XL}
-            />
-          ) : null}
-          <Label />
-          {selected?.subText && !hideSubText ? (
-            <StyledSubText
-              className="sub-text"
-              showDropIcon={showDropIcon}
-              type={TextType.P1}
-            >
-              {selected.subText}
-            </StyledSubText>
-          ) : null}
-        </>
+        !Array.isArray(selected) && (
+          <>
+            {selected?.icon ? (
+              <SelectedIcon
+                fillColor={hasError ? Colors.POMEGRANATE2 : selected?.iconColor}
+                hoverFillColor={
+                  hasError ? Colors.POMEGRANATE2 : selected?.iconColor
+                }
+                name={selected.icon}
+                size={selected.iconSize || IconSize.XL}
+              />
+            ) : null}
+            <Label />
+            {selected?.subText && !hideSubText ? (
+              <StyledSubText
+                className="sub-text"
+                showDropIcon={showDropIcon}
+                type={TextType.P1}
+              >
+                {selected.subText}
+              </StyledSubText>
+            ) : null}
+          </>
+        )
       )}
     </SelectedDropDownHolder>
   );
@@ -539,8 +629,9 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   optionClickHandler: (option: DropdownOption) => void;
   renderOption?: RenderOption;
   headerLabel?: string;
-  selected: DropdownOption;
+  selected: DropdownOption | DropdownOption[];
   optionWidth: string;
+  isMultiSelect?: boolean;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
@@ -591,12 +682,27 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               optionWidth,
             });
           }
+          let isSelected = false;
+          if (
+            props.isMultiSelect &&
+            Array.isArray(props.selected) &&
+            props.selected.length
+          ) {
+            isSelected = !!props.selected.find(
+              (selectedOption) => selectedOption.value === option.value,
+            );
+          } else {
+            isSelected =
+              (props.selected as DropdownOption).value === option.value;
+          }
           return !option.isSectionHeader ? (
             <OptionWrapper
+              aria-selected={isSelected}
               className="t--dropdown-option"
               key={index}
               onClick={() => props.optionClickHandler(option)}
-              selected={props.selected.value === option.value}
+              role="option"
+              selected={isSelected}
             >
               {option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
@@ -609,7 +715,15 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                   size={option.iconSize || IconSize.XL}
                 />
               ) : null}
-
+              {props.isMultiSelect ? (
+                isSelected ? (
+                  <SquareBox backgroundColor="#f86a2b" borderColor="#f86a2b">
+                    <StyledCheckmark />
+                  </SquareBox>
+                ) : (
+                  <SquareBox borderColor="#a9a7a7" />
+                )
+              ) : null}
               {props.showLabelOnly ? (
                 props.truncateOption ? (
                   <TooltipWrappedText
@@ -632,7 +746,6 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : (
                 <Text type={TextType.P1}>{option.value}</Text>
               )}
-
               {option.subText ? (
                 <StyledSubText type={TextType.P3}>
                   {option.subText}
@@ -661,10 +774,13 @@ export default function Dropdown(props: DropdownProps) {
     errorMsg = "",
     placeholder,
     helperText,
+    removeSelectedOption,
     hasError,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<DropdownOption>(props.selected);
+  const [selected, setSelected] = useState<DropdownOption | DropdownOption[]>(
+    props.selected,
+  );
 
   const closeIfOpen = () => {
     if (isOpen) {
@@ -679,12 +795,40 @@ export default function Dropdown(props: DropdownProps) {
 
   const optionClickHandler = useCallback(
     (option: DropdownOption) => {
-      setSelected(option);
+      if (props.isMultiSelect) {
+        // Multi select -> typeof selected is array of objects
+        if (!selected) {
+          setSelected([option]);
+        } else {
+          const newOptions: DropdownOption[] = [
+            ...(selected as DropdownOption[]),
+            option,
+          ];
+          setSelected(newOptions);
+        }
+      } else {
+        // Single select -> typeof selected is object
+        setSelected(option);
+      }
       setIsOpen(false);
       onSelect && onSelect(option.value, option);
       option.onSelect && option.onSelect(option.value, option);
     },
     [onSelect],
+  );
+
+  //Removes selected option
+  const selectedOptionClickHandler = useCallback(
+    (optionToBeRemoved: DropdownOption) => {
+      setIsOpen(false);
+      const selectedOptions = (selected as DropdownOption[]).filter(
+        (option: DropdownOption) => option.value !== optionToBeRemoved.value,
+      );
+      setSelected(selectedOptions);
+      removeSelectedOption &&
+        removeSelectedOption(optionToBeRemoved.value, optionToBeRemoved);
+    },
+    [removeSelectedOption],
   );
 
   const errorFlag = hasError || errorMsg.length > 0;
@@ -696,6 +840,67 @@ export default function Dropdown(props: DropdownProps) {
       setIsOpen(!isOpen);
     }
   };
+
+  const handleKeydown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case "Escape":
+          if (isOpen) {
+            setSelected((prevSelected) => {
+              if (prevSelected != props.selected) return props.selected;
+              return prevSelected;
+            });
+            setIsOpen(false);
+            e.nativeEvent.stopImmediatePropagation();
+          }
+          break;
+        case " ":
+        case "Enter":
+          e.preventDefault();
+          if (isOpen && !("length" in selected)) optionClickHandler(selected);
+          else onClickHandler();
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          if (isOpen) {
+            setSelected((prevSelected) => {
+              if (!("length" in prevSelected)) {
+                let index = findIndex(props.options, prevSelected);
+                if (index === 0) index = props.options.length - 1;
+                else index--;
+                return props.options[index];
+              }
+              return prevSelected;
+            });
+          } else {
+            onClickHandler();
+          }
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          if (isOpen) {
+            setSelected((prevSelected) => {
+              if (!("length" in prevSelected)) {
+                let index = findIndex(props.options, prevSelected);
+                if (index === props.options.length - 1) index = 0;
+                else index++;
+                return props.options[index];
+              }
+              return prevSelected;
+            });
+          } else {
+            onClickHandler();
+          }
+          break;
+        case "Tab":
+          if (isOpen) {
+            setIsOpen(false);
+          }
+          break;
+      }
+    },
+    [isOpen, props.options, props.selected, selected],
+  );
 
   const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
     "100%",
@@ -731,7 +936,8 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={errorFlag}
-        height={props.height || "38px"}
+        height={props.height || getMinHeight(props.isMultiSelect)}
+        isMultiSelect={props.isMultiSelect}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         selected={!!selected}
@@ -739,14 +945,15 @@ export default function Dropdown(props: DropdownProps) {
         <SelectedValueNode
           hasError={errorFlag}
           hideSubText={props.hideSubText}
+          isMultiSelect={props.isMultiSelect}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
           renderNode={renderOption}
           selected={selected}
+          selectedOptionClickHandler={selectedOptionClickHandler}
           showDropIcon={showDropIcon}
           showLabelOnly={props.showLabelOnly}
         />
-        {}
         {isLoading ? (
           <Spinner size={IconSize.LARGE} />
         ) : (
@@ -773,7 +980,9 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={props.height || "36px"}
+      height={getMinHeight(props.isMultiSelect)}
+      onKeyDown={handleKeydown}
+      role="listbox"
       tabIndex={0}
       width={dropdownWidth}
     >
@@ -790,15 +999,17 @@ export default function Dropdown(props: DropdownProps) {
         {dropdownTrigger}
         <RenderDropdownOptions
           {...props}
+          isMultiSelect={props.isMultiSelect}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
-          selected={
-            props.selected
-              ? props.selected
-              : { id: undefined, value: undefined }
-          }
+          selected={selected ? selected : { id: undefined, value: undefined }}
         />
       </Popover>
     </DropdownContainer>
   );
+}
+
+function getMinHeight(isMultiSelect?: boolean): string {
+  if (isMultiSelect) return "44px";
+  return "38px";
 }

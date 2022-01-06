@@ -38,7 +38,7 @@ public class FieldName {
     public static final String DISTINCT_KEY = DISTINCT + "." + KEY;
     public static final String FIND_LIMIT = FIND + "." + LIMIT;
     public static final String FIND_SKIP = FIND + "." + SKIP;
-    public static final String UPDATE_LIMIT = UPDATE + "." + LIMIT;
+    public static final String UPDATE_LIMIT = UPDATE_MANY + "." + LIMIT;
 
 
     public static final String RAW = "RAW";

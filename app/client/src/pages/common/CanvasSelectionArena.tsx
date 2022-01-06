@@ -45,6 +45,7 @@ export interface SelectedArenaDimensions {
 
 export function CanvasSelectionArena({
   canExtend,
+  dropDisabled,
   parentId,
   snapColumnSpace,
   snapRows,
@@ -52,6 +53,7 @@ export function CanvasSelectionArena({
   widgetId,
 }: {
   canExtend: boolean;
+  dropDisabled: boolean;
   parentId?: string;
   snapColumnSpace: number;
   widgetId: string;
@@ -434,6 +436,7 @@ export function CanvasSelectionArena({
   }, [
     appLayout,
     currentPageId,
+    dropDisabled,
     mainContainer,
     isDragging,
     isResizing,
@@ -445,7 +448,13 @@ export function CanvasSelectionArena({
 
   const shouldShow =
     appMode === APP_MODE.EDIT &&
-    !(isDragging || isResizing || isCommentMode || isPreviewMode);
+    !(
+      isDragging ||
+      isResizing ||
+      isCommentMode ||
+      isPreviewMode ||
+      dropDisabled
+    );
 
   return shouldShow ? (
     <StyledSelectionCanvas

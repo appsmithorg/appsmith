@@ -66,10 +66,10 @@ const MainTabsContainer = styled.div`
   height: 100%;
 `;
 
-const SectionGrid = styled.div`
+const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr 180px;
+  grid-template-columns: 1fr ${({ isActiveTab }) => isActiveTab && "180px"};
   grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
   flex: 1;
@@ -487,7 +487,11 @@ class IntegrationsHomeScreen extends React.Component<
           <HeaderFlex>
             <p className="sectionHeadings">Datasources</p>
           </HeaderFlex>
-          <SectionGrid>
+          <SectionGrid
+            isActiveTab={
+              this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE
+            }
+          >
             <MainTabsContainer>
               {showTabs && (
                 <TabComponent

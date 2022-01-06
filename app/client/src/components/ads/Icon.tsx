@@ -77,6 +77,7 @@ import { ControlIcons } from "icons/ControlIcons";
 
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
+import AddMoreFillIcon from "remixicon-react/AddCircleFillIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
@@ -189,6 +190,7 @@ export const IconCollection = [
   "PARAGRAPH",
   "PARAGRAPH_TWO",
   "add-more",
+  "add-more-fill",
   "arrow-forward",
   "arrow-left",
   "swap-horizontal",
@@ -372,6 +374,9 @@ const Icon = forwardRef(
         break;
       case "add-more":
         returnIcon = <AddMoreIcon />;
+        break;
+      case "add-more-fill":
+        returnIcon = <AddMoreFillIcon />;
         break;
       case "arrow-forward":
         returnIcon = <ArrowForwardIcon />;

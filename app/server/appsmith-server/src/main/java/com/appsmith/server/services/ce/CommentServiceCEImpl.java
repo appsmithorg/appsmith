@@ -7,8 +7,8 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
@@ -62,6 +62,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_COMMENT;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THREAD;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
@@ -395,7 +396,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         final String defaultPageId = commentThread.getPageId();
         return Mono.zip(
                         applicationService.findBranchedApplicationId(branchName, defaultAppId, COMMENT_ON_APPLICATIONS),
-                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES))
+                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, READ_PAGES))
                 .flatMap(tuple -> {
                     String branchedApplicationId = tuple.getT1();
                     String branchedPageId = tuple.getT2().getId();
@@ -577,7 +578,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     );
                     if(!permissionPresentForUser) {
                         // user is app viewer, show only PUBLISHED comment threads
-                        commentThreadFilterDTO.setMode(CommentMode.PUBLISHED);
+                        commentThreadFilterDTO.setMode(ApplicationMode.PUBLISHED);
                     }
                     return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREAD)
                             .collectList()
