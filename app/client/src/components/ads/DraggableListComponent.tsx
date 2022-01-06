@@ -42,8 +42,7 @@ export class DroppableComponent extends React.Component<
     const previousOrder = prevProps.items.map(this.getVisibleObject);
     return (
       !isEqual(presentOrder, previousOrder) ||
-      (!!this.props.focusedIndex &&
-        this.props.focusedIndex !== prevProps.focusedIndex)
+      this.props.focusedIndex !== prevProps.focusedIndex
     );
   }
 

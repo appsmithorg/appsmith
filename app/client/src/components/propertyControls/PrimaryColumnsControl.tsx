@@ -142,12 +142,13 @@ function ColumnControlComponent(props: RenderComponentProps) {
   const debouncedFocus = updateFocus ? _.debounce(updateFocus, 400) : noop;
 
   useEffect(() => {
-    if (focusedIndex === index) {
-      ref && ref.current && ref?.current.focus();
-    } else {
-      ref && ref.current && ref?.current.blur();
+    if (!!focusedIndex && focusedIndex === index) {
+      if (ref && ref.current) {
+        ref?.current.focus();
+      }
     }
   }, [focusedIndex]);
+
   const onChange = useCallback(
     (index: number, value: string) => {
       setValue(value);
