@@ -82,13 +82,19 @@ export class AggregateHelper {
         //cy.get(this._homePageAppCreateBtn);
     }
 
-    public CreateNewApplication(){
+    public CreateNewApplication() {
         cy.get(this._homePageAppCreateBtn).click({ force: true })
         cy.wait("@createNewApplication").should(
             "have.nested.property",
             "response.body.responseMeta.status",
             201,
         );
+    }
+
+    public validateCodeEditorContent(selector: string, contentToValidate: any) {
+        cy.get(selector).within(() => {
+            cy.get(".CodeMirror-code").should("have.text", contentToValidate);
+        });
     }
 }
 

@@ -69,12 +69,21 @@ export class ApiPage {
         );
     }
 
-    SetAPITimeout(timeout : number) {
+    SetAPITimeout(timeout: number) {
         cy.get(this._apiTab('Settings')).click();
         cy.xpath(this._queryTimeout)
             .clear()
             .type(timeout.toString());
 
         cy.get(this._apiTab('Header')).click();
+    }
+
+    ValidateQueryParams(param: { key: string; value: string; }) {
+        cy.xpath(this._paramsTab)
+            .should("be.visible")
+            .click({ force: true });
+
+        agHelper.validateCodeEditorContent(this._paramKey(0), param.key)
+        agHelper.validateCodeEditorContent(this._paramValue(0), param.value)
     }
 }
