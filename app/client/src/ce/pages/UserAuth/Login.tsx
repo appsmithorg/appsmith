@@ -29,7 +29,7 @@ import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 import Button, { Size } from "components/ads/Button";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { SocialLoginsFactory } from "pages/UserAuth/SocialLoginsFactory";
+import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
 import { withTheme } from "styled-components";
@@ -82,7 +82,7 @@ export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
-  const socialLoginList = SocialLoginsFactory.methods;
+  const socialLoginList = ThirdPartyLoginRegistry.get();
   const queryParams = new URLSearchParams(location.search);
   let showError = false;
   const currentUser = useSelector(getCurrentUser);
