@@ -1,5 +1,5 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Table Widget", function() {
