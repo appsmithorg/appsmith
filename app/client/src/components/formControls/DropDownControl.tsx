@@ -6,14 +6,11 @@ import { ControlType } from "constants/PropertyControlConstants";
 import _ from "lodash";
 import {
   Field,
-  getFormValues,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { QueryAction } from "entities/Action";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
