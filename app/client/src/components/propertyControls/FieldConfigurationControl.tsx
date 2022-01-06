@@ -3,7 +3,9 @@ import { cloneDeep, debounce, isEmpty, maxBy, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
-import SchemaParser from "widgets/JSONFormWidget/schemaParser";
+import SchemaParser, {
+  getKeysFromSchema,
+} from "widgets/JSONFormWidget/schemaParser";
 import styled from "constants/DefaultTheme";
 import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
 import { Category, Size } from "components/ads/Button";
@@ -188,9 +190,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const schemaItem = this.findSchemaItem(index);
 
     if (schemaItem) {
-      const { name } = schemaItem;
+      const { identifier } = schemaItem;
 
-      this.updateProperty(`${propertyName}.${name}.label`, updatedLabel);
+      this.updateProperty(`${propertyName}.${identifier}.label`, updatedLabel);
     }
   };
 
@@ -199,9 +201,12 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const schemaItem = this.findSchemaItem(index);
 
     if (schemaItem) {
-      const { isVisible, name } = schemaItem;
+      const { identifier, isVisible } = schemaItem;
 
-      this.updateProperty(`${propertyName}.${name}.isVisible`, !isVisible);
+      this.updateProperty(
+        `${propertyName}.${identifier}.isVisible`,
+        !isVisible,
+      );
     }
   };
 
@@ -211,7 +216,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
     const { widgetName } = widgetProperties;
     const schema: Schema = propertyValue;
-    const existingKeys = Object.keys(schema);
+    const existingKeys = getKeysFromSchema(schema, "identifier");
     const schemaItems = Object.values(schema);
     const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
     const lastSchemaItemPosition = lastSchemaItem?.position || -1;
@@ -221,6 +226,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
       widgetName,
       isCustomField: true,
       skipDefaultValueProcessing: true,
+      sanitizedKey: nextFieldKey,
     });
 
     schemaItem.position = lastSchemaItemPosition + 1;
@@ -285,8 +291,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const isMaxLevelReached = Boolean(!panelConfig);
 
     const draggableComponentColumns: DroppableItem[] = sortedSchemaItems.map(
-      ({ isCustomField, isVisible, label, name }, index) => ({
-        id: name,
+      ({ identifier, isCustomField, isVisible, label }, index) => ({
+        id: identifier,
         index,
         isCustomField,
         isVisible,

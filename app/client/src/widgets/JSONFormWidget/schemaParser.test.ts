@@ -18,48 +18,6 @@ import { DataType, FieldType, Schema, SchemaItem } from "./constants";
 
 const widgetName = "JSONForm1";
 
-describe("#nameAndLabel", () => {
-  it("returns name and transformed label", () => {
-    const inputs = [
-      "camelCase",
-      "kebab-case",
-      "PascalCase",
-      "snake_case",
-      "UPPER_CASE_SNAKE_CASE",
-    ];
-
-    const expectedOutputs = [
-      {
-        name: "camelCase",
-        label: "Camel Case",
-      },
-      {
-        name: "kebab-case",
-        label: "̊Kebab Case",
-      },
-      {
-        name: "PascalCase",
-        label: "Pascal Case",
-      },
-      {
-        name: "snake_case",
-        label: "Snake Case",
-      },
-      {
-        name: "UPPER_CASE_SNAKE_CASE",
-        label: "UPPER CASE SNAKE CASE",
-      },
-    ];
-
-    inputs.forEach((input, index) => {
-      const result = SchemaParser.nameAndLabel(input);
-
-      expect(expectedOutputs[index].name).toMatch(result.name);
-      expect(expectedOutputs[index].label).toMatch(result.label);
-    });
-  });
-});
-
 describe("#parse", () => {
   it("returns a new schema for a valid data source", () => {
     const result = SchemaParser.parse(
@@ -173,6 +131,7 @@ describe("#getSchemaItemByFieldType", () => {
       isCustomField: false,
       name: "city",
       identifier: "city",
+      originalIdentifier: "city",
       position: 1,
       serverSideFiltering: false,
       isFilterable: false,
@@ -213,6 +172,7 @@ describe("#getSchemaItemByFieldType", () => {
       isCustomField: true,
       name: "newCityName",
       identifier: "city",
+      originalIdentifier: "city",
       position: 1,
       serverSideFiltering: false,
       isFilterable: false,
@@ -250,6 +210,7 @@ describe("#getSchemaItemByFieldType", () => {
           isCustomField: false,
           name: "__array_item__",
           identifier: "__array_item__",
+          originalIdentifier: "__array_item__",
           position: -1,
           isSpellCheck: false,
         },
@@ -262,6 +223,7 @@ describe("#getSchemaItemByFieldType", () => {
       isCustomField: false,
       name: "hobbies",
       identifier: "hobbies",
+      originalIdentifier: "hobbies",
       isCollapsible: true,
       position: 4,
     };
@@ -298,6 +260,7 @@ describe("#getSchemaItemByFieldType", () => {
           isCustomField: false,
           name: "__array_item__",
           identifier: "__array_item__",
+          originalIdentifier: "__array_item__",
           position: -1,
         },
       },
@@ -309,6 +272,7 @@ describe("#getSchemaItemByFieldType", () => {
       isCustomField: false,
       name: "name",
       identifier: "name",
+      originalIdentifier: "name",
       isCollapsible: true,
       position: 0,
     };
@@ -341,6 +305,7 @@ describe("#getSchemaItemFor", () => {
       isCustomField: false,
       name: "firstName",
       identifier: "firstName",
+      originalIdentifier: "firstName",
       position: -1,
       isSpellCheck: false,
     };
@@ -350,6 +315,7 @@ describe("#getSchemaItemFor", () => {
       currSourceData: "John",
       sourceDataPath: "sourceData.firstName",
       skipDefaultValueProcessing: false,
+      sanitizedKey: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -370,6 +336,7 @@ describe("#getSchemaItemFor", () => {
       isCustomField: true,
       name: "firstName",
       identifier: "firstName",
+      originalIdentifier: "firstName",
       position: -1,
       isSpellCheck: false,
     };
@@ -380,6 +347,7 @@ describe("#getSchemaItemFor", () => {
       sourceDataPath: "sourceData.firstName",
       isCustomField: true,
       skipDefaultValueProcessing: false,
+      sanitizedKey: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -400,6 +368,7 @@ describe("#getSchemaItemFor", () => {
       isCustomField: true,
       name: "firstName",
       identifier: "firstName",
+      originalIdentifier: "firstName",
       position: -1,
       alignWidget: "LEFT",
     };
@@ -411,6 +380,7 @@ describe("#getSchemaItemFor", () => {
       isCustomField: true,
       fieldType: FieldType.SWITCH,
       skipDefaultValueProcessing: false,
+      sanitizedKey: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -432,6 +402,7 @@ describe("#getSchemaItemFor", () => {
       isCustomField: false,
       name: "hobbies",
       identifier: "hobbies",
+      originalIdentifier: "hobbies",
       position: -1,
       serverSideFiltering: false,
       options: [
@@ -446,6 +417,7 @@ describe("#getSchemaItemFor", () => {
       currSourceData: ["one", "two"],
       sourceDataPath: "sourceData.hobbies",
       skipDefaultValueProcessing: false,
+      sanitizedKey: key,
     });
 
     expect(result).toEqual(expectedOutput);
@@ -467,6 +439,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       isCustomField: false,
       name: "firstName",
       identifier: "firstName",
+      originalIdentifier: "firstName",
       position: -1,
       isSpellCheck: false,
     };
@@ -479,6 +452,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       sourceDataPath,
       widgetName,
       skipDefaultValueProcessing: false,
+      sanitizedKey: schemaItem.identifier,
     });
 
     expect(result).toEqual(schemaItem);
@@ -498,6 +472,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       isCustomField: false,
       name: "hobbies",
       identifier: "hobbies",
+      originalIdentifier: "hobbies",
       position: -1,
       serverSideFiltering: false,
       options: [
@@ -516,6 +491,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       sourceDataPath,
       widgetName,
       skipDefaultValueProcessing: false,
+      sanitizedKey: schemaItem.identifier,
     });
 
     expect(result).toEqual(schemaItem);
@@ -548,6 +524,7 @@ describe("#convertArrayToSchema", () => {
             isCustomField: false,
             name: "firstName",
             identifier: "firstName",
+            originalIdentifier: "firstName",
             position: 0,
             isSpellCheck: false,
           },
@@ -561,6 +538,7 @@ describe("#convertArrayToSchema", () => {
         isCustomField: false,
         name: "__array_item__",
         identifier: "__array_item__",
+        originalIdentifier: "__array_item__",
         position: -1,
       },
     };
@@ -570,6 +548,7 @@ describe("#convertArrayToSchema", () => {
       widgetName,
       sourceDataPath: "sourceData.entries",
       skipDefaultValueProcessing: false,
+      sanitizedKey: "__array_item__",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -601,6 +580,7 @@ describe("#convertArrayToSchema", () => {
             isCustomField: false,
             name: "name",
             identifier: "firstName",
+            originalIdentifier: "firstName",
             position: 0,
             isSpellCheck: true,
             isRequired: true,
@@ -616,6 +596,7 @@ describe("#convertArrayToSchema", () => {
         isCustomField: false,
         name: "__array_item__",
         identifier: "__array_item__",
+        originalIdentifier: "__array_item__",
         position: -1,
       },
     };
@@ -638,6 +619,7 @@ describe("#convertArrayToSchema", () => {
             isCustomField: false,
             name: "name",
             identifier: "firstName",
+            originalIdentifier: "firstName",
             position: 0,
             isSpellCheck: true,
             isRequired: true,
@@ -654,6 +636,7 @@ describe("#convertArrayToSchema", () => {
             isCustomField: false,
             name: "lastName",
             identifier: "lastName",
+            originalIdentifier: "lastName",
             position: 1,
             isSpellCheck: false,
           },
@@ -669,6 +652,7 @@ describe("#convertArrayToSchema", () => {
         isCustomField: false,
         name: "__array_item__",
         identifier: "__array_item__",
+        originalIdentifier: "__array_item__",
         position: -1,
       },
     };
@@ -679,6 +663,7 @@ describe("#convertArrayToSchema", () => {
       sourceDataPath: "sourceData.entries",
       prevSchema,
       skipDefaultValueProcessing: false,
+      sanitizedKey: "__array_item__",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -705,6 +690,7 @@ describe("#convertObjectToSchema", () => {
         isCustomField: false,
         name: "firstName",
         identifier: "firstName",
+        originalIdentifier: "firstName",
         position: 0,
         isSpellCheck: false,
       },
@@ -715,6 +701,7 @@ describe("#convertObjectToSchema", () => {
       widgetName,
       sourceDataPath: "sourceData.entry",
       skipDefaultValueProcessing: false,
+      sanitizedKey: "firstName",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -739,6 +726,7 @@ describe("#convertObjectToSchema", () => {
         isCustomField: false,
         name: "name",
         identifier: "firstName",
+        originalIdentifier: "firstName",
         position: 0,
         isSpellCheck: true,
         isRequired: true,
@@ -758,6 +746,7 @@ describe("#convertObjectToSchema", () => {
         isCustomField: false,
         name: "name",
         identifier: "firstName",
+        originalIdentifier: "firstName",
         position: 0,
         isSpellCheck: true,
         isRequired: true,
@@ -775,6 +764,7 @@ describe("#convertObjectToSchema", () => {
         isCustomField: false,
         name: "lastName",
         identifier: "lastName",
+        originalIdentifier: "lastName",
         position: 1,
         isSpellCheck: false,
       },
@@ -786,6 +776,117 @@ describe("#convertObjectToSchema", () => {
       sourceDataPath: "sourceData.entries",
       prevSchema,
       skipDefaultValueProcessing: false,
+      sanitizedKey: "lastName",
+    });
+
+    expect(result).toEqual(expectedSchema);
+  });
+
+  it("returns modified schema with only modified updates when similar keys are passed", () => {
+    const currSourceData = {
+      firstName: "John",
+      "##": "Doe",
+      "%%": "Some other value",
+    };
+
+    const prevSchema = {
+      firstName: {
+        isDisabled: false,
+        label: "First Name",
+        isVisible: true,
+        children: {},
+        dataType: DataType.STRING,
+        defaultValue: "Modified default value",
+        fieldType: FieldType.TEXT,
+        sourceData: "John",
+        isCustomField: false,
+        name: "name",
+        identifier: "firstName",
+        originalIdentifier: "firstName",
+        position: 0,
+        isSpellCheck: true,
+        isRequired: true,
+      },
+      __: {
+        isDisabled: false,
+        label: "##",
+        isVisible: true,
+        children: {},
+        dataType: DataType.STRING,
+        defaultValue:
+          '{{((sourceData, formData, fieldState) => (sourceData.entries["##"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+        fieldType: FieldType.TEXT,
+        sourceData: "Doe",
+        isCustomField: false,
+        name: "__",
+        identifier: "__",
+        originalIdentifier: "##",
+        position: 1,
+        isSpellCheck: false,
+      },
+    };
+
+    const expectedSchema = {
+      firstName: {
+        isDisabled: false,
+        label: "First Name",
+        isVisible: true,
+        children: {},
+        dataType: DataType.STRING,
+        defaultValue: "Modified default value",
+        fieldType: FieldType.TEXT,
+        sourceData: "John",
+        isCustomField: false,
+        name: "name",
+        identifier: "firstName",
+        originalIdentifier: "firstName",
+        position: 0,
+        isSpellCheck: true,
+        isRequired: true,
+      },
+      __: {
+        isDisabled: false,
+        label: "##",
+        isVisible: true,
+        children: {},
+        dataType: DataType.STRING,
+        defaultValue:
+          '{{((sourceData, formData, fieldState) => (sourceData.entries["##"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+        fieldType: FieldType.TEXT,
+        sourceData: "Doe",
+        isCustomField: false,
+        name: "__",
+        identifier: "__",
+        originalIdentifier: "##",
+        position: 1,
+        isSpellCheck: false,
+      },
+      __1: {
+        isDisabled: false,
+        label: "%%",
+        isVisible: true,
+        children: {},
+        dataType: DataType.STRING,
+        defaultValue:
+          '{{((sourceData, formData, fieldState) => (sourceData.entries["%%"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+        fieldType: FieldType.TEXT,
+        sourceData: "Some other value",
+        isCustomField: false,
+        name: "__1",
+        identifier: "__1",
+        originalIdentifier: "%%",
+        position: 2,
+        isSpellCheck: false,
+      },
+    };
+
+    const result = SchemaParser.convertObjectToSchema({
+      currSourceData,
+      widgetName,
+      sourceDataPath: "sourceData.entries",
+      prevSchema,
+      skipDefaultValueProcessing: false,
+      sanitizedKey: "lastName",
     });
 
     expect(result).toEqual(expectedSchema);
@@ -820,19 +921,30 @@ describe(".getSourcePath", () => {
     const resultWithBasePath = getSourcePath(input, basePath);
     const resultWithoutBasePath = getSourcePath(input);
 
-    expect(resultWithBasePath).toMatch("sourceData.obj.test");
-    expect(resultWithoutBasePath).toMatch("test");
+    expect(resultWithBasePath).toEqual("sourceData.obj.test");
+    expect(resultWithoutBasePath).toEqual(".test");
   });
 
-  it("returns path with array notation when name is number", () => {
+  it("returns path with bracket notation when name is number", () => {
     const input = 0;
     const basePath = "sourceData.arr";
 
     const resultWithBasePath = getSourcePath(input, basePath);
     const resultWithoutBasePath = getSourcePath(input);
 
-    expect(resultWithBasePath).toMatch("sourceData.arr[0]");
-    expect(resultWithoutBasePath).toMatch("[0]");
+    expect(resultWithBasePath).toEqual("sourceData.arr[0]");
+    expect(resultWithoutBasePath).toEqual("[0]");
+  });
+
+  it("returns path with bracket notation when name cannot be used in dot notation", () => {
+    const input = "first name";
+    const basePath = "sourceData.arr";
+
+    const resultWithBasePath = getSourcePath(input, basePath);
+    const resultWithoutBasePath = getSourcePath(input);
+
+    expect(resultWithBasePath).toEqual('sourceData.arr["first name"]');
+    expect(resultWithoutBasePath).toEqual('["first name"]');
   });
 });
 
@@ -842,12 +954,18 @@ describe(".getSourceDataPathFromSchemaItemPath", () => {
       "schema.__root_schema__.children.name",
       "schema.__root_schema__.children.education.children.__array_item__.children.college",
       "schema.__root_schema__.children.address.children.Line1",
+      "schema.__root_schema__.children.education.children.__array_item__",
+      "schema.__root_schema__.children.education",
+      "schema.__root_schema__.children.__",
     ];
 
     const expectedOutputs = [
       "sourceData.name",
       "sourceData.education[0].college",
       "sourceData.address.Line1",
+      "sourceData.education[0]",
+      "sourceData.education",
+      'sourceData["%%"]',
     ];
 
     inputs.forEach((input, index) => {
@@ -856,7 +974,7 @@ describe(".getSourceDataPathFromSchemaItemPath", () => {
         input,
       );
 
-      expect(result).toMatch(expectedOutputs[index]);
+      expect(result).toEqual(expectedOutputs[index]);
     });
   });
 });
@@ -1004,19 +1122,21 @@ describe(".getKeysFromSchema", () => {
       "dob",
       "boolean",
       "hobbies",
+      "%%",
       "education",
       "address",
     ];
 
     const result = getKeysFromSchema(
       testData.initialDataset.schemaOutput.__root_schema__.children,
+      "originalIdentifier",
     );
 
     expect(result).toEqual(expectedOutput);
   });
 
   it("return empty array for empty schema", () => {
-    const result = getKeysFromSchema({});
+    const result = getKeysFromSchema({}, "originalIdentifier");
 
     expect(result).toEqual([]);
   });
@@ -1033,11 +1153,12 @@ describe(".getKeysFromSchema", () => {
       "dob",
       "boolean",
       "hobbies",
+      "%%",
       "education",
       "address",
     ];
 
-    const result = getKeysFromSchema(schema);
+    const result = getKeysFromSchema(schema, "originalIdentifier");
 
     expect(result).toEqual(expectedOutput);
   });
@@ -1065,10 +1186,11 @@ describe("#applyPositions", () => {
     expect(schema.dob.position).toEqual(2);
     expect(schema.boolean.position).toEqual(3);
     expect(schema.hobbies.position).toEqual(4);
-    expect(schema.education.position).toEqual(5);
-    expect(schema.address.position).toEqual(6);
-    expect(schema.firstNewField.position).toEqual(7);
-    expect(schema.secondNewField.position).toEqual(8);
+    expect(schema.__.position).toEqual(5);
+    expect(schema.education.position).toEqual(6);
+    expect(schema.address.position).toEqual(7);
+    expect(schema.firstNewField.position).toEqual(8);
+    expect(schema.secondNewField.position).toEqual(9);
   });
 
   it("repositions any when keys are deleted only when new keys added to the schema ", () => {
@@ -1094,9 +1216,10 @@ describe("#applyPositions", () => {
     expect(schema.age.position).toEqual(1);
     expect(schema.boolean.position).toEqual(2);
     expect(schema.hobbies.position).toEqual(3);
-    expect(schema.address.position).toEqual(4);
-    expect(schema.firstNewField.position).toEqual(5);
-    expect(schema.secondNewField.position).toEqual(6);
+    expect(schema.__.position).toEqual(4);
+    expect(schema.address.position).toEqual(5);
+    expect(schema.firstNewField.position).toEqual(6);
+    expect(schema.secondNewField.position).toEqual(7);
 
     expect(schema.dob).toBeUndefined();
     expect(schema.education).toBeUndefined();

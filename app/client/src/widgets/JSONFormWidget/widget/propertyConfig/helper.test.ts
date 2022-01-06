@@ -40,13 +40,13 @@ describe(".fieldTypeUpdateHook", () => {
           isVisible: true,
           children: {},
           dataType: DataType.STRING,
-          defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          defaultValue: undefined,
           fieldType: FieldType.TEXT,
           sourceData: "travelling",
           isCustomField: false,
           name: "__array_item__",
           identifier: "__array_item__",
+          originalIdentifier: "__array_item__",
           isSpellCheck: false,
           position: -1,
         },
@@ -59,6 +59,7 @@ describe(".fieldTypeUpdateHook", () => {
       isCustomField: false,
       name: "hobbies",
       identifier: "hobbies",
+      originalIdentifier: "hobbies",
       position: 4,
     };
 
@@ -95,13 +96,13 @@ describe(".fieldTypeUpdateHook", () => {
           isVisible: true,
           children: {},
           dataType: DataType.STRING,
-          defaultValue:
-            "{{((sourceData, formData, fieldState) => (sourceData.hobbies[0]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          defaultValue: undefined,
           fieldType: FieldType.TEXT,
           sourceData: "travelling",
           isCustomField: false,
           name: "__array_item__",
           identifier: "__array_item__",
+          originalIdentifier: "__array_item__",
           isSpellCheck: false,
           position: -1,
         },
@@ -114,6 +115,7 @@ describe(".fieldTypeUpdateHook", () => {
       isCustomField: false,
       name: "hobbies",
       identifier: "hobbies",
+      originalIdentifier: "hobbies",
       position: 4,
     };
 

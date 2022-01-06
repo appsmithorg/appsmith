@@ -1,6 +1,10 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
   ARRAY_ITEM_KEY,
   FIELD_EXPECTING_OPTIONS,
@@ -17,6 +21,85 @@ import {
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "../helper";
+
+function accessorValidation(
+  value: any,
+  props: JSONFormWidgetProps,
+  lodash: any,
+  _: any,
+  propertyPath: string,
+): ValidationResponse {
+  const propertyPathChunks = propertyPath.split(".");
+  const grandParentPath = propertyPathChunks.slice(0, -2).join(".");
+  const schemaItemIdentifier = propertyPathChunks.slice(-2)[0]; // ['schema', '__root_field__', 'children', 'age', 'name'] -> age
+  const schema = lodash.cloneDeep(lodash.get(props, grandParentPath));
+  const RESTRICTED_KEYS = ["__array_item__", "__root_schema__"];
+  // Remove the current edited schemaItem from schema so it doesn't
+  // get picked in the existing keys list
+  delete schema[schemaItemIdentifier];
+
+  if (typeof value !== "string") {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Accessor must be a string"],
+    };
+  }
+
+  if (value === "") {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Accessor cannot be empty"],
+    };
+  }
+
+  if (value !== value.replace(/[^\w]/gi, "_")) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [
+        "Accessor cannot have special characters, except underscore (_)",
+      ],
+    };
+  }
+
+  if (/\d/.test(value[0])) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Accessor cannot start with a number"],
+    };
+  }
+
+  const existingKeys = (Object.values(schema) || []).map(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    (schemaItem) => schemaItem.name,
+  );
+
+  if (existingKeys.includes(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Accessor with same name is already present."],
+    };
+  }
+
+  if (RESTRICTED_KEYS.includes(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Accessor cannot be a restricted name"],
+    };
+  }
+
+  return {
+    isValid: true,
+    parsed: value,
+    messages: [""],
+  };
+}
 
 const COMMON_PROPERTIES = {
   fieldType: [
@@ -82,29 +165,39 @@ const COMMON_PROPERTIES = {
   ],
   customField: [
     {
-      helpText: "Sets the label text of the widget",
+      helpText:
+        "Sets the key which can be used to access the particular field.",
       propertyName: "name",
-      label: "Key",
+      label: "Accessor",
       controlType: "INPUT_TEXT",
       placeholderText: "name",
-      isBindProperty: false,
+      isBindProperty: true,
       isTriggerProperty: false,
-      validation: { type: ValidationTypes.TEXT },
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: accessorValidation,
+          expected: {
+            type:
+              "unique string with no special characters except(_) and should not start with number(s)",
+            example: `firstName | last_name | age14`,
+            autocompleteDataType: AutocompleteDataType.STRING,
+          },
+        },
+      },
       hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
         const parentPath = getParentPropertyPath(propertyPath);
         const schemaItem: SchemaItem = get(props, parentPath);
         const isArrayItem = schemaItem.identifier === ARRAY_ITEM_KEY;
 
         if (isArrayItem) return true;
-
-        return !schemaItem?.isCustomField;
       },
       dependencies: ["schema"],
     },
   ],
   accessibility: [
     {
-      helpText: "Sets the label text of the widget",
+      helpText: "Sets the label text of the field",
       propertyName: "label",
       label: "Label",
       controlType: "INPUT_TEXT",

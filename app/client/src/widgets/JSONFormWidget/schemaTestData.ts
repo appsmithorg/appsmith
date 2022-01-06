@@ -7,6 +7,7 @@ const initialDataset = {
     dob: "10/12/2021",
     boolean: true,
     hobbies: ["travelling", "skating", "off-roading"],
+    "%%": "%",
     education: [
       {
         college: "String field ",
@@ -41,6 +42,7 @@ const initialDataset = {
           isCustomField: false,
           name: "name",
           identifier: "name",
+          originalIdentifier: "name",
           position: 0,
         },
         age: {
@@ -57,6 +59,7 @@ const initialDataset = {
           isCustomField: false,
           name: "age",
           identifier: "age",
+          originalIdentifier: "age",
           position: 1,
         },
         dob: {
@@ -78,6 +81,7 @@ const initialDataset = {
           isCustomField: false,
           name: "dob",
           identifier: "dob",
+          originalIdentifier: "dob",
           position: 2,
         },
         boolean: {
@@ -94,6 +98,7 @@ const initialDataset = {
           isCustomField: false,
           name: "boolean",
           identifier: "boolean",
+          originalIdentifier: "boolean",
           position: 3,
         },
         hobbies: {
@@ -115,7 +120,25 @@ const initialDataset = {
           isCustomField: false,
           name: "hobbies",
           identifier: "hobbies",
+          originalIdentifier: "hobbies",
           position: 4,
+        },
+        __: {
+          isDisabled: false,
+          label: "%%",
+          isVisible: true,
+          isSpellCheck: false,
+          children: {},
+          dataType: DataType.STRING,
+          defaultValue:
+            '{{((sourceData, formData, fieldState) => (sourceData["%%"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+          fieldType: FieldType.TEXT,
+          sourceData: "%",
+          isCustomField: false,
+          name: "__",
+          identifier: "__",
+          originalIdentifier: "%%",
+          position: 5,
         },
         education: {
           isCollapsible: true,
@@ -141,6 +164,7 @@ const initialDataset = {
                   isCustomField: false,
                   name: "college",
                   identifier: "college",
+                  originalIdentifier: "college",
                   position: 0,
                 },
                 number: {
@@ -156,6 +180,7 @@ const initialDataset = {
                   isCustomField: false,
                   name: "number",
                   identifier: "number",
+                  originalIdentifier: "number",
                   position: 1,
                 },
                 graduationDate: {
@@ -175,6 +200,7 @@ const initialDataset = {
                   isCustomField: false,
                   name: "graduationDate",
                   identifier: "graduationDate",
+                  originalIdentifier: "graduationDate",
                   position: 2,
                 },
                 boolean: {
@@ -190,6 +216,7 @@ const initialDataset = {
                   isCustomField: false,
                   name: "boolean",
                   identifier: "boolean",
+                  originalIdentifier: "boolean",
                   position: 3,
                 },
               },
@@ -205,6 +232,7 @@ const initialDataset = {
               isCustomField: false,
               name: "__array_item__",
               identifier: "__array_item__",
+              originalIdentifier: "__array_item__",
               position: -1,
             },
           },
@@ -223,7 +251,8 @@ const initialDataset = {
           isCustomField: false,
           name: "education",
           identifier: "education",
-          position: 5,
+          originalIdentifier: "education",
+          position: 6,
         },
         address: {
           isDisabled: false,
@@ -244,6 +273,7 @@ const initialDataset = {
               isCustomField: false,
               name: "Line1",
               identifier: "Line1",
+              originalIdentifier: "Line1",
               position: 0,
             },
             city: {
@@ -260,6 +290,7 @@ const initialDataset = {
               isCustomField: false,
               name: "city",
               identifier: "city",
+              originalIdentifier: "city",
               position: 1,
             },
           },
@@ -271,7 +302,8 @@ const initialDataset = {
           isCustomField: false,
           name: "address",
           identifier: "address",
-          position: 6,
+          originalIdentifier: "address",
+          position: 7,
         },
       },
       dataType: DataType.OBJECT,
@@ -284,6 +316,7 @@ const initialDataset = {
         dob: "10/12/2021",
         boolean: true,
         hobbies: ["travelling", "skating", "off-roading"],
+        "%%": "%",
         education: [
           {
             college: "String field ",
@@ -300,6 +333,7 @@ const initialDataset = {
       isCustomField: false,
       name: "",
       identifier: "",
+      originalIdentifier: "",
       position: -1,
     },
   },
@@ -345,6 +379,7 @@ const withRemovedKeyFromInitialDataset = {
           isCustomField: false,
           name: "name",
           identifier: "name",
+          originalIdentifier: "name",
           position: 0,
         },
         age: {
@@ -361,6 +396,7 @@ const withRemovedKeyFromInitialDataset = {
           isCustomField: false,
           name: "age",
           identifier: "age",
+          originalIdentifier: "age",
           position: 1,
         },
         dob: {
@@ -382,6 +418,7 @@ const withRemovedKeyFromInitialDataset = {
           isCustomField: false,
           name: "dob",
           identifier: "dob",
+          originalIdentifier: "dob",
           position: 2,
         },
         hobbies: {
@@ -403,6 +440,7 @@ const withRemovedKeyFromInitialDataset = {
           isCustomField: false,
           name: "hobbies",
           identifier: "hobbies",
+          originalIdentifier: "hobbies",
           position: 4,
         },
         education: {
@@ -429,6 +467,7 @@ const withRemovedKeyFromInitialDataset = {
                   isCustomField: false,
                   name: "college",
                   identifier: "college",
+                  originalIdentifier: "college",
                   position: 0,
                 },
                 number: {
@@ -444,6 +483,7 @@ const withRemovedKeyFromInitialDataset = {
                   isCustomField: false,
                   name: "number",
                   identifier: "number",
+                  originalIdentifier: "number",
                   position: 1,
                 },
                 graduationDate: {
@@ -463,6 +503,7 @@ const withRemovedKeyFromInitialDataset = {
                   isCustomField: false,
                   name: "graduationDate",
                   identifier: "graduationDate",
+                  originalIdentifier: "graduationDate",
                   position: 2,
                 },
                 boolean: {
@@ -478,6 +519,7 @@ const withRemovedKeyFromInitialDataset = {
                   isCustomField: false,
                   name: "boolean",
                   identifier: "boolean",
+                  originalIdentifier: "boolean",
                   position: 3,
                 },
               },
@@ -493,6 +535,7 @@ const withRemovedKeyFromInitialDataset = {
               isCustomField: false,
               name: "__array_item__",
               identifier: "__array_item__",
+              originalIdentifier: "__array_item__",
               position: -1,
             },
           },
@@ -511,7 +554,8 @@ const withRemovedKeyFromInitialDataset = {
           isCustomField: false,
           name: "education",
           identifier: "education",
-          position: 5,
+          originalIdentifier: "education",
+          position: 6,
         },
         address: {
           isDisabled: false,
@@ -532,6 +576,7 @@ const withRemovedKeyFromInitialDataset = {
               isCustomField: false,
               name: "Line1",
               identifier: "Line1",
+              originalIdentifier: "Line1",
               position: 0,
             },
             city: {
@@ -548,6 +593,7 @@ const withRemovedKeyFromInitialDataset = {
               isCustomField: false,
               name: "city",
               identifier: "city",
+              originalIdentifier: "city",
               position: 1,
             },
           },
@@ -559,7 +605,8 @@ const withRemovedKeyFromInitialDataset = {
           isCustomField: false,
           name: "address",
           identifier: "address",
-          position: 6,
+          originalIdentifier: "address",
+          position: 7,
         },
       },
       dataType: DataType.OBJECT,
@@ -587,6 +634,7 @@ const withRemovedKeyFromInitialDataset = {
       isCustomField: false,
       name: "",
       identifier: "",
+      originalIdentifier: "",
       position: -1,
     },
   },
@@ -633,6 +681,7 @@ const withRemovedAddedKeyToInitialDataset = {
           isCustomField: false,
           name: "name",
           identifier: "name",
+          originalIdentifier: "name",
           position: 0,
         },
         age: {
@@ -649,6 +698,7 @@ const withRemovedAddedKeyToInitialDataset = {
           isCustomField: false,
           name: "age",
           identifier: "age",
+          originalIdentifier: "age",
           position: 1,
         },
         dob: {
@@ -670,6 +720,7 @@ const withRemovedAddedKeyToInitialDataset = {
           isCustomField: false,
           name: "dob",
           identifier: "dob",
+          originalIdentifier: "dob",
           position: 2,
         },
         hobbies: {
@@ -691,6 +742,7 @@ const withRemovedAddedKeyToInitialDataset = {
           isCustomField: false,
           name: "hobbies",
           identifier: "hobbies",
+          originalIdentifier: "hobbies",
           position: 3,
         },
         education: {
@@ -717,6 +769,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isCustomField: false,
                   name: "college",
                   identifier: "college",
+                  originalIdentifier: "college",
                   position: 0,
                 },
                 number: {
@@ -732,6 +785,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isCustomField: false,
                   name: "number",
                   identifier: "number",
+                  originalIdentifier: "number",
                   position: 1,
                 },
                 graduationDate: {
@@ -751,6 +805,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isCustomField: false,
                   name: "graduationDate",
                   identifier: "graduationDate",
+                  originalIdentifier: "graduationDate",
                   position: 2,
                 },
                 boolean: {
@@ -766,6 +821,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isCustomField: false,
                   name: "boolean",
                   identifier: "boolean",
+                  originalIdentifier: "boolean",
                   position: 3,
                 },
               },
@@ -781,6 +837,7 @@ const withRemovedAddedKeyToInitialDataset = {
               isCustomField: false,
               name: "__array_item__",
               identifier: "__array_item__",
+              originalIdentifier: "__array_item__",
               position: -1,
             },
           },
@@ -799,6 +856,7 @@ const withRemovedAddedKeyToInitialDataset = {
           isCustomField: false,
           name: "education",
           identifier: "education",
+          originalIdentifier: "education",
           position: 4,
         },
         address: {
@@ -820,6 +878,7 @@ const withRemovedAddedKeyToInitialDataset = {
               isCustomField: false,
               name: "Line1",
               identifier: "Line1",
+              originalIdentifier: "Line1",
               position: 0,
             },
             city: {
@@ -836,6 +895,7 @@ const withRemovedAddedKeyToInitialDataset = {
               isCustomField: false,
               name: "city",
               identifier: "city",
+              originalIdentifier: "city",
               position: 1,
             },
           },
@@ -847,6 +907,7 @@ const withRemovedAddedKeyToInitialDataset = {
           isCustomField: false,
           name: "address",
           identifier: "address",
+          originalIdentifier: "address",
           position: 5,
         },
         gender: {
@@ -863,6 +924,7 @@ const withRemovedAddedKeyToInitialDataset = {
           isCustomField: false,
           name: "gender",
           identifier: "gender",
+          originalIdentifier: "gender",
           position: 6,
         },
       },
@@ -892,6 +954,7 @@ const withRemovedAddedKeyToInitialDataset = {
       isCustomField: false,
       name: "",
       identifier: "",
+      originalIdentifier: "",
       position: -1,
     },
   },

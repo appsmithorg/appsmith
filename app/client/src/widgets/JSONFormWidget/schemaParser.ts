@@ -7,6 +7,7 @@ import {
   sortBy,
   startCase,
 } from "lodash";
+import { sanitizeKey } from "widgets/WidgetUtils";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
@@ -19,6 +20,7 @@ import {
   SchemaItem,
   getBindingTemplate,
   FieldComponentBaseProps,
+  RESTRICTED_KEYS,
 } from "./constants";
 
 type Obj = Record<string, any>;
@@ -30,12 +32,13 @@ type ParserOptions = {
   isCustomField?: boolean;
   prevSchema?: Schema;
   schemaItem?: SchemaItem;
-  // Why skip default value processing?
+  // - skipDefaultValueProcessing
   // When an array type is detected, by default we want to process default value
   // only for the array level and keep every every field below it as empty default.
   skipDefaultValueProcessing: boolean;
   sourceDataPath?: string;
   widgetName: string;
+  sanitizedKey: string;
 };
 
 type SchemaItemsByFieldOptions = {
@@ -71,46 +74,60 @@ export const constructPlausibleObjectFromArray = (arrayOfObj: Obj[]) => {
 };
 
 export const getSourcePath = (name: string | number, basePath?: string) => {
+  let nameWithNotation = name;
+
   if (typeof name === "string") {
-    return basePath ? `${basePath}.${name}` : name;
+    const sanitizedName = typeof name === "string" && sanitizeKey(name);
+    nameWithNotation = `.${name}`;
+
+    if (sanitizedName !== name) {
+      nameWithNotation = `["${name}"]`;
+    }
   }
 
-  const indexedName = `[${name}]`;
+  if (typeof name === "number") {
+    nameWithNotation = `[${name}]`;
+  }
 
-  return basePath ? `${basePath}${indexedName}` : indexedName;
+  return basePath ? `${basePath}${nameWithNotation}` : `${nameWithNotation}`;
 };
 
 export const getSourceDataPathFromSchemaItemPath = (
   schema: Schema,
   schemaItemPath: string,
 ) => {
-  const keys = schemaItemPath.split(".");
+  const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", "__root_schema__", "children", "name"]
   let clonedSchema = cloneDeep(schema);
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
   let skipIteration = false;
-  let notation = "";
+  let hasObjectParent = false;
 
   keys.forEach((key, index) => {
+    // Skipping index 0 as it starts with "schema"
     if (index !== 0 && !skipIteration) {
       schemaItem = clonedSchema[key];
 
       if (!schemaItem) return;
 
-      if (index !== 1 && schemaItem.identifier !== "__array_item__") {
-        sourceDataPath = sourceDataPath.concat(schemaItem.identifier);
+      if (index !== 1) {
+        if (schemaItem.identifier === "__array_item__") {
+          sourceDataPath = sourceDataPath.concat("[0]");
+        } else if (hasObjectParent) {
+          const identifier =
+            schemaItem.originalIdentifier !== schemaItem.identifier
+              ? `["${schemaItem.originalIdentifier}"]`
+              : `.${schemaItem.identifier}`;
+
+          sourceDataPath = sourceDataPath.concat(identifier);
+        }
       }
 
-      if (schemaItem.dataType === DataType.OBJECT) {
-        notation = ".";
-      } else if (schemaItem.dataType === DataType.ARRAY) {
-        notation = "[0]";
-      }
+      hasObjectParent = schemaItem.dataType === DataType.OBJECT;
 
       if (!isEmpty(schemaItem.children)) {
         clonedSchema = schemaItem.children;
         skipIteration = true;
-        sourceDataPath = sourceDataPath.concat(notation);
       }
     } else if (skipIteration) {
       skipIteration = false;
@@ -178,14 +195,26 @@ export const fieldTypeFor = (value: any) => {
   return potentialFieldType;
 };
 
-export const getKeysFromSchema = (schema: Schema) => {
-  return Object.entries(schema).reduce<string[]>((keys, [key, schemaItem]) => {
+export const getKeysFromSchema = (
+  schema: Schema,
+  keyProperty: keyof SchemaItem,
+) => {
+  return Object.values(schema).reduce<string[]>((keys, schemaItem) => {
     if (!schemaItem.isCustomField) {
-      keys.push(key);
+      keys.push(schemaItem[keyProperty]);
     }
 
     return keys;
   }, []);
+};
+
+export const mapOriginalIdentifierToSanitizedIdentifier = (schema: Schema) => {
+  const map: Record<string, string> = {};
+  Object.values(schema).map(({ identifier, originalIdentifier }) => {
+    map[originalIdentifier] = identifier;
+  });
+
+  return map;
 };
 
 export const applyPositions = (schema: Schema, newKeys?: string[]) => {
@@ -230,13 +259,6 @@ export const hasNullOrUndefined = (items: any[]) =>
   items.includes(null) || items.includes(undefined);
 
 class SchemaParser {
-  static nameAndLabel = (key: string) => {
-    return {
-      name: key,
-      label: startCase(key),
-    };
-  };
-
   static parse = (
     widgetName: string,
     currSourceData?: JSON,
@@ -257,6 +279,7 @@ class SchemaParser {
       sourceDataPath: "sourceData",
       widgetName,
       skipDefaultValueProcessing: false,
+      sanitizedKey: "",
     });
 
     return {
@@ -297,12 +320,14 @@ class SchemaParser {
       widgetName,
       sourceDataPath,
       skipDefaultValueProcessing: false,
+      sanitizedKey: schemaItem.identifier,
     });
 
     const oldSchemaItemProperties = pick(schemaItem, [
       "name",
       "position",
       "identifier",
+      "originalIdentifier",
       "label",
     ]);
 
@@ -328,6 +353,7 @@ class SchemaParser {
     const {
       currSourceData,
       isCustomField = false,
+      sanitizedKey,
       skipDefaultValueProcessing,
       sourceDataPath,
       widgetName,
@@ -336,7 +362,6 @@ class SchemaParser {
     const dataType = dataTypeFor(currSourceData);
     const fieldType = options.fieldType || fieldTypeFor(currSourceData);
     const FieldComponent = FIELD_MAP[fieldType];
-    const { label, name } = SchemaParser.nameAndLabel(key);
     const bindingTemplate = getBindingTemplate(widgetName);
 
     const defaultValue = (() => {
@@ -380,7 +405,7 @@ class SchemaParser {
 
       return {
         ...defaultValues,
-        label: label || defaultValues.label,
+        label: startCase(key) || key || defaultValues.label,
       };
     })();
 
@@ -391,9 +416,10 @@ class SchemaParser {
       fieldType,
       sourceData: currSourceData,
       isCustomField,
-      name,
-      identifier: name,
+      name: sanitizedKey,
+      identifier: sanitizedKey,
       position: -1,
+      originalIdentifier: key,
       ...componentDefaultValues,
     };
   };
@@ -447,6 +473,7 @@ class SchemaParser {
         currSourceData: currData,
         sourceDataPath: getSourcePath(0, sourceDataPath),
         skipDefaultValueProcessing: true,
+        sanitizedKey: ARRAY_ITEM_KEY,
       });
     } else {
       schema[ARRAY_ITEM_KEY] = SchemaParser.getUnModifiedSchemaItemFor({
@@ -455,6 +482,7 @@ class SchemaParser {
         sourceDataPath: getSourcePath(0, sourceDataPath),
         widgetName,
         skipDefaultValueProcessing: true,
+        sanitizedKey: ARRAY_ITEM_KEY,
       });
     }
 
@@ -469,22 +497,29 @@ class SchemaParser {
     ...rest
   }: ParserOptions): Schema => {
     const schema = cloneDeep(prevSchema);
+    const origIdentifierToIdentifierMap = mapOriginalIdentifierToSanitizedIdentifier(
+      schema,
+    );
     const currObj = currSourceData as Obj;
 
     const currKeys = Object.keys(currSourceData);
-    const prevKeys = getKeysFromSchema(prevSchema);
+    const prevKeys = getKeysFromSchema(prevSchema, "originalIdentifier");
 
     const newKeys = difference(currKeys, prevKeys);
     const removedKeys = difference(prevKeys, currKeys);
     const modifiedKeys = difference(currKeys, newKeys.concat(removedKeys));
 
     modifiedKeys.forEach((modifiedKey) => {
-      const currDataType = dataTypeFor(currObj[modifiedKey]);
-      const prevDataType = schema[modifiedKey].dataType;
+      const identifier = origIdentifierToIdentifierMap[modifiedKey];
+      const prevSchemaItem = cloneDeep(schema[identifier]);
+      const currData = currObj[modifiedKey];
+      const prevData = prevSchemaItem.sourceData;
+      const currDataType = dataTypeFor(currData);
+      const prevDataType = schema[identifier].dataType;
 
       const isArrayAndSubDataTypeChanged = checkIfArrayAndSubDataTypeChanged(
-        currObj[modifiedKey],
-        schema[modifiedKey].sourceData,
+        currData,
+        prevData,
       );
 
       /**
@@ -498,50 +533,61 @@ class SchemaParser {
        */
 
       const valuesHaveNullOrUndefined = hasNullOrUndefined([
-        currObj[modifiedKey],
-        schema[modifiedKey].sourceData,
+        currData,
+        prevData,
       ]);
 
       if (
         !valuesHaveNullOrUndefined &&
         (isArrayAndSubDataTypeChanged || currDataType !== prevDataType)
       ) {
-        const prevSchemaItem = cloneDeep(schema[modifiedKey]);
-
-        schema[modifiedKey] = SchemaParser.getSchemaItemFor(modifiedKey, {
+        schema[identifier] = SchemaParser.getSchemaItemFor(modifiedKey, {
           ...rest,
-          currSourceData: currObj[modifiedKey],
-          prevSchema: schema[modifiedKey].children,
+          currSourceData: currData,
+          prevSchema: prevSchemaItem.children,
           sourceDataPath: getSourcePath(modifiedKey, sourceDataPath),
           widgetName,
+          sanitizedKey: identifier,
         });
 
-        schema[modifiedKey].position = prevSchemaItem.position;
+        schema[identifier].position = prevSchemaItem.position;
       } else {
-        schema[modifiedKey] = SchemaParser.getUnModifiedSchemaItemFor({
+        schema[identifier] = SchemaParser.getUnModifiedSchemaItemFor({
           ...rest,
-          currSourceData: currObj[modifiedKey],
-          schemaItem: schema[modifiedKey],
+          currSourceData: currData,
+          schemaItem: prevSchemaItem,
           sourceDataPath: getSourcePath(modifiedKey, sourceDataPath),
+          sanitizedKey: identifier,
           widgetName,
         });
       }
     });
 
     removedKeys.forEach((removedKey) => {
-      delete schema[removedKey];
+      const identifier = origIdentifierToIdentifierMap[removedKey];
+      delete schema[identifier];
     });
 
+    const newSanitizedKeys: string[] = [];
+    const existingKeys = [
+      ...getKeysFromSchema(schema, "identifier"),
+      ...RESTRICTED_KEYS,
+    ];
     newKeys.forEach((newKey) => {
-      schema[newKey] = SchemaParser.getSchemaItemFor(newKey, {
+      const schemaItem = SchemaParser.getSchemaItemFor(newKey, {
         ...rest,
         currSourceData: currObj[newKey],
         sourceDataPath: getSourcePath(newKey, sourceDataPath),
+        sanitizedKey: sanitizeKey(newKey, { existingKeys }),
         widgetName,
       });
+
+      schema[schemaItem.identifier] = schemaItem;
+      newSanitizedKeys.push(schemaItem.identifier);
+      existingKeys.push(schemaItem.identifier);
     });
 
-    applyPositions(schema, newKeys);
+    applyPositions(schema, newSanitizedKeys);
 
     return schema;
   };

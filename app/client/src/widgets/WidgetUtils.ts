@@ -20,6 +20,10 @@ import {
 } from "components/constants";
 import tinycolor from "tinycolor2";
 
+type SanitizeOptions = {
+  existingKeys?: string[];
+};
+
 export function getDisplayName(WrappedComponent: {
   displayName: any;
   name: any;
@@ -173,4 +177,72 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
     .replace(/\\f/g, "\\\\f") //
     .replace(/\\/g, "\\\\") //
     .replace(/\\r/g, "\\\\r"); //
+};
+
+// Creates a map between the string part of a key with max suffixed number found
+// eg. keys -> ["key1", "key10", "newKey"]
+// returns -> {key: 10, newKey: 0 }
+const generateKeyToIndexMap = (keys: string[]) => {
+  const map: Record<string, number> = {};
+
+  keys.forEach((key) => {
+    /**
+     * input key123
+     * -> ['123', index: 3, input: 'key123', groups: undefined] (match return value)
+     *
+     * input key
+     * -> null
+     */
+    const match = key.match(/\d+$/);
+    let prefix = key;
+    let suffix = 0;
+    const isKeyPresentInMap = map.hasOwnProperty(prefix);
+
+    if (match) {
+      prefix = key.slice(0, match.index); // key123 -> key
+      suffix = parseInt(match[0], 10);
+    }
+
+    if (!isKeyPresentInMap || (isKeyPresentInMap && map[key] < suffix)) {
+      map[prefix] = suffix;
+    }
+  });
+
+  return map;
+};
+
+export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
+  // Step 1 Replaces all spl. characters/spaces with _
+  let sanitizedKey = key.replace(/[^\w]/gi, "_");
+
+  // Step 2 Check if empty key
+  if (sanitizedKey.length === 0) sanitizedKey = "_";
+
+  // Step 3 Check if key starts with number
+  const [firstCharacter] = sanitizedKey;
+  if (/\d/.test(firstCharacter)) sanitizedKey = `_${sanitizedKey}`;
+
+  // Step 4 handle checking with existing keys if present
+  const { existingKeys = [] } = options || {};
+  if (existingKeys.length) {
+    const keyToIndexMap = generateKeyToIndexMap(existingKeys);
+    const exactMatch = existingKeys.includes(sanitizedKey);
+
+    if (!exactMatch) return sanitizedKey;
+
+    const match = sanitizedKey.match(/\d+$/);
+    let prefix = sanitizedKey;
+
+    if (match) {
+      prefix = sanitizedKey.slice(0, match.index); // key123 -> key
+    }
+
+    if (keyToIndexMap.hasOwnProperty(prefix)) {
+      return `${prefix}${keyToIndexMap[prefix] + 1}`;
+    }
+
+    return sanitizedKey;
+  }
+
+  return sanitizedKey;
 };

@@ -78,6 +78,7 @@ export type SchemaItem = FieldComponentBaseProps & {
   name: string;
   position: number;
   identifier: string;
+  originalIdentifier: string;
 };
 
 export type ComponentDefaultValuesFnProps<TSourceData = any> = {
@@ -105,6 +106,8 @@ export type Schema = Record<string, SchemaItem>;
 
 export const ARRAY_ITEM_KEY = "__array_item__";
 export const ROOT_SCHEMA_KEY = "__root_schema__";
+
+export const RESTRICTED_KEYS = [ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY];
 
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.ARRAY]: ArrayField,
