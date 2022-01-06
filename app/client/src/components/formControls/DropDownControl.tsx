@@ -9,6 +9,8 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -44,14 +46,16 @@ function renderDropdown(props: {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
   props: DropDownControlProps & { width?: string };
-  options: { label: string; value: string }[];
+  fetchOptionsCondtionally: boolean;
+  formName: string;
+  dropDownOptions: DropdownOption[];
 }): JSX.Element {
   let selectedValue = props.input?.value;
   if (_.isUndefined(props.input?.value)) {
     selectedValue = props?.props?.initialValue;
   }
   const selectedOption =
-    props?.options.find(
+    props.dropDownOptions.find(
       (option: DropdownOption) => option.value === selectedValue,
     ) || {};
   return (
@@ -64,7 +68,7 @@ function renderDropdown(props: {
       isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth="50vh"
-      options={props.options}
+      options={props.dropDownOptions}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
@@ -81,6 +85,25 @@ export interface DropDownControlProps extends ControlProps {
   isMultiSelect?: boolean;
   isDisabled?: boolean;
   isSearchable?: boolean;
+  fetchOptionsCondtionally?: boolean;
 }
+const mapStateToProps = (state: AppState, ownProps: DropDownControlProps) => {
+  let dropDownOptions: DropdownOption[] = [];
 
-export default DropDownControl;
+  // if the component has an option enabled to fetch the options dynamically,
+  if (ownProps.fetchOptionsCondtionally) {
+    // TODO: this is just a test, will be updated once the fetchDynamicFormData is implemented
+    dropDownOptions = [
+      { label: "Test1", value: "SINGLE" },
+      { label: "Test2", value: "ALL" },
+    ];
+  } else {
+    dropDownOptions = ownProps.options;
+  }
+
+  return {
+    dropDownOptions,
+  };
+};
+
+export default connect(mapStateToProps)(DropDownControl);
