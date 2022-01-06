@@ -33,7 +33,7 @@ Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-
 
 The fastest way to start with Appsmith is the cloud-hosted version. When you're ready, you can also host it yourself.
 
-- Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website)
+- Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website) _(Recommended)_
 - Install locally or on a private instance with [Docker](https://docs.appsmith.com/setup/docker?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) _(Recommended)_
 - Deploy on a [Kubernetes](https://docs.appsmith.com/setup/kubernetes?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) cluster
 - Deploy to [AWS with an AMI](https://docs.appsmith.com/setup/aws-ami?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) on the marketplace
