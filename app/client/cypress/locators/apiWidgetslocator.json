@@ -52,12 +52,12 @@
   "actionlist": ".action div div",
   "settings": "li:contains('Settings')",
   "headers": "li:contains('Headers')",
-  "onPageLoad": "[data-cy=executeOnLoad]",
+  "onPageLoad": "[name=executeOnLoad]",
   "renameEntity": ".single-select >div:contains('Edit Name')",
   "paramsTab": "//li//span[text()='Params']",
   "paramKey": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.key\\.0",
   "paramValue": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\.0",
   "multipartTypeDropdown":"button:contains('Type')",
-  "confirmBeforeExecute": "[data-cy=confirmBeforeExecute]",
+  "confirmBeforeExecute": "[name=confirmBeforeExecute]",
   "runQueryButton": ".t--apiFormRunBtn"
 }

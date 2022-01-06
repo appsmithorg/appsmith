@@ -2,7 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.CommentMode;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
@@ -49,7 +49,7 @@ public class CustomCommentThreadRepositoryImplTest {
         CommentThread thread = new CommentThread();
         thread.setPageId(pageId);
         thread.setApplicationId(applicationId);
-        thread.setMode(CommentMode.EDIT);
+        thread.setMode(ApplicationMode.EDIT);
         User user = new User();
         user.setEmail(userEmail);
 
@@ -254,7 +254,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.saveAll(threads)
                 .collectList()
-                .then(commentThreadRepository.archiveByPageId(pageOneId, CommentMode.EDIT))
+                .then(commentThreadRepository.archiveByPageId(pageOneId, ApplicationMode.EDIT))
                 .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
                 .collectMultimap(CommentThread::getPageId);
 
@@ -278,7 +278,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
         // create few comment threads with pageId and permission that'll be deleted
         CommentThread thread = createThreadWithAllPermission(threadUser, applicationId, testPageId);
-        thread.setMode(CommentMode.PUBLISHED);
+        thread.setMode(ApplicationMode.PUBLISHED);
 
         // add api_user to thread policy with read thread permission
         for(Policy policy: thread.getPolicies()) {
@@ -291,7 +291,7 @@ public class CustomCommentThreadRepositoryImplTest {
         }
 
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
-                .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT)) // this will do nothing
+                .then(commentThreadRepository.archiveByPageId(testPageId, ApplicationMode.EDIT)) // this will do nothing
                 .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
                 .collectMultimap(CommentThread::getPageId);
 

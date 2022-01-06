@@ -8,7 +8,12 @@ import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
-import { createMessage, EMPTY_ACTIVE_DATA_SOURCES } from "constants/messages";
+import {
+  createMessage,
+  EMPTY_ACTIVE_DATA_SOURCES,
+  GENERATE_APPLICATION_TITLE,
+  GENERATE_APPLICATION_DESCRIPTION,
+} from "constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -101,11 +106,11 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
         );
       })}
       <GenerateInfoBanner>
-        <GenerateInfoHeader>Generate an application</GenerateInfoHeader>
+        <GenerateInfoHeader>
+          {createMessage(GENERATE_APPLICATION_TITLE)}
+        </GenerateInfoHeader>
         <GenerateInfoBody>
-          Quickly create a full application with using our Generation
-          &nbsp;Application feature By adding a new query you’ll be able to
-          choose your own widgets, connect them to your data.
+          {createMessage(GENERATE_APPLICATION_DESCRIPTION)}
         </GenerateInfoBody>
       </GenerateInfoBanner>
     </QueryHomePage>
