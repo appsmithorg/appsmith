@@ -4,11 +4,9 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
-import { APP_MODE } from "entities/App";
 import { isBoolean } from "lodash";
 import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
 import { all, put, select, takeLatest } from "redux-saga/effects";
-import { getAppMode } from "selectors/applicationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getReflowBetaFlag,
@@ -18,10 +16,9 @@ import {
 
 function* initReflowStates() {
   try {
-    const editMode: APP_MODE = yield select(getAppMode);
     const user: User = yield select(getCurrentUser);
     const { email } = user;
-    if (editMode && editMode === APP_MODE.EDIT && email) {
+    if (email) {
       const enableReflow: boolean = yield getReflowBetaFlag(email);
       const enableReflowHasBeenSet = isBoolean(enableReflow);
 
