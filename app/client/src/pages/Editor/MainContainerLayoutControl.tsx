@@ -24,6 +24,8 @@ import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { setReflowBetaFlag } from "utils/storage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ReflowCarouselModal from "reflow/betascreens/ReflowCarousel";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -81,6 +83,7 @@ export function MainContainerLayoutControl() {
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
   const shouldResize = useSelector(isReflowEnabled);
+  const user: User | undefined = useSelector(getCurrentUser);
   /**
    * return selected layout. if there is no app
    * layout, use the default one ( fluid )
@@ -112,7 +115,9 @@ export function MainContainerLayoutControl() {
   );
 
   const reflowBetaToggle = (isChecked: boolean) => {
-    setReflowBetaFlag(isChecked);
+    if (user?.email) {
+      setReflowBetaFlag(user.email, isChecked);
+    }
     dispatch(setEnableReflow(isChecked));
     AnalyticsUtil.logEvent("REFLOW_BETA_FLAG", {
       enabled: isChecked,

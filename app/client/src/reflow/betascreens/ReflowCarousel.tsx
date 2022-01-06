@@ -12,30 +12,37 @@ import {
 import { AppState } from "reducers";
 import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
 import { setReflowOnBoardingFlag } from "utils/storage";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
 
 function ReflowCarouselModal() {
   const dispatch = useDispatch();
   const onBoardingState = useSelector(
     (state: AppState) => state.ui.widgetReflow.onBoarding,
   );
+  const user: User | undefined = useSelector(getCurrentUser);
   const forceStopOnBoarding = useSelector(
     (state: AppState) => state.ui.widgetReflow.forceStopOnBoarding,
   );
   const { done: isReflowOnBoardingDone, finishedStep = -1 } = onBoardingState;
   const numberOfSteps = ReflowBetaScreenSteps.length;
-  const stepChange = (current: number) => {
-    const onBoardingState: widgetReflowOnBoardingState = {
-      done: current === numberOfSteps,
-      finishedStep: current,
-    };
-    dispatch(updateReflowOnBoarding(onBoardingState));
-    setReflowOnBoardingFlag(onBoardingState);
+  const stepChange = (current: number, next: number) => {
+    if (current < next) {
+      const onBoardingState: widgetReflowOnBoardingState = {
+        done: next === numberOfSteps,
+        finishedStep: current,
+      };
+      dispatch(updateReflowOnBoarding(onBoardingState));
+      if (user?.email) {
+        setReflowOnBoardingFlag(user.email, onBoardingState);
+      }
+    }
   };
   const [showModal, setShowModal] = useState(
     !forceStopOnBoarding && !isReflowOnBoardingDone,
   );
   const onFinish = () => {
-    stepChange(numberOfSteps);
+    stepChange(numberOfSteps - 1, numberOfSteps);
     closeDialog();
   };
   const closeDialog = () => {
@@ -57,8 +64,8 @@ function ReflowCarouselModal() {
   return showModal ? (
     <ModalComponent
       bottom={25}
-      canEscapeKeyClose
-      canOutsideClickClose
+      canEscapeKeyClose={false}
+      canOutsideClickClose={false}
       data-cy={"help-modal"}
       hasBackDrop={false}
       isOpen

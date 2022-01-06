@@ -57,22 +57,45 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
   }
 };
 
-export const setReflowBetaFlag = (enable: boolean) => {
-  store.setItem(STORAGE_KEYS.REFLOW_BETA_FLAG, enable);
+const getStoredUsersBetaFlags = (email: any) => {
+  return store.getItem(email);
 };
 
-export const getReflowBetaFlag = () => {
-  return store.getItem(STORAGE_KEYS.REFLOW_BETA_FLAG);
+const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
+  return store.setItem(email, userBetaFlagsObj);
 };
 
-export const setReflowOnBoardingFlag = (
+export const setReflowBetaFlag = async (email: any, enable: boolean) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  const updatedObj = {
+    ...userBetaFlagsObj,
+    [STORAGE_KEYS.REFLOW_BETA_FLAG]: enable,
+  };
+  setStoredUsersBetaFlags(email, updatedObj);
+};
+
+export const getReflowBetaFlag = async (email: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  return userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_BETA_FLAG];
+};
+
+export const setReflowOnBoardingFlag = async (
+  email: any,
   onBoardingState: widgetReflowOnBoardingState,
 ) => {
-  store.setItem(STORAGE_KEYS.REFLOW_ONBOARDING_FLAG, onBoardingState);
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  const updatedObj = {
+    ...userBetaFlagsObj,
+    [STORAGE_KEYS.REFLOW_ONBOARDING_FLAG]: onBoardingState,
+  };
+  setStoredUsersBetaFlags(email, updatedObj);
 };
 
-export const getReflowOnBoardingFlag = () => {
-  return store.getItem(STORAGE_KEYS.REFLOW_ONBOARDING_FLAG);
+export const getReflowOnBoardingFlag = async (email: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  return (
+    userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_ONBOARDING_FLAG]
+  );
 };
 
 export const getCopiedWidgets = async () => {
