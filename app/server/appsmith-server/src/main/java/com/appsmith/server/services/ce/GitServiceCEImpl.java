@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -28,9 +29,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -104,6 +107,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final EmailConfig emailConfig;
     private final AnalyticsService analyticsService;
     private final GitCloudServicesUtils gitCloudServicesUtils;
+    private final GitDeployKeysRepository gitDeployKeysRepository;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -1941,6 +1945,32 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> conflictedBranchMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    @Override
+    public Mono<Application> importApplicationFromGit() {
+        return null;
+    }
+
+    @Override
+    public Mono<GitAuth> generateSSHKey() {
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+
+        GitDeployKeys gitDeployKeys = new GitDeployKeys();
+        gitDeployKeys.setGitAuth(gitAuth);
+
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    gitDeployKeys.setEmail(user.getEmail());
+                    return gitDeployKeysRepository.findByEmail(user.getEmail())
+                            .switchIfEmpty(gitDeployKeysRepository.save(gitDeployKeys))
+                            // Over write the existing keys
+                            .flatMap(gitDeployKeys1 -> {
+                                gitDeployKeys1.setGitAuth(gitDeployKeys.getGitAuth());
+                                return gitDeployKeysRepository.save(gitDeployKeys1);
+                            });
+                })
+                .thenReturn(gitAuth);
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {

@@ -1837,5 +1837,37 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKey_DataNotExistsInCollection_Success() {
+        Mono<GitAuth> publicKey = gitService.generateSSHKey();
+
+        StepVerifier
+                .create(publicKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKey_KeyExistsInCollection_Success() {
+        GitAuth publicKey = gitService.generateSSHKey().block();
+
+        Mono<GitAuth> newKey = gitService.generateSSHKey();
+
+        StepVerifier
+                .create(newKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
+                    assertThat(s.getPrivateKey()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
     // TODO TCs for merge is pending
 }

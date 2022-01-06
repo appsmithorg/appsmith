@@ -7,6 +7,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +32,11 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           ResponseUtils responseUtils,
                           EmailConfig emailConfig,
                           AnalyticsService analyticsService,
-                          GitCloudServicesUtils gitCloudServicesUtils) {
+                          GitCloudServicesUtils gitCloudServicesUtils,
+                          GitDeployKeysRepository gitDeployKeysRepository) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
-                gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils);
+                gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository);
     }
 }
