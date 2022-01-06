@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
@@ -2500,6 +2499,14 @@ Cypress.Commands.add("hoverAndClick", () => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("hoverAndClickParticularIndex", (index) => {
+  cy.xpath(apiwidget.popover)
+    .eq(index)
+    .should("be.hidden")
+    .invoke("show")
+    .click({ force: true });
+});
+
 Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
@@ -2508,6 +2515,12 @@ Cypress.Commands.add("deleteQuery", () => {
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("selectAction", (option) => {
+  cy.get(".single-select")
+    .contains(option)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("deleteJSObject", () => {
