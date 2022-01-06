@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
 } from "../constants/ReduxActionConstants";
 import log from "loglevel";
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "../selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
@@ -44,11 +43,10 @@ function* setFormEvaluationSagaAsync(
         getFormEvaluationState,
       );
       // Trigger the worker to compute the new eval state
-      const workerResponse = yield call(
-        evalFormConfig,
-        EVAL_WORKER_ACTIONS.INIT_FORM_EVAL,
-        { ...action, currentEvalState },
-      );
+      const workerResponse = yield call(evalFormConfig, {
+        ...action,
+        currentEvalState,
+      });
       // Update the eval state in redux only if it is not empty
       if (!!workerResponse) {
         yield put({
