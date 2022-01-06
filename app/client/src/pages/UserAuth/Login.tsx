@@ -43,7 +43,7 @@ import {
   ForgotPasswordLink,
 } from "./StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,

@@ -3,7 +3,7 @@ import {
   Page,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
