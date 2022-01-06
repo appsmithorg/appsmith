@@ -450,7 +450,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     );
                 })
                 .onErrorResume(e -> {
-                    log.error("Unable to open git directory, with error : ", e);
+                    log.error("Error in commit flow: ", e);
                     if (e instanceof RepositoryNotFoundException) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e));
                     } else if (e instanceof AppsmithException) {
@@ -1075,8 +1075,10 @@ public class GitServiceCEImpl implements GitServiceCE {
         3. Rehydrate the application from source application reference
          */
 
-        if (StringUtils.isEmptyOrNull(srcBranch) || srcBranch.startsWith("origin/")) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
+        if (StringUtils.isEmptyOrNull(srcBranch)
+                || srcBranch.startsWith("origin/")
+                || branchDTO.getBranchName().startsWith("origin/")) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
 
         Mono<Application> createBranchMono = applicationService
@@ -1749,7 +1751,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         error.getMessage(),
                                         defaultApplication.getGitApplicationMetadata().getIsRepoPrivate()
                                 ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "Merge", error.getMessage())));
-
                             });
                 })
                 .flatMap(mergeStatusTuple -> {
