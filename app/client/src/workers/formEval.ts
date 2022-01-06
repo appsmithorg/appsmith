@@ -10,6 +10,8 @@ import { FormConfig } from "components/formControls/BaseControl";
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
   SHOW = "show", // When set, the component will be hidden until condition is true
+  ENABLE = "enable", // When set, the component will be enabled until condition is true
+  DISABLE = "disable", // When set, the component will be disabled until condition is true
 }
 
 // Object to hold the initial eval object
@@ -18,6 +20,8 @@ let finalEvalObj: FormEvalOutput;
 // Recursive function to generate the evaluation state for form config
 const generateInitialEvalState = (formConfig: FormConfig) => {
   const visible = false;
+  const enabled = true;
+  let conditionTypes = {};
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if ("conditionals" in formConfig && !!formConfig.conditionals) {
@@ -32,9 +36,29 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
       key = formConfig.identifier;
     }
 
+    const allConditionTypes = Object.keys(formConfig.conditionals);
+    if (
+      allConditionTypes.includes(ConditionType.HIDE) ||
+      allConditionTypes.includes(ConditionType.SHOW)
+    ) {
+      conditionTypes = {
+        ...conditionTypes,
+        visible,
+      };
+    }
+
+    if (
+      allConditionTypes.includes(ConditionType.ENABLE) ||
+      allConditionTypes.includes(ConditionType.DISABLE)
+    ) {
+      conditionTypes = {
+        ...conditionTypes,
+        enabled,
+      };
+    }
     // Conditionals are stored in the eval state itself for quick access
     finalEvalObj[key] = {
-      visible,
+      ...conditionTypes,
       conditionals: formConfig.conditionals,
     };
   }
@@ -61,6 +85,10 @@ function evaluate(
               currentEvalState[key].visible = !output;
             } else if (conditionType === ConditionType.SHOW) {
               currentEvalState[key].visible = output;
+            } else if (conditionType === ConditionType.DISABLE) {
+              currentEvalState[key].enabled = !output;
+            } else if (conditionType === ConditionType.ENABLE) {
+              currentEvalState[key].enabled = output;
             }
           });
         }
