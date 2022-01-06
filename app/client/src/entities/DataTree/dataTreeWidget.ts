@@ -80,9 +80,9 @@ export const generateDataTreeWidget = (
   });
   return {
     ...widget,
+    ...unInitializedDefaultProps,
     ...defaultMetaProps,
     ...derivedProps,
-    ...unInitializedDefaultProps,
     defaultProps,
     defaultMetaProps: Object.keys(defaultMetaProps),
     dynamicBindingPathList,

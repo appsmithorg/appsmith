@@ -201,6 +201,12 @@ describe("generateDataTreeWidget", () => {
         resetOnSubmit: EvaluationSubstitutionType.TEMPLATE,
         text: EvaluationSubstitutionType.TEMPLATE,
         value: EvaluationSubstitutionType.TEMPLATE,
+        "meta.isDirty": EvaluationSubstitutionType.TEMPLATE,
+        "meta.text": EvaluationSubstitutionType.TEMPLATE,
+      },
+      meta: {
+        isDirty: true,
+        text: "Tester",
       },
       triggerPaths: {
         onSubmit: true,
@@ -229,10 +235,10 @@ describe("generateDataTreeWidget", () => {
         value: true,
       },
       value: "{{Input1.text}}",
-      isDirty: true,
+      isDirty: false,
       isFocused: false,
       isValid: "{{true}}",
-      text: "Tester",
+      text: undefined,
       bottomRow: 0,
       isLoading: false,
       leftColumn: 0,
@@ -250,6 +256,11 @@ describe("generateDataTreeWidget", () => {
       defaultMetaProps: ["text", "isDirty", "isFocused"],
       defaultProps: {
         text: "defaultText",
+      },
+      overridingProperties: {
+        defaultText: "text",
+        "meta.isDirty": "isDirty",
+        "meta.text": "text",
       },
     };
 
