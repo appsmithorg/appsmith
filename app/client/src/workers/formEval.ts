@@ -20,7 +20,7 @@ let finalEvalObj: FormEvalOutput;
 // Recursive function to generate the evaluation state for form config
 const generateInitialEvalState = (formConfig: FormConfig) => {
   const visible = false;
-  const enable = false;
+  const enabled = true;
   let conditionTypes = {};
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
@@ -53,7 +53,7 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
     ) {
       conditionTypes = {
         ...conditionTypes,
-        enable,
+        enabled,
       };
     }
     // Conditionals are stored in the eval state itself for quick access
@@ -85,6 +85,10 @@ function evaluate(
               currentEvalState[key].visible = !output;
             } else if (conditionType === ConditionType.SHOW) {
               currentEvalState[key].visible = output;
+            } else if (conditionType === ConditionType.DISABLE) {
+              currentEvalState[key].enabled = !output;
+            } else if (conditionType === ConditionType.ENABLE) {
+              currentEvalState[key].enabled = output;
             }
           });
         }

@@ -4,13 +4,13 @@ import { FetchPageRequest } from "api/PageApi";
 
 export type ConditonalObject = Record<string, string>;
 
-export type FormEvalOutput = Record<
-  string,
-  {
-    visible?: boolean;
-    conditionals?: ConditonalObject;
-  }
->;
+export type ConditionalOutput = {
+  visible?: boolean;
+  enabled?: boolean;
+  conditionals?: ConditonalObject;
+};
+
+export type FormEvalOutput = Record<string, ConditionalOutput>;
 
 export type FormEvaluationState = Record<string, FormEvalOutput>;
 
