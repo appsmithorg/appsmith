@@ -437,7 +437,7 @@ export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 
 // Import/Export Application features
-export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
+export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;

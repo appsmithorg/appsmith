@@ -101,6 +101,7 @@ import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
+import FileLine from "remixicon-react/FileLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GitCommit from "remixicon-react/GitCommitLineIcon";
@@ -233,6 +234,7 @@ export const IconCollection = [
   "eye-on",
   "eye-off",
   "file-transfer",
+  "file-line",
   "filter",
   "fluid",
   "fork",
@@ -500,6 +502,9 @@ const Icon = forwardRef(
         break;
       case "file-transfer":
         returnIcon = <FileTransfer />;
+        break;
+      case "file-line":
+        returnIcon = <FileLine />;
         break;
       case "filter":
         returnIcon = <Filter />;

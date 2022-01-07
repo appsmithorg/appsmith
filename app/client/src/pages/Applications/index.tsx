@@ -834,21 +834,22 @@ function ApplicationsSection(props: any) {
                                 text="Import Application"
                               />
                             )}
-                            {getFeatureFlags().GIT_IMPORT && (
-                              <MenuItem
-                                cypressSelector="t--org-import-app-git"
-                                icon="upload"
-                                onSelect={() =>
-                                  dispatch(
-                                    setIsImportAppViaGitModalOpen({
-                                      isOpen: true,
-                                      organizationId: organization.id,
-                                    }),
-                                  )
-                                }
-                                text="Import Via GIT"
-                              />
-                            )}
+                            {!getFeatureFlags().IMPORT_AT_ONEC &&
+                              getFeatureFlags().GIT_IMPORT && (
+                                <MenuItem
+                                  cypressSelector="t--org-import-app-git"
+                                  icon="upload"
+                                  onSelect={() =>
+                                    dispatch(
+                                      setIsImportAppViaGitModalOpen({
+                                        isOpen: true,
+                                        organizationId: organization.id,
+                                      }),
+                                    )
+                                  }
+                                  text="Import Via GIT"
+                                />
+                              )}
                             <MenuItem
                               icon="share"
                               onSelect={() => setSelectedOrgId(organization.id)}

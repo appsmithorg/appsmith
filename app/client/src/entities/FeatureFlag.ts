@@ -4,6 +4,7 @@ type FeatureFlag = {
   SNIPPET: boolean;
   GIT: boolean;
   GIT_IMPORT: boolean;
+  IMPORT_AT_ONEC: boolean;
 };
 
 export default FeatureFlag;
