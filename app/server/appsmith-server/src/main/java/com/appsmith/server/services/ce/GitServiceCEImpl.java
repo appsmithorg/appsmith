@@ -1979,7 +1979,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     } catch (IOException e) {
                         log.debug("Error while checking if the repo is private: ", e);
                     }
-                    return getPrivateRepoLimitForOrg(organisationId, true)
+                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(organisationId, true)
                             .flatMap(limitCount -> {
                                 // get git connected apps count from db
                                 return applicationService.getGitConnectedApplicationCount(organisationId)
@@ -2086,7 +2086,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 });
 
-        return importedApplicationMono;
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
