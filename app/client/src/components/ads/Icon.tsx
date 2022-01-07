@@ -108,6 +108,7 @@ import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
+import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
@@ -306,6 +307,7 @@ export const IconCollection = [
   "widget",
   "dropdown",
   "refresh",
+  "key",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -534,6 +536,9 @@ const Icon = forwardRef(
         break;
       case "invite-user":
         returnIcon = <InviteUserIcon />;
+        break;
+      case "key":
+        returnIcon = <KeyIcon />;
         break;
       case "left-arrow-2":
         returnIcon = <LeftArrowIcon2 />;
