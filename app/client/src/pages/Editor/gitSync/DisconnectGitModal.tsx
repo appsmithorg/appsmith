@@ -33,6 +33,7 @@ import {
 import Link from "./components/Link";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
 
 const Container = styled.div`
@@ -117,6 +118,12 @@ function DisconnectGitModal() {
               <Link
                 color={Colors.CRIMSON}
                 link={gitDisconnectDocumentUrl}
+                onClick={() => {
+                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                    source: "GIT_DISCONNECTION_MODAL",
+                  });
+                  window.open(gitDisconnectDocumentUrl, "_blank");
+                }}
                 text={createMessage(LEARN_MORE)}
               />
             </div>
@@ -138,6 +145,15 @@ function DisconnectGitModal() {
           <TextInput
             className="t--git-app-name-input"
             fill
+            onBlur={(event) => {
+              AnalyticsUtil.logEvent(
+                "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
+                {
+                  value: event.target.value,
+                  expecting: disconnectingApp.name,
+                },
+              );
+            }}
             onChange={(value) => setAppName(value)}
             trimValue={false}
             value={appName}
