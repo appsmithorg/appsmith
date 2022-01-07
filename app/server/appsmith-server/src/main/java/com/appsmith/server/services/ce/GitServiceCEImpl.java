@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.dtos.GitBranchDTO;
-import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -35,8 +34,8 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
@@ -70,6 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -667,32 +667,31 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitConnectDTO.getRemoteUrl(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
-                        ).onErrorResume(error -> {
-                            log.error("Error while cloning the remote repo, {}", error.getMessage());
-                            if (error instanceof TransportException) {
-                                return addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_CONNECT.getEventName(),
-                                        application.getOrganizationId(),
-                                        defaultApplicationId,
-                                        application.getId(),
-                                        error.getClass().getName(),
-                                        error.getMessage(),
-                                        application.getGitApplicationMetadata().getIsRepoPrivate()
-                                ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION)));
-                            }
-                            if (error instanceof InvalidRemoteException) {
-                                return addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_CONNECT.getEventName(),
-                                        application.getOrganizationId(),
-                                        defaultApplicationId,
-                                        application.getId(),
-                                        error.getClass().getName(),
-                                        error.getMessage(),
-                                        application.getGitApplicationMetadata().getIsRepoPrivate()
-                                ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url")));
-                            }
-                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
-                        });
+                        )
+                        .onErrorResume(error ->
+                                addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_CONNECT.getEventName(),
+                                    application.getOrganizationId(),
+                                    defaultApplicationId,
+                                    application.getId(),
+                                    error.getClass().getName(),
+                                    error.getMessage(),
+                                    application.getGitApplicationMetadata().getIsRepoPrivate())
+                                    .flatMap(user -> {
+                                        log.error("Error while cloning the remote repo, {}", error.getMessage());
+                                        if (error instanceof TransportException) {
+                                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
+                                        }
+                                        if (error instanceof InvalidRemoteException) {
+                                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
+                                        }
+                                        if (error instanceof TimeoutException) {
+                                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                        }
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error));
+                                    })
+                        );
+
                         return Mono.zip(
                                 Mono.just(application),
                                 defaultBranchMono,

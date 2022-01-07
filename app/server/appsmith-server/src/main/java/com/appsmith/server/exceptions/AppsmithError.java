@@ -128,7 +128,8 @@ public enum AppsmithError {
     GIT_APPLICATION_LIMIT_ERROR(402, 4043, "You have reached the maximum number of private git repo counts which can be  connected to the organization. Please reach out to Appsmith support to opt for commercial plan.", AppsmithErrorAction.DEFAULT, null, ErrorType.EE_FEATURE_ERROR),
     GIT_ACTION_FAILED(400, 4044, "git {0} failed. \nDetails: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     GIT_FILE_SYSTEM_ERROR(503, 5013, "Error while accessing the file system. {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
-    GIT_EXECUTION_TIMEOUT(504, 5040, "Git command execution exceeded the maximum allowed time, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),
+    GIT_EXECUTION_TIMEOUT(504, 5014, "Git command execution exceeded the maximum allowed time, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),
+    GIT_GENERIC_ERROR(504, 5015, "Git command execution error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),
     ;
 
     private final Integer httpErrorCode;
