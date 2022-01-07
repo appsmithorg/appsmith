@@ -87,7 +87,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
 
   const goToGitConnectionPopup = () => {
     setIsOpen(false);
-    AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
       source: "Deploy button",
     });
     // todo update if we can determine the number of allowed repos in advance

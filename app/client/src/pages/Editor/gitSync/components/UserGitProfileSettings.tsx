@@ -124,7 +124,7 @@ type UserGitProfileSettingsProps = {
 };
 
 const goToGitProfile = () => {
-  AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK");
+  AnalyticsUtil.logEvent("GS_DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK");
   history.push(GIT_PROFILE_ROUTE);
 };
 

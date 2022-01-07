@@ -8,7 +8,7 @@ import {
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
 import { HelpIcons } from "icons/HelpIcons";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
 import { AppState } from "reducers";

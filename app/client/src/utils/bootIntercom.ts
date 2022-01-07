@@ -1,5 +1,5 @@
 import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();

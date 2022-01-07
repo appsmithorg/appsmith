@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-// import { REQUEST_TIMEOUT_MS } from "constants/ApiConstants";
+import { REQUEST_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import {
   apiFailureResponseInterceptor,
@@ -11,15 +11,7 @@ import { API_REQUEST_HEADERS } from "constants/AppsmithActionConstants/ActionCon
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
   baseURL: "/api/",
-  /**
-   * ========================================================
-   * ========================================================
-   * IMPORTANT: reset timeout before merging, this is just for
-   * trying out cypress runs
-   * ========================================================
-   * ========================================================
-   */
-  timeout: 0, //REQUEST_TIMEOUT_MS,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: API_REQUEST_HEADERS,
   withCredentials: true,
 };

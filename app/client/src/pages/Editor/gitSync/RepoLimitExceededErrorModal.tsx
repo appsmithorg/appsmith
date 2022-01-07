@@ -36,6 +36,7 @@ import {
   ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import InfoWrapper from "./components/InfoWrapper";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
@@ -107,6 +108,9 @@ function RepoLimitExceededErrorModal() {
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
+      AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
+        source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
+      });
       dispatch(setShowRepoLimitErrorModal(false));
       dispatch(
         setDisconnectingGitApplication({
@@ -180,7 +184,12 @@ function RepoLimitExceededErrorModal() {
             <Button
               category={Category.tertiary}
               className="t--contact-sales-button"
-              onClick={openIntercom}
+              onClick={() => {
+                AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
+                  source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
+                });
+                openIntercom();
+              }}
               size={Size.large}
               tag="button"
               text={createMessage(CONTACT_SALES)}

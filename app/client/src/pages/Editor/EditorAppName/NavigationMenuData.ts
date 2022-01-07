@@ -15,7 +15,7 @@ import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
   isPermitted,
@@ -65,7 +65,7 @@ export const GetNavigationMenuData = ({
   // const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
 
   const openGitConnectionPopup = () => {
-    AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
       source: "Application name menu (top left)",
     });
 
