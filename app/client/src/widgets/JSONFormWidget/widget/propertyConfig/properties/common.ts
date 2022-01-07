@@ -387,8 +387,7 @@ const COMMON_PROPERTIES = {
       propertyName: "backgroundColor",
       label: "Background Color",
       controlType: "COLOR_PICKER",
-      helpText:
-        "Changes the background color of each of the collapsable windows",
+      helpText: "Changes the background color",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -400,18 +399,28 @@ const COMMON_PROPERTIES = {
         },
       },
       dependencies: ["schema"],
-      hidden: (...args: HiddenFnParams) => {
-        return getSchemaItem(...args).then((schemaItem) => {
-          schemaItem.fieldType !== FieldType.OBJECT ||
-            schemaItem.identifier !== ARRAY_ITEM_KEY;
-        });
-      },
     },
     {
-      propertyName: "borderColor",
-      label: "Border Color",
-      helpText:
-        "Changes the color of the border for each of the collapsable windows",
+      propertyName: "cellBackgroundColor",
+      label: "Cell Background Color",
+      controlType: "COLOR_PICKER",
+      helpText: "Changes the background color of the cell",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          regex: /^(?![<|{{]).+/,
+        },
+      },
+      dependencies: ["schema"],
+    },
+    {
+      propertyName: "cellBorderColor",
+      label: "Cell Border Color",
+      helpText: "Changes the border color of the cell",
       controlType: "COLOR_PICKER",
       isJSConvertible: true,
       isBindProperty: true,
@@ -424,12 +433,6 @@ const COMMON_PROPERTIES = {
         },
       },
       dependencies: ["schema"],
-      hidden: (...args: HiddenFnParams) => {
-        return getSchemaItem(...args).then((schemaItem) => {
-          schemaItem.fieldType !== FieldType.OBJECT ||
-            schemaItem.identifier !== ARRAY_ITEM_KEY;
-        });
-      },
     },
   ],
 };

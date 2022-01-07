@@ -6,15 +6,18 @@ import { sortBy } from "lodash";
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
+import NestedFormWrapper from "../component/NestedFormWrapper";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { FieldComponentBaseProps, SchemaItem } from "../constants";
 
-type ObjectComponentProps = FieldComponentBaseProps;
+type ObjectComponentProps = FieldComponentBaseProps & {
+  backgroundColor?: string;
+  cellBackgroundColor?: string;
+  cellBorderColor?: string;
+};
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
-  backgroundColor?: string;
-  borderColor?: string;
   hideAccordion?: boolean;
   hideLabel?: boolean;
   isRootField?: boolean;
@@ -45,8 +48,6 @@ const StyledWrapper = styled.div<StyledWrapperProps>`
 `;
 
 function ObjectField({
-  backgroundColor,
-  borderColor,
   hideAccordion = false,
   hideLabel,
   isRootField = false,
@@ -54,7 +55,14 @@ function ObjectField({
   propertyPath,
   schemaItem,
 }: ObjectFieldProps) {
-  const { isVisible = true, label, tooltip } = schemaItem;
+  const {
+    backgroundColor,
+    cellBackgroundColor,
+    cellBorderColor,
+    isVisible = true,
+    label,
+    tooltip,
+  } = schemaItem;
   const children = Object.values(schemaItem.children);
   const sortedChildren = sortBy(children, ({ position }) => position);
 
@@ -82,18 +90,22 @@ function ObjectField({
       className={`t--jsonformfield-${name}`}
       withBottomMargin={!hideAccordion}
     >
-      {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
-      {isRootField || hideAccordion ? (
-        field
-      ) : (
-        <Accordion
-          backgroundColor={backgroundColor}
-          borderColor={borderColor}
-          isCollapsible={false}
-        >
-          {field}
-        </Accordion>
-      )}
+      <NestedFormWrapper
+        backgroundColor={isRootField ? "transparent" : backgroundColor}
+      >
+        {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
+        {isRootField || hideAccordion ? (
+          field
+        ) : (
+          <Accordion
+            backgroundColor={cellBackgroundColor}
+            borderColor={cellBorderColor}
+            isCollapsible={false}
+          >
+            {field}
+          </Accordion>
+        )}
+      </NestedFormWrapper>
     </StyledWrapper>
   );
 }

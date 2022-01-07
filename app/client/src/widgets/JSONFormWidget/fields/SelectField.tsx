@@ -86,6 +86,7 @@ function SelectField({
     <Field
       {...rest}
       defaultValue={schemaItem.defaultValue}
+      isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

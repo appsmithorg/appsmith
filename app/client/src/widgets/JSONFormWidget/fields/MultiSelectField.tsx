@@ -66,6 +66,8 @@ function MultiSelectField({
   ...rest
 }: MultiSelectFieldProps) {
   const {
+    fieldType,
+    isRequired,
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
@@ -81,7 +83,7 @@ function MultiSelectField({
 
   const { onFieldValidityChange } = useRegisterFieldValidity({
     fieldName: name,
-    fieldType: schemaItem.fieldType,
+    fieldType,
   });
 
   const labelStyles = pick(schemaItem, [
@@ -109,6 +111,7 @@ function MultiSelectField({
       {...rest}
       defaultValue={schemaItem.defaultValue as string[]}
       defaultValueValidatorFn={defaultValueValidator}
+      isRequiredField={isRequired}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

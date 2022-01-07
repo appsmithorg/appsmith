@@ -216,7 +216,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
     const { widgetName } = widgetProperties;
     const schema: Schema = propertyValue;
-    const existingKeys = getKeysFromSchema(schema, "identifier");
+    const existingKeys = getKeysFromSchema(schema, "identifier", {
+      includeCustomField: true,
+    });
     const schemaItems = Object.values(schema);
     const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
     const lastSchemaItemPosition = lastSchemaItem?.position || -1;

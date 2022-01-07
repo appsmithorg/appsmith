@@ -173,6 +173,7 @@ export const fieldTypeFor = (value: any) => {
     switch (subDataType) {
       case DataType.OBJECT:
       case DataType.FUNCTION:
+      case DataType.ARRAY:
         return FieldType.ARRAY;
       default:
         return FieldType.MULTI_SELECT;
@@ -198,10 +199,14 @@ export const fieldTypeFor = (value: any) => {
 export const getKeysFromSchema = (
   schema: Schema,
   keyProperty: keyof SchemaItem,
+  { includeCustomField = false },
 ) => {
   return Object.values(schema).reduce<string[]>((keys, schemaItem) => {
-    if (!schemaItem.isCustomField) {
-      keys.push(schemaItem[keyProperty]);
+    if (
+      includeCustomField ||
+      (!includeCustomField && !schemaItem.isCustomField)
+    ) {
+      return [...keys, schemaItem[keyProperty]];
     }
 
     return keys;
@@ -503,7 +508,9 @@ class SchemaParser {
     const currObj = currSourceData as Obj;
 
     const currKeys = Object.keys(currSourceData);
-    const prevKeys = getKeysFromSchema(prevSchema, "originalIdentifier");
+    const prevKeys = getKeysFromSchema(prevSchema, "originalIdentifier", {
+      includeCustomField: false,
+    });
 
     const newKeys = difference(currKeys, prevKeys);
     const removedKeys = difference(prevKeys, currKeys);
@@ -570,7 +577,7 @@ class SchemaParser {
 
     const newSanitizedKeys: string[] = [];
     const existingKeys = [
-      ...getKeysFromSchema(schema, "identifier"),
+      ...getKeysFromSchema(schema, "identifier", { includeCustomField: true }),
       ...RESTRICTED_KEYS,
     ];
     newKeys.forEach((newKey) => {

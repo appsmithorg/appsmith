@@ -148,6 +148,7 @@ const initialDataset = {
           position: 5,
         },
         education: {
+          backgroundColor: "#FAFAFA",
           isCollapsible: true,
           isDisabled: false,
           isRequired: false,
@@ -465,6 +466,7 @@ const withRemovedKeyFromInitialDataset = {
           position: 4,
         },
         education: {
+          backgroundColor: "#FAFAFA",
           isCollapsible: true,
           isDisabled: false,
           isRequired: false,
@@ -781,6 +783,7 @@ const withRemovedAddedKeyToInitialDataset = {
           position: 3,
         },
         education: {
+          backgroundColor: "#FAFAFA",
           isCollapsible: true,
           isDisabled: false,
           isRequired: false,

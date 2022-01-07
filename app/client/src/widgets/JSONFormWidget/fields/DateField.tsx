@@ -85,6 +85,8 @@ const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
 
 function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
   const {
+    fieldType,
+    isRequired,
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
@@ -96,7 +98,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
 
   const { onFieldValidityChange } = useRegisterFieldValidity({
     fieldName: name,
-    fieldType: schemaItem.fieldType,
+    fieldType,
   });
 
   const labelStyles = pick(schemaItem, [
@@ -109,6 +111,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
     <Field
       {...rest}
       defaultValue={schemaItem.defaultValue}
+      isRequiredField={isRequired}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

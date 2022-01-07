@@ -51,6 +51,7 @@ function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
       {...rest}
       defaultValue={schemaItem.defaultValue}
       inlineLabel
+      isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

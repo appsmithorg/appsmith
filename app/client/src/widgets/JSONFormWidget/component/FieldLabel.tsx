@@ -17,6 +17,7 @@ type StyledLabelTextProps = {
   fontSize: string;
   fontStyle: string;
   fontWeight: string;
+  isRequiredField: boolean;
   textDecoration: string;
 };
 
@@ -27,23 +28,34 @@ type LabelStyles = {
 };
 
 export type FieldLabelProps = PropsWithChildren<{
-  label: string;
-  tooltip?: string;
-  labelStyles?: LabelStyles;
   direction?: "row" | "column";
+  isRequiredField?: boolean;
+  label: string;
+  labelStyles?: LabelStyles;
+  tooltip?: string;
 }>;
 
 type StyledLabelTextWrapperProps = {
   direction: FieldLabelProps["direction"];
 };
 
+type StyledLabelProps = {
+  direction?: FieldLabelProps["direction"];
+};
+
 const LABEL_TEXT_WRAPPER_MARGIN_BOTTOM = 4;
-const LABEL_TEXT_MARGIN_RIGHT = 10;
+const LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED = 2;
+const LABEL_TEXT_MARGIN_RIGHT_DEFAULT = 10;
 const TOOLTIP_CLASSNAME = "tooltip-wrapper";
 
-const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
+const StyledLabel = styled.label<StyledLabelProps>`
   display: flex;
   flex-direction: ${({ direction }) => direction};
+`;
+
+const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
+  align-items: center;
+  display: flex;
   margin-bottom: ${({ direction }) =>
     direction === "row" ? 0 : LABEL_TEXT_WRAPPER_MARGIN_BOTTOM}px;
 
@@ -52,9 +64,17 @@ const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   }
 `;
 
+const StyledRequiredMarker = styled.div`
+  color: ${Colors.CRIMSON};
+  margin-right: ${LABEL_TEXT_MARGIN_RIGHT_DEFAULT}px;
+`;
+
 const StyledLabelText = styled.p<StyledLabelTextProps>`
   margin-bottom: 0;
-  margin-right: ${LABEL_TEXT_MARGIN_RIGHT}px;
+  margin-right: ${({ isRequiredField }) =>
+    isRequiredField
+      ? LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED
+      : LABEL_TEXT_MARGIN_RIGHT_DEFAULT}px;
   color: ${({ color }) => color};
   font-size: ${({ fontSize }) => fontSize};
   font-weight: ${({ fontWeight }) => fontWeight};
@@ -76,6 +96,7 @@ const ToolTipIcon = styled(IconWrapper)`
 function FieldLabel({
   children,
   direction = "column",
+  isRequiredField = false,
   label,
   labelStyles,
   tooltip,
@@ -95,9 +116,12 @@ function FieldLabel({
   })();
 
   return (
-    <label>
+    <StyledLabel direction={direction}>
       <StyledLabelTextWrapper direction={direction}>
-        <StyledLabelText {...labelStyleProps}>{label}</StyledLabelText>
+        <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
+          {label}
+        </StyledLabelText>
+        {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
         {tooltip && (
           <Tooltip
             className={TOOLTIP_CLASSNAME}
@@ -112,7 +136,7 @@ function FieldLabel({
         )}
       </StyledLabelTextWrapper>
       {children}
-    </label>
+    </StyledLabel>
   );
 }
 

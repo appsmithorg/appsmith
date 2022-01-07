@@ -13,26 +13,25 @@ import {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldState,
-  SchemaItem,
 } from "../constants";
 import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import FormContext from "../FormContext";
+import NestedFormWrapper from "../component/NestedFormWrapper";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
-  isCollapsible: boolean;
-  defaultValue?: any[];
-};
-
-type ArrayItemSchemaItemProps = SchemaItem & {
   backgroundColor?: string;
-  borderColor?: string;
+  cellBackgroundColor?: string;
+  cellBorderColor?: string;
+  defaultValue?: any[];
+  isCollapsible: boolean;
 };
 
 type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentProps>;
 
 const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
+  backgroundColor: Colors.GREY_1,
   isCollapsible: true,
   isDisabled: false,
   isRequired: false,
@@ -42,7 +41,7 @@ const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
 
 const ACTION_ICON_SIZE = 10;
 
-const StyledWrapper = styled.div`
+const StyledNestedFormWrapper = styled(NestedFormWrapper)`
   margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
 `;
 
@@ -76,8 +75,16 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   const [keys, setKeys] = useState<string[]>([]);
   const { setFieldValidityState } = useContext(FormContext);
 
-  const { children, isVisible = true, label, tooltip } = schemaItem;
-  const arrayItemSchema: ArrayItemSchemaItemProps = children[ARRAY_ITEM_KEY];
+  const {
+    backgroundColor,
+    cellBackgroundColor,
+    cellBorderColor,
+    children,
+    isVisible = true,
+    label,
+    tooltip,
+  } = schemaItem;
+  const arrayItemSchema = children[ARRAY_ITEM_KEY];
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const defaultValue = (() => {
@@ -166,50 +173,51 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   }
 
   return (
-    <div className={`t--jsonformfield-${name}`}>
+    <StyledNestedFormWrapper
+      backgroundColor={backgroundColor}
+      className={`t--jsonformfield-${name}`}
+    >
       <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip} />
-      <StyledWrapper>
-        {keys.map((key, index) => {
-          const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
-          const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
+      {keys.map((key, index) => {
+        const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
+        const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
 
-          return (
-            <Accordion
-              backgroundColor={arrayItemSchema.backgroundColor}
-              borderColor={arrayItemSchema.borderColor}
-              isCollapsible={schemaItem.isCollapsible}
-              key={key}
-              title={`#${index}`}
-            >
-              <StyledItemWrapper>
-                {fieldRenderer(
-                  fieldName,
-                  arrayItemSchema,
-                  fieldPropertyPath,
-                  options,
-                )}
-                <StyledDeleteButton onClick={() => remove(key)} type="button">
-                  <Icon
-                    icon="trash"
-                    iconSize={ACTION_ICON_SIZE}
-                    style={{ color: Colors.CRIMSON }}
-                  />
-                  Delete
-                </StyledDeleteButton>
-              </StyledItemWrapper>
-            </Accordion>
-          );
-        })}
-        <StyledButton onClick={add} type="button">
-          <Icon
-            icon="add"
-            iconSize={ACTION_ICON_SIZE}
-            style={{ color: Colors.GREEN }}
-          />
-          Add New
-        </StyledButton>
-      </StyledWrapper>
-    </div>
+        return (
+          <Accordion
+            backgroundColor={cellBackgroundColor}
+            borderColor={cellBorderColor}
+            isCollapsible={schemaItem.isCollapsible}
+            key={key}
+            title={`${index + 1}`}
+          >
+            <StyledItemWrapper>
+              {fieldRenderer(
+                fieldName,
+                arrayItemSchema,
+                fieldPropertyPath,
+                options,
+              )}
+              <StyledDeleteButton onClick={() => remove(key)} type="button">
+                <Icon
+                  icon="trash"
+                  iconSize={ACTION_ICON_SIZE}
+                  style={{ color: Colors.CRIMSON }}
+                />
+                Delete
+              </StyledDeleteButton>
+            </StyledItemWrapper>
+          </Accordion>
+        );
+      })}
+      <StyledButton onClick={add} type="button">
+        <Icon
+          icon="add"
+          iconSize={ACTION_ICON_SIZE}
+          style={{ color: Colors.GREEN }}
+        />
+        Add New
+      </StyledButton>
+    </StyledNestedFormWrapper>
   );
 }
 

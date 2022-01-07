@@ -34,6 +34,7 @@ describe(".fieldTypeUpdateHook", () => {
       isRequired: false,
       isVisible: true,
       label: "Hobbies",
+      backgroundColor: "#FAFAFA",
       children: {
         __array_item__: {
           isDisabled: false,

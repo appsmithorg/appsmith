@@ -11,6 +11,7 @@ type FieldProps<TValue> = {
   defaultValueValidatorFn?: (value: TValue) => boolean;
   hideLabel?: boolean;
   inlineLabel?: boolean;
+  isRequiredField?: boolean;
   label: string;
   labelStyles: FieldLabelProps["labelStyles"];
   name: ControllerProps["name"];
@@ -40,6 +41,7 @@ function Field<TValue>({
   defaultValueValidatorFn,
   hideLabel = false,
   inlineLabel = false,
+  isRequiredField,
   label,
   labelStyles = {},
   name,
@@ -80,6 +82,7 @@ function Field<TValue>({
       ) : (
         <FieldLabel
           direction={direction}
+          isRequiredField={isRequiredField}
           label={label}
           labelStyles={labelStyles}
           tooltip={tooltip}

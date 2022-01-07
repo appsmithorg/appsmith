@@ -95,7 +95,7 @@ const isValid = (schemaItem: InputFieldProps["schemaItem"], value?: string) => {
     return false;
   }
 
-  if (schemaItem.isRequired && !value?.trim()) {
+  if (isRequired && !value?.trim()) {
     return false;
   }
 
@@ -151,7 +151,8 @@ function parseValue(
   if (
     value !== undefined &&
     typeof value === "string" &&
-    schemaItem.fieldType === FieldType.NUMBER &&
+    (schemaItem.fieldType === FieldType.NUMBER ||
+      schemaItem.fieldType === FieldType.CURRENCY) &&
     isValid
   ) {
     if (value === "") return undefined;
@@ -182,15 +183,17 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   >();
   const [isFocused, setIsFocused] = useState(false);
 
-  const { onFieldValidityChange } = useRegisterFieldValidity({
-    fieldName: name,
-    fieldType: schemaItem.fieldType,
-  });
-
   const {
+    fieldType,
+    isRequired,
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
+
+  const { onFieldValidityChange } = useRegisterFieldValidity({
+    fieldName: name,
+    fieldType,
+  });
 
   const { inputRef, registerFieldOnBlurHandler } = useEvents<
     HTMLInputElement | HTMLTextAreaElement
@@ -278,6 +281,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   return (
     <Field
       defaultValue={schemaItem.defaultValue}
+      isRequiredField={isRequired}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

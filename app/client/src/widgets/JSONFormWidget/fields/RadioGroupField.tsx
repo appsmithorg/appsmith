@@ -48,6 +48,7 @@ function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
     <Field
       {...rest}
       defaultValue={schemaItem.defaultValue}
+      isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

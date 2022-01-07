@@ -200,6 +200,7 @@ describe("#getSchemaItemByFieldType", () => {
       isRequired: false,
       label: "Hobbies",
       isVisible: true,
+      backgroundColor: "#FAFAFA",
       children: {
         __array_item__: {
           isDisabled: false,
@@ -252,6 +253,7 @@ describe("#getSchemaItemByFieldType", () => {
       isRequired: false,
       label: "Name",
       isVisible: true,
+      backgroundColor: "#FAFAFA",
       children: {
         __array_item__: {
           isDisabled: false,
@@ -1152,13 +1154,16 @@ describe(".getKeysFromSchema", () => {
     const result = getKeysFromSchema(
       testData.initialDataset.schemaOutput.__root_schema__.children,
       "originalIdentifier",
+      { includeCustomField: false },
     );
 
     expect(result).toEqual(expectedOutput);
   });
 
   it("return empty array for empty schema", () => {
-    const result = getKeysFromSchema({}, "originalIdentifier");
+    const result = getKeysFromSchema({}, "originalIdentifier", {
+      includeCustomField: false,
+    });
 
     expect(result).toEqual([]);
   });
@@ -1180,7 +1185,34 @@ describe(".getKeysFromSchema", () => {
       "address",
     ];
 
-    const result = getKeysFromSchema(schema, "originalIdentifier");
+    const result = getKeysFromSchema(schema, "originalIdentifier", {
+      includeCustomField: false,
+    });
+
+    expect(result).toEqual(expectedOutput);
+  });
+
+  it("return keys and including custom field keys", () => {
+    const schema = cloneDeep(
+      testData.initialDataset.schemaOutput.__root_schema__.children,
+    );
+
+    schema.name.isCustomField = true;
+
+    const expectedOutput = [
+      "name",
+      "age",
+      "dob",
+      "boolean",
+      "hobbies",
+      "%%",
+      "education",
+      "address",
+    ];
+
+    const result = getKeysFromSchema(schema, "originalIdentifier", {
+      includeCustomField: true,
+    });
 
     expect(result).toEqual(expectedOutput);
   });
