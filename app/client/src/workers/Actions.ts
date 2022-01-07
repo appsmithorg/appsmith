@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
@@ -16,6 +15,8 @@ declare global {
     TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
+
+type CallbackFunc = () => unknown;
 
 enum ExecutionType {
   PROMISE = "PROMISE",
@@ -116,8 +117,8 @@ const DATA_TREE_FUNCTIONS: Record<
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       function(
-        onSuccessOrParams?: () => unknown | Record<string, unknown>,
-        onError?: () => unknown,
+        onSuccessOrParams?: CallbackFunc | Record<string, unknown>,
+        onError?: CallbackFunc,
         params = {},
       ): ActionDescriptionWithExecutionType {
         const noArguments =
@@ -166,7 +167,7 @@ const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  setInterval: function(callback: Function, interval: number, id?: string) {
+  setInterval: function(callback: CallbackFunc, interval: number, id?: string) {
     return {
       type: ActionTriggerType.SET_INTERVAL,
       payload: {
@@ -191,8 +192,8 @@ const DATA_TREE_FUNCTIONS: Record<
     path: "appsmith.geolocation.getCurrentPosition",
     func: () =>
       function(
-        successCallback?: () => unknown,
-        errorCallback?: () => unknown,
+        successCallback?: CallbackFunc,
+        errorCallback?: CallbackFunc,
         options?: {
           maximumAge?: number;
           timeout?: number;
@@ -222,8 +223,8 @@ const DATA_TREE_FUNCTIONS: Record<
     path: "appsmith.geolocation.watchPosition",
     func: () =>
       function(
-        onSuccessCallback?: Function,
-        onErrorCallback?: Function,
+        onSuccessCallback?: CallbackFunc,
+        onErrorCallback?: CallbackFunc,
         options?: {
           maximumAge?: number;
           timeout?: number;
