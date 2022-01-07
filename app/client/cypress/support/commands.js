@@ -3154,6 +3154,22 @@ Cypress.Commands.add("createAmazonS3Datasource", () => {
   cy.testSaveDatasource();
 });
 
+Cypress.Commands.add("updateMapType", (mapType) => {
+  // Command to change the map chart type if the property pane of the map chart widget is opened.
+  cy.get(viewWidgetsPage.mapType)
+    .last()
+    .click({ force: true });
+  cy.get(commonlocators.dropdownmenu)
+    .children()
+    .contains(mapType)
+    .click({ force: true });
+
+  cy.get(viewWidgetsPage.mapType + " span.cs-text").should(
+    "have.text",
+    mapType,
+  );
+});
+
 Cypress.Commands.add("createJSObject", (JSCode) => {
   cy.NavigateToJSEditor();
   cy.wait(1000);
