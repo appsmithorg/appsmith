@@ -73,7 +73,9 @@ export function defaultValueValidation(
     // Check whether value is honoring the decimals property
     if (parsed !== Number(parsed.toFixed(props.decimals))) {
       isValid = false;
-      messages = ["Default value should honor decimal property"];
+      messages = [
+        "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+      ];
     } else {
       isValid = true;
       messages = [EMPTY_ERROR_MESSAGE];
