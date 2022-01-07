@@ -16,4 +16,10 @@ export class CommonLocators {
     _publishButton = ".t--application-publish-btn"
     _textWidgetInDeployed = ".t--widget-textwidget span"
     _backToEditor = ".t--back-to-editor"
+    _expandCollapseArrow = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]"
+    _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
+    _contextMenu = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div"
+    _contextMenuItem = (item: string) => "//div[text()='" + item + "']/parent::a[contains(@class, 'single-select')]"
+    _newPage = ".pages .t--entity-add-btn"
+    _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
 }

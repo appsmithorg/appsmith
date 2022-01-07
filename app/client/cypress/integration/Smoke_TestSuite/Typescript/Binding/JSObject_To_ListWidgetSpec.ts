@@ -10,7 +10,7 @@ const locator = new CommonLocators();
 
 let dataSet: any, valueToTest: any;
 
-describe("Test Create Api and Bind to Table widget via JSObject", () => {
+describe("Validate Create Api and Bind to Table widget via JSObject", () => {
   before(() => {
     cy.fixture('listwidgetdsl').then((val: any) => {
       agHelper.AddDsl(val)
@@ -28,7 +28,7 @@ describe("Test Create Api and Bind to Table widget via JSObject", () => {
     cy.get("@apiResp").then((value) => {
       valueToTest = value;
       cy.log("valueToTest to test returned is :" + valueToTest)
-      cy.log("value to test returned is :" + value)
+      //cy.log("value to test returned is :" + value)
     })
     jsEditor.CreateJSObject("return Api1.data.users;");
   });
