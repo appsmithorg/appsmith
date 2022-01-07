@@ -69,7 +69,7 @@ function PrimaryCTA(props: Props) {
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           buttonColor={selectedTheme.properties.colors.primaryColor}
           buttonVariant="PRIMARY"
-          className="t--back-to-editor"
+          className="w-full md:w-auto t--back-to-editor"
           onClick={() => {
             window.location.href = url;
           }}

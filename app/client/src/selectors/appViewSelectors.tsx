@@ -47,3 +47,13 @@ export const getEditorURL = createSelector(
         })
       : "",
 );
+
+/**
+ * returns the height of header in app view mode
+ *
+ * @param state
+ * @returns
+ */
+export const getAppViewHeaderHeight = (state: AppState) => {
+  return state.ui.appView.headerHeight;
+};

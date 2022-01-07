@@ -12,7 +12,10 @@ import {
   VIEWER_URL,
 } from "constants/routes";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getIsInitialized } from "selectors/appViewSelectors";
+import {
+  getIsInitialized,
+  getAppViewHeaderHeight,
+} from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -33,11 +36,12 @@ import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
-import PoweredBy from "./PoweredBy";
+import BuiltOn from "./BuiltOn";
 import {
   BatchPropertyUpdatePayload,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
+import { setAppViewHeaderHeight } from "actions/appViewActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -79,7 +83,6 @@ function AppViewer(props: Props) {
   const dispatch = useDispatch();
   const { search } = props.location;
   const { applicationId, pageId } = props.match.params;
-  const [headerHeight, setHeaderHeight] = useState(0);
   const [registered, setRegistered] = useState(false);
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getViewModePageList);
@@ -87,6 +90,7 @@ function AppViewer(props: Props) {
   const lightTheme = useSelector((state: AppState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
   );
+  const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
   /**
@@ -108,7 +112,7 @@ function AppViewer(props: Props) {
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");
 
-    setHeaderHeight(header?.clientHeight || 0);
+    dispatch(setAppViewHeaderHeight(header?.clientHeight || 0));
   }, [pages.length, isInitialized]);
 
   /**
@@ -226,7 +230,7 @@ function AppViewer(props: Props) {
                   </Switch>
                 )}
               </AppViewerBody>
-              <PoweredBy />
+              <BuiltOn />
             </AppViewerBodyContainer>
           </ContainerWithComments>
           <AddCommentTourComponent />

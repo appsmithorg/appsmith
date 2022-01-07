@@ -8,6 +8,7 @@ import {
   setPreviewAppThemeAction,
 } from "actions/appThemingActions";
 import {
+  AppThemingMode,
   getAppThemes,
   getAppThemingStack,
   getPreviewAppTheme,
@@ -39,6 +40,15 @@ function ThemeSelector() {
       dispatch(
         changeSelectedAppThemeAction({ applicationId, theme: previewTheme }),
       );
+
+      // we want user to always go to theme editor after selecting a theme
+      const newStack = themingStack.slice(0, -1);
+
+      if (newStack.indexOf(AppThemingMode.APP_THEME_EDIT) < 0) {
+        newStack.concat(AppThemingMode.APP_THEME_EDIT);
+      }
+
+      dispatch(setAppThemingModeStack(newStack));
     }
   }, [changeSelectedAppThemeAction, previewTheme, applicationId]);
 

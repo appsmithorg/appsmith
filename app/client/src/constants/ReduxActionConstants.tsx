@@ -659,6 +659,7 @@ export const ReduxActionTypes = {
   /* This action constants is for identifying the status of the updates of the entities */
   ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
   ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
+  SET_APP_VIEWER_HEADER_HEIGHT: "SET_APP_VIEWER_HEADER_HEIGHT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

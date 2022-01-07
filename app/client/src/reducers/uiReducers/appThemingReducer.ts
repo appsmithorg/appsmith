@@ -93,9 +93,6 @@ const themeReducer = createImmerReducer(initialState, {
   ) => {
     state.previewTheme = undefined;
     state.selectedTheme = action.payload;
-    state.stack = state.stack
-      .slice(0, -1)
-      .concat(AppThemingMode.APP_THEME_EDIT);
   },
 });
 
