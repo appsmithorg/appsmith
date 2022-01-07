@@ -1,5 +1,5 @@
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,

@@ -5,7 +5,6 @@ import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
@@ -62,7 +61,6 @@ export const useSSHKeyPair = () => {
           onErrorCallback: onGenerateSSHKeyFailure,
         }),
       );
-      AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
     }
   }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey, currentApplication?.id]);
 
