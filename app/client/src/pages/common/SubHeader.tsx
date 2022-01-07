@@ -8,15 +8,19 @@ import Button, { Size } from "components/ads/Button";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
-const SubHeaderWrapper = styled.div`
+const SubHeaderWrapper = styled.div<{
+  isMobile?: boolean;
+}>`
   width: 250px;
   display: flex;
   justify-content: space-between;
-  position: fixed;
+  position: ${({ isMobile }) => (isMobile ? `relative` : `fixed`)};
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: 2px;
-  left: ${(props) => props.theme.homePage.sidebar + 24}px;
+  top: ${({ isMobile }) => (isMobile ? `12px` : `2px`)};
+  left: ${(props) =>
+    props.isMobile ? 16 : props.theme.homePage.sidebar + 24}px;
   z-index: ${Indices.Layer9};
 `;
 const SearchContainer = styled.div`
@@ -52,6 +56,7 @@ type SubHeaderProps = {
 
 export function ApplicationsSubHeader(props: SubHeaderProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isMobile = useIsMobileDevice();
   const query =
     props.search &&
     props.search.queryFn &&
@@ -61,7 +66,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
   );
 
   return (
-    <SubHeaderWrapper>
+    <SubHeaderWrapper isMobile={isMobile}>
       <SearchContainer>
         {props.search && (
           <ControlGroup>

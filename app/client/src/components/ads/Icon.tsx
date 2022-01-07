@@ -132,6 +132,7 @@ import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import HamburgerIcon from "remixicon-react/MenuLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -240,6 +241,7 @@ export const IconCollection = [
   "git-pull-request",
   "guide",
   "help",
+  "hamburger",
   "info",
   "invite-user",
   "left-arrow",
@@ -523,6 +525,9 @@ const Icon = forwardRef(
         break;
       case "help":
         returnIcon = <HelpIcon />;
+        break;
+      case "hamburger":
+        returnIcon = <HamburgerIcon />;
         break;
       case "info":
         returnIcon = <InfoIcon />;

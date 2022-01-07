@@ -98,6 +98,7 @@ import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "configs";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -199,7 +200,7 @@ const LeftPaneWrapper = styled.div`
   top: ${(props) => props.theme.homePage.header}px;
   box-shadow: 1px 0px 0px #ededed;
 `;
-const ApplicationContainer = styled.div`
+const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
   overflow: auto;
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
@@ -216,6 +217,13 @@ const ApplicationContainer = styled.div`
         props.theme.homePage.leftPane.leftPadding}px
   );
   scroll-behavior: smooth;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    margin-left: 0;
+    width: 100%;
+    padding-right: 0;
+  `}
 `;
 
 const ItemWrapper = styled.div`
@@ -402,6 +410,7 @@ function LeftPane() {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
+  const isMobile = useIsMobileDevice();
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -413,6 +422,8 @@ function LeftPane() {
   const urlHash = location.hash.slice(1);
 
   const initiateOnboarding = useIntiateOnboarding();
+
+  if (isMobile) return null;
 
   return (
     <LeftPaneWrapper>
@@ -545,6 +556,7 @@ function ApplicationsSection(props: any) {
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
+  const isMobile = useIsMobileDevice();
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -961,7 +973,10 @@ function ApplicationsSection(props: any) {
   }
 
   return (
-    <ApplicationContainer className="t--applications-container">
+    <ApplicationContainer
+      className="t--applications-container"
+      isMobile={isMobile}
+    >
       {organizationsListComponent}
       <WelcomeHelper />
       {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
