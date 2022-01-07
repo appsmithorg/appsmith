@@ -225,11 +225,12 @@ function GitConnection({ isImport }: Props) {
     dispatch(fetchLocalGitConfigInit());
   }, []);
 
-  useEffect(() => {
-    if (!isModalOpen && !isGitConnected) {
-      dispatch(initSSHKeyPairWithNull());
-    }
-  }, [isModalOpen, isGitConnected]);
+  // init ssh key when close without git connection
+  // useEffect(() => {
+  //   if (!isModalOpen && !isGitConnected) {
+  //     dispatch(initSSHKeyPairWithNull());
+  //   }
+  // }, [isModalOpen, isGitConnected]);
 
   useEffect(() => {
     // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
