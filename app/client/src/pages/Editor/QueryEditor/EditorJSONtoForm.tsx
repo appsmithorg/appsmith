@@ -76,6 +76,10 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import Spinner from "components/ads/Spinner";
+import {
+  ConditionalOutput,
+  FormEvalOutput,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -417,7 +421,7 @@ type ReduxProps = {
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
-  formEvaluationState: Record<string, any>;
+  formEvaluationState: FormEvalOutput;
 };
 
 export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
@@ -591,38 +595,65 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
-  // Function to check if the section config is allowed to render (Only for UQI forms)
-  const checkIfSectionCanRender = (section: any) => {
-    // By default, allow the section to render. This is to allow for the case where no conditional is provided.
-    // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
-    let allowToRender = true;
+  const extractConditionalOutput = (section: any): ConditionalOutput => {
+    let conditionalOutput: ConditionalOutput = {};
     if (
       section.hasOwnProperty("propertyName") &&
       props.formEvaluationState.hasOwnProperty(section.propertyName)
     ) {
-      allowToRender = props?.formEvaluationState[section.propertyName].visible;
+      conditionalOutput = props?.formEvaluationState[section.propertyName];
     } else if (
       section.hasOwnProperty("configProperty") &&
       props.formEvaluationState.hasOwnProperty(section.configProperty)
     ) {
-      allowToRender =
-        props?.formEvaluationState[section.configProperty].visible;
+      conditionalOutput = props?.formEvaluationState[section.configProperty];
     } else if (
       section.hasOwnProperty("identifier") &&
       !!section.identifier &&
       props.formEvaluationState.hasOwnProperty(section.identifier)
     ) {
-      allowToRender = props?.formEvaluationState[section.identifier].visible;
+      conditionalOutput = props?.formEvaluationState[section.identifier];
+    }
+    return conditionalOutput;
+  };
+
+  // Function to check if the section config is allowed to render (Only for UQI forms)
+  const checkIfSectionCanRender = (conditionalOutput: ConditionalOutput) => {
+    // By default, allow the section to render. This is to allow for the case where no conditional is provided.
+    // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
+    let allowToRender = true;
+    if (
+      conditionalOutput.hasOwnProperty("visible") &&
+      typeof conditionalOutput.visible === "boolean"
+    ) {
+      allowToRender = conditionalOutput.visible;
     }
     return allowToRender;
+  };
+
+  // Function to check if the section config is enabled (Only for UQI forms)
+  const checkIfSectionIsEnabled = (conditionalOutput: ConditionalOutput) => {
+    // By default, the section is enabled. This is to allow for the case where no conditional is provided.
+    // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
+    let enabled = true;
+    if (
+      conditionalOutput.hasOwnProperty("enabled") &&
+      typeof conditionalOutput.enabled === "boolean"
+    ) {
+      enabled = conditionalOutput.enabled;
+    }
+    return enabled;
   };
 
   // Render function to render the V2 of form editor type (UQI)
   // Section argument is a nested config object, this function recursively renders the UI based on the config
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
+    let enabled = true;
     if (!!section) {
       // If the component is not allowed to render, return null
-      if (!checkIfSectionCanRender(section)) return null;
+      const conditionalOutput = extractConditionalOutput(section);
+      if (!checkIfSectionCanRender(conditionalOutput)) return null;
+      enabled = checkIfSectionIsEnabled(conditionalOutput);
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
@@ -636,9 +667,15 @@ export function EditorJSONtoForm(props: Props) {
       }
       try {
         const { configProperty } = section;
+        let modifiedSection;
+        if (!enabled) {
+          modifiedSection = { ...section, disabled: true };
+        } else {
+          modifiedSection = { ...section };
+        }
         return (
           <FieldWrapper key={`${configProperty}_${idx}`}>
-            <FormControl config={section} formName={formName} />
+            <FormControl config={modifiedSection} formName={formName} />
           </FieldWrapper>
         );
       } catch (e) {
