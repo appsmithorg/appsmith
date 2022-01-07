@@ -136,7 +136,6 @@ export default {
           } else {
             sanitizedData[sanitizedKey] = value;
           }
-          sanitizedData[sanitizedKey] = value;
         }
         return sanitizedData;
       });

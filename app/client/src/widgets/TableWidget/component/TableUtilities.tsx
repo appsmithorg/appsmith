@@ -823,6 +823,7 @@ export function SelectCell(props: {
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
+      className="select-cell"
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       onClick={stopClickEventPropagation}

@@ -18,7 +18,7 @@ import {
   isEmpty,
   isObject,
   get,
-  find,
+  has,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -126,7 +126,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     optionSelected: DropdownOption,
   ) => {
     const editedColumnData = cloneDeep(this.props.editedColumnData);
-    setWith(editedColumnData, [columnId, rowIndex], optionSelected, Object);
+    setWith(
+      editedColumnData,
+      [columnId, rowIndex],
+      optionSelected.value, // set value in sanitized data from { label, value }
+      Object,
+    );
 
     this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
@@ -672,14 +677,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       JSON.stringify(prevProps.sanitizedTableData);
     const editedColumnDataExist = size(this.props.editedColumnData);
     if (tableDataModified) {
-      if (!editedColumnDataExist) {
-        this.updateSelectedRowIndex();
-      }
       this.updateMetaRowData(
         prevProps.filteredTableData,
         this.props.filteredTableData,
       );
-      this.props.updateWidgetMetaProperty("triggeredRowIndex", undefined);
+      if (!editedColumnDataExist) {
+        this.props.updateWidgetMetaProperty("triggeredRowIndex", undefined);
+      }
     }
 
     // If the user has changed the tableData OR
@@ -801,12 +805,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (column.computedValue && Array.isArray(column.computedValue)) {
           for (let index = 0; index < column.computedValue.length; index++) {
             let value = column.computedValue[index];
-            // value can be { label, value } object or single value
-            if (!isObject(value)) {
-              // get object value from single value
-              value = find(column.options, ["value", value]);
+            if (has(value, "value")) {
+              // value can be { label, value } object or single value
+              value = value.value;
+              setWith(editedColumnData, `${column.id}.${index}`, value, Object);
             }
-            setWith(editedColumnData, [column.id, index], value, Object);
           }
         }
       } else {

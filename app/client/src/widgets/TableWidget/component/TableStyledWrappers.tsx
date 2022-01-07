@@ -425,6 +425,15 @@ export const CellWrapper = styled.div<{
       display: inline;
     }
   }
+  &.select-cell {
+    .bp3-popover-target {
+      .bp3-button-text {
+        text-align: ${(props) =>
+          props?.cellProperties?.horizontalAlignment &&
+          TEXT_ALIGN[props?.cellProperties?.horizontalAlignment]};
+      }
+    }
+  }
 `;
 
 export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
