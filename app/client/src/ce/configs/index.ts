@@ -2,10 +2,9 @@ import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
-import { EvaluationVersion } from "api/ApplicationApi";
 const history = createBrowserHistory();
 
-export type INJECTED_CONFIGS = {
+export interface INJECTED_CONFIGS {
   sentry: {
     dsn: string;
     release: string;
@@ -16,6 +15,7 @@ export type INJECTED_CONFIGS = {
   };
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
+  disableLoginForm: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -45,14 +45,6 @@ export type INJECTED_CONFIGS = {
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
-};
-declare global {
-  interface Window {
-    APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
-    Intercom: any;
-    evaluationVersion: EvaluationVersion;
-    Sentry: any;
-  }
 }
 
 const capitalizeText = (text: string) => {
@@ -61,7 +53,7 @@ const capitalizeText = (text: string) => {
   return `${first}${rest}`;
 };
 
-const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
+export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
   return {
     sentry: {
       dsn: process.env.REACT_APP_SENTRY_DSN || "",
@@ -79,6 +71,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     enableGithubOAuth: process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID.length > 0
       : false,
+    disableLoginForm: !!process.env.APPSMITH_FORM_LOGIN_DISABLED,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
       ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",
@@ -258,6 +251,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     enableGithubOAuth:
       ENV_CONFIG.enableGithubOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGithubOAuth,
+    disableLoginForm:
+      ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
     enableGoogleOAuth:
       ENV_CONFIG.enableGoogleOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,
