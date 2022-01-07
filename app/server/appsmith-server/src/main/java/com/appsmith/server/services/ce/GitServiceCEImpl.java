@@ -1951,8 +1951,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Application> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO) {
         // 1. Check count limit for repo
-        // 2. Then clone application
-        // 3. On clone, create application and do import
+        // 2. create application, Then clone application
+        // 3. On clone and do import
         //    1. Save the ssh keys in application object with other details
         //    2. During import-export need to handle the DS(empty vs non-empty)
         // 4. Return application
