@@ -133,11 +133,17 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const evaluatedValue = color || "";
 
   return (
-    <div ref={inputRef}>
+    <div className="popover-target-colorpicker" ref={inputRef}>
       <Popover
+        boundary="viewport"
         interactionKind={PopoverInteractionKind.CLICK}
         isOpen={focussed}
         minimal
+        modifiers={{
+          offset: {
+            offset: "0, 10px",
+          },
+        }}
         openOnTargetFocus
         usePortal
       >
@@ -146,7 +152,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
             autoFocus={props.autoFocus}
             leftIcon={
               color ? (
-                <ColorIcon color={evaluatedValue} />
+                <ColorIcon className="rounded-full" color={evaluatedValue} />
               ) : (
                 <ColorPickerIconContainer>
                   <ColorPickerIcon />
@@ -221,9 +227,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
 
           <section className="space-y-2">
             <h3 className="text-xs">All Colors</h3>
-            {Object.keys(TAILWIND_COLORS).map((colorKey) => (
-              <div className="flex space-x-1" key={colorKey}>
-                {Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
+            <div className="grid grid-cols-10 gap-2">
+              {Object.keys(TAILWIND_COLORS).map((colorKey) =>
+                Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
                   (singleColorKey) => (
                     <div
                       className={`${COLOR_BOX_CLASSES}  ${
@@ -247,10 +253,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
                       }}
                     />
                   ),
-                )}
-              </div>
-            ))}
-            <div className="flex space-x-1">
+                ),
+              )}
+
               <div
                 className={`${COLOR_BOX_CLASSES}  ${
                   props.color === "#fff" ? "ring-1" : ""

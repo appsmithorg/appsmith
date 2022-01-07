@@ -21,7 +21,7 @@ export function CanvasPropertyPane() {
 
         <div className="px-3 space-y-2">
           <p className="text-sm text-gray-700">Theme</p>
-          <ThemeCard changeable editable theme={selectedTheme} />
+          <ThemeCard editable theme={selectedTheme} />
         </div>
       </div>
     </div>

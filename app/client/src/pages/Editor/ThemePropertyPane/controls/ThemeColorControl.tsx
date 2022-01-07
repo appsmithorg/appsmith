@@ -25,11 +25,13 @@ function ThemeColorControl(props: ThemeColorControlProps) {
               <TooltipComponent content={startCase(colorName)} key={index}>
                 <div
                   className={classNames({
-                    "w-6 h-6 border-2 cursor-pointer ring-gray-700": true,
+                    "w-6 h-6 rounded-full border-2 cursor-pointer ring-gray-700": true,
                     "ring-1": selectedColor === colorName,
                   })}
                   onClick={() => {
-                    setSelectedColor(colorName);
+                    setSelectedColor(
+                      colorName !== selectedColor ? colorName : null,
+                    );
                   }}
                   style={{ background: userDefinedColors[colorName] }}
                 />

@@ -66,6 +66,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -77,6 +78,10 @@ const dummyThemes: AppTheme[] = [
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      CAMERA_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {
@@ -302,6 +307,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -313,6 +319,10 @@ const dummyThemes: AppTheme[] = [
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      CAMERA_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {
@@ -539,6 +549,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -550,6 +561,10 @@ const dummyThemes: AppTheme[] = [
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      CAMERA_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {
@@ -775,6 +790,7 @@ const dummyThemes: AppTheme[] = [
         backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
       },
       BUTTON_WIDGET: {
         buttonColor: "{{appsmith.theme.colors.primaryColor}}",
@@ -786,6 +802,10 @@ const dummyThemes: AppTheme[] = [
         primaryColor: "{{appsmith.theme.colors.primaryColor}}",
         borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+        boxShadow: "none",
+      },
+      CAMERA_WIDGET: {
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
         boxShadow: "none",
       },
       CHART_WIDGET: {

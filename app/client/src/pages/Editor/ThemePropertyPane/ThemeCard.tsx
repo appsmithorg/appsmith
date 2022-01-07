@@ -43,6 +43,7 @@ const BlackButton = styled(Button)`
   border: 2px solid ${Colors.BLACK};
   background-color: ${Colors.BLACK};
   color: ${Colors.WHITE};
+  cursor: pointer;
 
   &:hover {
     border: 2px solid ${Colors.BLACK};

@@ -121,6 +121,31 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
     ];
   }
 
@@ -170,6 +195,8 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
     return (
       <CameraComponent
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         disabled={isDisabled}
         height={height}
         mirrored={isMirrored}
@@ -270,6 +297,8 @@ export interface CameraWidgetProps extends WidgetProps {
   onRecordingStart?: string;
   onRecordingStop?: string;
   videoBlobURL?: string;
+  borderRadius: string;
+  boxShadow: string;
 }
 
 export default CameraWidget;

@@ -124,7 +124,6 @@ export const borderRadiusOptions: Record<string, string> = {
   none: "0px",
   md: "0.375rem",
   lg: "1.5rem",
-  full: "9999px",
 };
 
 export const boxShadowPropertyName = "boxShadow";

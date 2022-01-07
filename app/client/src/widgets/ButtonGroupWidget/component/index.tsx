@@ -39,7 +39,6 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   width: 100%;
   position: relative;
   display: flex;
-  gap: 1px;
   justify-content: stretch;
   align-items: stretch;
   overflow: hidden;
@@ -49,6 +48,22 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
   box-shadow: ${({ boxShadow }) => boxShadow};
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  & > *:first-child,
+  & > *:first-child button {
+    border-radius: ${({ borderRadius, isHorizontal }) =>
+      isHorizontal
+        ? `${borderRadius} 0px 0px ${borderRadius}`
+        : `${borderRadius} ${borderRadius} 0px 0px`};
+  }
+
+  & > *:last-child,
+  & > *:last-child button {
+    border-radius: ${({ borderRadius, isHorizontal }) =>
+      isHorizontal
+        ? `0px ${borderRadius} ${borderRadius} 0`
+        : `0px 0px ${borderRadius} ${borderRadius}`};
+  }
 `;
 
 const MenuButtonWrapper = styled.div`
@@ -68,8 +83,6 @@ const PopoverStyles = createGlobalStyle`
 interface ButtonStyleProps {
   isHorizontal: boolean;
   borderRadius?: string;
-  borderRadOnStart: boolean;
-  borderRadOnEnd: boolean;
   buttonVariant?: ButtonVariant; // solid | outline | ghost
   buttonColor?: string;
   iconAlign?: string;
@@ -85,17 +98,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   align-items: center;
   padding: 0px 10px;
 
-  ${({
-    borderRadius,
-    borderRadOnEnd,
-    borderRadOnStart,
-    buttonColor,
-    buttonVariant,
-    iconAlign,
-    isDisabled,
-    isHorizontal,
-    theme,
-  }) => `
+  ${({ buttonColor, buttonVariant, iconAlign, isDisabled, theme }) => `
     & {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
@@ -129,18 +132,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } ${buttonVariant === ButtonVariantTypes.PRIMARY ? "" : "!important"};
-
-    border-radius: ${
-      borderRadOnStart // first button
-        ? isHorizontal
-          ? `${borderRadius} 0px 0px ${borderRadius}`
-          : `${borderRadius} ${borderRadius} 0px 0px`
-        : borderRadOnEnd // last button
-        ? isHorizontal
-          ? `0px ${borderRadius} ${borderRadius} 0px`
-          : `0px 0px ${borderRadius} ${borderRadius}`
-        : "0px"
-    };
 
     & span {
       color: ${
@@ -325,8 +316,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
         isHorizontal={isHorizontal}
       >
         {items.map((button) => {
-          const borderRadOnStart = button.index === 0;
-          const borderRadOnEnd = button.index === items.length - 1;
           const isButtonDisabled = button.isDisabled || isDisabled;
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
@@ -349,8 +338,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   popoverClassName="menu-button-popover"
                 >
                   <StyledButton
-                    borderRadOnEnd={borderRadOnEnd}
-                    borderRadOnStart={borderRadOnStart}
                     borderRadius={this.props.borderRadius}
                     buttonColor={button.buttonColor || this.props.primaryColor}
                     buttonVariant={buttonVariant}
@@ -377,8 +364,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
           }
           return (
             <StyledButton
-              borderRadOnEnd={borderRadOnEnd}
-              borderRadOnStart={borderRadOnStart}
               borderRadius={this.props.borderRadius}
               buttonColor={button.buttonColor || this.props.primaryColor}
               buttonVariant={buttonVariant}
