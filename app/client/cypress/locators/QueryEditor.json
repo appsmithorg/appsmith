@@ -25,10 +25,11 @@
     "countText": "//span[contains(@class, 'cs-text')][text()='Result:']/span",
     "searchFilefield": "//input[@placeholder='Search File Prefix']",
     "copyURLicon": "//button/span[@icon='link']",
-    "deleteFileicon": "//button/span[@icon='trash']",
+    "deleteFileicon": "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]",
     "snipeableTable":"//input[@type='search']",
     "suggestedWidgetDropdown": "//div[contains(@class, 't--suggested-widget-DROP_DOWN_WIDGET')]",
     "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
+    "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
     "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
-    "mongoFormFind": "//div[text()='listingsAndReviews']/ancestor::div/following-sibling::div[contains(@class, 'entity-context-menu')]"
+    "listingAndReviewContext": "//div[text()='listingAndReviews']/ancestor::div/following-sibling::div[contains(@class, 'entity-context-menu')]"
 }

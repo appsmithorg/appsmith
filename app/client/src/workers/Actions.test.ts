@@ -11,6 +11,7 @@ describe("Add functions", () => {
       actionId: "123",
       data: {},
       config: {},
+      datasourceUrl: "",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
       name: "action1",
@@ -42,18 +43,7 @@ describe("Add functions", () => {
     const onError = () => "failure";
     const actionParams = { param1: "value1" };
 
-    workerEventMock.mockReturnValue({
-      data: {
-        method: "PROCESS_TRIGGER",
-        requestId: "EVAL_TRIGGER",
-        success: true,
-        data: {
-          a: "b",
-        },
-      },
-    });
-
-    // Old syntax works
+    // Old syntax works with functions
     expect(
       dataTreeWithFunctions.action1.run(onSuccess, onError, actionParams),
     ).toBe(undefined);
@@ -68,6 +58,94 @@ describe("Add functions", () => {
         },
       },
       type: "RUN_PLUGIN_ACTION",
+    });
+
+    self.TRIGGER_COLLECTOR.pop();
+
+    // Old syntax works with one undefined value
+    expect(
+      dataTreeWithFunctions.action1.run(onSuccess, undefined, actionParams),
+    ).toBe(undefined);
+    expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
+    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
+      payload: {
+        actionId: "123",
+        onError: undefined,
+        onSuccess: 'function () { return "success"; }',
+        params: {
+          param1: "value1",
+        },
+      },
+      type: "RUN_PLUGIN_ACTION",
+    });
+
+    self.TRIGGER_COLLECTOR.pop();
+
+    expect(
+      dataTreeWithFunctions.action1.run(undefined, onError, actionParams),
+    ).toBe(undefined);
+    expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
+    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
+      payload: {
+        actionId: "123",
+        onError: 'function () { return "failure"; }',
+        onSuccess: undefined,
+        params: {
+          param1: "value1",
+        },
+      },
+      type: "RUN_PLUGIN_ACTION",
+    });
+
+    workerEventMock.mockReturnValue({
+      data: {
+        method: "PROCESS_TRIGGER",
+        requestId: "EVAL_TRIGGER",
+        success: true,
+        data: {
+          a: "b",
+        },
+      },
+    });
+
+    // Old syntax works with null values is treated as new syntax
+    expect(
+      dataTreeWithFunctions.action1.run(null, null, actionParams),
+    ).resolves.toBe({ a: "b" });
+    expect(workerEventMock).lastCalledWith({
+      type: "PROCESS_TRIGGER",
+      requestId: "EVAL_TRIGGER",
+      responseData: {
+        errors: [],
+        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
+        trigger: {
+          type: "RUN_PLUGIN_ACTION",
+          payload: {
+            actionId: "123",
+            params: { param1: "value1" },
+          },
+        },
+      },
+    });
+
+    // Old syntax works with undefined values is treated as new syntax
+    expect(
+      dataTreeWithFunctions.action1.run(undefined, undefined, actionParams),
+    ).resolves.toBe({ a: "b" });
+    expect(workerEventMock).lastCalledWith({
+      type: "PROCESS_TRIGGER",
+      requestId: "EVAL_TRIGGER",
+      responseData: {
+        errors: [],
+        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
+        trigger: {
+          type: "RUN_PLUGIN_ACTION",
+          payload: {
+            actionId: "123",
+            params: { param1: "value1" },
+          },
+        },
+      },
     });
 
     // new syntax works

@@ -1,6 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 
 describe("GlobalSearch", function() {
@@ -12,7 +11,7 @@ describe("GlobalSearch", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("showsAndHidesUsingKeyboardShortcuts", () => {
+  it("1. showsAndHidesUsingKeyboardShortcuts", () => {
     // wait for the page to load
     cy.get(commonlocators.canvas);
     const isMac = Cypress.platform === "darwin";
@@ -29,7 +28,7 @@ describe("GlobalSearch", function() {
     }
   });
 
-  it("selectsWidget", () => {
+  it("2. selectsWidget", () => {
     const table = dsl.dsl.children[2];
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -45,7 +44,7 @@ describe("GlobalSearch", function() {
       });
   });
 
-  it("navigatesToApi", () => {
+  it("3. navigatesToApi", () => {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("SomeApi");
 
@@ -74,15 +73,12 @@ describe("GlobalSearch", function() {
       });
   });
 
-  it("navigatesToDatasourceHavingAQuery", () => {
+  it("4. navigatesToDatasourceHavingAQuery", () => {
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       const expectedDatasource = httpResponse.response.body.data;
-      cy.NavigateToQueryEditor();
-      cy.contains(".t--datasource-name", expectedDatasource.name)
-        .find(queryLocators.createQuery)
-        .click();
 
+      cy.NavigateToActiveDSQueryPane(expectedDatasource.name);
       cy.get(commonlocators.globalSearchTrigger).click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000); // modal open transition should be deterministic
@@ -100,7 +96,7 @@ describe("GlobalSearch", function() {
     });
   });
 
-  it("navigatesToPage", () => {
+  it("5. navigatesToPage", () => {
     cy.Createpage("NewPage");
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting

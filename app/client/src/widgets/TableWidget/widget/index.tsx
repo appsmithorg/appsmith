@@ -582,7 +582,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
-    if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
+    if (tableDataModified) {
       // Set filter to default
       const defaultFilter = [
         {

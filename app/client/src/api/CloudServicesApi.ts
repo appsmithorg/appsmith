@@ -1,4 +1,4 @@
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { cloudServicesBaseUrl: BASE_URL } = getAppsmithConfigs();
 

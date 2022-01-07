@@ -28,12 +28,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -45,6 +45,7 @@ import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +68,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,60 +93,61 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ImportExportApplicationServiceTests {
 
     @Autowired
-    private ImportExportApplicationService importExportApplicationService;
+    ImportExportApplicationService importExportApplicationService;
 
     @Autowired
-    private ApplicationPageService applicationPageService;
+    ApplicationPageService applicationPageService;
 
     @Autowired
-    private UserService userService;
+    UserService userService;
 
     @Autowired
-    private PluginRepository pluginRepository;
+    PluginRepository pluginRepository;
 
     @Autowired
-    private ApplicationService applicationService;
+    ApplicationRepository applicationRepository;
 
     @Autowired
-    private DatasourceService datasourceService;
+    DatasourceService datasourceService;
 
     @Autowired
-    private NewPageService newPageService;
+    NewPageService newPageService;
 
     @Autowired
-    private NewActionService newActionService;
+    NewActionService newActionService;
     
     @Autowired
-    private OrganizationService organizationService;
+    OrganizationService organizationService;
 
     @Autowired
-    private SessionUserService sessionUserService;
+    SessionUserService sessionUserService;
 
     @Autowired
-    private LayoutActionService layoutActionService;
+    LayoutActionService layoutActionService;
 
     @Autowired
-    private NewPageRepository newPageRepository;
+    NewPageRepository newPageRepository;
 
     @Autowired
-    private LayoutCollectionService layoutCollectionService;
+    LayoutCollectionService layoutCollectionService;
 
     @Autowired
-    private ActionCollectionService actionCollectionService;
+    ActionCollectionService actionCollectionService;
 
     @MockBean
-    private PluginExecutorHelper pluginExecutorHelper;
+    PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    private ThemeRepository themeRepository;
+    ThemeRepository themeRepository;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
-    private Plugin installedPlugin;
-    private String orgId;
-    private String testAppId;
-    private Datasource jsDatasource;
-    private Map<String, Datasource> datasourceMap = new HashMap<>();
-    private Plugin installedJsPlugin;
+    private static Plugin installedPlugin;
+    private static String orgId;
+    private static String testAppId;
+    private static Datasource jsDatasource;
+    private static final Map<String, Datasource> datasourceMap = new HashMap<>();
+    private static Plugin installedJsPlugin;
+    private static Boolean isSetupDone = false;
 
     private Flux<ActionDTO> getActionsInApplication(Application application) {
         return newPageService
@@ -155,11 +158,15 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Before
-    @WithUserDetails(value = "api_user")
     public void setup() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
+        Mockito
+                .when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
+        if (Boolean.TRUE.equals(isSetupDone)) {
+            return;
+        }
+        installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Organization organization = new Organization();
         organization.setName("Import-Export-Test-Organization");
         Organization savedOrganization = organizationService.create(organization).block();
@@ -207,6 +214,7 @@ public class ImportExportApplicationServiceTests {
         ds2 = datasourceService.create(ds2).block();
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
+        isSetupDone = true;
     }
     
     @Test
@@ -459,7 +467,7 @@ public class ImportExportApplicationServiceTests {
 
         final Mono<ApplicationJson> resultMono = Mono.zip(
                 organizationService.getById(orgId),
-                applicationService.findById(testAppId)
+                applicationRepository.findById(testAppId)
             )
             .flatMap(tuple -> {
 
@@ -508,6 +516,7 @@ public class ImportExportApplicationServiceTests {
 
                 NewPage newPage = pageList.get(0);
 
+                assertThat(applicationJson.getVersion()).isNotNull();
                 assertThat(exportedApp.getName()).isNotNull();
                 assertThat(exportedApp.getOrganizationId()).isNull();
                 assertThat(exportedApp.getPages()).isNull();
@@ -634,14 +643,14 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
                         datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
-                        getActionsInApplication(application).collectList(),
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                         newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                         actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
                 )))
             .assertNext(tuple -> {
                 final Application application = tuple.getT1();
                 final List<Datasource> datasourceList = tuple.getT2();
-                final List<ActionDTO> actionDTOS = tuple.getT3();
+                final List<NewAction> actionList = tuple.getT3();
                 final List<PageDTO> pageList = tuple.getT4();
                 final List<ActionCollection> actionCollectionList = tuple.getT5();
 
@@ -668,15 +677,25 @@ public class ImportExportApplicationServiceTests {
                     }
                 });
 
-                assertThat(actionDTOS).isNotEmpty();
-                actionDTOS.forEach(actionDTO -> {
+                List<String> collectionIdInAction = new ArrayList<>();
+                assertThat(actionList).isNotEmpty();
+                actionList.forEach(newAction -> {
+                    ActionDTO actionDTO = newAction.getUnpublishedAction();
                     assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
-
+                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                        collectionIdInAction.add(actionDTO.getCollectionId());
+                    }
                 });
 
                 assertThat(actionCollectionList).isNotEmpty();
                 actionCollectionList.forEach(actionCollection -> {
                     assertThat(actionCollection.getUnpublishedCollection().getPageId()).isNotEqualTo(pageList.get(0).getName());
+                    if (StringUtils.equals(actionCollection.getUnpublishedCollection().getName(), "JSObject2")) {
+                        // Check if this action collection is not attached to any action
+                        assertThat(collectionIdInAction).doesNotContain(actionCollection.getId());
+                    } else {
+                        assertThat(collectionIdInAction).contains(actionCollection.getId());
+                    }
                 });
 
                 assertThat(pageList).hasSize(2);
@@ -695,6 +714,41 @@ public class ImportExportApplicationServiceTests {
                 assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
             })
             .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importFromValidJson_cancelledMidway_importSuccess() {
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Midway cancel import app organization");
+        newOrganization = organizationService.create(newOrganization).block();
+
+        importExportApplicationService
+                .extractFileAndSaveApplication(newOrganization.getId(), filePart)
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        // Wait for import to complete
+        Mono<Application> importedAppFromDbMono = Mono.just(newOrganization)
+                .flatMap(organization -> {
+                    try {
+                        // Before fetching the imported application, sleep for 5 seconds to ensure that the import completes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationRepository.findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                            .next();
+                });
+
+        StepVerifier.create(importedAppFromDbMono)
+                .assertNext(application -> {
+                    assertThat(application.getId()).isNotEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -816,6 +870,74 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(defaultPageDTO).isNotNull();
                     assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_WithoutThemes_LegacyThemesAssigned() {
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        final Mono<Application> resultMono = organizationService.create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(application -> {
+                    assertThat(application.getEditModeThemeId()).isNotEmpty();
+                    assertThat(application.getPublishedModeThemeId()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_withoutPageIdInActionCollection_succeeds() {
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        final Mono<Application> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                getActionsInApplication(application).collectList(),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                actionCollectionService
+                                        .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<ActionDTO> actionDTOS = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
+
+
+                    assertThat(datasourceList).isNotEmpty();
+
+                    assertThat(actionDTOS).hasSize(1);
+                    actionDTOS.forEach(actionDTO -> {
+                        assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+
+                    });
+
+                    assertThat(actionCollectionList).isEmpty();
                 })
                 .verifyComplete();
     }
