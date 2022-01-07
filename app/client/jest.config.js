@@ -25,6 +25,7 @@ module.exports = {
     "^worker-loader!": "<rootDir>/test/__mocks__/workerMock.js",
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
+    "@appsmith/(.*)": "<rootDir>/src/ee/$1",
   },
   globals: {
     "ts-jest": {
