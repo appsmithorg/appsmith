@@ -84,7 +84,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "nanoid": "^2.0.4",
-    "node-forge": "^0.10.0",
+    "node-forge": "^1.0.0",
     "node-sass": "^7.0.0",
     "normalizr": "^3.3.0",
     "path-to-regexp": "^6.2.0",
