@@ -115,6 +115,7 @@ describe("#getSchemaItemByFieldType", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "City",
       isVisible: true,
       children: {},
@@ -157,6 +158,7 @@ describe("#getSchemaItemByFieldType", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "City",
       isVisible: true,
       children: {},
@@ -195,11 +197,13 @@ describe("#getSchemaItemByFieldType", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "Hobbies",
       isVisible: true,
       children: {
         __array_item__: {
           isDisabled: false,
+          isRequired: false,
           label: "Array Item",
           isVisible: true,
           children: {},
@@ -245,11 +249,13 @@ describe("#getSchemaItemByFieldType", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "Name",
       isVisible: true,
       children: {
         __array_item__: {
           isDisabled: false,
+          isRequired: false,
           label: "Array Item",
           isVisible: true,
           children: {},
@@ -294,6 +300,7 @@ describe("#getSchemaItemFor", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "First Name",
       isVisible: true,
       children: {},
@@ -326,6 +333,7 @@ describe("#getSchemaItemFor", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "First Name",
       isVisible: true,
       children: {},
@@ -358,6 +366,7 @@ describe("#getSchemaItemFor", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "First Name",
       isVisible: true,
       children: {},
@@ -391,6 +400,7 @@ describe("#getSchemaItemFor", () => {
 
     const expectedOutput = {
       isDisabled: false,
+      isRequired: false,
       label: "Hobbies",
       isVisible: true,
       children: {},
@@ -428,6 +438,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
   it("returns unmodified schemaItem for current data", () => {
     const schemaItem = {
       isDisabled: false,
+      isRequired: false,
       label: "First Name",
       isVisible: true,
       children: {},
@@ -461,6 +472,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
   it("returns array children only if dataType and fieldType are Array", () => {
     const schemaItem = {
       isDisabled: false,
+      isRequired: false,
       label: "Hobbies",
       isVisible: true,
       children: {},
@@ -509,11 +521,13 @@ describe("#convertArrayToSchema", () => {
     const expectedSchema = {
       __array_item__: {
         isDisabled: false,
+        isRequired: false,
         label: "Array Item",
         isVisible: true,
         children: {
           firstName: {
             isDisabled: false,
+            isRequired: false,
             label: "First Name",
             isVisible: true,
             children: {},
@@ -565,6 +579,7 @@ describe("#convertArrayToSchema", () => {
     const prevSchema = {
       __array_item__: {
         isDisabled: false,
+        isRequired: false,
         label: "Array Item",
         isVisible: false,
         children: {
@@ -604,6 +619,7 @@ describe("#convertArrayToSchema", () => {
     const expectedSchema = {
       __array_item__: {
         isDisabled: false,
+        isRequired: false,
         label: "Array Item",
         isVisible: false,
         children: {
@@ -626,6 +642,7 @@ describe("#convertArrayToSchema", () => {
           },
           lastName: {
             isDisabled: false,
+            isRequired: false,
             label: "Last Name",
             isVisible: true,
             children: {},
@@ -679,6 +696,7 @@ describe("#convertObjectToSchema", () => {
     const expectedSchema = {
       firstName: {
         isDisabled: false,
+        isRequired: false,
         label: "First Name",
         isVisible: true,
         children: {},
@@ -753,6 +771,7 @@ describe("#convertObjectToSchema", () => {
       },
       lastName: {
         isDisabled: false,
+        isRequired: false,
         label: "Last Name",
         isVisible: true,
         children: {},
@@ -809,6 +828,7 @@ describe("#convertObjectToSchema", () => {
       },
       __: {
         isDisabled: false,
+        isRequired: false,
         label: "##",
         isVisible: true,
         children: {},
@@ -846,6 +866,7 @@ describe("#convertObjectToSchema", () => {
       },
       __: {
         isDisabled: false,
+        isRequired: false,
         label: "##",
         isVisible: true,
         children: {},
@@ -863,6 +884,7 @@ describe("#convertObjectToSchema", () => {
       },
       __1: {
         isDisabled: false,
+        isRequired: false,
         label: "%%",
         isVisible: true,
         children: {},

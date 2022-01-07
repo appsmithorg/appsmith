@@ -31,11 +31,13 @@ describe(".fieldTypeUpdateHook", () => {
     const expectedNewSchemaItem = {
       isCollapsible: true,
       isDisabled: false,
+      isRequired: false,
       isVisible: true,
       label: "Hobbies",
       children: {
         __array_item__: {
           isDisabled: false,
+          isRequired: false,
           label: "Array Item",
           isVisible: true,
           children: {},

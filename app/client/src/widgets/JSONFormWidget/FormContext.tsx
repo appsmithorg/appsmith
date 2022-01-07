@@ -2,13 +2,16 @@ import React, { createContext } from "react";
 
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
+import { JSONFormWidgetState } from "./widget";
 
 type FormContextProps = React.PropsWithChildren<{
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   renderMode: RenderMode;
-  updateWidgetProperty: (propertyName: string, propertyValues: any) => void;
+  setFieldValidityState: (
+    cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
+  ) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
-  fieldState: Record<string, any>;
+  updateWidgetProperty: (propertyName: string, propertyValues: any) => void;
 }>;
 
 const FormContext = createContext<FormContextProps>({} as FormContextProps);
@@ -16,8 +19,8 @@ const FormContext = createContext<FormContextProps>({} as FormContextProps);
 export function FormContextProvider({
   children,
   executeAction,
-  fieldState,
   renderMode,
+  setFieldValidityState,
   updateWidgetMetaProperty,
   updateWidgetProperty,
 }: FormContextProps) {
@@ -25,8 +28,8 @@ export function FormContextProvider({
     <FormContext.Provider
       value={{
         executeAction,
-        fieldState,
         renderMode,
+        setFieldValidityState,
         updateWidgetMetaProperty,
         updateWidgetProperty,
       }}

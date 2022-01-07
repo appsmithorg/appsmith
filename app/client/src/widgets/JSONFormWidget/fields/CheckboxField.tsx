@@ -25,6 +25,7 @@ type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
 const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
   alignWidget: "LEFT",
   isDisabled: false,
+  isRequired: false,
   isVisible: true,
   label: "",
 };

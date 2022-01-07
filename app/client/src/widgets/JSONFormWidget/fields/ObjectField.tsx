@@ -29,8 +29,9 @@ type StyledWrapperProps = {
 
 const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isDisabled: false,
-  label: "",
+  isRequired: false,
   isVisible: true,
+  label: "",
 };
 
 const StyledFieldsWrapper = styled.div`

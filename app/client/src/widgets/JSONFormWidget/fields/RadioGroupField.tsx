@@ -18,8 +18,9 @@ export type RadioGroupFieldProps = BaseFieldComponentProps<
 
 const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
   isDisabled: false,
-  label: "",
+  isRequired: false,
   isVisible: true,
+  label: "",
   options: [
     { label: "Yes", value: "Y" },
     { label: "No", value: "N" },

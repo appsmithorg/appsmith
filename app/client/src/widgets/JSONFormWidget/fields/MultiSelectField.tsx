@@ -34,8 +34,9 @@ export type MultiSelectFieldProps = BaseFieldComponentProps<
 
 const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
   isDisabled: false,
-  label: "",
+  isRequired: false,
   isVisible: true,
+  label: "",
   serverSideFiltering: false,
   options: [
     { label: "Blue", value: "BLUE" },

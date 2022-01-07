@@ -32,6 +32,7 @@ const COMPONENT_DEFAULT_VALUES = {
   closeOnSelection: false,
   dateFormat: "YYYY-MM-DD HH:mm",
   isDisabled: false,
+  isRequired: false,
   label: "",
   maxDate: "2121-12-31T18:29:00.000Z",
   minDate: "1920-12-31T18:30:00.000Z",

@@ -52,9 +52,10 @@ type IsValidOptions = {
 
 const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isDisabled: false,
-  label: "",
-  isVisible: true,
+  isRequired: false,
   isSpellCheck: false,
+  isVisible: true,
+  label: "",
 };
 
 const EMAIL_REGEX = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);

@@ -69,6 +69,8 @@ export type BaseFieldComponentProps<TProps = any> = {
   schemaItem: SchemaItem & TProps;
 };
 
+export type Schema = Record<string, SchemaItem>;
+
 export type SchemaItem = FieldComponentBaseProps & {
   children: Schema;
   dataType: DataType;
@@ -102,7 +104,11 @@ type FieldComponent = {
   isValidType?: (value: any, options?: any) => boolean;
 };
 
-export type Schema = Record<string, SchemaItem>;
+export type FieldState<TObj> =
+  | {
+      [k: string]: TObj | TObj[] | FieldState<TObj> | FieldState<TObj>[];
+    }
+  | FieldState<TObj>[];
 
 export const ARRAY_ITEM_KEY = "__array_item__";
 export const ROOT_SCHEMA_KEY = "__root_schema__";

@@ -25,11 +25,13 @@ const initialDataset = {
   schemaOutput: {
     __root_schema__: {
       isDisabled: false,
+      isRequired: false,
       label: "",
       isVisible: true,
       children: {
         name: {
           isDisabled: false,
+          isRequired: false,
           label: "Name",
           isVisible: true,
           isSpellCheck: false,
@@ -47,6 +49,7 @@ const initialDataset = {
         },
         age: {
           isDisabled: false,
+          isRequired: false,
           label: "Age",
           isVisible: true,
           isSpellCheck: false,
@@ -66,6 +69,7 @@ const initialDataset = {
           closeOnSelection: false,
           dateFormat: "MM/DD/YYYY",
           isDisabled: false,
+          isRequired: false,
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
           minDate: "1920-12-31T18:30:00.000Z",
@@ -87,6 +91,7 @@ const initialDataset = {
         boolean: {
           alignWidget: "LEFT",
           isDisabled: false,
+          isRequired: false,
           isVisible: true,
           label: "Boolean",
           children: {},
@@ -103,6 +108,7 @@ const initialDataset = {
         },
         hobbies: {
           isDisabled: false,
+          isRequired: false,
           label: "Hobbies",
           isVisible: true,
           serverSideFiltering: false,
@@ -125,6 +131,7 @@ const initialDataset = {
         },
         __: {
           isDisabled: false,
+          isRequired: false,
           label: "%%",
           isVisible: true,
           isSpellCheck: false,
@@ -143,16 +150,19 @@ const initialDataset = {
         education: {
           isCollapsible: true,
           isDisabled: false,
+          isRequired: false,
           isVisible: true,
           label: "Education",
           children: {
             __array_item__: {
               isDisabled: false,
+              isRequired: false,
               label: "Array Item",
               isVisible: true,
               children: {
                 college: {
                   isDisabled: false,
+                  isRequired: false,
                   label: "College",
                   isVisible: true,
                   isSpellCheck: false,
@@ -169,6 +179,7 @@ const initialDataset = {
                 },
                 number: {
                   isDisabled: false,
+                  isRequired: false,
                   label: "Number",
                   isVisible: true,
                   isSpellCheck: false,
@@ -187,6 +198,7 @@ const initialDataset = {
                   closeOnSelection: false,
                   dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
+                  isRequired: false,
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
                   minDate: "1920-12-31T18:30:00.000Z",
@@ -206,6 +218,7 @@ const initialDataset = {
                 boolean: {
                   alignWidget: "LEFT",
                   isDisabled: false,
+                  isRequired: false,
                   isVisible: true,
                   label: "Boolean",
                   children: {},
@@ -256,11 +269,13 @@ const initialDataset = {
         },
         address: {
           isDisabled: false,
+          isRequired: false,
           label: "Address",
           isVisible: true,
           children: {
             Line1: {
               isDisabled: false,
+              isRequired: false,
               label: "Line 1",
               isVisible: true,
               isSpellCheck: false,
@@ -279,6 +294,7 @@ const initialDataset = {
             city: {
               isSpellCheck: false,
               isDisabled: false,
+              isRequired: false,
               label: "City",
               isVisible: true,
               children: {},
@@ -362,11 +378,13 @@ const withRemovedKeyFromInitialDataset = {
   schemaOutput: {
     __root_schema__: {
       isDisabled: false,
+      isRequired: false,
       label: "",
       isVisible: true,
       children: {
         name: {
           isDisabled: false,
+          isRequired: false,
           label: "Name",
           isVisible: true,
           isSpellCheck: false,
@@ -384,6 +402,7 @@ const withRemovedKeyFromInitialDataset = {
         },
         age: {
           isDisabled: false,
+          isRequired: false,
           label: "Age",
           isVisible: true,
           isSpellCheck: false,
@@ -403,6 +422,7 @@ const withRemovedKeyFromInitialDataset = {
           closeOnSelection: false,
           dateFormat: "MM/DD/YYYY",
           isDisabled: false,
+          isRequired: false,
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
           minDate: "1920-12-31T18:30:00.000Z",
@@ -423,6 +443,7 @@ const withRemovedKeyFromInitialDataset = {
         },
         hobbies: {
           isDisabled: false,
+          isRequired: false,
           label: "Hobbies",
           isVisible: true,
           serverSideFiltering: false,
@@ -446,16 +467,19 @@ const withRemovedKeyFromInitialDataset = {
         education: {
           isCollapsible: true,
           isDisabled: false,
+          isRequired: false,
           isVisible: true,
           label: "Education",
           children: {
             __array_item__: {
               isDisabled: false,
+              isRequired: false,
               label: "Array Item",
               isVisible: true,
               children: {
                 college: {
                   isDisabled: false,
+                  isRequired: false,
                   label: "College",
                   isVisible: true,
                   isSpellCheck: false,
@@ -472,6 +496,7 @@ const withRemovedKeyFromInitialDataset = {
                 },
                 number: {
                   isDisabled: false,
+                  isRequired: false,
                   label: "Number",
                   isVisible: true,
                   isSpellCheck: false,
@@ -490,6 +515,7 @@ const withRemovedKeyFromInitialDataset = {
                   closeOnSelection: false,
                   dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
+                  isRequired: false,
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
                   minDate: "1920-12-31T18:30:00.000Z",
@@ -509,6 +535,7 @@ const withRemovedKeyFromInitialDataset = {
                 boolean: {
                   alignWidget: "LEFT",
                   isDisabled: false,
+                  isRequired: false,
                   isVisible: true,
                   label: "Boolean",
                   children: {},
@@ -559,11 +586,13 @@ const withRemovedKeyFromInitialDataset = {
         },
         address: {
           isDisabled: false,
+          isRequired: false,
           label: "Address",
           isVisible: true,
           children: {
             Line1: {
               isDisabled: false,
+              isRequired: false,
               label: "Line 1",
               isVisible: true,
               isSpellCheck: false,
@@ -581,6 +610,7 @@ const withRemovedKeyFromInitialDataset = {
             },
             city: {
               isDisabled: false,
+              isRequired: false,
               label: "City",
               isSpellCheck: false,
               isVisible: true,
@@ -664,11 +694,13 @@ const withRemovedAddedKeyToInitialDataset = {
   schemaOutput: {
     __root_schema__: {
       isDisabled: false,
+      isRequired: false,
       label: "",
       isVisible: true,
       children: {
         name: {
           isDisabled: false,
+          isRequired: false,
           label: "Name",
           isVisible: true,
           isSpellCheck: false,
@@ -686,6 +718,7 @@ const withRemovedAddedKeyToInitialDataset = {
         },
         age: {
           isDisabled: false,
+          isRequired: false,
           label: "Age",
           isVisible: true,
           isSpellCheck: false,
@@ -705,6 +738,7 @@ const withRemovedAddedKeyToInitialDataset = {
           closeOnSelection: false,
           dateFormat: "MM/DD/YYYY",
           isDisabled: false,
+          isRequired: false,
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
           minDate: "1920-12-31T18:30:00.000Z",
@@ -725,6 +759,7 @@ const withRemovedAddedKeyToInitialDataset = {
         },
         hobbies: {
           isDisabled: false,
+          isRequired: false,
           label: "Hobbies",
           isVisible: true,
           serverSideFiltering: false,
@@ -748,16 +783,19 @@ const withRemovedAddedKeyToInitialDataset = {
         education: {
           isCollapsible: true,
           isDisabled: false,
+          isRequired: false,
           isVisible: true,
           label: "Education",
           children: {
             __array_item__: {
               isDisabled: false,
+              isRequired: false,
               label: "Array Item",
               isVisible: true,
               children: {
                 college: {
                   isDisabled: false,
+                  isRequired: false,
                   label: "College",
                   isVisible: true,
                   isSpellCheck: false,
@@ -774,6 +812,7 @@ const withRemovedAddedKeyToInitialDataset = {
                 },
                 number: {
                   isDisabled: false,
+                  isRequired: false,
                   label: "Number",
                   isVisible: true,
                   isSpellCheck: false,
@@ -792,6 +831,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   closeOnSelection: false,
                   dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
+                  isRequired: false,
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
                   minDate: "1920-12-31T18:30:00.000Z",
@@ -811,6 +851,7 @@ const withRemovedAddedKeyToInitialDataset = {
                 boolean: {
                   alignWidget: "LEFT",
                   isDisabled: false,
+                  isRequired: false,
                   isVisible: true,
                   label: "Boolean",
                   children: {},
@@ -861,11 +902,13 @@ const withRemovedAddedKeyToInitialDataset = {
         },
         address: {
           isDisabled: false,
+          isRequired: false,
           label: "Address",
           isVisible: true,
           children: {
             Line1: {
               isDisabled: false,
+              isRequired: false,
               label: "Line 1",
               isVisible: true,
               isSpellCheck: false,
@@ -884,6 +927,7 @@ const withRemovedAddedKeyToInitialDataset = {
             city: {
               isSpellCheck: false,
               isDisabled: false,
+              isRequired: false,
               label: "City",
               isVisible: true,
               children: {},
@@ -912,6 +956,7 @@ const withRemovedAddedKeyToInitialDataset = {
         },
         gender: {
           isDisabled: false,
+          isRequired: false,
           label: "Gender",
           isVisible: true,
           isSpellCheck: false,

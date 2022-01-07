@@ -19,7 +19,7 @@ function useRegisterFieldValidity({
 }: UseRegisterFieldValidityProps) {
   const currentIsValidRef = useRef<boolean>();
   const { clearErrors, setError } = useFormContext();
-  const { fieldState, updateWidgetMetaProperty } = useContext(FormContext);
+  const { setFieldValidityState } = useContext(FormContext);
 
   const onFieldValidityChange = (isValid: boolean) => {
     if (currentIsValidRef.current !== isValid) {
@@ -34,14 +34,15 @@ function useRegisterFieldValidity({
             });
       }, 0);
 
-      const newFieldState = cloneDeep(fieldState);
-      set(newFieldState, `${fieldName}.isValid`, isValid);
-      // Added setTimeout to resolve a race condition where in the metaHOC,
-      // the old value gets updated in the meta property
-      // If initially the value of isValid was true and new value false is passed
-      // then the value will remain true, now if the value true is passed, metaHOC will
-      // update the value as false (previous value).
-      updateWidgetMetaProperty("fieldState", newFieldState);
+      setFieldValidityState((prevState) => {
+        const fieldValidity = cloneDeep(prevState.fieldValidity);
+        set(fieldValidity, `${fieldName}.isValid`, isValid);
+
+        return {
+          ...prevState,
+          fieldValidity,
+        };
+      });
     }
   };
 

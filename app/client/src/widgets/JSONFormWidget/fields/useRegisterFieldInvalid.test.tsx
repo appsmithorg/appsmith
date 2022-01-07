@@ -7,36 +7,35 @@ import useRegisterFieldValidity from "./useRegisterFieldInvalid";
 import { FieldType } from "../constants";
 
 const initialFieldState = {
-  lastName: {
-    isValid: false,
-    isVisible: true,
-  },
-  firstName: {
-    isValid: false,
-    isVisible: true,
-  },
-  array: [
-    {
-      first: {
-        isValid: false,
-        isVisible: true,
-      },
+  fieldValidity: {
+    lastName: {
+      isValid: false,
     },
-  ],
+    firstName: {
+      isValid: false,
+    },
+    array: [
+      {
+        first: {
+          isValid: false,
+        },
+      },
+    ],
+  },
 };
 
 describe("useRegisterFieldInvalid", () => {
   it("updates fieldState and error state with the updated isValid value", () => {
-    const mockUpdateWidgetMetaProperty = jest.fn();
+    const mockSetFieldValidityState = jest.fn();
     function Wrapper({ children }: any) {
       const methods = useForm();
 
       return (
         <FormContextProvider
           executeAction={jest.fn}
-          fieldState={initialFieldState}
           renderMode="CANVAS"
-          updateWidgetMetaProperty={mockUpdateWidgetMetaProperty}
+          setFieldValidityState={mockSetFieldValidityState}
+          updateWidgetMetaProperty={jest.fn}
           updateWidgetProperty={jest.fn}
         >
           <FormProvider {...methods}>{children}</FormProvider>
@@ -57,44 +56,43 @@ describe("useRegisterFieldInvalid", () => {
     );
 
     const expectedUpdatedFieldState = {
-      lastName: {
-        isValid: false,
-        isVisible: true,
-      },
-      firstName: {
-        isValid: false,
-        isVisible: true,
-      },
-      array: [
-        {
-          first: {
-            isValid: true,
-            isVisible: true,
-          },
+      fieldValidity: {
+        lastName: {
+          isValid: false,
         },
-      ],
+        firstName: {
+          isValid: false,
+        },
+        array: [
+          {
+            first: {
+              isValid: true,
+            },
+          },
+        ],
+      },
     };
 
     result.current.onFieldValidityChange(true);
 
-    expect(mockUpdateWidgetMetaProperty).toBeCalledTimes(1);
-    expect(mockUpdateWidgetMetaProperty).toBeCalledWith(
-      "fieldState",
-      expectedUpdatedFieldState,
+    expect(mockSetFieldValidityState).toBeCalledTimes(1);
+    const cbResult = mockSetFieldValidityState.mock.calls[0][0](
+      initialFieldState,
     );
+    expect(cbResult).toEqual(expectedUpdatedFieldState);
   });
 
   it("does not trigger meta update if field validity is same", () => {
-    const mockUpdateWidgetMetaProperty = jest.fn();
+    const mockSetFieldValidityState = jest.fn();
     function Wrapper({ children }: any) {
       const methods = useForm();
 
       return (
         <FormContextProvider
           executeAction={jest.fn}
-          fieldState={initialFieldState}
           renderMode="CANVAS"
-          updateWidgetMetaProperty={mockUpdateWidgetMetaProperty}
+          setFieldValidityState={mockSetFieldValidityState}
+          updateWidgetMetaProperty={jest.fn}
           updateWidgetProperty={jest.fn}
         >
           <FormProvider {...methods}>{children}</FormProvider>
@@ -114,34 +112,10 @@ describe("useRegisterFieldInvalid", () => {
       },
     );
 
-    const expectedUpdatedFieldState = {
-      lastName: {
-        isValid: false,
-        isVisible: true,
-      },
-      firstName: {
-        isValid: false,
-        isVisible: true,
-      },
-      array: [
-        {
-          first: {
-            isValid: true,
-            isVisible: true,
-          },
-        },
-      ],
-    };
-
     result.current.onFieldValidityChange(true);
 
-    expect(mockUpdateWidgetMetaProperty).toBeCalledTimes(1);
-    expect(mockUpdateWidgetMetaProperty).toBeCalledWith(
-      "fieldState",
-      expectedUpdatedFieldState,
-    );
-
+    expect(mockSetFieldValidityState).toBeCalledTimes(1);
     result.current.onFieldValidityChange(true);
-    expect(mockUpdateWidgetMetaProperty).toBeCalledTimes(1);
+    expect(mockSetFieldValidityState).toBeCalledTimes(1);
   });
 });

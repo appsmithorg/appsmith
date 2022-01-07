@@ -24,6 +24,7 @@ type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
 const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   alignWidget: "LEFT",
   isDisabled: false,
+  isRequired: false,
   isVisible: true,
   label: "",
 };

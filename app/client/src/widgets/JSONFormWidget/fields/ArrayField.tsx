@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { ControllerRenderProps, useFormContext } from "react-hook-form";
 import { Icon } from "@blueprintjs/core";
-import { cloneDeep, pick } from "lodash";
+import { cloneDeep, get, pick, set } from "lodash";
 
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
@@ -12,11 +12,13 @@ import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
+  FieldState,
   SchemaItem,
 } from "../constants";
 import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
+import FormContext from "../FormContext";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   isCollapsible: boolean;
@@ -33,6 +35,7 @@ type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentProps>;
 const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   isCollapsible: true,
   isDisabled: false,
+  isRequired: false,
   isVisible: true,
   label: "",
 };
@@ -71,6 +74,7 @@ const StyledDeleteButton = styled(StyledButton)`
 function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   const { getValues, setValue } = useFormContext();
   const [keys, setKeys] = useState<string[]>([]);
+  const { setFieldValidityState } = useContext(FormContext);
 
   const { children, isVisible = true, label, tooltip } = schemaItem;
   const arrayItemSchema: ArrayItemSchemaItemProps = children[ARRAY_ITEM_KEY];
@@ -126,6 +130,36 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   useDeepEffect(() => {
     reset(defaultValue);
   }, [defaultValue]);
+
+  /**
+   * If array field is reset/array items are removed, the field Validity
+   * should reflect that change. This block ensures only when there is a
+   * decrease of array items, we remove the last n removed items as the rest
+   * would auto correct it self by individual field using useRegisterFieldInvalid hook
+   */
+  useDeepEffect(() => {
+    setFieldValidityState((prevState) => {
+      const fieldValidity = cloneDeep(prevState.fieldValidity);
+      const currFieldValidity: FieldState<{ isValid: true }> = get(
+        fieldValidity,
+        name,
+        [],
+      );
+
+      if (Array.isArray(currFieldValidity)) {
+        if (currFieldValidity.length > keys.length) {
+          const updatedFieldValidity = currFieldValidity.slice(0, keys.length);
+
+          set(fieldValidity, name, updatedFieldValidity);
+        }
+      }
+
+      return {
+        ...prevState,
+        fieldValidity,
+      };
+    });
+  }, [keys]);
 
   if (!isVisible) {
     return null;

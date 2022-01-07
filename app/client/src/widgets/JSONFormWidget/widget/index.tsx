@@ -1,25 +1,20 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
-import { isEmpty, merge } from "lodash";
+import { isEmpty } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import propertyConfig from "./propertyConfig";
 import SchemaParser from "../schemaParser";
+import { AppState } from "reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ARRAY_ITEM_KEY,
-  DataType,
-  FieldType,
-  Schema,
-  SchemaItem,
-} from "../constants";
-import { AppState } from "reducers";
+import { FieldState, Schema } from "../constants";
+import { generateFieldState } from "./helper";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   canvasWidgets: Record<string, WidgetProps>;
@@ -36,7 +31,20 @@ export interface JSONFormWidgetProps extends WidgetProps {
   title: string;
 }
 
-class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
+export type FieldValidityState = FieldState<{ isValid: boolean }>;
+
+export type JSONFormWidgetState = {
+  fieldValidity: FieldValidityState;
+};
+
+class JSONFormWidget extends BaseWidget<
+  JSONFormWidgetProps,
+  WidgetState & JSONFormWidgetState
+> {
+  state: JSONFormWidgetState = {
+    fieldValidity: {},
+  };
+
   static getPropertyPaneConfig() {
     return propertyConfig;
   }
@@ -102,58 +110,13 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
   };
 
   parseAndSaveFieldState = () => {
-    const processObject = (schema: Schema) => {
-      const obj: Record<string, any> = {};
+    const fieldState = generateFieldState(
+      this.props.schema,
+      this.state.fieldValidity,
+    );
 
-      Object.values(schema).forEach((schemaItem) => {
-        obj[schemaItem.name] = processSchemaItem(schemaItem);
-      });
-
-      return obj;
-    };
-
-    const processArray = (schema: Schema): any[] => {
-      if (schema[ARRAY_ITEM_KEY]) {
-        return [processSchemaItem(schema[ARRAY_ITEM_KEY])];
-      }
-
-      return [];
-    };
-
-    const processSchemaItem = (schemaItem: SchemaItem) => {
-      if (schemaItem.dataType === DataType.OBJECT) {
-        return processObject(schemaItem.children);
-      }
-
-      if (
-        schemaItem.dataType === DataType.ARRAY &&
-        schemaItem.fieldType === FieldType.ARRAY
-      ) {
-        return processArray(schemaItem.children);
-      }
-
-      const { isDisabled, isRequired, isVisible } = schemaItem;
-      return { isDisabled, isVisible, isRequired };
-    };
-
-    let fieldState = {};
-
-    if (this.props.schema) {
-      Object.values(this.props.schema).forEach((schemaItem) => {
-        fieldState = processSchemaItem(schemaItem);
-      });
-    }
-
-    /**
-     * Reason for merging fieldState into this.props.fieldState:
-     * fieldState value is derived from schemaItem which gives us "isDisabled", "isVisible" etc
-     * but it does not give us isValid which is directly updated into the meta property "fieldState"
-     * by individual fields, hence we merge to keep the extra properties intact.
-     * */
-    const mergedFieldState = merge(this.props.fieldState, fieldState);
-
-    if (!equal(mergedFieldState, this.props.fieldState)) {
-      this.props.updateWidgetMetaProperty("fieldState", mergedFieldState);
+    if (!equal(fieldState, this.props.fieldState)) {
+      this.props.updateWidgetMetaProperty("fieldState", fieldState);
     }
   };
 
@@ -184,12 +147,19 @@ class JSONFormWidget extends BaseWidget<JSONFormWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty(propertyName, propertyValue);
   };
 
+  setFieldValidityState = (
+    cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
+  ) => {
+    this.setState(cb);
+  };
+
   getPageView() {
     return (
       <JSONFormComponent
         {...this.props}
         executeAction={this.onExecuteAction}
         onSubmit={this.onSubmit}
+        setFieldValidityState={this.setFieldValidityState}
         updateFormData={this.updateFormData}
         updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
         updateWidgetProperty={this.onUpdateWidgetProperty}

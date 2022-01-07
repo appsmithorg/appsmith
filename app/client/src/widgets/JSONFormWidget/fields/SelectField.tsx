@@ -27,10 +27,11 @@ type SelectComponentProps = FieldComponentBaseProps &
 
 const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
   isDisabled: false,
+  isFilterable: false,
+  isRequired: false,
   isVisible: true,
   label: "",
   serverSideFiltering: false,
-  isFilterable: false,
   options: [
     { label: "Blue", value: "BLUE" },
     { label: "Green", value: "GREEN" },

@@ -12,6 +12,7 @@ import { FIELD_MAP, ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
 import { RenderMode, TEXT_SIZES } from "constants/WidgetConstants";
+import { JSONFormWidgetState } from "../widget";
 
 type StyledContainerProps = {
   backgroundColor?: string;
@@ -26,12 +27,14 @@ export type JSONFormComponentProps<TValues> = {
   boxShadowColor?: string;
   disabledWhenInvalid?: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
-  fieldState: Record<string, any>;
   fixedFooter: boolean;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode: RenderMode;
   schema: Schema;
   scrollContents: boolean;
+  setFieldValidityState: (
+    cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
+  ) => void;
   showReset: boolean;
   sourceData?: TValues;
   title: string;
@@ -65,9 +68,9 @@ const StyledZeroTitle = styled(Text)`
 
 function JSONFormComponent<TValues>({
   executeAction,
-  fieldState,
   renderMode,
   schema,
+  setFieldValidityState,
   sourceData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
@@ -110,8 +113,8 @@ function JSONFormComponent<TValues>({
   return (
     <FormContextProvider
       executeAction={executeAction}
-      fieldState={fieldState}
       renderMode={renderMode}
+      setFieldValidityState={setFieldValidityState}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
