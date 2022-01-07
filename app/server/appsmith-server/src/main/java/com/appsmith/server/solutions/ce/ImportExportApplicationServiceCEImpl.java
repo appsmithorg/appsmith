@@ -14,6 +14,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -45,13 +46,13 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
@@ -376,8 +377,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
 
-        final Flux<DataBuffer> contentCache = filePart.content().cache();
-        Mono<String> stringifiedFile = DataBufferUtils.join(contentCache)
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
                 .map(dataBuffer -> {
                     byte[] data = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(data);
@@ -385,14 +385,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
-        return stringifiedFile
+        Mono<Application> importedApplicationMono = stringifiedFile
                 .flatMap(data -> {
-                    Gson gson = new Gson();
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                            .create();
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
                 });
+
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
@@ -462,7 +468,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         }
 
-        return pluginRepository.findAll()
+        Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
                     final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
@@ -896,6 +902,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .then(applicationService.update(importedApplication.getId(), importedApplication));
                 });
+
+        // Import Application is currently a slow API because it needs to import and create application, pages, actions
+        // and action collection. This process may take time and the client may cancel the request. This leads to the flow
+        // getting stopped mid way producing corrupted objects in DB. The following ensures that even though the client may have
+        // cancelled the flow, the importing the application should proceed uninterrupted and whenever the user refreshes
+        // the page, the imported application is available and is in sane state.
+        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
+        // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
@@ -1055,7 +1072,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<ActionCollection> saveNewCollectionAndUpdateDefaultResources(ActionCollection actionCollection, String branchName) {
-        return actionCollectionService.save(actionCollection)
+        return actionCollectionService.create(actionCollection)
                 .flatMap(actionCollection1 -> {
                     if (actionCollection1.getDefaultResources() == null) {
                         ActionCollection update = new ActionCollection();
