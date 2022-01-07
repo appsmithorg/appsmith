@@ -401,7 +401,7 @@ function GitConnection({ isImport }: Props) {
                 AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
                   source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
                 });
-                window.open(DOCS_BASE_URL, "_blank");
+                window.open(RepoUrlDocumentUrl, "_blank");
               }}
               text={createMessage(LEARN_MORE)}
             />
