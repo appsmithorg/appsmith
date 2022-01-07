@@ -12,7 +12,7 @@ import { User } from "constants/userConstants";
 import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "./ErrorSagas";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 import { ApiResponse } from "api/ApiResponses";
 import {

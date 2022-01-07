@@ -20,7 +20,7 @@ describe("Dropdown Widget Functionality", function() {
       });
     cy.get(".select-popover-wrapper")
       .invoke("outerWidth")
-      .should("eq", 147.1875);
+      .should("eq", 180);
 
     // Menu Button
     cy.get(formWidgetsPage.menuButtonWidget)

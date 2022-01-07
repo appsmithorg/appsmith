@@ -37,8 +37,10 @@ import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
 import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
+import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
 import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
 import { ReactComponent as CameraIcon } from "assets/icons/widget/camera.svg";
+import { ReactComponent as MapChartIcon } from "assets/icons/widget/map-chart.svg";
 
 /* eslint-disable react/display-name */
 
@@ -228,6 +230,11 @@ export const WidgetIcons: {
       <ButtonGroupIcon />
     </StyledIconWrapper>
   ),
+  PROGRESSBAR_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <ProgressBarIcon />
+    </StyledIconWrapper>
+  ),
   SWITCH_GROUP_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <SwitchGroupIcon />
@@ -236,6 +243,11 @@ export const WidgetIcons: {
   CAMERA_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <CameraIcon />
+    </StyledIconWrapper>
+  ),
+  MAP_CHART_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MapChartIcon />
     </StyledIconWrapper>
   ),
 };
