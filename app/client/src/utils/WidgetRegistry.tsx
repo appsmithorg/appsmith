@@ -114,6 +114,9 @@ import ProgressBarWidget, {
 import SwitchGroupWidget, {
   CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
 } from "widgets/SwitchGroupWidget";
+import CircularProgressWidget, {
+  CONFIG as CIRCULAR_PROGRESS_WIDGET_CONFIG,
+} from "widgets/CircularProgressWidget";
 
 import log from "loglevel";
 
@@ -167,6 +170,7 @@ export const registerWidgets = () => {
   registerWidget(AudioWidget, AUDIO_WIDGET_CONFIG);
   registerWidget(ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG);
   registerWidget(CameraWidget, CAMERA_WIDGET_CONFIG);
+  registerWidget(CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG);
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
