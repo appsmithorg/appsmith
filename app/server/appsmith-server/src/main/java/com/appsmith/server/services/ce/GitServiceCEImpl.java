@@ -687,7 +687,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         error.getClass().getName(),
                                         error.getMessage(),
                                         application.getGitApplicationMetadata().getIsRepoPrivate()
-                                ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION)));
+                                ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage())));
                             }
                             if (error instanceof InvalidRemoteException) {
                                 return addAnalyticsForGitOperation(
@@ -830,7 +830,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                                             error.getClass().getName(),
                                                                             error.getMessage(),
                                                                             application.getGitApplicationMetadata().getIsRepoPrivate()
-                                                                    ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION)));
+                                                                    ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage())));
                                                                 }
                                                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                                                             })
