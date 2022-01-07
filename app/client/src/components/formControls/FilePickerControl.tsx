@@ -60,6 +60,7 @@ const FilePickerWrapper = styled.div`
 type RenderFilePickerProps = FilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
+  disabled?: boolean;
   onChange: (event: any) => void;
 };
 
@@ -110,6 +111,7 @@ function RenderFilePicker(props: RenderFilePickerProps) {
         <SelectButton
           buttonStyle="PRIMARY"
           buttonVariant={ButtonVariantTypes.SECONDARY}
+          disabled={props.disabled}
           onClick={() => {
             setIsOpen(true);
           }}
@@ -145,8 +147,14 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 
   render() {
-    const { configProperty } = this.props;
-    return <Field component={RenderFilePicker} name={configProperty} />;
+    const { configProperty, disabled } = this.props;
+    return (
+      <Field
+        component={RenderFilePicker}
+        disabled={disabled}
+        name={configProperty}
+      />
+    );
   }
 
   getControlType(): ControlType {

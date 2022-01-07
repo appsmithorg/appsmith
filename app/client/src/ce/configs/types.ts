@@ -16,7 +16,7 @@ export type FeatureFlagConfig = {
   default: FeatureFlags;
 };
 
-export type AppsmithUIConfigs = {
+export interface AppsmithUIConfigs {
   sentry: {
     enabled: boolean;
     dsn: string;
@@ -55,6 +55,7 @@ export type AppsmithUIConfigs = {
   enableRapidAPI: boolean;
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
+  disableLoginForm: boolean;
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 
@@ -77,4 +78,4 @@ export type AppsmithUIConfigs = {
     apiKey: string;
   };
   appsmithSupportEmail: string;
-};
+}
