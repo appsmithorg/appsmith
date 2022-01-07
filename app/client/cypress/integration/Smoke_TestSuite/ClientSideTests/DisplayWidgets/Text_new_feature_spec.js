@@ -84,7 +84,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
       .type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
-    cy.get(widgetsPage.backgroundColor)
+    cy.get(`${widgetsPage.cellBackground} input`)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -134,7 +134,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
       .should("have.css", "border-width")
       .and("eq", "10px");
 
-    cy.get(widgetsPage.boadercolorPicker)
+    cy.get(widgetsPage.borderColorPickerNew)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.yellowColor).click();
