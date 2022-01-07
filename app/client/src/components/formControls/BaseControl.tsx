@@ -72,6 +72,7 @@ export interface ControlData {
   propertyName?: string;
   identifier?: string;
   sectionName?: string;
+  disabled?: boolean;
 }
 export type FormConfig = Omit<ControlData, "configProperty"> & {
   configProperty?: string;
