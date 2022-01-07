@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
-import { getShowRepoLimitErrorModal } from "selectors/gitSyncSelectors";
+import {
+  getRepoLimitedDocUrl,
+  getShowRepoLimitErrorModal,
+} from "selectors/gitSyncSelectors";
 import {
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
@@ -37,7 +40,6 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import InfoWrapper from "./components/InfoWrapper";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 const Container = styled.div`
   height: 600px;
@@ -83,6 +85,7 @@ function RepoLimitExceededErrorModal() {
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
   const userOrgs = useSelector(getUserApplicationsOrgs);
+  const repoLimitDocumentUrl = useSelector(getRepoLimitedDocUrl);
   const applications = useMemo(() => {
     if (userOrgs) {
       const org: any = userOrgs.find((organizationObject: any) => {
@@ -212,7 +215,7 @@ function RepoLimitExceededErrorModal() {
               </Text>
               <Link
                 color={Colors.CRIMSON}
-                link={DOCS_BASE_URL}
+                link={repoLimitDocumentUrl}
                 text={createMessage(LEARN_MORE)}
               />
             </div>

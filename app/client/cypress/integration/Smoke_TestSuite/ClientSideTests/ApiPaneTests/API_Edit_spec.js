@@ -38,7 +38,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.get(apiwidget.settings).click({ force: true });
-    cy.get(apiwidget.confirmBeforeExecute).click();
+    cy.get(apiwidget.confirmBeforeExecute).click({ force: true });
     cy.get(apiwidget.runQueryButton).click();
     cy.get(".bp3-dialog")
       .find("button")
