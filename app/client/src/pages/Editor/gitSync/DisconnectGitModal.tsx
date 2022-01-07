@@ -119,9 +119,12 @@ function DisconnectGitModal() {
                 color={Colors.CRIMSON}
                 link={DOCS_BASE_URL}
                 onClick={() => {
-                  AnalyticsUtil.logEvent("GIT_DOCUMENTATION_LINK_CLICK", {
-                    source: "GIT_DISCONNECTION_MODAL",
-                  });
+                  AnalyticsUtil.logEvent(
+                    "GIT_SYNC_GIT_DOCUMENTATION_LINK_CLICK",
+                    {
+                      source: "GIT_DISCONNECTION_MODAL",
+                    },
+                  );
                   window.open(DOCS_BASE_URL, "_blank");
                 }}
                 text={createMessage(LEARN_MORE)}
@@ -147,7 +150,7 @@ function DisconnectGitModal() {
             fill
             onBlur={(event) => {
               AnalyticsUtil.logEvent(
-                "MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
+                "GIT_SYNC_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
                 {
                   value: event.target.value,
                   expecting: disconnectingApp.name,

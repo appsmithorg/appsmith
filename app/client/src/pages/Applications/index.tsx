@@ -840,7 +840,7 @@ function ApplicationsSection(props: any) {
                                 icon="upload"
                                 onSelect={() => {
                                   AnalyticsUtil.logEvent(
-                                    "IMPORT_VIA_GIT_CLICK",
+                                    "GIT_SYNC_IMPORT_VIA_GIT_CLICK",
                                   );
                                   dispatch(
                                     setIsImportAppViaGitModalOpen({

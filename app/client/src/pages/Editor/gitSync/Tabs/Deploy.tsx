@@ -225,9 +225,12 @@ function Deploy() {
               <Link
                 link={DOCS_BASE_URL}
                 onClick={() => {
-                  AnalyticsUtil.logEvent("GIT_DOCUMENTATION_LINK_CLICK", {
-                    source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
-                  });
+                  AnalyticsUtil.logEvent(
+                    "GIT_SYNC_GIT_DOCUMENTATION_LINK_CLICK",
+                    {
+                      source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
+                    },
+                  );
                   window.open(DOCS_BASE_URL, "_blank");
                 }}
                 text={createMessage(READ_DOCUMENTATION)}
