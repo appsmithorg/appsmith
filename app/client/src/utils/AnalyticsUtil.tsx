@@ -1,7 +1,7 @@
 // Events
 import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
 import { sha256 } from "js-sha256";

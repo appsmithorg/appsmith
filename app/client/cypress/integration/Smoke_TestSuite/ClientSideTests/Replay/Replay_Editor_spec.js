@@ -4,7 +4,6 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const jsEditorLocators = require("../../../../locators/JSEditor.json");
 
 describe("Undo/Redo functionality", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

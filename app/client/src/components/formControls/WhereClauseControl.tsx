@@ -5,7 +5,6 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import _ from "lodash";
 import { useSelector } from "react-redux";
@@ -64,7 +63,7 @@ const CenteredIcon = styled(Icon)`
 // Outer box that houses the whole component
 const PrimaryBox = styled.div`
   display: flex;
-  width: 105vh;
+  width: min-content;
   flex-direction: column;
   border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: 10px;
@@ -216,7 +215,7 @@ function ConditionBlock(props: any) {
     isDisabled = true;
   }
   return (
-    <PrimaryBox style={{ width: `${props.maxWidth}vh`, marginTop }}>
+    <PrimaryBox style={{ marginTop }}>
       <SecondaryBox>
         {/* Component to render the joining operator between multiple conditions */}
         <FormControl
@@ -302,8 +301,6 @@ function ConditionBlock(props: any) {
                   },
                 ],
               });
-              // eslint-disable-next-line no-console
-              console.log("Ayush new field", props.fields.getAll());
             }}
           >
             {/*Hardcoded label to be removed */}
@@ -320,7 +317,6 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
     comparisonTypes, // All possible keys for the comparison
     configProperty, // JSON path for the where clause data
     formName, // Name of the form, used by redux-form lib to store the data in redux store
-    label, // Label for the where clause
     logicalTypes, // All possible keys for the logical operators joining multiple conditions
     nestedLevels, // Number of nested levels allowed
   } = props;
@@ -328,24 +324,21 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
   // Max width is designed in a way that the proportion stays same even after nesting
   const maxWidth = 105;
   return (
-    <>
-      <FormLabel>{label}</FormLabel>
-      <FieldArray
-        component={ConditionBlock}
-        key={`${configProperty}.children`}
-        name={`${configProperty}.children`}
-        props={{
-          configProperty,
-          maxWidth,
-          formName,
-          logicalTypes,
-          comparisonTypes,
-          nestedLevels,
-          currentNestingLevel: 0,
-        }}
-        rerenderOnEveryChange={false}
-      />
-    </>
+    <FieldArray
+      component={ConditionBlock}
+      key={`${configProperty}.children`}
+      name={`${configProperty}.children`}
+      props={{
+        configProperty,
+        maxWidth,
+        formName,
+        logicalTypes,
+        comparisonTypes,
+        nestedLevels,
+        currentNestingLevel: 0,
+      }}
+      rerenderOnEveryChange={false}
+    />
   );
 }
 

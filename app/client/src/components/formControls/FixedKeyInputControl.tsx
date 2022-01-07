@@ -3,7 +3,6 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { InputType } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
-import FormLabel from "components/editorComponents/FormLabel";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -15,18 +14,15 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
     const {
       configProperty,
       dataType,
+      disabled,
       fixedKey,
-      isRequired,
-      label,
       placeholderText,
     } = this.props;
 
     return (
       <Wrapper>
-        <FormLabel>
-          {label} {isRequired && "*"}
-        </FormLabel>
         <TextField
+          disabled={disabled}
           format={(value) => {
             // Get the value property
             if (value) {

@@ -1,5 +1,5 @@
 import { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
+import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
 import { zipObject } from "lodash";
 
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
