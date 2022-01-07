@@ -14,7 +14,7 @@ import EditButton from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
@@ -167,7 +167,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         </Header>
         {messages &&
           messages.map((msg, i) => (
-            <Callout fill key={i} text={msg} variant={Variant.warning} />
+            <Callout
+              addMarginTop
+              fill
+              key={i}
+              text={msg}
+              variant={Variant.warning}
+            />
           ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
@@ -242,5 +248,6 @@ const mapStateToProps = (state: AppState, props: any) => {
 export default connect(mapStateToProps)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
     form: DATASOURCE_DB_FORM,
+    enableReinitialize: true,
   })(DatasourceDBEditor),
 );

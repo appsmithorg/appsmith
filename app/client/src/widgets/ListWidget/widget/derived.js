@@ -99,10 +99,12 @@ export default {
           }
         });
 
-        currentItem[currentWidgetName] = _.pick(
-          currentWidget,
-          props.childrenEntityDefinitions[currentWidget.type],
-        );
+        if (props.childrenEntityDefinitions) {
+          currentItem[currentWidgetName] = _.pick(
+            currentWidget,
+            props.childrenEntityDefinitions[currentWidget.type],
+          );
+        }
       }
 
       updatedItems[itemIndex] = currentItem;

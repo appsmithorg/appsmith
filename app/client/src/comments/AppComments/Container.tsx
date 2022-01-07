@@ -11,7 +11,7 @@ const Container = styled.div<{ isInline?: boolean }>`
     position: fixed;
     left: 0;
     top: ${props.theme.smallHeaderHeight};
-    height: calc(100% - ${props.theme.smallHeaderHeight});
+    height: calc(100% - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight});
   `
       : `
     position: relative;

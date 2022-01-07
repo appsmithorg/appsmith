@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
-  StyledInputGroup,
   StyledPropertyPaneButton,
   StyledDragIcon,
   StyledDeleteIcon,
   StyledEditIcon,
+  StyledOptionControlInputGroup,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
@@ -31,27 +31,6 @@ const MenuItemsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
-  margin-bottom: 2px;
-  width: 100%;
-  padding-left: 10px;
-  padding-right: 60px;
-  text-overflow: ellipsis;
-  &&& {
-    input {
-      border: none;
-      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
-      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-      &:focus {
-        border: none;
-        color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
-      }
-    }
-  }
 `;
 
 const AddMenuItemButton = styled(StyledPropertyPaneButton)`

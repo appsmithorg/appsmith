@@ -20,7 +20,7 @@ describe("Table Widget and Navigate to functionality validation", function() {
       .contains("Navigate to")
       .click();
     cy.enterNavigatePageName(pageid);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.assertPageSave();
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {

@@ -55,10 +55,12 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
   }
-`;
 
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 5px;
+  &&:hover {
+    svg path {
+      fill: ${(props) => props.theme.colors.propertyPane.title};
+    }
+  }
 `;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
@@ -167,7 +169,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
           <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledOptionControlInputGroup
+            <StyledInputGroup
               dataType={"text"}
               onBlur={onInputBlur}
               onChange={(value: string) => {
@@ -189,11 +191,11 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               value={pair.value}
             />
             <StyledDeleteIcon
-              height={20}
+              height={24}
               onClick={() => {
                 deletePair(index);
               }}
-              width={20}
+              width={24}
             />
           </StyledOptionControlWrapper>
         );

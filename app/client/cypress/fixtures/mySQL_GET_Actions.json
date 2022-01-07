@@ -1,0 +1,197 @@
+{
+	"responseMeta": {
+		"status": 200,
+		"success": true
+	},
+	"data": [
+		{
+			"id": "616532b5b58fda6558e56bb9",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b849c7e12534da9c5998",
+			"name": "DeleteQuery",
+			"datasource": {
+				"id": "615eda1cfc57aa262aa4b1fc",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b849c7e12534da9c5998",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616532b5b58fda6558e56bb8",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"body": "DELETE FROM CC\n  WHERE rating = {{Table1.triggeredRow.rating}};"
+			},
+			"executeOnLoad": false,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"Table1.triggeredRow.rating"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "DeleteQuery"
+		},
+		{
+			"id": "616532b5b58fda6558e56bbc",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b849c7e12534da9c5998",
+			"name": "UpdateQuery",
+			"datasource": {
+				"id": "615eda1cfc57aa262aa4b1fc",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b849c7e12534da9c5998",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616532b5b58fda6558e56bb8",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"body": "UPDATE CC SET\n\t\tName = '{{update_col_2.text}}',\n    ceoname = '{{update_col_3.text}}',\n    age = '{{update_col_4.text}}'\nWHERE rating = {{Table1.selectedRow.rating}};",
+				"pluginSpecifiedTemplates": [
+					{
+						"value": false
+					}
+				]
+			},
+			"executeOnLoad": false,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"update_col_3.text",
+				"Table1.selectedRow.rating",
+				"update_col_2.text",
+				"update_col_4.text"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "UpdateQuery"
+		},
+		{
+			"id": "616532b5b58fda6558e56bbb",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b849c7e12534da9c5998",
+			"name": "InsertQuery",
+			"datasource": {
+				"id": "615eda1cfc57aa262aa4b1fc",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b849c7e12534da9c5998",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616532b5b58fda6558e56bb8",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"body": "INSERT INTO CC (\n\trating,\n\tName, \n\tceoname,\n\tage)\nVALUES (\n\t\t\t\t{{insert_col_input1.text}}, \n\t\t\t\t{{insert_col_input2.text}}, \n\t\t\t\t{{insert_col_input3.text}}, \n\t\t\t\t{{insert_col_input4.text}});",
+				"pluginSpecifiedTemplates": [
+					{
+						"value": true
+					}
+				]
+			},
+			"executeOnLoad": false,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"insert_col_input1.text",
+				"insert_col_input4.text",
+				"insert_col_input3.text",
+				"insert_col_input2.text"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "InsertQuery"
+		},
+		{
+			"id": "616532b5b58fda6558e56bba",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b849c7e12534da9c5998",
+			"name": "SelectQuery",
+			"datasource": {
+				"id": "615eda1cfc57aa262aa4b1fc",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b849c7e12534da9c5998",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616532b5b58fda6558e56bb8",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"body": "SELECT * FROM CC\nWHERE Name like '%{{Table1.searchText || \"\"}}%'\nORDER BY {{col_select.selectedOptionValue}} {{order_select.selectedOptionValue}}\nLIMIT {{Table1.pageSize}}\nOFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
+				"pluginSpecifiedTemplates": [
+					{
+						"value": false
+					}
+				]
+			},
+			"executeOnLoad": true,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"(Table1.pageNo - 1) * Table1.pageSize",
+				"Table1.searchText || \"\"",
+				"col_select.selectedOptionValue",
+				"Table1.pageSize",
+				"order_select.selectedOptionValue"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "SelectQuery"
+		}
+	]
+}

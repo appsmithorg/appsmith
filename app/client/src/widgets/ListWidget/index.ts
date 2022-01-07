@@ -24,6 +24,7 @@ export const CONFIG = {
     itemBackgroundColor: "#FFFFFF",
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    animateLoading: true,
     gridType: "vertical",
     template: {},
     enhancements: {
@@ -78,18 +79,18 @@ export const CONFIG = {
     listData: [
       {
         id: "001",
-        name: "Bulbasaur",
-        img: "http://www.serebii.net/pokemongo/pokemon/001.png",
+        name: "Blue",
+        img: "https://assets.appsmith.com/widgets/default.png",
       },
       {
         id: "002",
-        name: "Ivysaur",
-        img: "http://www.serebii.net/pokemongo/pokemon/002.png",
+        name: "Green",
+        img: "https://assets.appsmith.com/widgets/default.png",
       },
       {
         id: "003",
-        name: "Venusaur",
-        img: "http://www.serebii.net/pokemongo/pokemon/003.png",
+        name: "Red",
+        img: "https://assets.appsmith.com/widgets/default.png",
       },
     ],
     widgetName: "List",

@@ -7,7 +7,8 @@ describe("Checkbox Group Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Checkbox Group Widget Functionality", function() {
+
+  it("1. Checkbox Group Widget Functionality", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     /**
      * @param{Text} Random Text
@@ -44,6 +45,10 @@ describe("Checkbox Group Widget Functionality", function() {
       "not.have.value",
       "test4",
     );
+    cy.get(formWidgetsPage.deleteradiovalue)
+      .eq(2)
+      .click({ force: true });
+    cy.wait(200);
     /**
      * @param{Show Alert} Css for InputChange
      */
@@ -54,7 +59,8 @@ describe("Checkbox Group Widget Functionality", function() {
       .type("2");
     cy.PublishtheApp();
   });
-  it("Checkbox Group Functionality To Unchecked Visible Widget", function() {
+
+  it("2. Checkbox Group Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -62,7 +68,8 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(publish.checkboxGroupWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it("Checkbox Group Functionality To Check Visible Widget", function() {
+
+  it("3. Checkbox Group Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -70,11 +77,38 @@ describe("Checkbox Group Widget Functionality", function() {
       .eq(0)
       .should("exist");
   });
-  it("Checkbox Group Functionality To Button Text", function() {
+
+  it("4. Checkbox Group Functionality To Button Text", function() {
     cy.get(publish.checkboxGroupWidget + " " + "label")
       .eq(1)
       .should("have.text", "test2");
     cy.get(publish.backToEditor).click();
+  });
+  it("Checkbox Group Functionality To alignment options", function() {
+    cy.openPropertyPane("checkboxgroupwidget");
+    // check default value
+    cy.get(".t--property-control-alignment").should("exist");
+    cy.get(".t--property-control-alignment span[type='p1']").should(
+      "have.text",
+      "No selection.",
+    );
+
+    cy.get(
+      ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
+    ).should("have.css", "justify-content", "space-between");
+
+    // change alignment
+    cy.get(".t--property-control-alignment span[type='p1']").click({
+      force: true,
+    });
+    cy.wait(200);
+    cy.get(".t--dropdown-option")
+      .contains("Start")
+      .click({ force: true });
+    cy.wait(400);
+    cy.get(
+      ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
+    ).should("have.css", "justify-content", "flex-start");
   });
 });
 afterEach(() => {

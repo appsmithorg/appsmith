@@ -104,7 +104,6 @@ export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
   height: 36px;
-  border: 1px solid ${Colors.GREY_5};
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
@@ -327,6 +326,26 @@ export const StyledPropertyPaneButton = styled(Button)`
     path {
       fill: ${Colors.GREY_8};
       stroke: ${Colors.GREY_8};
+    }
+  }
+`;
+
+export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 60px;
+  padding-bottom: 4px;
+  text-overflow: ellipsis;
+  background: inherit;
+  &&& {
+    input {
+      padding-left: 24px;
+      border: none;
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      &:focus {
+        border: none;
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+      }
     }
   }
 `;

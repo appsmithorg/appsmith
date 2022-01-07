@@ -92,7 +92,6 @@ describe("Test Create Api and Bind to Table widget", function() {
     //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{Api2.data.users}}");
     cy.callApi("Api2");
@@ -106,6 +105,5 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest);
     cy.wait(5000);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 });

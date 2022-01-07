@@ -508,31 +508,33 @@ public class LayoutServiceTest {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(8);
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(3);
 
                     Set<String> firstSetPageLoadActions = Set.of(
                             "aPostTertiaryAction",
                             "aGetAction",
-                            "aDBAction",
-                            "aTableAction",
-                            "anotherDBAction",
                             "hiddenAction1",
                             "hiddenAction2",
                             "hiddenAction4"
                     );
 
-                    // TODO : Once the client implements on page load execution of JS, uncomment the lines below.
                     Set<String> secondSetPageLoadActions = Set.of(
-//                            "Collection.anAsyncCollectionActionWithoutCall",
-//                            "Collection.aSyncCollectionActionWithoutCall",
-//                            "Collection.aSyncCollectionActionWithCall",
-                            "aPostActionWithAutoExec"
+                            "aTableAction",
+                            "aDBAction",
+                            "anotherDBAction"
+                    );
+
+                    Set<String> thirdSetPageLoadActions = Set.of(
+                            "aPostActionWithAutoExec",
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall"
                     );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(secondSetPageLoadActions);
+                    assertThat(layout.getLayoutOnLoadActions().get(2).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(thirdSetPageLoadActions);
                     Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
                     for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
                         flatOnLoadActions.addAll(actions);

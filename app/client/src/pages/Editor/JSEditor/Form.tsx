@@ -14,7 +14,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import FormRow from "components/editorComponents/FormRow";
 import JSObjectNameEditor from "./JSObjectNameEditor";
-import { updateJSCollection } from "actions/jsPaneActions";
+import { updateJSCollectionBody } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
@@ -119,7 +119,7 @@ function JSEditorForm(props: Props) {
   const dataTree = useSelector(getDataTree);
   const handleOnChange = (event: string) => {
     if (currentJSAction) {
-      dispatch(updateJSCollection(event, currentJSAction.id));
+      dispatch(updateJSCollectionBody(event, currentJSAction.id));
     }
   };
   const { pageId } = useParams<ExplorerURLParams>();

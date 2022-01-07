@@ -29,7 +29,7 @@ public class Condition {
 
     ConditionalOperator operator;
 
-    String value;
+    Object value;
 
     @JsonIgnore
     DataType valueDataType;
@@ -45,19 +45,39 @@ public class Condition {
         return conditionList
                 .stream()
                 .map(condition -> {
-                    String value = condition.getValue();
-                    DataType dataType = stringToKnownDataTypeConverter(value);
-                    condition.setValueDataType(dataType);
+                    if (condition.getValue() instanceof String) {
+                        String value = (String) condition.getValue();
+                        DataType dataType = stringToKnownDataTypeConverter(value);
+                        condition.setValueDataType(dataType);
+                    }
                     return condition;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public static Condition addValueDataType(Condition condition) {
+        Object objValue = condition.getValue();
+
+        if (objValue instanceof String) {
+            String value = (String) condition.getValue();
+            DataType dataType = stringToKnownDataTypeConverter(value);
+            condition.setValueDataType(dataType);
+        } else if (objValue instanceof List) {
+            List<Condition> conditionList = (List<Condition>) objValue;
+            List<Condition> updatedConditions = conditionList
+                    .stream()
+                    .map(subCondition -> addValueDataType(subCondition))
+                    .collect(Collectors.toList());
+            condition.setValue(updatedConditions);
+        }
+        return condition;
     }
 
     public static Boolean isValid(Condition condition) {
 
         if (StringUtils.isEmpty(condition.getPath()) ||
                 (condition.getOperator() == null) ||
-                StringUtils.isEmpty(condition.getValue())) {
+                StringUtils.isEmpty((CharSequence) condition.getValue())) {
             return false;
         }
 

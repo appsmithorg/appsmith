@@ -1,5 +1,5 @@
 import React from "react";
-import { get, some, isEqual } from "lodash";
+import { get, some, isEqual, isNil } from "lodash";
 import { WidgetProps } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget, {
@@ -48,7 +48,7 @@ class FormWidget extends ContainerWidget {
     const formData: any = {};
     if (formWidget.children)
       formWidget.children.forEach((widgetData) => {
-        if (widgetData.value) {
+        if (!isNil(widgetData.value)) {
           formData[widgetData.widgetName] = widgetData.value;
         }
       });

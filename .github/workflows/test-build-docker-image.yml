@@ -20,8 +20,8 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
@@ -132,8 +132,8 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
 
     # Service containers to run with this job. Required for running tests
@@ -221,8 +221,8 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
 
     steps:
@@ -254,6 +254,7 @@ jobs:
 
       - name: Build
         run: |
+          echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           ./build.sh
           ls -l dist
 
@@ -279,8 +280,8 @@ jobs:
       success() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
     defaults:
@@ -290,7 +291,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -373,7 +374,8 @@ jobs:
           ls -l
           ls -l scripts/
           ls -l dist/
-          nohup ./scripts/start-dev-server.sh 2>&1 &
+          # Run the server in the background and redirect logs to a log file
+          ./scripts/start-dev-server.sh &> server-logs.log &
 
       - name: Wait for 30s and check if server is running
         run: |
@@ -467,7 +469,7 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: "cypress/integration/Smoke_TestSuite/**/*.js"
+          spec: "cypress/integration/Smoke_TestSuite/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -479,6 +481,20 @@ jobs:
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
+
+      # Upload the snapshots as artifacts for layout validation
+      - uses: actions/upload-artifact@v1
+        with:
+          name: cypress-snapshots-visualRegression
+          path: app/client/cypress/snapshots/
+
+      # Upload the log artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server logs bundle on failure
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: server-logs-${{ matrix.job }}
+          path: app/server/server-logs.log
 
   ui-test-result:
     needs: ui-test
@@ -513,14 +529,19 @@ jobs:
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: github.ref == 'refs/heads/master' ||
-      ((github.event_name == 'workflow_dispatch' ||
+    if: (success() && github.ref == 'refs/heads/master') ||
+      ( always() &&
+      (
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
+      (
+      github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)) &&
-      github.ref == 'refs/heads/release')
-    #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
+      github.event.pull_request.head.repo.full_name == github.repository
+      )
+      ) &&
+      github.ref == 'refs/heads/release'
+      )
 
     steps:
       # Checkout the code
@@ -599,7 +620,6 @@ jobs:
         working-directory: "."
         run: |
           tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
-
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
             --push \
@@ -613,13 +633,34 @@ jobs:
         run: |
           tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
           tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
-
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
             --push \
             --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
             $tag_args \
             .
+
+      # - name: Check and push fat image to Docker Hub with commit tag
+      #   if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      #   working-directory: "."
+      #   run: |
+      #     if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+      #       tag=nightly
+      #     else
+      #       tag="${{ steps.vars.outputs.tag }}"
+      #     fi
+      #     docker run --detach --publish 80:80 --name appsmith \
+      #       "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
+      #     sleep 180
+      #     cd deploy/docker
+      #     if bash run-test.sh; then
+      #       echo "Fat container test passed. Pushing image."
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #     else
+      #       echo "Fat container test FAILED. Not pushing image."
+      #       # Temporarily pushing even if test fails.
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #     fi
 
       # Build release Docker image and push to Docker Hub
       - name: Push server release image to Docker Hub

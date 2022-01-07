@@ -1,6 +1,5 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -24,7 +23,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
   it("Input widget updated with deafult data", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type("3");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -41,7 +40,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
     cy.get(widgetsPage.defaultInput).type(testdata.pageloadBinding, {
       parseSpecialCharSequences: false,
     });
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

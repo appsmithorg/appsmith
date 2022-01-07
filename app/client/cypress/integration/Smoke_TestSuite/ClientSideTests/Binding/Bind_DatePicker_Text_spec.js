@@ -17,7 +17,6 @@ describe("Binding the Datepicker and Text Widget", function() {
      */
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
     /**
      * Set the Calender for today's date in DatePicker1
@@ -56,7 +55,6 @@ describe("Binding the Datepicker and Text Widget", function() {
      * Bind the datepicker1 to text widget
      */
     cy.testJsontext("text", "{{DatePicker1.defaultDate}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
     /**
      * Fetching the date on DatePicker2
@@ -77,7 +75,6 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.ClearDateFooter();
     cy.setDate(1, "ddd MMM DD YYYY");
     cy.get(commonlocators.onDateSelectedField).click();
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
     /**
      *Validate the date in text widget

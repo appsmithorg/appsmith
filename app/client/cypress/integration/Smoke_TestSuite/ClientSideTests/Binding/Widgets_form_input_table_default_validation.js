@@ -11,7 +11,7 @@ describe("Binding the multiple input Widget", function() {
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
     cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

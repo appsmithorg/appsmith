@@ -1,7 +1,7 @@
 // Events
 import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
 import { sha256 } from "js-sha256";
@@ -181,7 +181,16 @@ export type EventName =
   | "SIGNPOSTING_CONNECT_WIDGET_CLICK"
   | "SIGNPOSTING_PUBLISH_CLICK"
   | "SIGNPOSTING_BUILD_APP_CLICK"
-  | "SIGNPOSTING_WELCOME_TOUR_CLICK";
+  | "SIGNPOSTING_WELCOME_TOUR_CLICK"
+  | "CONNECT_GIT_CLICK"
+  | "REPO_URL_EDIT"
+  | "GENERATE_KEY_BUTTON_CLICK"
+  | "COPY_SSH_KEY_BUTTON_CLICK"
+  | "LEARN_MORE_LINK_FOR_REMOTEURL_CLICK"
+  | "LEARN_MORE_LINK_FOR_SSH_CLICK"
+  | "DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
+  | "DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
+  | "CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -206,9 +215,7 @@ class AnalyticsUtil {
       const analytics = (window.analytics = window.analytics || []);
       if (!analytics.initialize) {
         if (analytics.invoked) {
-          window.console &&
-            console.error &&
-            console.error("Segment snippet included twice.");
+          log.error("Segment snippet included twice.");
         } else {
           analytics.invoked = !0;
           analytics.methods = [
@@ -269,7 +276,7 @@ class AnalyticsUtil {
     if (userData) {
       const { segment } = getAppsmithConfigs();
       let user: any = {};
-      if (segment.enabled && segment.apiKey) {
+      if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -302,7 +309,7 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userData: User) {
-    const { segment, smartLook } = getAppsmithConfigs();
+    const { segment, sentry, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
@@ -337,13 +344,16 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function(scope) {
-      scope.setUser({
-        id: userId,
-        username: userData.username,
-        email: userData.email,
+
+    if (sentry.enabled) {
+      Sentry.configureScope(function(scope) {
+        scope.setUser({
+          id: userId,
+          username: userData.username,
+          email: userData.email,
+        });
       });
-    });
+    }
 
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });

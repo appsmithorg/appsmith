@@ -13,7 +13,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.openPropertyPane("chartwidget");
   });
 
-  it("Fill the Chart Widget Properties.", function() {
+  it("1. Fill the Chart Widget Properties.", function() {
     //changing the Chart Name
     /**
      * @param{Text} Random Text
@@ -61,11 +61,11 @@ describe("Chart Widget Functionality around custom chart feature", function() {
       .type(this.data.ylabel);
 
     //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.PublishtheApp();
   });
 
-  it("Custom Chart Widget Functionality", function() {
+  it("2. Custom Chart Widget Functionality", function() {
     //changing the Chart type
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Custom Chart");
@@ -89,7 +89,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Custom Chart Widget Functionality", function() {
+  it("3. Toggle JS - Custom Chart Widget Functionality", function() {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     //changing the Chart type
     cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
@@ -114,18 +114,18 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     });
 
     //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click();
     cy.PublishtheApp();
   });
 
-  it("Chart-Copy Verification", function() {
+  it("4. Chart-Copy Verification", function() {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
 
     cy.PublishtheApp();
   });
 
-  it("Chart-Delete Verification", function() {
+  it("5. Chart-Delete Verification", function() {
     // Delete the Chart widget
     cy.deleteWidget(viewWidgetsPage.chartWidget);
     cy.PublishtheApp();

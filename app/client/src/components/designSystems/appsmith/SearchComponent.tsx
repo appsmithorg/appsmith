@@ -98,7 +98,6 @@ class SearchComponent extends React.Component<
     this.setState({ localValue: search });
     this.onDebouncedSearch(search);
   };
-
   clearSearch = () => {
     this.setState({ localValue: "" });
     this.onDebouncedSearch("");

@@ -14,6 +14,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -44,6 +45,9 @@ type TreeDropdownProps = {
 };
 
 const StyledMenu = styled(Menu)`
+  max-height: ${(props) =>
+    `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
+  overflow: auto;
   min-width: 220px;
   padding: 0px;
   border-radius: 0px;
@@ -58,7 +62,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
     font-size: 14px;
-    line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
+    line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
     display: flex;
     align-items: center;
     height: 30px;
@@ -112,6 +116,11 @@ const DropdownTarget = styled.div`
     display: flex;
     justify-content: space-between;
     padding: 5px 12px;
+
+    &:active,
+    &:focus {
+      border-color: var(--appsmith-input-focus-border-color);
+    }
   }
   &&&& .${Classes.ICON} {
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
@@ -212,7 +221,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     <DropdownTarget>
       <Button
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
-          selectedLabelModifier ? "code-highlight" : ""
+          selectedLabelModifier
+            ? "code-highlight " + replayHighlightClass
+            : replayHighlightClass
         }`}
         rightIcon={<Icon name="downArrow" size={IconSize.XXL} />}
         text={

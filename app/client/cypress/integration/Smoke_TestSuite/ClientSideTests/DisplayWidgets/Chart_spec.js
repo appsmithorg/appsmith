@@ -61,8 +61,6 @@ describe("Chart Widget Functionality", function() {
       .click({ force: true })
       .type(this.data.ylabel);
 
-    //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
 

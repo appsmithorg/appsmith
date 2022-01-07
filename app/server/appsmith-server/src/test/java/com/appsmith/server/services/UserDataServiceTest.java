@@ -1,13 +1,18 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.UserChangedHandler;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +37,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -60,7 +68,15 @@ public class UserDataServiceTest {
     @Autowired
     private AssetService assetService;
 
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private GitService gitService;
+
     private Mono<User> userMono;
+
+    private static final String DEFAULT_GIT_PROFILE = "default";
 
     @Before
     public void setup() {
@@ -184,9 +200,18 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateLastUsedOrgList_WhenListIsEmpty_orgIdPrepended() {
-        String sampleOrgId = "abcd";
-        final Mono<UserData> saveMono = userDataService.updateLastUsedOrgList(sampleOrgId);
+    public void updateLastUsedAppAndOrgList_WhenListIsEmpty_orgIdPrepended() {
+        String sampleOrgId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setOrganizationId(sampleOrgId);
+
+        final Mono<UserData> saveMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // set recently used org ids to null
+            userData.setRecentlyUsedOrgIds(null);
+            return userDataRepository.save(userData);
+        }).then(userDataService.updateLastUsedAppAndOrgList(application));
+
+        userDataService.updateLastUsedAppAndOrgList(application);
         StepVerifier.create(saveMono).assertNext(userData -> {
             Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
@@ -195,7 +220,7 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
+    public void updateLastUsedAppAndOrgList_WhenListIsNotEmpty_orgIdPrepended() {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of org ids to the current user.
             userData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
@@ -203,12 +228,53 @@ public class UserDataServiceTest {
         }).flatMap(userData -> {
             // Now check whether a new org id is put at first.
             String sampleOrgId = "sample-org-id";
-            return userDataService.updateLastUsedOrgList(sampleOrgId);
+            Application application = new Application();
+            application.setOrganizationId(sampleOrgId);
+            return userDataService.updateLastUsedAppAndOrgList(application);
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
             Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals("sample-org-id", userData.getRecentlyUsedOrgIds().get(0));
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateLastUsedAppAndOrgList_TooManyRecentIds_ListsAreTruncated() {
+        String sampleOrgId = "sample-org-id", sampleAppId = "sample-app-id";
+
+        final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // Set an initial list of 12 org ids to the current user
+            userData.setRecentlyUsedOrgIds(new ArrayList<>());
+            for(int i = 1; i <= 12; i++) {
+                userData.getRecentlyUsedOrgIds().add("org-" + i);
+            }
+
+            // Set an initial list of 22 app ids to the current user.
+            userData.setRecentlyUsedAppIds(new ArrayList<>());
+            for(int i = 1; i <= 22; i++) {
+                userData.getRecentlyUsedAppIds().add("app-" + i);
+            }
+            return userDataRepository.save(userData);
+        }).flatMap(userData -> {
+            // Now check whether a new org id is put at first.
+            Application application = new Application();
+            application.setId(sampleAppId);
+            application.setOrganizationId(sampleOrgId);
+            return userDataService.updateLastUsedAppAndOrgList(application);
+        });
+
+        StepVerifier.create(resultMono).assertNext(userData -> {
+            // org id list should be truncated to 10
+            assertThat(userData.getRecentlyUsedOrgIds().size()).isEqualTo(10);
+            assertThat(userData.getRecentlyUsedOrgIds().get(0)).isEqualTo(sampleOrgId);
+            assertThat(userData.getRecentlyUsedOrgIds().get(9)).isEqualTo("org-9");
+
+            // app id list should be truncated to 20
+            assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(20);
+            assertThat(userData.getRecentlyUsedAppIds().get(0)).isEqualTo(sampleAppId);
+            assertThat(userData.getRecentlyUsedAppIds().get(19)).isEqualTo("app-19");
         }).verifyComplete();
     }
 
@@ -293,4 +359,89 @@ public class UserDataServiceTest {
             assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.ONBOARDED);
         }).verifyComplete();
     }
+
+    // Git user profile tests
+    private GitProfile createGitProfile(String commitEmail, String author) {
+        GitProfile gitProfile = new GitProfile();
+        gitProfile.setAuthorEmail(commitEmail);
+        gitProfile.setAuthorName(author);
+        return gitProfile;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveConfig_AuthorEmailNull_ThrowInvalidParameterError() {
+        GitProfile gitGlobalConfigDTO = createGitProfile(null, "Test 1");
+
+        Mono<Map<String, GitProfile>> userDataMono = gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+        StepVerifier
+                .create(userDataMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Email")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveRepoLevelConfig_AuthorEmailNullAndName_SavesGitProfile() {
+        GitProfile gitProfileDTO = createGitProfile(null, null);
+
+        Mono<Map<String, GitProfile>> userDataMono = gitService.updateOrCreateGitProfileForCurrentUser(gitProfileDTO, "defaultAppId");
+        StepVerifier
+                .create(userDataMono)
+                .assertNext(gitProfileMap -> {
+                    AssertionsForClassTypes.assertThat(gitProfileMap).isNotNull();
+                    AssertionsForClassTypes.assertThat(gitProfileMap.get("defaultAppId").getAuthorEmail()).isNullOrEmpty();
+                    AssertionsForClassTypes.assertThat(gitProfileMap.get("defaultAppId").getAuthorName()).isNullOrEmpty();
+                    AssertionsForClassTypes.assertThat(gitProfileDTO.getUseGlobalProfile()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveConfig_AuthorNameEmptyString_ThrowInvalidParameterError() {
+        GitProfile gitGlobalConfigDTO = createGitProfile("test@appsmith.com", null);
+
+        Mono<Map<String, GitProfile>> userDataMono = gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+        StepVerifier
+                .create(userDataMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Name")))
+                .verify();
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAndUpdateDefaultGitProfile_fallbackValueFromUserProfileIfEmpty_updateWithProfile() {
+
+        Mono<GitProfile> gitConfigMono = gitService.getDefaultGitProfileOrCreateIfEmpty();
+
+        Mono<User> userData = userDataService.getForCurrentUser()
+                .flatMap(userData1 -> userService.getById(userData1.getUserId()));
+
+        StepVerifier
+                .create(gitConfigMono.zipWhen(gitProfile -> userData))
+                .assertNext(tuple -> {
+                    GitProfile gitProfile = tuple.getT1();
+                    User user = tuple.getT2();
+                    assertThat(gitProfile.getAuthorName()).isEqualTo(user.getName());
+                    assertThat(gitProfile.getAuthorEmail()).isEqualTo(user.getEmail());
+                })
+                .verifyComplete();
+
+        GitProfile gitGlobalConfigDTO = createGitProfile("test@appsmith.com", "Test 1");
+        Mono<Map<String, GitProfile>> gitProfilesMono = gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+
+        StepVerifier
+                .create(gitProfilesMono)
+                .assertNext(gitProfileMap -> {
+                    GitProfile defaultProfile = gitProfileMap.get(DEFAULT_GIT_PROFILE);
+                    AssertionsForClassTypes.assertThat(defaultProfile.getAuthorName()).isEqualTo(gitGlobalConfigDTO.getAuthorName());
+                    AssertionsForClassTypes.assertThat(defaultProfile.getAuthorEmail()).isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
+                })
+                .verifyComplete();
+    }
+
 }

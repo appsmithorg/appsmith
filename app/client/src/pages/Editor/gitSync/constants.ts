@@ -32,7 +32,10 @@ export const AUTH_TYPE_OPTIONS = [
 ];
 export const Classes = {
   GIT_SYNC_MODAL: "git-sync-modal",
+  DISCONNECT_GIT_MODAL: "disconnect-git-modal",
   OPTION_SELECTOR_WRAPPER: "option-wrapper",
+  MERGE_DROPDOWN: "merge-dropdown",
 };
 
 export const DEFAULT_REMOTE = "origin";
+export const MENU_HEIGHT = 47;

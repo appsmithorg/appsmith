@@ -13,7 +13,6 @@ describe("Binding the table widget and input Widget", function() {
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
     cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -24,7 +23,6 @@ describe("Binding the table widget and input Widget", function() {
   it("validation of data displayed in input widgets based on selected row", function() {
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("defaultselectedrow", "2");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.readTabledataPublish("2", "0").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("6788734");

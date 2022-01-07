@@ -13,6 +13,7 @@ import {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { BlueprintOperationTypes } from "widgets/constants";
+import * as log from "loglevel";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -31,7 +32,7 @@ function buildView(view: WidgetBlueprint["view"], widgetId: string) {
           props: template.props,
         });
       } catch (e) {
-        console.error(e);
+        log.error(e);
       }
     }
   }

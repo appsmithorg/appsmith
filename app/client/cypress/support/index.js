@@ -12,12 +12,16 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
+/// <reference types="Cypress" />
 require("cypress-xpath");
+import "cypress-real-events/support";
+let pageid;
 let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
+import * as MESSAGES from "../../../client/src/constants/messages.ts";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from
@@ -29,7 +33,10 @@ Cypress.on("fail", (error, runnable) => {
   throw error; // throw error to have test still fail
 });
 
+Cypress.env("MESSAGES", MESSAGES);
+
 before(function() {
+  //console.warn = () => {};
   initLocalstorage();
   cy.startServerAndRoutes();
   // Clear indexedDB
@@ -37,16 +44,37 @@ before(function() {
     window.indexedDB.deleteDatabase("Appsmith");
   });
 
+  cy.visit("/setup/welcome");
+  cy.wait("@getUser");
+  cy.url().then((url) => {
+    if (url.indexOf("setup/welcome") > -1) {
+      cy.createSuperUser();
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME1"),
+        Cypress.env("TESTPASSWORD1"),
+      );
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME2"),
+        Cypress.env("TESTPASSWORD2"),
+      );
+      cy.LogOut();
+    }
+  });
+});
+
+before(function() {
+  //console.warn = () => {};
+  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-
+  cy.wait("@getUser");
+  cy.wait(3000);
+  cy.get(".t--applications-container .createnew").should("be.visible");
+  cy.get(".t--applications-container .createnew").should("be.enabled");
   cy.generateUUID().then((id) => {
     appId = id;
     cy.CreateAppInFirstListedOrg(id);

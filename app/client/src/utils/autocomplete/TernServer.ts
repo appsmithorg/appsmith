@@ -23,10 +23,10 @@ import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
 
 const DEFS: Def[] = [
-  GLOBAL_FUNCTIONS,
-  GLOBAL_DEFS,
   // @ts-ignore
   ecma,
+  GLOBAL_FUNCTIONS,
+  GLOBAL_DEFS,
   lodash,
   base64,
   moment,
@@ -151,7 +151,7 @@ class TernServer {
   ) {
     this.server.deleteDefs(name);
     // @ts-ignore: No types available
-    this.server.addDefs(def, true);
+    this.server.addDefs(def);
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
 
@@ -333,7 +333,8 @@ class TernServer {
             if (
               !entityType ||
               ENTITY_TYPE.ACTION === entityType ||
-              ENTITY_TYPE.JSACTION === entityType
+              ENTITY_TYPE.JSACTION === entityType ||
+              ENTITY_TYPE.WIDGET === entityType
             ) {
               completionType.MATCHING_TYPE.push(completion);
               completionType.DATA_TREE.push(completion);

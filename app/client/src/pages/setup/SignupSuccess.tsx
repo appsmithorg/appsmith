@@ -1,5 +1,5 @@
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
@@ -19,6 +19,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import Landing from "./Welcome";
+import { error } from "loglevel";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ export function SignupSuccess() {
           window.location.replace(redirectUrl);
         }
       } catch (e) {
-        console.error("Error handling the redirect url");
+        error("Error handling the redirect url");
       }
     } else {
       history.replace(APPLICATIONS_URL);
