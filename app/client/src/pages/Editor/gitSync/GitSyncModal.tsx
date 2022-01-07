@@ -129,14 +129,11 @@ function GitSyncModal() {
               activeTabIndex={activeTabIndex}
               onSelect={(tabIndex: number) => {
                 if (tabIndex === GitSyncModalTab.DEPLOY) {
-                  AnalyticsUtil.logEvent(
-                    "GIT_SYNC_DEPLOY_GIT_MODAL_TRIGGERED",
-                    {
-                      source: `${TabKeys[activeTabIndex]}_TAB`,
-                    },
-                  );
+                  AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
+                  });
                 } else if (tabIndex === GitSyncModalTab.MERGE) {
-                  AnalyticsUtil.logEvent("GIT_SYNC_MERGE_GIT_MODAL_TRIGGERED", {
+                  AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
                     source: `${TabKeys[activeTabIndex]}_TAB`,
                   });
                 }

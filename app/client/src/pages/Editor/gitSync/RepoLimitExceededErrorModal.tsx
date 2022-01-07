@@ -108,7 +108,7 @@ function RepoLimitExceededErrorModal() {
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
-      AnalyticsUtil.logEvent("GIT_SYNC_DISCONNECT_GIT_CLICK", {
+      AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
         source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
       });
       dispatch(setShowRepoLimitErrorModal(false));
@@ -185,7 +185,7 @@ function RepoLimitExceededErrorModal() {
               category={Category.tertiary}
               className="t--contact-sales-button"
               onClick={() => {
-                AnalyticsUtil.logEvent("GIT_SYNC_CONTACT_SALES_CLICK", {
+                AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
                   source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
                 });
                 openIntercom();

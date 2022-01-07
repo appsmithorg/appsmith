@@ -96,7 +96,7 @@ type DeployedKeyUIProps = {
 function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { copyToClipboard, deployKeyDocUrl, showCopied, SSHKeyPair } = props;
   const clickHandler = () => {
-    AnalyticsUtil.logEvent("GIT_SYNC_GIT_DOCUMENTATION_LINK_CLICK", {
+    AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
       source: "SSH_KEY_ON_GIT_CONNECTION_TAB",
     });
     window.open(deployKeyDocUrl, "_blank");
