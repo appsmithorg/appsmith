@@ -9,8 +9,6 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
-import { connect } from "react-redux";
-import { AppState } from "reducers";
 import { DynamicValues } from "reducers/evaluationReducers/formEvaluationReducer";
 
 const DropdownSelect = styled.div`
@@ -57,12 +55,11 @@ function renderDropdown(props: {
   if (_.isUndefined(props.input?.value)) {
     selectedValue = props?.props?.initialValue;
   }
-  console.log("Ayush props", props);
   let isLoading = false;
   let options = props.options;
   if (props.fetchOptionsCondtionally && !!props.dynamicFetchedValues) {
-    isLoading = props.dynamicFetchedValues.isLoading;
     options = props.dynamicFetchedValues.data;
+    isLoading = props.dynamicFetchedValues.isLoading;
   }
   const selectedOption =
     options.find((option: DropdownOption) => option.value === selectedValue) ||
