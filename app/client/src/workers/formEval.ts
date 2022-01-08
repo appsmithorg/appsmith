@@ -1,4 +1,5 @@
 import {
+  DynamicValues,
   FormEvalOutput,
   FormEvaluationState,
 } from "../reducers/evaluationReducers/formEvaluationReducer";
@@ -12,6 +13,7 @@ export enum ConditionType {
   SHOW = "show", // When set, the component will be hidden until condition is true
   ENABLE = "enable", // When set, the component will be enabled until condition is true
   DISABLE = "disable", // When set, the component will be disabled until condition is true
+  FETCH_DYNAMIC_VALUES = "fetchDynamicValues", // When set, the component will fetch the values dynamically
 }
 
 // Object to hold the initial eval object
@@ -21,6 +23,7 @@ let finalEvalObj: FormEvalOutput;
 const generateInitialEvalState = (formConfig: FormConfig) => {
   const visible = false;
   const enabled = true;
+  let conditionals: Record<string, any> = {};
   let conditionTypes = {};
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
@@ -45,6 +48,10 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
         ...conditionTypes,
         visible,
       };
+      conditionals = {
+        ...conditionals,
+        ...formConfig.conditionals,
+      };
     }
 
     if (
@@ -55,11 +62,38 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
         ...conditionTypes,
         enabled,
       };
+      conditionals = {
+        ...conditionals,
+        ...formConfig.conditionals,
+      };
+    }
+
+    if (allConditionTypes.includes(ConditionType.FETCH_DYNAMIC_VALUES)) {
+      const dynamicValues: DynamicValues = {
+        allowedToFetch: false,
+        isLoading: false,
+        hasStarted: false,
+        data: [],
+        config: {
+          url: formConfig.conditionals.fetchDynamicValues.url,
+          method: formConfig.conditionals.fetchDynamicValues.method,
+          params: formConfig.conditionals.fetchDynamicValues.params,
+        },
+      };
+      conditionTypes = {
+        ...conditionTypes,
+        fetchDynamicValues: dynamicValues,
+      };
+      conditionals = {
+        ...conditionals,
+        fetchDynamicValues:
+          formConfig.conditionals.fetchDynamicValues.condition,
+      };
     }
     // Conditionals are stored in the eval state itself for quick access
     finalEvalObj[key] = {
       ...conditionTypes,
-      conditionals: formConfig.conditionals,
+      conditionals,
     };
   }
 
@@ -89,6 +123,15 @@ function evaluate(
               currentEvalState[key].enabled = !output;
             } else if (conditionType === ConditionType.ENABLE) {
               currentEvalState[key].enabled = output;
+            } else if (
+              conditionType === ConditionType.FETCH_DYNAMIC_VALUES &&
+              currentEvalState[key].hasOwnProperty("fetchDynamicValues") &&
+              !!currentEvalState[key].fetchDynamicValues
+            ) {
+              (currentEvalState[key]
+                .fetchDynamicValues as DynamicValues).allowedToFetch = output;
+              (currentEvalState[key]
+                .fetchDynamicValues as DynamicValues).isLoading = output;
             }
           });
         }

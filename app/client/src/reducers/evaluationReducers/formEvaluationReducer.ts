@@ -2,11 +2,27 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { FetchPageRequest } from "api/PageApi";
 
-export type ConditonalObject = Record<string, string>;
+export type DynamicValues = {
+  allowedToFetch: boolean;
+  isLoading: boolean;
+  hasStarted: boolean;
+  data: any;
+  config: any;
+};
+
+export type dynamicValueFetchConfig = {
+  isLoading: boolean;
+  data: any;
+};
+
+export type conditionalConfig = string | dynamicValueFetchConfig;
+
+export type ConditonalObject = Record<string, any>;
 
 export type ConditionalOutput = {
   visible?: boolean;
   enabled?: boolean;
+  fetchDynamicValues?: DynamicValues;
   conditionals?: ConditonalObject;
 };
 
