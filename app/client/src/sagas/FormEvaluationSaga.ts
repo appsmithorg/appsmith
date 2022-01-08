@@ -7,12 +7,19 @@ import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "../selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
-import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  ConditionalOutput,
+  DynamicValues,
+  FormEvalOutput,
+  FormEvaluationState,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
 import { ActionConfig } from "entities/Action";
 import { FormConfig } from "components/formControls/BaseControl";
+import PluginsApi from "api/PluginApi";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
+let isFetchingData = false;
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -26,6 +33,10 @@ const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
 // Function to set isEvaluating flag
 const setIsEvaluating = (newState: boolean) => {
   isEvaluating = newState;
+};
+// Function to set isEvaluating flag
+const setIsFetching = (newState: boolean) => {
+  isFetchingData = newState;
 };
 
 function* setFormEvaluationSagaAsync(
@@ -61,12 +72,68 @@ function* setFormEvaluationSagaAsync(
           FormEvalActionPayload
         >;
         yield fork(setFormEvaluationSagaAsync, nextAction);
+      } else {
+        const formId = action.payload.formId;
+        const evalOutput = workerResponse[formId];
+        const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
+          evalOutput,
+        );
+        yield call(
+          fetchDynamicValuesSaga,
+          queueOfValuesToBeFetched,
+          formId,
+          evalOutput,
+        );
       }
     } catch (e) {
       log.error(e);
       setIsEvaluating(false);
     }
   }
+}
+
+function* fetchDynamicValuesSaga(
+  queueOfValuesToBeFetched: Record<string, ConditionalOutput>,
+  formId: string,
+  evalOutput: FormEvalOutput,
+) {
+  for (const key of Object.keys(queueOfValuesToBeFetched)) {
+    setIsFetching(true);
+    evalOutput = yield call(
+      fetchDynamicValueSaga,
+      queueOfValuesToBeFetched[key],
+      key,
+      evalOutput,
+    );
+  }
+  yield put({
+    type: ReduxActionTypes.SET_FORM_EVALUATION,
+    payload: { [formId]: evalOutput },
+  });
+
+  setIsFetching(false);
+}
+
+function* fetchDynamicValueSaga(
+  value: ConditionalOutput,
+  key: string,
+  evalOutput: FormEvalOutput,
+) {
+  try {
+    const { config } = value.fetchDynamicValues as DynamicValues;
+    const { url } = config;
+
+    (evalOutput[key].fetchDynamicValues as DynamicValues).hasStarted = true;
+
+    const response = yield call(PluginsApi.fetchDynamicFormValues, url);
+    if (!!response) {
+      (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
+      (evalOutput[key].fetchDynamicValues as DynamicValues).data = response;
+    }
+  } catch (e) {
+    log.error(e);
+  }
+  return evalOutput;
 }
 
 function* formEvaluationChangeListenerSaga() {
@@ -87,3 +154,17 @@ export default function* formEvaluationChangeListener() {
     }
   }
 }
+const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
+  let output: Record<string, ConditionalOutput> = {};
+  Object.entries(evalOutput).forEach(([key, value]) => {
+    if (
+      "fetchDynamicValues" in value &&
+      !!value.fetchDynamicValues &&
+      "allowedToFetch" in value.fetchDynamicValues &&
+      value.fetchDynamicValues.allowedToFetch
+    ) {
+      output = { ...output, [key]: value };
+    }
+  });
+  return output;
+};
