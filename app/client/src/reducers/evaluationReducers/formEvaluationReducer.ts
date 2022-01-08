@@ -7,7 +7,7 @@ export type DynamicValues = {
   isLoading: boolean;
   hasStarted: boolean;
   data: any;
-  config: any;
+  config: { url: string; method: string; params?: string[] };
 };
 
 export type dynamicValueFetchConfig = {
@@ -24,6 +24,7 @@ export type ConditionalOutput = {
   enabled?: boolean;
   fetchDynamicValues?: DynamicValues;
   conditionals?: ConditonalObject;
+  key?: string;
 };
 
 export type FormEvalOutput = Record<string, ConditionalOutput>;
