@@ -59,13 +59,14 @@ function renderDropdown(props: {
   }
   console.log("Ayush props", props);
   let isLoading = false;
+  let options = props.options;
   if (props.fetchOptionsCondtionally && !!props.dynamicFetchedValues) {
     isLoading = props.dynamicFetchedValues.isLoading;
+    options = props.dynamicFetchedValues.data;
   }
   const selectedOption =
-    props.options.find(
-      (option: DropdownOption) => option.value === selectedValue,
-    ) || {};
+    options.find((option: DropdownOption) => option.value === selectedValue) ||
+    {};
   return (
     <Dropdown
       boundary="window"
@@ -78,7 +79,7 @@ function renderDropdown(props: {
       isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth="50vh"
-      options={props.options}
+      options={options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
