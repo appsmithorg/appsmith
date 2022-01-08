@@ -32,5 +32,6 @@
     "widgetSwitchId": "#switcher--widgets",
     "activeTab": "span:contains('Active')",
     "createNew": ".t--entity-add-btn.group.files",
-    "blankAPI": "span:contains('New Blank API')"
+    "blankAPI": "span:contains('New Blank API')",
+    "addQuery": ".files .t--entity-add-btn"
 }

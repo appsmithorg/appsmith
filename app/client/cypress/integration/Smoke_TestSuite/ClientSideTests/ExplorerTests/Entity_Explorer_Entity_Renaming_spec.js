@@ -1,3 +1,4 @@
+const explorer = require("../../../../locators/explorerlocators.json");
 const firstApiName = "First";
 const secondApiName = "Second";
 
@@ -13,11 +14,15 @@ describe("Api Naming conflict on a page test", function() {
     cy.CreateAPI(secondApiName);
 
     // try to rename one of the APIs with an existing API name
-    cy.GlobalSearchEntity(secondApiName);
-    cy.RenameEntity(firstApiName);
+    cy.hoverAndClickParticularIndex(2);
+    cy.selectAction("Rename");
+    //cy.RenameEntity(tabname);
+    cy.get(explorer.editEntity)
+      .last()
+      .type(firstApiName, { force: true });
+    //cy.RenameEntity(firstApiName);
     cy.validateMessage(firstApiName);
     cy.ClearSearch();
-
     cy.DeleteAPIFromSideBar();
     cy.DeleteAPIFromSideBar();
   });
@@ -34,7 +39,12 @@ describe("Api Naming conflict on different pages test", function() {
     cy.Createpage("Page2");
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
-    cy.RenameEntity(firstApiName);
+    cy.hoverAndClickParticularIndex(2);
+    cy.selectAction("Rename");
+    //cy.RenameEntity(tabname);
+    cy.get(explorer.editEntity)
+      .last()
+      .type(firstApiName, { force: true });
     cy.VerifyPopOverMessage(firstApiName + " is already being used.");
 
     // delete API and Page2
@@ -57,10 +67,12 @@ describe("Entity Naming conflict test", function() {
     // create API and rename it, expect error to occur
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
-
-    cy.GlobalSearchEntity(secondApiName);
-    cy.RenameEntity(firstApiName);
-    cy.VerifyPopOverMessage(firstApiName + " is already being used.", true);
+    cy.hoverAndClickParticularIndex(2);
+    cy.selectAction("Rename");
+    cy.get(explorer.editEntity)
+      .last()
+      .type(secondApiName, { force: true });
+    cy.VerifyPopOverMessage(secondApiName + " is already being used.", true);
     cy.ClearSearch();
 
     cy.deleteJSObject();
