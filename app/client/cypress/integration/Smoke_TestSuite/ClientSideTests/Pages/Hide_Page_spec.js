@@ -8,11 +8,9 @@ describe("Hide / Show page test functionality", function() {
   it("Hide page test ", function() {
     cy.Createpage(pageOne);
     cy.Createpage(pageTwo);
-
-    cy.GlobalSearchEntity(pageOne);
-    cy.xpath(pages.popover)
-      .last()
-      .click({ force: true });
+    //cy.hoverAndClickParticularIndex(3);
+    cy.get(`.t--entity-name:contains('MyPage2')`).trigger("mouseover");
+    cy.hoverAndClick();
     cy.get(pages.hidePage).click({ force: true });
     cy.ClearSearch();
     cy.PublishtheApp();
@@ -21,10 +19,8 @@ describe("Hide / Show page test functionality", function() {
 
   it("Show page test ", function() {
     cy.get(publish.backToEditor).click();
-    cy.GlobalSearchEntity(pageOne);
-    cy.xpath(pages.popover)
-      .last()
-      .click({ force: true });
+    cy.get(`.t--entity-name:contains('MyPage2')`).trigger("mouseover");
+    cy.hoverAndClick();
     cy.get(pages.showPage).click({ force: true });
     cy.ClearSearch();
     cy.PublishtheApp();

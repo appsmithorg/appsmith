@@ -685,10 +685,12 @@ Cypress.Commands.add("EditApiName", (apiname) => {
 });
 
 Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
+  /*
   cy.xpath(apiwidget.popover)
     .last()
     .click({ force: true });
   cy.get(apiwidget.editName).click({ force: true });
+  */
   cy.get(explorer.editNameField)
     .clear()
     .type(apiname, { force: true })
@@ -1830,9 +1832,19 @@ Cypress.Commands.add("Createpage", (Pagename) => {
   );
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
+  cy.xpath(apiwidget.popover)
+    .last()
+    .should("be.hidden")
+    .invoke("show")
+    .click({ force: true });
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  /*  
   cy.xpath(pages.popover)
     .last()
     .click({ force: true });
+    */
   cy.get(pages.editName).click({ force: true });
   cy.get(pages.editInput)
     .type(Pagename)
