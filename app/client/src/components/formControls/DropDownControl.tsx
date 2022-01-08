@@ -6,14 +6,12 @@ import { ControlType } from "constants/PropertyControlConstants";
 import _ from "lodash";
 import {
   Field,
-  getFormValues,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { QueryAction } from "entities/Action";
+import { DynamicValues } from "reducers/evaluationReducers/formEvaluationReducer";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -51,15 +49,21 @@ function renderDropdown(props: {
   props: DropDownControlProps & { width?: string };
   fetchOptionsCondtionally: boolean;
   formName: string;
-  dropDownOptions: DropdownOption[];
+  options: DropdownOption[];
   disabled?: boolean;
+  dynamicFetchedValues?: DynamicValues;
 }): JSX.Element {
   let selectedValue = props.input?.value;
   if (_.isUndefined(props.input?.value)) {
     selectedValue = props?.props?.initialValue;
   }
+  console.log("Ayush props", props);
+  let isLoading = false;
+  if (props.fetchOptionsCondtionally && !!props.dynamicFetchedValues) {
+    isLoading = props.dynamicFetchedValues.isLoading;
+  }
   const selectedOption =
-    props.dropDownOptions.find(
+    props.options.find(
       (option: DropdownOption) => option.value === selectedValue,
     ) || {};
   return (
@@ -70,10 +74,11 @@ function renderDropdown(props: {
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}
       helperText={props.props?.info}
+      isLoading={isLoading}
       isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth="50vh"
-      options={props.dropDownOptions}
+      options={props.options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
@@ -90,37 +95,7 @@ export interface DropDownControlProps extends ControlProps {
   isMultiSelect?: boolean;
   isSearchable?: boolean;
   fetchOptionsCondtionally?: boolean;
+  dynamicFetchedValues?: DynamicValues;
 }
-const mapStateToProps = (state: AppState, ownProps: DropDownControlProps) => {
-  let dropDownOptions: DropdownOption[] = [];
 
-  // if the component has an option enabled to fetch the options dynamically,
-  if (ownProps.fetchOptionsCondtionally) {
-    // TODO: this is just a test, will be updated once the fetchDynamicFormData is implemented
-    dropDownOptions = [
-      { label: "Test1", value: "SINGLE" },
-      { label: "Test2", value: "ALL" },
-    ];
-    const dynamicFormDataString = _.get(
-      getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction,
-      "actionConfiguration.formData.updateMany.query",
-    );
-
-    // ownProps.configProperty will be used to filter from the array of data
-    // const dynamicFormDataString = getFormEvaluationState(state);
-
-    try {
-      dropDownOptions = JSON.parse(dynamicFormDataString);
-    } catch (e) {
-      dropDownOptions = [];
-    }
-  } else {
-    dropDownOptions = ownProps.options;
-  }
-
-  return {
-    dropDownOptions,
-  };
-};
-
-export default connect(mapStateToProps)(DropDownControl);
+export default DropDownControl;
