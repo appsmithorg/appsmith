@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,7 +37,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
-    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName);
+    Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 

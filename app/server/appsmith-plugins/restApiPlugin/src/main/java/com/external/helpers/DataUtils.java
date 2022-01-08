@@ -72,7 +72,7 @@ public class DataUtils {
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
             default:
-                return BodyInserters.fromValue(body);
+                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }
     }
 

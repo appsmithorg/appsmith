@@ -1,8 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Param;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionDTO;
@@ -11,15 +9,11 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
@@ -39,9 +33,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -82,47 +73,9 @@ public class ActionControllerCE {
     }
 
     @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Mono<MultiValueMap<String, Part>> partsMono) {
-        return partsMono
-                .flatMap(parts -> {
-                    final Part executeActionDTO = parts.remove("executeActionDTO").get(0);
-                    final ObjectMapper mapper = new ObjectMapper();
-                    return DataBufferUtils.join(executeActionDTO.content())
-                            .flatMap(executeActionDTOBuffer -> {
-                                byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
-                                executeActionDTOBuffer.read(byteData);
-
-                                try {
-                                    return Mono.just(mapper.readValue(byteData, ExecuteActionDTO.class));
-                                } catch (IOException e) {
-                                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST));
-                                }
-                            })
-                            .flatMap(executeActionDTOObject -> {
-                                final ArrayList<Param> params = new ArrayList<>();
-                                executeActionDTOObject.setParams(params);
-                                return Flux
-                                        .fromIterable(parts.toSingleValueMap().entrySet())
-                                        .flatMap(entry -> entry
-                                                .getValue()
-                                                .content()
-                                                .map(dataBuffer -> {
-                                                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                                                    dataBuffer.read(bytes);
-                                                    DataBufferUtils.release(dataBuffer);
-                                                    return new String(bytes, StandardCharsets.UTF_8);
-                                                })
-                                                .collectList()
-                                                .map(stringParts -> String.join("", stringParts))
-                                                .map(value -> new Param(entry.getKey(), value)))
-                                        .collectList()
-                                        .map(paramList -> {
-                                            params.addAll(paramList);
-                                            return executeActionDTOObject;
-                                        });
-                            });
-                })
-                .flatMap(newActionService::executeAction)
+    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newActionService.executeAction(partFlux, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

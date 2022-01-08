@@ -60,9 +60,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -75,6 +77,8 @@ import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -529,7 +533,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         List<Param> params = executeActionDTO.getParams();
         if (!CollectionUtils.isEmpty(params)) {
             for (Param param : params) {
-                // In case the parameter values turn out to be null, set it to empty string instead to allow the
+                // In case the parameter values turn out to be null, set it to empty string instead to allow
                 // the execution to go through no matter what.
                 if (!StringUtils.isEmpty(param.getKey()) && param.getValue() == null) {
                     param.setValue("");
@@ -777,13 +781,62 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName){
+    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName) {
 
-        return this.findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
-                .flatMap(branchedAction -> {
-                    executeActionDTO.setActionId(branchedAction.getId());
-                    return executeAction(executeActionDTO);
-                });
+        final ExecuteActionDTO dto = new ExecuteActionDTO();
+        return partFlux
+                .flatMap(part -> {
+                    final String key = part.name();
+                    if ("executeActionDTO".equals(key)) {
+                        return DataBufferUtils
+                                .join(part.content())
+                                .flatMap(executeActionDTOBuffer -> {
+                                    byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
+                                    executeActionDTOBuffer.read(byteData);
+                                    DataBufferUtils.release(executeActionDTOBuffer);
+                                    try {
+                                        return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
+                                    } catch (IOException e) {
+                                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST));
+                                    }
+                                })
+                                .flatMap(executeActionDTO -> {
+                                    dto.setActionId(executeActionDTO.getActionId());
+                                    dto.setPaginationField(executeActionDTO.getPaginationField());
+                                    dto.setViewMode(executeActionDTO.getViewMode());
+
+                                    return Mono.empty();
+                                });
+                    }
+                    return Mono.just(part);
+                })
+                .flatMap(part -> {
+                    final Param param = new Param();
+                    param.setKey(part.name());
+                    return DataBufferUtils
+                            .join(part.content())
+                            .map(dataBuffer -> {
+                                byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                dataBuffer.read(bytes);
+                                DataBufferUtils.release(dataBuffer);
+                                param.setValue(new String(bytes, StandardCharsets.ISO_8859_1));
+                                return param;
+                            });
+                })
+                .collectList()
+                .map(params -> {
+                    dto.setParams(params);
+                    return dto;
+                })
+                .flatMap(executeActionDTO -> this
+                        .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
+                        .map(branchedAction -> {
+                            executeActionDTO.setActionId(branchedAction.getId());
+                            return executeActionDTO;
+                        })
+                )
+                .flatMap(this::executeAction);
+
     }
     /*
      * - Get label for request params.
