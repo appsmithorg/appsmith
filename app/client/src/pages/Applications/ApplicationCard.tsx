@@ -161,6 +161,7 @@ const Wrapper = styled(
     props: ICardProps & {
       hasReadPermission?: boolean;
       backgroundColor: string;
+      isMobile?: boolean;
     },
   ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
 )`
@@ -191,6 +192,13 @@ const Wrapper = styled(
       }
     }
   }
+
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    width: 100% !important;
+    height: 126px !important;
+  `}
 `;
 
 const ApplicationImage = styled.div`
@@ -283,6 +291,7 @@ type ApplicationCardProps = {
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
+  isMobile?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -391,9 +400,10 @@ function GitConnectedBadge() {
   );
 }
 
-const Container = styled.div`
+const Container = styled.div<{ isMobile?: boolean }>`
   position: relative;
   overflow: visible;
+  ${({ isMobile }) => isMobile && `width: 100%;`}
 `;
 
 export function ApplicationCard(props: ApplicationCardProps) {
@@ -704,7 +714,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
 
   return (
-    <Container>
+    <Container isMobile={props.isMobile}>
       <NameWrapper
         className="t--application-card"
         hasReadPermission={hasReadPermission}
@@ -727,6 +737,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               : "t--application-card-background"
           }
           hasReadPermission={hasReadPermission}
+          isMobile={props.isMobile}
           key={props.application.id}
         >
           <CircleAppIcon name={appIcon} size={Size.large} />

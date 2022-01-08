@@ -13,15 +13,16 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  width: 250px;
+  width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
   position: ${({ isMobile }) => (isMobile ? `relative` : `fixed`)};
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: ${({ isMobile }) => (isMobile ? `12px` : `2px`)};
+  top: 2px;
   left: ${(props) =>
-    props.isMobile ? 16 : props.theme.homePage.sidebar + 24}px;
-  z-index: ${Indices.Layer9};
+    props.isMobile ? 0 : props.theme.homePage.sidebar + 24}px;
+  z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
+  ${({ isMobile }) => isMobile && `padding: 12px 16px;`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
@@ -71,12 +72,14 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
         {props.search && (
           <ControlGroup>
             <SearchInput
+              border={isMobile}
               cypressSelector={"t--application-search-input"}
               defaultValue={props.search.defaultValue}
               disabled={isFetchingApplications}
               onChange={query || noop}
               placeholder={props.search.placeholder}
               variant={SearchVariant.BACKGROUND}
+              width={isMobile ? "100%" : "228px"}
             />
           </ControlGroup>
         )}

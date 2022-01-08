@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -13,8 +13,11 @@ import history from "utils/history";
 import ProfileDropdown from "./ProfileDropdown";
 import Bell from "notifications/Bell";
 import { Colors } from "constants/Colors";
-import Icon, { IconSize } from "components/ads/Icon";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
+import MobileSideBar from "./MobileSidebar";
+import { Indices } from "constants/Layers";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -27,7 +30,7 @@ const StyledPageHeader = styled(StyledHeader)<{
   flex-direction: row;
   position: fixed;
   top: 0;
-  z-index: 10;
+  z-index: ${Indices.Layer9};
   box-shadow: ${(props) =>
     props.hideShadow && !props.isMobile
       ? `none`
@@ -36,7 +39,8 @@ const StyledPageHeader = styled(StyledHeader)<{
   ${({ isMobile }) =>
     isMobile &&
     `
-    padding: 0 16px;
+    padding: 0 12px;
+    padding-left: 10px;
   `}
 `;
 
@@ -66,6 +70,13 @@ const sideBorder = css`
 
 const StyledDropDownContainer = styled.div``;
 
+const StyledTwoLineHamburger = styled(TwoLineHamburger)`
+  fill: ${Colors.BLACK};
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+`;
+
 type PageHeaderProps = {
   user?: User;
   hideShadow?: boolean;
@@ -77,6 +88,7 @@ export function PageHeader(props: PageHeaderProps) {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const isMobile = useIsMobileDevice();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   let loginUrl = AUTH_LOGIN_URL;
   if (queryParams.has("redirectUrl")) {
     loginUrl += `?redirectUrl
@@ -116,7 +128,24 @@ export function PageHeader(props: PageHeaderProps) {
           </StyledDropDownContainer>
         </>
       )}
-      {isMobile && <Icon name="hamburger" size={IconSize.XXXXL} />}
+      {isMobile && !isMobileSidebarOpen && (
+        <StyledTwoLineHamburger onClick={() => setIsMobileSidebarOpen(true)} />
+      )}
+      {isMobile && isMobileSidebarOpen && (
+        <Icon
+          fillColor={Colors.CRUSTA}
+          name="close-x"
+          onClick={() => setIsMobileSidebarOpen(false)}
+          size={IconSize.XXXXL}
+        />
+      )}
+      {isMobile && (
+        <MobileSideBar
+          isOpen={isMobileSidebarOpen}
+          name="Albin"
+          userName="albin@appsmith.com"
+        />
+      )}
     </StyledPageHeader>
   );
 }
