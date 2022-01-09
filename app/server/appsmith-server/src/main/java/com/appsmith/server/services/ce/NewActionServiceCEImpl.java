@@ -797,7 +797,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     try {
                                         return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
                                     } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST));
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "executeActionDTO"));
                                     }
                                 })
                                 .flatMap(executeActionDTO -> {
@@ -824,9 +824,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             });
                 })
                 .collectList()
-                .map(params -> {
+                .flatMap(params -> {
+                    if(dto.getActionId() == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
+                    }
                     dto.setParams(params);
-                    return dto;
+                    return Mono.just(dto);
                 })
                 .flatMap(executeActionDTO -> this
                         .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
