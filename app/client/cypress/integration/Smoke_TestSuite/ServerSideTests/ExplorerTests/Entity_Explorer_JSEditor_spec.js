@@ -16,9 +16,10 @@ describe("Entity explorer JSEditor structure", function() {
       "have.length",
       1,
     );
-    cy.get(`.t--entity.t--jsaction:contains(JSObject1)`)
-      .find(explorer.collapse)
-      .click({ multiple: true });
+    cy.get(`.t--entity.t--jsaction:contains(JSObject1)`).trigger("mouseover");
+    cy.hoverAndClick();
+    cy.selectAction("Show Bindings");
+    cy.get(".language-appsmith-binding").should("have.length", 4);
     // cy.get(jsEditorLocators.propertyList).then(function($lis) {
     //   expect($lis).to.have.length(4);
     //   expect($lis.eq(0)).to.contain("{{JSObject1.myFun2()}}");
