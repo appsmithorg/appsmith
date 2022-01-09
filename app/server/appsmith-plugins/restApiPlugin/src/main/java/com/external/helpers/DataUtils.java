@@ -188,7 +188,7 @@ public class DataUtils {
         if (fileValue.startsWith("{")) {
             // Check whether the JSON string is an object
             final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(
-                    objectMapper.writeValueAsBytes(fileValue),
+                    fileValue,
                     MultipartFormDataDTO.class);
             multipartFormDataDTOs.add(multipartFormDataDTO);
         } else if (fileValue.startsWith("[")) {
