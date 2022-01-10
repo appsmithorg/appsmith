@@ -4813,10 +4813,11 @@ public class DatabaseChangelog {
     }
 
     /**
-     * This migration adds a new field to Mongo aggregate command: formData.aggregate.limit. This field is set by
-     * this migration to 101 for all existing actions since this is the default batchSize used by Mongo database -
-     * this is the same value that would have been applied to the aggregate cmd so far by the database.  However, for
-     * any new action, this field's initial value is 10.
+     * This migration adds a new field to Mongo aggregate command to set batchSize: formData.aggregate.limit. Its value
+     * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
+     * Mongo database - this is the same value that would have been applied to the aggregate cmd so far by the
+     * database. However, for any new action, this field's initial value is 10.
+     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/ 
      * @param mongockTemplate
      */
     @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
