@@ -252,11 +252,13 @@ function ConnectGitPlaceholder() {
   return (
     <Container>
       <Tooltip
+        autoFocus={false}
         content={tooltipContent}
         disabled={!isTooltipEnabled}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
+        openOnTargetFocus={false}
       >
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
           <StyledIcon />

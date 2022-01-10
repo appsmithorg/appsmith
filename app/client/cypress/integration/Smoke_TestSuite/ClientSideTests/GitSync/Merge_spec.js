@@ -6,6 +6,13 @@ let childBranchKey = "ChildBranch";
 let mainBranch = "master";
 describe("Git sync modal: merge tab", function() {
   before(() => {
+    cy.NavigateToHome();
+    cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      const newOrganizationName = interception.response.body.data.name;
+      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    });
+
     cy.generateUUID().then((uid) => {
       repoName = uid;
       cy.createTestGithubRepo(repoName);

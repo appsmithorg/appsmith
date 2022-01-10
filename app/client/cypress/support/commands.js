@@ -3457,11 +3457,10 @@ Cypress.Commands.add(
           cy.get(gitSyncLocators.closeGitSyncModal).click();
         }
       } else {
-        cy.wait("@connectGitRepo").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          400,
-        );
+        cy.wait("@connectGitRepo").then((interception) => {
+          const status = interception.body.responseMeta.status;
+          expect(status).to.be.above(400);
+        });
       }
     });
   },

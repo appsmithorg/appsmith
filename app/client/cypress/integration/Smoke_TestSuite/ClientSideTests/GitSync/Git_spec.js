@@ -22,6 +22,13 @@ const inputNameTempBranch31 = "inputNameTempBranch31";
 let repoName;
 describe("Git", function() {
   before(() => {
+    cy.NavigateToHome();
+    cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      const newOrganizationName = interception.response.body.data.name;
+      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    });
+
     cy.generateUUID().then((uid) => {
       repoName = uid;
 
@@ -58,7 +65,7 @@ describe("Git", function() {
     cy.wait("@commit").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      500,
+      400,
     );
 
     cy.contains(Cypress.env("MESSAGES").GIT_UPSTREAM_CHANGES());

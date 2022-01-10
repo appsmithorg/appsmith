@@ -12,11 +12,8 @@ describe("Repo Limit Exceeded Error Modal", function() {
 
   it.only("modal should be opened with proper components", function() {
     cy.createAppAndConnectGit(repoName1, false);
-    // cy.wait(2000);
     cy.createAppAndConnectGit(repoName2, false);
-    // cy.wait(2000);
     cy.createAppAndConnectGit(repoName3, false);
-    // cy.wait(2000);
     cy.createAppAndConnectGit(repoName4, false, true);
 
     cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("exist");
