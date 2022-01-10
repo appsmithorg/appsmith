@@ -22,6 +22,8 @@ function DatasourceAuth({
     formData &&
     formData.datasourceConfiguration.authentication?.authenticationType;
 
+  // Render call-to-actions depending on the datasource authentication type
+
   switch (authType) {
     case AuthType.OAUTH2:
       return (

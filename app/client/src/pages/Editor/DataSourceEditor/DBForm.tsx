@@ -77,7 +77,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       this.props.setDatasourceEditorMode(this.props.datasourceId, true);
     }
   }
-
+  // returns normalized and trimmed datasource form data
   getSanitizedData = () => {
     return this.getTrimmedData(this.normalizeValues());
   };
@@ -158,6 +158,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         ) : (
           <Connected />
         )}
+        {/* Render datasource form call-to-actions */}
         {datasource && (
           <DatasourceAuth
             datasource={datasource}

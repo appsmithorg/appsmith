@@ -70,6 +70,10 @@ export default function DefaultAuth({
       pageId: pageId,
       appId: applicationId,
     });
+
+    // Update datasource
+    //  and don't redirect to 'new integrations' page if datasource is used to generate a page
+
     dispatch(
       updateDatasource(
         getSanitizedFormData(),
