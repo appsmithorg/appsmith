@@ -43,7 +43,11 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       200,
     );
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.GlobalSearchEntity("FormTestCopy");
+    cy.get(".t--entity-name")
+      .contains("FormTestCopy")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(4);
+    cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");

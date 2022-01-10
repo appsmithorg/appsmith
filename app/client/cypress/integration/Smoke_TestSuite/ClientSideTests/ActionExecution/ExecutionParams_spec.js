@@ -43,14 +43,18 @@ describe("API Panel Test Functionality", function() {
 
   it("3. Will pass execution params", function() {
     // Bind the table
-    cy.SearchEntityandOpen("Table1");
+    cy.get(".t--entity-name")
+      .contains("Table1")
+      .click({ force: true });
     cy.testJsontext("tabledata", "{{Query1.data}}");
     // Assert 'posts' data (default)
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("Test user 7");
     });
     // Choose static button
-    cy.SearchEntityandOpen("StaticButton");
+    cy.get(".t--entity-name")
+      .contains("StaticButton")
+      .click({ force: true });
     // toggle js of onClick
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
@@ -61,7 +65,9 @@ describe("API Panel Test Functionality", function() {
       "{{Query1.run(undefined, undefined, { tableName: 'users' })}}",
     );
     // Choose dynamic button
-    cy.SearchEntityandOpen("DynamicButton");
+    cy.get(".t--entity-name")
+      .contains("DynamicButton")
+      .click({ force: true });
     cy.wait(2000);
     // toggle js of onClick
     cy.get(".t--property-control-onclick").scrollIntoView();
