@@ -17,7 +17,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import WidgetFactory from "utils/WidgetFactory";
-import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { apiIcon, curlIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
@@ -345,6 +345,7 @@ export const actionOperations = [
   {
     title: "New cURL Import",
     desc: "Import a cURL Request",
+    icon: curlIcon,
     redirect: (pageId: string, from: EventLocation, applicationId: string) => {
       const queryParams = getQueryParams();
       const curlImportURL = getCurlImportPageURL(applicationId, pageId, {

@@ -213,3 +213,8 @@ export const SortFileIcon = (
     width={ENTITY_ICON_SIZE}
   />
 );
+
+const CurlIcon = MenuIcons.CURL_ICON;
+export const curlIcon = (
+  <CurlIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
+);

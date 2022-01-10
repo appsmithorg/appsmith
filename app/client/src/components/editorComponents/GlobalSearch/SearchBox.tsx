@@ -8,6 +8,7 @@ import Icon from "components/ads/Icon";
 import { AppState } from "reducers";
 import {
   createMessage,
+  CREATE_NEW_OMNIBAR_PLACEHOLDER,
   OMNIBAR_PLACEHOLDER,
   OMNIBAR_PLACEHOLDER_DOC,
   OMNIBAR_PLACEHOLDER_NAV,
@@ -79,6 +80,8 @@ const getPlaceHolder = (categoryId: SEARCH_CATEGORY_ID) => {
       return OMNIBAR_PLACEHOLDER_DOC;
     case SEARCH_CATEGORY_ID.NAVIGATION:
       return OMNIBAR_PLACEHOLDER_NAV;
+    case SEARCH_CATEGORY_ID.ACTION_OPERATION:
+      return CREATE_NEW_OMNIBAR_PLACEHOLDER;
   }
   return OMNIBAR_PLACEHOLDER;
 };

@@ -20,6 +20,7 @@ import { ReactComponent as JSFileIcon } from "assets/icons/menu/js-file-icon.svg
 import { ReactComponent as LinkIcon } from "assets/icons/menu/link.svg";
 import { ReactComponent as JSFunctionIcon } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as DataSourcesIconV2 } from "assets/icons/menu/datasources-2.svg";
+import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 import { ReactComponent as JSIconV2 } from "assets/icons/menu/js-icon.svg";
 import { ReactComponent as QueryMain } from "assets/icons/menu/query-main.svg";
 import DefaultHomeIcon from "remixicon-react/Home4LineIcon";
@@ -192,6 +193,11 @@ export const MenuIcons: {
   SORT_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <SortIcon />
+    </IconWrapper>
+  ),
+  CURL_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CurlIcon />
     </IconWrapper>
   ),
 };
