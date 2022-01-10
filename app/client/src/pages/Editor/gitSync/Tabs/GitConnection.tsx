@@ -51,7 +51,7 @@ import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
-  getIsGitSyncModalOpen,
+  // getIsGitSyncModalOpen,
   getLocalGitConfig,
   getRemoteUrlDocUrl,
   getTempRemoteUrl,
@@ -67,7 +67,7 @@ import Link from "../components/Link";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { initSSHKeyPairWithNull } from "actions/applicationActions";
+// import { initSSHKeyPairWithNull } from "actions/applicationActions";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -163,7 +163,7 @@ function GitConnection({ isImport }: Props) {
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
-  const isModalOpen = useSelector(getIsGitSyncModalOpen);
+  // const isModalOpen = useSelector(getIsGitSyncModalOpen);
 
   const RepoUrlDocumentUrl = useSelector(getRemoteUrlDocUrl);
 

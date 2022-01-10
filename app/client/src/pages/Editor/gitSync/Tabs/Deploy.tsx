@@ -55,6 +55,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 
 import { isMac } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -106,7 +107,7 @@ function SubmitWrapper(props: {
 }
 
 function Deploy() {
-  const [commitMessage, setCommitMessage] = useState(INITIAL_COMMIT);
+  const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
@@ -118,6 +119,9 @@ function Deploy() {
   const pullFailed = useSelector(getPullFailed);
   const commitInputRef = useRef<HTMLInputElement>(null);
   const upstreamErrorDocumentUrl = useSelector(getUpstreamErrorDocUrl);
+  const [commitMessage, setCommitMessage] = useState(
+    gitMetaData?.remoteUrl && lastDeployedAt ? "" : INITIAL_COMMIT,
+  );
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
