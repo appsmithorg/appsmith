@@ -21,6 +21,9 @@ import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { getCurlImportPageURL } from "constants/routes";
+import { getQueryParams } from "utils/AppsmithUtils";
+import history from "utils/history";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -338,6 +341,18 @@ export const actionOperations = [
     desc: "Create a new JS Object",
     icon: jsIcon,
     action: (pageId: string) => createNewJSCollection(pageId),
+  },
+  {
+    title: "New cURL Import",
+    desc: "Import a cURL Request",
+    redirect: (pageId: string, from: EventLocation, applicationId: string) => {
+      const queryParams = getQueryParams();
+      const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
+        from,
+        ...queryParams,
+      });
+      history.push(curlImportURL);
+    },
   },
 ];
 

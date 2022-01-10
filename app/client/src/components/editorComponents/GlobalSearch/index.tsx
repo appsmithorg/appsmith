@@ -488,7 +488,8 @@ function GlobalSearch() {
       handleSnippetClick(e, item),
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
       if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
-      else if (item.redirect) item.redirect(currentPageId);
+      else if (item.redirect)
+        item.redirect(currentPageId, "OMNIBAR", applicationId);
       dispatch(toggleShowGlobalSearchModal());
     },
   };
