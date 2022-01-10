@@ -98,5 +98,33 @@ export class JSEditor {
             expect($lis.eq(3).text()).to.contain("{{" + jsObjName + ".myVar2}}");
         });
     }
+
+    public EnableJsAndUpdate(endp: string, value: string) {
+        cy.get(locator._jsToggle(endp))
+            .first()
+            .click({ force: true });
+        cy.get(locator._codeMirrorTextArea)
+            .last()
+            .focus()
+            .type("{uparrow}", { force: true })
+            .type("{ctrl}{shift}{downarrow}", { force: true });
+        cy.focused().then(($cm: any) => {
+            if ($cm.contents != "") {
+                cy.log("The field is empty");
+                cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
+                .last()
+                    .clear({
+                        force: true,
+                    });
+            }
+            cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
+                .last()
+                .type(value, {
+                    force: true,
+                    parseSpecialCharSequences: false,
+                });
+        });
+        agHelper.WaitAutoSave()
+    }
 }
 

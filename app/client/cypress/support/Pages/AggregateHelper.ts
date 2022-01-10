@@ -142,6 +142,12 @@ export class AggregateHelper {
         );
     }
 
+    public ClickButton(btnVisibleText: string) {
+        cy.xpath(locator._buttonClick(btnVisibleText))
+            .scrollIntoView()
+            .click({ force: true });
+    }
+
     public Sleep(timeout = 1000) {
         cy.wait(timeout)
     }

@@ -25,4 +25,7 @@ export class CommonLocators {
     _newPage = ".pages .t--entity-add-btn"
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
     _toastMsg = ".t--toast-action"
+    _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
+    _buttonClick = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
+
 }
