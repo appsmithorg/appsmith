@@ -9,6 +9,7 @@ type SwitchFieldProps = WrappedFieldProps & {
   label: string;
   isRequired: boolean;
   info: string;
+  disabled: boolean;
 };
 
 const StyledToggle = styled(Toggle)`
@@ -52,6 +53,7 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
         <SwitchWrapped data-cy={this.props.input.name}>
           <StyledToggle
             className="switch-control"
+            disabled={this.props.disabled}
             name={this.props.input.name}
             onToggle={(value: any) => {
               this.props.input.onChange(value);
@@ -66,11 +68,12 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
 
 class SwitchControl extends BaseControl<SwitchControlProps> {
   render() {
-    const { configProperty, info, isRequired, label } = this.props;
+    const { configProperty, disabled, info, isRequired, label } = this.props;
 
     return (
       <Field
         component={SwitchField}
+        disabled={disabled}
         info={info}
         isRequired={isRequired}
         label={label}
