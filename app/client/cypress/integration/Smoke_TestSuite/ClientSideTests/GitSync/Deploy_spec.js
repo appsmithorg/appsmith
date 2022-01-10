@@ -2,6 +2,7 @@ import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import homePage from "../../../../locators/HomePage";
 const commonLocators = require("../../../../locators/commonlocators.json");
 // import { matchViewerPath } from "../../../../../src/constants/routes";
+// import { trimQueryString } from "../../../../../src/utils/helpers";
 
 let repoName;
 describe("Git sync modal: deploy tab", function() {

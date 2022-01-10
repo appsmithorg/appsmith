@@ -2,7 +2,7 @@ import homePage from "../../../../locators/HomePage";
 const commonLocators = require("../../../../locators/commonlocators.json");
 
 // import { matchViewerPath } from "../../../../../src/constants/routes";
-import { trimQueryString } from "../../../../../src/utils/helpers";
+// import { trimQueryString } from "../../../../../src/utils/helpers";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 describe("Pre git connection spec:", function() {
