@@ -70,7 +70,7 @@ function validatePlainObject(
           value[entryName] = parsed;
           _valid = isValid;
           messages &&
-            messages.map((message: any) => {
+            messages.map((message) => {
               _messages.push(
                 `Value of key: ${entryName} is invalid: ${message}`,
               );
@@ -176,7 +176,7 @@ function validateArray(
       const validation = validate(children, entry, props);
       if (!validation.isValid) {
         _isValid = false;
-        validation.messages?.map((message: any) =>
+        validation.messages?.map((message) =>
           _messages.push(`Invalid entry at index: ${index}. ${message}`),
         );
       }
@@ -215,46 +215,12 @@ export const validate = (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
-  validationOperationType?: string,
 ) => {
-  let _result;
-  if (isArray(config)) {
-    if (validationOperationType === "ALL") {
-      //TODO: Change this function to BAIL out for falsy condition
-      _result = config.reduce(
-        (prev, cur) => {
-          if (prev.isValid) {
-            return VALIDATORS[cur.type as ValidationTypes](
-              config,
-              value,
-              props,
-            );
-          } else {
-            return false;
-          }
-        },
-        { isValid: true },
-      );
-    } else {
-      //TODO: Change this function to BAIL out for falsy condition
-      _result = config.reduce(
-        (prev, cur) => {
-          if (!prev.isValid) {
-            return VALIDATORS[cur.type as ValidationTypes](
-              config,
-              value,
-              props,
-            );
-          } else {
-            return false;
-          }
-        },
-        { isValid: false },
-      );
-    }
-  } else {
-    _result = VALIDATORS[config.type as ValidationTypes](config, value, props);
-  }
+  const _result = VALIDATORS[config.type as ValidationTypes](
+    config,
+    value,
+    props,
+  );
   return _result;
 };
 

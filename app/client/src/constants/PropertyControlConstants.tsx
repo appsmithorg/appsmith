@@ -62,7 +62,6 @@ export type PropertyPaneControlConfig = {
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
   expected?: CodeEditorExpected;
-  validationOperationType?: string;
 };
 
 type ValidationConfigParams = {
