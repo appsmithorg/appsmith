@@ -148,6 +148,8 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 public class DatabaseChangelog {
 
     public static ObjectMapper objectMapper = new ObjectMapper();
+    private static final String AGGREGATE_LIMIT = "aggregate.limit";
+    private static final Object DEFAULT_BATCH_SIZE = "101";
     public static final String FIRESTORE_PLUGIN_NAME = "firestore-plugin";
     public static final String CONDITION_KEY = "condition";
     public static final String CHILDREN_KEY = "children";
@@ -4766,5 +4768,71 @@ public class DatabaseChangelog {
         mongockTemplate.updateMulti(
                 new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
         );
+    }
+
+    private void updateLimitFieldForEachAction(List<NewAction> mongoActions, MongockTemplate mongockTemplate) {
+        mongoActions.stream()
+                .map(NewAction::getId)
+                .map(actionId -> fetchActionUsingId(actionId, mongockTemplate))
+                .filter(this::hasUnpublishedActionConfiguration)
+                .forEachOrdered(mongoAction -> {
+                    Map<String, Object> unpublishedFormData =
+                            mongoAction.getUnpublishedAction().getActionConfiguration().getFormData();
+                    setValueSafelyInFormData(unpublishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
+
+                    if (hasPublishedActionConfiguration(mongoAction)) {
+                        Map<String, Object> publishedFormData =
+                                mongoAction.getPublishedAction().getActionConfiguration().getFormData();
+                        setValueSafelyInFormData(publishedFormData, AGGREGATE_LIMIT, DEFAULT_BATCH_SIZE);
+                    }
+
+                    mongockTemplate.save(mongoAction);
+                });
+    }
+
+    @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
+    public void addLimitFieldDataToMongoAggregateCommand(MongockTemplate mongockTemplate) {
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        /* Query to get all Mongo actions which are not deleted */
+        Query queryToGetActions = getQueryToFetchAllPluginActionsWhichAreNotDeleted(mongoPlugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
+
+        /* Fetch Mongo actions using the previous query */
+        List<NewAction> mongoActions = mongockTemplate.find(queryToGetActions, NewAction.class);
+
+        updateLimitFieldForEachAction(mongoActions, mongockTemplate);
+    }
+
+    private boolean hasPublishedActionConfiguration(NewAction action) {
+        ActionDTO publishedAction = action.getPublishedAction();
+        if (publishedAction == null || publishedAction.getActionConfiguration() == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean hasUnpublishedActionConfiguration(NewAction action) {
+        ActionDTO unpublishedAction = action.getUnpublishedAction();
+        if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private NewAction fetchActionUsingId(String actionId, MongockTemplate mongockTemplate) {
+        final NewAction action =
+                mongockTemplate.findOne(query(where(fieldName(QNewAction.newAction.id)).is(actionId)), NewAction.class);
+        return action;
+    }
+
+    private Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
+        Criteria pluginIdIsMongoPluginId = where("pluginId").is(plugin.getId());
+        Criteria isNotDeleted = where("deleted").ne(true);
+        return query((new Criteria()).andOperator(pluginIdIsMongoPluginId, isNotDeleted));
     }
 }
