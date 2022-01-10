@@ -166,7 +166,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         }
       } else {
         // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
-        if (currentX <= 5) {
+        if (currentX <= 20) {
           dispatch(setExplorerActiveAction(true));
         }
       }

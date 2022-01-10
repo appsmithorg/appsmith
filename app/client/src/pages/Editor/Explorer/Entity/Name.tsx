@@ -237,7 +237,9 @@ export const EntityName = React.memo(
             position={Position.TOP_LEFT}
           >
             <Wrapper
-              className={props.className}
+              className={`${
+                props.className ? props.className : ""
+              } ContextMenu`}
               onDoubleClick={props.enterEditMode}
               ref={targetRef}
             >
