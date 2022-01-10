@@ -135,6 +135,7 @@ import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -292,6 +293,7 @@ export const IconCollection = [
   "unread-pin",
   "upArrow",
   "upload",
+  "upload-cloud",
   "user",
   "user-2",
   "view-all",
@@ -676,6 +678,9 @@ const Icon = forwardRef(
         break;
       case "upload":
         returnIcon = <Upload />;
+        break;
+      case "upload-cloud":
+        returnIcon = <UploadCloud2LineIcon />;
         break;
       case "user":
         returnIcon = <UserIcon />;
