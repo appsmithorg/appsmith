@@ -65,6 +65,11 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
   ReduxActionTypes.SET_PREVIEW_APP_THEME,
 ];
+// Topics used for datsource and query form evaluations
+export const FORM_EVALUATION_REDUX_ACTIONS = [
+  ReduxActionTypes.INIT_FORM_EVALUATION,
+  ReduxActionTypes.RUN_FORM_EVALUATION,
+];
 export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
   if (
     action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&

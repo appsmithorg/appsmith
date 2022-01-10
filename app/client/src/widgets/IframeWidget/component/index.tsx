@@ -54,8 +54,10 @@ const OverlayDiv = styled.div`
 export interface IframeComponentProps extends ComponentProps {
   renderMode: RenderMode;
   source: string;
+  srcDoc?: string;
   title?: string;
   onURLChanged: (url: string) => void;
+  onSrcDocChanged: (srcDoc?: string) => void;
   onMessageReceived: (message: MessageEvent) => void;
   borderColor?: string;
   borderOpacity?: number;
@@ -70,8 +72,10 @@ function IframeComponent(props: IframeComponentProps) {
     borderOpacity,
     borderWidth,
     onMessageReceived,
+    onSrcDocChanged,
     onURLChanged,
     source,
+    srcDoc,
     title,
     widgetId,
   } = props;
@@ -94,12 +98,25 @@ function IframeComponent(props: IframeComponentProps) {
       return;
     }
     onURLChanged(source);
-    if (!source) {
-      setMessage("Valid source url is required");
-    } else {
+    if (source || srcDoc) {
       setMessage("");
+    } else {
+      setMessage("Valid source URL is required");
     }
   }, [source]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onSrcDocChanged(srcDoc);
+    if (srcDoc || source) {
+      setMessage("");
+    } else {
+      setMessage("At least either of source URL or srcDoc is required");
+    }
+  }, [srcDoc]);
 
   const appMode = useSelector(getAppMode);
   const selectedWidget = useSelector(getWidgetPropsForPropertyPane);
@@ -116,7 +133,13 @@ function IframeComponent(props: IframeComponentProps) {
         <OverlayDiv />
       )}
 
-      {message ? message : <iframe src={source} title={title} />}
+      {message ? (
+        message
+      ) : srcDoc ? (
+        <iframe src={source} srcDoc={srcDoc} title={title} />
+      ) : (
+        <iframe src={source} title={title} />
+      )}
     </IframeContainer>
   );
 }

@@ -856,7 +856,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           configProperty: configProperty,
           encrypted: encrypted,
           label: label,
-          conditionals: "",
+          conditionals: {},
           placeholderText: placeholderText,
           formName: DATASOURCE_REST_API_FORM,
         }}
@@ -868,7 +868,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderDropdownControlViaFormControl(
     configProperty: string,
-    options: { label: string; value: string | boolean }[],
+    options: {
+      label: string;
+      value: string | boolean;
+    }[],
     label: string,
     placeholderText: string,
     isRequired: boolean,
@@ -883,7 +886,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       options: options,
       subtitle: subtitle,
       label: label,
-      conditionals: "",
+      conditionals: {},
       placeholderText: placeholderText,
       formName: DATASOURCE_REST_API_FORM,
     };
@@ -909,7 +912,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       controlType: "KEYVALUE_ARRAY",
       placeholderText: placeholderText,
       label: label,
-      conditionals: "",
+      conditionals: {},
       formName: DATASOURCE_REST_API_FORM,
       isRequired: isRequired,
     };

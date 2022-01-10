@@ -32,8 +32,9 @@ export type GitApplicationMetadata =
       defaultBranchName: string;
       remoteUrl: string;
       repoName: string;
+      browserSupportedUrl?: string;
+      isRepoPrivate?: boolean;
       browserSupportedRemoteUrl: string;
-      isRepoPrivate: boolean;
       defaultApplicationId: string;
     }
   | undefined;

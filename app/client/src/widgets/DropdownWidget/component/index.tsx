@@ -33,6 +33,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  hasError?: boolean;
 }>`
   div {
     flex: 1 1 auto;
@@ -60,8 +61,8 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     border: 1px solid;
     line-height: 30px;
     min-height: 32px;
-    border-color: ${({ isValid }) =>
-      isValid ? Colors.GREY_3 : Colors.DANGER_SOLID};
+    border-color: ${(props) =>
+      props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
     ${(props) =>
       props.isValid
         ? `
@@ -81,6 +82,13 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
 
   & .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
     outline: 0;
+    ${(props) =>
+      !props.hasError
+        ? `
+        border: 1.2px solid ${Colors.GREEN_SOLID};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+      `
+        : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
   }
 
   & .${Classes.DISABLED} {
@@ -164,6 +172,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     & .${Classes.INPUT_GROUP} {
       padding: 0;
       margin: 10px !important;
+      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {
@@ -351,6 +360,7 @@ class DropDownComponent extends React.Component<
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
+            hasError={this.props.hasError}
             isSelected={
               !_.isEmpty(this.props.options) &&
               this.props.selectedIndex !== undefined &&
@@ -462,6 +472,7 @@ export interface DropDownComponentProps extends ComponentProps {
   dropDownWidth: number;
   height: number;
   serverSideFiltering: boolean;
+  hasError?: boolean;
   onFilterChange: (text: string) => void;
   backgroundColor: string;
   borderRadius: string;
