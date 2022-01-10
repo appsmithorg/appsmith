@@ -355,7 +355,6 @@ const createLoadingWidget = (
     validationPaths: {},
     logBlackList: {},
     isLoading: true,
-    overridingProperties: {},
   };
 };
 

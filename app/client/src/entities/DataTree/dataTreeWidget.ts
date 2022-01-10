@@ -52,18 +52,15 @@ export const generateDataTreeWidget = (
     blockedDerivedProps[propertyName] = true;
   });
 
-  Object.keys({ ...defaultProps, ...widgetMetaProps } || {}).forEach(
-    (metaPropertyName) => {
+  Object.entries(defaultProps).forEach(
+    ([metaPropertyName, defaultPropertyName]) => {
       // All meta values need to exist in the tree, so we initialize them if they don't exist
       if (!(metaPropertyName in widget)) {
         unInitializedDefaultProps[metaPropertyName] = undefined;
       }
       // Overriding properties will override the values of a property when evaluated
       overridingProperties[`meta.${metaPropertyName}`] = metaPropertyName;
-      const defaultPropertyName = defaultProps[metaPropertyName];
-      if (defaultPropertyName) {
-        overridingProperties[defaultPropertyName] = metaPropertyName;
-      }
+      overridingProperties[defaultPropertyName] = metaPropertyName;
     },
   );
 
@@ -76,7 +73,6 @@ export const generateDataTreeWidget = (
     ...defaultMetaProps,
     ...unInitializedDefaultProps,
     ..._.keyBy(dynamicBindingPathList, "key"),
-    ...overridingProperties,
   });
   return {
     ...widget,
@@ -90,10 +86,7 @@ export const generateDataTreeWidget = (
       ...widget.logBlackList,
       ...blockedDerivedProps,
     },
-    meta: {
-      ...unInitializedDefaultProps,
-      ...widgetMetaProps,
-    },
+    meta: widgetMetaProps,
     overridingProperties,
     bindingPaths,
     triggerPaths,
