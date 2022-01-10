@@ -22,6 +22,7 @@ import evaluate, {
 } from "workers/evaluate";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
+import { setFormEvaluationSaga } from "./formEval";
 
 const CANVAS = "canvas";
 
@@ -286,6 +287,10 @@ ctx.addEventListener(
         const { version } = requestData;
         self.evaluationVersion = version || 1;
         break;
+      case EVAL_WORKER_ACTIONS.INIT_FORM_EVAL:
+        const { currentEvalState, payload, type } = requestData;
+        const response = setFormEvaluationSaga(type, payload, currentEvalState);
+        return response;
       default: {
         console.error("Action not registered on worker", method);
       }

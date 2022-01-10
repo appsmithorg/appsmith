@@ -147,5 +147,8 @@
   "selectInner": ".t--draggable-dropdownwidget span.t--widget-name, Select1",
   "toastifyError": "//div[@class='Toastify']//span]",
   "dropdownWidget": ".t--draggable-dropdownwidget",
-  "textWidget": ".t--draggable-textwidget"
+  "textWidget": ".t--draggable-textwidget",
+  "filepickerv2": ".t--draggable-filepickerwidgetv2",
+  "dashboardItemName": ".uppy-Dashboard-Item-name",
+  "mapChartShowLabels": ".t--property-control-showlabels input"
 }
