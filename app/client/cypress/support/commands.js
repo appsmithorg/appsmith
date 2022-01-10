@@ -3459,7 +3459,7 @@ Cypress.Commands.add(
       } else {
         cy.wait("@connectGitRepo").then((interception) => {
           const status = interception.response.body.responseMeta.status;
-          expect(status).to.be.above(400);
+          expect(status).to.be.gte(400);
         });
       }
     });
@@ -3554,11 +3554,10 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
       201,
     );
   } else {
-    cy.wait("@commit").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      500,
-    );
+    cy.wait("@connectGitRepo").then((interception) => {
+      const status = interception.response.body.responseMeta.status;
+      expect(status).to.be.gte(400);
+    });
   }
 
   cy.get(gitSyncLocators.closeGitSyncModal).click();
