@@ -83,6 +83,8 @@ export interface DataTreeWidget extends WidgetProps {
   logBlackList: Record<string, true>;
 }
 
+export type AppsmithEntity = DataTreeWidget | DataTreeAction | DataTreeJSAction;
+
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;

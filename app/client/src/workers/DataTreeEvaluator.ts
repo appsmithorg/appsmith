@@ -70,6 +70,11 @@ import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { AppsmithEntity } from "../entities/DataTree/dataTreeFactory";
+import {
+  addDefaultAndMetaDependencyToWidget,
+  addDynamicTriggerDependencyToWidget,
+} from "./DataTreeEvaluator/utils";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -465,19 +470,28 @@ export default class DataTreeEvaluator {
   }
 
   listEntityDependencies(
-    entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
+    entity: AppsmithEntity,
     entityName: string,
   ): DependencyMap {
-    const dependencies: DependencyMap = {};
+    let dependencies: DependencyMap = {};
 
     if (isWidget(entity)) {
-      // Adding the dynamic triggers in the dependency list as they need linting whenever updated
-      // we don't make it dependent on anything else
-      if (entity.dynamicTriggerPathList) {
-        Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
-          dependencies[`${entityName}.${key}`] = [];
-        });
-      }
+      const defaultAndMetaDependencies = addDefaultAndMetaDependencyToWidget({
+        widgetConfigMap: this.widgetConfigMap,
+        entity,
+        entityName,
+      });
+
+      const dynamicTriggerDependencies = addDynamicTriggerDependencyToWidget({
+        entity,
+        entityName,
+      });
+
+      dependencies = {
+        ...dependencies,
+        ...defaultAndMetaDependencies,
+        ...dynamicTriggerDependencies,
+      };
     }
     if (isAction(entity) || isJSAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(

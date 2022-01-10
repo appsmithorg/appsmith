@@ -257,11 +257,6 @@ describe("generateDataTreeWidget", () => {
       defaultProps: {
         text: "defaultText",
       },
-      overridingProperties: {
-        defaultText: "text",
-        "meta.isDirty": "isDirty",
-        "meta.text": "text",
-      },
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);

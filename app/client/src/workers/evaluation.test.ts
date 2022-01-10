@@ -209,7 +209,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
 };
 
 const BASE_WIDGET: DataTreeWidget = {
-  overridingProperties: {},
   logBlackList: {},
   widgetId: "randomID",
   widgetName: "randomWidgetName",

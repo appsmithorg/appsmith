@@ -12,7 +12,6 @@ export const generateDataTreeWidget = (
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};
-  const overridingProperties: Record<string, string> = {};
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
@@ -58,9 +57,6 @@ export const generateDataTreeWidget = (
       if (!(metaPropertyName in widget)) {
         unInitializedDefaultProps[metaPropertyName] = undefined;
       }
-      // Overriding properties will override the values of a property when evaluated
-      overridingProperties[`meta.${metaPropertyName}`] = metaPropertyName;
-      overridingProperties[defaultPropertyName] = metaPropertyName;
     },
   );
 
@@ -87,10 +83,17 @@ export const generateDataTreeWidget = (
       ...blockedDerivedProps,
     },
     meta: widgetMetaProps,
-    overridingProperties,
     bindingPaths,
     triggerPaths,
     validationPaths,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   };
 };
+
+// defaultProps:
+
+// defaultText =
+
+// meta.text = [defaultText]
+
+// text = [meta, defaultText]
