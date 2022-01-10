@@ -78,8 +78,27 @@ type Props = {
   showCommitModal: () => void;
 };
 
+export enum KeyboardKeyType {
+  F2 = "f2",
+}
+
+type KeyboardEventHandler = (e: KeyboardEvent) => void;
+interface KeyboardContextProps {
+  registerKeyDownHandler: (
+    key: KeyboardKeyType,
+    handler: KeyboardEventHandler,
+  ) => void;
+  unregisterKeyDownHandler: (key: KeyboardKeyType) => void;
+}
+
+export const KeyboardContext = React.createContext({} as KeyboardContextProps);
+
 @HotkeysTarget
 class GlobalHotKeys extends React.Component<Props> {
+  handlers: Record<KeyboardKeyType, KeyboardEventHandler | null> = {
+    f2: null,
+  };
+
   public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
     const multipleWidgetsSelected =
       this.props.selectedWidgets && this.props.selectedWidgets.length;
@@ -112,6 +131,29 @@ class GlobalHotKeys extends React.Component<Props> {
       source: "HOTKEY_COMBO",
       category: category.title,
     });
+  }
+
+  public registerKeyDownHandler(
+    key: KeyboardKeyType,
+    handler: KeyboardEventHandler,
+  ) {
+    if (key in handler) {
+      throw new Error(`Keydown handler already exist for key ${key}`);
+    }
+    this.handlers[key] = handler;
+  }
+
+  public unregisterKeyDownHandler(key: KeyboardKeyType) {
+    if (key in this.handlers) {
+      this.handlers[key] = null;
+    }
+  }
+
+  public useKeyDownHandler(key: KeyboardKeyType, e: KeyboardEvent) {
+    const handler = this.handlers[key];
+    if (handler !== null) {
+      handler.call(null, e);
+    }
   }
 
   public renderHotkeys() {
@@ -383,12 +425,27 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.showCommitModal();
           }}
         />
+        <Hotkey
+          combo="f2"
+          global
+          label="Focus widget title"
+          onKeyDown={this.useKeyDownHandler.bind(this, KeyboardKeyType.F2)}
+        />
       </Hotkeys>
     );
   }
 
   render() {
-    return <div>{this.props.children}</div>;
+    return (
+      <KeyboardContext.Provider
+        value={{
+          registerKeyDownHandler: this.registerKeyDownHandler.bind(this),
+          unregisterKeyDownHandler: this.unregisterKeyDownHandler.bind(this),
+        }}
+      >
+        <div>{this.props.children}</div>
+      </KeyboardContext.Provider>
+    );
   }
 }
 

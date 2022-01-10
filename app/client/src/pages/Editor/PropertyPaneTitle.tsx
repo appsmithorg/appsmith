@@ -119,6 +119,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
           placeholder={props.title}
           savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
+          shouldFocusOnF2
           underline
           valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
         />

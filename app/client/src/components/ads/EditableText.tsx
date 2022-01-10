@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useContext } from "react";
 
 import styled from "styled-components";
 import { noop } from "lodash";
@@ -8,6 +8,7 @@ import EditableTextSubComponent, {
   EditInteractionKind,
   SavingState,
 } from "./EditableTextSubComponent";
+import { KeyboardContext, KeyboardKeyType } from "pages/Editor/GlobalHotKeys";
 
 export { EditInteractionKind, SavingState };
 
@@ -27,6 +28,7 @@ export type EditableTextProps = CommonComponentProps & {
   fill?: boolean;
   underline?: boolean;
   isError?: boolean;
+  shouldFocusOnF2?: boolean;
 };
 
 // Width of the component when the `filled` prop is false
@@ -56,6 +58,7 @@ export function EditableText(props: EditableTextProps) {
     isEditingDefault,
     isInvalid: inputValidation,
     savingState: defaultSavingState,
+    shouldFocusOnF2,
     ...others
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -80,6 +83,20 @@ export function EditableText(props: EditableTextProps) {
       setSavingState(SavingState.NOT_STARTED);
     }
   };
+
+  const { registerKeyDownHandler, unregisterKeyDownHandler } = useContext(
+    KeyboardContext,
+  );
+
+  useEffect(() => {
+    if (shouldFocusOnF2) {
+      registerKeyDownHandler(KeyboardKeyType.F2, () => {
+        setIsEditing(true);
+      });
+
+      return () => unregisterKeyDownHandler(KeyboardKeyType.F2);
+    }
+  }, []);
 
   return (
     <EditableTextWrapper
