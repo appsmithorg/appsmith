@@ -42,10 +42,10 @@ function ThemeSelector() {
       );
 
       // we want user to always go to theme editor after selecting a theme
-      const newStack = themingStack.slice(0, -1);
+      let newStack = themingStack.slice(0, -1);
 
       if (newStack.indexOf(AppThemingMode.APP_THEME_EDIT) < 0) {
-        newStack.concat(AppThemingMode.APP_THEME_EDIT);
+        newStack = newStack.concat(AppThemingMode.APP_THEME_EDIT);
       }
 
       dispatch(setAppThemingModeStack(newStack));
