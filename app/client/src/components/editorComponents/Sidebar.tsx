@@ -44,6 +44,7 @@ import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar"
 import Pages from "pages/Editor/Explorer/Pages";
 import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 type Props = {
   width: number;
@@ -196,6 +197,13 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const resizerLeft = useMemo(() => {
     return !pinned && !active ? 0 : props.width;
   }, [pinned, active, props.width]);
+
+  useEffect(() => {
+    dispatch({
+      type: ReduxActionTypes.SET_ENTITY_INFO,
+      payload: { show: false },
+    });
+  }, [resizerLeft, pinned, isPreviewMode]);
 
   return (
     <div
