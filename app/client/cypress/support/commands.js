@@ -48,6 +48,7 @@ export const initLocalstorage = () => {
         finishedStep: 0,
       },
     });
+    store.dropInstance();
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
   });
 };
