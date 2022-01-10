@@ -128,6 +128,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         ) : (
           <Connected />
         )}
+        {/* Render datasource form call-to-actions */}
         {datasource && (
           <DatasourceAuth
             datasource={datasource}

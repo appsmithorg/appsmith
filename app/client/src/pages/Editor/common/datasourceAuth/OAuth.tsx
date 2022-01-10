@@ -97,18 +97,20 @@ function OAuth({
   };
 
   useEffect(() => {
+    // The url contains the "response_status" query parameter when the authorization server redirects the user to the datasource form page.
+    // Get the access token if response_status is successful else show an error
+
     const search = new URLSearchParams(location.search);
     const status = search.get("response_status");
-
     if (status) {
       const display_message = search.get("display_message");
-      // Set default error message
-      let message = OAUTH_AUTHORIZATION_FAILED;
       const variant = Variant.danger;
+
       if (status !== AuthorizationStatus.SUCCESS) {
-        if (status === AuthorizationStatus.APPSMITH_ERROR) {
-          message = OAUTH_AUTHORIZATION_APPSMITH_ERROR;
-        }
+        const message =
+          status === AuthorizationStatus.APPSMITH_ERROR
+            ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
+            : OAUTH_AUTHORIZATION_FAILED;
         Toaster.show({ text: display_message || message, variant });
       } else {
         dispatch(getOAuthAccessToken(datasourceId));
