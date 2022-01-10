@@ -145,7 +145,7 @@ function CircularProgressComponent({
         x={VIEWBOX_CENTER_X}
         y={VIEWBOX_CENTER_Y}
       >
-        {`${(value / maxValue) * 100}%`}
+        {`${Math.round((value / maxValue) * 100)}%`}
       </Label>
     </SvgContainer>
   );
