@@ -762,7 +762,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
                 <Control className="control">
-                  {hasEditPermission && !isMenuOpen && (
+                  {hasEditPermission && !isMenuOpen && !props.isMobile && (
                     <EditButton
                       className="t--application-edit-link"
                       fill
@@ -773,7 +773,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       text="Edit"
                     />
                   )}
-                  {!isMenuOpen && (
+                  {!isMenuOpen && !props.isMobile && (
                     <Button
                       category={Category.tertiary}
                       className="t--application-view-link"
