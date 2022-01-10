@@ -117,6 +117,7 @@ describe("getAllPathsFromPropertyConfig", () => {
 
     const expected = {
       bindingPaths: {
+        cellBackground: EvaluationSubstitutionType.TEMPLATE,
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
         tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -128,6 +129,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        boxShadow: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -165,6 +168,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabel":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.borderRadius":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
@@ -280,6 +286,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: EvaluationSubstitutionType.TEMPLATE,
         animateLoading: EvaluationSubstitutionType.TEMPLATE,
         setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        boxShadow: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onDataPointClick: true,

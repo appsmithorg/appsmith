@@ -96,9 +96,9 @@ export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
       .textColor;
   const isDark = percentageBrightness < 70;
   if (isDark) {
-    return "#fff";
+    return "#FFFFFF";
   }
-  return "#000";
+  return "#000000";
 };
 
 export const getCustomHoverColor = (

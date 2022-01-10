@@ -31,8 +31,9 @@ describe("validate widget utils button style functions", () => {
 
     // background color is light
     const yellowBackground = "#FFC13D";
-    const expected2 = "#333";
+    const expected2 = "#FFFFFF";
     const result2 = getCustomTextColor(theme, yellowBackground);
+
     expect(result2).toStrictEqual(expected2);
   });
 
@@ -87,6 +88,7 @@ describe("validate widget utils button style functions", () => {
       ButtonVariantTypes.PRIMARY,
       backgroundColor,
     );
+
     expect(result1).toStrictEqual(expected1);
 
     // variant : PRIMARY without background
@@ -95,12 +97,13 @@ describe("validate widget utils button style functions", () => {
     expect(result2).toStrictEqual(expected2);
 
     // variant : SECONDARY
-    const expected3 = "#85fdc8";
+    const expected3 = "#ffffff";
     const result3 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.SECONDARY,
       backgroundColor,
     );
+
     expect(result3).toStrictEqual(expected3);
 
     // variant : SECONDARY without background
@@ -109,7 +112,7 @@ describe("validate widget utils button style functions", () => {
     expect(result4).toStrictEqual(expected4);
 
     // variant : TERTIARY
-    const expected5 = "#85fdc8";
+    const expected5 = "#ffffff";
     const result5 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.TERTIARY,
