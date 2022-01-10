@@ -1,4 +1,4 @@
-const homePage = require("../../../locators/HomePage.json");
+import homePage from "../../../locators/HomePage";
 const dsl = require("../../../fixtures/forkedApp.json");
 
 describe("Import, Export and Fork application and validate data binding", function() {
