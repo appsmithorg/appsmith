@@ -13,16 +13,37 @@ export class ApiPage {
     private _apiRunBtn = ".t--apiFormRunBtn"
     private _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']"
     private _apiTab = (tabValue: string) => "span:contains('" + tabValue + "')"
+    _responseBody = ".CodeMirror-code  span.cm-string.cm-property"
 
-    CreateAPI(apiname: string) {
+
+    CreateAndFillApi(url: string, apiname: string = "", queryTimeout = 30000) {
+        agHelper.NavigateToCreateNewTabPage()
         cy.get(this._createapi).click({ force: true });
-        cy.wait("@createNewApi");
+        cy.wait("@createNewApi").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            201,
+        );
+        // cy.get("@createNewApi").then((response: any) => {
+        //     expect(response.response.body.responseMeta.success).to.eq(true);
+        //     cy.get(agHelper._actionName)
+        //         .click()
+        //         .invoke("text")
+        //         .then((text) => {
+        //             const someText = text;
+        //             expect(someText).to.equal(response.response.body.data.name);
+        //         });
+        // }); // to check if Api1 = Api1 when Create Api invoked
+        if (apiname)
+            agHelper.RenameWithInPane(apiname)
         cy.get(this._resourceUrl).should("be.visible");
-        agHelper.RenameWithInPane(apiname)
+        this.EnterURL(url)
         agHelper.WaitAutoSave()
         // Added because api name edit takes some time to
         // reflect in api sidebar after the call passes.
-        cy.wait(2000);
+        agHelper.Sleep(2000);
+        cy.get(this._apiRunBtn).should("not.be.disabled");
+        this.SetAPITimeout(queryTimeout)
     }
 
     EnterURL(url: string) {
@@ -34,6 +55,7 @@ export class ApiPage {
     }
 
     EnterHeader(hKey: string, hValue: string) {
+        cy.get(this._apiTab('Header')).should('be.visible').click();
         cy.get(this._headerKey(0))
             .first()
             .click({ force: true })
@@ -83,7 +105,20 @@ export class ApiPage {
             .should("be.visible")
             .click({ force: true });
 
-        agHelper.validateCodeEditorContent(this._paramKey(0), param.key)
-        agHelper.validateCodeEditorContent(this._paramValue(0), param.value)
+        agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)
+        agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value)
+    }
+
+    ReadApiResponsebyKey(key: string) {
+         let apiResp: string = "";
+         cy.get(this._responseBody)
+             .contains(key)
+             .siblings("span")
+             .invoke("text")
+             .then((text) => {
+                 apiResp = `${text.match(/"(.*)"/)![0].split('"').join("") } `;
+                 cy.log("Key value in api response is :" + apiResp);
+                 cy.wrap(apiResp).as("apiResp")
+             });
     }
 }
