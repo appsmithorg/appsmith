@@ -66,14 +66,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  const currentEditorConfig: any[] = yield select(
-    getEditorConfig,
-    action.datasource.pluginId,
-  );
-  const currentSettingConfig: any[] = yield select(
-    getSettingConfig,
-    action.datasource.pluginId,
-  );
+  // fetching pluginId and the consequent configs from the action
+  const pluginId = action.pluginId;
+  const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
+  const currentSettingConfig: any[] = yield select(getSettingConfig, pluginId);
 
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane
