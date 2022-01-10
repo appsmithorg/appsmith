@@ -16,7 +16,7 @@ import {
   ADMIN_SETTINGS,
   DOCUMENTATION,
 } from "constants/messages";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
 
 type MobileSideBarProps = {
