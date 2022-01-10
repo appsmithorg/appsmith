@@ -250,8 +250,8 @@ function ConnectGitPlaceholder() {
             <Button
               category={Category.tertiary}
               onClick={() => {
-                AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
-                  source: "Buttom bar connect to git button",
+                AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+                  source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
                 dispatch(showConnectGitModal());
               }}
@@ -291,6 +291,9 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.DEPLOY,
         }),
       );
+      AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
+        source: "BOTTOM_BAR_GIT_COMMIT_BUTTON",
+      });
     },
     connect: () => {
       dispatch(
@@ -299,12 +302,20 @@ export default function QuickGitActions() {
           tab: GitSyncModalTab.GIT_CONNECTION,
         }),
       );
-      AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
-        source: "Buttom bar connect to git button(from setting menu)",
+      AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+        source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });
     },
-    pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
+    pull: () => {
+      AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
+        source: "BOTTOM_BAR_GIT_PULL_BUTTON",
+      });
+      dispatch(gitPullInit({ triggeredFromBottomBar: true }));
+    },
     merge: () => {
+      AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
+        source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
+      });
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,

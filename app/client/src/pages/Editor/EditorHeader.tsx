@@ -291,7 +291,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     (fromDeploy?: boolean) => {
       if (getFeatureFlags().GIT && isGitConnected) {
         dispatch(showConnectGitModal());
-        AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+        AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
             ? "Deploy button"
             : "Application name menu (top left)",

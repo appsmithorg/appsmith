@@ -234,7 +234,9 @@ export const EntityName = forwardRef(
             position={Position.TOP_LEFT}
           >
             <Wrapper
-              className={props.className}
+              className={`${
+                props.className ? props.className : ""
+              } ContextMenu`}
               data-guided-tour-iid={name}
               onDoubleClick={props.enterEditMode}
               ref={targetRef}

@@ -178,7 +178,7 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.wait("@mockPostInvite")
     .its("request.headers")
     .should("have.property", "origin", "Cypress");
-  cy.contains(email);
+  cy.contains(email, { matchCase: false });
 });
 
 Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
@@ -207,7 +207,7 @@ Cypress.Commands.add("shareApp", (email, role) => {
   cy.wait("@mockPostInvite")
     .its("request.headers")
     .should("have.property", "origin", "Cypress");
-  cy.contains(email);
+  cy.contains(email, { matchCase: false });
   cy.get(homePage.closeBtn).click();
 });
 
@@ -222,7 +222,7 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
   cy.wait("@mockPostInvite")
     .its("request.headers")
     .should("have.property", "origin", "Cypress");
-  cy.contains(email);
+  cy.contains(email, { matchCase: false });
   cy.enablePublicAccess();
 });
 
@@ -278,7 +278,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getRoles").should(
+  cy.wait("@getMembers").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -293,7 +293,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.wait("@mockPostInvite")
     .its("request.headers")
     .should("have.property", "origin", "Cypress");
-  cy.contains(email);
+  cy.contains(email, { matchCase: false });
   cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
     .first()
@@ -2749,7 +2749,7 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
-    cy.expect(response.response.body.responseMeta.success).to.eq(true);
+    expect(response.response.body.responseMeta.success).to.eq(true);
     cy.get(ApiEditor.ApiNameField)
       .click()
       .invoke("text")
@@ -2944,6 +2944,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
 
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
+  cy.intercept("GET", "/api/v1/organizations/*/members").as("getMembers");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -3097,7 +3098,7 @@ Cypress.Commands.add("callApi", (apiname) => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess, { timeout: 20000 }).should("exist");
+  cy.get(commonlocators.saveStatusSuccess, { timeout: 40000 }).should("exist");
 });
 
 Cypress.Commands.add(
@@ -3153,6 +3154,22 @@ Cypress.Commands.add("createAmazonS3Datasource", () => {
   cy.get(datasourceEditor.AmazonS3).click();
   cy.fillAmazonS3DatasourceForm();
   cy.testSaveDatasource();
+});
+
+Cypress.Commands.add("updateMapType", (mapType) => {
+  // Command to change the map chart type if the property pane of the map chart widget is opened.
+  cy.get(viewWidgetsPage.mapType)
+    .last()
+    .click({ force: true });
+  cy.get(commonlocators.dropdownmenu)
+    .children()
+    .contains(mapType)
+    .click({ force: true });
+
+  cy.get(viewWidgetsPage.mapType + " span.cs-text").should(
+    "have.text",
+    mapType,
+  );
 });
 
 Cypress.Commands.add("createJSObject", (JSCode) => {
@@ -3428,6 +3445,7 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
 Cypress.Commands.add(
   "actionContextMenuByEntityName",
   (entityNameinLeftSidebar, action = "Delete") => {
+    cy.wait(2000);
     cy.xpath(
       "//div[text()='" +
         entityNameinLeftSidebar +

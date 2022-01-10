@@ -3,7 +3,7 @@ import {
   Page,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
@@ -14,7 +14,7 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "../constants/messages";
 import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";

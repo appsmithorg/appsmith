@@ -3,11 +3,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
-import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +31,12 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           GitExecutor gitExecutor,
                           ResponseUtils responseUtils,
                           EmailConfig emailConfig,
-                          CommonConfig commonConfig,
-                          ConfigService configService,
-                          CloudServicesConfig cloudServicesConfig,
-                          AnalyticsService analyticsService) {
-        super(userService, userDataService, sessionUserService, applicationService, applicationPageService, newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService, gitExecutor, responseUtils, emailConfig, commonConfig, configService, cloudServicesConfig, analyticsService);
+                          AnalyticsService analyticsService,
+                          GitCloudServicesUtils gitCloudServicesUtils,
+                          GitDeployKeysRepository gitDeployKeysRepository) {
+
+        super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
+                newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
+                gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository);
     }
 }
