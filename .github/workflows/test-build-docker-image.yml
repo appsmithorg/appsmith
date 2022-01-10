@@ -196,6 +196,7 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \

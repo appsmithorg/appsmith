@@ -11542,6 +11542,11 @@ node-forge@^0.10.0:
   version "0.10.0"
   resolved "https://registry.npmjs.org/node-forge/-/node-forge-0.10.0.tgz"
 
+node-forge@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.1.0.tgz#53e61b039eea78b442a4e13f9439dbd61b5cd3a8"
+  integrity sha512-HeZMFB41cirRysIhIFFgORmR51/qhkjRTXXIH9QiwS3AjF9L9Kre9XvOnyE7NMubOSHDuN0GsrFpnqhlJcNWTA==
+
 node-gyp@^7.1.0:
   version "7.1.2"
   resolved "https://registry.npmjs.org/node-gyp/-/node-gyp-7.1.2.tgz"
