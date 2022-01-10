@@ -513,6 +513,7 @@ public class GitExecutorImpl implements GitExecutor {
             try (Git git = Git.open(repoPath.toFile())) {
                 log.debug(Thread.currentThread().getName() + ": fetch remote repo " + git.getRepository());
                 return git.fetch()
+                        .setRemoveDeletedRefs(true)
                         .setTransportConfigCallback(config)
                         .call()
                         .getMessages();
