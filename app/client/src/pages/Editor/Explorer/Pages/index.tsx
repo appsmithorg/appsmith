@@ -162,7 +162,6 @@ function Pages() {
       addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
       alwaysShowRightIcon
       className="group pages"
-      disabled
       entityId="Pages"
       icon={""}
       isDefaultExpanded
