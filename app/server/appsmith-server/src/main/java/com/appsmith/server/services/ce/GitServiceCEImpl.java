@@ -44,7 +44,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -1949,7 +1948,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<Application> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO) {
+    public Mono<Application> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
         // 1. Check count limit for repo
         // 2. create application, Then clone application
         // 3. On clone and do import
@@ -1961,7 +1960,7 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
-        if (StringUtils.isEmptyOrNull(organisationId)) {
+        if (StringUtils.isEmptyOrNull(organizationId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
@@ -1971,7 +1970,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                 //Check the limit for number of private repo
                 .flatMap(gitAuth -> {
                     // Check if the repo is public
-                    Mono<Application> applicationMono = applicationPageService.createApplication(new Application(), organisationId);
+                    Application newApplication = new Application();
+                    newApplication.setName(GitUtils.getRepoName(gitConnectDTO.getRemoteUrl()));
+                    Mono<Application> applicationMono = applicationPageService.createApplication(newApplication, organizationId);
                     try {
                         if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
                             return Mono.just(gitAuth).zipWith(applicationMono);
@@ -1979,15 +1980,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                     } catch (IOException e) {
                         log.debug("Error while checking if the repo is private: ", e);
                     }
-                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(organisationId, true)
+                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(organizationId, true)
                             .flatMap(limitCount -> {
                                 // get git connected apps count from db
-                                return applicationService.getGitConnectedApplicationCount(organisationId)
+                                return applicationService.getGitConnectedApplicationCount(organizationId)
                                         .flatMap(count -> {
                                             if (limitCount <= count) {
                                                 return addAnalyticsForGitOperation(
                                                         AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                                        organisationId,
+                                                        organizationId,
                                                         "",
                                                         "",
                                                         AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getTitle(),
@@ -2003,7 +2004,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Application application = tuple.getT2();
                     GitAuth gitAuth = tuple.getT1();
 
-                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                    if (Optional.ofNullable(gitAuth).isEmpty()) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     } else {
                         String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
@@ -2016,7 +2017,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         ).onErrorResume(error -> {
                             log.error("Error while cloning the remote repo, {}", error.getMessage());
                             Mono<Application> deleteApplicationMono = detachRemote(application.getId())
-                                    .then(applicationPageService.deleteApplicationByResource(application));
+                                    .then(applicationPageService.deleteApplication(application.getId()));
                             if (error instanceof TransportException) {
                                 return addAnalyticsForGitOperation(
                                         AnalyticsEvents.GIT_IMPORT.getEventName(),
@@ -2041,13 +2042,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 ).flatMap(user -> deleteApplicationMono
                                         .then(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"))));
                             }
-                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                            return deleteApplicationMono
+                                    .then(Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT)));
                         });
 
                         return defaultBranchMono
                                 .flatMap(defaultBranch -> {
                                     GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                                    gitApplicationMetadata.setGitAuth(gitAuth);
+                                    GitAuth gitAuth1 = new GitAuth();
+                                    gitAuth1.setPrivateKey(gitAuth.getPrivateKey());
+                                    gitAuth1.setPublicKey(gitAuth.getPublicKey());
+                                    gitAuth1.setDocUrl(gitAuth.getDocUrl());
+
+                                    gitApplicationMetadata.setGitAuth(gitAuth1);
                                     gitApplicationMetadata.setDefaultApplicationId(application.getId());
                                     gitApplicationMetadata.setBranchName(defaultBranch);
                                     gitApplicationMetadata.setDefaultBranchName(defaultBranch);
@@ -2065,25 +2072,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         log.debug("Error while checking if the repo is private: ", e);
                                     }
                                     application.setGitApplicationMetadata(gitApplicationMetadata);
-                                    return Mono.zip(
-                                            applicationService.save(application),
-                                            defaultBranchMono,
-                                            Mono.just(repoName),
-                                            Mono.just(repoPath)
-                                    );
+                                    // Set branchName for each application resource
+                                    return importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                                            .flatMap(applicationJson -> {
+                                                applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                                return importExportApplicationService
+                                                        .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch);
+                                            });
                                 });
                     }
-                })
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    String defaultBranch = tuple.getT2();
-
-                    return importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
-                            .flatMap(applicationJson -> {
-                                applicationJson.getExportedApplication().setGitApplicationMetadata(application.getGitApplicationMetadata());
-                                return importExportApplicationService
-                                        .importApplicationInOrganization(organisationId, applicationJson, application.getId(), defaultBranch);
-                            });
                 });
 
         return Mono.create(sink -> importedApplicationMono
