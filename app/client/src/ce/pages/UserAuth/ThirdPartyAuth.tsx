@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {
   getSocialLoginButtonProps,
   SocialLoginType,
-} from "constants/SocialLogin";
+} from "@appsmith/constants/SocialLogin";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
@@ -23,13 +23,9 @@ const StyledSocialLoginButton = styled.a`
   align-items: center;
   justify-content: center;
   border: solid 1px ${(props) => props.theme.colors.auth.socialBtnBorder};
-  padding: ${(props) => props.theme.spaces[2]}px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
 
-  &:first-child {
-    margin-bottom: ${(props) => props.theme.spaces[4]}px;
-  }
-
-  &:only-child {
+  &:only-child, &:last-child {
     margin-bottom: 0;
   }
 
@@ -47,8 +43,7 @@ const StyledSocialLoginButton = styled.a`
 
 const ButtonLogo = styled.img`
   margin: ${(props) => props.theme.spaces[2]}px;
-  width: 14px;
-  height: 14px;
+  width: 24px;
 `;
 
 export const SocialLoginTypes = {
@@ -62,6 +57,7 @@ function SocialLoginButton(props: {
   logo: string;
   name: string;
   url: string;
+  label?: string;
   type: SignInType;
 }) {
   const location = useLocation();
@@ -95,7 +91,9 @@ function SocialLoginButton(props: {
       }}
     >
       <ButtonLogo alt={` ${props.name} login`} src={props.logo} />
-      <div className="login-method">{`continue with ${props.name}`}</div>
+      <div className="login-method">
+        {props.label ?? `continue with ${props.name}`}
+      </div>
     </StyledSocialLoginButton>
   );
 }
