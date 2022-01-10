@@ -438,6 +438,14 @@ export const JS_EXECUTION_FAILURE_TOASTER = () =>
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+export const IMPORT_APPLICATION_MODAL_LABEL = () =>
+  "Where would you like to import your application from?";
+export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const IMPORT_APP_FROM_GIT_TITLE = () => "Import for Github";
+export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
+  "Drag and drop your file or upload from your computer";
+export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
+  "Use SSH link from your repository to import application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;

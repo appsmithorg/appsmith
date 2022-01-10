@@ -56,7 +56,7 @@ const ComponentsByTab = {
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
 
-function GitSyncModal() {
+function GitSyncModal(props: { isImport?: boolean }) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
@@ -128,7 +128,12 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent />
+            {activeTabIndex === GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent isImport={props.isImport} />
+            )}
+            {activeTabIndex !== GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent />
+            )}
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon

@@ -52,6 +52,7 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
+  setIsImportAppModalOpen,
   updateApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
@@ -98,6 +99,7 @@ import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -570,10 +572,6 @@ function ApplicationsSection(props: any) {
   };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
-  const [
-    selectedOrgIdForImportApplication,
-    setSelectedOrgIdForImportApplication,
-  ] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
   const leaveOrg = (orgId: string) => {
@@ -685,15 +683,7 @@ function ApplicationsSection(props: any) {
                   orgName: organization.name,
                   orgSlug: organization.slug,
                 })}
-              {selectedOrgIdForImportApplication && (
-                <ImportApplicationModal
-                  isModalOpen={
-                    selectedOrgIdForImportApplication === organization.id
-                  }
-                  onClose={() => setSelectedOrgIdForImportApplication("")}
-                  organizationId={selectedOrgIdForImportApplication}
-                />
-              )}
+              <ImportApplicationModal />
               {hasManageOrgPermissions && (
                 <Dialog
                   canEscapeKeyClose={false}
@@ -827,8 +817,11 @@ function ApplicationsSection(props: any) {
                                 cypressSelector="t--org-import-app"
                                 icon="upload"
                                 onSelect={() =>
-                                  setSelectedOrgIdForImportApplication(
-                                    organization.id,
+                                  dispatch(
+                                    setIsImportAppModalOpen({
+                                      isOpen: true,
+                                      organizationId: organization.id,
+                                    }),
                                   )
                                 }
                                 text="Import Application"
@@ -965,7 +958,7 @@ function ApplicationsSection(props: any) {
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       <WelcomeHelper />
-      {getFeatureFlags().GIT_IMPORT && <ImportAppViaGitModal />}
+      {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
     </ApplicationContainer>
   );
 }

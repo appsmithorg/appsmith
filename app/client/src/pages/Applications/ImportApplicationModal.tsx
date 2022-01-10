@@ -6,15 +6,29 @@ import { useSelector } from "store";
 import { AppState } from "reducers";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
-import { importApplication } from "actions/applicationActions";
+import {
+  // importApplication,
+  setIsImportAppModalOpen,
+} from "actions/applicationActions";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { IMPORT_APPLICATION_MODAL_TITLE } from "constants/messages";
+import {
+  createMessage,
+  IMPORT_APPLICATION_MODAL_LABEL,
+  IMPORT_APPLICATION_MODAL_TITLE,
+  IMPORT_APP_FROM_FILE_MESSAGE,
+  IMPORT_APP_FROM_FILE_TITLE,
+  IMPORT_APP_FROM_GIT_MESSAGE,
+  IMPORT_APP_FROM_GIT_TITLE,
+} from "constants/messages";
 import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
 import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
+import { getIsImportAppModalOpen } from "selectors/applicationSelectors";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
 
 const ImportButton = styled(Button)<{ disabled?: boolean }>`
   height: 30px;
@@ -54,6 +68,7 @@ const CardWrapper = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
+  cursor: pointer;
   &:hover {
     background: ${Colors.MERCURY};
   }
@@ -73,6 +88,33 @@ const CardWrapper = styled.div`
   }
 `;
 
+function ImportCard(props: {
+  icon: IconName;
+  title: string;
+  message: string;
+  handler?: () => void;
+}) {
+  const theme = useTheme() as Theme;
+  const onClick = useCallback(() => {
+    props.handler && props.handler();
+  }, []);
+  return (
+    <CardWrapper onClick={onClick}>
+      <Icon fillColor={Colors.GREY_7} name={props.icon} size={IconSize.XL} />
+      <Text
+        color={Colors.OXFORD_BLUE}
+        style={{ marginBottom: theme.spaces[4] }}
+        type={TextType.P1}
+      >
+        {props.title}
+      </Text>
+      <Text color={Colors.GREY_6} type={TextType.P1}>
+        {props.message}
+      </Text>
+    </CardWrapper>
+  );
+}
+
 type ImportApplicationModalProps = {
   // import?: (file: any) => void;
   organizationId?: string;
@@ -81,51 +123,65 @@ type ImportApplicationModalProps = {
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { isModalOpen, onClose, organizationId } = props;
-  const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
-    file: File;
-    setProgress: SetProgress;
-  } | null>(null);
+  const isOpen = useSelector(getIsImportAppModalOpen);
+  // const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
+  //   file: File;
+  //   setProgress: SetProgress;
+  // } | null>(null);
+
   const dispatch = useDispatch();
+  const onClose = useCallback(() => {
+    dispatch(setIsImportAppModalOpen({ isOpen: false }));
+  }, []);
 
-  const importingApplication = useSelector(
-    (state: AppState) => state.ui.applications.importingApplication,
-  );
-
-  const FileUploader = useCallback(
-    async (file: File, setProgress: SetProgress) => {
-      if (!!file) {
-        setAppFileToBeUploaded({
-          file,
-          setProgress,
-        });
-      } else {
-        setAppFileToBeUploaded(null);
-      }
-    },
-    [],
-  );
-
-  const onImportApplication = useCallback(() => {
-    if (!appFileToBeUploaded) {
-      Toaster.show({
-        text: "Please choose a valid application file!",
-        variant: Variant.danger,
-      });
-      return;
-    }
-    const { file } = appFileToBeUploaded || {};
-
+  const onGitImport = useCallback(() => {
+    dispatch(setIsImportAppModalOpen({ isOpen: false }));
     dispatch(
-      importApplication({
-        orgId: organizationId as string,
-        applicationFile: file,
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
-  }, [appFileToBeUploaded, organizationId]);
+    // dispatch(setIsImportAppViaGitModalOpen({ isOpen: true }));
+  }, []);
 
-  const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
-  const theme = useTheme() as Theme;
+  // const importingApplication = useSelector(
+  //   (state: AppState) => state.ui.applications.importingApplication,
+  // );
+
+  // const FileUploader = useCallback(
+  //   async (file: File, setProgress: SetProgress) => {
+  //     if (!!file) {
+  //       setAppFileToBeUploaded({
+  //         file,
+  //         setProgress,
+  //       });
+  //     } else {
+  //       setAppFileToBeUploaded(null);
+  //     }
+  //   },
+  //   [],
+  // );
+
+  // const onImportApplication = useCallback(() => {
+  //   if (!appFileToBeUploaded) {
+  //     Toaster.show({
+  //       text: "Please choose a valid application file!",
+  //       variant: Variant.danger,
+  //     });
+  //     return;
+  //   }
+  //   const { file } = appFileToBeUploaded || {};
+
+  //   dispatch(
+  //     importApplication({
+  //       orgId: organizationId as string,
+  //       applicationFile: file,
+  //     }),
+  //   );
+  // }, [appFileToBeUploaded, organizationId]);
+
+  // const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
   return (
     <StyledDialog
       canOutsideClickClose
@@ -134,44 +190,29 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         name: "right-arrow",
         bgColor: Colors.GEYSER_LIGHT,
       }}
-      isOpen={isModalOpen}
+      isOpen={isOpen}
       maxHeight={"540px"}
       setModalClose={onClose}
-      title={IMPORT_APPLICATION_MODAL_TITLE()}
+      title={createMessage(IMPORT_APPLICATION_MODAL_TITLE)}
       width="710px"
     >
       <TextWrapper>
         <Text type={TextType.P1}>
-          Where would you like to import your application from?
+          {createMessage(IMPORT_APPLICATION_MODAL_LABEL)}
         </Text>
       </TextWrapper>
       <Row>
-        <CardWrapper>
-          <Icon name="file-line" size={IconSize.XL} />
-          <Text
-            color={Colors.OXFORD_BLUE}
-            style={{ marginBottom: theme.spaces[4] }}
-            type={TextType.P1}
-          >
-            Import from file
-          </Text>
-          <Text color={Colors.GREY_6} type={TextType.P1}>
-            Drag and drop your file or upload from your computer
-          </Text>
-        </CardWrapper>
-        <CardWrapper>
-          <Icon name="fork" size={IconSize.XL} />
-          <Text
-            color={Colors.OXFORD_BLUE}
-            style={{ marginBottom: theme.spaces[4] }}
-            type={TextType.P1}
-          >
-            Import for Github
-          </Text>
-          <Text color={Colors.GREY_6} type={TextType.P1}>
-            Use SSH link from your repository to import application
-          </Text>
-        </CardWrapper>
+        <ImportCard
+          icon="file-line"
+          message={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
+          title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
+        />
+        <ImportCard
+          handler={onGitImport}
+          icon="fork"
+          message={createMessage(IMPORT_APP_FROM_GIT_MESSAGE)}
+          title={createMessage(IMPORT_APP_FROM_GIT_TITLE)}
+        />
       </Row>
       {/* <ButtonWrapper>
         <ImportButton

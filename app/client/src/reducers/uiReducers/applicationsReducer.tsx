@@ -33,6 +33,8 @@ const initialState: ApplicationsReduxState = {
   importingApplication: false,
   importedApplication: null,
   showAppInviteUsersDialog: false,
+  isImportAppModalOpen: false,
+  organisationIdForImport: null,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -272,6 +274,15 @@ const applicationsReducer = createReducer(initialState, {
       importingApplication: false,
     };
   },
+  [ReduxActionTypes.SET_IS_IMPORT_APP_MODAL_OPEN]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ isOpen: boolean; organizationId: string }>,
+  ) => ({
+    ...state,
+    isImportAppModalOpen: action.payload.isOpen,
+    organisationIdForImport:
+      action.payload.organizationId || state.organisationIdForImport,
+  }),
   [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -469,6 +480,8 @@ export interface ApplicationsReduxState {
   importingApplication: boolean;
   importedApplication: any;
   showAppInviteUsersDialog: boolean;
+  isImportAppModalOpen: boolean;
+  organisationIdForImport: any;
 }
 
 export interface Application {

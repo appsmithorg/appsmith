@@ -159,3 +159,9 @@ export const getIsSavingOrgInfo = (state: AppState) =>
 
 export const showAppInviteUsersDialogSelector = (state: AppState) =>
   state.ui.applications.showAppInviteUsersDialog;
+
+export const getIsImportAppModalOpen = (state: AppState) =>
+  state.ui.applications.isImportAppModalOpen;
+
+export const getOrgIdForImport = (state: AppState) =>
+  state.ui.applications.organisationIdForImport;
