@@ -927,13 +927,21 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 Boolean isCandidateForPageLoad = TRUE;
 
                 /**
-                 * Add it for page load if:
-                 *  o it is not a function call i.e. the data of this call is being referred to in the binding.
-                 *  o or if it has been explicitly set to run on page load by the user (even if its data is not
+                 * Add action for page load if:
+                 *  o it has been explicitly set to run on page load by the user (even if its data is not
                  *  referenced in any widget or action)
+                 *  o or, it is not a function call i.e. the data of this call is being referred to in the binding.
                  */
-                String validBinding = entity + "." + "data";
-                if (!vertex.contains(validBinding) && !explicitUserSetOnLoadActions.contains(entity)) {
+
+                String validBinding;
+                if (explicitUserSetOnLoadActions.contains(entity)) {
+                    validBinding = entity + "." + "actionConfiguration";
+                }
+                else {
+                    validBinding = entity + "." + "data";
+                }
+
+                if (!vertex.contains(validBinding)) {
                     isCandidateForPageLoad = FALSE;
                 }
 
