@@ -325,7 +325,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       this.props.markers.length > 0 &&
       JSON.stringify(prevProps.markers) !== JSON.stringify(this.props.markers)
     ) {
-      this.props.updateWidgetMetaProperty("center", this.props.markers[0]);
+      this.props.updateWidgetMetaProperty(
+        "center",
+        this.props.markers[this.props.markers.length - 1],
+      );
     }
   }
 
