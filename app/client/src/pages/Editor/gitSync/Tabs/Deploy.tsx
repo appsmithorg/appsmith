@@ -54,6 +54,7 @@ import ConflictInfo from "../components/ConflictInfo";
 import Icon, { IconSize } from "components/ads/Icon";
 
 import { isMac } from "utils/helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -223,6 +224,12 @@ function Deploy() {
               </Text>
               <Link
                 link={DOCS_BASE_URL}
+                onClick={() => {
+                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                    source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
+                  });
+                  window.open(DOCS_BASE_URL, "_blank");
+                }}
                 text={createMessage(READ_DOCUMENTATION)}
               />
             </div>

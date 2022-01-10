@@ -14,7 +14,7 @@ import {
   SpacedSubmitForm,
   FormActions,
   SignUpLinkSection,
-} from "./StyledComponents";
+} from "pages/UserAuth/StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
   SIGNUP_PAGE_EMAIL_INPUT_LABEL,
@@ -32,15 +32,16 @@ import {
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
-import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
+import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
+import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import Button, { Size } from "components/ads/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
-import { SignupFormValues } from "./helpers";
+import { SignupFormValues } from "pages/UserAuth/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
+import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import PerformanceTracker, {
@@ -49,13 +50,8 @@ import PerformanceTracker, {
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-
-const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
-const SocialLoginList: string[] = [];
-if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
-if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -98,7 +94,7 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-
+  const socialLoginList = ThirdPartyLoginRegistry.get();
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
 
@@ -140,8 +136,8 @@ export function SignUp(props: SignUpFormProps) {
           {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
         </AuthCardNavLink>
       </SignUpLinkSection>
-      {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
+      {socialLoginList.length > 0 && (
+        <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
       <SpacedSubmitForm
         action={signupURL}

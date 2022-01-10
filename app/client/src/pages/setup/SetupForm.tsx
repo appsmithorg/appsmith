@@ -18,7 +18,7 @@ import {
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
 import { AppState } from "reducers";
-import { SUPER_USER_SUBMIT_PATH } from "constants/ApiConstants";
+import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
 
 const PageWrapper = styled.div`

@@ -97,7 +97,7 @@ import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -838,14 +838,17 @@ function ApplicationsSection(props: any) {
                               <MenuItem
                                 cypressSelector="t--org-import-app-git"
                                 icon="upload"
-                                onSelect={() =>
+                                onSelect={() => {
+                                  AnalyticsUtil.logEvent(
+                                    "GS_IMPORT_VIA_GIT_CLICK",
+                                  );
                                   dispatch(
                                     setIsImportAppViaGitModalOpen({
                                       isOpen: true,
                                       organizationId: organization.id,
                                     }),
-                                  )
-                                }
+                                  );
+                                }}
                                 text="Import Via GIT"
                               />
                             )}
