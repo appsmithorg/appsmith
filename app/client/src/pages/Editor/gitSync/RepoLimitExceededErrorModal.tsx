@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
 import {
@@ -26,6 +26,7 @@ import {
   REPOSITORY_LIMIT_REACHED_INFO,
   DISCONNECT_EXISTING_REPOSITORIES,
   DISCONNECT_EXISTING_REPOSITORIES_INFO,
+  CONTACT_SALES_MESSAGE_ON_INTERCOM,
 } from "constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
@@ -87,12 +88,14 @@ function RepoLimitExceededErrorModal() {
   const application = useSelector(getCurrentApplication);
   const userOrgs = useSelector(getUserApplicationsOrgs);
   const repoLimitDocumentUrl = useSelector(getRepoLimitedDocUrl);
+  const [orgName, setOrgName] = useState("");
   const applications = useMemo(() => {
     if (userOrgs) {
       const org: any = userOrgs.find((organizationObject: any) => {
         const { organization } = organizationObject;
         return organization.id === application?.organizationId;
       });
+      setOrgName(org?.organization.name || "");
       return (
         org?.applications.filter((application: ApplicationPayload) => {
           return (
@@ -135,7 +138,10 @@ function RepoLimitExceededErrorModal() {
 
   const openIntercom = () => {
     if (window.Intercom) {
-      window.Intercom("showNewMessage", "myCustomMessage");
+      window.Intercom(
+        "showNewMessage",
+        createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, orgName),
+      );
     }
   };
 
