@@ -42,10 +42,11 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(`.t--entity.action:contains(Query1)`)
-        .scrollIntoView({ force: true })
-        .find(explorer.collapse)
-        .click({ force: true });
+      cy.get(".t--entity.action:contains(Query1)")
+        .contains("Table1Copy")
+        .trigger("mouseover");
+      cy.hoverAndClickParticularIndex(1);
+      cy.selectAction("Show Bindings");
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(5);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -68,10 +69,12 @@ describe("Entity explorer tests related to copy query", function() {
     cy.copyEntityToPage(pageid);
     cy.SearchEntityandOpen("Query1");
     cy.runQuery();
-    cy.get(`.t--entity.action:contains(Query1)`).should("have.length", 2);
-    cy.get(`.t--entity.action:contains(Query1)`)
-      .find(explorer.collapse)
-      .click({ multiple: true });
+    //cy.get(`.t--entity.action:contains(Query1)`).should("have.length", 2);
+    cy.get(".t--entity.action:contains(Query1)")
+      .contains("Table1Copy")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
+    cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1.data}}");

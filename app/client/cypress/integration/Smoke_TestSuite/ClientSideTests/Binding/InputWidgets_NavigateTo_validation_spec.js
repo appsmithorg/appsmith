@@ -36,7 +36,13 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   });
 
   it("Validate NavigateTo Page functionality ", function() {
-    cy.SearchEntityandOpen("Table1");
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.selectEntityByName("WIDGETS");
+    cy.get(`.t--entity-name:contains("Table1")`)
+      .should("be.visible")
+      .click({ force: true });
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
