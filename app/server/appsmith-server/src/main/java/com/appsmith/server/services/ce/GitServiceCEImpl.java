@@ -698,7 +698,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     error.getClass().getName(),
                                                     error.getMessage(),
                                                     application.getGitApplicationMetadata().getIsRepoPrivate()
-                                            ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage())));
+                                            ).flatMap(user1 -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage())));
                                         }
                                         if (error instanceof InvalidRemoteException) {
                                             return addAnalyticsForGitOperation(
@@ -709,7 +709,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     error.getClass().getName(),
                                                     error.getMessage(),
                                                     application.getGitApplicationMetadata().getIsRepoPrivate()
-                                            ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url")));
+                                            ).flatMap(user1 -> Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url")));
                                         }
                                         if (error instanceof TimeoutException) {
                                             return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
