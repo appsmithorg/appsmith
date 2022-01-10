@@ -3458,7 +3458,7 @@ Cypress.Commands.add(
         }
       } else {
         cy.wait("@connectGitRepo").then((interception) => {
-          const status = interception.body.responseMeta.status;
+          const status = interception.response.body.responseMeta.status;
           expect(status).to.be.above(400);
         });
       }
