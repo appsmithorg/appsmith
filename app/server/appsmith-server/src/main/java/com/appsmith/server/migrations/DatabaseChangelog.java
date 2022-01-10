@@ -4767,4 +4767,111 @@ public class DatabaseChangelog {
                 new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
         );
     }
+
+    @ChangeSet(order = "109", id = "update-index-for-git", author = "")
+    public void updateGitIndexes(MongockTemplate mongockTemplate) {
+
+        // Avoid duplicate key exception
+
+        // Update deleted pages for defaultPageId
+        final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).is(true));
+
+        pageQuery.fields()
+                .include(fieldName(QNewPage.newPage.id));
+
+        List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
+
+        for (NewPage newPage : pages) {
+
+            // Fetch one page at a time to avoid OOM.
+            NewPage page = mongockTemplate.findOne(
+                    query(where(fieldName(QNewPage.newPage.id)).is(newPage.getId())),
+                    NewPage.class
+            );
+
+            final Update defaultResourceUpdates = new Update();
+            DefaultResources defaults = new DefaultResources();
+            defaults.setPageId(page.getId());
+
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.defaultResources), defaults);
+
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
+                    defaultResourceUpdates,
+                    NewPage.class
+            );
+        }
+
+        // Update deleted actions for defaultActionId
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).is(true));
+
+        actionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
+
+        for (NewAction actionIdOnly : actions) {
+            // Fetch one action at a time to avoid OOM.
+            final NewAction action = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(actionIdOnly.getId())),
+                    NewAction.class
+            );
+
+            final Update defaultResourceUpdates = new Update();
+
+            DefaultResources defaults = new DefaultResources();
+            defaults.setActionId(action.getId());
+            defaultResourceUpdates.set(fieldName(QNewAction.newAction.defaultResources), defaults);
+
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
+                    defaultResourceUpdates,
+                    NewAction.class
+            );
+        }
+
+        // Update deleted JS collection with defaultcollectionId
+        final Query actionCollectionQuery = query(where(fieldName(QActionCollection.actionCollection.deleted)).is(true));
+
+        actionCollectionQuery.fields()
+                .include(fieldName(QActionCollection.actionCollection.id));
+
+        List<ActionCollection> collections = mongockTemplate.find(actionCollectionQuery, ActionCollection.class);
+
+        for (ActionCollection collection : collections) {
+
+            final Update defaultResourceUpdates = new Update();
+
+            DefaultResources defaults = new DefaultResources();
+            defaults.setCollectionId(collection.getId());
+            defaultResourceUpdates.set(fieldName(QActionCollection.actionCollection.defaultResources), defaults);
+
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QActionCollection.actionCollection.id)).is(collection.getId())),
+                    defaultResourceUpdates,
+                    ActionCollection.class
+            );
+        }
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex("defaultResources.actionId", "defaultResources.branchName", "deleted")
+                        .unique().named("defaultActionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
+                        .unique().named("defaultCollectionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewPage.class,
+                makeIndex("defaultResources.pageId", "defaultResources.branchName", "deleted")
+                        .unique().named("defaultPageId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, Application.class,
+                makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
+                        .named("defaultApplicationId_branchName_deleted_compound_index")
+        );
+    }
+
 }
