@@ -1,3 +1,4 @@
+import 'cypress-wait-until';
 import { AggregateHelper } from "./AggregateHelper";
 import { CommonLocators } from "../Objects/CommonLocators";
 
@@ -7,7 +8,7 @@ const locator = new CommonLocators()
 export class JSEditor {
 
     private _addEntityJSEditor = ".js_actions .t--entity-add-btn"
-    private _runButton = ".run-button"
+    private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']/parent::li"
     private _outputConsole = ".CodeEditorTarget"
     private _jsObjName = ".t--js-action-name-edit-field span"
     private _jsObjTxt = ".t--js-action-name-edit-field input"
@@ -27,8 +28,9 @@ export class JSEditor {
             .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
             .type(JSCode);
         cy.get(this._outputConsole).contains(JSCode);
-        agHelper.Sleep();
-        cy.get(this._runButton)
+        cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible'))
+        agHelper.Sleep(2000)
+        cy.xpath(this._runButton)
             .first()
             .click();
     }
@@ -42,7 +44,7 @@ export class JSEditor {
         cy.focused().then(($cm: any) => {
             if ($cm.contents != "") {
                 cy.log("The field is not empty");
-                cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+                cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
                     .first()
                     .click({ force: true })
                     .focused()
@@ -50,7 +52,6 @@ export class JSEditor {
                         force: true,
                     });
             }
-            // eslint-disable-next-line cypress/no-unnecessary-waiting
             agHelper.Sleep()
             cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
                 .first()
@@ -66,7 +67,8 @@ export class JSEditor {
                     }
                 });
         });
-        agHelper.Sleep(2500);//Allowing time for Evaluate value to capture value
+        agHelper.WaitAutoSave()
+        //agHelper.Sleep(2500);//Allowing time for Evaluate value to capture value
     }
 
     public RenameJSObjFromForm(renameVal: string) {

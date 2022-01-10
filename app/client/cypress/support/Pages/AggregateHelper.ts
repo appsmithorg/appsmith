@@ -92,7 +92,7 @@ export class AggregateHelper {
 
     public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
         cy.get(selector).within(() => {
-            cy.get(".CodeMirror-code").should("have.text", contentToValidate);
+            cy.get(locator._codeMirrorCode).should("have.text", contentToValidate);
         });
     }
 
