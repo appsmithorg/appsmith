@@ -9,11 +9,19 @@ const VIEWBOX_HEIGHT_HALF = 50;
 const VIEWBOX_CENTER_X = 50;
 const VIEWBOX_CENTER_Y = 50;
 
+export enum StrokeLineCapTypes {
+  round = "round",
+  butt = "butt",
+}
+
+export type StrokeLineCap = keyof typeof StrokeLineCapTypes;
+
 export interface CircularProgressComponentProps {
   backgroundPadding: number;
   backgroundColor?: string;
   counterClockwise: boolean;
   successValue: number;
+  strokeLineCap: StrokeLineCap;
   successColor: string;
   successTextColor: string;
   maxValue: number;
@@ -31,10 +39,10 @@ const SvgContainer = styled.svg`
 `;
 
 export const Path = styled.path<
-  Pick<CircularProgressComponentProps, "pathColor">
+  Pick<CircularProgressComponentProps, "pathColor" | "strokeLineCap">
 >`
   stroke: ${(props) => props.pathColor};
-  stroke-linecap: round;
+  stroke-linecap: ${(props) => props.strokeLineCap};
   transition: stroke-dashoffset 0.5s ease 0s;
 `;
 
@@ -62,6 +70,7 @@ export const Circle = styled.circle<
 function CircularProgressComponent({
   backgroundPadding,
   backgroundColor = Colors.WHITE,
+  strokeLineCap = StrokeLineCapTypes.round,
   successTextColor,
   successColor,
   successValue,
@@ -126,6 +135,7 @@ function CircularProgressComponent({
         d={drawPath()}
         fillOpacity={0}
         pathColor={value >= successValue ? successColor : pathColor}
+        strokeLineCap={strokeLineCap}
         strokeWidth={strokeWidth}
         style={drawDashStyle(pathRatio)}
       />

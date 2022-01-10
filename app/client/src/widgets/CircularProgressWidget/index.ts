@@ -1,5 +1,6 @@
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
+import { StrokeLineCapTypes } from "./component";
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 
@@ -14,6 +15,7 @@ export const CONFIG = {
     maxValue: 100,
     pathColor: "#38AFF4",
     strokeWidth: 6,
+    strokeLineCap: StrokeLineCapTypes.round,
     successColor: "#03b365",
     successTextColor: Colors.THUNDER,
     successValue: 100,

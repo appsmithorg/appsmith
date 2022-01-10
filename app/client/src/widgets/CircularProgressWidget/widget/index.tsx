@@ -6,6 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import CircularProgressComponent, {
   CircularProgressComponentProps,
+  StrokeLineCapTypes,
 } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
@@ -61,6 +62,34 @@ class CircularProgressWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            propertyName: "strokeLineCap",
+            label: "Stroke Line Cap",
+            controlType: "DROP_DOWN",
+            helpText: "Select Stroke Line Cap",
+            options: [
+              {
+                label: "round",
+                value: StrokeLineCapTypes.round,
+              },
+              {
+                label: "butt",
+                value: StrokeLineCapTypes.butt,
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  StrokeLineCapTypes.round,
+                  StrokeLineCapTypes.butt,
+                ],
+                default: StrokeLineCapTypes.round,
+              },
+            },
           },
           {
             propertyName: "counterClockwise",
@@ -231,6 +260,7 @@ class CircularProgressWidget extends BaseWidget<
           counterClockwise={this.props.counterClockwise}
           maxValue={this.props.maxValue}
           pathColor={this.props.pathColor}
+          strokeLineCap={this.props.strokeLineCap}
           strokeWidth={this.props.strokeWidth}
           successColor={this.props.successColor}
           successTextColor={this.props.successTextColor}
