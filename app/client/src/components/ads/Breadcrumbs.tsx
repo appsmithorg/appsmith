@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import Icon from "./Icon";
 
 export interface BreadcrumbsProps {
   items: {
@@ -59,7 +60,7 @@ function BreadcrumbList(props: BreadcrumbProps) {
       acc.push(
         child,
         <BreadcrumbSeparator key={`breadcrumb_sep${index}`}>
-          {">"}
+          <Icon name="right-arrow-2" />
         </BreadcrumbSeparator>,
       );
     } else {

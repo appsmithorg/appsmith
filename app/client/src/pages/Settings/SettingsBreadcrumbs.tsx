@@ -1,6 +1,6 @@
 import React from "react";
 import Breadcrumbs from "components/ads/Breadcrumbs";
-import { BreadcrumbCategories } from "@appsmith/pages/AdminSettings/SettingsBreadcrumbs";
+import { BreadcrumbCategories } from "@appsmith/pages/AdminSettings/BreadcrumbCategories";
 
 export const getBreadcrumbList = (category: string, subCategory?: string) => {
   const breadcrumbList = [
