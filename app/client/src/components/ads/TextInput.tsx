@@ -316,7 +316,7 @@ const TextInput = forwardRef(
         setInputValue(inputValue);
         const inputValueValidation =
           props.validator && props.validator(inputValue);
-        if (inputValueValidation) {
+        if (inputValueValidation && inputValueValidation.isValid) {
           props.validator && setValidation(inputValueValidation);
           return (
             inputValueValidation.isValid &&
@@ -410,6 +410,7 @@ const TextInput = forwardRef(
           data-cy={props.cypressSelector}
           hasLeftIcon={hasLeftIcon}
           inputRef={ref}
+          name={props?.name}
           onBlur={onBlurHandler}
           onChange={memoizedChangeHandler}
           onFocus={onFocusHandler}

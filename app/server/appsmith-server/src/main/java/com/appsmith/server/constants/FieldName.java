@@ -100,4 +100,10 @@ public class FieldName {
     public static final String REQUEST_TYPE = "requestType";
     public static final String DISPLAY_TYPE = "displayType";
     public static final String PARAMETERS = "parameters";
+    public static final String EXPORTED_APPLICATION = "exportedApplication";
+    public static final String DATASOURCE_LIST = "datasourceList";
+    public static final String PAGE_LIST = "pageList";
+    public static final String ACTION_LIST = "actionList";
+    public static final String DECRYPTED_FIELDS = "decryptedFields";
+
 }

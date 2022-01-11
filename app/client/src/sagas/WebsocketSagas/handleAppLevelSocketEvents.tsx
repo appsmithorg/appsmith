@@ -19,7 +19,7 @@ import {
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import React from "react";
-import { getAppsmithConfigs } from "../../configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 export default function* handleAppLevelSocketEvents(event: any) {
   const currentUser = yield select(getCurrentUser);

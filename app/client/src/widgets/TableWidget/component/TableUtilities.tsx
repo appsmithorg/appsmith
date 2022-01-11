@@ -50,6 +50,7 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import { generateTableColumnId } from "./TableHelpers";
 
 export const renderCell = (
   value: any,
@@ -632,10 +633,11 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
 ): ColumnProperties {
+  const id = generateTableColumnId(accessor);
   const columnProps = {
     index: index,
     width: 150,
-    id: accessor,
+    id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
@@ -651,7 +653,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
 
   return columnProps;

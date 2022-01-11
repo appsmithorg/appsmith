@@ -26,13 +26,13 @@ export const EditNameContainer = styled.div`
   padding-left: 4px;
 
   & > .page-list-item-edit-icon {
-    display: none;
+    visibility: hidden; /* Hide the visiblity when not hovered */
     margin-left: 8px;
     align-items: center;
   }
 
   &:hover .page-list-item-edit-icon {
-    display: flex;
+    visibility: visible; /* on Hover display the element */
   }
 
   & > div {

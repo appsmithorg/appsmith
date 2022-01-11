@@ -203,6 +203,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -283,6 +284,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -424,6 +426,12 @@ export const entityDefinitions: Record<string, unknown> = {
     dataURL: "string",
     rawBinary: "string",
   },
+  PROGRESSBAR_WIDGET: {
+    "!doc": "Progress bar is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/progressbar",
+    isVisible: isVisible,
+    progress: "number",
+  },
   SWITCH_GROUP_WIDGET: {
     "!doc":
       "Switch group widget allows users to create many switch components which can easily by used in a form",
@@ -440,6 +448,13 @@ export const entityDefinitions: Record<string, unknown> = {
     videoBlobURL: "string",
     videoDataURL: "string",
     videoRawBinary: "string",
+  },
+  MAP_CHART_WIDGET: {
+    "!doc":
+      "Map Chart widget shows the graphical representation of your data on the map.",
+    "!url": "https://docs.appsmith.com/widget-reference/map-chart",
+    isVisible: isVisible,
+    selectedDataPoint: "mapChartDataPoint",
   },
 };
 
@@ -474,6 +489,13 @@ export const GLOBAL_DEFS = {
     data: "string",
     name: "text",
     type: "file",
+  },
+  mapChartDataPoint: {
+    id: "string",
+    label: "string",
+    originalId: "string",
+    shortLabel: "string",
+    value: "number",
   },
 };
 

@@ -54,6 +54,7 @@ import ConflictInfo from "../components/ConflictInfo";
 import Icon, { IconSize } from "components/ads/Icon";
 
 import { isMac } from "utils/helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -153,8 +154,10 @@ function Deploy() {
   const isConflicting = !isFetchingGitStatus && pullFailed;
   // const pullRequired =
   //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
+
+  // TODO improve this check
   let pullRequired = false;
-  if (!isFetchingGitStatus && gitError && gitError.code === 5006) {
+  if (!isFetchingGitStatus && gitError && gitError.code === 4044) {
     pullRequired = gitError.message.indexOf("git  push failed") > -1;
   }
   const showCommitButton =
@@ -221,6 +224,12 @@ function Deploy() {
               </Text>
               <Link
                 link={DOCS_BASE_URL}
+                onClick={() => {
+                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                    source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
+                  });
+                  window.open(DOCS_BASE_URL, "_blank");
+                }}
                 text={createMessage(READ_DOCUMENTATION)}
               />
             </div>

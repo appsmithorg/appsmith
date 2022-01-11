@@ -34,35 +34,7 @@ export default function ConflictInfo(props: CIPropType) {
   const { isConflicting } = props;
   const theme = useTheme() as Theme;
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const originUrl = gitMetaData?.remoteUrl;
 
-  /**
-   * Converting ssh url to https url for opening the repo on browser
-   * Github :
-   *    SSH: git@github.com:user/repo.git
-   *    HTTPS: https://github.com/user/repo.git
-   * Gitlab:
-   *    SSH: git@gitlab.com:abhijeet25/first_project.git
-   *    HTTPS: https://gitlab.com/abhijeet25/first_project.git
-   * Bitbucket
-   *    SSH: git@bitbucket.org:abhvsn/onec2_firstapp.git
-   *    HTTPS: https://abhvsn@bitbucket.org/abhvsn/onec2_firstapp.git
-   */
-  let remoteUrl = originUrl;
-  if (originUrl && new RegExp("git@*").test(originUrl)) {
-    remoteUrl = remoteUrl?.replace(":", "/");
-    remoteUrl = remoteUrl?.replace(/git@/, "https://");
-    // bitbucket repo
-    if (new RegExp("bitbucket.org").test(originUrl)) {
-      const match = remoteUrl?.match(/\/\w+/g);
-      if (match && match.length > 2) {
-        remoteUrl = remoteUrl?.replace(
-          /bitbucket.org/,
-          match[1].substr(1) + "@bitbucket.org",
-        );
-      }
-    }
-  }
   return isConflicting ? (
     <>
       <InfoWrapper isError>
@@ -86,7 +58,7 @@ export default function ConflictInfo(props: CIPropType) {
         <OpenRepoButton
           category={Category.tertiary}
           className="t--commit-button"
-          href={remoteUrl}
+          href={gitMetaData?.browserSupportedRemoteUrl}
           size={Size.large}
           tag="a"
           target="_blank"

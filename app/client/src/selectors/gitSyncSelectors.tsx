@@ -24,14 +24,8 @@ export const getIsGitRepoSetup = (state: AppState) => {
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
 
-export const getIsPushingToGit = (state: AppState) =>
-  state.ui.gitSync.isPushingToGit;
-
 export const getIsCommitSuccessful = (state: AppState) =>
   state.ui.gitSync.isCommitSuccessful;
-
-export const getIsPushSuccessful = (state: AppState) =>
-  state.ui.gitSync.isPushSuccessful;
 
 export const getActiveGitSyncModalTab = (state: AppState) =>
   state.ui.gitSync.activeGitSyncModalTab;
@@ -127,6 +121,8 @@ export const getIsMergeInProgress = (state: AppState) =>
   state.ui.gitSync.isMerging;
 export const getTempRemoteUrl = (state: AppState) =>
   state.ui.gitSync.tempRemoteUrl;
+
+export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
 
 export const getCountOfChangesToCommit = (state: AppState) => {
   const gitStatus = getGitStatus(state);
