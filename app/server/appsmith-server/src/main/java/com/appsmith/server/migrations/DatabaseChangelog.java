@@ -4963,19 +4963,22 @@ public class DatabaseChangelog {
             );
         }
 
+        // We can't set unique indexes for following as these requires the _id of the resource to be filled in for
+        // defaultResourceId if the app is not connected to git. This results in handling the _id creation for resources
+        // on our end instead of asking mongo driver to perform this operation
         ensureIndexes(mongockTemplate, NewAction.class,
                 makeIndex("defaultResources.actionId", "defaultResources.branchName", "deleted")
-                        .unique().named("defaultActionId_branchName_deleted_compound_index")
+                        .named("defaultActionId_branchName_deleted_compound_index")
         );
 
         ensureIndexes(mongockTemplate, ActionCollection.class,
                 makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
-                        .unique().named("defaultCollectionId_branchName_deleted_compound_index")
+                        .named("defaultCollectionId_branchName_deleted_compound_index")
         );
 
         ensureIndexes(mongockTemplate, NewPage.class,
                 makeIndex("defaultResources.pageId", "defaultResources.branchName", "deleted")
-                        .unique().named("defaultPageId_branchName_deleted_compound_index")
+                        .named("defaultPageId_branchName_deleted_compound_index")
         );
 
         ensureIndexes(mongockTemplate, Application.class,
