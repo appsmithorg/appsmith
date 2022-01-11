@@ -1462,4 +1462,58 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
     }
+
+    /**
+     * This method tests the following scenario:
+     * o create `action1`.
+     * o set `action1` to run on page load via settings tab.
+     * o bind `{{action1.data}}` in one of the widget fields.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPageLoadActionWhenSetBothWaysExplicitlyAndImplicitlyViaWidget() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ firstAction.data }}");
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        createdAction1.setUserSetOnLoad(true);
+        NewAction newAction1 = new NewAction();
+        newAction1.setUnpublishedAction(createdAction1);
+        newAction1.setDefaultResources(createdAction1.getDefaultResources());
+
+        NewAction[] newActionArray = new NewAction[1];
+        newActionArray[0] = newAction1;
+        Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+
+                    // Assert that both the actions don't belong to the same set. They should be run iteratively.
+                    DslActionDTO actionDTO1 = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO1.getName()).isEqualTo("firstAction");
+                })
+                .verifyComplete();
+    }
 }
