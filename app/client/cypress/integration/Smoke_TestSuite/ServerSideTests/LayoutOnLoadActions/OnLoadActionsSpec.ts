@@ -21,7 +21,6 @@ describe("Layout OnLoad Actions tests", function () {
             const match = myRegexp.exec(currentURL);
             let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
                 let _emptyResp = JSON.parse(respBody).data.layouts[0].layoutOnLoadActions;
@@ -58,7 +57,6 @@ describe("Layout OnLoad Actions tests", function () {
             const match = myRegexp.exec(currentURL);
             let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
 
@@ -112,7 +110,6 @@ describe("Layout OnLoad Actions tests", function () {
             const match = myRegexp.exec(currentURL);
             let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
 

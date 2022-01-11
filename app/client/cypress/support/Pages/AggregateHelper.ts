@@ -14,7 +14,6 @@ export class AggregateHelper {
             pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
             //Fetch the layout id
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
                 layoutId = JSON.parse(respBody).data.layouts[0].id;
@@ -96,9 +95,9 @@ export class AggregateHelper {
         });
     }
 
+    //refering PublishtheApp from command.js
     public DeployApp() {
-        cy.server();
-        cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+        cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
         this.Sleep(2000)
         this.WaitAutoSave()
@@ -160,7 +159,7 @@ export class AggregateHelper {
             );
             $destination[0].dispatchEvent(pasteEvent);
         });
-    } 
+    }
 
     public Sleep(timeout = 1000) {
         cy.wait(timeout)
