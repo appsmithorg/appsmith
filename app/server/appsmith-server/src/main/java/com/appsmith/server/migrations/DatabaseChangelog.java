@@ -4707,7 +4707,7 @@ public class DatabaseChangelog {
                 Datasource.class
         );
     }
-  
+
     /**
      * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
      * unexpected / bad older data.
@@ -4738,7 +4738,7 @@ public class DatabaseChangelog {
         // Update plugin data.
         mongockTemplate.save(firestorePlugin);
     }
-  
+
     @ChangeSet(order = "108", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
         Index uniqueApplicationIdIndex = new Index()
@@ -4817,7 +4817,7 @@ public class DatabaseChangelog {
      * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
      * Mongo database - this is the same value that would have been applied to the aggregate cmd so far by the
      * database. However, for any new action, this field's initial value is 10.
-     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/ 
+     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
      * @param mongockTemplate
      */
     @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
@@ -4873,4 +4873,12 @@ public class DatabaseChangelog {
         Criteria isNotDeleted = where("deleted").ne(true);
         return query((new Criteria()).andOperator(pluginIdIsMongoPluginId, isNotDeleted));
     }
+
+    @ChangeSet(order = "110", id = "update-mockdb-endpoint-2", author = "")
+    public void updateMockdbEndpoint2(MongockTemplate mongockTemplate) {
+        // Doing this again as another migration since it appears some new datasource were created with the old
+        // endpoint around 14-Dec-2021 to 16-Dec-2021.
+        updateMockdbEndpoint(mongockTemplate);
+    }
+
 }
