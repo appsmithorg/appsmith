@@ -54,6 +54,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1971,7 +1972,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         if (StringUtils.isEmptyOrNull(organizationId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organizartion id"));
         }
 
         Mono<Application> importedApplicationMono = getSSHKeyForCurrentUser()
@@ -1982,7 +1983,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Check if the repo is public
                     Application newApplication = new Application();
                     newApplication.setName(GitUtils.getRepoName(gitConnectDTO.getRemoteUrl()));
-                    Mono<Application> applicationMono = applicationPageService.createApplication(newApplication, organizationId);
+                    newApplication.setOrganizationId(organizationId);
+                    Mono<Application> applicationMono = createSuffixedApplication(newApplication);
                     try {
                         if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
                             return Mono.just(gitAuth).zipWith(applicationMono);
@@ -2019,6 +2021,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     } else {
                         String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), repoName);
+                        Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
                         Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
                                 repoPath,
                                 gitConnectDTO.getRemoteUrl(),
@@ -2036,7 +2039,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         application.getId(),
                                         error.getClass().getName(),
                                         error.getMessage(),
-                                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                        false
                                 ).flatMap(user -> deleteApplicationMono
                                         .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION))));
                             }
@@ -2048,7 +2051,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         application.getId(),
                                         error.getClass().getName(),
                                         error.getMessage(),
-                                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                        false
                                 ).flatMap(user -> deleteApplicationMono
                                         .then(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"))));
                             }
@@ -2081,16 +2084,30 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setIsRepoPrivate(true);
                                         log.debug("Error while checking if the repo is private: ", e);
                                     }
-                                    application.setGitApplicationMetadata(gitApplicationMetadata);
+
                                     // Set branchName for each application resource
                                     return importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
                                             .flatMap(applicationJson -> {
                                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                                 return importExportApplicationService
                                                         .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch);
-                                            });
+                                            })
+                                            .zipWith(profileMono);
                                 });
                     }
+                })
+                // Add analytics event
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    return addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_IMPORT.getEventName(),
+                            application.getOrganizationId(),
+                            application.getId(),
+                            application.getId(),
+                            "",
+                            "",
+                            application.getGitApplicationMetadata().getIsRepoPrivate()
+                    ).thenReturn(application);
                 });
 
         return Mono.create(sink -> importedApplicationMono
@@ -2124,6 +2141,22 @@ public class GitServiceCEImpl implements GitServiceCE {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> gitDeployKeysRepository.findByEmail(user.getEmail()))
                 .map(gitDeployKeys -> gitDeployKeys.getGitAuth());
+    }
+
+    private Mono<Application> createSuffixedApplication(Application application) {
+        return createSuffixedApplication(application, application.getName(), 0);
+    }
+
+    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+        return applicationPageService.createApplication(application)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null) {
+                        return createSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {
