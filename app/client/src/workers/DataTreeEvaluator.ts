@@ -53,14 +53,12 @@ import toposort from "toposort";
 import equal from "fast-deep-equal/es6";
 import {
   EXECUTION_PARAM_KEY,
-  // THIS_DOT_PARAMS_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
   createGlobalData,
   EvalResult,
-  EvaluateContext,
   EvaluationScriptType,
   getScriptToEval,
   evaluateAsync,
@@ -589,12 +587,6 @@ export default class DataTreeEvaluator {
               entity.bindingPaths[propertyPath] ||
               EvaluationSubstitutionType.TEMPLATE;
 
-            // const contextData: EvaluateContext = {};
-            // if (isAction(entity)) {
-            //   contextData.thisContext = {
-            //     params: {},
-            //   };
-            // }
             try {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
@@ -1527,6 +1519,8 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
       );
     }
+
+    // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
     const bindingsForExecutionParams: string[] = bindings.map(
       (binding: string) =>
         binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
@@ -1535,17 +1529,13 @@ export default class DataTreeEvaluator {
     const dataTreeWithExecutionParams = Object.assign({}, this.evalTree, {
       [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
     });
+
     return bindingsForExecutionParams.map((binding) =>
       this.getDynamicValue(
         `{{${binding}}}`,
         dataTreeWithExecutionParams,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
-        // params can be accessed via "this.params" or "executionParams"
-        // {
-        //   thisContext: { [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams },
-        //   globalContext: { [EXECUTION_PARAM_KEY]: evaluatedExecutionParams },
-        // },
       ),
     );
   }

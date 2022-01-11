@@ -102,18 +102,6 @@ export const createGlobalData = (
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
-  //// Adding contextual data not part of data tree
-  // GLOBAL_DATA.THIS_CONTEXT = {};
-  // if (context) {
-  //   if (context.thisContext) {
-  //     GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
-  //   }
-  //   if (context.globalContext) {
-  //     Object.entries(context.globalContext).forEach(([key, value]) => {
-  //       GLOBAL_DATA[key] = value;
-  //     });
-  //   }
-  // }
   //// Add internal functions to dataTree;
   const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
     dataTree,
@@ -146,12 +134,9 @@ export function sanitizeScript(js: string) {
 }
 
 /** Define a context just for this script
- * thisContext will define it on the `this`
- * globalContext will define it globally
+ * requestId is used for completing promises
  */
 export type EvaluateContext = {
-  thisContext?: Record<string, any>;
-  globalContext?: Record<string, any>;
   requestId?: string;
 };
 
