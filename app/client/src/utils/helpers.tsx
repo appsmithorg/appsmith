@@ -658,3 +658,7 @@ export const mergeWidgetConfig = (target: any, source: any) => {
 
   return target;
 };
+
+export const getLocale = () => {
+  return navigator.languages?.[0] || "en-US";
+};

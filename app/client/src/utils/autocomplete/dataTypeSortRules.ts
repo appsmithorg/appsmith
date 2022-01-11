@@ -2,7 +2,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const RULES: Record<AutocompleteDataType, Array<string>> = {
   STRING: [
-    "INPUT_WIDGET_v2.text",
+    "INPUT_WIDGET_V2.text",
     "PHONE_INPUT_WIDGET.text",
     "PHONE_INPUT_WIDGET.countryCode",
     "PHONE_INPUT_WIDGET.currencyCode",
@@ -34,7 +34,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
   NUMBER: [
     "TABLE_WIDGET.pageNo",
     "TABLE_WIDGET.pageSize",
-    "INPUT_WIDGET_v2.text",
+    "INPUT_WIDGET_V2.text",
     "CURRENCY_INPUT_WIDGET.value",
     "TABLE_WIDGET.selectedRowIndex",
     "RICH_TEXT_EDITOR_WIDGET.text",
@@ -61,7 +61,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "CHECKBOX_WIDGET.isChecked",
     "SWITCH_WIDGET.isSwitchedOn",
     "CONTAINER_WIDGET.isVisible",
-    "INPUT_WIDGET_v2.isVisible",
+    "INPUT_WIDGET_V2.isVisible",
     "PHONE_INPUT_WIDGET.isVisible",
     "CURRENCY_INPUT_WIDGET.isVisible",
     "TABLE_WIDGET.isVisible",
@@ -83,8 +83,8 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "RATE_WIDGET.isVisible",
     "IFRAME_WIDGET.isVisible",
     "DIVIDER_WIDGET.isVisible",
-    "INPUT_WIDGET_v2.isValid",
-    "INPUT_WIDGET_v2.isDisabled",
+    "INPUT_WIDGET_V2.isValid",
+    "INPUT_WIDGET_V2.isDisabled",
     "PHONE_INPUT_WIDGET.isValid",
     "PHONE_INPUT_WIDGET.isDisabled",
     "CURRENCY_INPUT_WIDGET.isValid",

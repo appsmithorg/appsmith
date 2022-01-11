@@ -95,9 +95,6 @@ class CurrencyInputWidget extends BaseInputWidget<
   CurrencyInputWidgetProps,
   WidgetState
 > {
-  constructor(props: CurrencyInputWidgetProps) {
-    super(props);
-  }
   static getPropertyPaneConfig() {
     return mergeWidgetConfig(
       [

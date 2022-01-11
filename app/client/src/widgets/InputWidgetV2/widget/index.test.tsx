@@ -1,4 +1,9 @@
-import { defaultValueValidation, InputWidgetProps } from "./index";
+import {
+  defaultValueValidation,
+  InputWidgetProps,
+  minValueValidation,
+  maxValueValidation,
+} from "./index";
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {
@@ -111,7 +116,7 @@ describe("defaultValueValidation", () => {
   it("should validate defaulttext with type missing", () => {
     result = defaultValueValidation(
       "admin123",
-      { inputType: "" } as InputWidgetProps,
+      ({ inputType: "" } as any) as InputWidgetProps,
       _,
     );
 
@@ -126,7 +131,7 @@ describe("defaultValueValidation", () => {
     const value = {};
     result = defaultValueValidation(
       value,
-      { inputType: "" } as InputWidgetProps,
+      ({ inputType: "" } as any) as InputWidgetProps,
       _,
     );
 
@@ -135,5 +140,75 @@ describe("defaultValueValidation", () => {
       parsed: JSON.stringify(value, null, 2),
       messages: ["This value must be string"],
     });
+  });
+});
+
+describe("minValueValidation - ", () => {
+  it("should return true if minNum is empty", () => {
+    expect(
+      minValueValidation("", { maxNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeTruthy();
+
+    expect(
+      minValueValidation(null, { maxNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeTruthy();
+  });
+
+  it("should return false if minNum is not a valid number", () => {
+    expect(
+      minValueValidation("test", { maxNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeFalsy();
+  });
+
+  it("should return false if minNum is not lesser than maxNum", () => {
+    expect(
+      minValueValidation("11", { maxNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeFalsy();
+  });
+
+  it("should return true if minNum is a finite number and lesser than maxNum", () => {
+    expect(
+      minValueValidation("1", { maxNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeTruthy();
+  });
+});
+
+describe("maxValueValidation - ", () => {
+  it("should return true if maxNum is empty", () => {
+    expect(
+      maxValueValidation("", { minNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeTruthy();
+
+    expect(
+      maxValueValidation(null, { minNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeTruthy();
+  });
+
+  it("should return false if maxNum is not a valid number", () => {
+    expect(
+      maxValueValidation("test", { minNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeFalsy();
+  });
+
+  it("should return false if maxNum is not greater than minNum", () => {
+    expect(
+      maxValueValidation("9", { minNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeFalsy();
+  });
+
+  it("should return true if maxNum is a finite number and lesser than minNum", () => {
+    expect(
+      maxValueValidation("18", { minNum: 10 } as InputWidgetProps, _ as any)
+        .isValid,
+    ).toBeTruthy();
   });
 });

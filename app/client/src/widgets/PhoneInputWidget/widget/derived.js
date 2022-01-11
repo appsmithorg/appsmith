@@ -27,19 +27,18 @@ export default {
       if (!regexParts) {
         parsedRegex = new RegExp(props.regex);
       } else {
-        /*
-        * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
-        /*
-        if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
+        if (
+          regexParts[3] &&
+          !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])
+        ) {
           parsedRegex = RegExp(props.regex);
+        } else {
+          /*
+           * if we have a regex flags, use it to form regexp
+           */
+          parsedRegex = new RegExp(regexParts[2], regexParts[3]);
         }
-        /*
-        * if we have a regex flags, use it to form regexp
-        */
-        parsedRegex = new RegExp(regexParts[2], regexParts[3]);
       }
-    } else {
-      parsedRegex = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/;
     }
 
     if (parsedRegex) {
