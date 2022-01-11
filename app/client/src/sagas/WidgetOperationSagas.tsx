@@ -103,7 +103,7 @@ import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
 import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
-import { stopReflow } from "actions/reflowActions";
+import { stopReflowAction } from "actions/reflowActions";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
@@ -150,7 +150,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       };
     }
     log.debug("resize computations took", performance.now() - start, "ms");
-    yield put(stopReflow());
+    yield put(stopReflowAction());
     yield put(updateAndSaveLayout(movedWidgets));
   } catch (error) {
     yield put({
@@ -187,8 +187,7 @@ export function* reflowWidgets(
   if (reflowWidgetKeys.length <= 0) return widgets;
 
   for (const reflowedWidgetId of reflowWidgetKeys) {
-    //eslint-disable-next-line
-    const reflowWidget = reflowingWidgets![reflowedWidgetId];
+    const reflowWidget = reflowingWidgets[reflowedWidgetId];
     const canvasWidget = { ...currentWidgets[reflowedWidgetId] };
     if (reflowWidget.X !== undefined && reflowWidget.width !== undefined) {
       const leftColumn =

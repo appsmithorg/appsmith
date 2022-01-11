@@ -1,4 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { GridProps, ReflowedSpace, ReflowedSpaceMap } from "reflow/reflowTypes";
 
@@ -19,6 +20,14 @@ export function collisionCheckPostReflow(
     return true;
   });
 
+  //boundary Check
+  for (const reflowedKey of reflowWidgetKeys) {
+    if (isOutOfCanvas(widgets[reflowedKey])) {
+      return false;
+    }
+  }
+
+  //overlapping check
   for (const reflowedKey of reflowWidgetKeys) {
     for (const widgetId of widgetKeys) {
       if (areIntersecting(widgets[reflowedKey], widgets[widgetId])) {
@@ -38,6 +47,14 @@ function areIntersecting(r1: FlattenedWidgetProps, r2: FlattenedWidgetProps) {
     r2.rightColumn <= r1.leftColumn ||
     r2.topRow >= r1.bottomRow ||
     r2.bottomRow <= r1.topRow
+  );
+}
+
+function isOutOfCanvas(widget: FlattenedWidgetProps) {
+  return (
+    widget.leftColumn < 0 ||
+    widget.topRow < 0 ||
+    widget.rightColumn > GridDefaults.DEFAULT_GRID_COLUMNS
   );
 }
 

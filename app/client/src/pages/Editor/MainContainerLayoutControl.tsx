@@ -16,7 +16,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { updateApplicationLayout } from "actions/applicationActions";
 
-import { setEnableReflow } from "actions/reflowActions";
+import { setEnableReflowAction } from "actions/reflowActions";
 import Checkbox from "components/ads/Checkbox";
 import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 import styled from "styled-components";
@@ -118,7 +118,7 @@ export function MainContainerLayoutControl() {
     if (user?.email) {
       setReflowBetaFlag(user.email, isChecked);
     }
-    dispatch(setEnableReflow(isChecked));
+    dispatch(setEnableReflowAction(isChecked));
     AnalyticsUtil.logEvent("REFLOW_BETA_FLAG", {
       enabled: isChecked,
     });

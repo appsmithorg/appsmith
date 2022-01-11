@@ -6,7 +6,7 @@ import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
 import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
-import { useReflow } from "utils/hooks/useReflow";
+import { useReflow, ReflowInterface } from "utils/hooks/useReflow";
 import { useSelector } from "react-redux";
 import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
@@ -76,7 +76,7 @@ export const useCanvasDragging = (
     paddingOffset: 0,
   };
 
-  const reflow = useRef<any>();
+  const reflow = useRef<ReflowInterface>();
   reflow.current = useReflow(
     widgetOccupiedSpace ? widgetOccupiedSpace.id : "",
     widgetId || "",
@@ -488,7 +488,7 @@ export const useCanvasDragging = (
                 leftColumn,
                 topRow,
               };
-              if (canReflow) {
+              if (canReflow && reflow.current) {
                 if (needsReflow) {
                   const resizedPositions = {
                     left: leftColumn,

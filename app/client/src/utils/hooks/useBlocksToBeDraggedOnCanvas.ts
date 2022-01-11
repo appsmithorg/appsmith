@@ -26,7 +26,7 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
-import { stopReflow } from "actions/reflowActions";
+import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 
@@ -179,7 +179,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   );
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const stopReflowing = () => {
-    if (isReflowing) dispatch(stopReflow());
+    if (isReflowing) dispatch(stopReflowAction());
   };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],

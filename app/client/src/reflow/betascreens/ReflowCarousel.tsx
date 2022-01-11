@@ -7,7 +7,7 @@ import { ReflowBetaScreenSteps } from "./ReflowBetaScreenSteps";
 import { useDispatch, useSelector } from "react-redux";
 import {
   forceStopOnBoardingAction,
-  updateReflowOnBoarding,
+  updateReflowOnBoardingAction,
 } from "actions/reflowActions";
 import { AppState } from "reducers";
 import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
@@ -34,7 +34,7 @@ function ReflowCarouselModal() {
         done: next === numberOfSteps,
         finishedStep: current,
       };
-      dispatch(updateReflowOnBoarding(onBoardingState));
+      dispatch(updateReflowOnBoardingAction(onBoardingState));
       if (user?.email) {
         setReflowOnBoardingFlag(user.email, onBoardingState);
       }

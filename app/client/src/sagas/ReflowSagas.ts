@@ -1,4 +1,7 @@
-import { setEnableReflow, updateReflowOnBoarding } from "actions/reflowActions";
+import {
+  setEnableReflowAction,
+  updateReflowOnBoardingAction,
+} from "actions/reflowActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -22,7 +25,9 @@ function* initReflowStates() {
       const enableReflow: boolean = yield getReflowBetaFlag(email);
       const enableReflowHasBeenSet = isBoolean(enableReflow);
 
-      yield put(setEnableReflow(enableReflowHasBeenSet ? enableReflow : true));
+      yield put(
+        setEnableReflowAction(enableReflowHasBeenSet ? enableReflow : true),
+      );
       if (!enableReflowHasBeenSet) {
         setReflowBetaFlag(email, true);
       }
@@ -30,7 +35,7 @@ function* initReflowStates() {
         email,
       );
       yield put(
-        updateReflowOnBoarding(
+        updateReflowOnBoardingAction(
           onBoardedState ?? {
             done: false,
             step: -1,

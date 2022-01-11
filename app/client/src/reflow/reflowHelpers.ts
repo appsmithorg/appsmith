@@ -45,8 +45,9 @@ export function getMovementMap(
     !collisionTree ||
     !collisionTree.children ||
     Object.keys(collisionTree.children).length <= 0
-  )
+  ) {
     return {};
+  }
 
   const childrenKeys = Object.keys(collisionTree.children);
 
@@ -78,8 +79,9 @@ export function getMovementMap(
 
     let staticDepth = 0,
       maxOccupiedSpace = 0;
-    if (directionalVariables[childDirection])
+    if (directionalVariables[childDirection]) {
       [staticDepth, maxOccupiedSpace] = directionalVariables[childDirection];
+    }
     staticDepth = Math.max(staticDepth, depth);
     maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace);
     directionalVariables[childDirection] = [
@@ -129,14 +131,6 @@ export function getMovementMap(
     directionalMovements,
   };
 
-  //eslint-disable-next-line
-  console.log("reflowInfo", {
-    collidingSpaceMap,
-    collisionTree,
-    movementMap,
-    newPositionsMovement,
-  });
-
   return {
     newPositionsMovement,
     movementMap,
@@ -173,8 +167,9 @@ function getCollisionTree(
         globalCompletedTree,
       );
 
-      if (currentCollisionTree && collisionTree.children)
+      if (currentCollisionTree && collisionTree.children) {
         collisionTree.children[collidingSpace.id] = { ...currentCollisionTree };
+      }
     }
   }
 
@@ -233,10 +228,11 @@ function getCollisionTreeHelper(
 
       currentProcessedNodes[currentCollidingSpace.id] = true;
 
-      if (currentCollisionTree && collisionTree.children)
+      if (currentCollisionTree && collisionTree.children) {
         collisionTree.children[currentCollidingSpace.id] = {
           ...currentCollisionTree,
         };
+      }
     }
   }
 
@@ -287,17 +283,20 @@ function getMovementMapHelper(
         shouldResize,
       );
 
-      if (maxOccupiedSpace < occupiedSpace)
+      if (maxOccupiedSpace < occupiedSpace) {
         currentEmptySpaces = childEmptySpaces;
+      }
+
       maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace || 0);
       depth = Math.max(depth, currentDepth);
     }
   } else {
-    if (direction === ReflowDirection.RIGHT)
+    if (direction === ReflowDirection.RIGHT) {
       currentEmptySpaces +=
         GridDefaults.DEFAULT_GRID_COLUMNS - collisionTree.right;
-    else if (direction !== ReflowDirection.BOTTOM)
+    } else if (direction !== ReflowDirection.BOTTOM) {
       currentEmptySpaces += collisionTree[accessors.direction];
+    }
   }
 
   const getSpaceMovement = accessors.isHorizontal

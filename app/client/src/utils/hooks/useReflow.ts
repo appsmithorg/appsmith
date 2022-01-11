@@ -1,4 +1,4 @@
-import { reflowMove, stopReflow } from "actions/reflowActions";
+import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
 import { useRef } from "react";
@@ -23,11 +23,28 @@ type WidgetCollidingSpaceMap = {
   [key: string]: WidgetCollidingSpace;
 };
 
+export interface ReflowInterface {
+  (
+    newPositions: OccupiedSpace,
+    OGPositions: OccupiedSpace,
+    direction: ReflowDirection,
+    stopMoveAfterLimit?: boolean,
+    shouldSkipContainerReflow?: boolean,
+    forceDirection?: boolean,
+    immediateExitContainer?: string,
+  ): {
+    canHorizontalMove: boolean;
+    canVerticalMove: boolean;
+    movementMap: ReflowedSpaceMap;
+    bottomMostRow: number;
+  };
+}
+
 export const useReflow = (
   widgetId: string,
   parentId: string,
   gridProps: GridProps,
-) => {
+): ReflowInterface => {
   const dispatch = useDispatch();
 
   const throttledDispatch = throttle(dispatch, 50);
@@ -97,12 +114,12 @@ export const useReflow = (
 
     if (!isEmpty(correctedMovementMap)) {
       isReflowing.current = true;
-      if (forceDirection) dispatch(reflowMove(correctedMovementMap));
-      else throttledDispatch(reflowMove(correctedMovementMap));
+      if (forceDirection) dispatch(reflowMoveAction(correctedMovementMap));
+      else throttledDispatch(reflowMoveAction(correctedMovementMap));
     } else if (isReflowing.current) {
       isReflowing.current = false;
       throttledDispatch.cancel();
-      dispatch(stopReflow());
+      dispatch(stopReflowAction());
     }
 
     const bottomMostRow = getBottomRowAfterReflow(

@@ -30,8 +30,9 @@ export function getIsHorizontalMove(
   if (
     prevPositions?.left !== newPositions.left ||
     prevPositions?.right !== newPositions.right
-  )
+  ) {
     return true;
+  }
 
   return false;
 }
@@ -55,19 +56,14 @@ export function shouldReplaceOldMovement(
 
   const distanceKey = isHorizontal ? "X" : "Y";
 
-  if (
-    oldMovement[distanceKey] === undefined ||
-    newMovement[distanceKey] === undefined
-  )
-    return false;
+  const oldDistance = oldMovement[distanceKey],
+    newDistance = newMovement[distanceKey];
 
-  return compareNumbers(
-    //eslint-disable-next-line
-    oldMovement[distanceKey]!,
-    //eslint-disable-next-line
-    newMovement[distanceKey]!,
-    directionIndicator < 0,
-  );
+  if (oldDistance === undefined || newDistance === undefined) {
+    return false;
+  }
+
+  return compareNumbers(oldDistance, newDistance, directionIndicator < 0);
 }
 
 /**
@@ -147,11 +143,12 @@ export function getShouldReflow(
   delta = { X: 0, Y: 0 },
   beforeLimit = false,
 ): { canVerticalMove: boolean; canHorizontalMove: boolean } {
-  if (!staticPosition)
+  if (!staticPosition) {
     return {
       canHorizontalMove: false,
       canVerticalMove: false,
     };
+  }
 
   let canHorizontalMove = true,
     canVerticalMove = true;
@@ -322,8 +319,9 @@ function filterSpaceByDirection(
       if (
         occupiedSpace.id === staticPosition.id ||
         occupiedSpace.parentId === staticPosition.id
-      )
+      ) {
         return false;
+      }
 
       return compareNumbers(
         occupiedSpace[oppositeDirection],
@@ -374,8 +372,9 @@ function getCorrectedDirection(
 ): ReflowDirection {
   if (forceDirection) return direction;
 
-  if (prevCollidingSpaces && prevCollidingSpaces[collidingSpace.id])
+  if (prevCollidingSpaces && prevCollidingSpaces[collidingSpace.id]) {
     return prevCollidingSpaces[collidingSpace.id].direction;
+  }
 
   let primaryDirection: ReflowDirection = direction,
     secondaryDirection: ReflowDirection | undefined = undefined;
@@ -403,8 +402,11 @@ function getCorrectedDirection(
     true,
   );
 
-  if (isCorrectDirection) return primaryDirection;
-  else if (secondaryDirection) return secondaryDirection;
+  if (isCorrectDirection) {
+    return primaryDirection;
+  } else if (secondaryDirection) {
+    return secondaryDirection;
+  }
 
   return getVerifiedDirection(
     collidingSpace,
@@ -421,33 +423,37 @@ function getVerifiedDirection(
   isHorizontalMove: boolean,
 ) {
   if (isHorizontalMove) {
-    if (collidingSpace.bottom <= prevPositions.top) return ReflowDirection.TOP;
-    else if (collidingSpace.top >= prevPositions.bottom)
+    if (collidingSpace.bottom <= prevPositions.top) {
+      return ReflowDirection.TOP;
+    } else if (collidingSpace.top >= prevPositions.bottom) {
       return ReflowDirection.BOTTOM;
-    else if (
+    } else if (
       direction !== ReflowDirection.RIGHT &&
       collidingSpace.left >= prevPositions.right
-    )
+    ) {
       return ReflowDirection.RIGHT;
-    else if (
+    } else if (
       direction !== ReflowDirection.LEFT &&
       collidingSpace.right <= prevPositions.left
-    )
+    ) {
       return ReflowDirection.LEFT;
+    }
   } else {
-    if (collidingSpace.right <= prevPositions.left) return ReflowDirection.LEFT;
-    else if (collidingSpace.left >= prevPositions.right)
+    if (collidingSpace.right <= prevPositions.left) {
+      return ReflowDirection.LEFT;
+    } else if (collidingSpace.left >= prevPositions.right) {
       return ReflowDirection.RIGHT;
-    else if (
+    } else if (
       direction !== ReflowDirection.TOP &&
       collidingSpace.bottom <= prevPositions.top
-    )
+    ) {
       return ReflowDirection.TOP;
-    else if (
+    } else if (
       direction !== ReflowDirection.BOTTOM &&
       collidingSpace.top >= prevPositions.bottom
-    )
+    ) {
       return ReflowDirection.BOTTOM;
+    }
   }
 
   return direction;
@@ -587,11 +593,12 @@ export function getMaxX(
 
   let maxX = collisionTree[accessors.direction] - movementLimit;
 
-  if (direction === ReflowDirection.RIGHT)
+  if (direction === ReflowDirection.RIGHT) {
     maxX =
       gridProps.maxGridColumns -
       collisionTree[accessors.direction] -
       movementLimit;
+  }
 
   return accessors.directionIndicator * maxX * gridProps.parentColumnSpace;
 }
@@ -624,7 +631,9 @@ export function getMaxY(
     (collisionTree[accessors.direction] - movementLimit) *
     gridProps.parentRowSpace;
 
-  if (direction === ReflowDirection.BOTTOM) maxY = Infinity;
+  if (direction === ReflowDirection.BOTTOM) {
+    maxY = Infinity;
+  }
 
   return accessors.directionIndicator * maxY;
 }
@@ -665,7 +674,9 @@ export function getReflowDistance(
     -1;
   const maxValue = Math[accessors.mathComparator](value, maxDistance);
 
-  if (expandableCanvas) return maxValue;
+  if (expandableCanvas) {
+    return maxValue;
+  }
 
   return accessors.directionIndicator < 0
     ? maxValue
@@ -707,7 +718,9 @@ export function getResizedDimension(
   const originalDimension =
     collisionTree[accessors.parallelMax] - collisionTree[accessors.parallelMin];
 
-  if (!shouldResize) return originalDimension * snapGridSpace;
+  if (!shouldResize) {
+    return originalDimension * snapGridSpace;
+  }
   const resizeTreshold = maxDistance + currentDistanceBeforeCollision;
   const resizeLimit =
     resizeTreshold +
@@ -746,13 +759,17 @@ export function getLimitedMovementMap(
   if (!movementMap) return {};
   const { canHorizontalMove, canVerticalMove } = movementLimit;
 
-  if (!canVerticalMove && !canHorizontalMove) return prevMovementMap;
+  if (!canVerticalMove && !canHorizontalMove) {
+    return prevMovementMap;
+  }
 
-  if (!canVerticalMove)
+  if (!canVerticalMove) {
     return replaceMovementMapByDirection(movementMap, prevMovementMap, false);
+  }
 
-  if (!canHorizontalMove)
+  if (!canHorizontalMove) {
     return replaceMovementMapByDirection(movementMap, prevMovementMap, true);
+  }
 
   return movementMap;
 }
@@ -791,8 +808,9 @@ export function changeExitContainerDirection(
   immediateExitContainer: string | undefined,
   direction: ReflowDirection,
 ) {
-  if (!immediateExitContainer || !collidingSpaceMap[immediateExitContainer])
+  if (!immediateExitContainer || !collidingSpaceMap[immediateExitContainer]) {
     return;
+  }
 
   const oppDirection = getOppositeDirection(direction);
   const { directionIndicator, oppositeDirection } = getAccessor(oppDirection);

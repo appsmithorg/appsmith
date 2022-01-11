@@ -181,8 +181,12 @@ export const widgetOperationParams = (
       payload: {
         leftColumn,
         topRow,
-        bottomRow: topRow + widgetSizeUpdates.height / parentRowSpace,
-        rightColumn: leftColumn + widgetSizeUpdates.width / parentColumnSpace,
+        bottomRow: Math.round(
+          topRow + widgetSizeUpdates.height / parentRowSpace,
+        ),
+        rightColumn: Math.round(
+          leftColumn + widgetSizeUpdates.width / parentColumnSpace,
+        ),
         parentId: widget.parentId,
         newParentId: parentWidgetId,
       },
