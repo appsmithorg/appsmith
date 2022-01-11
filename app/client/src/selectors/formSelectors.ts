@@ -3,6 +3,7 @@ import { AppState } from "reducers";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { UIComponentTypes } from "../api/PluginApi";
 import { Plugin } from "api/PluginApi";
+import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 
 type GetFormData = (
   state: AppState,
@@ -22,7 +23,7 @@ export const getApiName = (state: AppState, id: string) => {
   )?.config.name;
 };
 
-export const getFormEvaluationState = (state: AppState) =>
+export const getFormEvaluationState = (state: AppState): FormEvaluationState =>
   state.evaluations.formEvaluation;
 
 // Selector to get UIComponent type from the redux state

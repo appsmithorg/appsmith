@@ -11,7 +11,7 @@ import {
   ERROR_0,
   SERVER_API_TIMEOUT_ERROR,
 } from "constants/messages";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 describe("axios api interceptors", () => {
   describe("Axios api request interceptor", () => {
