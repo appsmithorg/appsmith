@@ -34,12 +34,12 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = ${ScriptTemplate}
     return result;
   }
-  closedFunction.call(THIS_CONTEXT)
+  closedFunction()
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    const result = userFunction?.apply(self, ARGUMENTS);
     return result;
   }
   callback(${ScriptTemplate})
@@ -49,7 +49,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = await ${ScriptTemplate};
     return result;
   }
-  closedFunction.call(THIS_CONTEXT);
+  closedFunction();
   `,
 };
 
@@ -103,17 +103,17 @@ export const createGlobalData = (
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
   //// Adding contextual data not part of data tree
-  GLOBAL_DATA.THIS_CONTEXT = {};
-  if (context) {
-    if (context.thisContext) {
-      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
-    }
-    if (context.globalContext) {
-      Object.entries(context.globalContext).forEach(([key, value]) => {
-        GLOBAL_DATA[key] = value;
-      });
-    }
-  }
+  // GLOBAL_DATA.THIS_CONTEXT = {};
+  // if (context) {
+  //   if (context.thisContext) {
+  //     GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
+  //   }
+  //   if (context.globalContext) {
+  //     Object.entries(context.globalContext).forEach(([key, value]) => {
+  //       GLOBAL_DATA[key] = value;
+  //     });
+  //   }
+  // }
   //// Add internal functions to dataTree;
   const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
     dataTree,
@@ -187,7 +187,6 @@ export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
-  context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
@@ -197,7 +196,7 @@ export default function evaluateSync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
-      context,
+      undefined,
       evalArguments,
     );
     GLOBAL_DATA.ALLOW_ASYNC = false;

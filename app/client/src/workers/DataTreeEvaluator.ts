@@ -53,7 +53,8 @@ import toposort from "toposort";
 import equal from "fast-deep-equal/es6";
 import {
   EXECUTION_PARAM_KEY,
-  THIS_DOT_PARAMS_KEY,
+  // THIS_DOT_PARAMS_KEY,
+  EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
@@ -588,19 +589,18 @@ export default class DataTreeEvaluator {
               entity.bindingPaths[propertyPath] ||
               EvaluationSubstitutionType.TEMPLATE;
 
-            const contextData: EvaluateContext = {};
-            if (isAction(entity)) {
-              contextData.thisContext = {
-                params: {},
-              };
-            }
+            // const contextData: EvaluateContext = {};
+            // if (isAction(entity)) {
+            //   contextData.thisContext = {
+            //     params: {},
+            //   };
+            // }
             try {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
                 currentTree,
                 resolvedFunctions,
                 evaluationSubstitutionType,
-                contextData,
                 undefined,
                 fullPropertyPath,
               );
@@ -760,7 +760,6 @@ export default class DataTreeEvaluator {
     data: DataTree,
     resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
-    contextData?: EvaluateContext,
     callBackData?: Array<any>,
     fullPropertyPath?: string,
   ) {
@@ -789,7 +788,6 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
-            contextData,
             callBackData,
           );
           if (fullPropertyPath && result.errors.length) {
@@ -862,17 +860,10 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    contextData?: EvaluateContext,
     callbackData?: Array<any>,
   ): EvalResult {
     try {
-      return evaluateSync(
-        js,
-        data,
-        resolvedFunctions,
-        contextData,
-        callbackData,
-      );
+      return evaluateSync(js, data, resolvedFunctions, callbackData);
     } catch (e) {
       return {
         result: undefined,
@@ -1536,18 +1527,25 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
       );
     }
+    const bindingsForExecutionParams: string[] = bindings.map(
+      (binding: string) =>
+        binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
+    );
 
-    return bindings.map((binding) =>
+    const dataTreeWithExecutionParams = Object.assign({}, this.evalTree, {
+      [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+    });
+    return bindingsForExecutionParams.map((binding) =>
       this.getDynamicValue(
         `{{${binding}}}`,
-        this.evalTree,
+        dataTreeWithExecutionParams,
         this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
-        {
-          thisContext: { [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams },
-          globalContext: { [EXECUTION_PARAM_KEY]: evaluatedExecutionParams },
-        },
+        // {
+        //   thisContext: { [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams },
+        //   globalContext: { [EXECUTION_PARAM_KEY]: evaluatedExecutionParams },
+        // },
       ),
     );
   }
