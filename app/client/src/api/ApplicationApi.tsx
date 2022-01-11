@@ -149,7 +149,7 @@ class ApplicationApi extends Api {
     `/publish/${applicationId}`;
   static createApplicationPath = (orgId: string) => `?orgId=${orgId}`;
   static changeAppViewAccessPath = (applicationId: string) =>
-    `${applicationId}/changeAccess`;
+    `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
     `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.id}/makeDefault`;
   static publishApplication(
