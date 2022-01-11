@@ -19,7 +19,6 @@ import { FormConfig } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
-let isFetchingData = false;
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -33,10 +32,6 @@ const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
 // Function to set isEvaluating flag
 const setIsEvaluating = (newState: boolean) => {
   isEvaluating = newState;
-};
-// Function to set isEvaluating flag
-const setIsFetching = (newState: boolean) => {
-  isFetchingData = newState;
 };
 
 function* setFormEvaluationSagaAsync(
@@ -98,7 +93,6 @@ function* fetchDynamicValuesSaga(
   evalOutput: FormEvalOutput,
 ) {
   for (const key of Object.keys(queueOfValuesToBeFetched)) {
-    setIsFetching(true);
     evalOutput = yield call(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
@@ -110,8 +104,6 @@ function* fetchDynamicValuesSaga(
     type: ReduxActionTypes.SET_FORM_EVALUATION,
     payload: { [formId]: evalOutput },
   });
-
-  setIsFetching(false);
 }
 
 function* fetchDynamicValueSaga(
