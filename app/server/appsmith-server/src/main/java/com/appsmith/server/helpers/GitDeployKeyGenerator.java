@@ -10,6 +10,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
 
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
 import static org.reflections.Reflections.log;
@@ -19,10 +21,11 @@ public class GitDeployKeyGenerator {
     public static GitAuth generateSSHKey() {
         JSch jsch = new JSch();
         KeyPair kpair;
+
         try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
+            kpair = KeyPair.genKeyPair(jsch, KeyPair.ECDSA, 521);
         } catch (JSchException e) {
-            log.error("failed to generate RSA key pair", e);
+            log.error("failed to generate ECDSA key pair", e);
             throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
         }
 
