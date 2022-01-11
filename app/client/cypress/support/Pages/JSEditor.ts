@@ -44,7 +44,9 @@ export class JSEditor {
 
         if (outputCheck)
             cy.get(this._outputConsole).contains(JSCode);
-        cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible'))
+        //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
+        cy.waitUntil(() => cy.get(locator._toastMsg).should("have.length", 0))
+        //cy.waitUntil(() => cy.get(locator._toastMsg).then($el => $el.length === 0)) - does not work!
         agHelper.Sleep(2000)
         cy.xpath(this._runButton)
             .first()
