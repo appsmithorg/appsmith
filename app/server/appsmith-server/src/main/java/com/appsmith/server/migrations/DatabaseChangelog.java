@@ -4817,7 +4817,7 @@ public class DatabaseChangelog {
      * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
      * Mongo database - this is the same value that would have been applied to the aggregate cmd so far by the
      * database. However, for any new action, this field's initial value is 10.
-     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/ 
+     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
      * @param mongockTemplate
      */
     @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
@@ -4873,4 +4873,36 @@ public class DatabaseChangelog {
         Criteria isNotDeleted = where("deleted").ne(true);
         return query((new Criteria()).andOperator(pluginIdIsMongoPluginId, isNotDeleted));
     }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection, newPage and application collection to take
+     * branchName param into consideration for optimising the find query for git connected applications
+     */
+    @ChangeSet(order = "110", id = "update-index-for-git", author = "")
+    public void updateGitIndexes(MongockTemplate mongockTemplate) {
+
+        // We can't set unique indexes for following as these requires the _id of the resource to be filled in for
+        // defaultResourceId if the app is not connected to git. This results in handling the _id creation for resources
+        // on our end instead of asking mongo driver to perform this operation
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex("defaultResources.actionId", "defaultResources.branchName", "deleted")
+                        .named("defaultActionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
+                        .named("defaultCollectionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewPage.class,
+                makeIndex("defaultResources.pageId", "defaultResources.branchName", "deleted")
+                        .named("defaultPageId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, Application.class,
+                makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
+                        .named("defaultApplicationId_branchName_deleted_compound_index")
+        );
+    }
+
 }
