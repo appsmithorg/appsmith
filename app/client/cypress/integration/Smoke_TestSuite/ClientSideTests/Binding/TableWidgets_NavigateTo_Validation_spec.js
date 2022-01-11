@@ -36,6 +36,12 @@ describe("Table Widget and Navigate to functionality validation", function() {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait(4000);
     cy.selectEntityByName("WIDGETS");
     cy.get(`.t--entity-name:contains("Table1")`)
       .should("be.visible")

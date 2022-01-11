@@ -3076,7 +3076,9 @@ Cypress.Commands.add("ValidatePublishTableData", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
-  cy.SearchEntityandOpen("Api2");
+  cy.get(".t--entity-name")
+    .contains("Api1")
+    .click({ force: true });
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
@@ -3097,9 +3099,9 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
       const respBody = tabData.match(/"(.*)"/)[0];
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
-      cy.SearchEntityandOpen("Table1");
-      // cy.openPropertyPane("tablewidget");
-      // cy.testJsontext("tabledata", "{{Api2.data.results}}");
+      cy.get(".t--entity-name")
+        .contains("Table1")
+        .click({ force: true });
       cy.isSelectRow(0);
       cy.readTabledata("0", "1").then((tabData) => {
         const tableData = tabData;
