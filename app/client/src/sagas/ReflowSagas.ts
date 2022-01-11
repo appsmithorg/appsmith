@@ -29,10 +29,12 @@ function* initReflowStates() {
       const onBoardedState: widgetReflowOnBoardingState = yield getReflowOnBoardingFlag(
         email,
       );
+      // used only to disable onboarding in cypress tests.
+      const disableOnBoarding = localStorage.getItem("DisableReflowOnboarding");
       yield put(
         updateReflowOnBoarding(
           onBoardedState ?? {
-            done: false,
+            done: disableOnBoarding,
             step: -1,
           },
         ),

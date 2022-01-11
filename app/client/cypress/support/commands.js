@@ -32,24 +32,13 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-const localforage = require("localforage");
-const store = localforage.createInstance({
-  name: "Appsmith",
-});
 let pageidcopy = " ";
 const chainStart = Symbol();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
-    store.setItem(Cypress.env("USERNAME"), {
-      REFLOW_BETA_FLAG: true,
-      REFLOW_ONBOARDING_FLAG: {
-        done: true,
-        finishedStep: 0,
-      },
-    });
-    store.dropInstance();
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
+    window.localStorage.setItem("DisableReflowOnboarding", true);
   });
 };
 
