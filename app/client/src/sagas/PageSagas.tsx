@@ -205,6 +205,7 @@ function* handleFetchedPage({
   const isValidResponse = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
+  const mode: APP_MODE = yield select(getAppMode);
 
   if (isValidResponse) {
     // Clear any existing caches
@@ -213,6 +214,20 @@ function* handleFetchedPage({
     yield call(setDataUrl);
     // Get Canvas payload
     const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
+    // Set Init tab
+    if (mode === APP_MODE.EDIT) {
+      yield put({
+        type: ReduxActionTypes.INITIALIZE_EDITOR_TABS,
+        payload: {
+          id: fetchPageResponse.data.id,
+          name: fetchPageResponse.data.name,
+          url: BUILDER_PAGE_URL({
+            applicationId: fetchPageResponse.data.applicationId,
+            pageId: fetchPageResponse.data.id,
+          }),
+        },
+      });
+    }
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
     // set current page

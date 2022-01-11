@@ -56,8 +56,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
-  top: 0;
-  left: 0;
   width: ${(props) => (!props.isVisible ? "0px" : "100%")};
   height: 100%;
   background-color: ${(props) =>

@@ -30,6 +30,7 @@ const initialState: EditorReduxState = {
   isSnipingMode: false,
   isPreviewMode: false,
   zoomLevel: 1,
+  editorTabs: [{ id: "", name: "", url: "" }],
 };
 
 const editorReducer = createReducer(initialState, {
@@ -209,7 +210,30 @@ const editorReducer = createReducer(initialState, {
       savingEntity: false,
     },
   }),
+  [ReduxActionTypes.INITIALIZE_EDITOR_TABS]: (
+    state: EditorReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    editorTabs: [action.payload],
+  }),
+  [ReduxActionTypes.UPDATE_EDITOR_TABS]: (
+    state: EditorReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    editorTabs: [...state.editorTabs, action.payload],
+  }),
+  [ReduxActionTypes.CLOSE_EDITOR_TAB]: (
+    state: EditorReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    editorTabs: state.editorTabs.filter((tab) => tab.id !== action.payload),
+  }),
 });
+
+export type EditorTab = { id: string; name: string; url: string };
 
 export interface EditorReduxState {
   initialized: boolean;
@@ -240,6 +264,7 @@ export interface EditorReduxState {
     updatingWidgetName: boolean;
     updateWidgetNameError: boolean;
   };
+  editorTabs: [EditorTab];
 }
 
 export default editorReducer;

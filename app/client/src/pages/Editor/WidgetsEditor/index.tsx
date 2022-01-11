@@ -113,7 +113,7 @@ function WidgetsEditor() {
         <OnboardingTasks />
       ) : (
         <div
-          className="relative overflow-hidden flex flex-col"
+          className={`relative overflow-hidden flex flex-row w-full`}
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}
@@ -129,4 +129,4 @@ function WidgetsEditor() {
   );
 }
 
-export default WidgetsEditor;
+export default React.memo(WidgetsEditor);
