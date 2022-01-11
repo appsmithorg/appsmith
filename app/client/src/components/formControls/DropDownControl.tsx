@@ -23,13 +23,22 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       width = this.props?.customStyles?.width;
     }
 
+    let options = this.props.options;
+    let isLoading = false;
+    if (
+      this.props.fetchOptionsCondtionally &&
+      !!this.props.dynamicFetchedValues
+    ) {
+      options = this.props.dynamicFetchedValues.data;
+      isLoading = this.props.dynamicFetchedValues.isLoading;
+    }
+
     return (
       <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
-          options={this.props.options}
-          props={{ ...this.props, width }}
+          props={{ ...this.props, width, isLoading, options }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>
@@ -45,25 +54,20 @@ function renderDropdown(props: {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
   props: DropDownControlProps & { width?: string };
-  fetchOptionsCondtionally: boolean;
   formName: string;
+  isLoading?: boolean;
   options: DropdownOption[];
   disabled?: boolean;
-  dynamicFetchedValues?: DynamicValues;
 }): JSX.Element {
   let selectedValue = props.input?.value;
   if (_.isUndefined(props.input?.value)) {
     selectedValue = props?.props?.initialValue;
   }
-  let isLoading = false;
-  let options = props.options;
-  if (props.fetchOptionsCondtionally && !!props.dynamicFetchedValues) {
-    options = props.dynamicFetchedValues.data;
-    isLoading = props.dynamicFetchedValues.isLoading;
-  }
+
   const selectedOption =
-    options.find((option: DropdownOption) => option.value === selectedValue) ||
-    {};
+    props.options.find(
+      (option: DropdownOption) => option.value === selectedValue,
+    ) || {};
   return (
     <Dropdown
       boundary="window"
@@ -72,11 +76,11 @@ function renderDropdown(props: {
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}
       helperText={props.props?.info}
-      isLoading={isLoading}
+      isLoading={props.isLoading}
       isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
       optionWidth="50vh"
-      options={options}
+      options={props.options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
