@@ -4707,7 +4707,7 @@ public class DatabaseChangelog {
                 Datasource.class
         );
     }
-  
+
     /**
      * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
      * unexpected / bad older data.
@@ -4738,7 +4738,7 @@ public class DatabaseChangelog {
         // Update plugin data.
         mongockTemplate.save(firestorePlugin);
     }
-  
+
     @ChangeSet(order = "108", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
         Index uniqueApplicationIdIndex = new Index()
@@ -4903,6 +4903,13 @@ public class DatabaseChangelog {
                 makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
                         .named("defaultApplicationId_branchName_deleted_compound_index")
         );
+    }
+    
+    @ChangeSet(order = "111", id = "update-mockdb-endpoint-2", author = "")
+    public void updateMockdbEndpoint2(MongockTemplate mongockTemplate) {
+        // Doing this again as another migration since it appears some new datasource were created with the old
+        // endpoint around 14-Dec-2021 to 16-Dec-2021.
+        updateMockdbEndpoint(mongockTemplate);
     }
 
 }
