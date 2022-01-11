@@ -7,6 +7,7 @@ export type DynamicValues = {
   allowedToFetch: boolean;
   isLoading: boolean;
   hasStarted: boolean;
+  hasFetchFailed: boolean;
   data: any;
   config: { url: string; method: string; params?: string[] };
 };

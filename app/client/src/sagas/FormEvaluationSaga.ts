@@ -139,12 +139,19 @@ function* fetchDynamicValueSaga(
 
     // Call the API to fetch the dynamic values
     const response = yield call(PluginsApi.fetchDynamicFormValues, url);
+    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
     if (!!response) {
-      (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
       (evalOutput[key].fetchDynamicValues as DynamicValues).data = response;
+    } else {
+      (evalOutput[key]
+        .fetchDynamicValues as DynamicValues).hasFetchFailed = true;
+      (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
     }
   } catch (e) {
     log.error(e);
+    (evalOutput[key].fetchDynamicValues as DynamicValues).hasFetchFailed = true;
+    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
+    (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
   }
   return evalOutput;
 }

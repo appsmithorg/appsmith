@@ -74,6 +74,7 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
         allowedToFetch: false,
         isLoading: false,
         hasStarted: false,
+        hasFetchFailed: false,
         data: [],
         config: {
           url: formConfig.conditionals.fetchDynamicValues.url,
