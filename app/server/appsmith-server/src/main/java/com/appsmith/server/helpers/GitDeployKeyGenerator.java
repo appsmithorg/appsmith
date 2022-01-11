@@ -23,7 +23,7 @@ public class GitDeployKeyGenerator {
         KeyPair kpair;
 
         try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.ECDSA, 521);
+            kpair = KeyPair.genKeyPair(jsch, KeyPair.ECDSA, 256);
         } catch (JSchException e) {
             log.error("failed to generate ECDSA key pair", e);
             throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");

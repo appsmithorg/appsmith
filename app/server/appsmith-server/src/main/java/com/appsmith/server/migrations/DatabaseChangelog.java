@@ -4883,7 +4883,7 @@ public class DatabaseChangelog {
         query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
         query.addCriteria(Criteria.where("deleted").is(FALSE));
 
-        for (Application application : mongockTemplate.findAll(Application.class)) {
+        for (Application application : mongockTemplate.find(query, Application.class)) {
             if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
                 GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
