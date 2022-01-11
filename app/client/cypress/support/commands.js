@@ -46,7 +46,7 @@ Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
     .first()
-    .click({ force: true });
+    .click({ multiple: true });
 });
 
 Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
