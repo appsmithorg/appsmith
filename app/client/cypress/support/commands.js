@@ -46,7 +46,6 @@ Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
     .first()
-    .focus()
     .click({ force: true });
 });
 
