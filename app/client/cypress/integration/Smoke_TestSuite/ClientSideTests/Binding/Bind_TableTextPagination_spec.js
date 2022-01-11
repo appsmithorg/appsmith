@@ -89,11 +89,11 @@ describe("Test Create Api and Bind to Table widget", function() {
       parseSpecialCharSequences: false,
     });
     cy.WaitAutoSave();
-    cy.SearchEntityandOpen("Text1");
+    cy.get(".t--entity-name:contains(Text1)").click({ froce: true });
     //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
-    cy.SearchEntityandOpen("Table1");
+    cy.get(".t--entity-name:contains(Table1)").click({ froce: true });
     cy.testJsontext("tabledata", "{{Api2.data.users}}");
     cy.callApi("Api2");
   });

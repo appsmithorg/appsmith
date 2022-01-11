@@ -3,7 +3,7 @@ const firstApiName = "First";
 const secondApiName = "Second";
 
 describe("Api Naming conflict on a page test", function() {
-  it("expects actions on the same page cannot have identical names", function() {
+  it.skip("expects actions on the same page cannot have identical names", function() {
     cy.log("Login Successful");
     // create an API
     cy.NavigateToAPI_Panel();

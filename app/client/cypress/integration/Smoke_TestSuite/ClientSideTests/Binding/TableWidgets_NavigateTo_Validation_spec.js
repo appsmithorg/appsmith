@@ -33,7 +33,13 @@ describe("Table Widget and Navigate to functionality validation", function() {
   });
 
   it("Validate NavigateTo Page functionality ", function() {
-    cy.SearchEntityandOpen("Table1");
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.selectEntityByName("WIDGETS");
+    cy.get(`.t--entity-name:contains("Table1")`)
+      .should("be.visible")
+      .click({ force: true });
     //Below test to be enabled once the bug related to change of page in table in fixed
     //cy.get('.t--table-widget-next-page')
     //  .click();

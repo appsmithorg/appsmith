@@ -54,7 +54,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
       .click();
     cy.wait(30000);
     cy.GlobalSearchEntity("WIDGETS");
-    cy.get(`.t--entity.t--jsaction:contains(FormTest)`).trigger("mouseover");
+    cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
     cy.hoverAndClick();
     cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {

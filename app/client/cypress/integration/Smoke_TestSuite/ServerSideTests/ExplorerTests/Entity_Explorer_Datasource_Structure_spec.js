@@ -31,7 +31,9 @@ describe("Entity explorer datasource structure", function() {
       .blur();
     cy.WaitAutoSave();
 
-    cy.GlobalSearchEntity(datasourceName);
+    cy.get(".t--entity-name")
+      .contains(datasourceName)
+      .click({ force: true });
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",

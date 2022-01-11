@@ -6,9 +6,12 @@ const pageTwo = "MyPage2";
 
 describe("Hide / Show page test functionality", function() {
   it("Hide page test ", function() {
+    cy.wait(30000);
     cy.Createpage(pageOne);
     cy.Createpage(pageTwo);
-    //cy.hoverAndClickParticularIndex(3);
+    cy.get(".t--entity-name")
+      .contains("Page1")
+      .click({ force: true });
     cy.get(`.t--entity-name:contains('MyPage2')`).trigger("mouseover");
     cy.hoverAndClick();
     cy.get(pages.hidePage).click({ force: true });
