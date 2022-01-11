@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   ChartDataPoint,
   ChartType,

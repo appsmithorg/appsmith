@@ -122,6 +122,8 @@ export const getIsMergeInProgress = (state: AppState) =>
 export const getTempRemoteUrl = (state: AppState) =>
   state.ui.gitSync.tempRemoteUrl;
 
+export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
+
 export const getCountOfChangesToCommit = (state: AppState) => {
   const gitStatus = getGitStatus(state);
   const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};

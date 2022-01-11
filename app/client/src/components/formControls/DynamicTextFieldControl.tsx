@@ -99,6 +99,7 @@ class DynamicTextControl extends BaseControl<
           <DynamicTextField
             className="dynamic-text-field"
             dataTreePath={dataTreePath}
+            disabled={this.props.disabled}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
             name={this.props.configProperty}
