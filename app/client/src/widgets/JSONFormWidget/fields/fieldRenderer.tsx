@@ -22,6 +22,7 @@ const fieldRenderer = (
   const fieldProps = {
     key: fieldName,
     name: fieldName,
+    fieldClassName: fieldName.replace(/[\.\[\]]/gi, "-"), // replace [,],. with -
     tooltip,
     schemaItem,
     propertyPath,

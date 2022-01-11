@@ -70,7 +70,12 @@ const StyledDeleteButton = styled(StyledButton)`
   align-self: flex-end;
   color: ${Colors.CRIMSON};
 `;
-function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
+function ArrayField({
+  fieldClassName,
+  name,
+  propertyPath,
+  schemaItem,
+}: ArrayFieldProps) {
   const { getValues, setValue } = useFormContext();
   const [keys, setKeys] = useState<string[]>([]);
   const { setFieldValidityState } = useContext(FormContext);
@@ -175,7 +180,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   return (
     <StyledNestedFormWrapper
       backgroundColor={backgroundColor}
-      className={`t--jsonformfield-${name}`}
+      className={`t--jsonformfield-${fieldClassName}`}
     >
       <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip} />
       {keys.map((key, index) => {
@@ -186,6 +191,7 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
           <Accordion
             backgroundColor={cellBackgroundColor}
             borderColor={cellBorderColor}
+            className={`t--jsonformfield-${fieldClassName}-item t--item-${index}`}
             isCollapsible={schemaItem.isCollapsible}
             key={key}
             title={`${index + 1}`}
@@ -197,25 +203,33 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
                 fieldPropertyPath,
                 options,
               )}
-              <StyledDeleteButton onClick={() => remove(key)} type="button">
+              <StyledDeleteButton
+                className="t--jsonformfield-array-delete-btn"
+                onClick={() => remove(key)}
+                type="button"
+              >
                 <Icon
                   icon="trash"
                   iconSize={ACTION_ICON_SIZE}
                   style={{ color: Colors.CRIMSON }}
                 />
-                Delete
+                <span className="t--text">Delete</span>
               </StyledDeleteButton>
             </StyledItemWrapper>
           </Accordion>
         );
       })}
-      <StyledButton onClick={add} type="button">
+      <StyledButton
+        className="t--jsonformfield-array-add-btn"
+        onClick={add}
+        type="button"
+      >
         <Icon
           icon="add"
           iconSize={ACTION_ICON_SIZE}
           style={{ color: Colors.GREEN }}
         />
-        Add New
+        <span className="t--text">Add New</span>
       </StyledButton>
     </StyledNestedFormWrapper>
   );

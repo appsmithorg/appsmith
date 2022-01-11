@@ -18,6 +18,7 @@ type ObjectComponentProps = FieldComponentBaseProps & {
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
+  fieldClassName: string;
   hideAccordion?: boolean;
   hideLabel?: boolean;
   isRootField?: boolean;
@@ -48,6 +49,7 @@ const StyledWrapper = styled.div<StyledWrapperProps>`
 `;
 
 function ObjectField({
+  fieldClassName,
   hideAccordion = false,
   hideLabel,
   isRootField = false,
@@ -87,7 +89,7 @@ function ObjectField({
 
   return (
     <StyledWrapper
-      className={`t--jsonformfield-${name}`}
+      className={`t--jsonformfield-${fieldClassName}`}
       withBottomMargin={!hideAccordion}
     >
       <NestedFormWrapper

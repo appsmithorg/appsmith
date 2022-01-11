@@ -64,6 +64,7 @@ export type FieldEventProps = {
 export type BaseFieldComponentProps<TProps = any> = {
   hideLabel?: boolean;
   isRootField?: boolean;
+  fieldClassName: string;
   name: ControllerRenderProps["name"];
   propertyPath: string;
   schemaItem: SchemaItem & TProps;

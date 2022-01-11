@@ -170,7 +170,12 @@ function isValidType(value: string, options?: IsValidOptions) {
   return false;
 }
 
-function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
+function InputField({
+  name,
+  propertyPath,
+  schemaItem,
+  ...rest
+}: InputFieldProps) {
   const { executeAction, renderMode, updateWidgetProperty } = useContext(
     FormContext,
   );
@@ -280,6 +285,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
 
   return (
     <Field
+      {...rest}
       defaultValue={schemaItem.defaultValue}
       isRequiredField={isRequired}
       label={schemaItem.label}

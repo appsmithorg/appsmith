@@ -102,6 +102,7 @@ function JSONFormComponent<TValues>({
 
     return (
       <RootField
+        fieldClassName="root"
         isRootField
         name=""
         propertyPath={propertyPath}

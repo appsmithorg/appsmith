@@ -9,6 +9,7 @@ import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 type FieldProps<TValue> = {
   defaultValue: TValue;
   defaultValueValidatorFn?: (value: TValue) => boolean;
+  fieldClassName: string;
   hideLabel?: boolean;
   inlineLabel?: boolean;
   isRequiredField?: boolean;
@@ -39,6 +40,7 @@ const StyledControllerWrapper = styled.div`
 function Field<TValue>({
   defaultValue,
   defaultValueValidatorFn,
+  fieldClassName,
   hideLabel = false,
   inlineLabel = false,
   isRequiredField,
@@ -76,7 +78,10 @@ function Field<TValue>({
   const direction = inlineLabel ? "row" : "column";
 
   return (
-    <StyledWrapper className={`t--jsonformfield-${name}`} direction={direction}>
+    <StyledWrapper
+      className={`t--jsonformfield-${fieldClassName}`}
+      direction={direction}
+    >
       {hideLabel ? (
         controller
       ) : (

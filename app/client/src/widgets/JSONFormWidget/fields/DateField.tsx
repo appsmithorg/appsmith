@@ -132,6 +132,26 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
 
         const isValueValid = isValid(schemaItem, value);
 
+        const valueInISOFormat = (() => {
+          if (!isValueValid) return value;
+
+          if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+            return value;
+          }
+
+          const valueInSelectedFormat = moment(
+            value,
+            schemaItem.dateFormat,
+            true,
+          );
+
+          if (valueInSelectedFormat.isValid()) {
+            return valueInSelectedFormat.format(ISO_DATE_FORMAT);
+          }
+
+          return value;
+        })();
+
         registerFieldOnBlurHandler(onBlur);
         onFieldValidityChange(isValueValid);
 
@@ -147,7 +167,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
             maxDate={schemaItem.maxDate}
             minDate={schemaItem.minDate}
             onDateSelected={onDateSelected}
-            selectedDate={value}
+            selectedDate={valueInISOFormat}
             shortcuts={schemaItem.shortcuts}
             widgetId=""
           />
