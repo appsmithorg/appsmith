@@ -31,6 +31,13 @@
           "placeholderText" : "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]"
         }
       ]
+    },
+    {
+      "label": "Limit",
+      "configProperty": "actionConfiguration.formData.aggregate.limit",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "initialValue": "10"
     }
   ]
 }
