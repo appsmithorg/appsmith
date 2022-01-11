@@ -550,7 +550,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifying Searching File from UI
     cy.xpath(queryLocators.searchFilefield)
       .clear()
-      .type("VVase")
+      .type("Vase")
       .wait(3000); //for search to finish
     expect(
       cy.xpath(

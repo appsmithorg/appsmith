@@ -80,4 +80,17 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
     });
 
+    it("5. Verify Promise.race", () => {
+        cy.fixture('asyncAwaitTestBtn').then((val: any) => {
+            agHelper.AddDsl(val)
+        });
+        apiPage.CreateAndFillApi("https://api.agify.io?name={{this.params.person}}", "Agify")
+        apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.person}}" }); // verifies Bug 10055
+
+        agHelper.SelectEntityByName("Button1");
+        jsEditor.EnterJSContext('onclick', `{{Promise.race([Agify.run({person:'Melinda' }),Agify.run({person:'Trump'})]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name))})}}`, true, true);
+        agHelper.ClickButton('Submit')
+        cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump|null/g)
+    });
+
 });
