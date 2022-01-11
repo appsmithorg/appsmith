@@ -196,6 +196,7 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
@@ -370,6 +371,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
+          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
         run: |
           ls -l
           ls -l scripts/
@@ -469,7 +471,7 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: "cypress/integration/Smoke_TestSuite/**/*.js"
+          spec: "cypress/integration/Smoke_TestSuite/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
