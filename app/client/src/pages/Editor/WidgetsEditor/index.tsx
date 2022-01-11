@@ -136,7 +136,7 @@ function WidgetsEditor() {
         <OnboardingTasks />
       ) : (
         <div
-          className="relative overflow-hidden flex flex-row w-[100%]"
+          className="relative overflow-hidden flex flex-row w-full"
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}
