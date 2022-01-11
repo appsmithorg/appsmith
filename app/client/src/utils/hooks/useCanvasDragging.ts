@@ -423,9 +423,97 @@ export const useCanvasDragging = (
           }
           return currentDirection.current;
         };
+        const triggerReflow = (e: any, firstMove: boolean) => {
+          const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
+          const isReflowing = !isEmpty(currentReflowParams.movementMap);
+          const canReflow =
+            reflowEnabled &&
+            currentRectanglesToDraw.length === 1 &&
+            !currentRectanglesToDraw[0].detachFromLayout;
+          const currentBlock = currentRectanglesToDraw[0];
+          const [leftColumn, topRow] = getDropZoneOffsets(
+            snapColumnSpace,
+            snapRowSpace,
+            {
+              x: currentBlock.left,
+              y: currentBlock.top,
+            },
+            {
+              x: 0,
+              y: 0,
+            },
+          );
+          const needsReflow = !(
+            lastSnappedPosition.leftColumn === leftColumn &&
+            lastSnappedPosition.topRow === topRow
+          );
+          lastSnappedPosition = {
+            leftColumn,
+            topRow,
+          };
+          if (canReflow && reflow.current) {
+            if (needsReflow) {
+              const resizedPositions = {
+                left: leftColumn,
+                top: topRow,
+                right: leftColumn + currentBlock.width / snapColumnSpace,
+                bottom: topRow + currentBlock.height / snapRowSpace,
+                id: currentBlock.widgetId,
+              };
+              const originalPositions = widgetOccupiedSpace
+                ? { ...widgetOccupiedSpace }
+                : {
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    id: currentBlock.widgetId,
+                  };
+              currentDirection.current = getMouseMoveDirection(e);
+              const immediateExitContainer = lastDraggedCanvas.current;
+              if (lastDraggedCanvas.current) {
+                lastDraggedCanvas.current = undefined;
+              }
+              currentReflowParams = reflow.current(
+                resizedPositions,
+                originalPositions,
+                currentDirection.current,
+                false,
+                !canReflowBasedOnMouseSpeed,
+                firstMove,
+                immediateExitContainer,
+              );
+            }
+
+            if (isReflowing) {
+              const block = currentRectanglesToDraw[0];
+              const isNotInParentBoundaries = noCollision(
+                { x: block.left, y: block.top },
+                snapColumnSpace,
+                snapRowSpace,
+                { x: 0, y: 0 },
+                block.columnWidth,
+                block.rowHeight,
+                block.widgetId,
+                [],
+                rowRef.current,
+                GridDefaults.DEFAULT_GRID_COLUMNS,
+                block.detachFromLayout,
+              );
+              const newRows = updateBottomRow(
+                currentReflowParams.bottomMostRow,
+                rowRef.current,
+              );
+              rowRef.current = newRows ? newRows : rowRef.current;
+              currentRectanglesToDraw[0].isNotColliding =
+                isNotInParentBoundaries &&
+                currentReflowParams.canHorizontalMove &&
+                currentReflowParams.canVerticalMove;
+            }
+          }
+        };
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
-            const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
@@ -462,92 +550,7 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const isReflowing = !isEmpty(currentReflowParams.movementMap);
-              const canReflow =
-                reflowEnabled &&
-                currentRectanglesToDraw.length === 1 &&
-                !currentRectanglesToDraw[0].detachFromLayout;
-              const currentBlock = currentRectanglesToDraw[0];
-              const [leftColumn, topRow] = getDropZoneOffsets(
-                snapColumnSpace,
-                snapRowSpace,
-                {
-                  x: currentBlock.left,
-                  y: currentBlock.top,
-                },
-                {
-                  x: 0,
-                  y: 0,
-                },
-              );
-              const needsReflow = !(
-                lastSnappedPosition.leftColumn === leftColumn &&
-                lastSnappedPosition.topRow === topRow
-              );
-              lastSnappedPosition = {
-                leftColumn,
-                topRow,
-              };
-              if (canReflow && reflow.current) {
-                if (needsReflow) {
-                  const resizedPositions = {
-                    left: leftColumn,
-                    top: topRow,
-                    right: leftColumn + currentBlock.width / snapColumnSpace,
-                    bottom: topRow + currentBlock.height / snapRowSpace,
-                    id: currentBlock.widgetId,
-                  };
-                  const originalPositions = widgetOccupiedSpace
-                    ? { ...widgetOccupiedSpace }
-                    : {
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        id: currentBlock.widgetId,
-                      };
-                  currentDirection.current = getMouseMoveDirection(e);
-                  const immediateExitContainer = lastDraggedCanvas.current;
-                  if (lastDraggedCanvas.current) {
-                    lastDraggedCanvas.current = undefined;
-                  }
-                  currentReflowParams = reflow.current(
-                    resizedPositions,
-                    originalPositions,
-                    currentDirection.current,
-                    false,
-                    !canReflowBasedOnMouseSpeed,
-                    firstMove,
-                    immediateExitContainer,
-                  );
-                }
-
-                if (isReflowing) {
-                  const block = currentRectanglesToDraw[0];
-                  const isNotInParentBoundaries = noCollision(
-                    { x: block.left, y: block.top },
-                    snapColumnSpace,
-                    snapRowSpace,
-                    { x: 0, y: 0 },
-                    block.columnWidth,
-                    block.rowHeight,
-                    block.widgetId,
-                    [],
-                    rowRef.current,
-                    GridDefaults.DEFAULT_GRID_COLUMNS,
-                    block.detachFromLayout,
-                  );
-                  const newRows = updateBottomRow(
-                    currentReflowParams.bottomMostRow,
-                    rowRef.current,
-                  );
-                  rowRef.current = newRows ? newRows : rowRef.current;
-                  currentRectanglesToDraw[0].isNotColliding =
-                    isNotInParentBoundaries &&
-                    currentReflowParams.canHorizontalMove &&
-                    currentReflowParams.canVerticalMove;
-                }
-              }
+              triggerReflow(e, firstMove);
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
