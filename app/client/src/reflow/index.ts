@@ -1,5 +1,4 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { cloneDeep } from "lodash";
 import { getMovementMap } from "./reflowHelpers";
 import { CollidingSpaceMap, GridProps, ReflowDirection } from "./reflowTypes";
 import {
@@ -11,6 +10,21 @@ import {
   getShouldReflow,
 } from "./reflowUtils";
 
+/**
+ * Reflow method that returns the displacement metrics of all other colliding spaces
+ *
+ * @param newPositions new/current positions of the space/block
+ * @param OGPositions original positions of the space before movement
+ * @param occupiedSpaces array of all the occupied spaces on the canvas
+ * @param direction direction of movement of the moving space
+ * @param gridProps properties of the canvas's grid
+ * @param forceDirection boolean to force the direction on certain scenarioes
+ * @param shouldResize boolean to indicate if colliding spaces should resize
+ * @param immediateExitContainer boolean to indicate if the space exitted a nested canvas
+ * @param prevPositions last known position of the space
+ * @param prevCollidingSpaces last known colliding spaces of the dragging/resising space
+ * @returns movement information of the dragging/resizing space and other colliding spaces
+ */
 export function reflow(
   newPositions: OccupiedSpace,
   OGPositions: OccupiedSpace,
@@ -28,18 +42,6 @@ export function reflow(
     newPositions.id,
     occupiedSpaces,
   );
-  const consolelog = cloneDeep({
-    newPositions,
-    OGPositions,
-    occupiedSpaces,
-    direction,
-    gridProps,
-    forceDirection,
-    shouldResize,
-    immediateExitContainer,
-    prevPositions,
-    prevCollidingSpaces,
-  });
 
   const { collidingSpaceMap, isColliding } = getCollidingSpaces(
     newPositions,
@@ -59,8 +61,6 @@ export function reflow(
       },
     };
   }
-  //eslint-disable-next-line
-  console.log("reflow input", consolelog);
 
   changeExitContainerDirection(
     collidingSpaceMap,

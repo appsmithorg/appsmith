@@ -26,6 +26,16 @@ import {
   sortCollidingSpacesByDistance,
 } from "./reflowUtils";
 
+/**
+ * returns movement map of all the cascading colliding spaces
+ * @param occupiedSpaces array of all the occupied spaces on the canvas
+ * @param newPositions new/current positions of the space/block
+ * @param collidingSpaceMap Map of Colliding spaces of the dragging/resizing space
+ * @param gridProps properties of the canvas's grid
+ * @param delta X and Y coordinate displacement of the newPosition from the original position
+ * @param shouldResize boolean to indicate if colliding spaces should resize
+ * @returns movement map of all the cascading colliding spaces
+ */
 export function getMovementMap(
   occupiedSpaces: OccupiedSpace[],
   newPositions: OccupiedSpace,
@@ -137,6 +147,13 @@ export function getMovementMap(
   };
 }
 
+/**
+ * Recursively create a tree of Space collisions
+ * @param occupiedSpaces array of all the occupied spaces on the canvas
+ * @param newPositions new/current positions of the space/block
+ * @param collidingSpaceMap Map of Colliding spaces of the dragging/resizing space
+ * @returns Collisions in a tree structure
+ */
 function getCollisionTree(
   occupiedSpaces: OccupiedSpace[],
   newPositions: OccupiedSpace,

@@ -155,7 +155,7 @@ type ResizableProps = {
   zWidgetId?: string;
 };
 
-export function Resizable(props: ResizableProps) {
+export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
   const reflowEnabled = useSelector(isReflowEnabled);
@@ -504,4 +504,4 @@ export function Resizable(props: ResizableProps) {
   );
 }
 
-export default Resizable;
+export default ReflowResizable;
