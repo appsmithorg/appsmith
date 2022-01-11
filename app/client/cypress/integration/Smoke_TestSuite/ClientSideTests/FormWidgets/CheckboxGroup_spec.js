@@ -61,12 +61,16 @@ describe("Checkbox Group Widget Functionality", function() {
   });
 
   it("2. Checkbox Group Functionality To Unchecked Visible Widget", function() {
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.checkboxGroupWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
 
   it("3. Checkbox Group Functionality To Check Visible Widget", function() {
@@ -82,7 +86,9 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(publish.checkboxGroupWidget + " " + "label")
       .eq(1)
       .should("have.text", "test2");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
   it("Checkbox Group Functionality To alignment options", function() {
     cy.openPropertyPane("checkboxgroupwidget");

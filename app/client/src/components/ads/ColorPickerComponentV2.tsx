@@ -81,7 +81,7 @@ const StyledInputGroup = styled(InputGroup)`
   }
 `;
 
-const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer hover:ring-1 ring-gray-500`;
+const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer hover:ring-1 ring-gray-500 t--colorpicker-v2-color`;
 
 /**
  * ----------------------------------------------------------------------------
@@ -133,7 +133,10 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const evaluatedValue = color || "";
 
   return (
-    <div className="popover-target-colorpicker" ref={inputRef}>
+    <div
+      className="popover-target-colorpicker t--colorpicker-v2-popover"
+      ref={inputRef}
+    >
       <Popover
         boundary="viewport"
         interactionKind={PopoverInteractionKind.CLICK}

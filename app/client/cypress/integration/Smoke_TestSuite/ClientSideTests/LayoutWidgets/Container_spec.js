@@ -60,7 +60,9 @@ describe("Container Widget Functionality", function() {
   });
 
   it("Test border width and verity", function() {
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.openPropertyPane("containerwidget");
 
     cy.testJsontext("borderwidth", "10");

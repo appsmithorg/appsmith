@@ -30,7 +30,9 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(
       publish.multiselecttreewidget + " " + ".rc-tree-select-multiple",
     ).should("not.exist");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
   it(" To Check Visible Widget", function() {
     cy.openPropertyPane("multiselecttreewidget");
@@ -39,7 +41,9 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(
       publish.multiselecttreewidget + " " + ".rc-tree-select-multiple",
     ).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
 });
 afterEach(() => {

@@ -71,7 +71,9 @@ describe("Create new org and share with a user", function() {
       currentUrl = url;
       cy.log(currentUrl);
     });
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.LogOut();
   });
 

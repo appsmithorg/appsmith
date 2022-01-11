@@ -20,7 +20,9 @@ describe("Hide / Show page test functionality", function() {
   });
 
   it("Show page test ", function() {
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.GlobalSearchEntity(pageOne);
     cy.xpath(pages.popover)
       .last()

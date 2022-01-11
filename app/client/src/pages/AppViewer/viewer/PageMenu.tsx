@@ -88,7 +88,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
           height: `calc(100% - ${headerHeight}px)`,
         }}
       >
-        <div className="flex-grow py-3" ref={menuRef}>
+        <div className="flex-grow py-3 overflow-y-scroll" ref={menuRef}>
           {appPages.map((page) => (
             <NavLink
               activeClassName="border-r-3 font-semibold"

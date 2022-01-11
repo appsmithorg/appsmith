@@ -67,7 +67,9 @@ describe("Page Load tests", () => {
     );
   });
   it("Hide Page and validate published app", () => {
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.GlobalSearchEntity("Page1");
     cy.xpath(pages.popover)
       .last()
@@ -80,7 +82,9 @@ describe("Page Load tests", () => {
       "have.text",
       "This is Page 1",
     );
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.SearchEntityandOpen("Page2");
     cy.PublishtheApp();
     // Assert active page DSL

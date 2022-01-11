@@ -14,13 +14,13 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
      * @param{CheckboxPre Css} Assertion
      */
 
-    //Check if the cell background is #03b365
+    //Check if the cell background is #50AF6C
     cy.selectColor("cellbackground");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
-      "rgb(3, 179, 101)",
+      "rgb(80, 175, 108)",
     );
 
     //Toggle to JS mode
@@ -39,16 +39,16 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
 
     cy.EvaluateCurrentValue("red");
 
-    //Check if the typed color #03b365 is reflecting in the background color and in the evaluated value
-    cy.updateCodeInput(".t--property-control-cellbackground", "#03b365");
+    //Check if the typed color #50AF6C is reflecting in the background color and in the evaluated value
+    cy.updateCodeInput(".t--property-control-cellbackground", "#50AF6C");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
-      "rgb(3, 179, 101)",
+      "rgb(80, 175, 108)",
     );
 
-    cy.EvaluateCurrentValue("#03b365");
+    cy.EvaluateCurrentValue("#50AF6C");
 
     //Check if the typed color transparent is reflecting in the background color and in the evaluated value
     cy.updateCodeInput(".t--property-control-cellbackground", "");
@@ -73,12 +73,12 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       .click({ force: true });
 
     cy.wait(100);
-    cy.selectTextSize("Heading 1");
+    cy.selectTextSize("sm");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "font-size",
-      "24px",
+      "14px",
     );
 
     //Toggle JS mode
@@ -87,7 +87,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       .wait(200);
 
     //Check if the typed size HEADING2 is reflecting in the background color and in the evaluated value
-    cy.updateCodeInput(".t--property-control-textsize", "HEADING2");
+    cy.updateCodeInput(".t--property-control-textsize", "18px");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
@@ -95,24 +95,17 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       "18px",
     );
 
-    cy.EvaluateCurrentValue("HEADING2");
-
     //Check for if the text size changes to default size when set to blank in JS mode:
     cy.updateCodeInput(".t--property-control-textsize", "");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "font-size",
-      "14px",
+      "16px",
     );
 
     cy.get(commonlocators.evaluatedCurrentValue)
       .first()
       .should("not.be.visible");
-
-    //Check the values not allowed error message
-    cy.updateCodeInput(".t--property-control-textsize", "HEADING10");
-
-    cy.evaluateErrorMessage("Disallowed value: HEADING10");
   });
 });

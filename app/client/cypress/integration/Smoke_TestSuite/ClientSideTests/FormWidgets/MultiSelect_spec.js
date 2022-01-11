@@ -46,7 +46,9 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(publish.multiselectwidget + " " + ".rc-select-selector").should(
       "not.exist",
     );
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("multiselectwidget");
@@ -55,7 +57,9 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(publish.multiselectwidget + " " + ".rc-select-selector").should(
       "be.visible",
     );
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
   it("Dropdown Functionality To Check Allow select all option", function() {
     // select all option is not enable

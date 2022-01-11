@@ -153,7 +153,9 @@ describe("Dropdown Widget Functionality", function() {
       .contains("Option 1")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.openPropertyPane("dropdownwidget");
     // Click on onOptionChange JS button
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
@@ -181,7 +183,9 @@ describe("Dropdown Widget Functionality", function() {
       .click({ force: true });
     // Verify Option is changed
     cy.validateToastMessage("Option Changed");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
 });
 afterEach(() => {

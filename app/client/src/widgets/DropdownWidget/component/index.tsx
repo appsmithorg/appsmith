@@ -151,10 +151,6 @@ const DropdownStyles = createGlobalStyle<{
 ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-width-${id} {
     min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
-
-    & .${Classes.INPUT_GROUP} {
-       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
-    }
   }
 `}
   .select-popover-wrapper {
@@ -172,7 +168,6 @@ ${({ dropDownWidth, id, parentWidth }) => `
     & .${Classes.INPUT_GROUP} {
       padding: 0;
       margin: 10px !important;
-      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {

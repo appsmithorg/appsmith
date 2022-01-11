@@ -67,7 +67,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(2000);
     // Verify Row is selected by showing the message
     cy.get(commonlocators.toastmsg).contains("Row is selected");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
 
   it("Check On Page Change Action", function() {
@@ -81,7 +83,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.nextPageButton).click({ force: true });
     // Verify the page is changed
     cy.get(commonlocators.toastmsg).contains("Page Changed");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
   it("Verify On Search Text Change Action", function() {
     // Open property pane
@@ -94,7 +98,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(2000);
     // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
 
   it("Check open section and column data in property pane", function() {
@@ -311,7 +317,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.PublishtheApp();
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
 
   it("Verify default selected row", function() {
@@ -328,7 +336,9 @@ describe("Table Widget property pane feature validation", function() {
       "background-color",
       "rgb(236, 249, 243)",
     );
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
   });
 
   it("Table-Delete Verification", function() {

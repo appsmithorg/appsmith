@@ -1547,7 +1547,7 @@ Cypress.Commands.add("selectColor", (GivenProperty) => {
   ).click({
     force: true,
   });
-  cy.get(widgetsPage.colorsAvailable)
+  cy.get(`${widgetsPage.colorPickerV2Color}`)
     .first()
     .click({ force: true });
 });
