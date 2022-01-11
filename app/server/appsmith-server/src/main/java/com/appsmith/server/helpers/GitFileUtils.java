@@ -14,6 +14,8 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -204,7 +206,8 @@ public class GitFileUtils {
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
                                         String viewModeUrl,
                                         String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl);
+        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
     /**
@@ -216,7 +219,10 @@ public class GitFileUtils {
         return fileUtils.detachRemote(baseRepoSuffix);
     }
 
-    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); }
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+        return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix)
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
+    }
 
     private void removeUnwantedFieldsFromPage(NewPage page) {
         page.setDefaultResources(null);
