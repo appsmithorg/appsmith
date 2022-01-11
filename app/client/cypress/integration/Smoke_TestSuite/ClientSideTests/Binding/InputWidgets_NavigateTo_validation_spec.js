@@ -39,13 +39,11 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.wait(4000);
     cy.selectEntityByName("WIDGETS");
+    cy.get(`.t--entity-name:contains("Container3")`)
+      .should("be.visible")
+      .click({ force: true });
     cy.get(`.t--entity-name:contains("Table1")`)
       .should("be.visible")
       .click({ force: true });

@@ -43,6 +43,9 @@ describe("Table Widget and Navigate to functionality validation", function() {
     );
     cy.wait(4000);
     cy.selectEntityByName("WIDGETS");
+    cy.get(`.t--entity-name:contains("Container3")`)
+      .should("be.visible")
+      .click({ force: true });
     cy.get(`.t--entity-name:contains("Table1")`)
       .should("be.visible")
       .click({ force: true });
