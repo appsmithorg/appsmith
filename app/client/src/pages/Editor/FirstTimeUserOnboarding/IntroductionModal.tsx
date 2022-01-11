@@ -37,7 +37,7 @@ const CenteredContainer = styled.div`
 `;
 
 const ModalHeaderWrapper = styled.div`
-  margin: 40px 54px 0px;
+  margin: 40px 52px 0px;
 `;
 const ModalHeader = styled.h5`
   font-size: 28px;
@@ -50,7 +50,7 @@ const ModalSubHeader = styled.h5`
 `;
 
 const ModalBody = styled.div`
-  margin: 21px 54px 16px;
+  margin: 20px 52px 16px;
 `;
 
 const ModalContentWrapper = styled.div``;

@@ -87,7 +87,7 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
 
   letter-spacing: -0.24px;
   padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0px")};
-  margin-top: ${(props) => props.theme.spaces[3] + 1}px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
   flex: 1;
   display: flex;
 `;
@@ -229,9 +229,9 @@ const SuccessMessageWrapper = styled.div`
     justify-content: space-between;
   }
   .info {
-    padding-left: ${(props) => props.theme.spaces[6] + 1}px;
+    padding-left: ${(props) => props.theme.spaces[7]}px;
     display: block;
-    padding-right: 65px;
+    padding-right: 64px;
     margin-top: 0px;
     line-height: 24px;
     font-size: 18px;

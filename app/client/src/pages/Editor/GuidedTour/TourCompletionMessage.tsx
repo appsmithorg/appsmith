@@ -57,8 +57,8 @@ const Description = styled.div`
 const RatingText = styled.span`
   ${(props) => getTypographyByKey(props, "h4")}
   color: #000000;
-  padding-bottom: ${(props) => props.theme.spaces[1] + 1}px;
-  margin-right: ${(props) => props.theme.spaces[7] + 1}px;
+  padding-bottom: ${(props) => props.theme.spaces[2]}px;
+  margin-right: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const RatingWrapper = styled.div`
