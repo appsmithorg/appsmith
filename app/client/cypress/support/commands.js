@@ -38,7 +38,6 @@ const chainStart = Symbol();
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
-    window.localStorage.setItem("DisableReflowOnboarding", true);
   });
 };
 
