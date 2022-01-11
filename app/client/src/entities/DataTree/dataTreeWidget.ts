@@ -51,14 +51,12 @@ export const generateDataTreeWidget = (
     blockedDerivedProps[propertyName] = true;
   });
 
-  Object.entries(defaultProps).forEach(
-    ([metaPropertyName, defaultPropertyName]) => {
-      // All meta values need to exist in the tree, so we initialize them if they don't exist
-      if (!(metaPropertyName in widget)) {
-        unInitializedDefaultProps[metaPropertyName] = undefined;
-      }
-    },
-  );
+  Object.keys(defaultProps).forEach(([metaPropertyName]) => {
+    // All meta values need to exist in the tree, so we initialize them if they don't exist
+    if (!(metaPropertyName in widget)) {
+      unInitializedDefaultProps[metaPropertyName] = undefined;
+    }
+  });
 
   const {
     bindingPaths,
