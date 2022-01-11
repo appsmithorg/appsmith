@@ -757,12 +757,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
               appNameText
             )}
           </AppNameWrapper>
-          {showOverlay && (
+          {showOverlay && !props.isMobile && (
             <div className="overlay">
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
                 <Control className="control">
-                  {hasEditPermission && !isMenuOpen && !props.isMobile && (
+                  {hasEditPermission && !isMenuOpen && (
                     <EditButton
                       className="t--application-edit-link"
                       fill
@@ -773,7 +773,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       text="Edit"
                     />
                   )}
-                  {!isMenuOpen && !props.isMobile && (
+                  {!isMenuOpen && (
                     <Button
                       category={Category.tertiary}
                       className="t--application-view-link"
