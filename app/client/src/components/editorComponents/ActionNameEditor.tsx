@@ -131,7 +131,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
         dispatch(saveActionName({ id: currentActionConfig.id, name }));
       }
     },
-    [dispatch, isInvalidActionName, currentActionConfig],
+    [dispatch, isInvalidActionName, currentActionConfig, guidedTourEnabled],
   );
 
   useEffect(() => {

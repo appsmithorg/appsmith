@@ -101,7 +101,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
 
       dispatch(deleteAction({ id: actionId, name: actionName }));
     },
-    [dispatch],
+    [dispatch, guidedTourEnabled],
   );
 
   const menuPages = useSelector((state: AppState) => {
