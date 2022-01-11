@@ -3,15 +3,12 @@ package com.appsmith.server.helpers;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
 
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
 import static org.reflections.Reflections.log;
