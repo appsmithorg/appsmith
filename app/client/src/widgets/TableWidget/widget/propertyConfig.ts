@@ -1594,7 +1594,7 @@ export default [
     children: [
       {
         propertyName: "cellBackground",
-        label: "Cell Background",
+        label: "Cell Background Color",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],

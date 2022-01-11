@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { REQUEST_TIMEOUT_MS } from "constants/ApiConstants";
+import { REQUEST_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import {
   apiFailureResponseInterceptor,
