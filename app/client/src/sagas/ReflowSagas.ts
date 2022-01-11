@@ -1,21 +1,13 @@
-import {
-  setEnableReflowAction,
-  updateReflowOnBoardingAction,
-} from "actions/reflowActions";
+import { setEnableReflowAction } from "actions/reflowActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
 import { isBoolean } from "lodash";
-import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getReflowBetaFlag,
-  getReflowOnBoardingFlag,
-  setReflowBetaFlag,
-} from "utils/storage";
+import { getReflowBetaFlag, setReflowBetaFlag } from "utils/storage";
 
 function* initReflowStates() {
   try {
@@ -31,19 +23,6 @@ function* initReflowStates() {
       if (!enableReflowHasBeenSet) {
         setReflowBetaFlag(email, true);
       }
-      const onBoardedState: widgetReflowOnBoardingState = yield getReflowOnBoardingFlag(
-        email,
-      );
-      // used only to disable onboarding in cypress tests.
-      const disableOnBoarding = localStorage.getItem("DisableReflowOnboarding");
-      yield put(
-        updateReflowOnBoardingAction(
-          onBoardedState ?? {
-            done: disableOnBoarding,
-            step: -1,
-          },
-        ),
-      );
     }
   } catch (error) {
     yield put({

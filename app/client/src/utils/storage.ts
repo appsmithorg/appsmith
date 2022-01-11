@@ -1,7 +1,6 @@
 import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
-import { widgetReflowOnBoardingState } from "reducers/uiReducers/reflowReducer";
 
 const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
@@ -77,25 +76,6 @@ export const setReflowBetaFlag = async (email: any, enable: boolean) => {
 export const getReflowBetaFlag = async (email: any) => {
   const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
   return userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_BETA_FLAG];
-};
-
-export const setReflowOnBoardingFlag = async (
-  email: any,
-  onBoardingState: widgetReflowOnBoardingState,
-) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  const updatedObj = {
-    ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_ONBOARDING_FLAG]: onBoardingState,
-  };
-  setStoredUsersBetaFlags(email, updatedObj);
-};
-
-export const getReflowOnBoardingFlag = async (email: any) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  return (
-    userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_ONBOARDING_FLAG]
-  );
 };
 
 export const getCopiedWidgets = async () => {
