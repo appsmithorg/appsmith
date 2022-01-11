@@ -19,15 +19,31 @@ export class JSEditor {
             .click({ force: true });
     }
 
-    public CreateJSObject(JSCode: string) {
+    public CreateJSObject(JSCode: string, paste = true, outputCheck = true) {
         this.NavigateToJSEditor();
         agHelper.Sleep()
         cy.get(locator._codeMirrorTextArea)
             .first()
             .focus()
             .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
-            .type(JSCode);
-        cy.get(this._outputConsole).contains(JSCode);
+
+        cy.get(locator._codeMirrorTextArea)
+            .first()
+            .then((el: any) => {
+                const input = cy.get(el);
+                if (paste) {
+                    //input.invoke("val", value);
+                    agHelper.Paste(el, JSCode)
+                } else {
+                    input.type(JSCode, {
+                        force: true,
+                        parseSpecialCharSequences: false,
+                    });
+                }
+            });
+
+        if (outputCheck)
+            cy.get(this._outputConsole).contains(JSCode);
         cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible'))
         agHelper.Sleep(2000)
         cy.xpath(this._runButton)
