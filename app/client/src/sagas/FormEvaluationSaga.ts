@@ -34,6 +34,22 @@ const setIsEvaluating = (newState: boolean) => {
   isEvaluating = newState;
 };
 
+// Function to extract all the objects that have to fetch dynamic values
+const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
+  let output: Record<string, ConditionalOutput> = {};
+  Object.entries(evalOutput).forEach(([key, value]) => {
+    if (
+      "fetchDynamicValues" in value &&
+      !!value.fetchDynamicValues &&
+      "allowedToFetch" in value.fetchDynamicValues &&
+      value.fetchDynamicValues.allowedToFetch
+    ) {
+      output = { ...output, [key]: value };
+    }
+  });
+  return output;
+};
+
 function* setFormEvaluationSagaAsync(
   action: ReduxAction<FormEvalActionPayload>,
 ): any {
@@ -68,11 +84,13 @@ function* setFormEvaluationSagaAsync(
         >;
         yield fork(setFormEvaluationSagaAsync, nextAction);
       } else {
+        // Once all the actions are done, extract the actions that need to be fetched dynamically
         const formId = action.payload.formId;
         const evalOutput = workerResponse[formId];
         const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
           evalOutput,
         );
+        // Pass the queue to the saga to fetch the dynamic values
         yield call(
           fetchDynamicValuesSaga,
           queueOfValuesToBeFetched,
@@ -87,6 +105,7 @@ function* setFormEvaluationSagaAsync(
   }
 }
 
+// Function to fetch the dynamic values one by one from the queue
 function* fetchDynamicValuesSaga(
   queueOfValuesToBeFetched: Record<string, ConditionalOutput>,
   formId: string,
@@ -100,6 +119,7 @@ function* fetchDynamicValuesSaga(
       evalOutput,
     );
   }
+  // Set the values to the state once all values are fetched
   yield put({
     type: ReduxActionTypes.SET_FORM_EVALUATION,
     payload: { [formId]: evalOutput },
@@ -117,6 +137,7 @@ function* fetchDynamicValueSaga(
 
     (evalOutput[key].fetchDynamicValues as DynamicValues).hasStarted = true;
 
+    // Call the API to fetch the dynamic values
     const response = yield call(PluginsApi.fetchDynamicFormValues, url);
     if (!!response) {
       (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
@@ -146,17 +167,3 @@ export default function* formEvaluationChangeListener() {
     }
   }
 }
-const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
-  let output: Record<string, ConditionalOutput> = {};
-  Object.entries(evalOutput).forEach(([key, value]) => {
-    if (
-      "fetchDynamicValues" in value &&
-      !!value.fetchDynamicValues &&
-      "allowedToFetch" in value.fetchDynamicValues &&
-      value.fetchDynamicValues.allowedToFetch
-    ) {
-      output = { ...output, [key]: value };
-    }
-  });
-  return output;
-};

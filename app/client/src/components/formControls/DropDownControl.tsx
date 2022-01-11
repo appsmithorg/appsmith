@@ -23,6 +23,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       width = this.props?.customStyles?.width;
     }
 
+    // Options will be set dynamically if the config has fetchOptionsConditionally set to true
     let options = this.props.options;
     let isLoading = false;
     if (
@@ -38,7 +39,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
-          props={{ ...this.props, width, isLoading, options }}
+          props={{ ...this.props, width, isLoading, options }} // Passing options and isLoading in props allows the component to get the updated values
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>

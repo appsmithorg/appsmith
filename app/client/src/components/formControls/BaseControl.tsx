@@ -58,7 +58,7 @@ export interface ControlData {
   initialValue?: string | boolean | number;
   info?: string; //helper text
   isRequired?: boolean;
-  conditionals?: ConditonalObject;
+  conditionals?: ConditonalObject; // Object that contains the conditionals config
   hidden?: HiddenType;
   placeholderText?: string;
   schema?: any;
@@ -76,7 +76,7 @@ export interface ControlData {
   identifier?: string;
   sectionName?: string;
   disabled?: boolean;
-  dynamicFetchedValues?: DynamicValues;
+  dynamicFetchedValues?: DynamicValues; // Object that holds the output of the dynamic fetched values
 }
 export type FormConfig = Omit<ControlData, "configProperty"> & {
   configProperty?: string;

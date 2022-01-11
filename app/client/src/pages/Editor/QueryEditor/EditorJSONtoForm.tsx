@@ -646,7 +646,24 @@ export function EditorJSONtoForm(props: Props) {
     return enabled;
   };
 
-  // Function to check if the section config is enabled (Only for UQI forms)
+  // Function to modify the section config based on the output of evaluations
+  const modifySectionConfig = (
+    section: any,
+    enabled: boolean,
+    dynamicFetchedValues: DynamicValues | undefined,
+  ): any => {
+    let modifiedSection = { ...section };
+    if (!enabled) {
+      modifiedSection = { ...modifiedSection, disabled: true };
+    }
+    if (!!dynamicFetchedValues) {
+      modifiedSection = { ...modifiedSection, dynamicFetchedValues };
+    }
+
+    return modifiedSection;
+  };
+
+  // Function to extract the object for dynamicValues if it is there in the evaluation state
   const extractDynamicValuesIfPresent = (
     conditionalOutput: ConditionalOutput,
   ) => {
@@ -683,15 +700,11 @@ export function EditorJSONtoForm(props: Props) {
       }
       try {
         const { configProperty } = section;
-        let modifiedSection;
-        if (!enabled) {
-          modifiedSection = { ...section, disabled: true };
-        } else {
-          modifiedSection = { ...section };
-        }
-        if (!!dynamicFetchedValues) {
-          modifiedSection = { ...modifiedSection, dynamicFetchedValues };
-        }
+        const modifiedSection = modifySectionConfig(
+          section,
+          enabled,
+          dynamicFetchedValues,
+        );
         return (
           <FieldWrapper key={`${configProperty}_${idx}`}>
             <FormControl config={modifiedSection} formName={formName} />

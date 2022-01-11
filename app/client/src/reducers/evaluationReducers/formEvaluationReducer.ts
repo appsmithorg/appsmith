@@ -2,6 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { FetchPageRequest } from "api/PageApi";
 
+// Type for the object that will store the dynamic values for each component
 export type DynamicValues = {
   allowedToFetch: boolean;
   isLoading: boolean;
@@ -10,25 +11,20 @@ export type DynamicValues = {
   config: { url: string; method: string; params?: string[] };
 };
 
-export type dynamicValueFetchConfig = {
-  isLoading: boolean;
-  data: any;
-};
-
-export type conditionalConfig = string | dynamicValueFetchConfig;
-
 export type ConditonalObject = Record<string, any>;
 
+// Type for the object that will store the evaluation output for each component
 export type ConditionalOutput = {
   visible?: boolean;
   enabled?: boolean;
   fetchDynamicValues?: DynamicValues;
   conditionals?: ConditonalObject;
-  key?: string;
 };
 
+// Type for the object that will store the eval output for the form
 export type FormEvalOutput = Record<string, ConditionalOutput>;
 
+// Type for the object that will store the eval output for the app
 export type FormEvaluationState = Record<string, FormEvalOutput>;
 
 const initialState: FormEvaluationState = {};
