@@ -1,10 +1,10 @@
 import React from "react";
-import { InputType } from "../constants";
 import BaseInputComponent, {
   BaseInputComponentProps,
 } from "widgets/BaseInputWidget/component";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
 
-const getInputHTMLType = (inputType: InputType) => {
+const getInputHTMLType = (inputType: InputTypes) => {
   switch (inputType) {
     case "NUMBER":
       return "NUMBER";
@@ -20,10 +20,6 @@ const getInputHTMLType = (inputType: InputType) => {
 };
 
 class InputComponent extends React.Component<InputComponentProps> {
-  constructor(props: InputComponentProps) {
-    super(props);
-  }
-
   onTextChange = (
     event:
       | React.ChangeEvent<HTMLInputElement>
@@ -32,7 +28,7 @@ class InputComponent extends React.Component<InputComponentProps> {
     this.props.onValueChange(event.target.value);
   };
 
-  getIcon(inputType: InputType) {
+  getIcon(inputType: InputTypes) {
     switch (inputType) {
       case "EMAIL":
         return "envelope";
@@ -82,6 +78,7 @@ class InputComponent extends React.Component<InputComponentProps> {
   }
 }
 export interface InputComponentProps extends BaseInputComponentProps {
+  inputType: InputTypes;
   maxChars?: number;
   spellCheck?: boolean;
   maxNum?: number;

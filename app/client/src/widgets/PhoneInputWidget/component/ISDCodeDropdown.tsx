@@ -37,13 +37,13 @@ const DropdownTriggerIconWrapper = styled.div<DropdownTriggerIconWrapperProp>`
   z-index: 2;
   pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
 
-  .dropdown {
+  &&& .dropdown {
     svg {
       width: 14px;
       height: 14px;
 
       path {
-        fill: ${Colors.GREY_10} !important;
+        fill: ${Colors.GREY_10};
       }
     }
   }

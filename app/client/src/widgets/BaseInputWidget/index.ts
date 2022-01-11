@@ -1,6 +1,5 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,9 +8,9 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
     label: "",
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 20,
     widgetName: "Input",
     version: 1,
     defaultText: "",

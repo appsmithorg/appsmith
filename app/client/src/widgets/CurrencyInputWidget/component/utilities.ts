@@ -1,3 +1,5 @@
+import { getLocale } from "utils/helpers";
+
 export const countryToFlag = (isoCode: string) => {
   return typeof String.fromCodePoint !== "undefined"
     ? isoCode
@@ -8,27 +10,24 @@ export const countryToFlag = (isoCode: string) => {
     : isoCode;
 };
 
-export const getLocale = () => {
-  return navigator.languages?.[0] || "en-US";
-};
-
 /*
  Returns formatted value with maximum number of decimals based on decimalsInCurrency value 
- and add commas based on user's local browser
+ and add commas based on user's locale
   for eg:
-  a) (2, 1235.456) will return 1,234.56 
-  b) (1, 1234.456) will return 1,234.5
+  a) (2, 1235.456) will return 1,235.45 
+  b) (1, 1234.456) will return 1,234.4
 */
 export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
   const fractionDigits = decimalsInCurrency || 0;
-  const currentIndexOfDecimal = value.indexOf(".");
+  const currentIndexOfDecimal = value.indexOf(getLocaleDecimalSeperator());
   const indexOfDecimal = value.length - fractionDigits - 1;
   const isDecimal =
-    value.includes(".") && currentIndexOfDecimal <= indexOfDecimal;
+    value.includes(getLocaleDecimalSeperator()) &&
+    currentIndexOfDecimal <= indexOfDecimal;
   const locale = getLocale();
   const formatter = new Intl.NumberFormat(locale, {
     style: "decimal",
-    minimumFractionDigits: isDecimal ? fractionDigits : 0,
+    maximumFractionDigits: isDecimal ? fractionDigits : 0,
   });
   const parsedValue = parseLocaleFormattedStringToNumber(value);
   return formatter.format(isNaN(parsedValue) ? 0 : parsedValue);
@@ -37,8 +36,8 @@ export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
 /*
  Returns value in string format with maximum number of decimals based on decimalsInCurrency value
   for eg:
-  a) (2, 1235.456) will return 1234.56 
-  b) (1, 1234.456) will return 1234.5
+  a) (2, 1235.456) will return 1235.45 
+  b) (1, 1234.456) will return 1234.4
 */
 export const limitDecimalValue = (decimals = 0, value = "") => {
   const decimalSeperator = getLocaleDecimalSeperator();

@@ -1,5 +1,4 @@
 import React from "react";
-import { InputTypes } from "../constants";
 import ISDCodeDropdown, {
   ISDCodeDropdownOptions,
   getSelectedISDCode,
@@ -8,12 +7,9 @@ import BaseInputComponent, {
   BaseInputComponentProps,
 } from "widgets/BaseInputWidget/component";
 import { CountryCode } from "libphonenumber-js";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
 
 class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
-  constructor(props: PhoneInputComponentProps) {
-    super(props);
-  }
-
   onTextChange = (
     event:
       | React.ChangeEvent<HTMLInputElement>

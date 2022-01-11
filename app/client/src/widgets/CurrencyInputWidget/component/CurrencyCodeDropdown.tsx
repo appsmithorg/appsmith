@@ -6,10 +6,32 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 
+const DropdownContainer = styled.div`
+  .currency-type-filter,
+  .currency-type-trigger {
+    position: static;
+    background: rgb(255, 255, 255);
+    border-width: 1.2px 0px 1.2px 1.2px;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-top-color: rgb(235, 235, 235);
+    border-bottom-color: rgb(235, 235, 235);
+    border-left-color: rgb(235, 235, 235);
+    border-image: initial;
+    color: rgb(9, 7, 7);
+    border-right-style: initial;
+    border-right-color: initial;
+  }
+
+  &&&&& + input {
+    padding-left: 10px;
+  }
+`;
+
 const DropdownTriggerIconWrapper = styled.div`
   height: 19px;
   padding: 9px 5px 9px 12px;
-  height: 19px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -21,30 +43,37 @@ const DropdownTriggerIconWrapper = styled.div`
     margin-left: 5px;
   }
 
-  .dropdown {
+  &&& .dropdown {
     svg {
       width: 14px;
       height: 14px;
 
       path {
-        fill: ${Colors.GREY_10} !important;
+        fill: ${Colors.GREY_10};
       }
     }
   }
 `;
 
 const CurrencyIconWrapper = styled.span`
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding: 0px 4px 0px 12px;
-  position: absolute;
-  left: 0;
-  z-index: 16;
-  font-size: 14px;
-  line-height: 18px;
-  letter-spacing: -0.24px;
-  color: #090707;
+  position: static;
+  background: rgb(255, 255, 255);
+  border-width: 1.2px 0px 1.2px 1.2px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(235, 235, 235);
+  border-bottom-color: rgb(235, 235, 235);
+  border-left-color: rgb(235, 235, 235);
+  border-image: initial;
+  color: rgb(9, 7, 7);
+  border-right-style: initial;
+  border-right-color: initial;
+  padding: 6px 12px 0px 12px;
+
+  &&&&& + input {
+    padding-left: 10px;
+  }
 `;
 
 const getCurrencyOptions = (): Array<DropdownOption> => {
@@ -104,12 +133,13 @@ export const getCountryCodeFromCurrencyCode = (currencyCode?: string) => {
 interface CurrencyDropdownProps {
   onCurrencyTypeChange: (currencyCountryCode?: string) => void;
   options: Array<DropdownOption>;
-  selected: DropdownOption;
+  selected?: string;
   allowCurrencyChange?: boolean;
 }
 
 export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
-  const selectedCurrency = getSelectedCurrency(props.selected.value).id;
+  const selectedOption = getSelectedCurrency(props.selected);
+  const selectedCurrency = selectedOption.id;
   if (!props.allowCurrencyChange) {
     return (
       <CurrencyIconWrapper className="currency-type-trigger">
@@ -124,18 +154,20 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
     </DropdownTriggerIconWrapper>
   );
   return (
-    <Dropdown
-      containerClassName="currency-type-filter"
-      dropdownHeight="139px"
-      dropdownTriggerIcon={dropdownTriggerIcon}
-      enableSearch
-      height="36px"
-      onSelect={props.onCurrencyTypeChange}
-      optionWidth="340px"
-      options={props.options}
-      searchPlaceholder="Search by currency or country"
-      selected={props.selected}
-      showLabelOnly
-    />
+    <DropdownContainer>
+      <Dropdown
+        containerClassName="currency-type-filter"
+        dropdownHeight="139px"
+        dropdownTriggerIcon={dropdownTriggerIcon}
+        enableSearch
+        height="36px"
+        onSelect={props.onCurrencyTypeChange}
+        optionWidth="340px"
+        options={props.options}
+        searchPlaceholder="Search by currency or country"
+        selected={selectedOption}
+        showLabelOnly
+      />
+    </DropdownContainer>
   );
 }

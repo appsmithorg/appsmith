@@ -13,7 +13,6 @@ import {
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
 } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { InputTypes } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
@@ -21,6 +20,7 @@ import _, { isNil } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -101,7 +101,7 @@ export function defaultValueValidation(
   }
 }
 
-function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
+export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   const max = props.maxNum;
   const value = min;
   min = Number(min);
@@ -133,7 +133,7 @@ function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   }
 }
 
-function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
+export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   const min = props.minNum;
   const value = max;
   max = Number(max);
@@ -165,9 +165,6 @@ function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   }
 }
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
-  constructor(props: InputWidgetProps) {
-    super(props);
-  }
   static getPropertyPaneConfig() {
     return mergeWidgetConfig(
       [
@@ -208,7 +205,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               placeholderText: "255",
               isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.NUMBER },
+              validation: {
+                type: ValidationTypes.NUMBER,
+                params: {
+                  min: 1,
+                },
+              },
               hidden: (props: InputWidgetProps) => {
                 return props.inputType !== InputTypes.TEXT;
               },
@@ -347,6 +349,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             parsedValue = null;
           } else if (value === "-") {
             parsedValue = "-";
+          } else if (/\.$/.test(value)) {
+            parsedValue = value;
           } else {
             parsedValue = Number(value);
 
@@ -459,7 +463,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   static getWidgetType(): WidgetType {
-    return "INPUT_WIDGET_v2";
+    return "INPUT_WIDGET_V2";
   }
 }
 

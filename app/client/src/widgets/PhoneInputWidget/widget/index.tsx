@@ -60,9 +60,6 @@ class PhoneInputWidget extends BaseInputWidget<
   PhoneInputWidgetProps,
   WidgetState
 > {
-  constructor(props: PhoneInputWidgetProps) {
-    super(props);
-  }
   static getPropertyPaneConfig() {
     return mergeWidgetConfig(
       [

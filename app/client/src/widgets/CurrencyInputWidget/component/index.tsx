@@ -1,38 +1,16 @@
 import React from "react";
-import { InputTypes } from "../constants";
-
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
-  getSelectedCurrency,
 } from "./CurrencyCodeDropdown";
 import BaseInputComponent, {
   BaseInputComponentProps,
-} from "../../BaseInputWidget/component";
+} from "widgets/BaseInputWidget/component";
 import { RenderModes } from "constants/WidgetConstants";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
 
 class CurrencyInputComponent extends React.Component<
   CurrencyInputComponentProps
 > {
-  constructor(props: CurrencyInputComponentProps) {
-    super(props);
-  }
-
-  getLeftIcon = () => {
-    const selectedCurrencyCountryCode = getSelectedCurrency(
-      this.props.currencyCode,
-    );
-    return (
-      <CurrencyTypeDropdown
-        allowCurrencyChange={
-          this.props.allowCurrencyChange && !this.props.disabled
-        }
-        onCurrencyTypeChange={this.props.onCurrencyTypeChange}
-        options={CurrencyDropdownOptions}
-        selected={selectedCurrencyCountryCode}
-      />
-    );
-  };
-
   onKeyDown = (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
@@ -71,7 +49,7 @@ class CurrencyInputComponent extends React.Component<
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputHTMLType="NUMBER"
-        inputType={InputTypes.PHONE_NUMBER}
+        inputType={InputTypes.CURRENCY}
         intent={this.props.intent}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
@@ -79,7 +57,16 @@ class CurrencyInputComponent extends React.Component<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        leftIcon={this.getLeftIcon()}
+        leftIcon={
+          <CurrencyTypeDropdown
+            allowCurrencyChange={
+              this.props.allowCurrencyChange && !this.props.disabled
+            }
+            onCurrencyTypeChange={this.props.onCurrencyTypeChange}
+            options={CurrencyDropdownOptions}
+            selected={this.props.currencyCode}
+          />
+        }
         multiline={false}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.onKeyDown}
