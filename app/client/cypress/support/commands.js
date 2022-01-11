@@ -833,7 +833,7 @@ Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   return cy
     .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
     .dblclick()
-    .get("input")
+    .get("input[type=text]")
     .last();
 });
 
