@@ -25,6 +25,7 @@ import { getAction, getJSCollection } from "selectors/entitiesSelector";
 import { JSCollection } from "entities/JSCollection";
 import { Action, PluginType } from "entities/Action";
 import { AppState } from "reducers";
+import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 
 export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);
@@ -95,10 +96,6 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
       }),
     );
 }
-
-import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
-import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
-import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 
 function* handlePathUpdated(
   action: ReduxAction<{ location: typeof window.location }>,

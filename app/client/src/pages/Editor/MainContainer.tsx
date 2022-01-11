@@ -24,7 +24,7 @@ import { EditorTab } from "reducers/uiReducers/editorReducer";
 import { trimQueryString } from "utils/helpers";
 import { ControlIcons } from "icons/ControlIcons";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { jsIcon, pageIcon } from "./Explorer/ExplorerIcons";
+import { pageIcon } from "./Explorer/ExplorerIcons";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
