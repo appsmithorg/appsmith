@@ -35,7 +35,12 @@ export class JSEditor {
             .click();
     }
 
-    public EnterJSContext(endp: string, value: string, paste = true) {
+    public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
+        if (toToggleOnJS) {
+            cy.get(locator._jsToggle(endp))
+                .first()
+                .click({ force: true });
+        }
         cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
             .first()
             .focus()
@@ -58,7 +63,8 @@ export class JSEditor {
                 .then((el: any) => {
                     const input = cy.get(el);
                     if (paste) {
-                        input.invoke("val", value);
+                        //input.invoke("val", value);
+                        agHelper.Paste(el, value)
                     } else {
                         input.type(value, {
                             force: true,
@@ -97,34 +103,6 @@ export class JSEditor {
             expect($lis.eq(2).text()).to.contain("{{" + jsObjName + ".myVar1}}");
             expect($lis.eq(3).text()).to.contain("{{" + jsObjName + ".myVar2}}");
         });
-    }
-
-    public EnableJsAndUpdate(endp: string, value: string) {
-        cy.get(locator._jsToggle(endp))
-            .first()
-            .click({ force: true });
-        cy.get(locator._codeMirrorTextArea)
-            .last()
-            .focus()
-            .type("{uparrow}", { force: true })
-            .type("{ctrl}{shift}{downarrow}", { force: true });
-        cy.focused().then(($cm: any) => {
-            if ($cm.contents != "") {
-                cy.log("The field is empty");
-                cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
-                .last()
-                    .clear({
-                        force: true,
-                    });
-            }
-            cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
-                .last()
-                .type(value, {
-                    force: true,
-                    parseSpecialCharSequences: false,
-                });
-        });
-        agHelper.WaitAutoSave()
     }
 }
 

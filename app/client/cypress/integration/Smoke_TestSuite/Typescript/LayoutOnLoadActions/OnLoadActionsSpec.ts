@@ -86,23 +86,23 @@ describe("Layout OnLoad Actions tests", function () {
         agHelper.CreateNewApplication()
         agHelper.AddDsl(dsl)
 
-    apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
-    apiPage.EnterHeader('dependency', '{{RandomUser.data}}')
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
+        apiPage.EnterHeader('dependency', '{{RandomUser.data}}')
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://www.boredapi.com/api/activity", "Suggestions")
-    apiPage.EnterHeader('dependency', '{{InspiringQuotes.data}}')
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://www.boredapi.com/api/activity", "Suggestions")
+        apiPage.EnterHeader('dependency', '{{InspiringQuotes.data}}')
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}", "Genderize")
-    apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}", "Genderize")
+        apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
+        apiPage.RunAPI()
 
         agHelper.SelectEntityByName('Page1')
 

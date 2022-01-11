@@ -64,7 +64,7 @@ export class AggregateHelper {
     public SelectEntityByName(entityNameinLeftSidebar: string) {
         cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
-            .click({ force: true })
+            .click({ multiple: true })
         this.Sleep(2000)
     }
 
@@ -147,6 +147,20 @@ export class AggregateHelper {
             .scrollIntoView()
             .click({ force: true });
     }
+
+    public Paste(selector: any, pastePayload: string) {
+        cy.wrap(selector).then(($destination) => {
+            const pasteEvent = Object.assign(
+                new Event("paste", { bubbles: true, cancelable: true }),
+                {
+                    clipboardData: {
+                        getData: () => pastePayload,
+                    },
+                },
+            );
+            $destination[0].dispatchEvent(pasteEvent);
+        });
+    } 
 
     public Sleep(timeout = 1000) {
         cy.wait(timeout)
