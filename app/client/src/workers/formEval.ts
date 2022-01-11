@@ -6,6 +6,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfig } from "components/formControls/BaseControl";
+import { isEmpty } from "lodash";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -144,6 +145,11 @@ export function setFormEvaluationSaga(
       payload.settingConfig.forEach((config: FormConfig) => {
         generateInitialEvalState(config);
       });
+    }
+
+    // if the evaluations are empty, then the form is not valid, don't mutate the state
+    if (isEmpty(finalEvalObj)) {
+      return currentEvalState;
     }
 
     // This is the initial evaluation state, evaluations can now be run on top of this
