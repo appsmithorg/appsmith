@@ -6,11 +6,14 @@ import { ControlType } from "constants/PropertyControlConstants";
 import _ from "lodash";
 import {
   Field,
+  getFormValues,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { QueryAction } from "entities/Action";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -49,6 +52,7 @@ function renderDropdown(props: {
   fetchOptionsCondtionally: boolean;
   formName: string;
   dropDownOptions: DropdownOption[];
+  disabled?: boolean;
 }): JSX.Element {
   let selectedValue = props.input?.value;
   if (_.isUndefined(props.input?.value)) {
@@ -61,6 +65,7 @@ function renderDropdown(props: {
   return (
     <Dropdown
       boundary="window"
+      disabled={props.disabled}
       dontUsePortal={false}
       dropdownMaxHeight="250px"
       errorMsg={props.props?.errorText}
@@ -83,7 +88,6 @@ export interface DropDownControlProps extends ControlProps {
   propertyValue: string;
   subtitle?: string;
   isMultiSelect?: boolean;
-  isDisabled?: boolean;
   isSearchable?: boolean;
   fetchOptionsCondtionally?: boolean;
 }
@@ -97,6 +101,19 @@ const mapStateToProps = (state: AppState, ownProps: DropDownControlProps) => {
       { label: "Test1", value: "SINGLE" },
       { label: "Test2", value: "ALL" },
     ];
+    const dynamicFormDataString = _.get(
+      getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction,
+      "actionConfiguration.formData.updateMany.query",
+    );
+
+    // ownProps.configProperty will be used to filter from the array of data
+    // const dynamicFormDataString = getFormEvaluationState(state);
+
+    try {
+      dropDownOptions = JSON.parse(dynamicFormDataString);
+    } catch (e) {
+      dropDownOptions = [];
+    }
   } else {
     dropDownOptions = ownProps.options;
   }

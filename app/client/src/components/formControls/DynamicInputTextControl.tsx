@@ -43,6 +43,7 @@ export function InputText(props: {
   actionName: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
   customStyles?: any;
+  disabled?: boolean;
 }) {
   const { actionName, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
@@ -70,6 +71,7 @@ export function InputText(props: {
     <div style={customStyle}>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
+        disabled={props.disabled}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
@@ -86,6 +88,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
       actionName,
       configProperty,
       customStyles,
+      disabled,
       inputType,
       label,
       placeholderText,
@@ -100,6 +103,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
       <InputText
         actionName={actionName}
         customStyles={customStyles}
+        disabled={disabled}
         inputType={inputTypeProp}
         label={label}
         name={configProperty}
