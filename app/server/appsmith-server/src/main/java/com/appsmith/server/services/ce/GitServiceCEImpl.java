@@ -1939,24 +1939,23 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                    String errorMessage,
                                                    Boolean isRepoPrivate) {
 
-        String defaultApplicationId = application.getGitApplicationMetadata() == null
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                 ? ""
-                : application.getGitApplicationMetadata().getDefaultApplicationId();
+                : gitData.getDefaultApplicationId();
+
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {
-                    analyticsService.sendEvent(
-                            eventName,
-                            user.getUsername(),
-                            Map.of(
-                                    "applicationId", defaultApplicationId,
-                                    "organizationId", defaultIfNull(application.getOrganizationId(), ""),
-                                    "branchApplicationId", defaultIfNull(application.getId(), ""),
-                                    "errorMessage", defaultIfNull(errorMessage, ""),
-                                    "errorType", defaultIfNull(errorType, ""),
-                                    "isRepoPrivate", defaultIfNull(isRepoPrivate, "")
-                            )
+                    final Map<String, Object> analyticsProps = Map.of(
+                            "applicationId", defaultApplicationId,
+                            "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+                            "branchApplicationId", defaultIfNull(application.getId(), ""),
+                            "errorMessage", defaultIfNull(errorMessage, ""),
+                            "errorType", defaultIfNull(errorType, ""),
+                            "isRepoPrivate", defaultIfNull(isRepoPrivate, "")
                     );
+                    analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });
     }
