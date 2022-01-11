@@ -853,7 +853,7 @@ export default class DataTreeEvaluator {
     currentTree: DataTree;
     evalPropertyValue: any;
     unEvalPropertyValue: string;
-  }): any {
+  }): unknown {
     const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
     if (isPathADynamicTrigger(widget, propertyPath)) {
       // TODO find a way to validate triggers

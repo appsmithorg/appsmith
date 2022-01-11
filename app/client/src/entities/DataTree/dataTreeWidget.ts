@@ -82,18 +82,13 @@ export const generateDataTreeWidget = (
       ...widget.logBlackList,
       ...blockedDerivedProps,
     },
-    meta: widgetMetaProps,
+    meta: {
+      ...defaultMetaProps, // if no default value is set then, widget will throw cyclic dependency error.
+      ...widgetMetaProps, // value from metaReducer
+    },
     bindingPaths,
     triggerPaths,
     validationPaths,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   };
 };
-
-// defaultProps:
-
-// defaultText =
-
-// meta.text = [defaultText]
-
-// text = [meta, defaultText]

@@ -17,20 +17,19 @@ export const addDefaultAndMetaDependencyToWidget = ({
   const defaultProperties = widgetConfigMap[entity.type].defaultProperties;
   Object.entries(defaultProperties).forEach(
     ([property, defaultPropertyPath]) => {
-      dependencies[`${entityName}.${property}`] = [
-        `${entityName}.${defaultPropertyPath}`,
-        `${entityName}.meta.${property}`,
-      ];
+      if (property && defaultPropertyPath) {
+        dependencies[`${entityName}.${property}`] = [
+          `${entityName}.${defaultPropertyPath}`,
+          `${entityName}.meta.${property}`,
+        ];
+        // on change of defaultValue, we need to set meta as new evaluated value of defaultValue.
+        dependencies[`${entityName}.meta.${property}`] = [
+          `${entityName}.${defaultPropertyPath}`,
+        ];
+      }
     },
   );
 
-  const metaProperties = widgetConfigMap[entity.type].metaProperties;
-  debugger;
-  Object.entries(metaProperties).forEach(([property, defaultPropertyPath]) => {
-    dependencies[`${entityName}.meta.${property}`] = [
-      `${entityName}.${defaultPropertyPath}`,
-    ];
-  });
   return dependencies;
 };
 
