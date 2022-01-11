@@ -4,33 +4,27 @@ import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useCallback } from "react";
 import {
   matchPath,
-  Redirect,
   Route,
-  Router,
   Switch,
   useHistory,
   useLocation,
-  useRouteMatch,
 } from "react-router";
 
 import EditorsRouter from "./routes";
 import BottomBar from "./BottomBar";
-import {
-  DEFAULT_ENTITY_EXPLORER_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
-} from "constants/AppConstants";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import { AppState } from "reducers";
-import { BrowserRouter, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { EditorTab } from "reducers/uiReducers/editorReducer";
 import { trimQueryString } from "utils/helpers";
-import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import { ControlIcons } from "icons/ControlIcons";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { jsIcon, pageIcon } from "./Explorer/ExplorerIcons";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -44,14 +38,9 @@ const Container = styled.div`
 `;
 function MainContainer() {
   const dispatch = useDispatch();
-  const location = useLocation();
   const [sidebarWidth, setSidebarWidth] = useState(
     DEFAULT_ENTITY_EXPLORER_WIDTH,
   );
-  const [propertyPaneWidth, setPropertyPaneWidth] = useState(
-    DEFAULT_PROPERTY_PANE_WIDTH,
-  );
-
   /**
    * on entity explorer sidebar width change
    *
@@ -118,16 +107,27 @@ function AppBody() {
 
   return (
     <div className="relative flex flex-col w-full overflow-auto">
-      <div className="w-full border-b-2 z-30 bg-white sticky top-0 flex flex-row gap-2">
+      <div className="w-full border-b border-gray-200 z-30 bg-white sticky top-0 flex flex-row gap-2 items-center">
         {editorTabs.map((path, idx) => {
           const trimmedQueryPath = trimQueryString(path.url);
+          const icon = path.icon || null;
           return (
-            <Link key={`${path.id}`} to={path.url}>
+            <Link
+              key={`${path.id}`}
+              style={{ textDecoration: "none" }}
+              to={path.url}
+            >
               <div
-                className={`flex w-32 flex-row justify-between items-center px-2 py-2 min-w-12 ${
-                  pathname === trimmedQueryPath ? "bg-gray-300" : ""
+                className={`flex flex-row justify-between items-center px-2 py-2 gap-2 ${
+                  idx !== 0 ? "min-w-32" : "w-8"
+                } ${
+                  pathname === trimmedQueryPath
+                    ? "border-b-2 border-red-300"
+                    : ""
                 }`}
               >
+                {idx === 0 && pageIcon}
+                {icon}
                 <span className="overflow-hidden overflow-ellipsis">
                   {path.name}
                 </span>

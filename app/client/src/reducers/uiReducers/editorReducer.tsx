@@ -233,7 +233,12 @@ const editorReducer = createReducer(initialState, {
   }),
 });
 
-export type EditorTab = { id: string; name: string; url: string };
+export type EditorTab = {
+  id: string;
+  name: string;
+  url: string;
+  icon?: React.Component;
+};
 
 export interface EditorReduxState {
   initialized: boolean;

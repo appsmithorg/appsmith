@@ -8,12 +8,8 @@ import {
   matchQueryPath,
   matchBuilderPath,
   matchJSObjectPath,
-  JS_COLLECTION_EDITOR_URL,
-  JS_COLLECTION_ID_PATH,
   JS_COLLECTION_ID_URL,
-  API_EDITOR_ID_PATH,
   API_EDITOR_ID_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QUERIES_EDITOR_ID_URL,
 } from "constants/routes";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -24,18 +20,11 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getPageList,
 } from "selectors/editorSelectors";
-import {
-  getAction,
-  getActions,
-  getJSCollection,
-} from "selectors/entitiesSelector";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { getAction, getJSCollection } from "selectors/entitiesSelector";
 import { JSCollection } from "entities/JSCollection";
 import { Action, PluginType } from "entities/Action";
 import { AppState } from "reducers";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);
@@ -107,6 +96,10 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
     );
 }
 
+import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
+import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
+import { apiIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
+
 function* handlePathUpdated(
   action: ReduxAction<{ location: typeof window.location }>,
 ) {
@@ -129,19 +122,20 @@ function* handlePathUpdated(
     const url =
       pluginType === PluginType.API
         ? API_EDITOR_ID_URL(applicationId, pageId, id)
-        : PluginType.DB
+        : pluginType === PluginType.DB
         ? QUERIES_EDITOR_ID_URL(applicationId, pageId, id)
-        : SAAS_EDITOR_API_ID_URL(applicationId, pageId, "", id);
+        : SAAS_EDITOR_API_ID_URL(applicationId, pageId, "test", id);
+
     yield put({
       type: ReduxActionTypes.UPDATE_EDITOR_TABS,
-      payload: { id, name: action?.name, url },
+      payload: { id, name: action?.name, url, icon: apiIcon },
     });
   } else if (type === "jsAction") {
     const js: JSCollection = yield select(getJSCollection, id);
     const url = JS_COLLECTION_ID_URL(applicationId, pageId, id);
     yield put({
       type: ReduxActionTypes.UPDATE_EDITOR_TABS,
-      payload: { id, name: js?.name, url },
+      payload: { id, name: js?.name, url, icon: jsIcon },
     });
   }
 }
