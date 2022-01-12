@@ -8,6 +8,7 @@ import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.domains.PluginType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -101,8 +102,10 @@ public class ActionDTO {
     @Transient
     Documentation documentation;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant deletedAt = null;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant archivedAt = null;
 
     @Transient
