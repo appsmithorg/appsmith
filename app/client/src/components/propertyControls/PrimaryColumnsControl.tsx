@@ -44,7 +44,6 @@ import {
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
-import { noop } from "utils/AppsmithUtils";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -98,6 +97,7 @@ type RenderComponentProps = {
     isVisible?: boolean;
     isDuplicateLabel?: boolean;
   };
+  isDragging: boolean;
   updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
   onEdit?: (index: number) => void;
@@ -130,6 +130,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
     deleteOption,
     focusedIndex,
     index,
+    isDragging,
     item,
     onEdit,
     toggleVisibility,
@@ -139,15 +140,18 @@ function ColumnControlComponent(props: RenderComponentProps) {
   const [visibility, setVisibility] = useState(item.isVisible);
   const ref = useRef<HTMLInputElement | null>(null);
   const debouncedUpdate = _.debounce(updateOption, 1000);
-  const debouncedFocus = updateFocus ? _.debounce(updateFocus, 400) : noop;
 
   useEffect(() => {
-    if (!!focusedIndex && focusedIndex === index) {
+    if (focusedIndex !== null && focusedIndex === index && !isDragging) {
       if (ref && ref.current) {
         ref?.current.focus();
       }
+    } else if (isDragging && focusedIndex === index) {
+      if (ref && ref.current) {
+        ref?.current.blur();
+      }
     }
-  }, [focusedIndex]);
+  }, [focusedIndex, isDragging]);
 
   const onChange = useCallback(
     (index: number, value: string) => {
@@ -159,11 +163,18 @@ function ColumnControlComponent(props: RenderComponentProps) {
 
   const onFocus = () => {
     setEditing(false);
-    debouncedFocus(index, true);
+    if (updateFocus) {
+      updateFocus(index, true);
+    }
   };
+
   const onBlur = () => {
-    setEditing(false);
-    debouncedFocus(index, false);
+    if (!isDragging) {
+      setEditing(false);
+      if (updateFocus) {
+        updateFocus(index, false);
+      }
+    }
   };
 
   return (

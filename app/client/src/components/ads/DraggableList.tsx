@@ -67,6 +67,7 @@ function DraggableList(props: any) {
     ItemRenderer,
     items,
     onUpdate,
+    updateDragging,
   } = props;
 
   const listContainerHeight =
@@ -77,6 +78,7 @@ function DraggableList(props: any) {
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
   const displacement = useRef<number>(0);
+  const dragging = useRef<boolean>(false);
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -161,6 +163,16 @@ function DraggableList(props: any) {
             container.scrollTop -
             curIndex * itemHeight -
             itemHeight / 2;
+
+          if (!dragging.current && Math.abs(displacement.current) > 10) {
+            dragging.current = props.dragging;
+            updateDragging(dragging.current);
+          }
+        } else {
+          if (dragging.current) {
+            dragging.current = props.dragging;
+            updateDragging(dragging.current);
+          }
         }
 
         const curRow = clamp(
