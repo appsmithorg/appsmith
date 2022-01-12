@@ -47,6 +47,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/dropdown",
     searchKey: "Select",
   },
+  SELECT_WIDGET: {
+    path: "/widget-reference/dropdown",
+    searchKey: "Select",
+  },
   RADIO_GROUP_WIDGET: {
     path: "/widget-reference/radio",
     searchKey: "Radio",

@@ -95,7 +95,7 @@ export const WidgetIcons: {
       <VideoIcon />
     </StyledIconWrapper>
   ),
-  DROP_DOWN_WIDGET: (props: IconProps) => (
+  SELECT_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <DropDownIcon />
     </StyledIconWrapper>

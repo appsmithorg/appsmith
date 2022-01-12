@@ -24,6 +24,9 @@ import ButtonWidget, {
 import DropdownWidget, {
   CONFIG as DROPDOWN_WIDGET_CONFIG,
 } from "widgets/DropdownWidget";
+import SelectWidget, {
+  CONFIG as SELECT_WIDGET_CONFIG,
+} from "widgets/SelectWidget";
 import ImageWidget, {
   CONFIG as IMAGE_WIDGET_CONFIG,
 } from "widgets/ImageWidget";
@@ -133,7 +136,7 @@ export const registerWidgets = () => {
   registerWidget(CheckboxWidget, CHECKBOX_WIDGET_CONFIG);
   registerWidget(RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG);
   registerWidget(ButtonWidget, BUTTON_WIDGET_CONFIG);
-  registerWidget(DropdownWidget, DROPDOWN_WIDGET_CONFIG);
+  registerWidget(SelectWidget, SELECT_WIDGET_CONFIG);
   registerWidget(ImageWidget, IMAGE_WIDGET_CONFIG);
   registerWidget(VideoWidget, VIDEO_WIDGET_CONFIG);
   registerWidget(TabsWidget, TABS_WIDGET_CONFIG);
