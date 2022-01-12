@@ -4932,4 +4932,120 @@ public class DatabaseChangelog {
             }
         }
     }
+
+    /**
+     * To be able to support form and raw mode in the UQI compatible plugins,
+     * we need to be migrating all existing data to the data and formData path.
+     * Anything that was already raw would not be within formData,
+     * so we can blindly switch the contents of formData into inner objects
+     * Example: formData.limit will transform to formData.limit.data and formData.limit.formData
+     *
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "112", id = "update-formdata-for-uqi-modes", author = "")
+    public void updateActionFormDataPath(MongockTemplate mongockTemplate) {
+
+        // Get all plugin references to Mongo, S3 and Firestore actions
+        List<Plugin> uqiPlugins = mongockTemplate.find(
+                query(where("packageName").in("mongo-plugin", "amazons3-plugin", "firestore-plugin")),
+                Plugin.class
+        );
+
+        final Set<String> pluginIds = uqiPlugins.stream().map(Plugin::getId).collect(Collectors.toSet());
+
+        // Find all relevant actions
+        final Query actionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).in(pluginIds)
+                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
+        actionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        List<NewAction> uqiActions = mongockTemplate.find(
+                actionQuery,
+                NewAction.class
+        );
+
+
+        // Retrieve the formData path for all actions
+        for (NewAction uqiActionWithId : uqiActions) {
+
+            // Fetch one action at a time to avoid OOM.
+            final NewAction uqiAction = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())),
+                    NewAction.class
+            );
+
+            ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
+
+            /* No migrations required if action configuration does not exist. */
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                continue;
+            }
+
+            /**
+             * Migrate unpublished action configuration data.
+             */
+            final Map<String, Object> unpublishedFormData = unpublishedAction.getActionConfiguration().getFormData();
+
+            unpublishedFormData
+                    .keySet()
+                    .stream()
+                    .forEach(k -> {
+                        final Object oldValue = unpublishedFormData.get(k);
+                        unpublishedFormData.put(k, Map.of(
+                                "data", oldValue,
+                                "componentData", oldValue
+                        ));
+                    });
+
+            /**
+             * Migrate published action configuration data.
+             */
+            ActionDTO publishedAction = uqiAction.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
+                    publishedAction.getActionConfiguration().getFormData() != null) {
+                final Map<String, Object> publishedFormData = publishedAction.getActionConfiguration().getFormData();
+
+                publishedFormData
+                        .keySet()
+                        .stream()
+                        .forEach(k -> {
+                            final Object oldValue = publishedFormData.get(k);
+                            publishedFormData.put(k, Map.of(
+                                    "data", oldValue,
+                                    "componentData", oldValue,
+                                    "viewType", "form"
+                            ));
+                        });
+            }
+
+            /**
+             * Migrate the dynamic binding path list for unpublished action.
+             * Please note that there is no requirement to migrate the dynamic binding path list for published actions
+             * since the `on page load` actions do not get computed on published actions data. They are only computed
+             * on unpublished actions data and copied over for the view mode.
+             */
+            List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
+            dynamicBindingPathList
+                    .stream()
+                    .forEach(dynamicBindingPath -> {
+                        if (dynamicBindingPath.getKey().contains("formData")) {
+                            final String oldKey = dynamicBindingPath.getKey();
+                            final Pattern pattern = Pattern.compile("formData\\.([^.]*)(\\..*)?");
+
+                            Matcher matcher = pattern.matcher(oldKey);
+
+                            while (matcher.find()) {
+                                final String fieldName = matcher.group(1);
+                                final String remainderPath = matcher.group(2) == null ? "" : matcher.group(2);
+
+                                dynamicBindingPath.setKey("formData." + fieldName + ".data" + remainderPath);
+                            }
+                        }
+                    });
+
+            mongockTemplate.save(uqiAction);
+        }
+    }
+
 }
