@@ -40,13 +40,6 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .should("be.visible")
       .click({ force: true });
     cy.wait(4000);
-    cy.selectEntityByName("WIDGETS");
-    cy.get(`.t--entity-name:contains("Container3")`)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(`.t--entity-name:contains("Table1")`)
-      .should("be.visible")
-      .click({ force: true });
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
@@ -57,11 +50,9 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
         .invoke("attr", "value")
         .should("contain", tabValue);
       cy.get(widgetsPage.chartWidget).should("not.exist");
-
       cy.get(publish.inputGrp)
         .first()
         .type("123");
-
       cy.get(widgetsPage.chartWidget).should("be.visible");
     });
   });

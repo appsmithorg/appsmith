@@ -42,16 +42,6 @@ describe("Table Widget and Navigate to functionality validation", function() {
       200,
     );
     cy.wait(4000);
-    cy.selectEntityByName("WIDGETS");
-    cy.get(`.t--entity-name:contains("Container3")`)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(`.t--entity-name:contains("Table1")`)
-      .should("be.visible")
-      .click({ force: true });
-    //Below test to be enabled once the bug related to change of page in table in fixed
-    //cy.get('.t--table-widget-next-page')
-    //  .click();
     cy.PublishtheApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");
     cy.isSelectRow(1);
