@@ -28,6 +28,7 @@ import {
   getDecimalSeparator,
   getLocale,
 } from "../component/utilities";
+import { LabelPositionTypes } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -294,16 +295,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Sets the label text of the widget",
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Name:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Show help text or details about current input",
             propertyName: "tooltip",
             label: "Tooltip",
@@ -388,6 +379,47 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               return props.inputType !== InputTypes.TEXT;
             },
             dependencies: ["inputType"],
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "LABEL_POSITION_OPTIONS",
+            options: [
+              LabelPositionTypes.Auto,
+              LabelPositionTypes.Top,
+              LabelPositionTypes.Left,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: InputWidgetProps) =>
+              props.labelPosition !== LabelPositionTypes.Left,
+            dependencies: ["labelPosition"],
           },
         ],
       },
@@ -834,6 +866,8 @@ export interface InputWidgetProps extends WidgetProps {
   maxNum?: number;
   onTextChanged?: string;
   label: string;
+  labelPosition?: LabelPositionTypes;
+  labelAlignment?: Alignment;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;

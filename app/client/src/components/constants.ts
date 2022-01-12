@@ -87,3 +87,11 @@ export enum ButtonPlacementTypes {
   CENTER = "CENTER",
 }
 export type ButtonPlacement = keyof typeof ButtonPlacementTypes;
+
+export enum LabelPositionTypes {
+  Auto = "Auto",
+  Top = "Top",
+  Left = "Left",
+}
+
+export type LabelPosition = keyof typeof LabelPositionTypes;
