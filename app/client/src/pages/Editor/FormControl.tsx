@@ -15,6 +15,15 @@ import {
   FormInputSwitchToJsonButton,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
+import { AppState } from "reducers";
+import { Action } from "entities/Action";
+
+import {
+  DataTreeAction,
+  DataTreeEntity,
+  DataTreeObjectEntity,
+} from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
 
 interface FormControlProps {
   config: ControlProps;
@@ -23,9 +32,54 @@ interface FormControlProps {
 }
 
 function FormControl(props: FormControlProps) {
-  const formValues = useSelector((state) =>
+  const formValues: Partial<Action> = useSelector((state: AppState) =>
     getFormValues(props.formName)(state),
   );
+
+  //TODO: Clean up component
+
+  // get the datatree from the state
+  const dataTree = useSelector((state: AppState) => state.evaluations.tree);
+  // create an action variable.
+  let action: any;
+
+  // if form value exists, use the name of the form(which is the action's name) to get the action details
+  // from the data tree, then store it in the action variable
+  if (formValues && formValues.name) {
+    if (formValues.name in dataTree) {
+      action = dataTree[formValues.name];
+    }
+  }
+
+  // extract the error object from the action's evaluation's object.
+  const actionError = action && action?.__evaluation__?.errors;
+
+  // eslint-disable-next-line no-console
+  // console.log(action, props.config.configProperty, actionError, "testingggg");
+
+  // get the configProperty for this form control and format it to resemble the format used in the evaulations object.
+  const formattedConfig = _.replace(
+    props?.config?.configProperty,
+    "actionConfiguration",
+    "config",
+  );
+
+  // extract the error that corresponds to the current action config.
+  let configErrors: string[] = [];
+  if (actionError && formattedConfig in actionError) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    configErrors = actionError[formattedConfig];
+  }
+
+  // eslint-disable-next-line no-console
+  // console.log(
+  //   configErrors,
+  //   props.config.configProperty,
+  //   formattedConfig,
+  //   actionError,
+  //   "testingggg",
+  // );
+
   const hidden = isHidden(formValues, props.config.hidden);
 
   if (hidden) return null;
@@ -33,6 +87,7 @@ function FormControl(props: FormControlProps) {
   return (
     <FormConfig
       config={props.config}
+      configErrors={configErrors}
       formName={props.formName}
       multipleConfig={props?.multipleConfig}
     >
@@ -49,6 +104,7 @@ function FormControl(props: FormControlProps) {
 
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
+  configErrors: string[];
 }
 // top contains label, subtitle, urltext, tooltip, dispaly type
 // bottom contains the info and error text
@@ -101,7 +157,10 @@ function FormConfig(props: FormConfigProps) {
           </>
         )}
       </div>
-      {renderFormConfigBottom({ config: props.config })}
+      {renderFormConfigBottom({
+        config: props.config,
+        configErrors: props.configErrors,
+      })}
     </div>
   );
 }
@@ -156,12 +215,20 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   );
 }
 
-function renderFormConfigBottom(props: { config: ControlProps }) {
+function renderFormConfigBottom(props: {
+  config: ControlProps;
+  configErrors?: string[];
+}) {
   const { errorText, info, showError } = { ...props.config };
   return (
     <>
       {info && <FormInputHelperText>{info}</FormInputHelperText>}
-      {showError && <FormInputErrorText>{errorText}</FormInputErrorText>}
+      {/* {showError && <FormInputErrorText>{errorText}</FormInputErrorText>} */}
+      {props.configErrors &&
+        props.configErrors.length > 1 &&
+        props.configErrors.map((errorText, index) => (
+          <FormInputErrorText key={index}>{errorText}</FormInputErrorText>
+        ))}
     </>
   );
 }
