@@ -629,7 +629,8 @@ jobs:
             $tag_args \
             .
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v1
+      - name: Build docker image for testing
+        uses: actions/upload-artifact@v1
         with:
           name: dockerbuild
           path: .
