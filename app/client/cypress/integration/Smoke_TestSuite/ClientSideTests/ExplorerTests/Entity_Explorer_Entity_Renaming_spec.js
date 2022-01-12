@@ -49,15 +49,19 @@ describe("Api Naming conflict on different pages test", function() {
 
     // delete API and Page2
     cy.DeleteAPIFromSideBar();
+    cy.get(".t--entity-name")
+      .contains("Page2")
+      .trigger("mouseover");
+    cy.hoverAndClick();
+    cy.selectAction("Delete");
     cy.DeletepageFromSideBar();
-
     // delete API created on Page 1
     cy.DeleteAPIFromSideBar();
   });
 });
 
 describe("Entity Naming conflict test", function() {
-  it("expects JS objects and actions to not have identical names on the same page.", function() {
+  it.skip("expects JS objects and actions to not have identical names on the same page.", function() {
     cy.log("Login Successful");
 
     // create JS object and name it

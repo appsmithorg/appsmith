@@ -42,6 +42,7 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("3. Will pass execution params", function() {
+    cy.selectEntityByName("WIDGETS");
     // Bind the table
     cy.get(".t--entity-name")
       .contains("Table1")

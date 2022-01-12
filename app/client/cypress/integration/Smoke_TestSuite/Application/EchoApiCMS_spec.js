@@ -18,6 +18,7 @@ describe("Content Management System App", function() {
   });
 
   it("Create Get echo Api call", function() {
+    cy.wait(30000);
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("get_data");
     // creating get request using echo
@@ -94,7 +95,7 @@ describe("Content Management System App", function() {
     cy.xpath(appPage.confirmButton).click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
-    cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    //cy.xpath(appPage.datasourcesbutton).click({ force: true });
     cy.xpath(appPage.postApi).click({ force: true });
     cy.ResponseCheck("Test");
     // cy.ResponseCheck("Task completed");
@@ -111,7 +112,7 @@ describe("Content Management System App", function() {
     cy.xpath(appPage.deleteTaskText).should("be.visible");
     cy.xpath(appPage.confirmButton).click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
-    cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    //cy.xpath(appPage.datasourcesbutton).click({ force: true });
     cy.xpath(appPage.deleteApi).click({ force: true });
     cy.ResponseCheck("Dan.Wyman@hotmail.com");
     cy.ResponseCheck("Recusan");
