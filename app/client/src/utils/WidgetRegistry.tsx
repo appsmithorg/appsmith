@@ -21,9 +21,6 @@ import RadioGroupWidget, {
 import ButtonWidget, {
   CONFIG as BUTTON_WIDGET_CONFIG,
 } from "widgets/ButtonWidget";
-import DropdownWidget, {
-  CONFIG as DROPDOWN_WIDGET_CONFIG,
-} from "widgets/DropdownWidget";
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
