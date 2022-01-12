@@ -652,15 +652,16 @@ export function EditorJSONtoForm(props: Props) {
     enabled: boolean,
     dynamicFetchedValues: DynamicValues | undefined,
   ): any => {
-    let modifiedSection = { ...section };
     if (!enabled) {
-      modifiedSection = { ...modifiedSection, disabled: true };
+      section.disabled = true;
+    } else {
+      section.disabled = false;
     }
     if (!!dynamicFetchedValues) {
-      modifiedSection = { ...modifiedSection, dynamicFetchedValues };
+      section.dynamicFetchedValues = dynamicFetchedValues;
     }
 
-    return modifiedSection;
+    return section;
   };
 
   // Function to extract the object for dynamicValues if it is there in the evaluation state

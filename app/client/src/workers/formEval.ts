@@ -7,7 +7,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfig } from "components/formControls/BaseControl";
-import { isEmpty } from "lodash";
+import { isEmpty, merge } from "lodash";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -22,10 +22,8 @@ let finalEvalObj: FormEvalOutput;
 
 // Recursive function to generate the evaluation state for form config
 const generateInitialEvalState = (formConfig: FormConfig) => {
-  const visible = false;
-  const enabled = true;
-  let conditionals: Record<string, any> = {};
-  let conditionTypes = {};
+  const conditionals: Record<string, any> = {};
+  const conditionTypes: Record<string, any> = {};
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if ("conditionals" in formConfig && !!formConfig.conditionals) {
@@ -45,28 +43,16 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
       allConditionTypes.includes(ConditionType.HIDE) ||
       allConditionTypes.includes(ConditionType.SHOW)
     ) {
-      conditionTypes = {
-        ...conditionTypes,
-        visible,
-      };
-      conditionals = {
-        ...conditionals,
-        ...formConfig.conditionals,
-      };
+      conditionTypes.visible = false;
+      merge(conditionals, formConfig.conditionals);
     }
 
     if (
       allConditionTypes.includes(ConditionType.ENABLE) ||
       allConditionTypes.includes(ConditionType.DISABLE)
     ) {
-      conditionTypes = {
-        ...conditionTypes,
-        enabled,
-      };
-      conditionals = {
-        ...conditionals,
-        ...formConfig.conditionals,
-      };
+      conditionTypes.enable = true;
+      merge(conditionals, formConfig.conditionals);
     }
 
     if (allConditionTypes.includes(ConditionType.FETCH_DYNAMIC_VALUES)) {
@@ -82,15 +68,9 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
           params: formConfig.conditionals.fetchDynamicValues.params,
         },
       };
-      conditionTypes = {
-        ...conditionTypes,
-        fetchDynamicValues: dynamicValues,
-      };
-      conditionals = {
-        ...conditionals,
-        fetchDynamicValues:
-          formConfig.conditionals.fetchDynamicValues.condition,
-      };
+      conditionTypes.fetchDynamicValues = dynamicValues;
+      conditionals.fetchDynamicValues =
+        formConfig.conditionals.fetchDynamicValues.condition;
     }
     // Conditionals are stored in the eval state itself for quick access
     finalEvalObj[key] = {
