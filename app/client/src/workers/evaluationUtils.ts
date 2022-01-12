@@ -710,3 +710,15 @@ export const removeFunctionsAndVariableJSCollection = (
   _.set(modifiedDataTree, `${entity.name}.meta`, meta);
   return modifiedDataTree;
 };
+
+export const isPrivateEntityPath = (
+  privateWidgets: Record<string, boolean>,
+  fullPropertyPath: string,
+) => {
+  if (
+    Object.keys(privateWidgets).indexOf(fullPropertyPath.split(".")[0]) !== -1
+  ) {
+    return true;
+  }
+  return false;
+};

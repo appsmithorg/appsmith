@@ -81,6 +81,7 @@ export interface DataTreeWidget extends WidgetProps {
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
+  privateWidgets: Record<string, true>;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {

@@ -84,6 +84,39 @@ const addLogBlackListToAllListWidgetChildren = (
 };
 
 /**
+ * adds 'privateWidgets' key for all list widgets
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addPrivateWidgetsToAllListWidgets = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === "LIST_WIDGET") {
+      const widgets = get(
+        children,
+        "children.0.children.0.children.0.children",
+      );
+
+      const privateWidgets: Record<string, boolean> = {};
+
+      widgets.map((widget: any) => {
+        privateWidgets[widget.widgetName] = true;
+
+        if (!children.privateWidgets) {
+          set(children, `privateWidgets`, privateWidgets);
+        }
+      });
+    }
+
+    return children;
+  });
+
+  return currentDSL;
+};
+
+/**
  * changes items -> listData
  *
  * @param currentDSL
@@ -1002,6 +1035,11 @@ export const transformDSL = (
   if (currentDSL.version === 48) {
     currentDSL = migrateRecaptchaType(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 49) {
+    currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
+    currentDSL.version = 49;
   }
 
   return currentDSL;
