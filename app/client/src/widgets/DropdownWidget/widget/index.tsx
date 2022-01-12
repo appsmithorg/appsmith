@@ -313,11 +313,14 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
+
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
@@ -330,6 +333,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         }
         disabled={this.props.isDisabled}
         dropDownWidth={dropDownWidth}
+        hasError={isInvalid}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
@@ -353,6 +357,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
 
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     // Check if the value has changed. If no option
     // selected till now, there is a change
     if (this.props.selectedOptionValue) {
@@ -370,7 +378,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   };
   changeSelectedOption = () => {
     const index = _.findIndex(this.props.options, {
-      value: this.props.defaultOptionValue,
+      value: this.props.selectedOptionValue ?? this.props.defaultOptionValue,
     });
     const value = this.props.options?.[index]?.value;
     this.props.updateWidgetMetaProperty("value", value);
@@ -408,6 +416,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectedOptionLabel: string;
   serverSideFiltering: boolean;
   onFilterUpdate: string;
+  isDirty?: boolean;
 }
 
 export default DropdownWidget;

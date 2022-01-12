@@ -25,7 +25,6 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
-  migrateTableWidgetNumericColumnName,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -44,6 +43,7 @@ import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget"
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
+import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -995,7 +995,12 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 47) {
-    currentDSL = migrateTableWidgetNumericColumnName(currentDSL);
+    //We're skipping this to fix a bad table migration.
+    currentDSL.version = 48;
+  }
+
+  if (currentDSL.version === 48) {
+    currentDSL = migrateRecaptchaType(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
