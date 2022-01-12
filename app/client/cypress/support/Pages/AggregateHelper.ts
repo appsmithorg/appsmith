@@ -1,3 +1,4 @@
+import 'cypress-wait-until';
 import { CommonLocators } from "../Objects/CommonLocators";
 
 const locator = new CommonLocators();
@@ -159,6 +160,15 @@ export class AggregateHelper {
             );
             $destination[0].dispatchEvent(pasteEvent);
         });
+    }
+
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 500){
+        cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
+        {
+            errorMsg: msgToCheckforDisappearance +" did not disappear",
+            timeout: 5000,
+            interval: 1000
+        }).then(() => this.Sleep(timeout))
     }
 
     public Sleep(timeout = 1000) {

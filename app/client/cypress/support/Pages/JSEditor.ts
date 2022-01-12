@@ -1,4 +1,3 @@
-import 'cypress-wait-until';
 import { AggregateHelper } from "./AggregateHelper";
 import { CommonLocators } from "../Objects/CommonLocators";
 
@@ -43,12 +42,7 @@ export class JSEditor {
             });
 
         //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
-        cy.waitUntil(() => cy.get(locator._toastMsg).contains('created successfully').should("have.length", 0),
-            {
-                errorMsg: "JSObj creation toast message has not disappeared",
-                timeout: 5000,
-                interval: 1000
-            }).then(() => agHelper.Sleep(2000))
+        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 2000)
         cy.waitUntil(() =>
             cy.xpath(this._runButton)
                 .first()

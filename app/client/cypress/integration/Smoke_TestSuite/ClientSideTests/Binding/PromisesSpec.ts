@@ -58,8 +58,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             const user = await RandomUser.run();
             const gender = await Genderize.run({ country: user.results[0].location.country});
             await storeValue("Gender", gender);
-            await showAlert("Your country is "+ JSON.stringify(appsmith.store.Gender.name), 'info');
-            await showAlert("You could be a "+ JSON.stringify(appsmith.store.Gender.gender), 'info');
+            await showAlert("Your country is "+ JSON.stringify(appsmith.store.Gender.name), 'warning');
+            await showAlert("You could be a "+ JSON.stringify(appsmith.store.Gender.gender), 'warning');
           })()}}`, true, true);
         agHelper.ClickButton('Submit')
         cy.get(locator._toastMsg).should("have.length", 2)
@@ -83,9 +83,9 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
           }}`, true, true);
         agHelper.SelectEntityByName("Image1");
         jsEditor.EnterJSContext('image', `{{Christmas.data}}`, true);
+        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'will be executed automatically on page load')
         agHelper.ClickButton('Submit')
-        cy.get(locator._toastMsg).should("have.length", 1)
-        cy.get(locator._toastMsg).contains(/You have a beautiful picture|Oops!/g)
+        cy.get(locator._toastMsg).should("have.length", 1).contains(/You have a beautiful picture|Oops!/g)
     });
 
     it("5. Verify .then & .catch via JS Objects in Promises", () => {
@@ -112,7 +112,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{Promise.race([Agify.run({person:'Melinda' }),Agify.run({person:'Trump'})]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success')})}}`, true, true);
         agHelper.ClickButton('Submit')
-        cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump|null/g)
+        cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump/g)
     });
 
     it("7. Verify maintaining context via direct Promises", () => {
@@ -139,6 +139,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
               "synopsis": {{GetAnime.data.results[2].synopsis}}
             }
           ]`, true);
+        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'will be executed automatically on page load')
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{(function(){
             const anime = "fruits basket : the final";
