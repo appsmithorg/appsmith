@@ -8,6 +8,8 @@ const VIEWBOX_HEIGHT = 100;
 const VIEWBOX_HEIGHT_HALF = 50;
 const VIEWBOX_CENTER_X = 50;
 const VIEWBOX_CENTER_Y = 50;
+const STROKE_WIDTH = 8;
+const MAX_VALUE = 100;
 
 export enum StrokeLineCapTypes {
   round = "round",
@@ -17,20 +19,11 @@ export enum StrokeLineCapTypes {
 export type StrokeLineCap = keyof typeof StrokeLineCapTypes;
 
 export interface CircularProgressComponentProps {
-  backgroundPadding: number;
-  backgroundColor?: string;
   counterClockwise: boolean;
-  successValue: number;
   strokeLineCap: StrokeLineCap;
-  successColor: string;
-  successTextColor: string;
-  maxValue: number;
-  pathColor: string;
-  strokeWidth: number;
-  trailColor: string;
-  textColor: string;
-  textSize: string;
-  value: number;
+  fillColor: string;
+  progress: number;
+  showResult: boolean;
 }
 
 const SvgContainer = styled.svg`
@@ -38,53 +31,38 @@ const SvgContainer = styled.svg`
   height: 100%;
 `;
 
+export const Circle = styled.circle`
+  fill: transparent;
+`;
+
+export const Trail = styled.path`
+  stroke: ${Colors.MERCURY};
+`;
+
 export const Path = styled.path<
-  Pick<CircularProgressComponentProps, "pathColor" | "strokeLineCap">
+  Pick<CircularProgressComponentProps, "fillColor" | "strokeLineCap">
 >`
-  stroke: ${(props) => props.pathColor};
+  stroke: ${(props) => props.fillColor};
   stroke-linecap: ${(props) => props.strokeLineCap};
   transition: stroke-dashoffset 0.5s ease 0s;
 `;
 
-export const Trail = styled.path<
-  Pick<CircularProgressComponentProps, "trailColor">
->`
-  stroke: ${(props) => props.trailColor};
-`;
-
-export const Label = styled.text<
-  Pick<CircularProgressComponentProps, "textColor" | "textSize">
->`
-  fill: ${(props) => props.textColor};
-  font-size: ${(props) => `${props.textSize}px`};
+export const Label = styled.text`
+  fill: ${Colors.THUNDER};
+  font-size: 20px;
   dominant-baseline: middle;
   text-anchor: middle;
 `;
 
-export const Circle = styled.circle<
-  Pick<CircularProgressComponentProps, "backgroundColor">
->`
-  fill: ${(props) => props.backgroundColor};
-`;
-
 function CircularProgressComponent({
-  backgroundPadding,
-  backgroundColor = Colors.WHITE,
-  strokeLineCap = StrokeLineCapTypes.round,
-  successTextColor,
-  successColor,
-  successValue,
   counterClockwise,
-  maxValue,
-  pathColor,
-  strokeWidth,
-  textSize,
-  textColor,
-  trailColor,
-  value,
+  fillColor = Colors.GREEN,
+  progress,
+  showResult = true,
+  strokeLineCap = StrokeLineCapTypes.round,
 }: CircularProgressComponentProps) {
-  const pathRadius = VIEWBOX_HEIGHT_HALF - strokeWidth / 2 - backgroundPadding;
-  const pathRatio = value / maxValue;
+  const pathRadius = VIEWBOX_HEIGHT_HALF - STROKE_WIDTH / 2;
+  const pathRatio = progress / MAX_VALUE;
 
   function drawPath() {
     const rotation = counterClockwise ? 1 : 0;
@@ -119,7 +97,6 @@ function CircularProgressComponent({
       viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
     >
       <Circle
-        backgroundColor={backgroundColor}
         cx={VIEWBOX_CENTER_X}
         cy={VIEWBOX_CENTER_Y}
         r={VIEWBOX_HEIGHT_HALF}
@@ -127,26 +104,22 @@ function CircularProgressComponent({
       <Trail
         d={drawPath()}
         fillOpacity={0}
-        strokeWidth={strokeWidth}
+        strokeWidth={STROKE_WIDTH}
         style={drawDashStyle()}
-        trailColor={trailColor}
       />
       <Path
         d={drawPath()}
+        fillColor={fillColor}
         fillOpacity={0}
-        pathColor={value >= successValue ? successColor : pathColor}
         strokeLineCap={strokeLineCap}
-        strokeWidth={strokeWidth}
+        strokeWidth={STROKE_WIDTH}
         style={drawDashStyle(pathRatio)}
       />
-      <Label
-        textColor={value >= successValue ? successTextColor : textColor}
-        textSize={textSize}
-        x={VIEWBOX_CENTER_X}
-        y={VIEWBOX_CENTER_Y}
-      >
-        {`${Math.round((value / maxValue) * 100)}%`}
-      </Label>
+      {showResult && (
+        <Label x={VIEWBOX_CENTER_X} y={VIEWBOX_CENTER_Y}>
+          {`${Math.round((progress / MAX_VALUE) * 100)}%`}
+        </Label>
+      )}
     </SvgContainer>
   );
 }

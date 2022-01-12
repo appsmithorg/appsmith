@@ -24,39 +24,9 @@ class CircularProgressWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            propertyName: "value",
-            helpText: "Sets the value of the widget",
-            label: "Value",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "maxValue",
-            helpText: "If value is 0.60 or 600 set maxValue as 1 or 1000.",
-            label: "Max Value",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "successValue",
-            helpText: "Sets the success value of the widget",
-            label: "Success Value",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "strokeWidth",
-            helpText: "Sets the width of the stroke",
-            label: "Stroke Width",
+            propertyName: "progress",
+            helpText: "Sets the progress value of the widget",
+            label: "Progress",
             controlType: "INPUT_TEXT",
             placeholderText: "Value:",
             isBindProperty: true,
@@ -100,14 +70,34 @@ class CircularProgressWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "showResult",
+            helpText: "Controls the visibility of progress value",
+            label: "Show result",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
-            label: "Background Color",
+            propertyName: "fillColor",
+            label: "Fill Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -123,121 +113,6 @@ class CircularProgressWidget extends BaseWidget<
                 },
               },
             },
-          },
-          {
-            propertyName: "textColor",
-            label: "Text Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^((?![<|{{]).+){0,1}/,
-                expected: {
-                  type: "string (HTML color name or HEX value)",
-                  example: `red | #9C0D38`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-          },
-          {
-            propertyName: "successTextColor",
-            label: "Success Text Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^((?![<|{{]).+){0,1}/,
-                expected: {
-                  type: "string (HTML color name or HEX value)",
-                  example: `red | #9C0D38`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-          },
-          {
-            propertyName: "successColor",
-            label: "Success Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^((?![<|{{]).+){0,1}/,
-                expected: {
-                  type: "string (HTML color name or HEX value)",
-                  example: `red | #9C0D38`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-          },
-          {
-            propertyName: "pathColor",
-            label: "Path Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^((?![<|{{]).+){0,1}/,
-                expected: {
-                  type: "string (HTML color name or HEX value)",
-                  example: `red | #9C0D38`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-          },
-          {
-            propertyName: "trailColor",
-            label: "Trail Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^((?![<|{{]).+){0,1}/,
-                expected: {
-                  type: "string (HTML color name or HEX value)",
-                  example: `red | #9C0D38`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-          },
-          {
-            propertyName: "backgroundPadding",
-            helpText: "Sets the padding of the stroke",
-            label: "Background Padding",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "textSize",
-            helpText: "Sets the text Size",
-            label: "Text Size",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
           },
         ],
       },
@@ -255,20 +130,11 @@ class CircularProgressWidget extends BaseWidget<
         ])}
       >
         <CircularProgressComponent
-          backgroundColor={this.props.backgroundColor}
-          backgroundPadding={this.props.backgroundPadding}
           counterClockwise={this.props.counterClockwise}
-          maxValue={this.props.maxValue}
-          pathColor={this.props.pathColor}
+          fillColor={this.props.fillColor}
+          progress={this.props.progress}
+          showResult={this.props.showResult}
           strokeLineCap={this.props.strokeLineCap}
-          strokeWidth={this.props.strokeWidth}
-          successColor={this.props.successColor}
-          successTextColor={this.props.successTextColor}
-          successValue={this.props.successValue}
-          textColor={this.props.textColor}
-          textSize={this.props.textSize}
-          trailColor={this.props.trailColor}
-          value={this.props.value}
         />
       </WidgetStyleContainer>
     );
