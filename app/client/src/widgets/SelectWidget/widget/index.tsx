@@ -435,7 +435,7 @@ export interface SelectWidgetProps extends WidgetProps {
   selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange?: string;
-  defaultOptionValue?: string;
+  defaultOptionValue?: { label?: string; value?: string };
   value?: string;
   isRequired: boolean;
   isFilterable: boolean;

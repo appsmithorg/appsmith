@@ -54,8 +54,8 @@ describe("<SelectWidget />", () => {
   test("should not render dropdown wrapper if options are empty", async () => {
     const mockDataWithEmptyOptions = {
       widgetId: "Widget1",
-      type: "DIVIDER_WIDGET",
-      widgetName: "Divider 1",
+      type: "SELECT_WIDGET",
+      widgetName: "Select1",
       renderMode: RenderModes.CANVAS,
       parentColumnSpace: 2,
       parentRowSpace: 3,
@@ -67,6 +67,7 @@ describe("<SelectWidget />", () => {
       version: 1,
       selectedOption: { label: "", value: "" },
       options: [],
+      defaultOptionValue: { label: "", value: "" },
       onOptionChange: "mock-option-change",
       isRequired: false,
       isFilterable: false,
