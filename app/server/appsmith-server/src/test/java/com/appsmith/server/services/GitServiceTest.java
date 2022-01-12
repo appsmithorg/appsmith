@@ -1869,5 +1869,107 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_InvalidRemoteUrl_ThrowError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest(null, testUserProfile);
+        Mono<Application> applicationMono = gitService.importApplicationFromGit("testID", gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Remote Url")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_emptyOrganizationId_ThrowError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(null, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Invalid organization id")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        gitService.generateSSHKey().block();
+        Mockito
+                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.any(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(0));
+
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_validRequest_Success() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo("testRepo");
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("git@github.com:test/testRepo.git");
+                    assertThat(application.getGitApplicationMetadata().getIsRepoPrivate()).isEqualTo(true);
+                    assertThat(application.getGitApplicationMetadata().getGitAuth().getPublicKey()).isEqualTo(gitAuth.getPublicKey());
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
+
+        Application testApplication = new Application();
+        testApplication.setName("testGitRepo");
+        testApplication.setOrganizationId(orgId);
+        applicationPageService.createApplication(testApplication).block();
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo("testGitRepo (1)");
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("git@github.com:test/testGitRepo.git");
+                    assertThat(application.getGitApplicationMetadata().getIsRepoPrivate()).isEqualTo(true);
+                    assertThat(application.getGitApplicationMetadata().getGitAuth().getPublicKey()).isEqualTo(gitAuth.getPublicKey());
+
+                })
+                .verifyComplete();
+    }
+
+
+
     // TODO TCs for merge is pending
 }
