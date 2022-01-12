@@ -1,4 +1,5 @@
-import { getAllPaths } from "./evaluationUtils";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+import { getAllPaths, makeParentsDependOnChildren } from "./evaluationUtils";
 
 describe("getAllPaths", () => {
   it("getsAllPaths", () => {
@@ -37,5 +38,37 @@ describe("getAllPaths", () => {
 
     const actual = getAllPaths(myTree);
     expect(actual).toStrictEqual(result);
+  });
+  describe("makeParentsDependOnChildren", () => {
+    it("makes parent properties depend on child properties", () => {
+      let depMap: DependencyMap = {
+        Widget1: [],
+        "Widget1.defaultText": [],
+      };
+      const allkeys: Record<string, true> = {
+        Widget1: true,
+        "Widget1.defaultText": true,
+      };
+      depMap = makeParentsDependOnChildren(depMap, allkeys);
+      expect(depMap).toStrictEqual({
+        Widget1: ["Widget1.defaultText"],
+        "Widget1.defaultText": [],
+      });
+    });
+
+    it("doesn't make parent properties depend on child properties when not listed in allKeys", () => {
+      let depMap: DependencyMap = {
+        Widget1: [],
+        "Widget1.defaultText": [],
+      };
+      const allkeys: Record<string, true> = {
+        Widget1: true,
+      };
+      depMap = makeParentsDependOnChildren(depMap, allkeys);
+      expect(depMap).toStrictEqual({
+        Widget1: [],
+        "Widget1.defaultText": [],
+      });
+    });
   });
 });
