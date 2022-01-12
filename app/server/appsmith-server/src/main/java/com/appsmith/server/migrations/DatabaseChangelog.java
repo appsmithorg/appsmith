@@ -26,6 +26,8 @@ import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -63,6 +65,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -4707,7 +4710,7 @@ public class DatabaseChangelog {
                 Datasource.class
         );
     }
-  
+
     /**
      * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
      * unexpected / bad older data.
@@ -4738,7 +4741,7 @@ public class DatabaseChangelog {
         // Update plugin data.
         mongockTemplate.save(firestorePlugin);
     }
-  
+
     @ChangeSet(order = "108", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
         Index uniqueApplicationIdIndex = new Index()
@@ -4817,7 +4820,7 @@ public class DatabaseChangelog {
      * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
      * Mongo database - this is the same value that would have been applied to the aggregate cmd so far by the
      * database. However, for any new action, this field's initial value is 10.
-     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/ 
+     * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
      * @param mongockTemplate
      */
     @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
@@ -4872,5 +4875,61 @@ public class DatabaseChangelog {
         Criteria pluginIdIsMongoPluginId = where("pluginId").is(plugin.getId());
         Criteria isNotDeleted = where("deleted").ne(true);
         return query((new Criteria()).andOperator(pluginIdIsMongoPluginId, isNotDeleted));
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection, newPage and application collection to take
+     * branchName param into consideration for optimising the find query for git connected applications
+     */
+    @ChangeSet(order = "110", id = "update-index-for-git", author = "")
+    public void updateGitIndexes(MongockTemplate mongockTemplate) {
+
+        // We can't set unique indexes for following as these requires the _id of the resource to be filled in for
+        // defaultResourceId if the app is not connected to git. This results in handling the _id creation for resources
+        // on our end instead of asking mongo driver to perform this operation
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex("defaultResources.actionId", "defaultResources.branchName", "deleted")
+                        .named("defaultActionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex("defaultResources.collectionId", "defaultResources.branchName", "deleted")
+                        .named("defaultCollectionId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewPage.class,
+                makeIndex("defaultResources.pageId", "defaultResources.branchName", "deleted")
+                        .named("defaultPageId_branchName_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, Application.class,
+                makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
+                        .named("defaultApplicationId_branchName_deleted_compound_index")
+        );
+    }
+    
+    @ChangeSet(order = "111", id = "update-mockdb-endpoint-2", author = "")
+    public void updateMockdbEndpoint2(MongockTemplate mongockTemplate) {
+        // Doing this again as another migration since it appears some new datasource were created with the old
+        // endpoint around 14-Dec-2021 to 16-Dec-2021.
+        updateMockdbEndpoint(mongockTemplate);
+    }
+
+
+    @ChangeSet(order = "111", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
+    public void migrateFromRSASha1ToECDSASha2Protocol(MongockTemplate mongockTemplate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
+        query.addCriteria(Criteria.where("deleted").is(FALSE));
+
+        for (Application application : mongockTemplate.find(query, Application.class)) {
+            if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
+                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                gitApplicationMetadata.setGitAuth(gitAuth);
+                application.setGitApplicationMetadata(gitApplicationMetadata);
+                mongockTemplate.save(application);
+            }
+        }
     }
 }
