@@ -9,6 +9,7 @@ type RenderComponentProps = {
     label: string;
     isDerived?: boolean;
   };
+  isDragging: boolean;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
@@ -37,12 +38,17 @@ export class DroppableComponent extends React.Component<
     super(props);
   }
 
-  shouldComponentUpdate(prevProps: DroppableComponentProps) {
+  public readonly state = {
+    isDragging: false,
+  };
+
+  shouldComponentUpdate(prevProps: DroppableComponentProps, prevState: any) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
     return (
       !isEqual(presentOrder, previousOrder) ||
-      this.props.focusedIndex !== prevProps.focusedIndex
+      this.props.focusedIndex !== prevProps.focusedIndex ||
+      prevState.isDragging !== this.state.isDragging
     );
   }
 
@@ -69,6 +75,10 @@ export class DroppableComponent extends React.Component<
     }
   };
 
+  updateDragging = (isDragging: boolean) => {
+    this.setState({ isDragging });
+  };
+
   renderItem = ({ index, item }: any) => {
     const {
       deleteOption,
@@ -89,6 +99,7 @@ export class DroppableComponent extends React.Component<
       focusedIndex,
       item,
       index,
+      isDragging: this.state.isDragging,
     });
   };
 
@@ -102,6 +113,7 @@ export class DroppableComponent extends React.Component<
         items={this.props.items}
         onUpdate={this.onUpdate}
         shouldReRender={false}
+        updateDragging={this.updateDragging}
       />
     );
   }
