@@ -30,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -133,6 +134,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
+
+        // Set json schema version which will be used to check the compatibility while importing the JSON
+        applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
         return pluginRepository
                 .findAll()
