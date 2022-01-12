@@ -1,12 +1,15 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import TextField from "components/editorComponents/form/fields/TextField";
-import FormLabel from "components/editorComponents/FormLabel";
-import { FormIcons } from "icons/FormIcons";
+import TextInput from "components/ads/TextInput";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { InputType } from "components/constants";
+import {
+  Field,
+  WrappedFieldMetaProps,
+  WrappedFieldInputProps,
+} from "redux-form";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -29,51 +32,52 @@ export function InputText(props: {
   encrypted?: boolean;
   disabled?: boolean;
 }) {
-  const {
-    dataType,
-    disabled,
-    encrypted,
-    isRequired,
-    label,
-    name,
-    placeholder,
-    subtitle,
-  } = props;
+  const { dataType, disabled, name, placeholder } = props;
 
   return (
     <div data-cy={name} style={{ width: "50vh" }}>
-      <FormLabel>
-        {label} {isRequired && "*"}{" "}
-        {encrypted && (
-          <>
-            <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-            <StyledInfo>Encrypted</StyledInfo>
-          </>
-        )}
-        {subtitle && (
-          <>
-            <br />
-            <StyledInfo>{subtitle}</StyledInfo>
-          </>
-        )}
-      </FormLabel>
-      <TextField
+      <Field
+        component={renderComponent}
+        datatype={dataType}
         disabled={disabled || false}
-        name={name}
         placeholder={placeholder}
-        showError
-        type={dataType}
+        {...props}
+        asyncControl
       />
     </div>
   );
 }
 
+function renderComponent(
+  props: {
+    placeholder: string;
+    dataType?: InputType;
+    disabled?: boolean;
+  } & {
+    meta: Partial<WrappedFieldMetaProps>;
+    input: Partial<WrappedFieldInputProps>;
+  },
+) {
+  return (
+    <TextInput
+      dataType={props.dataType}
+      disabled={props.disabled || false}
+      name={props.input?.name}
+      onChange={props.input.onChange}
+      placeholder={props.placeholder}
+      value={props.input.value}
+      {...props.input}
+      width="100%"
+    />
+  );
+}
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
       configProperty,
       dataType,
       disabled,
+      encrypted,
       isValid,
       label,
       placeholderText,
@@ -86,7 +90,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       <InputText
         dataType={this.getType(dataType)}
         disabled={disabled}
-        encrypted={this.props.encrypted}
+        encrypted={encrypted}
         isValid={isValid}
         label={label}
         name={configProperty}

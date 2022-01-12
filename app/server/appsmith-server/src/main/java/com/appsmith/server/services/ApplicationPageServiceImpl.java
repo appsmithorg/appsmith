@@ -26,10 +26,11 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       ActionCollectionService actionCollectionService,
                                       GitFileUtils gitFileUtils,
                                       CommentThreadRepository commentThreadRepository,
+                                      ThemeService themeService,
                                       ResponseUtils responseUtils) {
 
         super(applicationService, sessionUserService, organizationRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
-                gitFileUtils, commentThreadRepository, responseUtils);
+                gitFileUtils, commentThreadRepository, themeService, responseUtils);
     }
 }

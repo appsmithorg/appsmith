@@ -1,7 +1,7 @@
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
@@ -16,7 +16,6 @@ export const ReduxActionTypes = {
   SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL:
     "SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL",
   SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL: "SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL",
-  SET_SHOULD_SHOW_REPO_LIMIT_ERROR: "SET_SHOULD_SHOW_REPO_LIMIT_ERROR",
   RESET_PULL_MERGE_STATUS: "RESET_PULL_MERGE_STATUS",
   GIT_PULL_INIT: "GIT_PULL_INIT",
   GIT_PULL_SUCCESS: "GIT_PULL_SUCCESS",
@@ -647,6 +646,9 @@ export const ReduxActionTypes = {
   DELETE_ORG_SUCCESS: "DELETE_ORG_SUCCESS",
   SET_USER_CURRENT_GEO_LOCATION: "SET_USER_CURRENT_GEO_LOCATION",
   SET_DISCONNECTING_GIT_APPLICATION: "SET_DISCONNECTING_GIT_APPLICATION",
+  /* This action constants is for identifying the status of the updates of the entities */
+  ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
+  ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -801,7 +803,6 @@ export const ReduxActionErrorTypes = {
   EXECUTE_DATASOURCE_QUERY_ERROR: "EXECUTE_DATASOURCE_QUERY_ERROR",
   INVITED_USER_SIGNUP_ERROR: "INVITED_USER_SIGNUP_ERROR",
   SET_PAGE_ORDER_ERROR: "SET_PAGE_ORDER_ERROR",
-  GENERATE_SSH_KEY_PAIR_ERROR: "GENERATE_SSH_KEY_PAIR_ERROR",
   DELETE_JS_ACTION_ERROR: "DELETE_JS_ACTION_ERROR",
   REFACTOR_JS_ACTION_NAME_ERROR: "REFACTOR_JS_ACTION_NAME_ERROR",
   FETCH_RELEASES_ERROR: "FETCH_RELEASES_ERROR",

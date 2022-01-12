@@ -24,14 +24,8 @@ export const getIsGitRepoSetup = (state: AppState) => {
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
 
-export const getIsPushingToGit = (state: AppState) =>
-  state.ui.gitSync.isPushingToGit;
-
 export const getIsCommitSuccessful = (state: AppState) =>
   state.ui.gitSync.isCommitSuccessful;
-
-export const getIsPushSuccessful = (state: AppState) =>
-  state.ui.gitSync.isPushSuccessful;
 
 export const getActiveGitSyncModalTab = (state: AppState) =>
   state.ui.gitSync.activeGitSyncModalTab;
@@ -128,17 +122,19 @@ export const getIsMergeInProgress = (state: AppState) =>
 export const getTempRemoteUrl = (state: AppState) =>
   state.ui.gitSync.tempRemoteUrl;
 
+export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
+
 export const getCountOfChangesToCommit = (state: AppState) => {
   const gitStatus = getGitStatus(state);
   const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};
   return modifiedPages + modifiedQueries;
 };
 
-export const getShouldShowRepoLimitError = (state: AppState) =>
-  state.ui.gitSync.showRepoLimitError;
-
 export const getShowRepoLimitErrorModal = (state: AppState) =>
   state.ui.gitSync.showRepoLimitErrorModal;
 
 export const getDisconnectingGitApplication = (state: AppState) =>
   state.ui.gitSync.disconnectingGitApp;
+
+export const getUseGlobalProfile = (state: AppState) =>
+  state.ui.gitSync.useGlobalProfile;

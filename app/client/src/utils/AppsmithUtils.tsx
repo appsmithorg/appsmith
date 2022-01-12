@@ -3,7 +3,7 @@ import {
   Page,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
@@ -14,7 +14,7 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "../constants/messages";
 import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";
@@ -417,4 +417,35 @@ export const getPageURL = (
     currentApplicationDetails?.id,
     page.pageId,
   );
+};
+
+/**
+ * Convert Base64 string to Blob
+ * @param base64Data
+ * @param contentType
+ * @param sliceSize
+ * @returns
+ */
+export const base64ToBlob = (
+  base64Data: string,
+  contentType = "",
+  sliceSize = 512,
+) => {
+  const byteCharacters = atob(base64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
 };
