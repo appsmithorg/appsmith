@@ -114,12 +114,14 @@ import ProgressBarWidget, {
 import SwitchGroupWidget, {
   CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
 } from "widgets/SwitchGroupWidget";
-
-import log from "loglevel";
-
 import CameraWidget, {
   CONFIG as CAMERA_WIDGET_CONFIG,
 } from "widgets/CameraWidget";
+import MapChartWidget, {
+  CONFIG as MAP_CHART_WIDGET_CONFIG,
+} from "widgets/MapChartWidget";
+
+import log from "loglevel";
 
 export const ALL_WDIGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -166,6 +168,7 @@ export const ALL_WDIGETS_AND_CONFIG = [
   [AudioWidget, AUDIO_WIDGET_CONFIG],
   [ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG],
   [CameraWidget, CAMERA_WIDGET_CONFIG],
+  [MapChartWidget, MAP_CHART_WIDGET_CONFIG],
 ];
 
 export const registerWidgets = () => {

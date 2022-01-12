@@ -239,7 +239,7 @@ function GitConnection({ isImport }: Props) {
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
     }
-    AnalyticsUtil.logEvent("COPY_SSH_KEY_BUTTON_CLICK");
+    AnalyticsUtil.logEvent("GS_COPY_SSH_KEY_BUTTON_CLICK");
   };
 
   const isAuthorInfoUpdated = useCallback(() => {
@@ -254,7 +254,7 @@ function GitConnection({ isImport }: Props) {
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
-    AnalyticsUtil.logEvent("REPO_URL_EDIT", {
+    AnalyticsUtil.logEvent("GS_REPO_URL_EDIT", {
       repoUrl: value,
     });
   };
@@ -299,7 +299,7 @@ function GitConnection({ isImport }: Props) {
   const onSubmit = useCallback(() => {
     if (isConnectingToGit || submitButtonDisabled) return;
     setTriedSubmit(true);
-    AnalyticsUtil.logEvent("CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
+    AnalyticsUtil.logEvent("GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
     if (!isAuthorInfoValid) return;
 
     if (isGitConnected) {
@@ -330,7 +330,7 @@ function GitConnection({ isImport }: Props) {
 
   const toggleHandler = useCallback(() => {
     setUseGlobalConfigInputVal(!useGlobalConfigInputVal);
-    AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED", {
+    AnalyticsUtil.logEvent("GS_DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED", {
       value: !useGlobalConfigInputVal,
     });
   }, [setUseGlobalConfigInputVal, useGlobalConfigInputVal]);
@@ -350,6 +350,9 @@ function GitConnection({ isImport }: Props) {
   }, [scrollWrapperRef]);
 
   const openDisconnectGitModal = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
+      source: "GIT_CONNECTION_MODAL",
+    });
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(
       setDisconnectingGitApplication({
@@ -383,7 +386,9 @@ function GitConnection({ isImport }: Props) {
               hasIcon={false}
               link={DOCS_BASE_URL}
               onClick={() => {
-                AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_REMOTEURL_CLICK");
+                AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                  source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
+                });
                 window.open(DOCS_BASE_URL, "_blank");
               }}
               text={createMessage(LEARN_MORE)}
@@ -426,7 +431,10 @@ function GitConnection({ isImport }: Props) {
                 category={Category.primary}
                 className="t--submit-repo-url-button"
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
-                onClick={() => generateSSHKey()}
+                onClick={() => {
+                  generateSSHKey();
+                  AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
+                }}
                 size={Size.large}
                 tag="button"
                 text={createMessage(GENERATE_KEY)}
