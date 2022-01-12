@@ -421,6 +421,24 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               props.labelPosition !== LabelPositionTypes.Left,
             dependencies: ["labelPosition"],
           },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: InputWidgetProps) =>
+              props.labelPosition !== LabelPositionTypes.Left,
+            dependencies: ["labelPosition"],
+          },
         ],
       },
       {
