@@ -205,6 +205,13 @@ function JSResponseView(props: Props) {
   const [selectedFunction, setSelectedFunction] = useState<
     undefined | JSAction
   >(undefined);
+  const isSelectedFunctionAsync = (id: string) => {
+    const jsAction = jsObject.actions.find((action) => action.id === id);
+    if (!!jsAction) {
+      return jsAction?.actionConfiguration.isAsync;
+    }
+    return false;
+  };
 
   const tabs = [
     {
@@ -257,12 +264,17 @@ function JSResponseView(props: Props) {
                             ) : (
                               ""
                             )}
-                            <FunctionSettings
-                              onClick={() => {
-                                setSelectedFunction(action);
-                                setOpenSettings(true);
-                              }}
-                            />
+                            {isSelectedFunctionAsync(action.id) ? (
+                              <FunctionSettings
+                                onClick={() => {
+                                  setSelectedFunction(action);
+                                  setOpenSettings(true);
+                                }}
+                              />
+                            ) : (
+                              ""
+                            )}
+
                             <RunFunction
                               className="run-button"
                               onClick={() => {
@@ -298,15 +310,17 @@ function JSResponseView(props: Props) {
                     />
                   )}
                 </ResponseViewer>
-                {openSettings && !!selectedFunction && (
-                  <JSFunctionSettings
-                    action={selectedFunction}
-                    openSettings={openSettings}
-                    toggleSettings={() => {
-                      setOpenSettings(!openSettings);
-                    }}
-                  />
-                )}
+                {openSettings &&
+                  !!selectedFunction &&
+                  isSelectedFunctionAsync(selectedFunction.id) && (
+                    <JSFunctionSettings
+                      action={selectedFunction}
+                      openSettings={openSettings}
+                      toggleSettings={() => {
+                        setOpenSettings(!openSettings);
+                      }}
+                    />
+                  )}
               </>
             )}
           </ResponseTabWrapper>

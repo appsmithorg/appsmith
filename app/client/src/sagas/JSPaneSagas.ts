@@ -300,20 +300,6 @@ export function* handleExecuteJSFunctionSaga(
   const { action, collectionId, collectionName } = data.payload;
   const actionId = action.id;
   try {
-    const entitySettings = yield call(getConfirmModalFlag, {
-      ...data.payload,
-      actionId,
-    });
-    if (!!entitySettings) {
-      const confirmed = yield call(confirmRunActionSaga);
-      if (!confirmed) {
-        yield put({
-          type: ReduxActionTypes.RUN_ACTION_CANCELLED,
-          payload: { id: actionId },
-        });
-        throw new UserCancelledActionExecutionError();
-      }
-    }
     const result = yield call(executeFunction, collectionName, action);
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,

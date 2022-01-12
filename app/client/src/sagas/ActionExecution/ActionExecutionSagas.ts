@@ -141,6 +141,12 @@ export function* executeActionTriggers(
     case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
       break;
+    case ActionTriggerType.CONFIRMATION_MODAL:
+      const flag = yield call(confirmRunActionSaga);
+      if (!flag) {
+        throw new UserCancelledActionExecutionError();
+      }
+      break;
     default:
       log.error("Trigger type unknown", trigger);
       throw Error("Trigger type unknown");
@@ -178,21 +184,6 @@ function* initiateActionTriggerExecution(
   // it will be created again while execution
   AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   try {
-    const getEntitySettings = yield call(
-      getActionSettings,
-      action.payload.dynamicString,
-    );
-    const entitySettings = yield call(getConfirmModalFlag, getEntitySettings);
-    if (!!entitySettings) {
-      const confirmed = yield call(confirmRunActionSaga);
-      if (!confirmed) {
-        yield put({
-          type: ReduxActionTypes.RUN_ACTION_CANCELLED,
-          payload: { id: entitySettings.actionId },
-        });
-        throw new UserCancelledActionExecutionError();
-      }
-    }
     yield call(executeAppAction, action.payload);
     if (event.callback) {
       event.callback({ success: true });

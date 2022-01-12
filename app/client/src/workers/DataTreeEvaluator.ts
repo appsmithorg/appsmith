@@ -71,6 +71,8 @@ import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { useSelector } from "react-redux";
+import { getJSCollection } from "selectors/entitiesSelector";
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -1005,12 +1007,6 @@ export default class DataTreeEvaluator {
             if (typeof unEvalValue === "function") {
               const params = getParams(unEvalValue);
               const functionString = unEvalValue.toString();
-              actions.push({
-                name: unEvalFunc,
-                body: functionString,
-                arguments: params,
-                isAsync: isFunctionAsync(unEvalValue, unEvalDataTree),
-              });
               _.set(
                 this.resolvedFunctions,
                 `${entityName}.${unEvalFunc}`,
@@ -1021,6 +1017,16 @@ export default class DataTreeEvaluator {
                 `${entityName}.${unEvalFunc}`,
                 functionString,
               );
+              actions.push({
+                name: unEvalFunc,
+                body: functionString,
+                arguments: params,
+                isAsync: isFunctionAsync(
+                  unEvalValue,
+                  unEvalDataTree,
+                  this.resolvedFunctions,
+                ),
+              });
             } else {
               variables.push({
                 name: unEvalFunc,

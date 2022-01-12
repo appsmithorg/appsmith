@@ -11,8 +11,9 @@ import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
-import { completePromise } from "workers/PromisifyAction";
+import { completePromise, confirmationPromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { pusher } from "./Actions";
 
 export type EvalResult = {
   result: any;
@@ -130,7 +131,18 @@ export const createGlobalData = (
         const dataTreeKey = GLOBAL_DATA[datum];
         if (dataTreeKey) {
           const data = dataTreeKey[key].data;
-          dataTreeKey[key] = resolvedObject[key];
+          const isAsync = dataTreeKey.meta[key].isAsync;
+          const confirmBeforeExecute =
+            dataTreeKey.meta[key].confirmBeforeExecute;
+          if (isAsync && confirmBeforeExecute) {
+            dataTreeKey[key] = confirmationPromise.bind(
+              {},
+              context?.requestId,
+              resolvedObject[key],
+            );
+          } else {
+            dataTreeKey[key] = resolvedObject[key];
+          }
           dataTreeKey[key].data = data;
         }
       });
@@ -312,7 +324,11 @@ export async function evaluateAsync(
   })();
 }
 
-export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
+export function isFunctionAsync(
+  userFunction: unknown,
+  dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
+) {
   return (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
@@ -333,6 +349,30 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
+    if (!isEmpty(resolvedFunctions)) {
+      Object.keys(resolvedFunctions).forEach((datum: any) => {
+        const resolvedObject = resolvedFunctions[datum];
+        Object.keys(resolvedObject).forEach((key: any) => {
+          const dataTreeKey = GLOBAL_DATA[datum];
+          if (dataTreeKey) {
+            const data = dataTreeKey[key].data;
+            const isAsync = dataTreeKey.meta[key].isAsync;
+            const confirmBeforeExecute =
+              dataTreeKey.meta[key].confirmBeforeExecute;
+            if (isAsync && confirmBeforeExecute) {
+              dataTreeKey[key] = confirmationPromise.bind(
+                {},
+                "",
+                resolvedObject[key],
+              );
+            } else {
+              dataTreeKey[key] = resolvedObject[key];
+            }
+            dataTreeKey[key].data = data;
+          }
+        });
+      });
+    }
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();

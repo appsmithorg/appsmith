@@ -435,7 +435,7 @@ export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
-export const JS_SETTINGS_ONPAGELOAD = () => "Run API on Page load";
+export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>

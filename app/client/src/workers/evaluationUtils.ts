@@ -593,7 +593,11 @@ export const updateJSCollectionInDataTree = (
           dependencyMap,
         );
         const meta = jsCollection.meta;
-        meta[action.name] = { arguments: action.arguments };
+        meta[action.name] = {
+          arguments: action.arguments,
+          isAsync: false,
+          confirmBeforeExecute: false,
+        };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
         const data = _.get(
           modifiedDataTree,

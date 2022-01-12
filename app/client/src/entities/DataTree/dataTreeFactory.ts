@@ -74,6 +74,8 @@ export interface DataTreeJSAction {
 
 export interface MetaArgs {
   arguments: Variable[];
+  isAsync: boolean;
+  confirmBeforeExecute: boolean;
 }
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
