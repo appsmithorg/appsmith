@@ -28,7 +28,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             .should("contain.text", date);
     });
 
-    it("2. Verify resolve via direct Promises", () => {
+    it("2. Verify resolve & chaining via direct Promises", () => {
         cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
@@ -38,7 +38,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         }).then((res)=>{
             return res+ " Earth"
         }).then((res)=> {
-            showAlert(res)
+            showAlert(res, 'success')
         })}}`, true, true);
         agHelper.ClickButton('Submit')
         cy.get(locator._toastMsg)
@@ -58,8 +58,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             const user = await RandomUser.run();
             const gender = await Genderize.run({ country: user.results[0].location.country});
             await storeValue("Gender", gender);
-            await showAlert("Your country is "+ JSON.stringify(appsmith.store.Gender.name));
-            await showAlert("You could be a "+ JSON.stringify(appsmith.store.Gender.gender));
+            await showAlert("Your country is "+ JSON.stringify(appsmith.store.Gender.name), 'info');
+            await showAlert("You could be a "+ JSON.stringify(appsmith.store.Gender.gender), 'info');
           })()}}`, true, true);
         agHelper.ClickButton('Submit')
         cy.get(locator._toastMsg).should("have.length", 2)
@@ -77,14 +77,15 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         jsEditor.EnterJSContext('onclick', `{{
             (function(){
                   return Christmas.run()
-              .then(() => showAlert("You have a beautiful picture") )
-              .catch(() => showAlert('Oops!'))
+              .then(() => showAlert("You have a beautiful picture", 'success') )
+              .catch(() => showAlert('Oops!', 'error'))
               })()
           }}`, true, true);
-          agHelper.SelectEntityByName("Image1");
-          jsEditor.EnterJSContext('image', `{{Christmas.data}}`, true);
+        agHelper.SelectEntityByName("Image1");
+        jsEditor.EnterJSContext('image', `{{Christmas.data}}`, true);
         agHelper.ClickButton('Submit')
-        cy.get(locator._toastMsg).should("have.length", 1).should("have.text", 'You have a beautiful picture');
+        cy.get(locator._toastMsg).should("have.length", 1)
+        cy.get(locator._toastMsg).contains(/You have a beautiful picture|Oops!/g)
     });
 
     it("5. Verify .then & .catch via JS Objects in Promises", () => {
@@ -93,7 +94,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         });
         apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
         jsEditor.CreateJSObject(`const user = 'You';
-        return InspiringQuotes.run().then((res) => {showAlert("Today's quote for "+ user + " is "+ JSON.stringify(res.quote.body))}).catch(() => showAlert("Unable to fetch quote for "+ user))`);
+        return InspiringQuotes.run().then((res) => {showAlert("Today's quote for "+ user + " is "+ JSON.stringify(res.quote.body), 'success')}).catch(() => showAlert("Unable to fetch quote for "+ user, 'warning'))`);
         agHelper.SelectEntityByName("Widgets")//to expand widgets
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{JSObject1.myFun1()}}`, true, true);
@@ -109,12 +110,46 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.person}}" }); // verifies Bug 10055
 
         agHelper.SelectEntityByName("Button1");
-        jsEditor.EnterJSContext('onclick', `{{Promise.race([Agify.run({person:'Melinda' }),Agify.run({person:'Trump'})]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name))})}}`, true, true);
+        jsEditor.EnterJSContext('onclick', `{{Promise.race([Agify.run({person:'Melinda' }),Agify.run({person:'Trump'})]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success')})}}`, true, true);
         agHelper.ClickButton('Submit')
         cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump|null/g)
     });
 
-    it.skip("7. Verify Promise.all", () => {
+    it("7. Verify maintaining context via direct Promises", () => {
+        cy.fixture('promisesBtnList').then((val: any) => {
+            agHelper.AddDsl(val)
+        });
+        apiPage.CreateAndFillApi("https://api.jikan.moe/v3/search/anime?q={{this.params.name}}", "GetAnime")
+        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("List1");
+        jsEditor.EnterJSContext('items', `[
+            {
+              "name": {{GetAnime.data.results[0].title}},
+              "img": {{GetAnime.data.results[0].image_url}},
+              "synopsis": {{GetAnime.data.results[0].synopsis}}
+              }, 
+            {
+              "name": {{GetAnime.data.results[3].title}},
+              "img": {{GetAnime.data.results[3].image_url}},
+              "synopsis": {{GetAnime.data.results[3].synopsis}}
+            },
+            {
+              "name": {{GetAnime.data.results[2].title}},
+              "img": {{GetAnime.data.results[2].image_url}},
+              "synopsis": {{GetAnime.data.results[2].synopsis}}
+            }
+          ]`, true);
+        agHelper.SelectEntityByName("Button1");
+        jsEditor.EnterJSContext('onclick', `{{(function(){
+            const anime = "fruits basket : the final";
+            return GetAnime.run({ name: anime })
+              .then(() => showAlert("Showing results for : "+ anime, 'success'))
+          })()}}`, true, true);
+        agHelper.ClickButton('Submit')
+        cy.get(locator._toastMsg).should("have.length", 1).should("have.text", 'Showing results for : fruits basket : the final');
+    });
+
+    it.skip("8. Verify Promise.all", () => {
         cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
