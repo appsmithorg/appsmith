@@ -44,15 +44,18 @@ describe("getAllPaths", () => {
       let depMap: DependencyMap = {
         Widget1: [],
         "Widget1.defaultText": [],
+        "Widget1.defaultText.abc": [],
       };
       const allkeys: Record<string, true> = {
         Widget1: true,
         "Widget1.defaultText": true,
+        "Widget1.defaultText.abc": true,
       };
       depMap = makeParentsDependOnChildren(depMap, allkeys);
       expect(depMap).toStrictEqual({
         Widget1: ["Widget1.defaultText"],
-        "Widget1.defaultText": [],
+        "Widget1.defaultText": ["Widget1.defaultText.abc"],
+        "Widget1.defaultText.abc": [],
       });
     });
 
