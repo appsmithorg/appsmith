@@ -35,7 +35,6 @@ export class JSEditor {
                     agHelper.Paste(el, JSCode)
                 } else {
                     input.type(JSCode, {
-                        force: true,
                         parseSpecialCharSequences: false,
                     });
                 }
@@ -43,14 +42,14 @@ export class JSEditor {
 
         //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
         agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 2000)
-        cy.waitUntil(() =>
+        Cypress._.times(3, () => {
             cy.xpath(this._runButton)
                 .first()
-                .click().then(() => {
-                    cy.get(locator._empty).should('not.exist')
-                    cy.get(locator._toastMsg).should("have.length", 0)
-                }).wait(1000)
-        );
+                .click()
+                .wait(1000)
+        })//clicking 3 times each with interval of 1 second!
+        cy.get(locator._empty).should('not.exist')
+        cy.get(locator._toastMsg).should("have.length", 0)
     }
 
     public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
