@@ -3616,6 +3616,6 @@ Cypress.Commands.add("isInViewport", (element) => {
 //   return originalFn(element, clearedText, options);
 // });
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.2, // threshold for entire image
+  failureThreshold: 0.1, // threshold for entire image
   failureThresholdType: "percent",
 });
