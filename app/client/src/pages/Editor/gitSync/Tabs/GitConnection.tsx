@@ -52,6 +52,7 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
   getLocalGitConfig,
+  getOrganizationIdForImport,
   getTempRemoteUrl,
   getUseGlobalProfile,
 } from "selectors/gitSyncSelectors";
@@ -161,6 +162,7 @@ function GitConnection({ isImport }: Props) {
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
+  // const orgIdForImporting = useSelector(getOrganizationIdForImport);
 
   const {
     deployKeyDocUrl,

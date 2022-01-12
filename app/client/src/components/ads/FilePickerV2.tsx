@@ -14,7 +14,7 @@ import {
 } from "constants/messages";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import Icon, { IconName, IconSize } from "./Icon";
+import Icon, { IconSize } from "./Icon";
 import {
   ContainerDiv,
   FileEndings,

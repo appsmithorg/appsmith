@@ -52,7 +52,6 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
-  setIsImportAppModalOpen,
   updateApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
@@ -81,7 +80,6 @@ import { useIntiateOnboarding } from "components/editorComponents/Onboarding/uti
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
-import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
 import {
   createMessage,
   DOCUMENTATION,
@@ -572,6 +570,10 @@ function ApplicationsSection(props: any) {
   };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [
+    selectedOrgIdForImportApplication,
+    setSelectedOrgIdForImportApplication,
+  ] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
   const leaveOrg = (orgId: string) => {
@@ -683,7 +685,6 @@ function ApplicationsSection(props: any) {
                   orgName: organization.name,
                   orgSlug: organization.slug,
                 })}
-              <ImportApplicationModal />
               {hasManageOrgPermissions && (
                 <Dialog
                   canEscapeKeyClose={false}
@@ -694,6 +695,15 @@ function ApplicationsSection(props: any) {
                 >
                   <Form orgId={organization.id} />
                 </Dialog>
+              )}
+              {selectedOrgIdForImportApplication && (
+                <ImportApplicationModal
+                  isModalOpen={
+                    selectedOrgIdForImportApplication === organization.id
+                  }
+                  onClose={() => setSelectedOrgIdForImportApplication("")}
+                  organizationId={selectedOrgIdForImportApplication}
+                />
               )}
               {isPermitted(
                 organization.userPermissions,
@@ -769,7 +779,9 @@ function ApplicationsSection(props: any) {
                           <Icon
                             className="t--options-icon"
                             name="context-menu"
-                            onClick={() => setOrgToOpenMenu(organization.slug)}
+                            onClick={() => {
+                              setOrgToOpenMenu(organization.slug);
+                            }}
                             size={IconSize.XXXL}
                           />
                         }
@@ -817,11 +829,8 @@ function ApplicationsSection(props: any) {
                                 cypressSelector="t--org-import-app"
                                 icon="upload"
                                 onSelect={() =>
-                                  dispatch(
-                                    setIsImportAppModalOpen({
-                                      isOpen: true,
-                                      organizationId: organization.id,
-                                    }),
+                                  setSelectedOrgIdForImportApplication(
+                                    organization.id,
                                   )
                                 }
                                 text="Import Application"
@@ -836,7 +845,6 @@ function ApplicationsSection(props: any) {
                                     dispatch(
                                       setIsImportAppViaGitModalOpen({
                                         isOpen: true,
-                                        organizationId: organization.id,
                                       }),
                                     )
                                   }

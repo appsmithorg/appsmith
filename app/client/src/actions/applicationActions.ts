@@ -217,11 +217,3 @@ export const getSSHKeyPairError = (payload: {
     payload,
   };
 };
-
-export const setIsImportAppModalOpen = (payload: {
-  isOpen: boolean;
-  organizationId?: string;
-}) => ({
-  type: ReduxActionTypes.SET_IS_IMPORT_APP_MODAL_OPEN,
-  payload,
-});

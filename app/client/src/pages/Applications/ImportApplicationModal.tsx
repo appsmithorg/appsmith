@@ -1,17 +1,11 @@
-import React, { useCallback, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
-import Button, { Size } from "components/ads/Button";
 import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
-import {
-  // importApplication,
-  setIsImportAppModalOpen,
-} from "actions/applicationActions";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { importApplication } from "actions/applicationActions";
 import {
   createMessage,
   IMPORT_APPLICATION_MODAL_LABEL,
@@ -26,15 +20,11 @@ import { Colors } from "constants/Colors";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
-import { getIsImportAppModalOpen } from "selectors/applicationSelectors";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import {
+  setIsGitSyncModalOpen,
+  setIsImportAppViaGitModalOpen,
+} from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-
-const ImportButton = styled(Button)<{ disabled?: boolean }>`
-  height: 30px;
-  width: 81px;
-  pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
-`;
 
 const TextWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -48,17 +38,52 @@ const Row = styled.div`
   justify-content: space-between;
 `;
 
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: ${(props) => props.theme.spaces[6]}px;
-`;
-
 const FilePickerWrapper = styled.div`
-  width: 100%;
+  width: 320px;
+  height: 200px;
+  border: 1px solid ${Colors.MERCURY};
   display: flex;
   align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  &:hover {
+    background: ${Colors.MERCURY};
+  }
+  & > div {
+    background-image: none;
+    background: transparent;
+    .button-wrapper {
+      width: 100%;
+      height: 100%;
+      .cs-icon {
+        border-radius: 50%;
+        width: ${(props) => props.theme.spaces[12] + 2}px;
+        height: ${(props) => props.theme.spaces[12] + 2}px;
+        background: ${Colors.MERCURY};
+        display: flex;
+        justify-content: center;
+        margin-top: 35px;
+        margin-bottom: 32px;
+        svg {
+          width: ${(props) => props.theme.iconSizes.XL}px;
+          height: ${(props) => props.theme.iconSizes.XL}px;
+        }
+      }
+      .cs-text {
+        max-width: 220px;
+        text-align: center;
+        margin-top: 0px;
+        font-size: ${(props) => props.theme.typography.p1.fontSize}px;
+        &.drag-drop-text {
+          color: ${Colors.OXFORD_BLUE};
+        }
+        &.drag-drop-description {
+          color: ${Colors.GREY_6};
+        }
+      }
+    }
+  }
 `;
 
 const CardWrapper = styled.div`
@@ -69,6 +94,7 @@ const CardWrapper = styled.div`
   align-items: center;
   flex-direction: column;
   cursor: pointer;
+  position: relative;
   &:hover {
     background: ${Colors.MERCURY};
   }
@@ -92,6 +118,7 @@ function ImportCard(props: {
   icon: IconName;
   title: string;
   message: string;
+  children?: ReactNode;
   handler?: () => void;
 }) {
   const theme = useTheme() as Theme;
@@ -111,6 +138,7 @@ function ImportCard(props: {
       <Text color={Colors.GREY_6} type={TextType.P1}>
         {props.message}
       </Text>
+      {props.children}
     </CardWrapper>
   );
 }
@@ -123,65 +151,62 @@ type ImportApplicationModalProps = {
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const isOpen = useSelector(getIsImportAppModalOpen);
-  // const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
-  //   file: File;
-  //   setProgress: SetProgress;
-  // } | null>(null);
+  const { isModalOpen, onClose, organizationId } = props;
+  const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
+    file: File;
+    setProgress: SetProgress;
+  } | null>(null);
 
   const dispatch = useDispatch();
-  const onClose = useCallback(() => {
-    dispatch(setIsImportAppModalOpen({ isOpen: false }));
-  }, []);
-
   const onGitImport = useCallback(() => {
-    dispatch(setIsImportAppModalOpen({ isOpen: false }));
+    onClose && onClose();
+    dispatch(
+      setIsImportAppViaGitModalOpen({
+        isOpen: false,
+        organizationId,
+      }),
+    );
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
-    // dispatch(setIsImportAppViaGitModalOpen({ isOpen: true }));
   }, []);
 
-  // const importingApplication = useSelector(
-  //   (state: AppState) => state.ui.applications.importingApplication,
-  // );
+  const importingApplication = useSelector(
+    (state: AppState) => state.ui.applications.importingApplication,
+  );
 
-  // const FileUploader = useCallback(
-  //   async (file: File, setProgress: SetProgress) => {
-  //     if (!!file) {
-  //       setAppFileToBeUploaded({
-  //         file,
-  //         setProgress,
-  //       });
-  //     } else {
-  //       setAppFileToBeUploaded(null);
-  //     }
-  //   },
-  //   [],
-  // );
+  const FileUploader = useCallback(
+    async (file: File, setProgress: SetProgress) => {
+      if (!!file) {
+        setAppFileToBeUploaded({
+          file,
+          setProgress,
+        });
+        dispatch(
+          importApplication({
+            orgId: organizationId as string,
+            applicationFile: file,
+          }),
+        );
+      } else {
+        setAppFileToBeUploaded(null);
+      }
+    },
+    [],
+  );
 
-  // const onImportApplication = useCallback(() => {
-  //   if (!appFileToBeUploaded) {
-  //     Toaster.show({
-  //       text: "Please choose a valid application file!",
-  //       variant: Variant.danger,
-  //     });
-  //     return;
-  //   }
-  //   const { file } = appFileToBeUploaded || {};
+  useEffect(() => {
+    // finished of importing application
+    if (appFileToBeUploaded && !importingApplication) {
+      setAppFileToBeUploaded(null);
+      // should open "Add credential" modal
+    }
+  }, [appFileToBeUploaded, importingApplication]);
 
-  //   dispatch(
-  //     importApplication({
-  //       orgId: organizationId as string,
-  //       applicationFile: file,
-  //     }),
-  //   );
-  // }, [appFileToBeUploaded, organizationId]);
-
-  // const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
+  const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
   return (
     <StyledDialog
       canOutsideClickClose
@@ -190,7 +215,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         name: "right-arrow",
         bgColor: Colors.GEYSER_LIGHT,
       }}
-      isOpen={isOpen}
+      isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={onClose}
       title={createMessage(IMPORT_APPLICATION_MODAL_TITLE)}
@@ -202,11 +227,17 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         </Text>
       </TextWrapper>
       <Row>
-        <ImportCard
-          icon="file-line"
-          message={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
-          title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
-        />
+        <FilePickerWrapper>
+          <FilePickerV2
+            containerClickable
+            description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
+            fileType={FileType.JSON}
+            fileUploader={FileUploader}
+            onFileRemoved={onRemoveFile}
+            title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
+            uploadIcon="file-line"
+          />
+        </FilePickerWrapper>
         <ImportCard
           handler={onGitImport}
           icon="fork"
@@ -214,17 +245,6 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
           title={createMessage(IMPORT_APP_FROM_GIT_TITLE)}
         />
       </Row>
-      {/* <ButtonWrapper>
-        <ImportButton
-          // category={ButtonCategory.tertiary}
-          cypressSelector={"t--org-import-app-button"}
-          disabled={!appFileToBeUploaded}
-          isLoading={importingApplication}
-          onClick={onImportApplication}
-          size={Size.large}
-          text={"IMPORT"}
-        />
-      </ButtonWrapper> */}
     </StyledDialog>
   );
 }
