@@ -1,5 +1,5 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const dslWithSchema = require("../../../../fixtures/jsonFormDslWithSchema.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 
 const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;

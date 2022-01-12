@@ -47,34 +47,6 @@
             "fontSize": "PARAGRAPH"
         },
         {
-            "widgetName": "Text2",
-            "displayName": "Text",
-            "iconSVG": "/static/media/icon.97c59b52.svg",
-            "topRow": 62,
-            "bottomRow": 66,
-            "parentRowSpace": 10,
-            "type": "TEXT_WIDGET",
-            "hideCard": false,
-            "animateLoading": true,
-            "parentColumnSpace": 18.0625,
-            "dynamicTriggerPathList": [],
-            "leftColumn": 22,
-            "dynamicBindingPathList": [],
-            "text": "Label",
-            "key": "zgsygilz5a",
-            "rightColumn": 38,
-            "textAlign": "LEFT",
-            "widgetId": "h4slkd1iar",
-            "isVisible": true,
-            "fontStyle": "BOLD",
-            "textColor": "#231F20",
-            "version": 1,
-            "parentId": "0",
-            "renderMode": "CANVAS",
-            "isLoading": false,
-            "fontSize": "PARAGRAPH"
-        },
-        {
             "schema": {
                 "__root_schema__": {
                     "children": {
@@ -130,6 +102,7 @@
                             "label": "Dob",
                             "maxDate": "2121-12-31T18:29:00.000Z",
                             "minDate": "1920-12-31T18:30:00.000Z",
+                            "convertToISO": false,
                             "shortcuts": false,
                             "isVisible": true
                         },
@@ -239,6 +212,7 @@
                                             "isDisabled": false,
                                             "isRequired": false,
                                             "label": "Year",
+                                            "convertToISO": false,
                                             "maxDate": "2121-12-31T18:29:00.000Z",
                                             "minDate": "1920-12-31T18:30:00.000Z",
                                             "shortcuts": false,

@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import React, { PropsWithChildren, useRef } from "react";
 import styled from "styled-components";
-import { cloneDeep, debounce, isEmpty } from "lodash";
+import { cloneDeep, debounce, isEmpty, merge } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
@@ -9,7 +9,7 @@ import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FIELD_PADDING_X } from "./styleConstants";
-import { ARRAY_ITEM_KEY, DataType, Schema, SchemaItem } from "../constants";
+import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "../constants";
 import { TEXT_SIZES } from "constants/WidgetConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
@@ -97,12 +97,23 @@ const processArray = (schema: Schema): any[] => {
 };
 
 const processSchemaItem = (schemaItem: SchemaItem) => {
-  if (schemaItem.dataType === DataType.OBJECT) {
+  if (schemaItem.fieldType === FieldType.OBJECT) {
     return processObject(schemaItem.children);
   }
 
-  if (schemaItem.dataType === DataType.ARRAY) {
-    return processArray(schemaItem.children);
+  if (schemaItem.fieldType === FieldType.ARRAY) {
+    const defaultArrayValue = processArray(schemaItem.children);
+
+    /**
+     * Reason for merge
+     * - For an array type, the default value of individual fields underneath the array
+     * are not present as array field handles whole default data coming from sourceData directly.
+     * So the default value we get from processArray(schemaItem.children) will have some value only if
+     * the default value of any field under the array is set explicitly by the user in the property pane.
+     * Thus we merge both array level default value and any default value the underlying field holds
+     * to get a complete defaultValue.
+     */
+    return merge(schemaItem.defaultValue, defaultArrayValue);
   }
 
   const { defaultValue } = schemaItem;

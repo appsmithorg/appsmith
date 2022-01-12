@@ -1,4 +1,4 @@
-const dslWithoutSchema = require("../../../../fixtures/jsonFormDslWithoutSchema.json");
+const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 
 const fieldPrefix = ".t--jsonformfield";
 

@@ -104,7 +104,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       helpText: "Sets the format of the selected date",
@@ -121,7 +121,7 @@ const PROPERTIES = {
       hideSubText: true,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       propertyName: "closeOnSelection",
@@ -135,7 +135,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       propertyName: "shortcuts",
@@ -149,7 +149,22 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
+    },
+    {
+      propertyName: "convertToISO",
+      label: "Convert to ISO format",
+      helpText:
+        "Enabling this always converts the value in ISO form in the formData irrespective of the 'Date Format' selected",
+      controlType: "SWITCH",
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      validation: { type: ValidationTypes.BOOLEAN },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
+      dependencies: ["schema"],
     },
     {
       propertyName: "minDate",
@@ -164,7 +179,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
     {
       propertyName: "maxDate",
@@ -179,7 +194,7 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
   ],
   actions: [
@@ -193,7 +208,7 @@ const PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema", "sourceData"],
+      dependencies: ["schema"],
     },
   ],
 };

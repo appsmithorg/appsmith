@@ -1,7 +1,7 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
-import { isEmpty } from "lodash";
+import { debounce, isEmpty } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
@@ -37,10 +37,21 @@ export type JSONFormWidgetState = {
   fieldValidity: FieldValidityState;
 };
 
+const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
+
 class JSONFormWidget extends BaseWidget<
   JSONFormWidgetProps,
   WidgetState & JSONFormWidgetState
 > {
+  debouncedParseAndSaveFieldState: any;
+  constructor(props: JSONFormWidgetProps) {
+    super(props);
+    this.debouncedParseAndSaveFieldState = debounce(
+      this.parseAndSaveFieldState,
+      SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT,
+    );
+  }
+
   state: JSONFormWidgetState = {
     fieldValidity: {},
   };
@@ -72,7 +83,7 @@ class JSONFormWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
     this.constructAndSaveSchemaIfRequired(prevProps);
-    this.parseAndSaveFieldState();
+    this.debouncedParseAndSaveFieldState();
   }
 
   constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {

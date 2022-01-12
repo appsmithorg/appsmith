@@ -1,6 +1,6 @@
 import moment from "moment";
-import React, { useContext } from "react";
-import { pick } from "lodash";
+import React, { useContext, useRef } from "react";
+import { cloneDeep, pick } from "lodash";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/JSONFormWidget/component/Field";
@@ -26,18 +26,20 @@ type DateComponentProps = FieldComponentBaseProps &
     onDateChange?: string;
     onDateSelected?: string;
     shortcuts: boolean;
+    convertToISO: boolean;
   };
 
 const COMPONENT_DEFAULT_VALUES = {
   closeOnSelection: false,
+  convertToISO: false,
   dateFormat: "YYYY-MM-DD HH:mm",
   isDisabled: false,
   isRequired: false,
+  isVisible: true,
   label: "",
   maxDate: "2121-12-31T18:29:00.000Z",
   minDate: "1920-12-31T18:30:00.000Z",
   shortcuts: false,
-  isVisible: true,
 };
 
 const componentDefaultValues = ({
@@ -86,7 +88,6 @@ const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
 function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
   const {
     fieldType,
-    isRequired,
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
@@ -95,6 +96,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
     onFocusDynamicString,
     onBlurDynamicString,
   });
+  const convertToISORef = useRef<boolean>();
 
   const { onFieldValidityChange } = useRegisterFieldValidity({
     fieldName: name,
@@ -111,13 +113,17 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
     <Field
       {...rest}
       defaultValue={schemaItem.defaultValue}
-      isRequiredField={isRequired}
+      isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
       render={({ field: { onBlur, onChange, value } }) => {
-        const onDateSelected = (value: string) => {
-          onChange(value);
+        const onDateSelected = (selectedValue: string) => {
+          if (schemaItem.convertToISO) {
+            onChange(selectedValue);
+          } else {
+            onChange(moment(selectedValue).format(schemaItem.dateFormat));
+          }
 
           if (schemaItem.onDateSelected && executeAction) {
             executeAction({
@@ -151,6 +157,14 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
 
           return value;
         })();
+
+        if (
+          valueInISOFormat &&
+          convertToISORef.current !== schemaItem.convertToISO
+        ) {
+          convertToISORef.current = schemaItem.convertToISO;
+          onDateSelected(valueInISOFormat);
+        }
 
         registerFieldOnBlurHandler(onBlur);
         onFieldValidityChange(isValueValid);
