@@ -72,7 +72,7 @@ public class ResponseUtils {
     public ApplicationPagesDTO updateApplicationPagesDTOWithDefaultResources(ApplicationPagesDTO applicationPages) {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
         pageNameIdList.forEach(page -> {
-            if (StringUtils.isEmpty(page.getDefaultPageId())) {
+            if (!StringUtils.hasLength(page.getDefaultPageId())) {
                 log.debug("Unable to find default pageId for applicationPage: {}", page.getId());
                 throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId());
             }
@@ -84,9 +84,10 @@ public class ResponseUtils {
     public ActionDTO updateActionDTOWithDefaultResources(ActionDTO action) {
         DefaultResources defaults = action.getDefaultResources();
         if (defaults == null
-                || StringUtils.isEmpty(defaults.getApplicationId())
-                || StringUtils.isEmpty(defaults.getPageId())
-                || StringUtils.isEmpty(defaults.getActionId())) {
+                || !StringUtils.hasLength(defaults.getApplicationId())
+                || !StringUtils.hasLength(defaults.getPageId())
+                || !StringUtils.hasLength(defaults.getActionId())
+                || !StringUtils.hasLength(defaults.getCollectionId())) {
             log.debug("Unable to find default ids for action: {}", action.getId());
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getId());
         }
