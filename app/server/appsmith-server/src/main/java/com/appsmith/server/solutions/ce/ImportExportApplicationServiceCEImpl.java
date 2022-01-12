@@ -29,6 +29,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -46,7 +47,6 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
@@ -392,9 +392,19 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
                             .create();
 
-                    // TODO use JsonObject to migrate between the versions
+
+                    /*
+                    // Use JsonObject to migrate when we remove some field from the collection which is being exported
                     JsonObject json = gson.fromJson(data, JsonObject.class);
-                    Map<String, Object> application = (Map<String, Object>) json.get("exportedApplication");
+                    JsonObject update = new JsonObject();
+                    update.addProperty("slug", "update_name");
+                    update.addProperty("name", "update name");
+
+                    ((JsonObject) json.get("exportedApplication")).add("name", update);
+                    json.get("random") == null => true
+
+                    ((JsonArray) json.get("pageList"))
+                    */
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
@@ -421,23 +431,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * This function will take the application reference object to hydrate the application in mongoDB
      *
      * @param organizationId organization to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
+     * @param applicationJson    application resource which contains necessary information to save the application
      * @param applicationId  application which needs to be saved with the updated resources
      * @return Updated application
      */
     public Mono<Application> importApplicationInOrganization(String organizationId,
-                                                             ApplicationJson importedDoc,
+                                                             ApplicationJson applicationJson,
                                                              String applicationId,
                                                              String branchName) {
 
         /*
-            1. Fetch organization by id
-            2. Extract datasources and update plugin information
-            3. Create new datasource if same datasource is not present
-            4. Extract and save application
-            5. Extract and save pages in the application
-            6. Extract and save actions in the application
+            1. Migrate resource to latest schema
+            2. Fetch organization by id
+            3. Extract datasources and update plugin information
+            4. Create new datasource if same datasource is not present
+            5. Extract and save application
+            6. Extract and save pages in the application
+            7. Extract and save actions in the application
          */
+        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();

@@ -306,9 +306,9 @@ public class GitFileUtils {
     }
 
     private Boolean isVersionCompatible(ApplicationJson metadata) {
-        Integer importedJsonVersion = metadata == null ? null : metadata.getVersion();
+        Integer importedJsonVersion = metadata == null ? null : metadata.getFileSystemVersion();
 
-        if (importedJsonVersion == null || importedJsonVersion.equals(new ApplicationJson().getVersion())) {
+        if (importedJsonVersion == null || importedJsonVersion.equals(new ApplicationJson().getFileSystemVersion())) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

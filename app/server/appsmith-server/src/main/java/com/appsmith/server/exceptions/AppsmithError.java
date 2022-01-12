@@ -129,6 +129,7 @@ public enum AppsmithError {
     GIT_ACTION_FAILED(400, 4044, "git {0} failed. \nDetails: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     GIT_FILE_SYSTEM_ERROR(503, 5013, "Error while accessing the file system. {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     GIT_EXECUTION_TIMEOUT(504, 5040, "Git command execution exceeded the maximum allowed time, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),
+    INCOMPATIBLE_IMPORTED_JSON(400, 4045, "Provided file is from different version, please wait till Appsmith gets auto-updated to latest version.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR)
     ;
 
     private final Integer httpErrorCode;
