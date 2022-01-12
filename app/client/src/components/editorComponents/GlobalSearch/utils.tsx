@@ -11,7 +11,7 @@ import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginType } from "entities/Action";
-import { modText } from "./HelpBar";
+import { altText, modText } from "./HelpBar";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
@@ -77,7 +77,7 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + K</>,
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
     <>
-      {modText()} + <span>&#8997;</span> + N
+      {modText()} + {altText()} + N
     </>
   ),
 };

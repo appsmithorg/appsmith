@@ -31,6 +31,7 @@ const StyledHelpBar = styled.div`
 `;
 
 export const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
+export const altText = () => (isMac() ? <span>&#8997;</span> : "alt");
 const comboText = <>{modText()} + K</>;
 
 type Props = {
