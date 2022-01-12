@@ -35,7 +35,7 @@ describe("App Theming funtionality", function() {
 
     // check for alert
     cy.get(`${commonlocators.themeCard} main h3`)
-      .eq(2)
+      .first()
       .invoke("text")
       .then((text) => {
         cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
