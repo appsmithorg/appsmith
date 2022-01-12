@@ -370,7 +370,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
-        label={this.props.optionValue.label}
+        label={this.props.optionValue?.label}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -381,7 +381,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.optionValue.value}
+        value={this.props.optionValue?.value}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
