@@ -11,6 +11,7 @@ export class CommonLocators {
     _saveStatusSuccess = ".t--save-status-success"
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"
+    _codeEditorTargetTextArea = ".CodeEditorTarget textarea"
     _entityExplorersearch = "#entity-explorer-search"
     _propertyControl = ".t--property-control-"
     _textWidget = ".t--draggable-textwidget span"
@@ -27,5 +28,6 @@ export class CommonLocators {
     _toastMsg = ".t--toast-action"
     _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
     _buttonClick = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
+    _empty = "span[name='no-response']"
 
 }

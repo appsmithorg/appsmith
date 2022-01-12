@@ -19,7 +19,7 @@ export class JSEditor {
             .click({ force: true });
     }
 
-    public CreateJSObject(JSCode: string, paste = true, outputCheck = true) {
+    public CreateJSObject(JSCode: string, paste = true) {
         this.NavigateToJSEditor();
         agHelper.Sleep()
         cy.get(locator._codeMirrorTextArea)
@@ -42,15 +42,21 @@ export class JSEditor {
                 }
             });
 
-        if (outputCheck)
-            cy.get(this._outputConsole).contains(JSCode);
         //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
-        cy.waitUntil(() => cy.get(locator._toastMsg).should("have.length", 0))
-        //cy.waitUntil(() => cy.get(locator._toastMsg).then($el => $el.length === 0)) - does not work!
-        agHelper.Sleep(2000)
-        cy.xpath(this._runButton)
-            .first()
-            .click();
+        cy.waitUntil(() => cy.get(locator._toastMsg).contains('created successfully').should("have.length", 0),
+            {
+                errorMsg: "JSObj creation toast message has not disappeared",
+                timeout: 5000,
+                interval: 1000
+            }).then(() => agHelper.Sleep(2000))
+        cy.waitUntil(() =>
+            cy.xpath(this._runButton)
+                .first()
+                .click().then(() => {
+                    cy.get(locator._empty).should('not.exist')
+                    cy.get(locator._toastMsg).should("have.length", 0)
+                }).wait(1000)
+        );
     }
 
     public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {

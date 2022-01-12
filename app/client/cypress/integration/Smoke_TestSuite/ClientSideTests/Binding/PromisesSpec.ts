@@ -73,7 +73,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         });
         apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
         jsEditor.CreateJSObject(`const user = 'You';
-        return InspiringQuotes.run().then((res) => {showAlert("Today's quote for "+ user + " is "+ JSON.stringify(res.quote.body))}).catch(() => showAlert("Unable to fetch quote for "+ user))`, true, false);
+        return InspiringQuotes.run().then((res) => {showAlert("Today's quote for "+ user + " is "+ JSON.stringify(res.quote.body))}).catch(() => showAlert("Unable to fetch quote for "+ user))`);
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{JSObject1.myFun1()}}`, true, true);
         agHelper.ClickButton('Submit')
