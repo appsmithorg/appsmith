@@ -12,6 +12,107 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { compact, isArray, isNumber } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
+function optionsCustomValidation(
+  value: unknown,
+  props: any,
+  _: any,
+): ValidationResponse {
+  /**
+   * This is a custom validation function for options property for this widget.
+   * First it will perform ARRAY validations. If validation passes,
+   * Then Validate that all the values present in the value property has same data type.
+   */
+
+  const validatePropertyDataTypes = (
+    data: Record<string, unknown>[],
+    property: string,
+    _: any,
+  ) => {
+    /**
+     * Function: To validate All object's property data types
+     * e.g. This checks if all the value properties has same data type
+     */
+    const validationArr: string[] = [];
+    data.map((value: Record<string, unknown>) => {
+      if (!_.includes(validationArr, typeof value[property])) {
+        validationArr.push(typeof value[property]);
+      }
+    });
+
+    if (validationArr.length > 1) {
+      return {
+        isValid: false,
+        messages: ["All values in options must have the same type"],
+        parsed: "",
+      };
+    } else if (validationArr.length === 1) {
+      return {
+        isValid: true,
+        messages: "",
+        parsed: data,
+      };
+    }
+  };
+
+  //Predefined params for the validation of ARRAY of objects
+  const customParams = {
+    type: "ARRAY",
+    params: {
+      default: [],
+      unique: ["value"],
+      children: {
+        type: "OBJECT",
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: "TEXT",
+              params: {
+                default: "",
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: "TEXT",
+              params: {
+                default: "",
+                required: true,
+              },
+            },
+          ],
+        },
+      },
+    },
+  };
+  let parsedResponse;
+  const utils = require("workers/validations"); //Require statement helps to import import data when used under eval()
+  parsedResponse = utils.VALIDATORS.ARRAY(customParams, value, props);
+  if (parsedResponse.isValid) {
+    parsedResponse = validatePropertyDataTypes(
+      parsedResponse.parsed,
+      "value",
+      _,
+    );
+  }
+
+  //Editing the validation message for invalid cases:
+  parsedResponse.messages = parsedResponse.messages.map((message: string) => {
+    if (message.includes("This value does not evaluate to type")) {
+      if (message.includes('Array<{ "label": "string", "value": "string" }>')) {
+        return message.replace(
+          /Array<{ "label": "string", "value": "string" }>/g,
+          'Array<{ "label": "string", "value": "string" | number}>',
+        );
+      } else {
+        return message.replace(/string/g, "string or number");
+      }
+    }
+    return message;
+  });
+  return parsedResponse;
+}
 function defaultOptionValidation(value: unknown): ValidationResponse {
   /**
    * This is a placeholder validation function for keeping the values as is,
@@ -38,33 +139,14 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.ARRAY,
-              unique: ["value"],
+              type: ValidationTypes.FUNCTION,
               params: {
-                default: [],
-                children: {
-                  type: ValidationTypes.OBJECT,
-                  params: {
-                    required: true,
-                    allowedKeys: [
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          required: true,
-                        },
-                      },
-                      {
-                        name: "value",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          required: true,
-                        },
-                      },
-                    ],
-                  },
+                fn: optionsCustomValidation,
+                expected: {
+                  type:
+                    'Array<{ "label": "string", "value": "string" | number}>',
+                  example: `[{"label": "abc", "value": "abc" | 1}]`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
@@ -91,7 +173,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
                 expected: {
                   type: "string | number",
                   example: `abc | {{1}}`,
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
