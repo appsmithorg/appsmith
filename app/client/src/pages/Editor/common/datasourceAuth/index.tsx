@@ -20,7 +20,7 @@ function DatasourceAuth({
 }: Props) {
   const authType =
     formData &&
-    formData.datasourceConfiguration.authentication?.authenticationType;
+    formData.datasourceConfiguration?.authentication?.authenticationType;
 
   // Render call-to-actions depending on the datasource authentication type
 
