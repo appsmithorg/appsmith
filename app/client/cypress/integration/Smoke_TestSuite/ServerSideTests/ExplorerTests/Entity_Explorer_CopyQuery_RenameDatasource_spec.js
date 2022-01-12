@@ -42,8 +42,8 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
-      cy.get(".t--entity.action:contains(Query1)")
-        .contains("Table1Copy")
+      cy.get(".t--entity-name")
+        .contains("Query1")
         .trigger("mouseover");
       cy.hoverAndClickParticularIndex(1);
       cy.selectAction("Show Bindings");
@@ -60,18 +60,18 @@ describe("Entity explorer tests related to copy query", function() {
 
   it("2. Create a page and copy query in explorer", function() {
     cy.Createpage(pageid);
-    cy.GlobalSearchEntity("Query1");
-    cy.xpath(apiwidget.popover)
-      .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
+    cy.get(".t--entity-name")
+      .contains("Query1")
+      .trigger("mouseover");
+    cy.hoverAndClickParticularIndex(1);
     cy.copyEntityToPage(pageid);
-    cy.SearchEntityandOpen("Query1");
+    cy.get(".t--entity-name")
+      .contains("Query1")
+      .click({ force: true });
     cy.runQuery();
     //cy.get(`.t--entity.action:contains(Query1)`).should("have.length", 2);
-    cy.get(".t--entity.action:contains(Query1)")
-      .contains("Table1Copy")
+    cy.get(".t--entity-name")
+      .contains("Query1")
       .trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");

@@ -7,10 +7,11 @@ describe("Entity explorer tests related to pinning and unpinning", function() {
 
   it("checks entity explorer visibility on unpin", function() {
     cy.wait(5000);
-    cy.get(".t--pin-entity-explorer").should("be.visible");
-    cy.get(".t--pin-entity-explorer").click({ force: true });
-    // after transition, the entity explorer will not be visible
-    cy.get("body").trigger("mousemove", { which: 1, pageX: 600, pageY: 600 });
+    cy.get(".t--entity-explorer").should("be.visible");
+    cy.get(".t--pin-entity-explorer").click();
+    cy.wait(5000);
+    cy.get("[data-testid=widgets-editor]").click({ force: true });
+    cy.wait(3000);
     cy.get(".t--entity-explorer").should("not.be.visible");
   });
 
