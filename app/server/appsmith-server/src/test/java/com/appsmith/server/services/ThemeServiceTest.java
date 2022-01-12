@@ -357,4 +357,27 @@ public class ThemeServiceTest {
                     assertThat(publishedModeTheme.getName()).isEqualToIgnoringCase("classic");
                 }).verifyComplete();
     }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void publishTheme_WhenNoThemeIsSet_SystemDefaultThemeIsSetToPublishedMode() {
+        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
+
+        Mono<Tuple2<Application, Theme>> appAndThemeTuple = applicationRepository.save(
+                        createApplication("api_user", Set.of(MANAGE_APPLICATIONS))
+                )
+                .flatMap(savedApplication ->
+                        themeService.publishTheme(savedApplication.getEditModeThemeId(),
+                                savedApplication.getPublishedModeThemeId(), savedApplication.getId()
+                        ).then(applicationRepository.findById(savedApplication.getId()))
+                )
+                .zipWith(classicThemeMono);
+
+        StepVerifier.create(appAndThemeTuple)
+                .assertNext(objects -> {
+                    Application application = objects.getT1();
+                    Theme classicSystemTheme = objects.getT2();
+                    assertThat(application.getPublishedModeThemeId()).isEqualTo(classicSystemTheme.getId());
+                }).verifyComplete();
+    }
 }

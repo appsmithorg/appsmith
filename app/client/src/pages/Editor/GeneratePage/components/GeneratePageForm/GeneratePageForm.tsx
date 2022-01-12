@@ -611,7 +611,7 @@ function GeneratePageForm() {
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
-        <SelectWrapper className="space-y-3" width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
@@ -637,7 +637,7 @@ function GeneratePageForm() {
           />
         </SelectWrapper>
         {selectedDatasource.value ? (
-          <SelectWrapper className="space-y-3" width={DROPDOWN_DIMENSION.WIDTH}>
+          <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
             <Label>
               Select {pluginField.TABLE} from{" "}
               <Bold>{selectedDatasource.label}</Bold>
@@ -670,7 +670,7 @@ function GeneratePageForm() {
           <>
             {showSearchableColumn && (
               <SelectWrapper
-                className="space-y-3"
+                className="space-y-2"
                 width={DROPDOWN_DIMENSION.WIDTH}
               >
                 <Row>

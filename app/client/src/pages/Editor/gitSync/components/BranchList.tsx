@@ -158,7 +158,7 @@ function CreateNewBranch({
       onClick={onClick}
       style={{
         alignItems: "flex-start",
-        cursor: "pointer",
+        cursor: isCreatingNewBranch ? "not-allowed" : "pointer",
         display: "flex",
         background: hovered ? Colors.GREY_3 : "unset",
         padding: get(theme, "spaces[5]"),
@@ -411,6 +411,7 @@ export default function BranchList(props: {
   const [isCreatingNewBranch, setIsCreatingNewBranch] = useState(false);
 
   const handleCreateNewBranch = () => {
+    if (isCreatingNewBranch) return;
     const branch = searchText;
     setIsCreatingNewBranch(true);
     dispatch(
