@@ -468,7 +468,7 @@ export default class DataTreeEvaluator {
         }),
       );
     });
-    dependencyMap = makeParentsDependOnChildren(dependencyMap);
+    dependencyMap = makeParentsDependOnChildren(dependencyMap, this.allKeys);
     return dependencyMap;
   }
 
@@ -1356,7 +1356,10 @@ export default class DataTreeEvaluator {
           ),
         );
       });
-      this.dependencyMap = makeParentsDependOnChildren(this.dependencyMap);
+      this.dependencyMap = makeParentsDependOnChildren(
+        this.dependencyMap,
+        this.allKeys,
+      );
     }
     const subDepCalcEnd = performance.now();
     const updateChangedDependenciesStart = performance.now();
