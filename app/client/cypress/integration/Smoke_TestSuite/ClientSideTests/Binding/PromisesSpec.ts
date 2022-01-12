@@ -13,9 +13,9 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     before(() => {
     });
 
-    it("1. Verify storeValue via .then Promises", () => {
+    it("1. Verify storeValue via .then direct Promises", () => {
         let date = new Date().toDateString();
-        cy.fixture('asyncAwaitTestBtn').then((val: any) => {
+        cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
         agHelper.SelectEntityByName("Widgets")//to expand widgets
@@ -28,8 +28,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             .should("contain.text", date);
     });
 
-    it("2. Verify resolve via Promises", () => {
-        cy.fixture('asyncAwaitTestBtn').then((val: any) => {
+    it("2. Verify resolve via direct Promises", () => {
+        cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
         agHelper.SelectEntityByName("Button1");
@@ -46,8 +46,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             .should("contain.text", "We are on planet Earth");
     });
 
-    it("3. Verify Async Await via Promises", () => {
-        cy.fixture('asyncAwaitTestBtn').then((val: any) => {
+    it("3. Verify Async Await in direct Promises", () => {
+        cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
@@ -67,21 +67,55 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         cy.get(locator._toastMsg).last().contains(/male|female|null/g)
     });
 
-    it("4. Verify .then & .catch via Promises", () => {
-        cy.fixture('asyncAwaitTestBtn').then((val: any) => {
+    it("4. Verify .then & .catch via direct Promises", () => {
+        cy.fixture('promisesBtnImg').then((val: any) => {
+            agHelper.AddDsl(val)
+        });
+        apiPage.CreateAndFillApi("https://source.unsplash.com/collection/8439505", "Christmas")
+        agHelper.SelectEntityByName("Widgets")//to expand widgets
+        agHelper.SelectEntityByName("Button1");
+        jsEditor.EnterJSContext('onclick', `{{
+            (function(){
+                  return Christmas.run()
+              .then(() => showAlert("You have a beautiful picture") )
+              .catch(() => showAlert('Oops!'))
+              })()
+          }}`, true, true);
+          agHelper.SelectEntityByName("Image1");
+          jsEditor.EnterJSContext('image', `{{Christmas.data}}`, true);
+        agHelper.ClickButton('Submit')
+        cy.get(locator._toastMsg).should("have.length", 1).should("have.text", 'You have a beautiful picture');
+    });
+
+    it("5. Verify .then & .catch via JS Objects in Promises", () => {
+        cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
         jsEditor.CreateJSObject(`const user = 'You';
         return InspiringQuotes.run().then((res) => {showAlert("Today's quote for "+ user + " is "+ JSON.stringify(res.quote.body))}).catch(() => showAlert("Unable to fetch quote for "+ user))`);
+        agHelper.SelectEntityByName("Widgets")//to expand widgets
         agHelper.SelectEntityByName("Button1");
         jsEditor.EnterJSContext('onclick', `{{JSObject1.myFun1()}}`, true, true);
         agHelper.ClickButton('Submit')
         cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
     });
 
-    it("5. Verify Promise.race", () => {
-        cy.fixture('asyncAwaitTestBtn').then((val: any) => {
+    it("6. Verify Promise.race", () => {
+        cy.fixture('promisesBtn').then((val: any) => {
+            agHelper.AddDsl(val)
+        });
+        apiPage.CreateAndFillApi("https://api.agify.io?name={{this.params.person}}", "Agify")
+        apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.person}}" }); // verifies Bug 10055
+
+        agHelper.SelectEntityByName("Button1");
+        jsEditor.EnterJSContext('onclick', `{{Promise.race([Agify.run({person:'Melinda' }),Agify.run({person:'Trump'})]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name))})}}`, true, true);
+        agHelper.ClickButton('Submit')
+        cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump|null/g)
+    });
+
+    it.skip("7. Verify Promise.all", () => {
+        cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://api.agify.io?name={{this.params.person}}", "Agify")
