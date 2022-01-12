@@ -173,8 +173,10 @@ describe("Undo/Redo functionality", function() {
 
     cy.get(widgetsPage.textColor)
       .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+      .click({ force: true })
+      .clear()
+      .type("#03b365");
+    cy.get("body").click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");

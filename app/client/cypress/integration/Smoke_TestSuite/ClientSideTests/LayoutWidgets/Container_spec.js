@@ -25,10 +25,11 @@ describe("Container Widget Functionality", function() {
      */
     cy.get(widgetsPage.boadercolorPicker)
       .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.yellowColor).click();
+      .click({ force: true })
+      .clear()
+      .type("#FFC13D");
     cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
+      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
     )
       .should("have.css", "border-color")
       .and("eq", "rgb(255, 193, 61)");
@@ -37,11 +38,15 @@ describe("Container Widget Functionality", function() {
      */
     cy.get(widgetsPage.backgroundcolorPicker)
       .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+      .click({ force: true })
+      .clear()
+      .type("#03b365");
     cy.get(widgetsPage.containerD)
-      .should("have.css", "background-color")
-      .and("eq", "rgb(3, 179, 101)");
+      .should("have.css", "background")
+      .and(
+        "eq",
+        "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
+      );
     /**
      * @param{toggleButton Css} Assert to be checked
      */
@@ -55,8 +60,11 @@ describe("Container Widget Functionality", function() {
   it("Container Widget Functionality To Verify The Colour", function() {
     cy.get(widgetsPage.containerD)
       .eq(0)
-      .should("have.css", "background-color")
-      .and("eq", "rgb(3, 179, 101)");
+      .should("have.css", "background")
+      .and(
+        "eq",
+        "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
+      );
   });
 
   it("Test border width and verity", function() {
@@ -67,54 +75,42 @@ describe("Container Widget Functionality", function() {
 
     cy.testJsontext("borderwidth", "10");
     cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
+      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
     )
       .should("have.css", "border-width")
       .and("eq", "10px");
   });
 
   it("Test border radius and verity", function() {
-    cy.testJsontext("borderradius", "10");
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
-    )
-      .should("have.css", "border-radius")
-      .and("eq", "10px");
-    // should have overflow : hidden to show border edges
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
-    )
-      .should("have.css", "overflow")
-      .and("eq", "hidden");
-    // wrapper should have same border radius
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
-    )
-      .should("have.css", "border-radius")
-      .and("eq", "10px");
+    // check if border radius is changed on button
+
+    cy.get(`.t--property-control-borderradius  button > div`)
+      .eq(1)
+      .click({ force: true });
+
+    cy.get(`.t--property-control-borderradius  button > div`)
+      .eq(1)
+      .invoke("css", "border-top-left-radius")
+      .then((borderRadius) => {
+        cy.get(
+          `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
+        ).should("have.css", "border-radius", borderRadius);
+      });
   });
 
   it("Test Box shadow and verity", function() {
-    cy.get(widgetsPage.boxShadow)
-      .children()
-      .eq(3)
+    cy.get(`.t--property-control-boxshadow  button > div`)
+      .eq(1)
       .click({ force: true });
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
-    )
-      .should("have.css", "box-shadow")
-      .and("eq", "rgba(0, 0, 0, 0.5) 0px 1px 3px 0px");
 
-    // change shadow color and check box-shadow again
-    cy.get(widgetsPage.boxShadowColorPicker)
-      .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.blueColor).click();
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
-    )
-      .should("have.css", "box-shadow")
-      .and("eq", "rgb(51, 102, 255) 0px 1px 3px 0px");
+    cy.get(`.t--property-control-boxshadow  button > div`)
+      .eq(1)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(
+          `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
+        ).should("have.css", "box-shadow", boxShadow);
+      });
   });
 
   it("Test overflow of widget boundaries", function() {

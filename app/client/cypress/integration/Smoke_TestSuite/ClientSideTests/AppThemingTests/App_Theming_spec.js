@@ -5,8 +5,6 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
 
-const { CHANGE_APP_THEME, createMessage } = require("constants/messages");
-
 describe("App Theming funtionality", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -40,9 +38,7 @@ describe("App Theming funtionality", function() {
       .eq(2)
       .invoke("text")
       .then((text) => {
-        cy.get(commonlocators.toastmsg).contains(
-          createMessage(CHANGE_APP_THEME, text),
-        );
+        cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
       });
   });
 
