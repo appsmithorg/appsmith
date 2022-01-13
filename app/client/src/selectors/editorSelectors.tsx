@@ -9,7 +9,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import {
   getActions,
   getCanvasWidgets,
@@ -246,6 +246,24 @@ const getOccupiedSpacesForContainer = (
   });
 };
 
+const getWidgetSpacesForContainer = (
+  containerWidgetId: string,
+  widgets: FlattenedWidgetProps[],
+): WidgetSpace[] => {
+  return widgets.map((widget) => {
+    const occupiedSpace: WidgetSpace = {
+      id: widget.widgetId,
+      parentId: containerWidgetId,
+      left: widget.leftColumn,
+      top: widget.topRow,
+      bottom: widget.bottomRow,
+      right: widget.rightColumn,
+      type: widget.type,
+    };
+    return occupiedSpace;
+  });
+};
+
 export const getOccupiedSpaces = createSelector(
   getWidgets,
   (
@@ -305,6 +323,35 @@ export function getOccupiedSpacesSelectorForContainer(
     );
 
     const occupiedSpaces = getOccupiedSpacesForContainer(
+      containerId,
+      childWidgets.map((widgetId) => widgets[widgetId]),
+    );
+    return occupiedSpaces;
+  });
+}
+
+// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+export function getWidgetSpacesSelectorForContainer(
+  containerId: string | undefined,
+) {
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
+    | WidgetSpace[]
+    | undefined => {
+    if (containerId === null || containerId === undefined) return undefined;
+
+    const containerWidget: FlattenedWidgetProps = widgets[containerId];
+
+    if (!containerWidget || !containerWidget.children) return undefined;
+
+    // Get child widgets for the container
+    const childWidgets = Object.keys(widgets).filter(
+      (widgetId) =>
+        containerWidget.children &&
+        containerWidget.children.indexOf(widgetId) > -1 &&
+        !widgets[widgetId].detachFromLayout,
+    );
+
+    const occupiedSpaces = getWidgetSpacesForContainer(
       containerId,
       childWidgets.map((widgetId) => widgets[widgetId]),
     );
