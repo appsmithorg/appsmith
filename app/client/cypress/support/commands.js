@@ -144,7 +144,7 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getRoles").should(
+  cy.wait("@getMembers").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -3342,6 +3342,9 @@ Cypress.Commands.add("startInterceptRoutesForS3", () => {
   cy.intercept("PUT", "/api/v1/datasources/datasource-query/*").as(
     "put_datasources",
   );
+  cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+    "getDatasourceStructure",
+  );
   cy.intercept("PUT", "/api/v1/pages/crud-page/*").as("put_replaceLayoutCRUD");
   cy.intercept("POST", "/api/v1/pages/crud-page").as("post_replaceLayoutCRUD");
   cy.intercept("GET", "/api/v1/actions*").as("get_Actions");
@@ -3867,6 +3870,6 @@ Cypress.Commands.add("isInViewport", (element) => {
 //   return originalFn(element, clearedText, options);
 // });
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.2, // threshold for entire image
+  failureThreshold: 0.1, // threshold for entire image
   failureThresholdType: "percent",
 });

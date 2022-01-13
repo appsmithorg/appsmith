@@ -206,7 +206,7 @@ public class AppendMethod implements Method {
         valueRange.setRange(range);
         valueRange.setValues(collect);
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.fromValue(valueRange));
     }
 
