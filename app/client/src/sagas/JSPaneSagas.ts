@@ -64,11 +64,8 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import { getConfirmModalFlag } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { set } from "lodash";
-import { confirmRunActionSaga } from "sagas/ActionExecution/PluginActionSaga";
-import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { updateReplayEntity } from "actions/pageActions";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {

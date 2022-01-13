@@ -13,7 +13,6 @@ import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise, confirmationPromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { pusher } from "./Actions";
 
 export type EvalResult = {
   result: any;

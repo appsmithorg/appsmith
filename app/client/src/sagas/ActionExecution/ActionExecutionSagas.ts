@@ -45,11 +45,6 @@ import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import {
-  getEntityNameAndPropertyPath,
-  isJSAction,
-} from "workers/evaluationUtils";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import { getJSCollection } from "selectors/entitiesSelector";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
@@ -198,29 +193,6 @@ function* initiateActionTriggerExecution(
     }
     log.error(e);
   }
-}
-
-function* getActionSettings(dynamicString: string) {
-  const trimmedVal =
-    dynamicString &&
-    dynamicString.replace(/(^{{)|(}}$)/g, "").replace(/(\r\n|\n|\r)/gm, "");
-
-  const dataTree = yield select(getDataTree);
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(trimmedVal);
-  const entity = entityName && dataTree[entityName];
-  let updatedSource: any = {};
-  if (entity && isJSAction(entity) && propertyPath) {
-    const collection = yield select(getJSCollection, entity.actionId);
-    const jsAction = collection.actions.find(
-      (js: JSAction) => js.name === propertyPath.replaceAll(/[()]/g, ""),
-    );
-    updatedSource = {
-      isJSAction: true,
-      collectionId: entity.actionId || "",
-      actionId: jsAction.id,
-    };
-  }
-  return updatedSource;
 }
 
 export function* getConfirmModalFlag(source: any) {
