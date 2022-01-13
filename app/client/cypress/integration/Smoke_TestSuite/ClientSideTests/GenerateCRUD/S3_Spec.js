@@ -47,7 +47,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get(".t--save-datasource").click();
 
     // fetch bucket
-    cy.wait("@put_datasources").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -123,7 +123,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@post_Execute").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -188,7 +188,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     });
 
     // fetch bucket
-    cy.wait("@put_datasources").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
