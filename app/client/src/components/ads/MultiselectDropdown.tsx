@@ -12,7 +12,7 @@ const DropdownContainer = styled.div<{ width?: string }>`
   position: relative;
 `;
 
-const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
+const Selected = styled.button<{ isOpen: boolean; disabled?: boolean }>`
   height: 38px;
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
@@ -27,10 +27,10 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   cursor: pointer;
   ${(props) =>
     props.isOpen
-      ? `border: 1px solid ${props.theme.colors.info.main}`
+      ? `border: 1px solid var(--appsmith-input-focus-border-color)`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
+      : `border: 1px solid ${Colors.GREY_5}`};
   ${(props) =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
   .${Classes.TEXT} {
@@ -38,6 +38,10 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
         : `color: ${props.theme.colors.dropdown.header.text}`};
+  }
+
+  &:focus {
+    border: 1px solid var(--appsmith-input-focus-border-color);
   }
 
   svg {
@@ -84,7 +88,8 @@ const OptionWrapper = styled.div<{
     }
   }
 
-  &:hover {
+  &:hover,
+  &.focus {
     background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
 
     .${Classes.TEXT} {
@@ -181,6 +186,8 @@ function MultiSelectDropdown(props: DropdownProps) {
     }
   }, []);
 
+  const [currentItemIndex, setCurrentItemIndex] = useState<number>(0);
+
   const optionClickHandler = (option: string) => {
     const currentIndex = _.findIndex(props.selected, (value) => {
       return value === option;
@@ -225,6 +232,52 @@ function MultiSelectDropdown(props: DropdownProps) {
     props.onSelect && props.onSelect([...selectedOption]);
   };
 
+  const handleKeydown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case "Escape":
+        if (isOpen) {
+          setIsOpen(false);
+          e.nativeEvent.stopImmediatePropagation();
+        }
+        break;
+      case " ":
+      case "Enter":
+        if (isOpen) {
+          if (props.options[currentItemIndex]?.value)
+            optionClickHandler(props.options[currentItemIndex].value as string);
+          e.preventDefault();
+        }
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        if (isOpen) {
+          setCurrentItemIndex((prevIndex) => {
+            if (prevIndex <= 0) return props.options.length - 1;
+            return prevIndex - 1;
+          });
+        } else {
+          setIsOpen(true);
+        }
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        if (isOpen) {
+          setCurrentItemIndex((prevIndex) => {
+            if (prevIndex === props.options.length - 1) return 0;
+            return prevIndex + 1;
+          });
+        } else {
+          setIsOpen(true);
+        }
+        break;
+      case "Tab":
+        if (isOpen) {
+          setIsOpen(false);
+        }
+        break;
+    }
+  };
+
   const isItemSelected = (item?: string) => {
     if (!item) {
       return false;
@@ -236,7 +289,6 @@ function MultiSelectDropdown(props: DropdownProps) {
     <DropdownContainer
       data-cy={props.cypressSelector}
       ref={measuredRef}
-      tabIndex={0}
       width={props.width}
     >
       <Popover
@@ -251,6 +303,9 @@ function MultiSelectDropdown(props: DropdownProps) {
           disabled={props.disabled}
           isOpen={isOpen}
           onClick={() => setIsOpen(!isOpen)}
+          onKeyDown={handleKeydown}
+          role="listbox"
+          tabIndex={0}
         >
           <Text type={TextType.P1}>
             {props.selected.length
@@ -265,11 +320,14 @@ function MultiSelectDropdown(props: DropdownProps) {
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <MultiOptionWrapper
-                className="t--multi-dropdown-option"
+                className={`t--multi-dropdown-option ${
+                  currentItemIndex === index ? "focus" : " "
+                }`}
                 key={index}
                 onClick={() => {
                   optionClickHandler(option.value as string);
                 }}
+                role="option"
                 selected={isItemSelected(option.value)}
               >
                 <SquareBox className={Classes.MULTI_SELECT_BOX} />
