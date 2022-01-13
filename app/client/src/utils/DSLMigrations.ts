@@ -1037,12 +1037,12 @@ export const transformDSL = (
 
   if (currentDSL.version === 48) {
     currentDSL = migrateRecaptchaType(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 49;
   }
 
   if (currentDSL.version === 49) {
     currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
-    currentDSL.version = 49;
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
