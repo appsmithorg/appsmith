@@ -190,6 +190,45 @@ describe("Canvas selection test cases", () => {
     expect(selectionCanvas.style.zIndex).toBe("");
   });
 
+  it("Should not allow draw to select using cmd + draw in drop disabled Canvas component", () => {
+    const containerId = generateReactKey();
+    const canvasId = generateReactKey();
+    const children: any = buildChildren([
+      { type: "CHECKBOX_WIDGET", parentId: canvasId },
+      { type: "SWITCH_WIDGET", parentId: canvasId },
+      { type: "BUTTON_WIDGET", parentId: canvasId },
+    ]);
+    const canvasWidget = buildChildren([
+      {
+        type: "CANVAS_WIDGET",
+        parentId: containerId,
+        children,
+        widgetId: canvasId,
+        dropDisabled: true,
+      },
+    ]);
+    const containerChildren: any = buildChildren([
+      {
+        type: "CONTAINER_WIDGET",
+        children: canvasWidget,
+        widgetId: containerId,
+        parentId: "0",
+      },
+      { type: "CHART_WIDGET", parentId: "0" },
+    ]);
+    const dsl: any = widgetCanvasFactory.build({
+      children: containerChildren,
+    });
+
+    const component = render(
+      <MockPageDSL dsl={dsl}>
+        <Canvas dsl={dsl} />
+      </MockPageDSL>,
+    );
+    const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);
+    expect(selectionCanvas).toBeNull();
+  });
+
   it("Should select all elements inside a CONTAINER using draw on canvas from top to bottom", () => {
     const containerId = generateReactKey();
     const canvasId = generateReactKey();

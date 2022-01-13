@@ -1,6 +1,8 @@
 import { Component } from "react";
 import { ControlType } from "constants/PropertyControlConstants";
 import { InputType } from "components/constants";
+import { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
+import { DropdownOption } from "components/ads/Dropdown";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -41,6 +43,8 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData {
   id: string;
   label: string;
+  displayType?: "UI" | "JSON"; //used for switch to JSON view
+  tooltipText?: string;
   configProperty: string;
   controlType: ControlType;
   propertyValue?: any;
@@ -48,16 +52,33 @@ export interface ControlData {
   validationMessage?: string;
   validationRegex?: string;
   dataType?: InputType;
+  initialValue?: string | boolean | number;
+  info?: string; //helper text
   isRequired?: boolean;
-  conditionals: string;
+  conditionals: ConditonalObject;
   hidden?: HiddenType;
   placeholderText?: string;
   schema?: any;
+  errorText?: string;
+  showError?: boolean;
+  encrypted?: boolean;
+  subtitle?: string;
+  url?: string;
+  urlText?: string;
   logicalTypes?: string[];
   comparisonTypes?: string[];
   nestedLevels?: number;
   customStyles?: any;
+  propertyName?: string;
+  identifier?: string;
+  sectionName?: string;
+  disabled?: boolean;
 }
+export type FormConfig = Omit<ControlData, "configProperty"> & {
+  configProperty?: string;
+  children?: FormConfig[];
+  options?: DropdownOption[];
+};
 
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;

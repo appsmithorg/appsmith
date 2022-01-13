@@ -14,7 +14,7 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,
   DEBUGGER_APPSMITH_SUPPORT,

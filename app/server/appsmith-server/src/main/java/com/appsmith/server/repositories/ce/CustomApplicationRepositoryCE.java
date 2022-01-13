@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -39,7 +38,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<List<String>> getAllApplicationId(String organizationId);
 
-    Mono<UpdateResult> setAppTheme(String applicationId, String themeId, ApplicationMode applicationMode, AclPermission aclPermission);
+    Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
     Mono<Long> countByOrganizationId(String organizationId);
 
