@@ -196,6 +196,60 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             },
           },
           {
+            propertyName: "fontFamily",
+            label: "Font Family",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "System Default",
+                value: "System Default",
+              },
+              {
+                label: "Nunito Sans",
+                value: "Nunito Sans",
+              },
+              {
+                label: "Poppins",
+                value: "Poppins",
+              },
+              {
+                label: "Inter",
+                value: "Inter",
+              },
+              {
+                label: "Montserrat",
+                value: "Montserrat",
+              },
+              {
+                label: "Noto Sans",
+                value: "Noto Sans",
+              },
+              {
+                label: "Open Sans",
+                value: "Open Sans",
+              },
+              {
+                label: "Roboto",
+                value: "Roboto",
+              },
+              {
+                label: "Rubik",
+                value: "Rubik",
+              },
+              {
+                label: "Ubuntu",
+                value: "Ubuntu",
+              },
+            ],
+            defaultValue: "System Default",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
             propertyName: "fontStyle",
             label: "Font Style",
             controlType: "BUTTON_TABS",
@@ -271,6 +325,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         bottomRow={this.props.bottomRow}
         boxShadow={this.props.boxShadow}
         disableLink={this.props.disableLink || false}
+        fontFamily={this.props.fontFamily}
         fontSize={this.props.fontSize}
         fontStyle={this.props.fontStyle}
         isLoading={this.props.isLoading}
@@ -307,6 +362,7 @@ export interface TextStyles {
   fontSize?: TextSize;
   textAlign?: TextAlign;
   truncateButtonColor?: string;
+  fontFamily: string;
 }
 
 export interface TextWidgetProps extends WidgetProps, TextStyles {

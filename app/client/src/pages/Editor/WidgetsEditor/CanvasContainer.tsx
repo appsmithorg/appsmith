@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo } from "react";
+import React, { ReactNode, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -8,7 +8,6 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import webfontloader from "webfontloader";
 import { getCanvasClassName } from "utils/generators";
 
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
@@ -20,6 +19,7 @@ import {
   getPreviewAppTheme,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
+import useGoogleFont from "utils/hooks/useGoogleFont";
 
 const Container = styled.section`
   width: 100%;
@@ -35,8 +35,6 @@ const Container = styled.section`
     pointer-events: none;
   }
 `;
-
-const DEFAULT_FONT_NAME = "System Default";
 
 function CanvasContainer() {
   const currentPageId = useSelector(getCurrentPageId);
@@ -57,6 +55,8 @@ function CanvasContainer() {
     return previewTheme ? previewTheme : selectedTheme;
   }, [selectedTheme, previewTheme]);
 
+  const fontFamily = useGoogleFont(currentTheme.properties.fontFamily.appFont);
+
   const pageLoading = (
     <Centered>
       <Spinner />
@@ -71,30 +71,6 @@ function CanvasContainer() {
     node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
 
-  // loads font for canvas based on theme
-  useEffect(() => {
-    if (currentTheme.properties.fontFamily.appFont !== DEFAULT_FONT_NAME) {
-      webfontloader.load({
-        google: {
-          families: [
-            `${currentTheme.properties.fontFamily.appFont}:300,400,500,700`,
-          ],
-        },
-      });
-    }
-  }, [currentTheme.properties.fontFamily.appFont]);
-
-  /**
-   * returns the font to be used for the canvas
-   */
-  const getAppFontFamily = useMemo(() => {
-    if (currentTheme.properties.fontFamily.appFont === DEFAULT_FONT_NAME) {
-      return "inherit";
-    }
-
-    return currentTheme.properties.fontFamily.appFont;
-  }, [currentTheme.properties.fontFamily]);
-
   return (
     <Container
       className={classNames({
@@ -105,7 +81,7 @@ function CanvasContainer() {
       key={currentPageId}
       style={{
         height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
-        fontFamily: getAppFontFamily,
+        fontFamily: fontFamily,
         background: isPreviewMode
           ? currentTheme.properties.colors.backgroundColor
           : "initial",

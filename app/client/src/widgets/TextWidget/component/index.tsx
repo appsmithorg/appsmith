@@ -9,6 +9,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { isEqual, get } from "lodash";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Color, Colors } from "constants/Colors";
+import FontLoader from "./FontLoader";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -156,6 +157,7 @@ export interface TextComponentProps extends ComponentProps {
   leftColumn?: number;
   rightColumn?: number;
   topRow?: number;
+  fontFamily: string;
 }
 
 type State = {
@@ -217,6 +219,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       backgroundColor,
       disableLink,
       ellipsize,
+      fontFamily,
       fontSize,
       fontStyle,
       shouldScroll,
@@ -229,43 +232,45 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
     return (
       <>
-        <TextContainer>
-          <StyledText
-            backgroundColor={backgroundColor}
-            borderRadius={this.props.borderRadius}
-            boxShadow={this.props.boxShadow}
-            className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
-            ellipsize={ellipsize}
-            fontSize={fontSize}
-            fontStyle={fontStyle}
-            isTruncated={this.state.isTruncated}
-            ref={this.textRef}
-            scroll={!!shouldScroll}
-            textAlign={textAlign}
-            textColor={textColor}
-            truncate={!!shouldTruncate}
-          >
-            <Interweave
-              content={text}
-              matchers={
-                disableLink
-                  ? []
-                  : [new EmailMatcher("email"), new UrlMatcher("url")]
-              }
-              newWindow
-            />
-          </StyledText>
-          {this.state.isTruncated && (
-            <StyledIcon
+        <FontLoader fontFamily={fontFamily}>
+          <TextContainer>
+            <StyledText
               backgroundColor={backgroundColor}
-              className="t--widget-textwidget-truncate"
-              fillColor={truncateButtonColor}
-              name="context-menu"
-              onClick={this.handleModelOpen}
-              size={IconSize.XXXL}
-            />
-          )}
-        </TextContainer>
+              borderRadius={this.props.borderRadius}
+              boxShadow={this.props.boxShadow}
+              className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
+              ellipsize={ellipsize}
+              fontSize={fontSize}
+              fontStyle={fontStyle}
+              isTruncated={this.state.isTruncated}
+              ref={this.textRef}
+              scroll={!!shouldScroll}
+              textAlign={textAlign}
+              textColor={textColor}
+              truncate={!!shouldTruncate}
+            >
+              <Interweave
+                content={text}
+                matchers={
+                  disableLink
+                    ? []
+                    : [new EmailMatcher("email"), new UrlMatcher("url")]
+                }
+                newWindow
+              />
+            </StyledText>
+            {this.state.isTruncated && (
+              <StyledIcon
+                backgroundColor={backgroundColor}
+                className="t--widget-textwidget-truncate"
+                fillColor={truncateButtonColor}
+                name="context-menu"
+                onClick={this.handleModelOpen}
+                size={IconSize.XXXL}
+              />
+            )}
+          </TextContainer>
+        </FontLoader>
         <ModalComponent
           canEscapeKeyClose
           canOutsideClickClose

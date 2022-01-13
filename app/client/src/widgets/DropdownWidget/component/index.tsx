@@ -85,10 +85,9 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     ${(props) =>
       !props.hasError
         ? `
-        border: 1.2px solid ${Colors.GREEN_SOLID};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+        border: 1px solid ${props.primaryColor};
       `
-        : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+        : `border: 1px solid ${Colors.DANGER_SOLID};`}
   }
 
   & .${Classes.DISABLED} {
