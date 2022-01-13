@@ -56,7 +56,7 @@ export const StickyCanvasArena = forwardRef(
     const { devicePixelRatio: scale = 1 } = window;
 
     const repositionSliderCanvas = (entry: IntersectionObserverEntry) => {
-      stickyCanvasRef.current.style.width = "100%";
+      stickyCanvasRef.current.style.width = entry.intersectionRect.width + "px";
       stickyCanvasRef.current.style.position = "absolute";
       stickyCanvasRef.current.style.left = "0px";
       const calculatedTopOffset =
