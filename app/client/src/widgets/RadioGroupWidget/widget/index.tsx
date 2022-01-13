@@ -9,109 +9,124 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { compact, isArray, isNumber } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { isArray, compact, isNumber } from "lodash";
 
 function optionsCustomValidation(
   value: unknown,
   props: any,
   _: any,
 ): ValidationResponse {
-  /**
-   * This is a custom validation function for options property for this widget.
-   * First it will perform ARRAY validations. If validation passes,
-   * Then Validate that all the values present in the value property has same data type.
-   */
-
-  const validatePropertyDataTypes = (
-    data: Record<string, unknown>[],
-    property: string,
-    _: any,
+  const validationUtil = (
+    value: { label: string; value: string | number }[],
   ) => {
-    /**
-     * Function: To validate All object's property data types
-     * e.g. This checks if all the value properties has same data type
-     */
-    const validationArr: string[] = [];
-    data.map((value: Record<string, unknown>) => {
-      if (!_.includes(validationArr, typeof value[property])) {
-        validationArr.push(typeof value[property]);
-      }
-    });
-
-    if (validationArr.length > 1) {
-      return {
-        isValid: false,
-        messages: ["All values in options must have the same type"],
-        parsed: "",
-      };
-    } else if (validationArr.length === 1) {
-      return {
-        isValid: true,
-        messages: "",
-        parsed: data,
-      };
+    let _isValid = true;
+    const _messages: string[] = [];
+    let valueType = "";
+    //Checks the uniqueness of the object elements in the array.
+    const shouldBeUnique = value.map((entry) => entry.value);
+    const uniqValues = Array.from(new Set(shouldBeUnique));
+    if (uniqValues.length !== value.length) {
+      _isValid = false;
+      _messages.push("path:value must be unique. Duplicate values found");
     }
+
+    for (let i = 0; i < value.length; i++) {
+      if (!valueType) {
+        valueType = typeof value[i].value;
+      }
+      //Check if the required field "label" is present:
+      if (!("label" in value[i])) {
+        _isValid = false;
+        _messages.push(
+          "Invalid entry at index: " + i + ". Missing required key: label",
+        );
+        break;
+      }
+
+      //Validation checks for the the label.
+      if (
+        value[i].label === undefined ||
+        value[i].label === null ||
+        value[i].label === "" ||
+        (typeof value[i].label !== "string" &&
+          typeof value[i].label !== "number")
+      ) {
+        _isValid = false;
+        _messages.push(
+          "Invalid entry at index: " +
+            i +
+            ". Value of key: label is invalid: This value does not evaluate to type string",
+        );
+        break;
+      }
+
+      //Check if all the data types for the value prop is the same.
+      if (typeof value[i].value !== valueType) {
+        _isValid = false;
+        _messages.push(
+          "All value properties in options must have the same type",
+        );
+        break;
+      }
+
+      //Check if the each object has value property.
+      if (!("value" in value[i])) {
+        _isValid = false;
+        _messages.push(
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+        );
+        break;
+      }
+    }
+
+    return {
+      isValid: _isValid,
+      parsed: _isValid ? value : [],
+      messages: _messages,
+    };
   };
 
-  //Predefined params for the validation of ARRAY of objects
-  const customParams = {
-    type: "ARRAY",
-    params: {
-      default: [],
-      unique: ["value"],
-      children: {
-        type: "OBJECT",
-        params: {
-          required: true,
-          allowedKeys: [
-            {
-              name: "label",
-              type: "TEXT",
-              params: {
-                default: "",
-                required: true,
-              },
-            },
-            {
-              name: "value",
-              type: "TEXT",
-              params: {
-                default: "",
-                required: true,
-              },
-            },
-          ],
-        },
-      },
-    },
+  const invalidResponse = {
+    isValid: false,
+    parsed: [],
+    messages: [
+      'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+    ],
   };
-  let parsedResponse;
-  const utils = require("workers/validations"); //Require statement helps to import import data when used under eval()
-  parsedResponse = utils.VALIDATORS.ARRAY(customParams, value, props);
-  if (parsedResponse.isValid) {
-    parsedResponse = validatePropertyDataTypes(
-      parsedResponse.parsed,
-      "value",
-      _,
-    );
+  if (value === undefined || value === null || value === "") {
+    return {
+      isValid: true,
+      messages: [],
+      parsed: value,
+    };
+  }
+  if (_.isString(value)) {
+    try {
+      const _value = JSON.parse(value as string);
+      if (Array.isArray(_value)) {
+        const results = validationUtil(_value);
+        return results;
+      }
+    } catch (e) {
+      return invalidResponse;
+    }
   }
 
-  //Editing the validation message for invalid cases:
-  parsedResponse.messages = parsedResponse.messages.map((message: string) => {
-    if (message.includes("This value does not evaluate to type")) {
-      if (message.includes('Array<{ "label": "string", "value": "string" }>')) {
-        return message.replace(
-          /Array<{ "label": "string", "value": "string" }>/g,
-          'Array<{ "label": "string", "value": "string" | number}>',
-        );
-      } else {
-        return message.replace(/string/g, "string or number");
-      }
+  if (Array.isArray(value)) {
+    try {
+      const results = validationUtil(value);
+      return results;
+    } catch (e) {
+      return invalidResponse;
     }
-    return message;
-  });
-  return parsedResponse;
+  }
+
+  return {
+    isValid: true,
+    messages: [],
+    parsed: value,
+  };
 }
 function defaultOptionValidation(value: unknown): ValidationResponse {
   /**

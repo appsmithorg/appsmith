@@ -92,4 +92,111 @@ describe("RadioGroup widget testing", function() {
     cy.get(`${formWidgetsPage.radioWidget} input`).check("2", { force: true });
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "2");
   });
+
+  it("Check the custom validations for the options property", function() {
+    /**
+     * Test case defs, an error should be thrown when:
+     * 1. When datatypes are not same for value property
+     * 2. When duplicate values is given
+     * 3. When invalid value is given
+     */
+
+    //Base-line scenario
+    cy.openPropertyPane("radiogroupwidget");
+
+    cy.updateCodeInput(
+      ".t--property-control-options",
+      `[
+        {
+          "label": "Yes",
+          "value": 1
+        },
+        {
+          "label": "No",
+          "value": 2
+        }
+      ]`,
+    );
+
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "{{1}}");
+    cy.wait(200);
+
+    const inputOutputValues = [
+      {
+        //Case 1:When datatypes are not same for value property
+        input: `[
+          {
+            "label": "Yes",
+            "value": "1"
+          },
+          {
+            "label": "No",
+            "value": 2
+          }
+        ]`,
+        message: "All value properties in options must have the same type",
+      },
+      {
+        //Case 2:When duplicate values is given
+        input: `[
+          {
+            "label": "Yes",
+            "value": 2
+          },
+          {
+            "label": "No",
+            "value": 2
+          }
+        ]`,
+        message: "path:value must be unique. Duplicate values found",
+      },
+      {
+        //Case 3:When invalid value is given
+        input: `[
+          {
+            "label": "Yes",
+            "value": 
+          },
+          {
+            "label": "No",
+            "value": 2
+          }
+        ]`,
+        message: `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
+      },
+      {
+        //Case 3:When invalid value is given
+        input: `[
+          {
+            "label": "Yes",
+            "value": ""
+          },
+          {
+            "label": "No",
+            "value": 2
+          }
+        ]`,
+        message: `Invalid entry at index: 0. Value of key: value is invalid: This value does not evaluate to type string or number`,
+      },
+      {
+        //Case 3:When invalid value is given
+        input: `[
+          {
+            "label": "Yes",
+            "value": "
+          },
+          {
+            "label": "No",
+            "value": 2
+          }
+        ]`,
+        message: `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
+      },
+    ];
+
+    inputOutputValues.map((useCase) => {
+      cy.updateCodeInput(".t--property-control-options", useCase.input);
+      cy.evaluateErrorMessage(useCase.message);
+    });
+  });
 });
