@@ -35,19 +35,20 @@ export class JSEditor {
                     agHelper.Paste(el, JSCode)
                 } else {
                     input.type(JSCode, {
-                        parseSpecialCharSequences: false,
+                        parseSpecialCharSequences: false, delay: 100
                     });
                 }
             });
 
         //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
         agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 2000)
-        Cypress._.times(3, () => {
+        //clicking 2 times each with interval of 1 second!
+        Cypress._.times(2, () => {
             cy.xpath(this._runButton)
                 .first()
                 .click()
                 .wait(1000)
-        })//clicking 3 times each with interval of 1 second!
+        })
         cy.get(locator._empty).should('not.exist')
         cy.get(locator._toastMsg).should("have.length", 0)
     }
@@ -84,7 +85,6 @@ export class JSEditor {
                         agHelper.Paste(el, value)
                     } else {
                         input.type(value, {
-                            force: true,
                             parseSpecialCharSequences: false,
                         });
                     }
@@ -120,6 +120,11 @@ export class JSEditor {
             expect($lis.eq(2).text()).to.contain("{{" + jsObjName + ".myVar1}}");
             expect($lis.eq(3).text()).to.contain("{{" + jsObjName + ".myVar2}}");
         });
+    }
+
+    public GetJSObjectName() {
+        cy.get(this._jsObjName).invoke("text").then((text) => cy.wrap(text).as("jsObjName")
+        );
     }
 }
 

@@ -48,8 +48,8 @@ export class AggregateHelper {
     }
 
     public RenameWithInPane(renameVal: string) {
-        cy.get(locator._actionName).click({ force: true });
-        cy.get(locator._actionTxt)
+        cy.get(locator._queryName).click({ force: true });
+        cy.get(locator._queryNameTxt)
             .clear()
             .type(renameVal, { force: true })
             .should("have.value", renameVal)
@@ -185,6 +185,60 @@ export class AggregateHelper {
             "response.body.responseMeta.status",
             expectedStatus,
         )
+    }
+
+    public SelectPropertiesDropDown(endp: string, ddOption: string,) {
+        cy.xpath(locator._selectDropdown(endp))
+            .first()
+            .scrollIntoView()
+            .click()
+        cy.get(locator._dropDownValue(ddOption)).click()
+    }
+
+    public EnterActionValue(actionName: string, value: string, paste = true) {
+        cy.xpath(locator._actionTextArea(actionName))
+            .first()
+            .focus()
+            .type("{uparrow}", { force: true })
+            .type("{ctrl}{shift}{downarrow}", { force: true });
+        cy.focused().then(($cm: any) => {
+            if ($cm.contents != "") {
+                cy.log("The field is not empty");
+                cy.xpath(locator._actionTextArea(actionName))
+                    .first()
+                    .click({ force: true })
+                    .focused()
+                    .clear({
+                        force: true,
+                    });
+            }
+            this.Sleep()
+            cy.xpath(locator._actionTextArea(actionName))
+                .first()
+                .then((el: any) => {
+                    const input = cy.get(el);
+                    if (paste) {
+                        //input.invoke("val", value);
+                        this.Paste(el, value)
+                    } else {
+                        input.type(value, {
+                            parseSpecialCharSequences: false,
+                        });
+                    }
+                });
+            this.WaitAutoSave()
+        })
+    }
+
+    public ClickElement(selector: string) {
+        cy.xpath(selector)
+            .first()
+            .click({ force: true });
+        this.Sleep()
+    }
+
+    public GetObjectName() {
+        cy.get(locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName"));
     }
 
     public Sleep(timeout = 1000) {
