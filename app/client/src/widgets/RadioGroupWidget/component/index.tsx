@@ -88,11 +88,12 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
 }
 
 export interface RadioGroupComponentProps extends ComponentProps {
-  label: string;
-  options: RadioOption[];
-  onRadioSelectionChange: (updatedOptionValue: string) => void;
-  selectedOptionValue: string;
+  isDisabled?: boolean;
   isLoading: boolean;
+  label: string;
+  onRadioSelectionChange: (updatedOptionValue: string) => void;
+  options: RadioOption[];
+  selectedOptionValue: string;
 }
 
 export default RadioGroupComponent;

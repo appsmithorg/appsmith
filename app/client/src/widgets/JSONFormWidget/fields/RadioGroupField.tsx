@@ -59,6 +59,7 @@ function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
 
         return (
           <RadioGroupComponent
+            isDisabled={schemaItem.isDisabled}
             isLoading={false}
             label=""
             onRadioSelectionChange={onChange}

@@ -7,8 +7,7 @@ const PROPERTIES = {
     {
       propertyName: "defaultValue",
       label: "Default Selected",
-      helpText:
-        "On / Off the Switch by default. Changes to the default selection update the widget state",
+      helpText: "Sets the On/Off default state of the field",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,

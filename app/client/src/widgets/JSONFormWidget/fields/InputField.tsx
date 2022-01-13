@@ -95,7 +95,7 @@ const isValid = (schemaItem: InputFieldProps["schemaItem"], value?: string) => {
     return false;
   }
 
-  if (isRequired && !value?.trim()) {
+  if (isRequired && !value?.trim?.()) {
     return false;
   }
 

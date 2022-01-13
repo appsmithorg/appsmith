@@ -15,7 +15,7 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
     {
       propertyName: "defaultValue",
       label: "Default Selected",
-      helpText: "Sets the default checked state of the widget",
+      helpText: "Sets the default checked state of the field",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,
@@ -28,7 +28,7 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
     },
     {
       propertyName: "alignWidget",
-      helpText: "Sets the alignment of the widget",
+      helpText: "Sets the alignment of the field",
       label: "Alignment",
       controlType: "DROP_DOWN",
       options: [
