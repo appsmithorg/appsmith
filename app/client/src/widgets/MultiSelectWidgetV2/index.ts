@@ -4,27 +4,26 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Select",
+  name: "MultiSelect",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
-    placeholderText: "Select option",
+    animateLoading: true,
     labelText: "Label",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
+    widgetName: "MultiSelect",
     serverSideFiltering: false,
-    widgetName: "Select",
-    defaultOptionValue: { label: "Green", value: "GREEN" },
+    defaultOptionValue: [{ label: "Green", value: "GREEN" }],
     version: 1,
-    isFilterable: false,
     isRequired: false,
     isDisabled: false,
-    animateLoading: true,
+    placeholderText: "Select option(s)",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

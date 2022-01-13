@@ -131,6 +131,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "",
     searchKey: "",
   },
+  MULTI_SELECT_WIDGET_V2: {
+    path: "",
+    searchKey: "",
+  },
   RATE_WIDGET: {
     path: "/widget-reference/rate",
     searchKey: "Rate",

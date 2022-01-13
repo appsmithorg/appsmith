@@ -21,6 +21,9 @@ import RadioGroupWidget, {
 import ButtonWidget, {
   CONFIG as BUTTON_WIDGET_CONFIG,
 } from "widgets/ButtonWidget";
+import DropdownWidget, {
+  CONFIG as DROPDOWN_WIDGET_CONFIG,
+} from "widgets/DropdownWidget";
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
@@ -73,6 +76,9 @@ import MenuButtonWidget, {
 import MultiSelectWidget, {
   CONFIG as MULTI_SELECT_WIDGET_CONFIG,
 } from "widgets/MultiSelectWidget";
+import MultiSelectWidgetV2, {
+  CONFIG as MULTI_SELECT_WIDGET_V2_CONFIG,
+} from "widgets/MultiSelectWidgetV2";
 import FormWidget, { CONFIG as FORM_WIDGET_CONFIG } from "widgets/FormWidget";
 import FormButtonWidget, {
   CONFIG as FORM_BUTTON_WIDGET_CONFIG,
@@ -133,7 +139,7 @@ export const registerWidgets = () => {
   registerWidget(CheckboxWidget, CHECKBOX_WIDGET_CONFIG);
   registerWidget(RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG);
   registerWidget(ButtonWidget, BUTTON_WIDGET_CONFIG);
-  registerWidget(SelectWidget, SELECT_WIDGET_CONFIG);
+  registerWidget(DropdownWidget, DROPDOWN_WIDGET_CONFIG);
   registerWidget(ImageWidget, IMAGE_WIDGET_CONFIG);
   registerWidget(VideoWidget, VIDEO_WIDGET_CONFIG);
   registerWidget(TabsWidget, TABS_WIDGET_CONFIG);
@@ -170,6 +176,8 @@ export const registerWidgets = () => {
   registerWidget(ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG);
   registerWidget(CameraWidget, CAMERA_WIDGET_CONFIG);
   registerWidget(MapChartWidget, MAP_CHART_WIDGET_CONFIG);
+  registerWidget(SelectWidget, SELECT_WIDGET_CONFIG);
+  registerWidget(MultiSelectWidgetV2, MULTI_SELECT_WIDGET_V2_CONFIG);
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };

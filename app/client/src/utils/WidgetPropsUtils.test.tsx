@@ -243,7 +243,7 @@ describe("Initial value migration test", () => {
     expect(migrateInitialValues(input)).toEqual(output);
   });
 
-  it("DROP_DOWN_WIDGET", () => {
+  it("SELECT_WIDGET", () => {
     const input = {
       ...containerWidget,
       children: [
@@ -257,7 +257,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: "DROP_DOWN_WIDGET",
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -296,7 +296,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           label: "",
           selectionType: "SINGLE_SELECT",
-          type: "DROP_DOWN_WIDGET",
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -328,7 +328,7 @@ describe("Initial value migration test", () => {
     expect(migrateInitialValues(input)).toEqual(output);
   });
 
-  it("MULTI_SELECT_WIDGET", () => {
+  it("MULTI_SELECT_WIDGET_V2", () => {
     const input = {
       ...containerWidget,
       children: [
@@ -342,7 +342,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 10,
           isVisible: true,
           label: "",
-          type: "DROP_DOWN_WIDGET",
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0y8sg136kg",
           isLoading: false,
@@ -376,7 +376,7 @@ describe("Initial value migration test", () => {
       children: [
         {
           renderMode: RenderModes.CANVAS,
-          type: "MULTI_SELECT_WIDGET",
+          type: "MULTI_SELECT_WIDGET_V2",
           widgetName: "Select2",
           rightColumn: 59,
           widgetId: "zvgz9h4fh4",

@@ -1,15 +1,52 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import SelectComponent from "../component";
-import _ from "lodash";
-import { DropdownOption } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { isArray } from "lodash";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
+
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import MultiSelectComponent from "../component";
+import {
+  DefaultValueType,
+  LabelValueType,
+} from "rc-select/lib/interface/generator";
+import { Layers } from "constants/Layers";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
-class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
+function defaultOptionValueValidation(value: unknown): ValidationResponse {
+  let values: string[] = [];
+  if (typeof value === "string") {
+    try {
+      values = JSON.parse(value);
+      if (!Array.isArray(values)) {
+        throw new Error();
+      }
+    } catch {
+      values = value.length ? value.split(",") : [];
+      if (values.length > 0) {
+        values = values.map((_v: string) => _v.trim());
+      }
+    }
+  }
+  if (Array.isArray(value)) {
+    values = Array.from(new Set(value));
+  }
+
+  return {
+    isValid: true,
+    parsed: values,
+  };
+}
+
+class MultiSelectWidget extends BaseWidget<
+  MultiSelectWidgetProps,
+  WidgetState
+> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -17,13 +54,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         children: [
           {
             helpText:
-              "Allows users to select a single option. Values must be unique",
+              "Allows users to select multiple options. Values must be unique",
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
             placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
+            isJSConvertible: false,
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
@@ -59,32 +97,20 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Option",
+            label: "Default Value",
             controlType: "INPUT_TEXT",
-            placeholderText: '{ "label": "Option1", "value": "Option2" }',
+            placeholderText: "[GREEN]",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.OBJECT,
+              type: ValidationTypes.FUNCTION,
               params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                    },
-                  },
-                ],
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: "Array of values",
+                  example: `['option1', 'option2']`,
+                  autocompleteDataType: AutocompleteDataType.ARRAY,
+                },
               },
             },
           },
@@ -103,7 +129,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter placeholder text",
+            placeholderText: "Search",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -150,9 +176,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "isFilterable",
-            label: "Filterable",
-            helpText: "Makes the dropdown list filterable",
+            helpText: "Enables server side filtering of the data",
+            propertyName: "serverSideFiltering",
+            label: "Server Side Filtering",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -160,9 +186,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            helpText: "Enables server side filtering of the data",
-            propertyName: "serverSideFiltering",
-            label: "Server Side Filtering",
+            helpText:
+              "Controls the visibility of select all option in dropdown.",
+            propertyName: "allowSelectAll",
+            label: "Allow Select All",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -258,7 +285,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           },
           {
             helpText: "Trigger an action on change of filterText",
-            hidden: (props: SelectWidgetProps) => !props.serverSideFiltering,
+            hidden: (props: MultiSelectWidgetProps) =>
+              !props.serverSideFiltering,
             dependencies: ["serverSideFiltering"],
             propertyName: "onFilterUpdate",
             label: "onFilterUpdate",
@@ -274,56 +302,34 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue : true}}`,
-      selectedOptionLabel: `{{ this.optionValue.label ?? this.optionValue.value }}`,
-      selectedOptionValue: `{{ this.optionValue.value }}`,
+      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => o.label ) : [] }}`,
+      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) => o.value ) : [] }}`,
+      isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      defaultValue: "defaultOptionValue",
-      optionValue: "defaultOptionValue",
+      selectedOptions: "defaultOptionValue",
+      filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      defaultValue: undefined,
-      optionValue: undefined,
+      selectedOptions: undefined,
+      filterText: "",
     };
   }
 
-  componentDidMount() {
-    this.changeSelectedOption();
-  }
-  // componentDidUpdate(prevProps: SelectWidgetProps): void {
-  //   // removing selectedOptionValue if defaultValueChanges
-  //   if (
-  //     prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
-  //     prevProps.option !== this.props.option
-  //   ) {
-  //     this.changeSelectedOption();
-  //   }
-  // }
-
-  changeSelectedOption = () => {
-    this.props.updateWidgetMetaProperty("optionValue", this.props.optionValue);
-  };
-
   getPageView() {
-    const options = _.isArray(this.props.options) ? this.props.options : [];
-    const isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
 
-    const selectedIndex = _.findIndex(this.props.options, {
-      value: this.props.selectedOptionValue,
-    });
-
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
-      <SelectComponent
+      <MultiSelectComponent
+        allowSelectAll={this.props.allowSelectAll}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -331,87 +337,86 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             1
           )
         }
-        disabled={this.props.isDisabled}
+        disabled={this.props.isDisabled ?? false}
         dropDownWidth={dropDownWidth}
-        hasError={isInvalid}
-        height={componentHeight}
-        isFilterable={this.props.isFilterable}
-        isLoading={this.props.isLoading}
+        dropdownStyle={{
+          zIndex: Layers.dropdownModalWidget,
+        }}
+        filterText={this.props.filterText}
         isValid={this.props.isValid}
-        label={this.props.optionValue?.label}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        loading={this.props.isLoading}
+        onChange={this.onOptionChange}
         onFilterChange={this.onFilterChange}
-        onOptionSelected={this.onOptionSelected}
         options={options}
-        placeholder={this.props.placeholderText}
-        selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
+        placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.optionValue?.value}
+        value={this.props.selectedOptions ?? []}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );
   }
 
-  onOptionSelected = (selectedOption: DropdownOption) => {
-    let isChanged = true;
+  onOptionChange = (value: DefaultValueType) => {
+    this.props.updateWidgetMetaProperty("selectedOptions", value, {
+      triggerPropertyName: "onOptionChange",
+      dynamicString: this.props.onOptionChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
 
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
-    // Check if the value has changed. If no option
-    // selected till now, there is a change
-    if (this.props.selectedOptionValue) {
-      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
-    }
-    if (isChanged) {
-      this.props.updateWidgetMetaProperty("optionValue", selectedOption, {
-        triggerPropertyName: "onOptionChange",
-        dynamicString: this.props.onOptionChange as string,
-        event: {
-          type: EventType.ON_OPTION_CHANGE,
-        },
-      });
-    }
+    // Empty filter after Selection
+    this.props.filterText && this.onFilterChange("");
   };
 
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
 
-    super.executeAction({
-      triggerPropertyName: "onFilterUpdate",
-      dynamicString: this.props.onFilterUpdate,
-      event: {
-        type: EventType.ON_FILTER_UPDATE,
-      },
-    });
+    if (this.props.onFilterUpdate) {
+      super.executeAction({
+        triggerPropertyName: "onFilterUpdate",
+        dynamicString: this.props.onFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    }
   };
 
   static getWidgetType(): WidgetType {
-    return "SELECT_WIDGET";
+    return "MULTI_SELECT_WIDGET_V2";
   }
 }
 
-export interface SelectWidgetProps extends WidgetProps {
-  placeholderText?: string;
-  label?: string;
-  selectedIndex?: number;
-  selectedOption: DropdownOption;
-  options?: DropdownOption[];
-  onOptionChange?: string;
-  defaultOptionValue?: { label?: string; value?: string };
-  value?: string;
-  isRequired: boolean;
-  isFilterable: boolean;
-  defaultValue: string;
-  selectedOptionLabel: string;
-  serverSideFiltering: boolean;
-  onFilterUpdate: string;
-  isDirty?: boolean;
+export interface DropdownOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
 }
 
-export default SelectWidget;
+export interface MultiSelectWidgetProps extends WidgetProps {
+  placeholderText?: string;
+  selectedIndex?: number;
+  selectedIndexArr?: number[];
+  selectedOption: DropdownOption;
+  options?: DropdownOption[];
+  onOptionChange: string;
+  onFilterChange: string;
+  defaultOptionValue: string | string[];
+  isRequired: boolean;
+  isLoading: boolean;
+  selectedOptions: LabelValueType[];
+  filterText: string;
+  selectedOptionValues: string[];
+  selectedOptionLabels: string[];
+  serverSideFiltering: boolean;
+  onFilterUpdate: string;
+  allowSelectAll?: boolean;
+}
+
+export default MultiSelectWidget;
