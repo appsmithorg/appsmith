@@ -9,6 +9,7 @@ import {
   FullScreenHandle,
   useFullScreenHandle,
 } from "react-full-screen";
+import log from "loglevel";
 
 import { ThemeProp } from "components/ads/common";
 import {
@@ -898,7 +899,9 @@ function CameraComponent(props: CameraComponentProps) {
         .catch((err) => {
           setError(err.message);
         });
-    } catch (e) {}
+    } catch (e) {
+      log.debug("Error in calling enumerateDevices");
+    }
   }, []);
 
   useEffect(() => {

@@ -16,6 +16,7 @@ import _, { findIndex } from "lodash";
 import FileDataTypes from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
+import log from "loglevel";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -456,7 +457,9 @@ class FilePickerWidget extends BaseWidget<
 
     try {
       this.initializeUppyEventListeners();
-    } catch (e) {}
+    } catch (e) {
+      log.debug("Error in initializing uppy");
+    }
   }
 
   componentWillUnmount() {
