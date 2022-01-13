@@ -323,14 +323,17 @@ class FilePickerWidget extends BaseWidget<
       .use(Url, { companionUrl: "https://companion.uppy.io" })
       .use(OneDrive, {
         companionUrl: "https://companion.uppy.io/",
-      })
-      .use(Webcam, {
+      });
+
+    if (location.protocol === "https:") {
+      this.state.uppy.use(Webcam, {
         onBeforeSnapshot: () => Promise.resolve(),
         countdown: false,
         mirror: true,
         facingMode: "user",
         locale: {},
       });
+    }
 
     this.state.uppy.on("file-removed", (file: any) => {
       const updatedFiles = this.props.selectedFiles
@@ -451,7 +454,9 @@ class FilePickerWidget extends BaseWidget<
   componentDidMount() {
     super.componentDidMount();
 
-    this.initializeUppyEventListeners();
+    try {
+      this.initializeUppyEventListeners();
+    } catch (e) {}
   }
 
   componentWillUnmount() {
