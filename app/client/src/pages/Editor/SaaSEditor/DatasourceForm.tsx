@@ -24,7 +24,7 @@ import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import DatasourceAuth from "../common/datasourceAuth";
+import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 
 interface StateProps extends JSONtoFormProps {

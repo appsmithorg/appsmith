@@ -52,10 +52,12 @@ export default function DefaultAuth({
   } = useSelector(getEntities);
   const { pageId } = useParams<ExplorerURLParams>();
 
+  // Handles datasource deletion
   const handleDatasourceDelete = () => {
     dispatch(deleteDatasource({ id: datasourceId }));
   };
 
+  // Handles datasource testing
   const handleDatasourceTest = () => {
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
       pageId: pageId,
@@ -64,16 +66,15 @@ export default function DefaultAuth({
     dispatch(testDatasource(getSanitizedFormData()));
   };
 
+  // Handles datasource saving
   const handleDatasourceSave = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
     });
-
-    // Update datasource
-    //  and don't redirect to 'new integrations' page if datasource is used to generate a page
-
+    // After saving datasource, only redirect to the 'new integrations' page
+    // if datasource is not used to generate a page
     dispatch(
       updateDatasource(
         getSanitizedFormData(),

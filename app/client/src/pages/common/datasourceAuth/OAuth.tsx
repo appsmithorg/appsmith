@@ -81,6 +81,7 @@ function OAuth({
   const location = useLocation();
   const { pageId } = useParams<ExplorerURLParams>();
 
+  // Handles datasource saving
   const handleDatasourceSave = () => {
     dispatch(
       updateDatasource(
@@ -92,13 +93,14 @@ function OAuth({
     );
   };
 
+  // Handles datasource deletion
   const handleDatasourceDelete = () => {
     dispatch(deleteDatasource({ id: datasourceId }));
   };
 
   useEffect(() => {
-    // The url contains the "response_status" query parameter when the authorization server redirects the user to the datasource form page.
-    // Get the access token if response_status is successful else show an error
+    // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
+    // Get the access token if response_status is successful else show a toast error
 
     const search = new URLSearchParams(location.search);
     const status = search.get("response_status");
