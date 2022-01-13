@@ -99,7 +99,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.NavigateToDSGeneratePage(datasourceName);
 
     // fetch bucket
-    cy.wait("@put_datasources").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -123,7 +123,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@getDatasourceStructure").should(
+    cy.wait("@post_Execute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
