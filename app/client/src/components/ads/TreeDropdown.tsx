@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { find, findIndex, isEqual } from "lodash";
 import {
   PopoverInteractionKind,
@@ -231,7 +231,7 @@ function getSelectedOption(
   return selectedOption;
 }
 
-export default function TreeDropdown(props: TreeDropdownProps) {
+function TreeDropdown(props: TreeDropdownProps) {
   const {
     defaultText,
     displayValue,
@@ -254,8 +254,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
 
   useEffect(() => {
     if (!isOpen) {
-      if (selectedOptionIndex.current.length > 1)
-        setOptionTree(closeAllChildren);
+      setOptionTree(closeAllChildren);
       // reset selected option
       const defaultSelectedOption = getSelectedOption(
         selectedValue,
@@ -508,3 +507,5 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     </Popover>
   );
 }
+
+export default memo(TreeDropdown);
