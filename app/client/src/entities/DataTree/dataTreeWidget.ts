@@ -96,7 +96,6 @@ export const generateDataTreeWidget = (
     ...overridingProperties,
   });
 
-  debugger;
   return {
     ...widget,
     ...unInitializedDefaultProps,
