@@ -26,6 +26,8 @@ import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -63,6 +65,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -4912,4 +4915,21 @@ public class DatabaseChangelog {
         updateMockdbEndpoint(mongockTemplate);
     }
 
+
+    @ChangeSet(order = "111", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
+    public void migrateFromRSASha1ToECDSASha2Protocol(MongockTemplate mongockTemplate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
+        query.addCriteria(Criteria.where("deleted").is(FALSE));
+
+        for (Application application : mongockTemplate.find(query, Application.class)) {
+            if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
+                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                gitApplicationMetadata.setGitAuth(gitAuth);
+                application.setGitApplicationMetadata(gitApplicationMetadata);
+                mongockTemplate.save(application);
+            }
+        }
+    }
 }

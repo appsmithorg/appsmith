@@ -73,6 +73,30 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
       .then((text) => {
         expect(text).to.equal((valueToTest as string).trimEnd());
       });
+    cy.get(locator._backToEditor).click({ force: true });
+  });
+
+  it("4. Bind Input widget with JSObject", function () {
+    cy.fixture('formInputTableDsl').then((val: any) => {
+      agHelper.AddDsl(val)
+    });
+    jsEditor.CreateJSObject('return "Success";', false);
+    agHelper.SelectEntityByName("Widgets")//to expand widgets
+    agHelper.expandCollapseEntity("Form1")
+    agHelper.SelectEntityByName("Input2")
+    jsEditor.EnterJSContext("defaulttext", "{{JSObject2.myFun1()}}")
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(locator._inputWidget)
+      .last()
+      .within(() => {
+        cy.get("input")
+          .invoke("attr", "value")
+          .should("equal", 'Success');
+      });
   });
 
 });
