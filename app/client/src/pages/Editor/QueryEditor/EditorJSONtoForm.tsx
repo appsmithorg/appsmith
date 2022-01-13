@@ -79,6 +79,7 @@ import Spinner from "components/ads/Spinner";
 import {
   ConditionalOutput,
   FormEvalOutput,
+  DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 
 const QueryFormContainer = styled.form`
@@ -645,15 +646,48 @@ export function EditorJSONtoForm(props: Props) {
     return enabled;
   };
 
+  // Function to modify the section config based on the output of evaluations
+  const modifySectionConfig = (
+    section: any,
+    enabled: boolean,
+    dynamicFetchedValues: DynamicValues | undefined,
+  ): any => {
+    if (!enabled) {
+      section.disabled = true;
+    } else {
+      section.disabled = false;
+    }
+    if (!!dynamicFetchedValues) {
+      section.dynamicFetchedValues = dynamicFetchedValues;
+    }
+
+    return section;
+  };
+
+  // Function to extract the object for dynamicValues if it is there in the evaluation state
+  const extractDynamicValuesIfPresent = (
+    conditionalOutput: ConditionalOutput,
+  ) => {
+    // By default, the section is enabled. This is to allow for the case where no conditional is provided.
+    // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
+    let dynamicFetchedValues: DynamicValues | undefined;
+    if (conditionalOutput.hasOwnProperty("fetchDynamicValues")) {
+      dynamicFetchedValues = conditionalOutput.fetchDynamicValues;
+    }
+    return dynamicFetchedValues;
+  };
+
   // Render function to render the V2 of form editor type (UQI)
   // Section argument is a nested config object, this function recursively renders the UI based on the config
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
     let enabled = true;
+    let dynamicFetchedValues: DynamicValues | undefined;
     if (!!section) {
       // If the component is not allowed to render, return null
       const conditionalOutput = extractConditionalOutput(section);
       if (!checkIfSectionCanRender(conditionalOutput)) return null;
       enabled = checkIfSectionIsEnabled(conditionalOutput);
+      dynamicFetchedValues = extractDynamicValuesIfPresent(conditionalOutput);
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
@@ -667,12 +701,11 @@ export function EditorJSONtoForm(props: Props) {
       }
       try {
         const { configProperty } = section;
-        let modifiedSection;
-        if (!enabled) {
-          modifiedSection = { ...section, disabled: true };
-        } else {
-          modifiedSection = { ...section };
-        }
+        const modifiedSection = modifySectionConfig(
+          section,
+          enabled,
+          dynamicFetchedValues,
+        );
         return (
           <FieldWrapper key={`${configProperty}_${idx}`}>
             <FormControl config={modifiedSection} formName={formName} />
