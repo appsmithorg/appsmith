@@ -615,6 +615,8 @@ export const DISCONNECT_EXISTING_REPOSITORIES = () =>
 export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories you can remove existing repositories.";
 export const CONTACT_SALES = () => "Contact Sales";
+export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
+  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${orgName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
