@@ -42,6 +42,9 @@ import PaginationControl, {
 import SortingControl, {
   SortingControlProps,
 } from "components/formControls/SortingControl";
+import EntitySelectorControl, {
+  EntitySelectorControlProps,
+} from "components/formControls/EntitySelectorControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -122,6 +125,14 @@ class FormControlRegistry {
         return <WhereClauseControl {...controlProps} />;
       },
     });
+    FormControlFactory.registerControlBuilder("ENTITY_SELECTOR", {
+      buildPropertyControl(
+        controlProps: EntitySelectorControlProps,
+      ): JSX.Element {
+        return <EntitySelectorControl {...controlProps} />;
+      },
+    });
+
     FormControlFactory.registerControlBuilder("PAGINATION", {
       buildPropertyControl(controlProps: PaginationControlProps): JSX.Element {
         return <PaginationControl {...controlProps} />;
