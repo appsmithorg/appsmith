@@ -1,3 +1,4 @@
+import 'cypress-wait-until';
 import { CommonLocators } from "../Objects/CommonLocators";
 
 const locator = new CommonLocators();
@@ -14,7 +15,6 @@ export class AggregateHelper {
             pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
             //Fetch the layout id
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
                 layoutId = JSON.parse(respBody).data.layouts[0].id;
@@ -64,7 +64,7 @@ export class AggregateHelper {
     public SelectEntityByName(entityNameinLeftSidebar: string) {
         cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
-            .click({ force: true })
+            .click({ multiple: true })
         this.Sleep(2000)
     }
 
@@ -92,13 +92,13 @@ export class AggregateHelper {
 
     public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
         cy.get(selector).within(() => {
-            cy.get(".CodeMirror-code").should("have.text", contentToValidate);
+            cy.get(locator._codeMirrorCode).should("have.text", contentToValidate);
         });
     }
 
+    //refering PublishtheApp from command.js
     public DeployApp() {
-        cy.server();
-        cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+        cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
         this.Sleep(2000)
         this.WaitAutoSave()
@@ -140,6 +140,35 @@ export class AggregateHelper {
             "response.body.responseMeta.status",
             201,
         );
+    }
+
+    public ClickButton(btnVisibleText: string) {
+        cy.xpath(locator._buttonClick(btnVisibleText))
+            .scrollIntoView()
+            .click({ force: true });
+    }
+
+    public Paste(selector: any, pastePayload: string) {
+        cy.wrap(selector).then(($destination) => {
+            const pasteEvent = Object.assign(
+                new Event("paste", { bubbles: true, cancelable: true }),
+                {
+                    clipboardData: {
+                        getData: () => pastePayload,
+                    },
+                },
+            );
+            $destination[0].dispatchEvent(pasteEvent);
+        });
+    }
+
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 500){
+        cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
+        {
+            errorMsg: msgToCheckforDisappearance +" did not disappear",
+            timeout: 5000,
+            interval: 1000
+        }).then(() => this.Sleep(timeout))
     }
 
     public Sleep(timeout = 1000) {

@@ -43,7 +43,7 @@ public class ClearMethod implements Method {
         );
 
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.empty());
     }
 
