@@ -9,13 +9,13 @@ import {
   LEARN_MORE,
   OPEN_REPO,
 } from "constants/messages";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { Theme } from "constants/DefaultTheme";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector } from "store";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
+import { getConflictFoundDocUrl } from "selectors/gitSyncSelectors";
 
 const Row = styled.div`
   display: flex;
@@ -34,7 +34,7 @@ export default function ConflictInfo(props: CIPropType) {
   const { isConflicting } = props;
   const theme = useTheme() as Theme;
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-
+  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrl);
   return isConflicting ? (
     <>
       <InfoWrapper isError>
@@ -49,7 +49,7 @@ export default function ConflictInfo(props: CIPropType) {
           </Text>
           <Link
             color={Colors.CRIMSON}
-            link={DOCS_BASE_URL}
+            link={gitConflictDocumentUrl as string}
             text={createMessage(LEARN_MORE)}
           />
         </div>

@@ -1,6 +1,11 @@
 import { Component } from "react";
 import { ControlType } from "constants/PropertyControlConstants";
 import { InputType } from "components/constants";
+import {
+  ConditonalObject,
+  DynamicValues,
+} from "reducers/evaluationReducers/formEvaluationReducer";
+import { DropdownOption } from "components/ads/Dropdown";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -53,7 +58,7 @@ export interface ControlData {
   initialValue?: string | boolean | number;
   info?: string; //helper text
   isRequired?: boolean;
-  conditionals: string;
+  conditionals?: ConditonalObject; // Object that contains the conditionals config
   hidden?: HiddenType;
   placeholderText?: string;
   schema?: any;
@@ -67,7 +72,17 @@ export interface ControlData {
   comparisonTypes?: string[];
   nestedLevels?: number;
   customStyles?: any;
+  propertyName?: string;
+  identifier?: string;
+  sectionName?: string;
+  disabled?: boolean;
+  dynamicFetchedValues?: DynamicValues; // Object that holds the output of the dynamic fetched values
 }
+export type FormConfig = Omit<ControlData, "configProperty"> & {
+  configProperty?: string;
+  children?: FormConfig[];
+  options?: DropdownOption[];
+};
 
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
