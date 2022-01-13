@@ -123,6 +123,9 @@ class CurrencyInputWidget extends BaseInputWidget<
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.BOOLEAN,
+              },
             },
             {
               helpText: "No. of decimals in currency input",
