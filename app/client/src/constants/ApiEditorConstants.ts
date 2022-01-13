@@ -10,7 +10,6 @@ const HTTP_METHOD_COLORS = [
   "#E22C2C",
   "#6D6D6D",
 ];
-const HTTP_METHOD_ICON_TEXT = ["GET", "PST", "PUT", "DEL", "PTC"];
 
 export enum API_EDITOR_TABS {
   HEADERS = "HEADERS",
@@ -24,11 +23,6 @@ export enum API_EDITOR_TABS {
 export const HTTP_METHOD_COLOR_MAP = zipObject(
   HTTP_METHODS,
   HTTP_METHOD_COLORS,
-);
-
-export const HTTP_METHOD_ICON_TEXT_MAP = zipObject(
-  HTTP_METHODS,
-  HTTP_METHOD_ICON_TEXT,
 );
 
 export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map((method) => ({
