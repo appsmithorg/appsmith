@@ -19,6 +19,7 @@ import {
   ENTITY_TYPE,
   DataTreeJSAction,
   EvaluationSubstitutionType,
+  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -712,7 +713,7 @@ export const removeFunctionsAndVariableJSCollection = (
 };
 
 export const isPrivateEntityPath = (
-  privateWidgets: Record<string, boolean>,
+  privateWidgets: PrivateWidgets,
   fullPropertyPath: string,
 ) => {
   const entityName = fullPropertyPath.split(".")[0];

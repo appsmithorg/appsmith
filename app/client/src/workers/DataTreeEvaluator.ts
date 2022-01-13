@@ -22,6 +22,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
+  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
@@ -79,7 +80,7 @@ export default class DataTreeEvaluator {
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
   allKeys: Record<string, true> = {};
-  privateWidgets: Record<string, true> = {};
+  privateWidgets: PrivateWidgets = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
@@ -474,7 +475,7 @@ export default class DataTreeEvaluator {
   }
 
   getPrivateWidgets(dataTree: DataTree): Record<string, true> {
-    let privateWidgets = {};
+    let privateWidgets: PrivateWidgets = {};
     Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
       if (isWidget(entity) && entity.privateWidgets) {
