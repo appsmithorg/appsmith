@@ -221,6 +221,7 @@ class ContainerWidget extends BaseWidget<
               canExtend={props.canExtend}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
+              parentId={props.parentId}
               snapRows={snapRows}
               widgetId={props.widgetId}
             />

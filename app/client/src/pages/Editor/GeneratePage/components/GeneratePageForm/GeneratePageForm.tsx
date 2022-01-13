@@ -244,7 +244,6 @@ function GeneratePageForm() {
   const {
     bucketList,
     failedFetchingBucketList,
-    fetchBucketList,
     isFetchingBucketList,
   } = useS3BucketList();
 
@@ -278,9 +277,6 @@ function GeneratePageForm() {
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
-            case PLUGIN_PACKAGE_NAME.S3:
-              fetchBucketList({ selectedDatasource: dataSourceObj });
-              break;
             case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
               break;
             default: {

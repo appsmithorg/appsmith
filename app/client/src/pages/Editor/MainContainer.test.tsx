@@ -19,6 +19,7 @@ import lodash from "lodash";
 import { getAbsolutePixels } from "utils/helpers";
 import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { AppState } from "reducers";
+import { generateReactKey } from "utils/generators";
 
 const renderNestedComponent = () => {
   const initialState = (store.getState() as unknown) as Partial<AppState>;
@@ -626,16 +627,29 @@ describe("Drag and Drop widgets into Main container", () => {
 
   it("Disallow drag if widget not focused", () => {
     const initialState = (store.getState() as unknown) as Partial<AppState>;
+    const containerId = generateReactKey();
+    const canvasId = generateReactKey();
 
-    const children: any = buildChildren([
+    const canvasWidget = buildChildren([
+      {
+        type: "CANVAS_WIDGET",
+        parentId: containerId,
+        children: [],
+        widgetId: canvasId,
+        dropDisabled: true,
+      },
+    ]);
+    const containerChildren: any = buildChildren([
       {
         type: "CONTAINER_WIDGET",
+        children: canvasWidget,
+        widgetId: containerId,
         parentId: "0",
       },
     ]);
 
     const dsl: any = widgetCanvasFactory.build({
-      children,
+      children: containerChildren,
     });
 
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
