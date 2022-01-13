@@ -9,7 +9,6 @@ import styled from "styled-components";
 import {
   HTTP_METHODS,
   HTTP_METHOD_COLOR_MAP,
-  HTTP_METHOD_ICON_TEXT_MAP,
 } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
@@ -239,6 +238,7 @@ const EntityTextIconWrapper = styled.div<{ color?: string }>`
   justify-content: center;
   width: 100%;
   height: 100%;
+  padding: 0 2px;
 `;
 
 function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
@@ -249,28 +249,36 @@ function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
   );
 }
 
-const EntityIconWrapper = styled.div<{ borderColor?: string }>`
-  height: ${ENTITY_ICON_SIZE}px;
+const EntityIconWrapper = styled.div<{
+  borderColor?: string;
+  width?: string;
+}>`
+  height: 18px;
+  width: ${({ width }) => (width ? width : "18px")};
   background: ${Colors.WHITE};
   border: 1.5px solid
     ${({ borderColor }) => (borderColor ? borderColor : Colors.SCORPION)};
   box-sizing: border-box;
-  padding: 1px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   svg,
   img {
-    height: 100%;
+    height: 14px;
+    width: 14px;
   }
 `;
 
 type EntityIconType = {
   children: React.ReactNode;
   borderColor?: string;
+  width?: string;
 };
 
 function EntityIcon(props: EntityIconType): JSX.Element {
   return (
-    <EntityIconWrapper borderColor={props.borderColor}>
+    <EntityIconWrapper borderColor={props.borderColor} width={props.width}>
       {props.children}
     </EntityIconWrapper>
   );
@@ -283,9 +291,9 @@ export { EntityIcon };
 
 export function ApiMethodIcon(props: { type: typeof HTTP_METHODS[number] }) {
   return (
-    <EntityIcon borderColor={HTTP_METHOD_COLOR_MAP[props.type]}>
+    <EntityIcon borderColor={HTTP_METHOD_COLOR_MAP[props.type]} width={"36px"}>
       <EntityIcon.textIcon textColor={HTTP_METHOD_COLOR_MAP[props.type]}>
-        {HTTP_METHOD_ICON_TEXT_MAP[props.type]}
+        {props.type}
       </EntityIcon.textIcon>
     </EntityIcon>
   );
