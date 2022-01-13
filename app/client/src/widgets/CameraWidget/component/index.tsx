@@ -891,12 +891,14 @@ function CameraComponent(props: CameraComponentProps) {
   const fullScreenHandle = useFullScreenHandle();
 
   useEffect(() => {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then(handleDeviceInputs)
-      .catch((err) => {
-        setError(err.message);
-      });
+    try {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then(handleDeviceInputs)
+        .catch((err) => {
+          setError(err.message);
+        });
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
