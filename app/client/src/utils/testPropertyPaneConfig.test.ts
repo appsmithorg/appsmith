@@ -4,7 +4,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ALL_WDIGETS_AND_CONFIG } from "./WidgetRegistry";
+import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
 
 function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
   for (const sectionOrControlConfig of config) {
@@ -76,7 +76,7 @@ function validateValidationStructure(
 }
 
 describe("Tests all widget's propertyPane config", () => {
-  ALL_WDIGETS_AND_CONFIG.forEach((widgetAndConfig) => {
+  ALL_WIDGETS_AND_CONFIG.forEach((widgetAndConfig) => {
     const widget: any = widgetAndConfig[0];
     it(`Checks ${widget.getWidgetType()}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
