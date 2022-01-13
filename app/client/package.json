@@ -258,6 +258,7 @@
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
     "cypress-real-events": "^1.5.1",
+    "cypress-wait-until": "^1.7.2",
     "cypress-xpath": "^1.4.0",
     "dotenv": "^8.1.0",
     "eslint": "^7.11.0",
