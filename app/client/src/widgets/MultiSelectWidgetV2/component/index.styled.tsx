@@ -9,14 +9,6 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 
-export const SpinnerContainer = styled.div`
-  width: 100%;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
 		opacity: 0;

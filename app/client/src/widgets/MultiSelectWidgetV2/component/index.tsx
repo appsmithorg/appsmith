@@ -6,7 +6,6 @@ import {
   LabelValueType,
 } from "rc-select/lib/interface/generator";
 import {
-  SpinnerContainer,
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
@@ -116,25 +115,20 @@ function MultiSelectComponent({
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
-    ) =>
-      loading ? (
-        <SpinnerContainer>
-          <Spinner size={IconSize.XXL} />
-        </SpinnerContainer>
-      ) : (
-        <div>
-          {options.length && allowSelectAll ? (
-            <StyledCheckbox
-              alignIndicator="left"
-              checked={isSelectAll}
-              className={`all-options ${isSelectAll ? "selected" : ""}`}
-              label="Select all"
-              onChange={handleSelectAll}
-            />
-          ) : null}
-          {menu}
-        </div>
-      ),
+    ) => (
+      <div className={`${loading ? Classes.SKELETON : ""}`}>
+        {options.length && allowSelectAll ? (
+          <StyledCheckbox
+            alignIndicator="left"
+            checked={isSelectAll}
+            className={`all-options ${isSelectAll ? "selected" : ""}`}
+            label="Select all"
+            onChange={handleSelectAll}
+          />
+        ) : null}
+        {menu}
+      </div>
+    ),
     [isSelectAll, options, loading, allowSelectAll],
   );
 
