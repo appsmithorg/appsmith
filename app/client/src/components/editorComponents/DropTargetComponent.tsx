@@ -100,6 +100,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const showPropertyPane = useShowPropertyPane();
   const { deselectAll, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
+  const showDragLayer =
+    (isDragging && draggedOn === props.widgetId) || isResizing;
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -111,6 +113,16 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       }
     }
   }, [props.bottomRow, props.canExtend]);
+  useEffect(() => {
+    if (!isDragging || !isResizing) {
+      // bottom row of canvas can increase by any number as user moves/resizes any widget towards the bottom of the canvas
+      // but canvas height is not lost when user moves/resizes back top.
+      // it is done that way to have a pleasant building experience.
+      // post drop the bottom most row is used to appropriately calculate the canvas height and lose unwanted height.
+      rowRef.current = snapRows;
+      updateHeight();
+    }
+  }, [isDragging, isResizing]);
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
@@ -165,7 +177,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       updateDropTargetRows,
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
-
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
@@ -181,7 +192,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && <Onboarding />}
-        {((isDragging && draggedOn === props.widgetId) || isResizing) && (
+        {showDragLayer && (
           <DragLayerComponent
             noPad={props.noPad || false}
             parentColumnWidth={props.snapColumnSpace}

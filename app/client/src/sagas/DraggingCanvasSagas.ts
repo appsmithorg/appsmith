@@ -10,21 +10,24 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { WidgetDraggingUpdateParams } from "utils/hooks/useBlocksToBeDraggedOnCanvas";
-import { updateWidgetPosition } from "utils/WidgetPropsUtils";
 import { getWidget, getWidgets } from "./selectors";
 import log from "loglevel";
 import { cloneDeep } from "lodash";
-import { updateAndSaveLayout } from "actions/pageActions";
+import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
 import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import { getUpdateDslAfterCreatingChild } from "./WidgetAdditionSagas";
 
 export type WidgetMoveParams = {
   widgetId: string;
   leftColumn: number;
   topRow: number;
+  bottomRow: number;
+  rightColumn: number;
   parentId: string;
   /*
       If newParentId is different from what we have in redux store,
@@ -86,6 +89,117 @@ const getBottomMostRowAfterMove = (
   return widgetBottomRow;
 };
 
+function* addWidgetAndMoveWidgetsSaga(
+  actionPayload: ReduxAction<{
+    newWidget: WidgetAddChild;
+    draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
+    canvasId: string;
+  }>,
+) {
+  const start = performance.now();
+
+  const { canvasId, draggedBlocksToUpdate, newWidget } = actionPayload.payload;
+  try {
+    const updatedWidgetsOnAddAndMove: CanvasWidgetsReduxState = yield call(
+      addWidgetAndMoveWidgets,
+      newWidget,
+      draggedBlocksToUpdate,
+      canvasId,
+    );
+    if (
+      !collisionCheckPostReflow(
+        updatedWidgetsOnAddAndMove,
+        draggedBlocksToUpdate.map((block) => block.widgetId),
+        canvasId,
+      )
+    ) {
+      throw Error;
+    }
+    yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
+    log.debug("move computations took", performance.now() - start, "ms");
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
+        error,
+      },
+    });
+  }
+}
+
+function* addWidgetAndMoveWidgets(
+  newWidget: WidgetAddChild,
+  draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
+  canvasId: string,
+) {
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
+    getUpdateDslAfterCreatingChild,
+    { ...newWidget, widgetId: canvasId },
+  );
+  const bottomMostRowOnAddition = updatedWidgetsOnAddition[canvasId]
+    ? updatedWidgetsOnAddition[canvasId].bottomRow
+    : 0;
+  const allWidgetsAfterAddition = {
+    ...allWidgets,
+    ...updatedWidgetsOnAddition,
+  };
+  const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
+    moveAndUpdateWidgets,
+    allWidgetsAfterAddition,
+    draggedBlocksToUpdate,
+    canvasId,
+  );
+  const bottomMostRowOnMove = updatedWidgetsOnMove[canvasId]
+    ? updatedWidgetsOnMove[canvasId].bottomRow
+    : 0;
+
+  const bottomMostRow =
+    bottomMostRowOnAddition > bottomMostRowOnMove
+      ? bottomMostRowOnAddition
+      : bottomMostRowOnMove;
+  const updatedWidgets = {
+    ...updatedWidgetsOnMove,
+  };
+  updatedWidgets[canvasId].bottomRow = bottomMostRow;
+  return updatedWidgets;
+}
+
+function* moveAndUpdateWidgets(
+  allWidgets: CanvasWidgetsReduxState,
+  draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
+  canvasId: string,
+) {
+  const widgets = cloneDeep(allWidgets);
+  const bottomMostRowAfterMove = getBottomMostRowAfterMove(
+    draggedBlocksToUpdate,
+    allWidgets,
+  );
+  // draggedBlocksToUpdate is already sorted based on bottomRow
+  const updatedWidgets = draggedBlocksToUpdate.reduce((widgetsObj, each) => {
+    return moveWidget({
+      ...each.updateWidgetParams.payload,
+      widgetId: each.widgetId,
+      allWidgets: widgetsObj,
+    });
+  }, widgets);
+
+  const updatedCanvasBottomRow: number = yield call(
+    getCanvasSizeAfterWidgetMove,
+    canvasId,
+    bottomMostRowAfterMove,
+  );
+  if (updatedCanvasBottomRow) {
+    const canvasWidget = updatedWidgets[canvasId];
+    updatedWidgets[canvasId] = {
+      ...canvasWidget,
+      bottomRow: updatedCanvasBottomRow,
+    };
+  }
+  return updatedWidgets;
+}
+
 function* moveWidgetsSaga(
   actionPayload: ReduxAction<{
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
@@ -95,36 +209,25 @@ function* moveWidgetsSaga(
   const start = performance.now();
 
   const { canvasId, draggedBlocksToUpdate } = actionPayload.payload;
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgets = cloneDeep(allWidgets);
-  const bottomMostRowAfterMove = getBottomMostRowAfterMove(
-    draggedBlocksToUpdate,
-    allWidgets,
-  );
-  // draggedBlocksToUpdate is already sorted based on bottomRow
-
   try {
-    const updatedWidgets = draggedBlocksToUpdate.reduce((widgetsObj, each) => {
-      return moveWidget({
-        ...each.updateWidgetParams.payload,
-        widgetId: each.widgetId,
-        allWidgets: widgetsObj,
-      });
-    }, widgets);
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-    const updatedCanvasBottomRow: number = yield call(
-      getCanvasSizeAfterWidgetMove,
+    const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
+      moveAndUpdateWidgets,
+      allWidgets,
+      draggedBlocksToUpdate,
       canvasId,
-      bottomMostRowAfterMove,
     );
-    if (updatedCanvasBottomRow) {
-      const canvasWidget = updatedWidgets[canvasId];
-      updatedWidgets[canvasId] = {
-        ...canvasWidget,
-        bottomRow: updatedCanvasBottomRow,
-      };
+    if (
+      !collisionCheckPostReflow(
+        updatedWidgetsOnMove,
+        draggedBlocksToUpdate.map((block) => block.widgetId),
+        canvasId,
+      )
+    ) {
+      throw Error;
     }
-    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
@@ -141,9 +244,11 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   Toaster.clear();
   const {
     allWidgets,
+    bottomRow,
     leftColumn,
     newParentId,
     parentId,
+    rightColumn,
     topRow,
     widgetId,
   } = widgetMoveParams;
@@ -158,7 +263,12 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
     children: [...(stateParent.children || [])],
   };
   // Update position of widget
-  const updatedPosition = updateWidgetPosition(widget, leftColumn, topRow);
+  const updatedPosition = {
+    topRow,
+    bottomRow,
+    leftColumn,
+    rightColumn,
+  };
   widget = { ...widget, ...updatedPosition };
 
   // Replace widget with update widget props
@@ -189,5 +299,11 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
 }
 
 export default function* draggingCanvasSagas() {
-  yield all([takeLatest(ReduxActionTypes.WIDGETS_MOVE, moveWidgetsSaga)]);
+  yield all([
+    takeLatest(ReduxActionTypes.WIDGETS_MOVE, moveWidgetsSaga),
+    takeLatest(
+      ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
+      addWidgetAndMoveWidgetsSaga,
+    ),
+  ]);
 }

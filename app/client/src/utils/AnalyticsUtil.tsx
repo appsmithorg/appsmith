@@ -198,7 +198,8 @@ export type EventName =
   | "GS_DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
   | "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
   | "GS_IMPORT_VIA_GIT_CLICK"
-  | "GS_CONTACT_SALES_CLICK";
+  | "GS_CONTACT_SALES_CLICK"
+  | "REFLOW_BETA_FLAG";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
