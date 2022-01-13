@@ -9,6 +9,7 @@ import styled from "styled-components";
 import {
   HTTP_METHODS,
   HTTP_METHOD_COLOR_MAP,
+  HTTP_METHOD_ICON_TEXT_MAP,
 } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
@@ -217,4 +218,81 @@ export const SortFileIcon = (
 const CurlIcon = MenuIcons.CURL_ICON;
 export const curlIcon = (
   <CurlIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
+);
+
+/**
+ * Entity Icon components
+ */
+
+type EntityTextIconProps = {
+  children: React.ReactNode;
+  textColor?: string;
+};
+
+const EntityTextIconWrapper = styled.div<{ color?: string }>`
+  color: ${({ color }) => (color ? color : Colors.SCORPION)};
+  font-size: 56%;
+  font-weight: 900;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
+  return (
+    <EntityTextIconWrapper color={props.textColor}>
+      {props.children}
+    </EntityTextIconWrapper>
+  );
+}
+
+const EntityIconWrapper = styled.div<{ borderColor?: string }>`
+  height: ${ENTITY_ICON_SIZE}px;
+  background: ${Colors.WHITE};
+  border: 1.5px solid
+    ${({ borderColor }) => (borderColor ? borderColor : Colors.SCORPION)};
+  box-sizing: border-box;
+  padding: 1px 2px;
+
+  svg,
+  img {
+    height: 100%;
+  }
+`;
+
+type EntityIconType = {
+  children: React.ReactNode;
+  borderColor?: string;
+};
+
+function EntityIcon(props: EntityIconType): JSX.Element {
+  return (
+    <EntityIconWrapper borderColor={props.borderColor}>
+      {props.children}
+    </EntityIconWrapper>
+  );
+}
+
+EntityIcon.textIcon = EntityTextIcon;
+export { EntityIcon };
+
+/** ======= Entity Icon components ends ====== */
+
+export function ApiMethodIcon(props: { type: typeof HTTP_METHODS[number] }) {
+  return (
+    <EntityIcon borderColor={HTTP_METHOD_COLOR_MAP[props.type]}>
+      <EntityIcon.textIcon textColor={HTTP_METHOD_COLOR_MAP[props.type]}>
+        {HTTP_METHOD_ICON_TEXT_MAP[props.type]}
+      </EntityIcon.textIcon>
+    </EntityIcon>
+  );
+}
+
+export const jsFileIconV2 = (
+  <EntityIcon>
+    <EntityIcon.textIcon>JS</EntityIcon.textIcon>
+  </EntityIcon>
 );

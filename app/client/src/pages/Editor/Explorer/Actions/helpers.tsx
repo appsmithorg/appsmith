@@ -1,5 +1,10 @@
 import React, { ReactNode, useMemo } from "react";
-import { apiIcon, dbQueryIcon, MethodTag, QueryIcon } from "../ExplorerIcons";
+import {
+  apiIcon,
+  dbQueryIcon,
+  ApiMethodIcon,
+  EntityIcon,
+} from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import {
@@ -94,12 +99,16 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     },
     getIcon: (action: any, plugin: Plugin) => {
       if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
-        return <QueryIcon />;
+        return (
+          <EntityIcon>
+            <img alt="entityIcon" src={plugin.iconLocation} />
+          </EntityIcon>
+        );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
 
       const method = action.actionConfiguration.httpMethod;
       if (!method) return apiIcon;
-      return <MethodTag type={method} />;
+      return <ApiMethodIcon type={method} />;
     },
     generateCreatePageURL: INTEGRATION_EDITOR_URL,
     isGroupActive: (
