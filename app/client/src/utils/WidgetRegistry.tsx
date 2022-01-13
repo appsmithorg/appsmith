@@ -1,4 +1,4 @@
-import { registerWidget } from "./WidgetRegisterHelpers";
+import { registerWidget, WidgetConfiguration } from "./WidgetRegisterHelpers";
 import CanvasWidget, {
   CONFIG as CANVAS_WIDGET_CONFIG,
 } from "widgets/CanvasWidget";
@@ -123,53 +123,59 @@ import MapChartWidget, {
 
 import log from "loglevel";
 
+export const ALL_WDIGETS_AND_CONFIG = [
+  [CanvasWidget, CANVAS_WIDGET_CONFIG],
+  [SkeletonWidget, SKELETON_WIDGET_CONFIG],
+  [ContainerWidget, CONTAINER_WIDGET_CONFIG],
+  [TextWidget, TEXT_WIDGET_CONFIG],
+  [TableWidget, TABLE_WIDGET_CONFIG],
+  [CheckboxWidget, CHECKBOX_WIDGET_CONFIG],
+  [RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG],
+  [ButtonWidget, BUTTON_WIDGET_CONFIG],
+  [DropdownWidget, DROPDOWN_WIDGET_CONFIG],
+  [ImageWidget, IMAGE_WIDGET_CONFIG],
+  [VideoWidget, VIDEO_WIDGET_CONFIG],
+  [TabsWidget, TABS_WIDGET_CONFIG],
+  [InputWidget, INPUT_WIDGET_CONFIG],
+  [ModalWidget, MODAL_WIDGET_CONFIG],
+  [ChartWidget, CHART_WIDGET_CONFIG],
+  [MapWidget, MAP_WIDGET_CONFIG],
+  [FilePickerWidget, FILEPICKER_WIDGET_CONFIG],
+  [RichTextEditorWidget, RICH_TEXT_EDITOR_WIDGET_CONFIG],
+  [DatePickerWidget, DATE_PICKER_WIDGET_CONFIG],
+  [DatePickerWidget2, DATE_PICKER_WIDGET_2_CONFIG],
+  [SwitchWidget, SWITCH_WIDGET_CONFIG],
+  [FormWidget, FORM_WIDGET_CONFIG],
+  [FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG],
+  [IconWidget, ICON_WIDGET_CONFIG],
+  [ListWidget, LIST_WIDGET_CONFIG],
+  [RateWidget, RATE_WIDGET_CONFIG],
+  [IframeWidget, IFRAME_WIDGET_CONFIG],
+  [TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG],
+  [DividerWidget, DIVIDER_WIDGET_CONFIG],
+  [MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG],
+  [MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG],
+  [IconButtonWidget, ICON_BUTTON_WIDGET_CONFIG],
+  [CheckboxGroupWidget, CHECKBOX_GROUP_WIDGET_CONFIG],
+  [FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG],
+  [StatboxWidget, STATBOX_WIDGET_CONFIG],
+  [AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG],
+  [DocumentViewerWidget, DOCUMENT_VIEWER_WIDGET_CONFIG],
+  [ButtonGroupWidget, BUTTON_GROUP_CONFIG],
+  [MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG],
+  [SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG],
+  [SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG],
+  [AudioWidget, AUDIO_WIDGET_CONFIG],
+  [ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG],
+  [CameraWidget, CAMERA_WIDGET_CONFIG],
+  [MapChartWidget, MAP_CHART_WIDGET_CONFIG],
+];
+
 export const registerWidgets = () => {
   const start = performance.now();
-  registerWidget(CanvasWidget, CANVAS_WIDGET_CONFIG);
-  registerWidget(SkeletonWidget, SKELETON_WIDGET_CONFIG);
-  registerWidget(ContainerWidget, CONTAINER_WIDGET_CONFIG);
-  registerWidget(TextWidget, TEXT_WIDGET_CONFIG);
-  registerWidget(TableWidget, TABLE_WIDGET_CONFIG);
-  registerWidget(CheckboxWidget, CHECKBOX_WIDGET_CONFIG);
-  registerWidget(RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG);
-  registerWidget(ButtonWidget, BUTTON_WIDGET_CONFIG);
-  registerWidget(DropdownWidget, DROPDOWN_WIDGET_CONFIG);
-  registerWidget(ImageWidget, IMAGE_WIDGET_CONFIG);
-  registerWidget(VideoWidget, VIDEO_WIDGET_CONFIG);
-  registerWidget(TabsWidget, TABS_WIDGET_CONFIG);
-  registerWidget(InputWidget, INPUT_WIDGET_CONFIG);
-  registerWidget(ModalWidget, MODAL_WIDGET_CONFIG);
-  registerWidget(ChartWidget, CHART_WIDGET_CONFIG);
-  registerWidget(MapWidget, MAP_WIDGET_CONFIG);
-  registerWidget(FilePickerWidget, FILEPICKER_WIDGET_CONFIG);
-  registerWidget(RichTextEditorWidget, RICH_TEXT_EDITOR_WIDGET_CONFIG);
-  registerWidget(DatePickerWidget, DATE_PICKER_WIDGET_CONFIG);
-  registerWidget(DatePickerWidget2, DATE_PICKER_WIDGET_2_CONFIG);
-  registerWidget(SwitchWidget, SWITCH_WIDGET_CONFIG);
-  registerWidget(FormWidget, FORM_WIDGET_CONFIG);
-  registerWidget(FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG);
-  registerWidget(IconWidget, ICON_WIDGET_CONFIG);
-  registerWidget(ListWidget, LIST_WIDGET_CONFIG);
-  registerWidget(RateWidget, RATE_WIDGET_CONFIG);
-  registerWidget(IframeWidget, IFRAME_WIDGET_CONFIG);
-  registerWidget(TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG);
-  registerWidget(DividerWidget, DIVIDER_WIDGET_CONFIG);
-  registerWidget(MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG);
-  registerWidget(MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG);
-  registerWidget(IconButtonWidget, ICON_BUTTON_WIDGET_CONFIG);
-  registerWidget(CheckboxGroupWidget, CHECKBOX_GROUP_WIDGET_CONFIG);
-  registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
-  registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
-  registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
-  registerWidget(DocumentViewerWidget, DOCUMENT_VIEWER_WIDGET_CONFIG);
-  registerWidget(ButtonGroupWidget, BUTTON_GROUP_CONFIG);
-  registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
-  registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
-  registerWidget(SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG);
-  registerWidget(AudioWidget, AUDIO_WIDGET_CONFIG);
-  registerWidget(ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG);
-  registerWidget(CameraWidget, CAMERA_WIDGET_CONFIG);
-  registerWidget(MapChartWidget, MAP_CHART_WIDGET_CONFIG);
+  for (const widget of ALL_WDIGETS_AND_CONFIG) {
+    registerWidget(widget[0], widget[1] as WidgetConfiguration);
+  }
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
