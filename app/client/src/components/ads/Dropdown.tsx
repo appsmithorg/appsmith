@@ -256,6 +256,11 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   position: relative;
   span.bp3-popover-target {
     display: inline-block;
+    width: 100%;
+  }
+
+  span.bp3-popover-wrapper {
+    width: 100%;
   }
 
   &:focus-visible ${Selected} {
@@ -432,6 +437,7 @@ const SelectedDropDownHolder = styled.div`
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
+  width: 100%;
 
   & ${Text} {
     max-width: 100%;

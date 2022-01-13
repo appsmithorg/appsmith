@@ -31,6 +31,7 @@ function DropdownField(props: DropdownFieldProps & Partial<DropdownProps>) {
       {...props}
       isDisabled={props.isDisabled}
       isSearchable={props.isSearchable}
+      placeholder={props.placeholder}
       width={props.width}
     />
   );
