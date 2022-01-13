@@ -41,7 +41,6 @@ public class FieldName {
     public static final String FIND_SKIP = FIND + "." + SKIP;
     public static final String UPDATE_LIMIT = UPDATE_MANY + "." + LIMIT;
 
-
     public static final String RAW = "RAW";
 
 }

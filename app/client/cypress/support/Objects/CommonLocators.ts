@@ -10,9 +10,12 @@ export class CommonLocators {
     _homePageAppCreateBtn = ".t--applications-container .createnew"
     _saveStatusSuccess = ".t--save-status-success"
     _codeMirrorTextArea = ".CodeMirror textarea"
+    _codeMirrorCode = ".CodeMirror-code"
+    _codeEditorTargetTextArea = ".CodeEditorTarget textarea"
     _entityExplorersearch = "#entity-explorer-search"
     _propertyControl = ".t--property-control-"
     _textWidget = ".t--draggable-textwidget span"
+    _inputWidget = ".t--draggable-inputwidget span"
     _publishButton = ".t--application-publish-btn"
     _textWidgetInDeployed = ".t--widget-textwidget span"
     _backToEditor = ".t--back-to-editor"
@@ -22,4 +25,9 @@ export class CommonLocators {
     _contextMenuItem = (item: string) => "//div[text()='" + item + "']/parent::a[contains(@class, 'single-select')]"
     _newPage = ".pages .t--entity-add-btn"
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
+    _toastMsg = ".t--toast-action"
+    _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
+    _buttonClick = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
+    _empty = "span[name='no-response']"
+
 }

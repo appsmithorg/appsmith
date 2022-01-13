@@ -140,7 +140,7 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getRoles").should(
+  cy.wait("@getMembers").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -3327,6 +3327,9 @@ Cypress.Commands.add("startInterceptRoutesForS3", () => {
   cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.intercept("PUT", "/api/v1/datasources/datasource-query/*").as(
     "put_datasources",
+  );
+  cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+    "getDatasourceStructure",
   );
   cy.intercept("PUT", "/api/v1/pages/crud-page/*").as("put_replaceLayoutCRUD");
   cy.intercept("POST", "/api/v1/pages/crud-page").as("post_replaceLayoutCRUD");
