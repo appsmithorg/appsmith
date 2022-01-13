@@ -31,7 +31,6 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-
 let pageidcopy = " ";
 const chainStart = Symbol();
 
@@ -841,7 +840,7 @@ Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   return cy
     .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
     .dblclick()
-    .get("input")
+    .get("input[type=text]")
     .last();
 });
 
