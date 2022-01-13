@@ -105,17 +105,6 @@ describe("Onboarding", function() {
         cy.get(gitSyncLocators.disabledConnectGitBottomBar).should("exist");
         cy.get(gitSyncLocators.disabledConnectGitBottomBar).click();
         cy.get(".git-sync-modal").should("not.exist");
-
-        // should git connection enabled after skip onboarding
-        cy.get(".t--onboarding-skip-action")
-          .should("exist")
-          .click({ force: true });
-        cy.get(".onboarding-step-indicator").should("not.exist");
-        cy.get(gitSyncLocators.connectGitBottomBar).should("exist");
-        cy.get(gitSyncLocators.disabledConnectGitBottomBar).should("not.exist");
-        cy.get(gitSyncLocators.connectGitBottomBar).click();
-        cy.get(".git-sync-modal").should("exist");
-        cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
   });
 
@@ -149,6 +138,16 @@ describe("Onboarding", function() {
       .should("be.visible")
       .click();
 
-    cy.get(".t--onboarding-secondary-action").click();
+    // cy.get(".t--onboarding-secondary-action").click();
+  });
+
+  it("Connect git modal should show post submit", function() {
+    cy.goToEditFromPublish();
+    cy.get(".onboarding-step-indicator").should("not.exist");
+    cy.get(gitSyncLocators.connectGitBottomBar).should("exist");
+    cy.get(gitSyncLocators.disabledConnectGitBottomBar).should("not.exist");
+    cy.get(gitSyncLocators.connectGitBottomBar).click();
+    cy.get(".git-sync-modal").should("exist");
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 });
