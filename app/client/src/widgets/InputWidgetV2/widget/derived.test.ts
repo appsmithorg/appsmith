@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { InputTypes } from "../constants";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
 import derivedProperty from "./derived";
 
 describe("Derived property - ", () => {

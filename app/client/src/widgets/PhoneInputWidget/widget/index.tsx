@@ -88,6 +88,9 @@ class PhoneInputWidget extends BaseInputWidget<
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.BOOLEAN,
+              },
             },
             {
               helpText:
