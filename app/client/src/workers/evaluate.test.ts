@@ -20,7 +20,7 @@ describe("evaluateSync", () => {
     renderMode: RenderModes.CANVAS,
     rightColumn: 0,
     topRow: 0,
-    type: "INPUT_WIDGET",
+    type: "INPUT_WIDGET_V2",
     version: 0,
     widgetId: "",
     widgetName: "",

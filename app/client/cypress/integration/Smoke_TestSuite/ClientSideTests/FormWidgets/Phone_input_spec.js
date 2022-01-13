@@ -31,8 +31,8 @@ describe("Phone input widget - ", () => {
       "Afghanistan (+93)",
     );
     cy.get(`.t--widget-${widgetName} input`).clear();
-    cy.get(`.t--widget-${widgetName} input`).type("9999999999");
-    cy.get(".t--widget-textwidget").should("contain", "9999999999:AF:+93");
+    cy.get(`.t--widget-${widgetName} input`).type("1111111111");
+    cy.get(".t--widget-textwidget").should("contain", "1111111111:AF:+93");
     cy.get(".t--input-country-code-change").should("contain", "🇦🇫+93");
 
     cy.get(".t--property-control-allowcountrycodechange label")

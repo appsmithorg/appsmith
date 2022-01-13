@@ -89,7 +89,7 @@ class PhoneInputWidget extends BaseInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
-                type: ValidationTypes.BOOLEAN,
+                type: ValidationTypes.TEXT,
               },
             },
             {
