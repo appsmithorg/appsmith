@@ -185,10 +185,11 @@ function* moveAndUpdateWidgets(
       allWidgets: widgetsObj,
     });
   }, widgets);
-
+  const movedWidgetIds = draggedBlocksToUpdate.map((a) => a.widgetId);
   const updatedCanvasBottomRow: number = yield call(
     getCanvasSizeAfterWidgetMove,
     canvasId,
+    movedWidgetIds,
     bottomMostRowAfterMove,
   );
   if (updatedCanvasBottomRow) {

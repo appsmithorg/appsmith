@@ -273,7 +273,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   };
   const updateBottomRow = (bottom: number) => {
     if (props.parentId) {
-      updateDropTargetRows && updateDropTargetRows(props.parentId, bottom);
+      updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
 

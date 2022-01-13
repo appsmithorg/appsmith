@@ -7,6 +7,7 @@ import {
 import {
   MockApplication,
   mockGetCanvasWidgetDsl,
+  MockPageDSL,
   syntheticTestMouseEvent,
 } from "test/testCommon";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -17,6 +18,7 @@ import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
+import Canvas from "pages/Editor/Canvas";
 
 describe("Canvas selection test cases", () => {
   it("Should select using canvas draw", () => {

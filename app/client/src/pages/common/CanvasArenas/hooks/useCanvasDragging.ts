@@ -19,6 +19,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { getAbsolutePixels } from "utils/helpers";
 
 export interface XYCord {
   x: number;
@@ -440,9 +441,13 @@ export const useCanvasDragging = (
                 GridDefaults.DEFAULT_GRID_COLUMNS,
                 block.detachFromLayout,
               );
+              const widgetIdsToExclude = currentRectanglesToDraw.map(
+                (a) => a.widgetId,
+              );
               const newRows = updateBottomRow(
                 currentReflowParams.bottomMostRow,
                 rowRef.current,
+                widgetIdsToExclude,
               );
               rowRef.current = newRows ? newRows : rowRef.current;
               currentRectanglesToDraw[0].isNotColliding =
@@ -679,7 +684,11 @@ export const useCanvasDragging = (
           );
           scrollParent?.addEventListener("scroll", onScroll, false);
 
-          slidingArenaRef.current?.addEventListener("mouseover", onMouseOver, false);
+          slidingArenaRef.current?.addEventListener(
+            "mouseover",
+            onMouseOver,
+            false,
+          );
           slidingArenaRef.current?.addEventListener(
             "mouseout",
             resetCanvasState,
@@ -727,8 +736,14 @@ export const useCanvasDragging = (
           );
           slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
           scrollParent?.removeEventListener("scroll", onScroll);
-          slidingArenaRef.current?.removeEventListener("mouseover", onMouseOver);
-          slidingArenaRef.current?.removeEventListener("mouseout", resetCanvasState);
+          slidingArenaRef.current?.removeEventListener(
+            "mouseover",
+            onMouseOver,
+          );
+          slidingArenaRef.current?.removeEventListener(
+            "mouseout",
+            resetCanvasState,
+          );
           slidingArenaRef.current?.removeEventListener(
             "mouseleave",
             resetCanvasState,
