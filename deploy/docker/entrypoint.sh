@@ -2,19 +2,10 @@
 
 set -e
 
-get_variable_mongodb() {
-  echo "Get variable mongodb"
-  MONGODB_PROTOCOL=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "[a-z+]+(?=\:\/\/)") 
-  MONGODB_USERNAME=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "(?<=\:\/\/)(.*\s?)(?=\:)")
-  MONGODB_PASSWORD=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "\w+(?=@)")
-  MONGODB_HOST=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "[a-z0-9.]+(?=\/)")
-  MONGODB_DATABASE=$(echo "$APPSMITH_MONGODB_URI" | grep -oP "\w+(?!\S)")
-}
-
 check_mongodb_uri() {
   echo 'Check mongodb uri host'
   isUriLocal=1
-  if [[ $MONGODB_HOST == "localhost" || $MONGODB_HOST == "127.0.0.1" ]]; then
+  if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
     isUriLocal=0
   fi
 }
@@ -50,8 +41,8 @@ init_replica_set() {
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
     echo "Waiting 10s for mongodb init"
     sleep 10
-    bash "/opt/appsmith/templates/mongo-init.js.sh" "$MONGODB_USERNAME" "$MONGODB_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
-    mongo "${MONGODB_HOST}/${MONGODB_DATABASE}" /appsmith-stacks/configuration/mongo-init.js
+    bash "/opt/appsmith/templates/mongo-init.js.sh" "appsmith" "$AUTO_GEN_MONGO_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
+    mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Seeding db done"
     echo "Enable replica set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
@@ -100,7 +91,7 @@ configure_supervisord() {
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
-  if [[ "$APPSMITH_MONGODB_URI" = "mongodb://appsmith:$MONGODB_PASSWORD@$MONGODB_HOST/appsmith" && $isUriLocal -eq 0 ]]; then
+  if [[ $isUriLocal -eq 0 ]]; then
     cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
   fi
   if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then
@@ -169,7 +160,6 @@ if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECR
 fi
 
 # Main Section
-get_variable_mongodb
 check_mongodb_uri
 init_mongodb
 init_replica_set
