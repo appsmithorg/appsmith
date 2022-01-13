@@ -4,7 +4,7 @@ const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const backBtn = ".t--property-pane-back-btn";
 
-describe("JSON Form Widget Form Level Properties", () => {
+describe("JSON Form Widget Form Bindings", () => {
   before(() => {
     cy.addDsl(dslWithSchema);
   });
