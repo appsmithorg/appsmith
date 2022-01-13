@@ -162,13 +162,29 @@ export class AggregateHelper {
         });
     }
 
-    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 500){
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 500) {
         cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
-        {
-            errorMsg: msgToCheckforDisappearance +" did not disappear",
-            timeout: 5000,
-            interval: 1000
-        }).then(() => this.Sleep(timeout))
+            {
+                errorMsg: msgToCheckforDisappearance + " did not disappear",
+                timeout: 5000,
+                interval: 1000
+            }).then(() => this.Sleep(timeout))
+    }
+
+    public ValidateNetworkCallRespPost(aliasName: string, expectedRes = true) {
+        cy.wait(aliasName).should(
+            "have.nested.property",
+            "response.body.data.isExecutionSuccess",
+            expectedRes,
+        )
+    }
+
+    public ValidateNetworkCallRespPut(aliasName: string, expectedStatus = 200) {
+        cy.wait(aliasName).should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            expectedStatus,
+        )
     }
 
     public Sleep(timeout = 1000) {

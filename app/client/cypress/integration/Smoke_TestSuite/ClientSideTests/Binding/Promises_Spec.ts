@@ -10,9 +10,6 @@ const apiPage = new ApiPage();
 
 describe("Validate basic operations on Entity explorer JSEditor structure", () => {
 
-    before(() => {
-    });
-
     it("1. Verify storeValue via .then direct Promises", () => {
         let date = new Date().toDateString();
         cy.fixture('promisesBtn').then((val: any) => {
@@ -150,7 +147,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         cy.get(locator._toastMsg).should("have.length", 1).should("have.text", 'Showing results for : fruits basket : the final');
     });
 
-    it.skip("8. Verify Promise.all", () => {
+    it.skip("8. Verify Promise.all via direct Promises", () => {
         cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });

@@ -552,7 +552,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .clear()
       .wait(500)
       .type("Flow")
-      .wait(3000); //for search to finish
+      .wait(4000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +

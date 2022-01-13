@@ -18,6 +18,7 @@ export class CommonLocators {
     _inputWidget = ".t--draggable-inputwidget span"
     _publishButton = ".t--application-publish-btn"
     _textWidgetInDeployed = ".t--widget-textwidget span"
+    _inputWidgetInDeployed = ".t--widget-inputwidget input"
     _backToEditor = ".t--back-to-editor"
     _expandCollapseArrow = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]"
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
