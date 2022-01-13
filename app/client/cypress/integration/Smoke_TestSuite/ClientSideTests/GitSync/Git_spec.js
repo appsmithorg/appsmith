@@ -61,6 +61,7 @@ describe("Git", function() {
     );
 
     cy.get(homePage.publishButton).click();
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.wait("@commit").should(
       "have.nested.property",

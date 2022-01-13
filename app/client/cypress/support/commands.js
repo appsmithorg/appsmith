@@ -3449,6 +3449,7 @@ Cypress.Commands.add(
 
         // click commit button
         if (shouldCommit) {
+          cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
           cy.get(gitSyncLocators.commitButton).click();
           // check for commit success
           cy.wait("@commit").should(
@@ -3547,6 +3548,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
+  cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
 
   if (!assertFailure) {
@@ -3557,7 +3559,7 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
       201,
     );
   } else {
-    cy.wait("@connectGitRepo").then((interception) => {
+    cy.wait("@commit").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
