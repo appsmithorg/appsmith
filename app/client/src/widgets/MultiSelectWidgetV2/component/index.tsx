@@ -189,9 +189,9 @@ function MultiSelectComponent({
       )}
       <Select
         animation="slide-up"
+        choiceTransitionName="rc-select-selection__choice-zoom"
         // TODO: Make Autofocus a variable in the property pane
         // autoFocus
-        choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
         dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
@@ -226,6 +226,7 @@ function MultiSelectComponent({
           />
         }
         showArrow
+        showSearch={false}
         value={value}
       />
     </MultiSelectContainer>
