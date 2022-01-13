@@ -122,6 +122,8 @@ export function MainContainerLayoutControl() {
       enabled: isChecked,
     });
   };
+  const appsmithEmailRegex = /@appsmith.com/g;
+  const canReflow = user && user.email && appsmithEmailRegex.test(user.email);
 
   return (
     <div className="px-3 space-y-2 t--layout-control-wrapper">
@@ -157,14 +159,16 @@ export function MainContainerLayoutControl() {
           );
         })}
       </div>
-      <ReflowBetaWrapper>
-        <Checkbox
-          isDefaultChecked={shouldResize}
-          label="New Reflow & Resize"
-          onCheckChange={reflowBetaToggle}
-        />
-        <BetaIcon className="beta-icon" />
-      </ReflowBetaWrapper>
+      {canReflow && (
+        <ReflowBetaWrapper>
+          <Checkbox
+            isDefaultChecked={shouldResize}
+            label="New Reflow & Resize"
+            onCheckChange={reflowBetaToggle}
+          />
+          <BetaIcon className="beta-icon" />
+        </ReflowBetaWrapper>
+      )}
     </div>
   );
 }

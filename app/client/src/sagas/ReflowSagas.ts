@@ -16,11 +16,13 @@ function* initReflowStates() {
     if (email) {
       const enableReflow: boolean = yield getReflowBetaFlag(email);
       const enableReflowHasBeenSet = isBoolean(enableReflow);
-
-      yield put(
-        setEnableReflowAction(enableReflowHasBeenSet ? enableReflow : true),
-      );
-      if (!enableReflowHasBeenSet) {
+      const appsmithEmailRegex = /@appsmith.com/g;
+      const canReflow = appsmithEmailRegex.test(email);
+      const enableReflowState = enableReflowHasBeenSet
+        ? enableReflow
+        : canReflow;
+      yield put(setEnableReflowAction(enableReflowState));
+      if (canReflow && !enableReflowHasBeenSet) {
         setReflowBetaFlag(email, true);
       }
     }
