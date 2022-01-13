@@ -3328,6 +3328,9 @@ Cypress.Commands.add("startInterceptRoutesForS3", () => {
   cy.intercept("PUT", "/api/v1/datasources/datasource-query/*").as(
     "put_datasources",
   );
+  cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+    "getDatasourceStructure",
+  );
   cy.intercept("PUT", "/api/v1/pages/crud-page/*").as("put_replaceLayoutCRUD");
   cy.intercept("POST", "/api/v1/pages/crud-page").as("post_replaceLayoutCRUD");
   cy.intercept("GET", "/api/v1/actions*").as("get_Actions");
