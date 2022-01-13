@@ -7,11 +7,12 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
-  widgetMetaProps: Record<string, unknown>,
+  widgetMetaProps: Record<string, unknown> = {},
 ): DataTreeWidget => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};
+  const unInitializedOverridingMetaProps: Record<string, undefined> = {};
   const overridingProperties: Record<string, string> = {};
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
@@ -48,24 +49,40 @@ export const generateDataTreeWidget = (
     dynamicBindingPathList.push({
       key: propertyName,
     });
+  });
+
+  Object.keys(derivedProps).forEach((propertyName) => {
     // Do not log errors for the derived property bindings
     blockedDerivedProps[propertyName] = true;
   });
 
-  Object.keys({ ...defaultProps, ...widgetMetaProps } || {}).forEach(
-    (metaPropertyName) => {
-      // All meta values need to exist in the tree, so we initialize them if they don't exist
-      if (!(metaPropertyName in widget)) {
-        unInitializedDefaultProps[metaPropertyName] = undefined;
+  const overridingMetaPropsMap: Record<string, boolean> = {};
+
+  Object.entries(defaultProps).forEach(
+    ([propertyName, defaultPropertyName]) => {
+      // why default value is undefined ?
+      if (!(defaultPropertyName in widget)) {
+        unInitializedDefaultProps[defaultPropertyName] = undefined;
       }
-      // Overriding properties will override the values of a property when evaluated
-      overridingProperties[`meta.${metaPropertyName}`] = metaPropertyName;
-      const defaultPropertyName = defaultProps[metaPropertyName];
-      if (defaultPropertyName) {
-        overridingProperties[defaultPropertyName] = metaPropertyName;
+      // defaultProperty on eval needs to override the widget's property eg: defaultText overrides text
+      overridingProperties[defaultPropertyName] = propertyName;
+      if (propertyName in defaultMetaProps) {
+        // Overriding properties will override the values of a property when evaluated
+        overridingProperties[`meta.${propertyName}`] = propertyName;
+        unInitializedOverridingMetaProps[propertyName] = undefined;
+        overridingMetaPropsMap[propertyName] = true;
       }
     },
   );
+  const nonOverridingMetaProps: Record<string, unknown> = {};
+  const overridingMetaProps: Record<string, unknown> = {};
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+    if (overridingMetaPropsMap[key]) {
+      overridingMetaProps[key] = value;
+    } else {
+      nonOverridingMetaProps[key] = value;
+    }
+  });
 
   const {
     bindingPaths,
@@ -78,10 +95,13 @@ export const generateDataTreeWidget = (
     ..._.keyBy(dynamicBindingPathList, "key"),
     ...overridingProperties,
   });
+
+  debugger;
   return {
     ...widget,
     ...unInitializedDefaultProps,
     ...defaultMetaProps,
+    ...widgetMetaProps,
     ...derivedProps,
     defaultProps,
     defaultMetaProps: Object.keys(defaultMetaProps),
@@ -91,8 +111,8 @@ export const generateDataTreeWidget = (
       ...blockedDerivedProps,
     },
     meta: {
-      ...unInitializedDefaultProps,
-      ...widgetMetaProps,
+      ...unInitializedOverridingMetaProps,
+      ...overridingMetaProps,
     },
     overridingProperties,
     bindingPaths,
