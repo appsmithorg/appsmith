@@ -50,7 +50,7 @@ class DatePickerControl extends BaseControl<
     .toDate();
   minDate: Date = this.now
     .clone()
-    .set({ month: 0, date: 1, year: this.year - 100 })
+    .set({ month: 0, date: 1, year: this.year - 150 })
     .toDate();
 
   constructor(props: DatePickerControlProps) {
