@@ -94,6 +94,9 @@ const addPrivateWidgetsToAllListWidgets = (
 ) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === "LIST_WIDGET") {
+      // in the List Widget, "children.0.children.0.children.0.children" is the path to the
+      // CANVAS_WIDGET whose children is the list of all entities present in the List Widget
+
       const widgets = get(
         children,
         "children.0.children.0.children.0.children",

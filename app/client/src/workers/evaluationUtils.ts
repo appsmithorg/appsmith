@@ -715,9 +715,8 @@ export const isPrivateEntityPath = (
   privateWidgets: Record<string, boolean>,
   fullPropertyPath: string,
 ) => {
-  if (
-    Object.keys(privateWidgets).indexOf(fullPropertyPath.split(".")[0]) !== -1
-  ) {
+  const entityName = fullPropertyPath.split(".")[0];
+  if (Object.keys(privateWidgets).indexOf(entityName) !== -1) {
     return true;
   }
   return false;
