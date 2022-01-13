@@ -1203,7 +1203,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
-            return listBranchForApplication(defaultApplicationId, false)
+            return listBranchForApplication(defaultApplicationId, false, branchName)
                     .flatMap(gitBranchDTOList -> {
                         long branchMatchCount = gitBranchDTOList
                                 .stream()
@@ -1488,7 +1488,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches) {
+    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches, String currentBranch) {
         Mono<List<GitBranchDTO>> branchMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1567,7 +1567,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .collect(Collectors.toList());
 
                         localBranch.removeAll(remoteBranches);
+
+                        // Exclude the current checked out branch and the appsmith default application
                         localBranch.remove(gitApplicationMetadata.getBranchName());
+                        localBranch.remove(currentBranch);
 
                         // Remove the branches which are not in remote from the list before sending
                         gitBranchListDTOS = gitBranchListDTOS.stream()
