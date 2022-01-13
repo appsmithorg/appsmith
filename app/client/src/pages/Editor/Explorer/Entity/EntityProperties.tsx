@@ -183,6 +183,7 @@ export function EntityProperties() {
         <div className="sticky top-0 text-sm px-3 bg-white z-5 pt-4 pb-1 font-medium flex flex-row items-center justify-between w-[100%]">
           BINDINGS
           <CloseIcon
+            className="t--entity-property-close"
             color="black"
             height={18}
             onClick={closeContainer}
