@@ -1,4 +1,11 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { find, findIndex, isEqual } from "lodash";
 import {
   PopoverInteractionKind,
@@ -322,10 +329,33 @@ function TreeDropdown(props: TreeDropdownProps) {
     };
   };
 
-  const renderTreeOption = (option: TreeDropdownOption) => {
+  function RenderTreeOption(option: TreeDropdownOption) {
     const isSelected =
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
+
+    const popoverProps = useMemo(
+      () => ({
+        minimal: true,
+        isOpen: option.isChildrenOpen,
+        interactionKind: PopoverInteractionKind.CLICK,
+        position: PopoverPosition.RIGHT_TOP,
+        targetProps: { onClick: (e: any) => e.stopPropagation() },
+      }),
+      [option.isChildrenOpen],
+    );
+
+    const memoisedOptionClickHandler = useCallback(
+      handleOptionClick(option),
+      [],
+    );
+
+    const memoisedMouseEnterHandler = useCallback(() => {
+      if (!isKeyPressed.current) {
+        if (option.selfIndex) selectedOptionIndex.current = option.selfIndex;
+      }
+      isKeyPressed.current = false;
+    }, []);
 
     return (
       <MenuItem
@@ -334,27 +364,15 @@ function TreeDropdown(props: TreeDropdownProps) {
         icon={option.icon}
         intent={option.intent}
         key={option.value}
-        onClick={handleOptionClick(option)}
-        onMouseEnter={() => {
-          if (!isKeyPressed.current) {
-            if (option.selfIndex)
-              selectedOptionIndex.current = option.selfIndex;
-          }
-          isKeyPressed.current = false;
-        }}
-        popoverProps={{
-          minimal: true,
-          isOpen: option.isChildrenOpen,
-          interactionKind: PopoverInteractionKind.CLICK,
-          position: PopoverPosition.RIGHT_TOP,
-          targetProps: { onClick: (e: any) => e.stopPropagation() },
-        }}
+        onClick={memoisedOptionClickHandler}
+        onMouseEnter={memoisedMouseEnterHandler}
+        popoverProps={popoverProps}
         text={option.label}
       >
-        {option.children && option.children.map(renderTreeOption)}
+        {option.children && option.children.map(RenderTreeOption)}
       </MenuItem>
     );
-  };
+  }
 
   /**
    * shouldOpen flag is used to differentiate between a Keyboard
@@ -393,10 +411,11 @@ function TreeDropdown(props: TreeDropdownProps) {
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
-          if (selectedOptionIndex.current.length > 1)
+          if (selectedOptionIndex.current.length > 1) {
             currentLength =
               getItem(optionTree, selectedOptionIndex.current.slice(0, -1))
                 ?.children?.length ?? 0;
+          }
           selectedOptionIndex.current = calculatePrev(
             selectedOptionIndex.current,
             currentLength - 1,
@@ -413,10 +432,11 @@ function TreeDropdown(props: TreeDropdownProps) {
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
-          if (selectedOptionIndex.current.length > 1)
+          if (selectedOptionIndex.current.length > 1) {
             currentLength =
               getItem(optionTree, selectedOptionIndex.current.slice(0, -1))
                 ?.children?.length ?? 0;
+          }
           selectedOptionIndex.current = calculateNext(
             selectedOptionIndex.current,
             currentLength - 1,
@@ -460,7 +480,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     }
   };
 
-  const list = optionTree.map(renderTreeOption);
+  const list = optionTree.map(RenderTreeOption);
   const menuItems = <StyledMenu>{list}</StyledMenu>;
   const defaultToggle = (
     <DropdownTarget>
