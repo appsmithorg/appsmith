@@ -106,9 +106,11 @@ export const StickyCanvasArena = forwardRef(
       if (slidingArenaRef.current) {
         parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
         parentCanvas?.addEventListener("scroll", observeSlider, false);
+        parentCanvas?.addEventListener("mouseover", observeSlider, false);
       }
       return () => {
         parentCanvas?.removeEventListener("scroll", observeSlider);
+        parentCanvas?.removeEventListener("mouseover", observeSlider);
       };
     }, []);
 
