@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledPropertyPaneButton,
@@ -39,20 +39,31 @@ const AddMenuItemButton = styled(StyledPropertyPaneButton)`
 `;
 
 type RenderComponentProps = {
+  focusedIndex: number | null | undefined;
   index: number;
+  isDragging: boolean;
   item: {
     label: string;
     isVisible?: boolean;
   };
   deleteOption: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (props: any) => void;
 };
 
 function MenuItemComponent(props: RenderComponentProps) {
-  const { deleteOption, index, item, updateOption } = props;
-
+  const {
+    deleteOption,
+    focusedIndex,
+    index,
+    isDragging,
+    item,
+    updateFocus,
+    updateOption,
+  } = props;
+  const ref = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState(item.label);
   const [isEditing, setEditing] = useState(false);
 
@@ -61,6 +72,19 @@ function MenuItemComponent(props: RenderComponentProps) {
   }, [item?.label, isEditing]);
 
   const debouncedUpdate = debounce(updateOption, 1000);
+
+  useEffect(() => {
+    if (focusedIndex !== null && focusedIndex === index && !isDragging) {
+      if (ref && ref.current) {
+        ref?.current.focus();
+      }
+    } else if (isDragging && focusedIndex === index) {
+      if (ref && ref.current) {
+        ref?.current.blur();
+      }
+    }
+  }, [focusedIndex, isDragging]);
+
   const onChange = useCallback(
     (index: number, value: string) => {
       setValue(value);
@@ -72,9 +96,21 @@ function MenuItemComponent(props: RenderComponentProps) {
     index,
   ]);
 
-  const onFocus = () => setEditing(true);
-  const onBlur = () => setEditing(false);
+  const onFocus = () => {
+    setEditing(true);
+    if (updateFocus) {
+      updateFocus(index, true);
+    }
+  };
 
+  const onBlur = () => {
+    if (!isDragging) {
+      setEditing(false);
+      if (updateFocus) {
+        updateFocus(index, false);
+      }
+    }
+  };
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
@@ -86,6 +122,7 @@ function MenuItemComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Menu item label"
+        ref={ref}
         value={value}
       />
       <StyledDeleteIcon
@@ -107,7 +144,28 @@ function MenuItemComponent(props: RenderComponentProps) {
   );
 }
 
-class MenuItemsControl extends BaseControl<ControlProps> {
+type State = {
+  focusedIndex: number | null;
+};
+
+class MenuItemsControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
+
+    this.state = {
+      focusedIndex: null,
+    };
+  }
+
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
+    if (
+      Object.keys(prevProps.propertyValue).length + 1 ===
+      Object.keys(this.props.propertyValue).length
+    ) {
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
+  }
   updateItems = (items: Array<Record<string, any>>) => {
     const menuItems = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
@@ -145,11 +203,14 @@ class MenuItemsControl extends BaseControl<ControlProps> {
       <MenuItemsWrapper>
         <DroppableComponent
           deleteOption={this.deleteOption}
+          fixedHeight={370}
+          focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={orderBy(menuItems, ["index"], ["asc"])}
           onEdit={this.onEdit}
           renderComponent={MenuItemComponent}
           toggleVisibility={this.toggleVisibility}
+          updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
@@ -240,6 +301,10 @@ class MenuItemsControl extends BaseControl<ControlProps> {
     };
 
     this.updateProperty(this.props.propertyName, menuItems);
+  };
+
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ focusedIndex: isFocused ? index : null });
   };
 
   static getControlType() {

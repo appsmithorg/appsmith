@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledPropertyPaneButton,
@@ -37,12 +37,15 @@ const TabsWrapper = styled.div`
 `;
 
 type RenderComponentProps = {
+  focusedIndex: number | null | undefined;
   index: number;
+  isDragging: boolean;
   item: {
     label: string;
     isVisible?: boolean;
   };
   deleteOption: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (props: any) => void;
@@ -74,7 +77,14 @@ function AddTabButtonComponent({ widgetId }: any) {
 }
 
 function TabControlComponent(props: RenderComponentProps) {
-  const { index, item, updateOption } = props;
+  const {
+    focusedIndex,
+    index,
+    isDragging,
+    item,
+    updateFocus,
+    updateOption,
+  } = props;
   const dispatch = useDispatch();
   const deleteOption = () => {
     dispatch({
@@ -82,7 +92,7 @@ function TabControlComponent(props: RenderComponentProps) {
       payload: { ...item, index },
     });
   };
-
+  const ref = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState(item.label);
   const [isEditing, setEditing] = useState(false);
 
@@ -95,6 +105,18 @@ function TabControlComponent(props: RenderComponentProps) {
     index,
   ]);
 
+  useEffect(() => {
+    if (focusedIndex !== null && focusedIndex === index && !isDragging) {
+      if (ref && ref.current) {
+        ref?.current.focus();
+      }
+    } else if (isDragging && focusedIndex === index) {
+      if (ref && ref.current) {
+        ref?.current.blur();
+      }
+    }
+  }, [focusedIndex, isDragging]);
+
   const onChange = useCallback(
     (index: number, value: string) => {
       setValue(value);
@@ -103,8 +125,21 @@ function TabControlComponent(props: RenderComponentProps) {
     [updateOption],
   );
 
-  const onFocus = () => setEditing(true);
-  const onBlur = () => setEditing(false);
+  const onFocus = () => {
+    setEditing(false);
+    if (updateFocus) {
+      updateFocus(index, true);
+    }
+  };
+
+  const onBlur = () => {
+    if (!isDragging) {
+      setEditing(false);
+      if (updateFocus) {
+        updateFocus(index, false);
+      }
+    }
+  };
 
   return (
     <ItemWrapper>
@@ -117,6 +152,7 @@ function TabControlComponent(props: RenderComponentProps) {
         }}
         onFocus={onFocus}
         placeholder="Tab Title"
+        ref={ref}
         value={value}
       />
       <StyledDeleteIcon
@@ -136,9 +172,30 @@ function TabControlComponent(props: RenderComponentProps) {
   );
 }
 
-class TabControl extends BaseControl<ControlProps> {
+type State = {
+  focusedIndex: number | null;
+};
+
+class TabControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
+
+    this.state = {
+      focusedIndex: null,
+    };
+  }
   componentDidMount() {
     this.migrateTabData(this.props.propertyValue);
+  }
+
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
+    if (
+      Object.keys(prevProps.propertyValue).length + 1 ===
+      Object.keys(this.props.propertyValue).length
+    ) {
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
   }
 
   migrateTabData(
@@ -203,11 +260,14 @@ class TabControl extends BaseControl<ControlProps> {
       <TabsWrapper>
         <DroppableComponent
           deleteOption={noop}
+          fixedHeight={370}
+          focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={orderBy(tabs, ["index"], ["asc"])}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
+          updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
@@ -266,6 +326,10 @@ class TabControl extends BaseControl<ControlProps> {
     };
 
     this.updateProperty(this.props.propertyName, tabs);
+  };
+
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ focusedIndex: isFocused ? index : null });
   };
 
   static getControlType() {
