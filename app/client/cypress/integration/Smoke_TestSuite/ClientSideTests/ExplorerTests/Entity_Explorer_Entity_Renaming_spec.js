@@ -29,39 +29,30 @@ describe("Api Naming conflict on a page test", function() {
 });
 
 describe("Api Naming conflict on different pages test", function() {
-  it("it expects actions on different pages can have identical names", function() {
+  it.only("it expects actions on different pages can have identical names", function() {
     cy.log("Login Successful");
     // create a new API
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI(firstApiName);
 
     // create a new page and an API on that page
     cy.Createpage("Page2");
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI(secondApiName);
-    cy.hoverAndClickParticularIndex(2);
-    cy.selectAction("Rename");
-    //cy.RenameEntity(tabname);
-    cy.get(explorer.editEntity)
-      .last()
-      .type(firstApiName, { force: true });
-    cy.VerifyPopOverMessage(firstApiName + " is already being used.");
-
-    // delete API and Page2
+    cy.CreateAPI(firstApiName);
+    cy.get(".t--entity-name")
+      .contains(firstApiName)
+      .should("exist");
     cy.DeleteAPIFromSideBar();
     cy.get(".t--entity-name")
       .contains("Page2")
       .trigger("mouseover");
     cy.hoverAndClick();
     cy.selectAction("Delete");
-    cy.DeletepageFromSideBar();
-    // delete API created on Page 1
+    cy.wait(1000);
     cy.DeleteAPIFromSideBar();
   });
 });
 
 describe("Entity Naming conflict test", function() {
-  it.skip("expects JS objects and actions to not have identical names on the same page.", function() {
+  it("expects JS objects and actions to not have identical names on the same page.", function() {
     cy.log("Login Successful");
 
     // create JS object and name it
