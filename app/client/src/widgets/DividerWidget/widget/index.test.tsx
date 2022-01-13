@@ -29,6 +29,9 @@ describe("<DividerWidget />", () => {
       editor: {
         isPreviewMode: false,
       },
+      widgetReflow: {
+        enableReflow: true,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };
