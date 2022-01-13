@@ -257,6 +257,8 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
+          isRequired: false,
+          isDisabled: false,
           type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
@@ -318,7 +320,6 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
-          // following properties get added
           isRequired: false,
           isDisabled: false,
         },
@@ -328,7 +329,7 @@ describe("Initial value migration test", () => {
     expect(migrateInitialValues(input)).toEqual(output);
   });
 
-  it("MULTI_SELECT_WIDGET_V2", () => {
+  it("MULTI_SELECT_WIDGET", () => {
     const input = {
       ...containerWidget,
       children: [
@@ -342,7 +343,7 @@ describe("Initial value migration test", () => {
           parentRowSpace: 10,
           isVisible: true,
           label: "",
-          type: "SELECT_WIDGET",
+          type: "DROP_DOWN_WIDGET",
           version: 1,
           parentId: "0y8sg136kg",
           isLoading: false,
@@ -376,7 +377,7 @@ describe("Initial value migration test", () => {
       children: [
         {
           renderMode: RenderModes.CANVAS,
-          type: "MULTI_SELECT_WIDGET_V2",
+          type: "MULTI_SELECT_WIDGET",
           widgetName: "Select2",
           rightColumn: 59,
           widgetId: "zvgz9h4fh4",
