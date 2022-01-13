@@ -217,3 +217,7 @@ export const getSSHKeyPairError = (payload: {
     payload,
   };
 };
+
+export const initSSHKeyPairWithNull = () => ({
+  type: ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL,
+});
