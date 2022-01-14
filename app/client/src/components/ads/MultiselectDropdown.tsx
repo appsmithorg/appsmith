@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { Classes, CommonComponentProps } from "./common";
 import Text, { TextType } from "./Text";
@@ -186,13 +186,16 @@ function MultiSelectDropdown(props: DropdownProps) {
     }
   }, []);
 
-  const [currentItemIndex, setCurrentItemIndex] = useState<number>(0);
+  const [currentItemIndex, setCurrentItemIndex] = useState<number>(-1);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   const optionClickHandler = useCallback(
     (option: string) => {
       const currentIndex = _.findIndex(props.selected, (value) => {
         return value === option;
       });
+
+      if (btnRef.current) btnRef.current.focus();
 
       let selectedOption = [...props.selected];
 
@@ -250,10 +253,11 @@ function MultiSelectDropdown(props: DropdownProps) {
         case " ":
         case "Enter":
           if (isOpen) {
-            if (props.options[currentItemIndex]?.value)
+            if (props.options[currentItemIndex]?.value) {
               optionClickHandler(
                 props.options[currentItemIndex].value as string,
               );
+            }
             e.preventDefault();
           }
           break;
@@ -315,6 +319,7 @@ function MultiSelectDropdown(props: DropdownProps) {
           isOpen={isOpen}
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleKeydown}
+          ref={btnRef}
           role="listbox"
           tabIndex={0}
         >
