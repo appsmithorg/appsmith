@@ -138,3 +138,6 @@ export const getDisconnectingGitApplication = (state: AppState) =>
 
 export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
+
+export const getIsGitImportModalOpen = (state: AppState) =>
+  state.ui.gitSync.isGitImportOpen;

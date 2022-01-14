@@ -35,7 +35,13 @@ export const Classes = {
   DISCONNECT_GIT_MODAL: "disconnect-git-modal",
   OPTION_SELECTOR_WRAPPER: "option-wrapper",
   MERGE_DROPDOWN: "merge-dropdown",
+  GIT_IMPORT_MODAL: "git-import-modal",
 };
 
 export const DEFAULT_REMOTE = "origin";
 export const MENU_HEIGHT = 47;
+
+export enum CREDENTIAL_MODE {
+  MANUALLY = "MANUALLY",
+  IMPORT_JSON = "IMPORT_JSON",
+}

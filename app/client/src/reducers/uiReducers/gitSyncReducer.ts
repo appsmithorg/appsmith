@@ -32,6 +32,7 @@ const initialState: GitSyncReducerState = {
     id: "",
     name: "",
   },
+  isGitImportOpen: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -370,6 +371,13 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     disconnectingGitApp: action.payload,
   }),
+  [ReduxActionTypes.SET_IS_GIT_IMPORT_MODAL_OPEN]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
+    ...state,
+    isGitImportOpen: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -435,8 +443,9 @@ export type GitSyncReducerState = {
     id: string;
     name: string;
   };
-
   useGlobalProfile?: boolean;
+
+  isGitImportOpen?: boolean;
 };
 
 export default gitSyncReducer;

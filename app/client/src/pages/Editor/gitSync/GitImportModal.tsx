@@ -1,22 +1,31 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
-  getIsGitSyncModalOpen,
+  getIsGitImportModalOpen,
   getOrganizationIdForImport,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setIsGitImportModalOpen } from "actions/gitSyncActions";
 import Menu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
 import Icon, { IconSize } from "components/ads/Icon";
+import Text, { TextType } from "components/ads/Text";
+import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
-import { constants } from "os";
 import { Title } from "./components/StyledComponents";
-import { createMessage } from "constants/messages";
+import {
+  createMessage,
+  IMPORT_FROM_GIT_REPOSITORY,
+  IMPORT_FROM_GIT_REPOSITORY_MESSAGE,
+  SELECT_A_METHOD_TO_ADD_CREDENTIALS,
+} from "constants/messages";
+import CredentialMode from "./components/CredentialMode";
+import { CREDENTIAL_MODE } from "./constants";
+import Button, { Category, Size } from "components/ads/Button";
 
 const Container = styled.div`
   height: 600px;
@@ -41,6 +50,10 @@ const MenuContainer = styled.div`
   height: ${MENU_HEIGHT}px;
 `;
 
+const ButtonContainer = styled.div<{ topMargin: number }>`
+  margin-top: ${(props) => `${props.theme.spaces[props.topMargin]}px`};
+`;
+
 const CloseBtnContainer = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[1]}px;
@@ -50,20 +63,22 @@ const CloseBtnContainer = styled.div`
   border-radius: ${(props) => props.theme.radii[1]}px;
 `;
 
-function AddCredentialModal() {
+function GitImportModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const isModalOpen = useSelector(getIsGitSyncModalOpen);
+  const isModalOpen = useSelector(getIsGitImportModalOpen);
   const organizationId = useSelector(getOrganizationIdForImport);
-  const handleClose = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-  }, [dispatch, setIsGitSyncModalOpen]);
-
-  const setActiveTabIndex = useCallback(
-    (index: number) =>
-      dispatch(setIsGitSyncModalOpen({ isOpen: !!isModalOpen, tab: index })),
-    [dispatch, setIsGitSyncModalOpen, isModalOpen],
+  const [credentialMode, setCredentialMode] = useState(
+    CREDENTIAL_MODE.MANUALLY,
   );
+  const handleClose = useCallback(() => {
+    dispatch(setIsGitImportModalOpen(false));
+  }, [dispatch, setIsGitImportModalOpen]);
+
+  const setActiveTabIndex = useCallback(() => {
+    dispatch(setIsGitImportModalOpen(true));
+  }, [dispatch, setIsGitImportModalOpen]);
+
   const menuOptions = [
     {
       key: "GIT_IMPORT",
@@ -76,7 +91,7 @@ function AddCredentialModal() {
       <Dialog
         canEscapeKeyClose
         canOutsideClickClose
-        className={Classes.GIT_SYNC_MODAL}
+        className={Classes.GIT_IMPORT_MODAL}
         isOpen={isModalOpen}
         maxWidth={"900px"}
         onClose={handleClose}
@@ -91,8 +106,29 @@ function AddCredentialModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <Title>Import from Git Repository</Title>
-            <Section />
+            <Title>{createMessage(IMPORT_FROM_GIT_REPOSITORY)}</Title>
+            <Section>
+              <Text color={Colors.BLACK} type={TextType.P1}>
+                {createMessage(IMPORT_FROM_GIT_REPOSITORY_MESSAGE)}
+              </Text>
+            </Section>
+            <Text color={Colors.BLACK} type={TextType.P1}>
+              {createMessage(SELECT_A_METHOD_TO_ADD_CREDENTIALS)}
+            </Text>
+            <CredentialMode
+              defaultValue={CREDENTIAL_MODE.MANUALLY}
+              onSelect={(value) => setCredentialMode(value)}
+            />
+            <ButtonContainer topMargin={10}>
+              <Button
+                category={Category.primary}
+                className="t--add-credential-button"
+                // onClick={() => generateSSHKey()}
+                size={Size.large}
+                tag="button"
+                text="Add credentials"
+              />
+            </ButtonContainer>
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon
@@ -108,4 +144,4 @@ function AddCredentialModal() {
   );
 }
 
-export default AddCredentialModal;
+export default GitImportModal;

@@ -446,6 +446,11 @@ export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
   "Use SSH link from your repository to import application";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
+export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
+  "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
+  "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;

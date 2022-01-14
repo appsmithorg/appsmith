@@ -98,6 +98,7 @@ import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import GitImportModal from "pages/Editor/gitSync/GitImportModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -967,6 +968,7 @@ function ApplicationsSection(props: any) {
       {organizationsListComponent}
       <WelcomeHelper />
       {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
+      {getFeatureFlags().GIT_IMPORT && <GitImportModal />}
     </ApplicationContainer>
   );
 }

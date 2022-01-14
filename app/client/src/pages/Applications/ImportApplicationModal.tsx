@@ -21,6 +21,7 @@ import Text, { TextType } from "components/ads/Text";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
 import {
+  setIsGitImportModalOpen,
   setIsGitSyncModalOpen,
   setIsImportAppViaGitModalOpen,
 } from "actions/gitSyncActions";
@@ -166,12 +167,13 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         organizationId,
       }),
     );
-    dispatch(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.GIT_CONNECTION,
-      }),
-    );
+    // dispatch(
+    //   setIsGitSyncModalOpen({
+    //     isOpen: true,
+    //     tab: GitSyncModalTab.GIT_CONNECTION,
+    //   }),
+    // );
+    dispatch(setIsGitImportModalOpen(true));
   }, []);
 
   const importingApplication = useSelector(

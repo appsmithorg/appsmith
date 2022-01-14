@@ -108,6 +108,7 @@ import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import HelpFillIcon from "remixicon-react/QuestionFillIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
 import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
@@ -136,6 +137,7 @@ import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
+import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -225,6 +227,7 @@ export const IconCollection = [
   "down-arrow-2",
   "downArrow",
   "download",
+  "download-line",
   "duplicate",
   "edit",
   "edit-line",
@@ -246,6 +249,7 @@ export const IconCollection = [
   "git-pull-request",
   "guide",
   "help",
+  "help-fill",
   "info",
   "invite-user",
   "left-arrow",
@@ -475,6 +479,9 @@ const Icon = forwardRef(
       case "download":
         returnIcon = <Download />;
         break;
+      case "download-line":
+        returnIcon = <DownloadLineIcon />;
+        break;
       case "duplicate":
         returnIcon = <DuplicateIcon />;
         break;
@@ -537,6 +544,9 @@ const Icon = forwardRef(
         break;
       case "help":
         returnIcon = <HelpIcon />;
+        break;
+      case "help-fill":
+        returnIcon = <HelpFillIcon />;
         break;
       case "info":
         returnIcon = <InfoIcon />;
