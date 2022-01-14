@@ -12,7 +12,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 
-import _ from "lodash";
 /**
  * This function sorts the object's value which is array of string.
  *
