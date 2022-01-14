@@ -174,7 +174,6 @@ function ConditionComponent(props: any, index: number) {
 
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
-  console.log("Ayush Main block", props.currentNestingLevel, props.maxWidth);
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );

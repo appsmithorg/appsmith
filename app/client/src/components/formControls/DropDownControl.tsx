@@ -70,8 +70,6 @@ function renderDropdown(props: {
     selectedValue = props?.props?.initialValue;
   }
 
-  console.log("Ayush", props.width);
-
   const selectedOption =
     props.options.find(
       (option: DropdownOption) => option.value === selectedValue,
