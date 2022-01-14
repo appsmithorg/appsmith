@@ -94,7 +94,9 @@
                 "topRow": 1,
                 "bottomRow": 2,
                 "parentId": "4lvpg75cy5",
-                "widgetId": "a7hpuqqo8r"
+                "widgetId": "a7hpuqqo8r",
+                "defaultText": "Hello",
+                "dynamicBindingPathList": []
               },
               {
                 "isVisible": true,

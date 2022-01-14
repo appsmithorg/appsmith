@@ -32,6 +32,7 @@ export interface CanvasDraggingArenaProps {
   snapColumnSpace: number;
   snapRows: number;
   snapRowSpace: number;
+  parentId?: string;
   widgetId: string;
 }
 
@@ -39,6 +40,7 @@ export function CanvasDraggingArena({
   canExtend,
   dropDisabled = false,
   noPad,
+  parentId = "",
   snapColumnSpace,
   snapRows,
   snapRowSpace,
@@ -54,6 +56,7 @@ export function CanvasDraggingArena({
     canExtend,
     dropDisabled,
     noPad,
+    parentId,
     snapColumnSpace,
     snapRows,
     snapRowSpace,
