@@ -93,28 +93,18 @@ const addLogBlackListToAllListWidgetChildren = (
 const addPrivateWidgetsToAllListWidgets = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
-    if (children.type === "LIST_WIDGET") {
-      // in the List Widget, "children.0.children.0.children.0.children" is the path to the
-      // CANVAS_WIDGET whose children is the list of all entities present in the List Widget
-
-      const widgets = get(
-        children,
-        "children.0.children.0.children.0.children",
-      );
-
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "LIST_WIDGET") {
       const privateWidgets: PrivateWidgets = {};
-
-      widgets.map((widget: any) => {
-        privateWidgets[widget.widgetName] = true;
-
-        if (!children.privateWidgets) {
-          set(children, `privateWidgets`, privateWidgets);
-        }
+      Object.keys(child.template).forEach((entityName) => {
+        privateWidgets[entityName] = true;
       });
-    }
 
-    return children;
+      if (!child.privateWidgets) {
+        set(child, `privateWidgets`, privateWidgets);
+      }
+    }
+    return child;
   });
 
   return currentDSL;

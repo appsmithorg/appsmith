@@ -119,6 +119,7 @@ describe("correctly migrate dsl", () => {
           defaultText: "",
         },
         {
+          version: 1,
           template: {
             Image1: {
               isVisible: true,
@@ -585,6 +586,7 @@ describe("correctly migrate dsl", () => {
       backgroundColor: "none",
       bottomRow: 740,
       canExtend: true,
+      version: nextVersion,
       children: [
         {
           widgetName: "Input1",
@@ -693,6 +695,7 @@ describe("correctly migrate dsl", () => {
           defaultText: "",
         },
         {
+          widgetName: "List1",
           template: {
             Image1: {
               isVisible: true,
@@ -795,7 +798,6 @@ describe("correctly migrate dsl", () => {
               parentId: "vqn2okwc6a",
             },
           },
-          widgetName: "List1",
           listData: [
             {
               id: "001",
@@ -1138,6 +1140,7 @@ describe("correctly migrate dsl", () => {
           parentId: "0",
           renderMode: "CANVAS",
           isLoading: false,
+          version: 1,
         },
       ],
       containerStyle: "none",

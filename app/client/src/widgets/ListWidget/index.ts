@@ -12,6 +12,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -353,8 +354,16 @@ export const CONFIG = {
               ...get(parent, "template", {}),
               [widget.widgetName]: widget,
             };
-
             parent.template = template;
+
+            // all child widgets in the ListWidget should be treated as Private to the ListWidget.
+            const privateWidgets: PrivateWidgets = {};
+            Object.keys(template).forEach((childWidgetName) => {
+              privateWidgets[childWidgetName] = true;
+            });
+
+            // add privateWidgets to parent
+            parent.privateWidgets = privateWidgets;
 
             // add logBlackList for the children being added
             Object.keys(widget).map((key) => {
