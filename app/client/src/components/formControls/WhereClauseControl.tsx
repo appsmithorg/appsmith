@@ -50,10 +50,14 @@ const logicalFieldConfig: any = {
 };
 
 // Component for the delete Icon
-const CenteredIcon = styled(Icon)`
+const CenteredIcon = styled(Icon)<{
+  alignSelf?: string;
+  marginBottom?: string;
+}>`
   margin-left: 5px;
-  align-self: end;
-  margin-bottom: 10px;
+  align-self: ${(props) => (props.alignSelf ? props.alignSelf : "end")};
+  margin-bottom: ${(props) =>
+    props.marginBottom ? props.marginBottom : "10px"};
   &.hide {
     opacity: 0;
     pointer-events: none;
@@ -254,6 +258,8 @@ function ConditionBlock(props: any) {
                       rerenderOnEveryChange={false}
                     />
                     <CenteredIcon
+                      alignSelf={"center"}
+                      marginBottom={"-5px"}
                       name="cross"
                       onClick={(e) => {
                         e.stopPropagation();
