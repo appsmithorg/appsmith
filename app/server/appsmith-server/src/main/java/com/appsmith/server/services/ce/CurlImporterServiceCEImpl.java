@@ -5,12 +5,15 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+
 @Slf4j
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
 
@@ -45,15 +50,21 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
+    private final ResponseUtils responseUtils;
+    private final NewPageService newPageService;
 
     public CurlImporterServiceCEImpl(PluginService pluginService,
-                                     LayoutActionService layoutActionService) {
+                                     LayoutActionService layoutActionService,
+                                     NewPageService newPageService,
+                                     ResponseUtils responseUtils) {
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
+        this.newPageService = newPageService;
+        this.responseUtils = responseUtils;
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
         ActionDTO action;
 
         try {
@@ -69,20 +80,27 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
         }
 
+        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES);
+
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
-        return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN))
+        return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN), pageMono)
                 .flatMap(tuple -> {
                     final ActionDTO action1 = tuple.getT1();
                     final Plugin plugin = tuple.getT2();
+                    final NewPage newPage = tuple.getT3();
+
                     final Datasource datasource = action1.getDatasource();
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setOrganizationId(orgId);
+                    // Set git related resource IDs
+                    action1.setDefaultResources(newPage.getDefaultResources());
                     return Mono.just(action1);
                 })
-                .flatMap(layoutActionService::createSingleAction);
+                .flatMap(layoutActionService::createSingleAction)
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     public ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException {
@@ -447,5 +465,4 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         }
         return "";
     }
-
 }

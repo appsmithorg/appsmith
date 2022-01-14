@@ -7,7 +7,9 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
+import com.appsmith.server.services.NewPageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
@@ -15,11 +17,22 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+
 @Slf4j
 public class PostmanImporterServiceCEImpl extends BaseApiImporter implements PostmanImporterServiceCE {
 
+    private final NewPageService newPageService;
+    private final ResponseUtils responseUtils;
+
+    public PostmanImporterServiceCEImpl(NewPageService newPageService,
+                                        ResponseUtils responseUtils) {
+        this.newPageService = newPageService;
+        this.responseUtils = responseUtils;
+    }
+
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();
@@ -29,7 +42,12 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(pageId);
         action.setName(name);
-        return Mono.just(action);
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
+                .map(branchedPage -> {
+                    action.setDefaultResources(branchedPage.getDefaultResources());
+                    return action;
+                })
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     public TemplateCollection importPostmanCollection(Object input) {
