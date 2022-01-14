@@ -2837,7 +2837,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "get3PProviderTemplates",
   );
   cy.intercept("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
-
   cy.intercept("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
   cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
