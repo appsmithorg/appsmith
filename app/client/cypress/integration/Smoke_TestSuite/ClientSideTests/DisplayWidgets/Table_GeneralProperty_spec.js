@@ -218,7 +218,7 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the text color is purple
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     // Click on cell background color
-    cy.get(widgetsPage.backgroundColor)
+    cy.get(`${widgetsPage.cellBackground} input`)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -236,7 +236,7 @@ describe("Table Widget property pane feature validation", function() {
       "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
     );
     // Change the cell background color and enter purple in input field
-    cy.get(widgetsPage.backgroundColor)
+    cy.get(`${widgetsPage.cellBackground} input`)
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");

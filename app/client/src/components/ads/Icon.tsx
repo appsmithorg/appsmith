@@ -46,7 +46,7 @@ import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
+// import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
 import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
 import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
@@ -77,7 +77,9 @@ import { ControlIcons } from "icons/ControlIcons";
 
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
+import AddMoreFillIcon from "remixicon-react/AddCircleFillIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
+import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
 import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
@@ -106,6 +108,7 @@ import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
+import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
@@ -130,6 +133,7 @@ import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
 import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
+import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -187,6 +191,7 @@ export const IconCollection = [
   "PARAGRAPH",
   "PARAGRAPH_TWO",
   "add-more",
+  "add-more-fill",
   "arrow-forward",
   "arrow-left",
   "swap-horizontal",
@@ -268,6 +273,7 @@ export const IconCollection = [
   "rocket",
   "search",
   "send-button",
+  "settings-2-line",
   "share",
   "share-2",
   "share-box",
@@ -301,6 +307,7 @@ export const IconCollection = [
   "widget",
   "dropdown",
   "refresh",
+  "key",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -369,6 +376,9 @@ const Icon = forwardRef(
         break;
       case "add-more":
         returnIcon = <AddMoreIcon />;
+        break;
+      case "add-more-fill":
+        returnIcon = <AddMoreFillIcon />;
         break;
       case "arrow-forward":
         returnIcon = <ArrowForwardIcon />;
@@ -453,7 +463,7 @@ const Icon = forwardRef(
         returnIcon = <DiscordIcon />;
         break;
       case "down-arrow-2":
-        returnIcon = <DownArrow2 />;
+        returnIcon = <ArrowDownLineIcon />;
         break;
       case "downArrow":
         returnIcon = <DownArrow />;
@@ -526,6 +536,9 @@ const Icon = forwardRef(
         break;
       case "invite-user":
         returnIcon = <InviteUserIcon />;
+        break;
+      case "key":
+        returnIcon = <KeyIcon />;
         break;
       case "left-arrow-2":
         returnIcon = <LeftArrowIcon2 />;
@@ -608,6 +621,9 @@ const Icon = forwardRef(
       case "send-button":
         returnIcon = <SendButton />;
         break;
+      case "settings-2-line":
+        returnIcon = <Settings2LineIcon />;
+        break;
       case "share":
         returnIcon = <ShareForwardIcon />;
         break;
@@ -679,9 +695,6 @@ const Icon = forwardRef(
         break;
       case "setting":
         returnIcon = <SettingIcon />;
-        break;
-      case "support":
-        returnIcon = <SupportIcon />;
         break;
       case "workspace":
         returnIcon = <WorkspaceIcon />;

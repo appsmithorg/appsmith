@@ -3,7 +3,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
-import { get } from "lodash";
+import _, { get } from "lodash";
 
 import React, {
   forwardRef,
@@ -18,6 +18,7 @@ import { Classes, Position } from "@blueprintjs/core";
 import { AppState } from "reducers";
 import {
   getExistingActionNames,
+  getExistingJSCollectionNames,
   getExistingPageNames,
   getExistingWidgetNames,
 } from "selectors/entitiesSelector";
@@ -148,12 +149,12 @@ export const EntityName = forwardRef(
 
     const dispatch = useDispatch();
 
-    const existingActionNames: string[] = useSelector(getExistingActionNames);
+    const existingActionNames: string[] | [] = _.compact(
+      useSelector(getExistingActionNames),
+    );
 
-    const existingJSCollectionNames: string[] = useSelector((state: AppState) =>
-      state.entities.jsActions.map(
-        (action: { config: { name: string } }) => action.config.name,
-      ),
+    const existingJSCollectionNames: string[] = useSelector(
+      getExistingJSCollectionNames,
     );
 
     const hasNameConflict = useCallback(
@@ -233,7 +234,9 @@ export const EntityName = forwardRef(
             position={Position.TOP_LEFT}
           >
             <Wrapper
-              className={props.className}
+              className={`${
+                props.className ? props.className : ""
+              } ContextMenu`}
               onDoubleClick={props.enterEditMode}
               ref={targetRef}
             >

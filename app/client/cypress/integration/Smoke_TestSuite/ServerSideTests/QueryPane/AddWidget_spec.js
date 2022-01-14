@@ -13,11 +13,7 @@ describe("Add widget - Postgress DataSource", function() {
   });
 
   it("1. Verify 'Add to widget [Widget Suggestion]' functionality - Postgress", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
-
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -25,7 +21,6 @@ describe("Add widget - Postgress DataSource", function() {
       .type("select * from configs");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.WaitAutoSave();
-
     cy.runQuery();
     cy.get(queryEditor.suggestedTableWidget).click();
     cy.SearchEntityandOpen("Table1");

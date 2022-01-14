@@ -14,6 +14,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import _, { debounce } from "lodash";
 import { Category, Size } from "components/ads/Button";
 import { Colors } from "constants/Colors";
+import { ButtonPlacementTypes } from "components/constants";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -234,6 +235,7 @@ class ButtonListControl extends BaseControl<ControlProps> {
         menuItems: {},
         buttonType: "SIMPLE",
         buttonColor: Colors.GREEN,
+        placement: ButtonPlacementTypes.CENTER,
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,

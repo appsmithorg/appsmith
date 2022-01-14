@@ -45,6 +45,7 @@ export interface SelectedArenaDimensions {
 
 export function CanvasSelectionArena({
   canExtend,
+  dropDisabled,
   parentId,
   snapColumnSpace,
   snapRows,
@@ -52,6 +53,7 @@ export function CanvasSelectionArena({
   widgetId,
 }: {
   canExtend: boolean;
+  dropDisabled: boolean;
   parentId?: string;
   snapColumnSpace: number;
   widgetId: string;
@@ -148,8 +150,8 @@ export function CanvasSelectionArena({
 
   useCanvasDragToScroll(
     canvasRef,
-    isCurrentWidgetDrawing,
-    isDraggingForSelection,
+    isCurrentWidgetDrawing || isResizing,
+    isDraggingForSelection || isResizing,
     snapRows,
     canExtend,
   );
@@ -434,6 +436,7 @@ export function CanvasSelectionArena({
   }, [
     appLayout,
     currentPageId,
+    dropDisabled,
     mainContainer,
     isDragging,
     isResizing,
@@ -443,9 +446,11 @@ export function CanvasSelectionArena({
     snapRowSpace,
   ]);
 
+  // Resizing state still shows selection arena to aid with scroll behavior
+
   const shouldShow =
     appMode === APP_MODE.EDIT &&
-    !(isDragging || isResizing || isCommentMode || isPreviewMode);
+    !(isDragging || isCommentMode || isPreviewMode || dropDisabled);
 
   return shouldShow ? (
     <StyledSelectionCanvas
