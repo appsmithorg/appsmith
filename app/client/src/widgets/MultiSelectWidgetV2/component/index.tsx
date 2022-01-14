@@ -91,7 +91,10 @@ function MultiSelectComponent({
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
-      const allOption: string[] = options.map((option) => option.value);
+      const allOption: LabelValueType[] = options.map(({ label, value }) => ({
+        value,
+        label,
+      }));
       onChange(allOption);
       return;
     }
