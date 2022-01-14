@@ -54,6 +54,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -649,7 +650,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             // get git connected apps count from db
                             return applicationService.getGitConnectedApplicationCount(application.getOrganizationId())
                                     .flatMap(count -> {
-                                        if (limitCount <= count) {
+                                        if (limitCount < count) {
                                             return addAnalyticsForGitOperation(
                                                     AnalyticsEvents.GIT_CONNECT.getEventName(),
                                                     application.getOrganizationId(),
@@ -1961,8 +1962,166 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<Application> importApplicationFromGit() {
-        return null;
+    public Mono<Application> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
+        // 1. Check count limit for repo
+        // 2. create application, Then clone application
+        // 3. On clone and do import
+        //    1. Save the ssh keys in application object with other details
+        //    2. During import-export need to handle the DS(empty vs non-empty)
+        // 4. Return application
+
+        if (StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
+        }
+
+        if (StringUtils.isEmptyOrNull(organizationId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
+        }
+
+        Mono<Application> importedApplicationMono = getSSHKeyForCurrentUser()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
+                //Check the limit for number of private repo
+                .flatMap(gitAuth -> {
+                    // Check if the repo is public
+                    Application newApplication = new Application();
+                    newApplication.setName(GitUtils.getRepoName(gitConnectDTO.getRemoteUrl()));
+                    newApplication.setOrganizationId(organizationId);
+                    Mono<Application> applicationMono = createSuffixedApplication(newApplication);
+                    try {
+                        if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
+                            return Mono.just(gitAuth).zipWith(applicationMono);
+                        }
+                    } catch (IOException e) {
+                        log.debug("Error while checking if the repo is private: ", e);
+                    }
+                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(organizationId, true)
+                            .flatMap(limitCount -> {
+                                // get git connected apps count from db
+                                return applicationService.getGitConnectedApplicationCount(organizationId)
+                                        .flatMap(count -> {
+                                            if (limitCount < count) {
+                                                return addAnalyticsForGitOperation(
+                                                        AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                                        organizationId,
+                                                        "",
+                                                        "",
+                                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getTitle(),
+                                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
+                                                        false
+                                                ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
+                                            }
+                                            return Mono.just(gitAuth).zipWith(applicationMono);
+                                        });
+                            });
+                })
+                .flatMap(tuple -> {
+                    Application application = tuple.getT2();
+                    GitAuth gitAuth = tuple.getT1();
+
+                    String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
+                    Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), repoName);
+                    Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
+                    Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
+                            repoPath,
+                            gitConnectDTO.getRemoteUrl(),
+                            gitAuth.getPrivateKey(),
+                            gitAuth.getPublicKey()
+                    ).onErrorResume(error -> {
+                        log.error("Error while cloning the remote repo, {}", error.getMessage());
+                        Mono<Application> deleteApplicationMono = detachRemote(application.getId())
+                                .then(applicationPageService.deleteApplication(application.getId()));
+                        if (error instanceof TransportException) {
+                            return addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                    application.getOrganizationId(),
+                                    application.getId(),
+                                    application.getId(),
+                                    error.getClass().getName(),
+                                    error.getMessage(),
+                                    false
+                            ).flatMap(user -> deleteApplicationMono
+                                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION))));
+                        }
+                        if (error instanceof InvalidRemoteException) {
+                            return addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                    application.getOrganizationId(),
+                                    application.getId(),
+                                    application.getId(),
+                                    error.getClass().getName(),
+                                    error.getMessage(),
+                                    false
+                            ).flatMap(user -> deleteApplicationMono
+                                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"))));
+                        }
+                        return deleteApplicationMono
+                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT)));
+                    });
+
+                    return defaultBranchMono
+                            .flatMap(defaultBranch -> {
+                                GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                                GitAuth gitAuth1 = new GitAuth();
+                                gitAuth1.setPrivateKey(gitAuth.getPrivateKey());
+                                gitAuth1.setPublicKey(gitAuth.getPublicKey());
+                                gitAuth1.setDocUrl(gitAuth.getDocUrl());
+
+                                gitApplicationMetadata.setGitAuth(gitAuth1);
+                                gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                                gitApplicationMetadata.setBranchName(defaultBranch);
+                                gitApplicationMetadata.setDefaultBranchName(defaultBranch);
+                                gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                                gitApplicationMetadata.setRepoName(repoName);
+                                gitApplicationMetadata.setBrowserSupportedRemoteUrl(
+                                        GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl())
+                                );
+                                try {
+                                    gitApplicationMetadata.setIsRepoPrivate(
+                                            GitUtils.isRepoPrivate(gitApplicationMetadata.getBrowserSupportedRemoteUrl())
+                                    );
+                                } catch (IOException e) {
+                                    gitApplicationMetadata.setIsRepoPrivate(true);
+                                    log.debug("Error while checking if the repo is private: ", e);
+                                }
+
+                                Mono<ApplicationJson> applicationJsonMono;
+                                try {
+                                    applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), repoName, defaultBranch);
+                                } catch (GitAPIException | IOException e) {
+                                    log.error("Error while constructing application from git repo", e);
+                                    return detachRemote(application.getId())
+                                            .then(applicationPageService.deleteApplication(application.getId()))
+                                            .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
+                                }
+
+                                // Set branchName for each application resource
+                                return applicationJsonMono
+                                        .flatMap(applicationJson -> {
+                                            applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                            return importExportApplicationService
+                                                    .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch);
+                                        })
+                                        .zipWith(profileMono);
+                            });
+                })
+                // Add analytics event
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    return addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_IMPORT.getEventName(),
+                            application.getOrganizationId(),
+                            application.getId(),
+                            application.getId(),
+                            "",
+                            "",
+                            application.getGitApplicationMetadata().getIsRepoPrivate()
+                    ).thenReturn(application);
+                });
+
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
@@ -1984,6 +2143,29 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .thenReturn(gitAuth);
+    }
+
+
+    private Mono<GitAuth> getSSHKeyForCurrentUser() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> gitDeployKeysRepository.findByEmail(user.getEmail()))
+                .map(gitDeployKeys -> gitDeployKeys.getGitAuth());
+    }
+
+    private Mono<Application> createSuffixedApplication(Application application) {
+        return createSuffixedApplication(application, application.getName(), 0);
+    }
+
+    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+        return applicationPageService.createApplication(application)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null) {
+                        return createSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {

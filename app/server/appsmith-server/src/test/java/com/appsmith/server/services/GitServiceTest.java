@@ -1188,6 +1188,9 @@ public class GitServiceTest {
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMergeAble(true);
 
+        ApplicationJson applicationJson = validAppJson;
+        applicationJson.getExportedApplication().setName("pullChanges_upstreamChangesAvailable_pullSuccess");
+
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
         gitStatusDTO.setAheadCount(2);
         gitStatusDTO.setBehindCount(0);
@@ -1196,7 +1199,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(validAppJson));
+                .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatusDTO));
@@ -1216,7 +1219,7 @@ public class GitServiceTest {
                 })
                 .verifyComplete();
     }
-
+    
     @Test
     @WithUserDetails(value = "api_user")
     public void pullChanges_FileSystemAccessError_throwError() throws IOException, GitAPIException {
@@ -2074,6 +2077,115 @@ public class GitServiceTest {
                     assertThat(s.getPublicKey()).contains("appsmith");
                     assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
                     assertThat(s.getPrivateKey()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_InvalidRemoteUrl_ThrowError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest(null, testUserProfile);
+        Mono<Application> applicationMono = gitService.importApplicationFromGit("testID", gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Remote Url")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_emptyOrganizationId_ThrowError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(null, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Invalid organization id")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        gitService.generateSSHKey().block();
+        Mockito
+                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.any(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(0));
+
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_validRequest_Success() throws GitAPIException, IOException {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
+
+        ApplicationJson applicationJson = validAppJson;
+        applicationJson.getExportedApplication().setName("testRepo");
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo("testRepo");
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("git@github.com:test/testRepo.git");
+                    assertThat(application.getGitApplicationMetadata().getIsRepoPrivate()).isEqualTo(true);
+                    assertThat(application.getGitApplicationMetadata().getGitAuth().getPublicKey()).isEqualTo(gitAuth.getPublicKey());
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() throws GitAPIException, IOException {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
+
+        ApplicationJson applicationJson = validAppJson;
+        applicationJson.getExportedApplication().setName("testGitRepo");
+
+        Application testApplication = new Application();
+        testApplication.setName("testGitRepo");
+        testApplication.setOrganizationId(orgId);
+        applicationPageService.createApplication(testApplication).block();
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+
+        Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo("testGitRepo");
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("defaultBranch");
+                    assertThat(application.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("git@github.com:test/testGitRepo.git");
+                    assertThat(application.getGitApplicationMetadata().getIsRepoPrivate()).isEqualTo(true);
+                    assertThat(application.getGitApplicationMetadata().getGitAuth().getPublicKey()).isEqualTo(gitAuth.getPublicKey());
+
                 })
                 .verifyComplete();
     }
