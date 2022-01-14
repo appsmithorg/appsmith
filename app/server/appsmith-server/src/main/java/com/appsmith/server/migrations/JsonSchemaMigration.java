@@ -5,7 +5,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 
 public class JsonSchemaMigration {
-    private static Boolean checkCompatibility(ApplicationJson applicationJson) {
+    private static boolean checkCompatibility(ApplicationJson applicationJson) {
         return (applicationJson.getClientSchemaVersion() <= JsonSchemaVersions.clientVersion)
                 && (applicationJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
     }
@@ -17,7 +17,7 @@ public class JsonSchemaMigration {
 
         applicationJson.setClientSchemaVersion(clientSchemaVersion);
         applicationJson.setServerSchemaVersion(serverSchemaVersion);
-        if (Boolean.FALSE.equals(checkCompatibility(applicationJson))) {
+        if (!checkCompatibility(applicationJson)) {
             throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
         }
         migrateServerSchema(applicationJson);
@@ -26,7 +26,7 @@ public class JsonSchemaMigration {
     }
 
     private static ApplicationJson migrateServerSchema(ApplicationJson applicationJson) {
-        if (applicationJson.getServerSchemaVersion().equals(JsonSchemaVersions.serverVersion)) {
+        if (JsonSchemaVersions.serverVersion.equals(applicationJson.getServerSchemaVersion())) {
             // No need to run server side migration
             return applicationJson;
         }
@@ -43,7 +43,7 @@ public class JsonSchemaMigration {
     }
 
     private static ApplicationJson migrateClientSchema(ApplicationJson applicationJson) {
-        if (applicationJson.getClientSchemaVersion().equals(JsonSchemaVersions.clientVersion)) {
+        if (JsonSchemaVersions.clientVersion.equals(applicationJson.getClientSchemaVersion())) {
             // No need to run client side migration
             return applicationJson;
         }
