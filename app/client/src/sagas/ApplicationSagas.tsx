@@ -75,6 +75,7 @@ import {
   getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
+import { getIsImportAppViaGitModalOpen } from "selectors/gitSyncSelectors";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -639,7 +640,12 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    response = yield call(ApplicationApi.generateSSHKeyPair, applicationId);
+    const isImporting: boolean = yield select(getIsImportAppViaGitModalOpen);
+    response = yield call(
+      ApplicationApi.generateSSHKeyPair,
+      applicationId,
+      isImporting,
+    );
     const isValidResponse: boolean = yield validateResponse(
       response,
       true,

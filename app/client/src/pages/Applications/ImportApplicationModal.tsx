@@ -163,17 +163,17 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     onClose && onClose();
     dispatch(
       setIsImportAppViaGitModalOpen({
-        isOpen: false,
+        isOpen: true,
         organizationId,
       }),
     );
-    // dispatch(
-    //   setIsGitSyncModalOpen({
-    //     isOpen: true,
-    //     tab: GitSyncModalTab.GIT_CONNECTION,
-    //   }),
-    // );
-    dispatch(setIsGitImportModalOpen(true));
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
+    // dispatch(setIsGitImportModalOpen(true));
   }, []);
 
   const importingApplication = useSelector(

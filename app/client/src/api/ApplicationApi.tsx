@@ -255,8 +255,14 @@ class ApplicationApi extends Api {
     return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
   }
 
-  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+  static generateSSHKeyPair(
+    applicationId: string,
+    isImporting?: boolean,
+  ): AxiosPromise<ApiResponse> {
+    const url = isImporting
+      ? "v1/git/import/keys"
+      : ApplicationApi.baseURL + "ssh-keypair/" + applicationId;
+    return Api.post(url);
   }
 }
 

@@ -93,7 +93,6 @@ import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
 import getFeatureFlags from "utils/featureFlags";
-import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -837,7 +836,7 @@ function ApplicationsSection(props: any) {
                                 text="Import Application"
                               />
                             )}
-                            {!getFeatureFlags().IMPORT_AT_ONEC &&
+                            {/* {!getFeatureFlags().IMPORT_AT_ONEC &&
                               getFeatureFlags().GIT_IMPORT && (
                                 <MenuItem
                                   cypressSelector="t--org-import-app-git"
@@ -851,7 +850,7 @@ function ApplicationsSection(props: any) {
                                   }
                                   text="Import Via GIT"
                                 />
-                              )}
+                              )} */}
                             <MenuItem
                               icon="share"
                               onSelect={() => setSelectedOrgId(organization.id)}

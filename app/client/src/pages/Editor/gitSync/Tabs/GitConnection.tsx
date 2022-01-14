@@ -15,6 +15,7 @@ import {
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
   LEARN_MORE,
+  IMPORT_FROM_GIT_REPOSITORY,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -224,10 +225,10 @@ function GitConnection({ isImport }: Props) {
 
   useEffect(() => {
     // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
-    if (!SSHKeyPair) {
+    if (!SSHKeyPair && !isImport) {
       fetchSSHKeyPair();
     }
-  }, [SSHKeyPair]);
+  }, [SSHKeyPair, isImport]);
 
   const stopShowingCopiedAfterDelay = () => {
     timerRef.current = setTimeout(() => {
@@ -366,7 +367,11 @@ function GitConnection({ isImport }: Props) {
     <Container ref={scrollWrapperRef}>
       <Section>
         <StickyMenuWrapper>
-          <Title>{createMessage(CONNECT_TO_GIT)}</Title>
+          <Title>
+            {createMessage(
+              isImport ? IMPORT_FROM_GIT_REPOSITORY : CONNECT_TO_GIT_SUBTITLE,
+            )}
+          </Title>
           <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
         </StickyMenuWrapper>
         <UrlOptionContainer>

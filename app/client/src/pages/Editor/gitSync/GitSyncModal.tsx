@@ -19,6 +19,7 @@ import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import { createMessage, GIT_IMPORT } from "constants/messages";
 
 const Container = styled.div`
   height: 600px;
@@ -88,7 +89,14 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   let menuOptions = allMenuOptions;
   if (!isGitConnected) {
-    menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
+    menuOptions = props.isImport
+      ? [
+          {
+            key: MENU_ITEM.GIT_CONNECTION,
+            title: createMessage(GIT_IMPORT),
+          },
+        ]
+      : [MENU_ITEMS_MAP.GIT_CONNECTION];
   } else {
     menuOptions = allMenuOptions;
   }

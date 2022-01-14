@@ -550,6 +550,7 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 
 export const GIT_CONNECTION = () => "Git Connection";
+export const GIT_IMPORT = () => "Git Import";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";

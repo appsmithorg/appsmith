@@ -53,18 +53,18 @@ export const useSSHKeyPair = () => {
   }, [setIsGeneratingSSHKey]);
 
   const generateSSHKey = useCallback(() => {
-    if (currentApplication?.id) {
-      setIsGeneratingSSHKey(true);
-      setFailedGeneratingSSHKey(false);
+    // if (currentApplication?.id) {
+    setIsGeneratingSSHKey(true);
+    setFailedGeneratingSSHKey(false);
 
-      dispatch(
-        generateSSHKeyPair({
-          onErrorCallback: onGenerateSSHKeyFailure,
-        }),
-      );
-      AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
-    }
-  }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey, currentApplication?.id]);
+    dispatch(
+      generateSSHKeyPair({
+        onErrorCallback: onGenerateSSHKeyFailure,
+      }),
+    );
+    AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
+    // }
+  }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey]);
 
   return {
     generatingSSHKey,
