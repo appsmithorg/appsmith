@@ -46,7 +46,7 @@ const logicalFieldConfig: any = {
   controlType: "DROP_DOWN",
   initialValue: "EQ",
   options: [],
-  customStyles: { width: "10vh", height: "30px" },
+  customStyles: { width: "5vw" },
 };
 
 // Component for the delete Icon
@@ -112,11 +112,9 @@ const AddMoreAction = styled.div`
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
-  const customStyles = {
-    // 15 is subtracted because the width of the operator dropdown is 15px
-    width: `${(props.maxWidth - 15) / 3}vh`,
-    height: "30px",
-  };
+
+  // 5 is subtracted because the width of the operator dropdown is 5vw
+  const unitWidth = (props.maxWidth - 5) / 5;
 
   // Labels are only displayed if the condition is the first one
   let keyLabel = "";
@@ -134,7 +132,7 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...keyFieldConfig,
           label: keyLabel,
-          customStyles,
+          customStyles: { width: `${unitWidth * 2}vw` },
           configProperty: `${props.field}.key`,
         }}
         formName={props.formName}
@@ -144,7 +142,7 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...conditionFieldConfig,
           label: conditionLabel,
-          customStyles,
+          customStyles: { width: `${unitWidth * 1}vw` },
           configProperty: `${props.field}.condition`,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,
@@ -156,7 +154,7 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...valueFieldConfig,
           label: valueLabel,
-          customStyles,
+          customStyles: { width: `${unitWidth * 2}vw` },
           configProperty: `${props.field}.value`,
         }}
         formName={props.formName}
@@ -176,6 +174,7 @@ function ConditionComponent(props: any, index: number) {
 
 // This is the block which contains an operator and multiple conditions/ condition blocks
 function ConditionBlock(props: any) {
+  console.log("Ayush Main block", props.currentNestingLevel, props.maxWidth);
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
@@ -235,6 +234,7 @@ function ConditionBlock(props: any) {
               const fieldValue: whereClauseValueType = props.fields.get(index);
               if (!!fieldValue && "children" in fieldValue) {
                 // If the value contains children in it, that means it is a ConditionBlock
+                const maxWidth = props.maxWidth - 7.5;
                 return (
                   <ConditionBox>
                     <FieldArray
@@ -242,7 +242,7 @@ function ConditionBlock(props: any) {
                       key={`${field}.children`}
                       name={`${field}.children`}
                       props={{
-                        maxWidth: props.maxWidth - 15,
+                        maxWidth,
                         configProperty: `${field}`,
                         formName: props.formName,
                         logicalTypes: props.logicalTypes,
@@ -322,7 +322,7 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
   } = props;
 
   // Max width is designed in a way that the proportion stays same even after nesting
-  const maxWidth = 105;
+  const maxWidth = 55;
   return (
     <FieldArray
       component={ConditionBlock}

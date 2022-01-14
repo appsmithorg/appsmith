@@ -29,8 +29,8 @@ const CurlImportFormContainer = styled.div`
 
   .textAreaStyles {
     margin-bottom: 20px;
-    min-height: 50vh;
-    max-height: 50vh;
+    min-height: 20vw;
+    max-height: 20vw;
     padding: 10px;
     min-width: 100%;
     max-width: 100%;
