@@ -128,7 +128,7 @@ public class DeleteRowMethod implements Method {
         final int rowIndex = Integer.parseInt(methodConfig.getTableHeaderIndex()) +
                 Integer.parseInt(methodConfig.getRowIndex());
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.fromValue(
                         Map.of(
                                 "requests", List.of(

@@ -21,7 +21,6 @@ describe("Layout OnLoad Actions tests", function () {
             const match = myRegexp.exec(currentURL);
             let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
                 let _emptyResp = JSON.parse(respBody).data.layouts[0].layoutOnLoadActions;
@@ -58,7 +57,6 @@ describe("Layout OnLoad Actions tests", function () {
             const match = myRegexp.exec(currentURL);
             let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
 
@@ -86,23 +84,23 @@ describe("Layout OnLoad Actions tests", function () {
         agHelper.CreateNewApplication()
         agHelper.AddDsl(dsl)
 
-    apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
-    apiPage.EnterHeader('dependency', '{{RandomUser.data}}')
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
+        apiPage.EnterHeader('dependency', '{{RandomUser.data}}')
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://www.boredapi.com/api/activity", "Suggestions")
-    apiPage.EnterHeader('dependency', '{{InspiringQuotes.data}}')
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://www.boredapi.com/api/activity", "Suggestions")
+        apiPage.EnterHeader('dependency', '{{InspiringQuotes.data}}')
+        apiPage.RunAPI()
 
-    apiPage.CreateAndFillApi("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}", "Genderize")
-    apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
-    apiPage.RunAPI()
+        apiPage.CreateAndFillApi("https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}", "Genderize")
+        apiPage.ValidateQueryParams({ key: "name", value: "{{RandomUser.data.results[0].name.first}}" }); // verifies Bug 10055
+        apiPage.RunAPI()
 
         agHelper.SelectEntityByName('Page1')
 
@@ -112,7 +110,6 @@ describe("Layout OnLoad Actions tests", function () {
             const match = myRegexp.exec(currentURL);
             let pageid = match![1].split("/")[1];
             cy.log(pageid + "page id");
-            cy.server()
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
                 const respBody = JSON.stringify(response.body);
 
