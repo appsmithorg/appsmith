@@ -810,6 +810,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
+        columns={this.props.rightColumn - this.props.leftColumn}
         // show label and Input side by side if true
         compactMode={
           !(
@@ -829,9 +830,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
@@ -889,6 +893,7 @@ export interface InputWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth?: number;
   inputValidators: InputValidator[];
   isValid: boolean;
   focusIndex?: number;

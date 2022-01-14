@@ -30,7 +30,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
-import { InputType, InputTypes } from "../constants";
+import { InputType, InputTypes, LABEL_MAX_WIDTH_RATE } from "../constants";
 
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
@@ -45,6 +45,7 @@ import ISDCodeDropdown, {
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { limitDecimalValue, getSeparators } from "./utilities";
+import { LabelPosition, LabelPositionTypes } from "components/constants";
 
 /**
  * All design system component specific logic goes here.
@@ -76,7 +77,19 @@ const InputComponentWrapper = styled((props) => (
   disabled?: boolean;
   inputType: InputType;
 }>`
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  flex-direction: ${(props) =>
+    props.labelPosition === LabelPositionTypes.Left
+      ? "row"
+      : props.labelPosition === LabelPositionTypes.Top
+      ? "column"
+      : props.compactMode
+      ? "row"
+      : "column"};
+  ${({ compactMode, labelPosition }) =>
+    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
+      labelPosition === LabelPositionTypes.Top) &&
+    `overflow-y: auto;`}
+
   &&&& {
     .currency-type-filter,
     .country-type-filter {
@@ -197,7 +210,18 @@ const InputComponentWrapper = styled((props) => (
       justify-content: flex-start;
     }
     height: 100%;
-    align-items: center;
+
+    align-items: ${({ compactMode, labelPosition }) =>
+      labelPosition === LabelPositionTypes.Top
+        ? `flex-start`
+        : compactMode
+        ? `center`
+        : labelPosition === LabelPositionTypes.Left
+        ? `stretch`
+        : `flex-start`};
+
+
+
     label {
       ${labelStyle}
       margin-right: 5px;
@@ -283,13 +307,30 @@ const ToolTipIcon = styled(IconWrapper)`
   }
 `;
 
-const TextLableWrapper = styled.div<{
+const TextLabelWrapper = styled.div<{
   compactMode: boolean;
+  alignment?: Alignment;
+  position?: LabelPosition;
+  width?: number;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
   display: flex;
   max-height: 20px;
+
+  ${({ alignment, compactMode, position, width }) => `
+    ${
+      position !== LabelPositionTypes.Top &&
+      (position === LabelPositionTypes.Left || compactMode)
+        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        : `width: 100%;`
+    }
+    ${position === LabelPositionTypes.Left &&
+      `${width && `width: ${width}px`}; justify-content: ${alignment ===
+        Alignment.RIGHT && `flex-end;`}`}
+  `}
+`;
+
+const StyledTooltip = styled(Tooltip)`
+  overflow: hidden;
 `;
 
 const TextInputWrapper = styled.div`
@@ -314,7 +355,7 @@ class InputComponent extends React.Component<
   decimalSeparator: string;
   constructor(props: InputComponentProps) {
     super(props);
-    this.state = { showPassword: false };
+    this.state = { showPassword: false, hasLabelEllipsis: false };
     const separators = getSeparators();
     this.groupSeparator = separators.groupSeparator;
     this.decimalSeparator = separators.decimalSeparator;
@@ -330,6 +371,8 @@ class InputComponent extends React.Component<
         element[1].addEventListener("click", this.onDecrementButtonClick);
       }
     }
+
+    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
   }
 
   componentDidUpdate(prevProps: InputComponentProps) {
@@ -345,6 +388,15 @@ class InputComponent extends React.Component<
         element[1].addEventListener("click", this.onDecrementButtonClick);
       }
     }
+    if (
+      prevProps.columns !== this.props.columns ||
+      prevProps.label !== this.props.label ||
+      prevProps.labelPosition !== this.props.labelPosition ||
+      prevProps.labelWidth !== this.props.labelWidth ||
+      prevProps.tooltip !== this.props.tooltip
+    ) {
+      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    }
   }
 
   componentWillUnmount() {
@@ -358,6 +410,18 @@ class InputComponent extends React.Component<
       }
     }
   }
+
+  checkHasLabelEllipsis = () => {
+    const labelElement = document.querySelector(
+      `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+    );
+
+    if (labelElement) {
+      return labelElement.scrollWidth > labelElement.clientWidth;
+    }
+
+    return false;
+  };
 
   updateValueOnButtonClick = (type: number) => {
     const deFormattedValue: string | number = this.props.value
@@ -604,49 +668,85 @@ class InputComponent extends React.Component<
 
   render() {
     const {
+      allowCurrencyChange,
+      compactMode,
+      disabled,
+      errorMessage,
+      inputType,
+      isInvalid,
+      isLoading,
       label,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelTextColor,
       labelTextSize,
+      labelWidth,
+      multiline,
+      showError,
       tooltip,
     } = this.props;
     const showLabelHeader = label || tooltip;
 
     return (
       <InputComponentWrapper
-        allowCurrencyChange={this.props.allowCurrencyChange}
-        compactMode={this.props.compactMode}
-        disabled={this.props.disabled}
+        allowCurrencyChange={allowCurrencyChange}
+        compactMode={compactMode}
+        disabled={disabled}
         fill
-        hasError={this.props.isInvalid}
-        inputType={this.props.inputType}
+        hasError={isInvalid}
+        inputType={inputType}
+        labelAlignment={labelAlignment}
+        labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
-        multiline={this.props.multiline.toString()}
-        numeric={isNumberInputType(this.props.inputType)}
+        multiline={multiline.toString()}
+        numeric={isNumberInputType(inputType)}
       >
         {showLabelHeader && (
-          <TextLableWrapper
+          <TextLabelWrapper
+            alignment={labelAlignment}
             className="t--input-label-wrapper"
-            compactMode={this.props.compactMode}
+            compactMode={compactMode}
+            position={labelPosition}
+            width={labelWidth}
           >
-            {this.props.label && (
-              <Label
-                className={`
+            {label &&
+              (this.state.hasLabelEllipsis ? (
+                <StyledTooltip
+                  content={label}
+                  hoverOpenDelay={200}
+                  position={Position.TOP}
+                >
+                  <Label
+                    className={`
                   t--input-widget-label ${
-                    this.props.isLoading
+                    isLoading
                       ? Classes.SKELETON
                       : Classes.TEXT_OVERFLOW_ELLIPSIS
                   }
                 `}
-              >
-                {this.props.label}
-              </Label>
-            )}
-            {this.props.tooltip && (
+                  >
+                    {label}
+                  </Label>
+                </StyledTooltip>
+              ) : (
+                <Label
+                  className={`
+                  t--input-widget-label ${
+                    isLoading
+                      ? Classes.SKELETON
+                      : Classes.TEXT_OVERFLOW_ELLIPSIS
+                  }
+                `}
+                >
+                  {label}
+                </Label>
+              ))}
+            {tooltip && (
               <Tooltip
-                content={this.props.tooltip}
+                content={tooltip}
                 hoverOpenDelay={200}
                 position={Position.TOP}
               >
@@ -659,20 +759,17 @@ class InputComponent extends React.Component<
                 </ToolTipIcon>
               </Tooltip>
             )}
-          </TextLableWrapper>
+          </TextLabelWrapper>
         )}
         <TextInputWrapper>
           <ErrorTooltip
-            isOpen={this.props.isInvalid && this.props.showError}
+            isOpen={isInvalid && showError}
             message={
-              this.props.errorMessage ||
+              errorMessage ||
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.renderInputComponent(
-              this.props.inputType,
-              this.props.multiline,
-            )}
+            {this.renderInputComponent(inputType, multiline)}
           </ErrorTooltip>
         </TextInputWrapper>
       </InputComponentWrapper>
@@ -682,6 +779,7 @@ class InputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
+  hasLabelEllipsis?: boolean;
 }
 
 export interface InputComponentProps extends ComponentProps {
@@ -697,9 +795,12 @@ export interface InputComponentProps extends ComponentProps {
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth: number;
   tooltip?: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
@@ -728,6 +829,7 @@ export interface InputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
+  columns: number;
 }
 
 export default InputComponent;

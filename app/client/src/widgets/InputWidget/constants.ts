@@ -10,3 +10,5 @@ export const InputTypes: { [key: string]: string } = {
 };
 
 export type InputType = typeof InputTypes[keyof typeof InputTypes];
+
+export const LABEL_MAX_WIDTH_RATE = 70;
