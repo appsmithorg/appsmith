@@ -52,7 +52,7 @@ export function Pagination(props: {
   const { configProperty, customStyles, formName, name } = props;
 
   return (
-    <div data-cy={name} style={{ width: "50vh" }}>
+    <div data-cy={name} style={{ width: "20vw" }}>
       {/*  form control for Limit field */}
       <FormControlContainer>
         <FormControl
