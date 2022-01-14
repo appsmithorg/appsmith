@@ -210,7 +210,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             if (newAction.getPublishedAction() != null) {
                 action = newAction.getPublishedAction();
             } else {
-                // We are trying to fetch published action but it doesnt exist because the action hasn't been published yet
+                // We are trying to fetch published action but it doesn't exist because the action hasn't been published yet
                 return Mono.empty();
             }
         } else {
