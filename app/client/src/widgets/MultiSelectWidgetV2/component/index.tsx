@@ -1,5 +1,11 @@
 /* eslint-disable no-console */
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  ChangeEvent,
+} from "react";
 import Select, { SelectProps } from "rc-select";
 import {
   DefaultValueType,
@@ -17,11 +23,11 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
-import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
-import { Classes } from "@blueprintjs/core";
+import { Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
+import _ from "lodash";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -50,9 +56,10 @@ export interface MultiSelectProps
   allowSelectAll?: boolean;
   filterText?: string;
   widgetId: string;
+  isFilterable: boolean;
 }
 
-const DEBOUNCE_TIMEOUT = 800;
+const DEBOUNCE_TIMEOUT = 1000;
 
 function MultiSelectComponent({
   allowSelectAll,
@@ -60,7 +67,7 @@ function MultiSelectComponent({
   disabled,
   dropdownStyle,
   dropDownWidth,
-  filterText,
+  isFilterable,
   isValid,
   labelStyle,
   labelText,
@@ -77,6 +84,8 @@ function MultiSelectComponent({
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [filter, setFilter] = useState("");
+  const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
 
   const getDropdownPosition = useCallback(() => {
@@ -91,79 +100,124 @@ function MultiSelectComponent({
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
-      const allOption: LabelValueType[] = options.map(({ label, value }) => ({
-        value,
-        label,
+      // Get all options
+      const allOption: LabelValueType[] = filteredOptions.map(
+        ({ label, value }) => ({
+          value,
+          label,
+        }),
+      );
+      // get unique selected values amongst SelectedAllValue and Value
+      const allSelectedOptions = _.uniqBy(
+        [...allOption, ...value],
+        "value",
+      ).map((val) => ({
+        ...val,
+        key: val.value,
       }));
-      onChange(allOption);
+      onChange(allSelectedOptions);
       return;
     }
     return onChange([]);
   };
+
+  const checkOptionsAndValue = () => {
+    const emptyFalseArr = [false];
+    if (value.length === 0 || filteredOptions.length === 0)
+      return emptyFalseArr;
+    return filteredOptions.map((x) => value.some((y) => y.value === x.value));
+  };
+
+  // SelectAll if all options are in Value
   useEffect(() => {
     if (
       !isSelectAll &&
-      options.length &&
+      filteredOptions.length &&
       value.length &&
-      options.length === value.length
+      !checkOptionsAndValue().includes(false)
     ) {
       setIsSelectAll(true);
     }
-    if (isSelectAll && options.length !== value.length) {
+    if (isSelectAll && filteredOptions.length !== value.length) {
       setIsSelectAll(false);
     }
-  }, [options, value]);
+  }, [filteredOptions, value]);
 
+  // Trigger onFilterChange once filter is Updated
+  useEffect(() => {
+    const timeOutId = setTimeout(
+      () => onFilterChange(filter),
+      DEBOUNCE_TIMEOUT,
+    );
+    return () => clearTimeout(timeOutId);
+  }, [filter]);
+
+  // Filter options based on serverSideFiltering
+  useEffect(
+    () => {
+      if (serverSideFiltering) {
+        return setFilteredOptions(options);
+      }
+      const filtered = options.filter((option) => {
+        return (
+          String(option.label)
+            .toLowerCase()
+            .indexOf(filter.toLowerCase()) >= 0 ||
+          String(option.value)
+            .toLowerCase()
+            .indexOf(filter.toLowerCase()) >= 0
+        );
+      });
+      setFilteredOptions(filtered);
+    },
+    serverSideFiltering ? [options] : [filter],
+  );
+
+  const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    setFilter(event.target.value);
+  };
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
-      <div className={`${loading ? Classes.SKELETON : ""}`}>
-        {options.length && allowSelectAll ? (
-          <StyledCheckbox
-            alignIndicator="left"
-            checked={isSelectAll}
-            className={`all-options ${isSelectAll ? "selected" : ""}`}
-            label="Select all"
-            onChange={handleSelectAll}
+      <>
+        {isFilterable ? (
+          <InputGroup
+            autoFocus
+            leftIcon="search"
+            onChange={onQueryChange}
+            onKeyDown={(e) => e.stopPropagation()}
+            placeholder="Filter..."
+            small
+            type="text"
+            value={filter}
           />
         ) : null}
-        {menu}
-      </div>
+        <div className={`${loading ? Classes.SKELETON : ""}`}>
+          {filteredOptions.length && allowSelectAll ? (
+            <StyledCheckbox
+              alignIndicator="left"
+              checked={isSelectAll}
+              className={`all-options ${isSelectAll ? "selected" : ""}`}
+              label="Select all"
+              onChange={handleSelectAll}
+            />
+          ) : null}
+          {menu}
+        </div>{" "}
+      </>
     ),
-    [isSelectAll, options, loading, allowSelectAll],
+    [
+      isSelectAll,
+      filteredOptions,
+      loading,
+      allowSelectAll,
+      isFilterable,
+      filter,
+    ],
   );
 
-  // Convert the values to string before searching.
-  // input is always a string.
-  const filterOption = useCallback(
-    (input, option) =>
-      String(option?.props.label)
-        .toLowerCase()
-        .indexOf(input.toLowerCase()) >= 0 ||
-      String(option?.props.value)
-        .toLowerCase()
-        .indexOf(input.toLowerCase()) >= 0,
-    [],
-  );
-
-  const onClose = useCallback(
-    (open) => {
-      if (!open && filterText) {
-        onFilterChange("");
-      }
-    },
-    [filterText, open],
-  );
-
-  const serverSideSearch = React.useMemo(() => {
-    const updateFilter = (filterValue: string) => {
-      onFilterChange(filterValue);
-    };
-    return debounce(updateFilter, DEBOUNCE_TIMEOUT);
-  }, []);
-
-  console.log("dropDownWidth", value);
   return (
     <MultiSelectContainer
       compactMode={compactMode}
@@ -192,15 +246,14 @@ function MultiSelectComponent({
       )}
       <Select
         animation="slide-up"
-        choiceTransitionName="rc-select-selection__choice-zoom"
         // TODO: Make Autofocus a variable in the property pane
         // autoFocus
+        choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
         dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
-        filterOption={serverSideFiltering ? false : filterOption}
         getPopupContainer={getDropdownPosition}
         inputIcon={
           <Icon
@@ -217,9 +270,7 @@ function MultiSelectComponent({
         mode="multiple"
         notFoundContent="No Results Found"
         onChange={onChange}
-        onDropdownVisibleChange={onClose}
-        onSearch={serverSideSearch}
-        options={options}
+        options={filteredOptions}
         placeholder={placeholder || "select option(s)"}
         removeIcon={
           <Icon

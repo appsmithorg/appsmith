@@ -168,6 +168,16 @@ class MultiSelectWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isFilterable",
+            label: "Filterable",
+            helpText: "Makes the dropdown list filterable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
             label: "Server Side Filtering",
@@ -335,6 +345,7 @@ class MultiSelectWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         filterText={this.props.filterText}
+        isFilterable={this.props.isFilterable}
         isValid={this.props.isValid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
@@ -361,15 +372,12 @@ class MultiSelectWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
-
-    // Empty filter after Selection
-    this.props.filterText && this.onFilterChange("");
   };
 
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
 
-    if (this.props.onFilterUpdate) {
+    if (this.props.onFilterUpdate && this.props.serverSideFiltering) {
       super.executeAction({
         triggerPropertyName: "onFilterUpdate",
         dynamicString: this.props.onFilterUpdate,
@@ -409,6 +417,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   allowSelectAll?: boolean;
+  isFilterable: boolean;
 }
 
 export default MultiSelectWidget;

@@ -316,11 +316,6 @@ class SelectComponent extends React.Component<
             disabled={disabled}
             filterable={this.props.isFilterable}
             hasError={this.props.hasError}
-            // isSelected={
-            //   !_.isEmpty(this.props.options) &&
-            //   this.props.selectedIndex !== undefined &&
-            //   this.props.selectedIndex > -1
-            // }
             isValid={this.props.isValid}
             itemListPredicate={
               !this.props.serverSideFiltering

@@ -248,6 +248,56 @@ ${({ dropDownWidth, id, parentWidth }) => `
     box-shadow: none;
     outline: none !important;
   }
+
+  & .${Classes.INPUT_GROUP} {
+      padding: 12px 12px 8px 12px;
+      min-width: 180px;
+
+      & > .${Classes.ICON} {
+        &:first-child {
+          left: 12px;
+          top: 14px;
+          margin: 9px;
+          color: ${Colors.GREY_7};
+
+          & > svg {
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+      & > .${Classes.INPUT_ACTION} {
+        &:last-child {
+          right: 13px;
+          top: 13px;
+
+          .${Classes.BUTTON} {
+            min-height: 34px;
+            min-width: 35px;
+            margin: 0px;
+            color: ${Colors.GREY_6} !important;
+
+            &:hover {
+              color: ${Colors.GREY_10} !important;
+              background: ${Colors.GREY_2};
+              border-radius: 0;
+            }
+          }
+        }
+      }
+      .${Classes.INPUT} {
+        height: 36px;
+        padding-left: 29px !important;
+        font-size: 14px;
+        border: 1px solid ${Colors.GREY_3};
+        color: ${Colors.GREY_10};
+        box-shadow: 0px 0px 0px 0px;
+        &:focus {
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
+        }
+      }
+    }
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;
