@@ -3,8 +3,10 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const pages = require("../../../../locators/Pages.json");
+import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
+
+const AHelper = new AggregateHelper();
 
 const pageid = "MyPage";
 let datasourceName;
@@ -20,7 +22,12 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create a page/moveQuery/rename/delete in explorer", function() {
+  it.only("1. Create a page/moveQuery/rename/delete in explorer", function() {
+    cy.Createpage(pageid);
+    cy.get(".t--entity-name")
+      .contains("Page1")
+      .click();
+    cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -49,7 +56,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.wait(2000);
     cy.NavigateToQueryEditor();
 
-    cy.contains(".t--datasource-name", datasourceName).click();
+    cy.contains(".t--entity-name", datasourceName).click();
 
     cy.get(".t--edit-datasource-name").click();
     cy.get(".t--edit-datasource-name input")
@@ -84,10 +91,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });
 
-    cy.get(`.t--entity.action:contains(Query1)`)
-      .scrollIntoView({ force: true })
-      .find(explorer.collapse)
-      .click({ force: true });
+    AHelper.ActionContextMenuByEntityName("Query1", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -96,17 +100,13 @@ describe("Entity explorer tests related to query and datasource", function() {
       expect($lis.eq(3)).to.contain("{{Query1.run()}}");
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
-    cy.Createpage(pageid);
-    cy.GlobalSearchEntity("Query1");
+    AHelper.ActionContextMenuByEntityName("Query1", "Rename");
     cy.EditApiNameFromExplorer("MyQuery");
-    cy.GlobalSearchEntity("MyQuery");
-    cy.xpath(apiwidget.popover)
-      .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.MoveAPIToPage(pageid);
-    cy.SearchEntityandOpen("MyQuery");
+    AHelper.ActionContextMenuByEntityName("MyQuery", "Move to page", pageid);
+    cy.get(".t--entity-name")
+      .contains("MyQuery")
+      .click();
+    cy.wait(2000);
     cy.runQuery();
 
     cy.deleteQuery();
