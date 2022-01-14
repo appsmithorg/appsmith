@@ -32,7 +32,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     /**
      * @param{Text} Random Colour
      */
-    cy.get(widgetsPage.backgroundcolorPicker)
+    cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
