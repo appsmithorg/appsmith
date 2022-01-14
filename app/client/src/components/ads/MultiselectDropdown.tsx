@@ -188,95 +188,106 @@ function MultiSelectDropdown(props: DropdownProps) {
 
   const [currentItemIndex, setCurrentItemIndex] = useState<number>(0);
 
-  const optionClickHandler = (option: string) => {
-    const currentIndex = _.findIndex(props.selected, (value) => {
-      return value === option;
-    });
+  const optionClickHandler = useCallback(
+    (option: string) => {
+      const currentIndex = _.findIndex(props.selected, (value) => {
+        return value === option;
+      });
 
-    let selectedOption = [...props.selected];
+      let selectedOption = [...props.selected];
 
-    if (currentIndex === -1) {
-      selectedOption.push(option);
-    } else {
-      selectedOption.splice(currentIndex, 1);
-    }
+      if (currentIndex === -1) {
+        selectedOption.push(option);
+      } else {
+        selectedOption.splice(currentIndex, 1);
+      }
 
-    if (props.selectAll) {
-      const isAllSelectorPresent = props.selected.includes(
-        props.selectAllQuantifier as string,
-      );
-      const isAllSelectorSelected =
-        props.selectAllQuantifier && option === props.selectAllQuantifier;
+      if (props.selectAll) {
+        const isAllSelectorPresent = props.selected.includes(
+          props.selectAllQuantifier as string,
+        );
+        const isAllSelectorSelected =
+          props.selectAllQuantifier && option === props.selectAllQuantifier;
 
-      if (isAllSelectorSelected) {
-        if (isAllSelectorPresent) {
-          selectedOption = [];
-        } else {
+        if (isAllSelectorSelected) {
+          if (isAllSelectorPresent) {
+            selectedOption = [];
+          } else {
+            selectedOption = _.map(
+              props.options,
+              (item) => item.value,
+            ) as string[];
+          }
+        } else if (isAllSelectorPresent) {
+          selectedOption = selectedOption.filter(
+            (item) => item !== props.selectAllQuantifier,
+          );
+        } else if (
+          !isAllSelectorPresent &&
+          selectedOption.length === props.options.length - 1
+        ) {
           selectedOption = _.map(
             props.options,
             (item) => item.value,
           ) as string[];
         }
-      } else if (isAllSelectorPresent) {
-        selectedOption = selectedOption.filter(
-          (item) => item !== props.selectAllQuantifier,
-        );
-      } else if (
-        !isAllSelectorPresent &&
-        selectedOption.length === props.options.length - 1
-      ) {
-        selectedOption = _.map(props.options, (item) => item.value) as string[];
       }
-    }
 
-    props.onSelect && props.onSelect([...selectedOption]);
-  };
+      props.onSelect && props.onSelect([...selectedOption]);
+    },
+    [props.selected, props.selectAll, props.selectAllQuantifier],
+  );
 
-  const handleKeydown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case "Escape":
-        if (isOpen) {
-          setIsOpen(false);
-          e.nativeEvent.stopImmediatePropagation();
-        }
-        break;
-      case " ":
-      case "Enter":
-        if (isOpen) {
-          if (props.options[currentItemIndex]?.value)
-            optionClickHandler(props.options[currentItemIndex].value as string);
+  const handleKeydown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case "Escape":
+          if (isOpen) {
+            setIsOpen(false);
+            e.nativeEvent.stopImmediatePropagation();
+          }
+          break;
+        case " ":
+        case "Enter":
+          if (isOpen) {
+            if (props.options[currentItemIndex]?.value)
+              optionClickHandler(
+                props.options[currentItemIndex].value as string,
+              );
+            e.preventDefault();
+          }
+          break;
+        case "ArrowUp":
           e.preventDefault();
-        }
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        if (isOpen) {
-          setCurrentItemIndex((prevIndex) => {
-            if (prevIndex <= 0) return props.options.length - 1;
-            return prevIndex - 1;
-          });
-        } else {
-          setIsOpen(true);
-        }
-        break;
-      case "ArrowDown":
-        e.preventDefault();
-        if (isOpen) {
-          setCurrentItemIndex((prevIndex) => {
-            if (prevIndex === props.options.length - 1) return 0;
-            return prevIndex + 1;
-          });
-        } else {
-          setIsOpen(true);
-        }
-        break;
-      case "Tab":
-        if (isOpen) {
-          setIsOpen(false);
-        }
-        break;
-    }
-  };
+          if (isOpen) {
+            setCurrentItemIndex((prevIndex) => {
+              if (prevIndex <= 0) return props.options.length - 1;
+              return prevIndex - 1;
+            });
+          } else {
+            setIsOpen(true);
+          }
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          if (isOpen) {
+            setCurrentItemIndex((prevIndex) => {
+              if (prevIndex === props.options.length - 1) return 0;
+              return prevIndex + 1;
+            });
+          } else {
+            setIsOpen(true);
+          }
+          break;
+        case "Tab":
+          if (isOpen) {
+            setIsOpen(false);
+          }
+          break;
+      }
+    },
+    [isOpen, props.options, currentItemIndex],
+  );
 
   const isItemSelected = (item?: string) => {
     if (!item) {
