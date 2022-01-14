@@ -7,7 +7,7 @@ const locator = new CommonLocators()
 export class JSEditor {
 
     private _addEntityJSEditor = ".js_actions .t--entity-add-btn"
-    private _runButton = ".run-button"
+    private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']/parent::li"
     private _outputConsole = ".CodeEditorTarget"
     private _jsObjName = ".t--js-action-name-edit-field span"
     private _jsObjTxt = ".t--js-action-name-edit-field input"
@@ -18,22 +18,46 @@ export class JSEditor {
             .click({ force: true });
     }
 
-    public CreateJSObject(JSCode: string) {
+    public CreateJSObject(JSCode: string, paste = true) {
         this.NavigateToJSEditor();
         agHelper.Sleep()
         cy.get(locator._codeMirrorTextArea)
             .first()
             .focus()
             .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
-            .type(JSCode);
-        cy.get(this._outputConsole).contains(JSCode);
-        agHelper.Sleep();
-        cy.get(this._runButton)
+
+        cy.get(locator._codeMirrorTextArea)
             .first()
-            .click();
+            .then((el: any) => {
+                const input = cy.get(el);
+                if (paste) {
+                    //input.invoke("val", value);
+                    agHelper.Paste(el, JSCode)
+                } else {
+                    input.type(JSCode, {
+                        parseSpecialCharSequences: false,
+                    });
+                }
+            });
+
+        //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
+        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 2000)
+        Cypress._.times(3, () => {
+            cy.xpath(this._runButton)
+                .first()
+                .click()
+                .wait(1000)
+        })//clicking 3 times each with interval of 1 second!
+        cy.get(locator._empty).should('not.exist')
+        cy.get(locator._toastMsg).should("have.length", 0)
     }
 
-    public EnterJSContext(endp: string, value: string, paste = true) {
+    public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
+        if (toToggleOnJS) {
+            cy.get(locator._jsToggle(endp))
+                .first()
+                .click({ force: true });
+        }
         cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
             .first()
             .focus()
@@ -42,7 +66,7 @@ export class JSEditor {
         cy.focused().then(($cm: any) => {
             if ($cm.contents != "") {
                 cy.log("The field is not empty");
-                cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+                cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
                     .first()
                     .click({ force: true })
                     .focused()
@@ -50,14 +74,14 @@ export class JSEditor {
                         force: true,
                     });
             }
-            // eslint-disable-next-line cypress/no-unnecessary-waiting
             agHelper.Sleep()
             cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
                 .first()
                 .then((el: any) => {
                     const input = cy.get(el);
                     if (paste) {
-                        input.invoke("val", value);
+                        //input.invoke("val", value);
+                        agHelper.Paste(el, value)
                     } else {
                         input.type(value, {
                             force: true,
@@ -66,7 +90,8 @@ export class JSEditor {
                     }
                 });
         });
-        agHelper.Sleep(2500);//Allowing time for Evaluate value to capture value
+        agHelper.WaitAutoSave()
+        //agHelper.Sleep(2500);//Allowing time for Evaluate value to capture value
     }
 
     public RenameJSObjFromForm(renameVal: string) {

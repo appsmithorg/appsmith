@@ -140,7 +140,7 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getRoles").should(
+  cy.wait("@getMembers").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
