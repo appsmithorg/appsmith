@@ -1,7 +1,7 @@
 package com.appsmith.external.services;
 
-public interface EncryptionService {
-    String encryptString(String plaintext);
+import com.appsmith.external.services.ce.EncryptionServiceCE;
 
-    String decryptString(String encryptedText);
+public interface EncryptionService extends EncryptionServiceCE {
+
 }

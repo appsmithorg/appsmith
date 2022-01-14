@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { createMessage, READ_DOCUMENTATION } from "constants/messages";
 import { useSelector } from "store";
-import { getGitError } from "selectors/gitSyncSelectors";
+import {
+  getConnectingErrorDocUrl,
+  getGitConnectError,
+} from "selectors/gitSyncSelectors";
 
 const ErrorWrapper = styled.div`
   padding: 24px 0px;
@@ -32,8 +34,13 @@ const LintText = styled.a`
   cursor: pointer;
 `;
 
-export default function GitSyncError() {
-  const error = useSelector(getGitError);
+export default function GitSyncError({
+  onDisplay,
+}: {
+  onDisplay?: () => void;
+}) {
+  const error = useSelector(getGitConnectError);
+  const connectingErrorDocumentUrl = useSelector(getConnectingErrorDocUrl);
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
     : "";
@@ -44,9 +51,14 @@ export default function GitSyncError() {
       errorVisible = error.message.indexOf("git  push failed") < 0;
     }
   }
+  useEffect(() => {
+    if (errorVisible && onDisplay) {
+      onDisplay();
+    }
+  }, []);
   return errorVisible ? (
     <ErrorWrapper>
-      {titleMessage.length && (
+      {titleMessage.length > 0 && (
         <Text
           case={Case.UPPERCASE}
           color={Colors.ERROR_RED}
@@ -59,7 +71,7 @@ export default function GitSyncError() {
       <Text color={Colors.ERROR_RED} type={TextType.P2}>
         {error?.message}
       </Text>
-      <LintText href={DOCS_BASE_URL} target="_blank">
+      <LintText href={connectingErrorDocumentUrl} target="_blank">
         <Text
           case={Case.UPPERCASE}
           className="t--read-document"

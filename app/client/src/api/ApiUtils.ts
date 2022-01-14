@@ -9,7 +9,7 @@ import {
   API_STATUS_CODES,
   ERROR_CODES,
   SERVER_ERROR_CODES,
-} from "constants/ApiConstants";
+} from "@appsmith/constants/ApiConstants";
 import log from "loglevel";
 import { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";
@@ -122,7 +122,8 @@ export const apiFailureResponseInterceptor = (error: any) => {
       const errorData = error.response.data.responseMeta;
       if (
         errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-        errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND
+        (errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND ||
+          errorData.error.code === SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE)
       ) {
         return Promise.reject({
           code: ERROR_CODES.PAGE_NOT_FOUND,

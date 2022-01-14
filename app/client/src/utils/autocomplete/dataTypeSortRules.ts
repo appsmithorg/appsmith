@@ -46,9 +46,10 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "CHART_WIDGET.xAxisName",
     "CHART_WIDGET.yAxisName",
     "CONTAINER_WIDGET.backgroundColor",
+    "PROGRESSBAR_WIDGET.progress",
   ],
   OBJECT: ["ACTION.data"],
-  ARRAY: ["ACTION.data"],
+  ARRAY: ["ACTION.data", "TABLE_WIDGET.selectedRowIndices"],
   BOOLEAN: [
     "CHECKBOX_WIDGET.isChecked",
     "SWITCH_WIDGET.isSwitchedOn",
@@ -84,6 +85,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "FORM_BUTTON_WIDGET.isDisabled",
     "FILE_PICKER_WIDGET.isRequired",
     "MODAL_WIDGET.isOpen",
+    "PROGRESSBAR_WIDGET.isVisible",
   ],
   FUNCTION: [
     "ACTION.run()",

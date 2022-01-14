@@ -38,7 +38,6 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   generateSSHKeyPairSuccess,
-  generateSSHKeyPairError,
   getSSHKeyPairSuccess,
   getSSHKeyPairError,
   GenerateSSHKeyPairReduxAction,
@@ -47,7 +46,6 @@ import {
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  APPLICATION_NAME_UPDATE,
   createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
@@ -76,6 +74,7 @@ import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
+import { handleRepoLimitReachedError } from "./GitSyncSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -296,12 +295,6 @@ export function* updateApplicationSaga(
       yield put({
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
         payload: action.payload,
-      });
-    }
-    if (isValidResponse && request && request.name) {
-      Toaster.show({
-        text: createMessage(APPLICATION_NAME_UPDATE),
-        variant: Variant.success,
       });
     }
     if (isValidResponse && request.currentApp) {
@@ -643,24 +636,26 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
 }
 
 export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
+  let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.generateSSHKeyPair,
-      applicationId,
+    response = yield call(ApplicationApi.generateSSHKeyPair, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      true,
+      response?.responseMeta?.status === 500,
     );
-    const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response.data));
+      yield put(generateSSHKeyPairSuccess(response?.data));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
+        action.onSuccessCallback(response as ApiResponse);
       }
     }
   } catch (error) {
-    yield put(generateSSHKeyPairError(error));
     if (action.onErrorCallback) {
       action.onErrorCallback(error);
     }
+    yield call(handleRepoLimitReachedError, response);
   }
 }
 

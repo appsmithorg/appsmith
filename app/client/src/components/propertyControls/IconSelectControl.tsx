@@ -7,6 +7,7 @@ import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -28,6 +29,11 @@ const StyledButton = styled(Button)`
   background-color: #ffffff !important;
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
+  }
+
+  &:hover,
+  &:focus {
+    border: 1.2px solid var(--appsmith-input-focus-border-color);
   }
 `;
 
@@ -139,7 +145,9 @@ class IconSelectControl extends BaseControl<
         >
           <StyledButton
             alignText={Alignment.LEFT}
-            className={Classes.TEXT_OVERFLOW_ELLIPSIS}
+            className={
+              Classes.TEXT_OVERFLOW_ELLIPSIS + " " + replayHighlightClass
+            }
             elementRef={this.iconSelectTargetRef}
             fill
             icon={iconName || defaultIconName}

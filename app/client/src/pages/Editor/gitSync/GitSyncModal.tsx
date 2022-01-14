@@ -19,6 +19,7 @@ import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   height: 600px;
@@ -55,6 +56,9 @@ const ComponentsByTab = {
 };
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
+const TabKeys: string[] = Object.values(GitSyncModalTab)
+  .filter((value) => typeof value === "string")
+  .map((value) => value as string);
 
 function GitSyncModal() {
   const theme = useTheme();
@@ -123,7 +127,18 @@ function GitSyncModal() {
           <MenuContainer>
             <Menu
               activeTabIndex={activeTabIndex}
-              onSelect={setActiveTabIndex}
+              onSelect={(tabIndex: number) => {
+                if (tabIndex === GitSyncModalTab.DEPLOY) {
+                  AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
+                  });
+                } else if (tabIndex === GitSyncModalTab.MERGE) {
+                  AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
+                  });
+                }
+                setActiveTabIndex(tabIndex);
+              }}
               options={menuOptions}
             />
           </MenuContainer>

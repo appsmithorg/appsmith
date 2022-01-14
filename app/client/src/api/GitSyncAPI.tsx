@@ -10,11 +10,6 @@ export type CommitPayload = {
   branch: string;
 };
 
-export type PushToGitPayload = {
-  applicationId: string;
-  branch: string;
-};
-
 export type MergeBranchPayload = {
   applicationId: string;
   sourceBranch: string;
@@ -29,7 +24,7 @@ export type MergeStatusPayload = {
 
 export type ConnectToGitPayload = {
   remoteUrl: string;
-  gitProfile: {
+  gitProfile?: {
     authorName: string;
     authorEmail: string;
   };
@@ -60,23 +55,15 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static push({
-    applicationId,
-    branch,
-  }: PushToGitPayload): AxiosPromise<ApiResponse> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branch}`,
-    );
-  }
-
   static merge({
     applicationId,
     destinationBranch,
     sourceBranch,
   }: MergeBranchPayload): AxiosPromise<ApiResponse> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/merge/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
-    );
+    return Api.post(`${GitSyncAPI.baseURL}/merge/${applicationId}`, {
+      sourceBranch,
+      destinationBranch,
+    });
   }
 
   static getMergeStatus({
@@ -84,9 +71,10 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeStatusPayload) {
-    return Api.get(
-      `${GitSyncAPI.baseURL}/merge/status/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
-    );
+    return Api.post(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
+      sourceBranch,
+      destinationBranch,
+    });
   }
 
   static pull({ applicationId }: { applicationId: string }) {
@@ -105,12 +93,19 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
-  static fetchBranches(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
+  static fetchBranches(applicationId: string, pruneBranches?: boolean) {
+    const queryParams = {} as { pruneBranches?: boolean };
+    if (pruneBranches) queryParams.pruneBranches = true;
+    return Api.get(
+      `${GitSyncAPI.baseURL}/branch/${applicationId}`,
+      queryParams,
+    );
   }
 
-  static checkoutBranch(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`);
+  static checkoutBranch(applicationId: string, branch: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
+      branchName: branch,
+    });
   }
 
   static createNewBranch(applicationId: string, branch: string) {
@@ -131,6 +126,10 @@ class GitSyncAPI extends Api {
     return Api.get(
       `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
+  }
+
+  static disconnectGit({ applicationId }: { applicationId: string }) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 }
 

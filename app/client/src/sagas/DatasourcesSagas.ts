@@ -26,6 +26,7 @@ import {
   getDatasourceDraft,
   getPluginForm,
   getGenerateCRUDEnabledPluginMap,
+  getPluginPackageFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
   changeDatasource,
@@ -49,34 +50,39 @@ import {
   INTEGRATION_TABS,
 } from "constants/routes";
 import history from "utils/history";
-import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
+import {
+  API_EDITOR_FORM_NAME,
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+} from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { AppState } from "reducers";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
-import SaasApi from "api/SaasApi";
-import { authorizeSaasWithAppsmithToken } from "api/CloudServicesApi";
+import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
 import {
   createMessage,
   DATASOURCE_CREATE,
   DATASOURCE_DELETE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
-  SAAS_APPSMITH_TOKEN_NOT_FOUND,
-  SAAS_AUTHORIZATION_APPSMITH_ERROR,
-  SAAS_AUTHORIZATION_FAILED,
-  SAAS_AUTHORIZATION_SUCCESSFUL,
+  OAUTH_APPSMITH_TOKEN_NOT_FOUND,
+  OAUTH_AUTHORIZATION_APPSMITH_ERROR,
+  OAUTH_AUTHORIZATION_FAILED,
+  OAUTH_AUTHORIZATION_SUCCESSFUL,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
-import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
+import {
+  APPSMITH_TOKEN_STORAGE_KEY,
+  SAAS_EDITOR_DATASOURCE_ID_URL,
+} from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -85,8 +91,10 @@ import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
-
 import { trimQueryString } from "utils/helpers";
+import { updateReplayEntity } from "actions/pageActions";
+import OAuthApi from "api/OAuthApi";
+import { AppState } from "reducers";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -215,11 +223,26 @@ export function* deleteDatasourceSaga(
 
     if (isValidResponse) {
       const pageId = yield select(getCurrentPageId);
-
+      const pluginPackageName = yield select((state: AppState) =>
+        getPluginPackageFromDatasourceId(state, id),
+      );
       const datasourcePathWithoutQuery = trimQueryString(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id),
       );
-      if (window.location.pathname === datasourcePathWithoutQuery) {
+
+      const saasPathWithoutQuery = trimQueryString(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          applicationId,
+          pageId,
+          pluginPackageName,
+          id,
+        ),
+      );
+
+      if (
+        window.location.pathname === datasourcePathWithoutQuery ||
+        window.location.pathname === saasPathWithoutQuery
+      ) {
         history.push(
           INTEGRATION_EDITOR_URL(
             applicationId,
@@ -366,23 +389,26 @@ function* redirectAuthorizationCodeSaga(
 
   if (pluginType === PluginType.API) {
     window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
-  } else if (pluginType === PluginType.SAAS) {
+  } else {
     try {
       // Get an "appsmith token" from the server
-      const response: ApiResponse = yield SaasApi.getAppsmithToken(
+      const response: ApiResponse = yield OAuthApi.getAppsmithToken(
         datasourceId,
         pageId,
       );
+
       if (validateResponse(response)) {
         const appsmithToken = response.data;
         // Save the token for later use once we come back from the auth flow
         localStorage.setItem(APPSMITH_TOKEN_STORAGE_KEY, appsmithToken);
         // Redirect to the cloud services to authorise
-        window.location.assign(authorizeSaasWithAppsmithToken(appsmithToken));
+        window.location.assign(
+          authorizeDatasourceWithAppsmithToken(appsmithToken),
+        );
       }
     } catch (e) {
       Toaster.show({
-        text: SAAS_AUTHORIZATION_FAILED,
+        text: OAUTH_AUTHORIZATION_FAILED,
         variant: Variant.danger,
       });
       log.error(e);
@@ -398,16 +424,16 @@ function* getOAuthAccessTokenSaga(
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   if (!appsmithToken) {
     // Error out because auth token should been here
-    log.error(SAAS_APPSMITH_TOKEN_NOT_FOUND);
+    log.error(OAUTH_APPSMITH_TOKEN_NOT_FOUND);
     Toaster.show({
-      text: SAAS_AUTHORIZATION_APPSMITH_ERROR,
+      text: OAUTH_AUTHORIZATION_APPSMITH_ERROR,
       variant: Variant.danger,
     });
     return;
   }
   try {
     // Get access token for datasource
-    const response = yield SaasApi.getAccessToken(datasourceId, appsmithToken);
+    const response = yield OAuthApi.getAccessToken(datasourceId, appsmithToken);
     if (validateResponse(response)) {
       // Update the datasource object
       yield put({
@@ -415,7 +441,7 @@ function* getOAuthAccessTokenSaga(
         payload: response.data,
       });
       Toaster.show({
-        text: SAAS_AUTHORIZATION_SUCCESSFUL,
+        text: OAUTH_AUTHORIZATION_SUCCESSFUL,
         variant: Variant.success,
       });
       // Remove the token because it is supposed to be short lived
@@ -423,7 +449,7 @@ function* getOAuthAccessTokenSaga(
     }
   } catch (e) {
     Toaster.show({
-      text: SAAS_AUTHORIZATION_FAILED,
+      text: OAUTH_AUTHORIZATION_FAILED,
       variant: Variant.danger,
     });
     log.error(e);
@@ -639,19 +665,22 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
       payload: { id: values.id, draft: values },
     });
+    yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
   }
 }
 
-function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const { id } = actionPayload.payload;
-  const datasource = actionPayload.payload;
+function* changeDatasourceSaga(
+  actionPayload: ReduxAction<{ datasource: Datasource }>,
+) {
+  const { datasource } = actionPayload.payload;
+  const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
   let data;
 
   if (_.isEmpty(draft)) {
-    data = actionPayload.payload;
+    data = datasource;
   } else {
     data = draft;
   }
@@ -671,17 +700,16 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         getQueryParams(),
       ),
     );
+  yield put(
+    updateReplayEntity(data.id, _.omit(data, ["name"]), ENTITY_TYPE.DATASOURCE),
+  );
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
   const { datasourceId } = action.payload;
-  const datasource = yield select((state: AppState) =>
-    state.entities.datasources.list.find(
-      (datasource: Datasource) => datasource.id === datasourceId,
-    ),
-  );
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
   if (datasource) {
-    yield put(changeDatasource(datasource));
+    yield put(changeDatasource({ datasource }));
   }
 }
 
@@ -689,6 +717,14 @@ function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { field, form } = actionPayload.meta;
+  if (form === DATASOURCE_REST_API_FORM) {
+    const { values } = yield select(getFormData, DATASOURCE_REST_API_FORM);
+    if (values && values.datasourceId) {
+      yield put(
+        updateReplayEntity(values.datasourceId, values, ENTITY_TYPE.DATASOURCE),
+      );
+    }
+  }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga)]);
@@ -749,7 +785,7 @@ function* storeAsDatasourceSaga() {
     },
   });
 
-  yield put(changeDatasource(createdDatasource));
+  yield put(changeDatasource({ datasource: createdDatasource }));
 }
 
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
@@ -767,6 +803,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const isGeneratePageInitiator = getIsGeneratePageInitiator(
     queryParams.isGeneratePageMode,
   );
+
   if (
     isGeneratePageInitiator &&
     updatedDatasource.pluginId &&
@@ -977,10 +1014,7 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
       redirectAuthorizationCodeSaga,
     ),
-    takeEvery(
-      ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
-      getOAuthAccessTokenSaga,
-    ),
+    takeEvery(ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN, getOAuthAccessTokenSaga),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
       fetchDatasourceStructureSaga,
@@ -993,7 +1027,9 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
       executeDatasourceQuerySaga,
     ),
-    // Intercepting the redux-form change actionType
+    // Intercepting the redux-form change actionType to update drafts and track change history
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
   ]);
 }

@@ -1,6 +1,8 @@
 // import React, { JSXElementConstructor } from "react";
 // import { IconProps, IconWrapper } from "constants/IconConstants";
 
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -13,6 +15,8 @@ import {
   ButtonStyleTypes,
   ButtonVariant,
   ButtonVariantTypes,
+  ButtonPlacement,
+  ButtonPlacementTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
 
@@ -142,6 +146,25 @@ export const getCustomBorderColor = (
     : "none";
 };
 
+export const getCustomJustifyContent = (placement?: ButtonPlacement) => {
+  switch (placement) {
+    case ButtonPlacementTypes.START:
+      return "start";
+    case ButtonPlacementTypes.CENTER:
+      return "center";
+    case ButtonPlacementTypes.BETWEEN:
+      return "space-between";
+    default:
+      return "";
+  }
+};
+
+export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
+  iconName
+    ? isRightAlign
+      ? Alignment.LEFT
+      : Alignment.RIGHT
+    : Alignment.CENTER;
 export const escapeSpecialChars = (stringifiedJSONObject: string) => {
   return stringifiedJSONObject
     .replace(/\\n/g, "\\\\n") // new line char
