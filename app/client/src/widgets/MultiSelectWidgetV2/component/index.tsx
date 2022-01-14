@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useRef,
   ChangeEvent,
+  useMemo,
 } from "react";
 import Select, { SelectProps } from "rc-select";
 import {
@@ -24,7 +25,7 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
-import { Classes, InputGroup } from "@blueprintjs/core";
+import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
@@ -88,6 +89,17 @@ function MultiSelectComponent({
   const [filteredOptions, setFilteredOptions] = useState(options);
   const _menu = useRef<HTMLElement | null>(null);
 
+  const clearButton = useMemo(
+    () => (
+      <Button
+        disabled={disabled}
+        icon="cross"
+        minimal
+        onClick={() => setFilter("")}
+      />
+    ),
+    [],
+  );
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
     if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
@@ -189,6 +201,7 @@ function MultiSelectComponent({
             onChange={onQueryChange}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Filter..."
+            rightElement={clearButton}
             small
             type="text"
             value={filter}
