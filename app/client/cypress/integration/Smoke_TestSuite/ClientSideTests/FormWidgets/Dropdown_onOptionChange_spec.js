@@ -44,6 +44,9 @@ describe("Dropdown Widget Functionality", function() {
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
+    cy.get(".t--entity-collapse-toggle")
+      .eq(1)
+      .click({ force: true });
     cy.SearchEntityandOpen("Dropdown1");
     // Adding the api in the onClickAction of the button widget.
     cy.addAPIFromLightningMenu("dropdownApi");
