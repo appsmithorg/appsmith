@@ -36,7 +36,7 @@ describe("Modal Widget Functionality", function() {
     cy.get(commonlocators.toastmsg).contains("test");
   });
 
-  it.only("should paste modal widgets with main container as parentId", () => {
+  it("should paste modal widgets with main container as parentId", () => {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
     cy.SearchEntityandOpen("Modal1");

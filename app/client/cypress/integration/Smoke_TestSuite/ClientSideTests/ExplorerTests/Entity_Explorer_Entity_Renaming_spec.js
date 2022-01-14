@@ -29,7 +29,7 @@ describe("Api Naming conflict on a page test", function() {
 });
 
 describe("Api Naming conflict on different pages test", function() {
-  it.only("it expects actions on different pages can have identical names", function() {
+  it("it expects actions on different pages can have identical names", function() {
     cy.log("Login Successful");
     // create a new API
     cy.CreateAPI(firstApiName);
