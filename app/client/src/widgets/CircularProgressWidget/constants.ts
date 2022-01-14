@@ -10,13 +10,3 @@ export const VIEWBOX_CENTER_X = 50;
 export const VIEWBOX_CENTER_Y = 50;
 export const STROKE_WIDTH = 8;
 export const MAX_VALUE = 100;
-
-export enum BarType {
-  INDETERMINATE = "indeterminate",
-  DETERMINATE = "determinate",
-}
-
-export enum StrokeLineCapTypes {
-  round = "round",
-  butt = "butt",
-}
