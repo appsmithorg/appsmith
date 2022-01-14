@@ -85,7 +85,7 @@ function renderDropdown(props: {
       isLoading={props.isLoading}
       isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
-      optionWidth="20vw"
+      optionWidth={props.width}
       options={props.options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
