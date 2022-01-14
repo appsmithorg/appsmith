@@ -34,7 +34,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
   });
 
   it("2. Validate the Api data is updated on List widget", function () {
-    agHelper.SelectEntityByName("Widgets")//to expand widgets
+    agHelper.SelectEntityByName("WIDGETS")//to expand widgets
     agHelper.SelectEntityByName("List1");
     jsEditor.EnterJSContext("items", "{{JSObject1.myFun1()}}")
     cy.get(locator._textWidget).should("have.length", 8);
@@ -56,7 +56,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
 
   it("3. Validate the List widget ", function () {
     cy.get(locator._backToEditor).click({ force: true });
-    agHelper.SelectEntityByName("Widgets")//to expand widgets
+    agHelper.SelectEntityByName("WIDGETS")//to expand widgets
     agHelper.SelectEntityByName("List1");
     jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
     cy.get(locator._textWidget).should("have.length", 6);
@@ -81,7 +81,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
       agHelper.AddDsl(val)
     });
     jsEditor.CreateJSObject('return "Success";', false);
-    agHelper.SelectEntityByName("Widgets")//to expand widgets
+    agHelper.SelectEntityByName("WIDGETS")//to expand widgets
     agHelper.expandCollapseEntity("Form1")
     agHelper.SelectEntityByName("Input2")
     jsEditor.EnterJSContext("defaulttext", "{{JSObject2.myFun1()}}")
