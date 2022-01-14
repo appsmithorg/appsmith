@@ -9,6 +9,41 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 
+const Input = styled.input`
+  height: 0;
+  width: 0;
+  opacity: 0;
+  z-index: -1;
+`;
+
+const Indicator = styled.div`
+  width: 1.2em;
+  height: 1.2em;
+  background: #e6e6e6;
+  position: absolute;
+  top: 0em;
+  /* left: -1.6em; */
+  border: 1px solid #757575;
+  border-radius: 0.2em;
+
+  ${Input}:not(:disabled):checked & {
+    background: #d1d1d1;
+  }
+
+  &::disabled {
+    cursor: not-allowed;
+  }
+`;
+
+export default function MenuItemCheckBox({ checked }: { checked: boolean }) {
+  return (
+    <div className={`${Classes.CONTROL} ${Classes.CHECKBOX}`}>
+      <Input checked={checked} type="checkbox" />
+      <Indicator className={Classes.CONTROL_INDICATOR} />
+    </div>
+  );
+}
+
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
 		opacity: 0;
@@ -46,7 +81,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `}
 .rc-select-dropdown-hidden {
-	display: none;
+	display: none !important;
 }
 .rc-select-item-group {
 	color: #999;

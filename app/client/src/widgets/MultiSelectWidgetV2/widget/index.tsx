@@ -3,11 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "../component";
 import {
@@ -15,33 +11,7 @@ import {
   LabelValueType,
 } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  let values: string[] = [];
-  if (typeof value === "string") {
-    try {
-      values = JSON.parse(value);
-      if (!Array.isArray(values)) {
-        throw new Error();
-      }
-    } catch {
-      values = value.length ? value.split(",") : [];
-      if (values.length > 0) {
-        values = values.map((_v: string) => _v.trim());
-      }
-    }
-  }
-  if (Array.isArray(value)) {
-    values = Array.from(new Set(value));
-  }
-
-  return {
-    isValid: true,
-    parsed: values,
-  };
-}
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -84,6 +54,7 @@ class MultiSelectWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
+                          required: true,
                         },
                       },
                     ],
@@ -103,16 +74,37 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.ARRAY,
               params: {
-                fn: defaultOptionValueValidation,
-                expected: {
-                  type: "Array of values",
-                  example: `['option1', 'option2']`,
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
+                unique: ["value"],
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                    ],
+                  },
                 },
               },
             },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Sets a Label Text",

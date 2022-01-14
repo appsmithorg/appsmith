@@ -5,7 +5,7 @@ import {
   DefaultValueType,
   LabelValueType,
 } from "rc-select/lib/interface/generator";
-import {
+import MenuItemCheckBox, {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
@@ -24,7 +24,7 @@ import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
-  return <StyledCheckbox checked={props.isSelected} />;
+  return <MenuItemCheckBox checked={props.isSelected} />;
 };
 
 export interface MultiSelectProps
@@ -160,7 +160,7 @@ function MultiSelectComponent({
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
-  console.log("dropDownWidth", dropDownWidth);
+  console.log("dropDownWidth", value);
   return (
     <MultiSelectContainer
       compactMode={compactMode}

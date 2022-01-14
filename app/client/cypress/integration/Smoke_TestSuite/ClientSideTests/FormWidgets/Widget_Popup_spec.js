@@ -9,11 +9,11 @@ describe("Dropdown Widget Functionality", function() {
 
   it("Verify dropdown width of Select widgets and menu button", function() {
     // Select
-    cy.get(formWidgetsPage.dropdownWidget)
+    cy.get(formwidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .invoke("outerWidth")
       .should("eq", 147.1875);
-    cy.get(formWidgetsPage.dropdownWidget)
+    cy.get(formwidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({
         force: true,

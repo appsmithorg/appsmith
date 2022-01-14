@@ -24,7 +24,7 @@ describe("Form Widget Functionality", function() {
   it("Add Multiple widgets in Form", function() {
     cy.get(explorer.addWidget).click();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    cy.dragAndDropToWidget("multiselectwidget", "formwidget", {
+    cy.dragAndDropToWidget("multiselectwidgetv2", "formwidget", {
       x: 100,
       y: 100,
     });

@@ -11,7 +11,7 @@ describe("MultiSelect Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Selects value with invalid default value", () => {
-    cy.openPropertyPane("multiselectwidget");
+    cy.openPropertyPane("multiselectwidgetv2");
     cy.testJsontext("options", JSON.stringify(data.input));
     cy.testJsontext("defaultvalue", "{{ undefined }}");
     cy.get(formWidgetsPage.multiselectWidget)
@@ -49,7 +49,7 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("multiselectwidget");
+    cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.multiselectwidget + " " + ".rc-select-selector").should(
@@ -64,7 +64,7 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("not.have.text", "Select all");
     // enable select all option from property pane
-    cy.openPropertyPane("multiselectwidget");
+    cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.allowSelectAllCheckbox);
 
     // press select all option
