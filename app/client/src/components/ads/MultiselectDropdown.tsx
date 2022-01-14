@@ -186,7 +186,7 @@ function MultiSelectDropdown(props: DropdownProps) {
     }
   }, []);
 
-  const [currentItemIndex, setCurrentItemIndex] = useState<number>(-1);
+  const [currentItemIndex, setCurrentItemIndex] = useState<number>(0);
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const optionClickHandler = useCallback(
@@ -245,12 +245,14 @@ function MultiSelectDropdown(props: DropdownProps) {
     (e: React.KeyboardEvent) => {
       switch (e.key) {
         case "Escape":
+        case "Esc":
           if (isOpen) {
             setIsOpen(false);
             e.nativeEvent.stopImmediatePropagation();
           }
           break;
         case " ":
+        case "Spacebar":
         case "Enter":
           if (isOpen) {
             if (props.options[currentItemIndex]?.value) {
@@ -262,6 +264,7 @@ function MultiSelectDropdown(props: DropdownProps) {
           }
           break;
         case "ArrowUp":
+        case "Up":
           e.preventDefault();
           if (isOpen) {
             setCurrentItemIndex((prevIndex) => {
@@ -273,6 +276,7 @@ function MultiSelectDropdown(props: DropdownProps) {
           }
           break;
         case "ArrowDown":
+        case "Down":
           e.preventDefault();
           if (isOpen) {
             setCurrentItemIndex((prevIndex) => {
