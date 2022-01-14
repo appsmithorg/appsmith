@@ -12,6 +12,20 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 
+import _ from "lodash";
+/**
+ * This function sorts the object's value which is array of string.
+ *
+ * @param {Record<string, Array<string>>} data
+ * @return {*}
+ */
+const sortObject = (data: Record<string, Array<string>>) => {
+  Object.entries(data).map(([key, value]) => {
+    data[key] = value.sort();
+  });
+  return data;
+};
+
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
     defaultProperties: {},
@@ -360,55 +374,41 @@ describe("DataTreeEvaluator", () => {
 
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
-    expect(dependencyMap).toStrictEqual({
+    expect(sortObject(dependencyMap)).toStrictEqual({
       Dropdown1: [
-        "Dropdown1.selectedOptionValue",
-        "Dropdown1.meta",
-        "Dropdown1.selectedOptionValueArr",
+        "Dropdown1.defaultOptionValue",
         "Dropdown1.isValid",
-        "Dropdown1.selectedOption",
-        "Dropdown1.selectedOptionArr",
         "Dropdown1.selectedIndex",
         "Dropdown1.selectedIndexArr",
-        "Dropdown1.value",
+        "Dropdown1.selectedOption",
+        "Dropdown1.selectedOptionArr",
+        "Dropdown1.selectedOptionValueArr",
         "Dropdown1.selectedOptionValues",
+        "Dropdown1.value",
       ],
       "Dropdown1.isValid": [],
-      "Dropdown1.meta": [
-        "Dropdown1.meta.selectedOptionValue",
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
       "Dropdown1.selectedIndex": [],
       "Dropdown1.selectedIndexArr": [],
       "Dropdown1.selectedOption": [],
       "Dropdown1.selectedOptionArr": [],
-      "Dropdown1.selectedOptionValue": ["Dropdown1.meta.selectedOptionValue"],
-      "Dropdown1.selectedOptionValueArr": [
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
+      "Dropdown1.selectedOptionValueArr": ["Dropdown1.defaultOptionValue"],
       "Dropdown1.selectedOptionValues": [],
       "Dropdown1.value": [],
       Table1: [
+        "Table1.defaultSearchText",
+        "Table1.defaultSelectedRow",
         "Table1.searchText",
-        "Table1.meta",
-        "Table1.selectedRowIndex",
-        "Table1.selectedRowIndices",
-        "Table1.tableData",
         "Table1.selectedRow",
+        "Table1.selectedRowIndices",
         "Table1.selectedRows",
+        "Table1.tableData",
       ],
-      "Table1.meta": [
-        "Table1.meta.searchText",
-        "Table1.meta.selectedRowIndex",
-        "Table1.meta.selectedRowIndices",
-      ],
-      "Table1.searchText": ["Table1.meta.searchText"],
+      "Table1.searchText": ["Table1.defaultSearchText"],
       "Table1.selectedRow": [],
-      "Table1.selectedRowIndex": ["Table1.meta.selectedRowIndex"],
-      "Table1.selectedRowIndices": ["Table1.meta.selectedRowIndices"],
+      "Table1.selectedRowIndices": ["Table1.defaultSelectedRow"],
       "Table1.selectedRows": [],
       "Table1.tableData": ["Text1.text"],
-      Text1: ["Text1.value", "Text1.text"],
+      Text1: ["Text1.text", "Text1.value"],
       "Text1.value": ["Text1.text"],
       Text2: ["Text2.text", "Text2.value"],
       "Text2.text": ["Text1.text"],
@@ -449,55 +449,42 @@ describe("DataTreeEvaluator", () => {
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
-    expect(updatedDependencyMap).toStrictEqual({
+
+    expect(sortObject(updatedDependencyMap)).toStrictEqual({
       Dropdown1: [
-        "Dropdown1.selectedOptionValue",
-        "Dropdown1.meta",
-        "Dropdown1.selectedOptionValueArr",
+        "Dropdown1.defaultOptionValue",
         "Dropdown1.isValid",
-        "Dropdown1.selectedOption",
-        "Dropdown1.selectedOptionArr",
         "Dropdown1.selectedIndex",
         "Dropdown1.selectedIndexArr",
-        "Dropdown1.value",
+        "Dropdown1.selectedOption",
+        "Dropdown1.selectedOptionArr",
+        "Dropdown1.selectedOptionValueArr",
         "Dropdown1.selectedOptionValues",
+        "Dropdown1.value",
       ],
       "Dropdown1.isValid": [],
-      "Dropdown1.meta": [
-        "Dropdown1.meta.selectedOptionValue",
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
       "Dropdown1.selectedIndex": [],
       "Dropdown1.selectedIndexArr": [],
       "Dropdown1.selectedOption": [],
       "Dropdown1.selectedOptionArr": [],
-      "Dropdown1.selectedOptionValue": ["Dropdown1.meta.selectedOptionValue"],
-      "Dropdown1.selectedOptionValueArr": [
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
+      "Dropdown1.selectedOptionValueArr": ["Dropdown1.defaultOptionValue"],
       "Dropdown1.selectedOptionValues": [],
       "Dropdown1.value": [],
       Table1: [
+        "Table1.defaultSearchText",
+        "Table1.defaultSelectedRow",
         "Table1.searchText",
-        "Table1.meta",
-        "Table1.selectedRowIndex",
-        "Table1.selectedRowIndices",
-        "Table1.tableData",
         "Table1.selectedRow",
+        "Table1.selectedRowIndices",
         "Table1.selectedRows",
+        "Table1.tableData",
       ],
-      "Table1.meta": [
-        "Table1.meta.searchText",
-        "Table1.meta.selectedRowIndex",
-        "Table1.meta.selectedRowIndices",
-      ],
-      "Table1.searchText": ["Table1.meta.searchText"],
+      "Table1.searchText": ["Table1.defaultSearchText"],
       "Table1.selectedRow": [],
-      "Table1.selectedRowIndex": ["Table1.meta.selectedRowIndex"],
-      "Table1.selectedRowIndices": ["Table1.meta.selectedRowIndices"],
+      "Table1.selectedRowIndices": ["Table1.defaultSelectedRow"],
       "Table1.selectedRows": [],
       "Table1.tableData": ["Text1.text"],
-      Text1: ["Text1.value", "Text1.text"],
+      Text1: ["Text1.text", "Text1.value"],
       "Text1.value": ["Text1.text"],
       Text2: ["Text2.text", "Text2.value"],
       "Text2.text": ["Text1.text"],
@@ -587,56 +574,43 @@ describe("DataTreeEvaluator", () => {
         raw: "Label",
       },
     ]);
-    expect(updatedDependencyMap).toStrictEqual({
+
+    expect(sortObject(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       Dropdown1: [
-        "Dropdown1.selectedOptionValue",
-        "Dropdown1.meta",
-        "Dropdown1.selectedOptionValueArr",
+        "Dropdown1.defaultOptionValue",
         "Dropdown1.isValid",
-        "Dropdown1.selectedOption",
-        "Dropdown1.selectedOptionArr",
         "Dropdown1.selectedIndex",
         "Dropdown1.selectedIndexArr",
-        "Dropdown1.value",
+        "Dropdown1.selectedOption",
+        "Dropdown1.selectedOptionArr",
+        "Dropdown1.selectedOptionValueArr",
         "Dropdown1.selectedOptionValues",
+        "Dropdown1.value",
       ],
       "Dropdown1.isValid": [],
-      "Dropdown1.meta": [
-        "Dropdown1.meta.selectedOptionValue",
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
       "Dropdown1.selectedIndex": [],
       "Dropdown1.selectedIndexArr": [],
       "Dropdown1.selectedOption": [],
       "Dropdown1.selectedOptionArr": [],
-      "Dropdown1.selectedOptionValue": ["Dropdown1.meta.selectedOptionValue"],
-      "Dropdown1.selectedOptionValueArr": [
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
+      "Dropdown1.selectedOptionValueArr": ["Dropdown1.defaultOptionValue"],
       "Dropdown1.selectedOptionValues": [],
       "Dropdown1.value": [],
       Table1: [
+        "Table1.defaultSearchText",
+        "Table1.defaultSelectedRow",
         "Table1.searchText",
-        "Table1.meta",
-        "Table1.selectedRowIndex",
-        "Table1.selectedRowIndices",
-        "Table1.tableData",
         "Table1.selectedRow",
+        "Table1.selectedRowIndices",
         "Table1.selectedRows",
+        "Table1.tableData",
       ],
-      "Table1.meta": [
-        "Table1.meta.searchText",
-        "Table1.meta.selectedRowIndex",
-        "Table1.meta.selectedRowIndices",
-      ],
-      "Table1.searchText": ["Table1.meta.searchText"],
+      "Table1.searchText": ["Table1.defaultSearchText"],
       "Table1.selectedRow": [],
-      "Table1.selectedRowIndex": ["Table1.meta.selectedRowIndex"],
-      "Table1.selectedRowIndices": ["Table1.meta.selectedRowIndices"],
+      "Table1.selectedRowIndices": ["Table1.defaultSelectedRow"],
       "Table1.selectedRows": [],
       "Table1.tableData": ["Api1.data", "Text1.text"],
-      Text1: ["Text1.value", "Text1.text"],
+      Text1: ["Text1.text", "Text1.value"],
       "Text1.value": ["Text1.text"],
       Text2: ["Text2.text", "Text2.value"],
       "Text2.text": ["Text1.text"],
@@ -688,56 +662,42 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
-    expect(updatedDependencyMap).toStrictEqual({
+    expect(sortObject(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       Dropdown1: [
-        "Dropdown1.selectedOptionValue",
-        "Dropdown1.meta",
-        "Dropdown1.selectedOptionValueArr",
+        "Dropdown1.defaultOptionValue",
         "Dropdown1.isValid",
-        "Dropdown1.selectedOption",
-        "Dropdown1.selectedOptionArr",
         "Dropdown1.selectedIndex",
         "Dropdown1.selectedIndexArr",
-        "Dropdown1.value",
+        "Dropdown1.selectedOption",
+        "Dropdown1.selectedOptionArr",
+        "Dropdown1.selectedOptionValueArr",
         "Dropdown1.selectedOptionValues",
+        "Dropdown1.value",
       ],
       "Dropdown1.isValid": [],
-      "Dropdown1.meta": [
-        "Dropdown1.meta.selectedOptionValue",
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
       "Dropdown1.selectedIndex": [],
       "Dropdown1.selectedIndexArr": [],
       "Dropdown1.selectedOption": [],
       "Dropdown1.selectedOptionArr": [],
-      "Dropdown1.selectedOptionValue": ["Dropdown1.meta.selectedOptionValue"],
-      "Dropdown1.selectedOptionValueArr": [
-        "Dropdown1.meta.selectedOptionValueArr",
-      ],
+      "Dropdown1.selectedOptionValueArr": ["Dropdown1.defaultOptionValue"],
       "Dropdown1.selectedOptionValues": [],
       "Dropdown1.value": [],
       Table1: [
+        "Table1.defaultSearchText",
+        "Table1.defaultSelectedRow",
         "Table1.searchText",
-        "Table1.meta",
-        "Table1.selectedRowIndex",
-        "Table1.selectedRowIndices",
-        "Table1.tableData",
         "Table1.selectedRow",
+        "Table1.selectedRowIndices",
         "Table1.selectedRows",
+        "Table1.tableData",
       ],
-      "Table1.meta": [
-        "Table1.meta.searchText",
-        "Table1.meta.selectedRowIndex",
-        "Table1.meta.selectedRowIndices",
-      ],
-      "Table1.searchText": ["Table1.meta.searchText"],
+      "Table1.searchText": ["Table1.defaultSearchText"],
       "Table1.selectedRow": [],
-      "Table1.selectedRowIndex": ["Table1.meta.selectedRowIndex"],
-      "Table1.selectedRowIndices": ["Table1.meta.selectedRowIndices"],
+      "Table1.selectedRowIndices": ["Table1.defaultSelectedRow"],
       "Table1.selectedRows": [],
       "Table1.tableData": ["Api1.data", "Text1.text"],
-      Text1: ["Text1.value", "Text1.text"],
+      Text1: ["Text1.text", "Text1.value"],
       "Text1.value": ["Text1.text"],
       Text2: ["Text2.text", "Text2.value"],
       "Text2.text": ["Text1.text"],
