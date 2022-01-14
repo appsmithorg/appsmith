@@ -517,7 +517,7 @@ public class ImportExportApplicationServiceTests {
 
                 NewPage newPage = pageList.get(0);
 
-                assertThat(applicationJson.getFileSystemVersion()).isNotNull();
+                assertThat(applicationJson.getFileFormatVersion()).isNotNull();
                 assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
                 assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
 

@@ -21,7 +21,7 @@ public class ApplicationJson {
 
     // This field will be useful when we migrate fields within JSON files (currently this will be useful for Git feature)
     @JsonIgnore
-    Integer fileSystemVersion = 1;
+    Integer fileFormatVersion = 1;
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
