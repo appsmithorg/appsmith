@@ -4,11 +4,11 @@ import pick from "lodash/pick";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { BarType, StrokeLineCapTypes } from "../constants";
 import CircularProgressComponent, {
   CircularProgressComponentProps,
-  StrokeLineCapTypes,
 } from "../component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 interface CircularProgressWidgetProps
   extends WidgetProps,
@@ -24,6 +24,25 @@ class CircularProgressWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Sets progress bar type",
+            propertyName: "barType",
+            label: "Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Indeterminate",
+                value: BarType.INDETERMINATE,
+              },
+              {
+                label: "Determinate",
+                value: BarType.DETERMINATE,
+              },
+            ],
+            defaultValue: BarType.INDETERMINATE,
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "progress",
             helpText: "Sets the progress value of the widget",
             label: "Progress",
@@ -32,6 +51,23 @@ class CircularProgressWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            helpText: "Sets a number of steps",
+            propertyName: "steps",
+            label: "Number of steps",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter number of steps",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 2, max: 12, default: 2, natural: true },
+            },
+            hidden: ({ barType }: CircularProgressWidgetProps) =>
+              barType !== BarType.DETERMINATE,
+            dependencies: ["barType"],
           },
           {
             propertyName: "strokeLineCap",
@@ -130,10 +166,12 @@ class CircularProgressWidget extends BaseWidget<
         ])}
       >
         <CircularProgressComponent
+          barType={this.props.barType}
           counterClockwise={this.props.counterClockwise}
           fillColor={this.props.fillColor}
           progress={this.props.progress}
           showResult={this.props.showResult}
+          steps={this.props.steps}
           strokeLineCap={this.props.strokeLineCap}
         />
       </WidgetStyleContainer>

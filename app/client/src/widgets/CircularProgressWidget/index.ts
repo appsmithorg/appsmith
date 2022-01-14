@@ -1,6 +1,7 @@
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
-import { StrokeLineCapTypes } from "./component";
+
+import { BarType, StrokeLineCapTypes } from "./constants";
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 
@@ -9,14 +10,16 @@ export const CONFIG = {
   name: "Circular Progress",
   iconSVG: IconSVG,
   defaults: {
+    barType: BarType.INDETERMINATE,
     counterClockWise: false,
     fillColor: Colors.GREEN,
     isVisible: true,
     progress: 65,
     showResult: true,
+    steps: 2,
     strokeLineCap: StrokeLineCapTypes.round,
 
-    rows: 4.25 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "CircularProgress",
     shouldScroll: false,
