@@ -150,8 +150,8 @@ export function CanvasSelectionArena({
 
   useCanvasDragToScroll(
     canvasRef,
-    isCurrentWidgetDrawing,
-    isDraggingForSelection,
+    isCurrentWidgetDrawing || isResizing,
+    isDraggingForSelection || isResizing,
     snapRows,
     canExtend,
   );
@@ -446,15 +446,11 @@ export function CanvasSelectionArena({
     snapRowSpace,
   ]);
 
+  // Resizing state still shows selection arena to aid with scroll behavior
+
   const shouldShow =
     appMode === APP_MODE.EDIT &&
-    !(
-      isDragging ||
-      isResizing ||
-      isCommentMode ||
-      isPreviewMode ||
-      dropDisabled
-    );
+    !(isDragging || isCommentMode || isPreviewMode || dropDisabled);
 
   return shouldShow ? (
     <StyledSelectionCanvas

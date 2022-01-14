@@ -1906,7 +1906,9 @@ public class ApplicationServiceTest {
                 .assertNext(applicationPagesDTO -> {
                     assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toList());
+                    List<String> slugNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getSlug()).collect(Collectors.toList());
                     assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
+                    assertThat(slugNames).containsExactly("page1", "page2", "page3", "page4");
                 })
                 .verifyComplete();
     }
