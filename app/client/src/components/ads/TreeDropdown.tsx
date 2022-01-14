@@ -345,12 +345,9 @@ function TreeDropdown(props: TreeDropdownProps) {
       [option.isChildrenOpen],
     );
 
-    const memoisedOptionClickHandler = useCallback(
-      handleOptionClick(option),
-      [],
-    );
+    const optionClickHandler = useCallback(handleOptionClick(option), []);
 
-    const memoisedMouseEnterHandler = useCallback(() => {
+    const mouseEnterHandler = useCallback(() => {
       if (!isKeyPressed.current) {
         if (option.selfIndex) selectedOptionIndex.current = option.selfIndex;
       }
@@ -364,8 +361,8 @@ function TreeDropdown(props: TreeDropdownProps) {
         icon={option.icon}
         intent={option.intent}
         key={option.value}
-        onClick={memoisedOptionClickHandler}
-        onMouseEnter={memoisedMouseEnterHandler}
+        onClick={optionClickHandler}
+        onMouseEnter={mouseEnterHandler}
         popoverProps={popoverProps}
         text={option.label}
       >
