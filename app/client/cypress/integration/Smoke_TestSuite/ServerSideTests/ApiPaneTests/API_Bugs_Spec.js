@@ -113,13 +113,12 @@ describe("Rest Bugs tests", function() {
   it("Bug 4775: No Cyclical dependency when Api returns an error", function() {
     cy.addDsl(dslTable);
     //Api 1
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("Currencies");
     cy.enterDatasource("https://api.coinbase.com/v2/currencies");
     cy.WaitAutoSave();
     cy.onlyQueryRun();
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.selectEntityByName("Widgets");
+    cy.selectEntityByName("WIDGETS");
     cy.selectEntityByName("Table1"); //expand
     cy.selectEntityByName("Table1"); //collapse
     cy.selectEntityByName("Currencies");
