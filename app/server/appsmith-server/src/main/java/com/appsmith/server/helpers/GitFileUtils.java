@@ -268,6 +268,7 @@ public class GitFileUtils {
         }
         if (publishedCollection != null) {
             publishedCollection.setDefaultResources(null);
+            publishedCollection.setDefaultToBranchedActionIdsMap(null);
         }
     }
 
