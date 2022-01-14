@@ -56,8 +56,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           chartData={this.props.chartData}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
-          className={this.props.isLoading ? "bp3-skeleton" : ""}
           customFusionChartConfig={this.props.customFusionChartConfig}
+          isLoading={this.props.isLoading}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           labelOrientation={this.props.labelOrientation}
