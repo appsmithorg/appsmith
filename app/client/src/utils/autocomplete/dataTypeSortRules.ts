@@ -47,6 +47,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "CHART_WIDGET.yAxisName",
     "CONTAINER_WIDGET.backgroundColor",
     "PROGRESSBAR_WIDGET.progress",
+    "CIRCULAR_PROGRESS_WIDGET.progress",
   ],
   OBJECT: ["ACTION.data"],
   ARRAY: ["ACTION.data", "TABLE_WIDGET.selectedRowIndices"],
@@ -86,6 +87,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "FILE_PICKER_WIDGET.isRequired",
     "MODAL_WIDGET.isOpen",
     "PROGRESSBAR_WIDGET.isVisible",
+    "CIRCULAR_PROGRESS_WIDGET.isVisible",
   ],
   FUNCTION: [
     "ACTION.run()",
