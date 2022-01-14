@@ -26,12 +26,14 @@ function useRegisterFieldValidity({
       currentIsValidRef.current = isValid;
 
       setTimeout(() => {
-        isValid
-          ? clearErrors(fieldName)
-          : setError(fieldName, {
-              type: fieldType,
-              message: "Invalid field",
-            });
+        try {
+          isValid
+            ? clearErrors(fieldName)
+            : setError(fieldName, {
+                type: fieldType,
+                message: "Invalid field",
+              });
+        } catch (e) {}
       }, 0);
 
       setFieldValidityState((prevState) => {

@@ -169,7 +169,7 @@ const PROPERTIES = {
     {
       propertyName: "minDate",
       label: "Min Date",
-      helpText: "Defines the min date for this widget",
+      helpText: "Defines the min date for the field",
       controlType: "DATE_PICKER",
       useValidationMessage: true,
       isJSConvertible: true,
@@ -184,7 +184,7 @@ const PROPERTIES = {
     {
       propertyName: "maxDate",
       label: "Max Date",
-      helpText: "Defines the max date for this widget",
+      helpText: "Defines the max date for the field",
       controlType: "DATE_PICKER",
       useValidationMessage: true,
       isJSConvertible: true,

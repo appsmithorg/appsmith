@@ -265,13 +265,130 @@ describe("JSON Form Widget Form Bindings", () => {
       .clear({ force: true })
       .wait(500);
 
-    cy.wait(1000);
+    cy.wait(3000);
 
     cy.get(".t--draggable-textwidget")
       .find(".bp3-ui-text")
       .then(($el) => {
+        const formState = JSON.parse($el.text());
+        cy.wrap(formState).should("deep.equal", expectedUpdatedFieldState);
+      });
+  });
+
+  it("change field accessor should reflect in fieldState and formData", () => {
+    const expectedFieldStateChange = {
+      firstName: {
+        isDisabled: false,
+        isVisible: true,
+        isRequired: true,
+        isValid: true,
+      },
+      age: {
+        isDisabled: true,
+        isVisible: true,
+        isRequired: false,
+        isValid: true,
+      },
+      dob: {
+        isDisabled: false,
+        isVisible: true,
+        isRequired: false,
+        isValid: true,
+      },
+      migrant: {
+        isDisabled: false,
+        isVisible: false,
+        isRequired: false,
+      },
+      address: {
+        street: {
+          isDisabled: false,
+          isVisible: true,
+          isRequired: true,
+          isValid: false,
+        },
+        city: {
+          isDisabled: false,
+          isVisible: true,
+          isRequired: false,
+          isValid: true,
+        },
+      },
+      education: [
+        {
+          graduatingCollege: {
+            isDisabled: false,
+            isVisible: true,
+            isRequired: true,
+            isValid: false,
+          },
+          year: {
+            isDisabled: false,
+            isVisible: false,
+            isRequired: false,
+            isValid: true,
+          },
+        },
+      ],
+      hobbies: {
+        isDisabled: false,
+        isVisible: true,
+        isRequired: false,
+        isValid: true,
+      },
+    };
+
+    const expectedFormDataChange = {
+      age: 40,
+      dob: "10/12/1992",
+      address: { street: "", city: "" },
+      hobbies: ["travelling"],
+      education: [{ graduatingCollege: "", year: "20/10/2014" }],
+      firstName: "John",
+    };
+
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.fieldState)}}");
+
+    cy.openPropertyPane("jsonformwidget");
+
+    // Change accessor name -> firstName
+    cy.openFieldConfiguration("name");
+    cy.testJsontext("accessor", "firstName");
+    cy.wait(1000);
+
+    cy.get(backBtn)
+      .click({ force: true })
+      .wait(500);
+
+    // Change accessor education -> college to education -> graduatingCollege
+    cy.openFieldConfiguration("education");
+    cy.openFieldConfiguration("__array_item__");
+    cy.openFieldConfiguration("college");
+    cy.testJsontext("accessor", "graduatingCollege");
+
+    cy.wait(5000);
+
+    // Verify if formState reflects accessor change
+    cy.get(".t--draggable-textwidget")
+      .find(".bp3-ui-text")
+      .then(($el) => {
+        const formState = JSON.parse($el.text());
+        cy.wrap(formState).should("deep.equal", expectedFieldStateChange);
+      });
+
+    // Modify text widget binding to formData
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+
+    cy.wait(1000);
+
+    // Verify if formData reflects accessor change
+    cy.get(".t--draggable-textwidget")
+      .find(".bp3-ui-text")
+      .then(($el) => {
         const formData = JSON.parse($el.text());
-        cy.wrap(formData).should("deep.equal", expectedUpdatedFieldState);
+        cy.wrap(formData).should("deep.equal", expectedFormDataChange);
       });
   });
 });

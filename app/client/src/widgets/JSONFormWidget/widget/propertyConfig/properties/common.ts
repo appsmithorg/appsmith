@@ -15,9 +15,10 @@ import {
 import { JSONFormWidgetProps } from "../..";
 import { getParentPropertyPath } from "../../helper";
 import {
+  accessorUpdateHook,
   fieldTypeUpdateHook,
-  HiddenFnParams,
   getSchemaItem,
+  HiddenFnParams,
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "../helper";
@@ -167,12 +168,13 @@ const COMMON_PROPERTIES = {
     {
       helpText:
         "Sets the key which can be used to access the particular field.",
-      propertyName: "name",
+      propertyName: "accessor",
       label: "Accessor",
       controlType: "INPUT_TEXT",
       placeholderText: "name",
       isBindProperty: true,
       isTriggerProperty: false,
+      updateHook: accessorUpdateHook,
       validation: {
         type: ValidationTypes.FUNCTION,
         params: {
@@ -260,7 +262,7 @@ const COMMON_PROPERTIES = {
       updateHook: updateChildrenDisabledStateHook,
     },
     {
-      helpText: "Show help text or details about current input",
+      helpText: "Show help text or details about current field",
       propertyName: "tooltip",
       label: "Tooltip",
       controlType: "JSON_FORM_COMPUTE_VALUE",

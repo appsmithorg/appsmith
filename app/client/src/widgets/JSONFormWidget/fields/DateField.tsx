@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useContext, useRef } from "react";
-import { cloneDeep, pick } from "lodash";
+import { pick } from "lodash";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/JSONFormWidget/component/Field";

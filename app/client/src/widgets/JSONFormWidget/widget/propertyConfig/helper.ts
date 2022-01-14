@@ -1,6 +1,8 @@
 import { get } from "lodash";
 
-import SchemaParser from "widgets/JSONFormWidget/schemaParser";
+import SchemaParser, {
+  sanitizeSchemaItemKey,
+} from "widgets/JSONFormWidget/schemaParser";
 import { FieldType, SchemaItem, ARRAY_ITEM_KEY, Schema } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
@@ -122,6 +124,27 @@ export const updateChildrenDisabledStateHook = (
       {
         propertyPath: `${schemaItemPath}.children`,
         propertyValue: newChildrenSchema,
+      },
+    ];
+  }
+
+  return;
+};
+
+export const accessorUpdateHook = (
+  props: JSONFormWidgetProps,
+  propertyPath: string,
+  accessor: string,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const schemaItemPath = getParentPropertyPath(propertyPath);
+  const schemaPath = getGrandParentPropertyPath(propertyPath);
+  const schema: Schema = get(props, schemaPath, {});
+
+  if (sanitizeSchemaItemKey(accessor, schema) === accessor) {
+    return [
+      {
+        propertyPath: `${schemaItemPath}.name`,
+        propertyValue: accessor,
       },
     ];
   }

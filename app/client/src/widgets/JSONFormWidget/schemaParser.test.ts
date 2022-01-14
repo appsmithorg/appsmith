@@ -131,6 +131,7 @@ describe("#getSchemaItemByFieldType", () => {
       sourceData: "1",
       isCustomField: false,
       name: "city",
+      accessor: "city",
       identifier: "city",
       originalIdentifier: "city",
       position: 1,
@@ -155,6 +156,7 @@ describe("#getSchemaItemByFieldType", () => {
     const schemaItem = get({ schema }, schemaItemPath);
     schemaItem.isCustomField = true;
     schemaItem.name = "newCityName";
+    schemaItem.accessor = "newCityName";
 
     const expectedOutput = {
       isDisabled: false,
@@ -173,6 +175,7 @@ describe("#getSchemaItemByFieldType", () => {
       sourceData: "",
       isCustomField: true,
       name: "newCityName",
+      accessor: "newCityName",
       identifier: "city",
       originalIdentifier: "city",
       position: 1,
@@ -214,6 +217,7 @@ describe("#getSchemaItemByFieldType", () => {
           sourceData: "travelling",
           isCustomField: false,
           name: "__array_item__",
+          accessor: "__array_item__",
           identifier: "__array_item__",
           originalIdentifier: "__array_item__",
           position: -1,
@@ -227,6 +231,7 @@ describe("#getSchemaItemByFieldType", () => {
       sourceData: ["travelling", "skating", "off-roading"],
       isCustomField: false,
       name: "hobbies",
+      accessor: "hobbies",
       identifier: "hobbies",
       originalIdentifier: "hobbies",
       isCollapsible: true,
@@ -267,6 +272,7 @@ describe("#getSchemaItemByFieldType", () => {
           sourceData: {},
           isCustomField: false,
           name: "__array_item__",
+          accessor: "__array_item__",
           identifier: "__array_item__",
           originalIdentifier: "__array_item__",
           position: -1,
@@ -279,6 +285,7 @@ describe("#getSchemaItemByFieldType", () => {
       sourceData: "Test name",
       isCustomField: false,
       name: "name",
+      accessor: "name",
       identifier: "name",
       originalIdentifier: "name",
       isCollapsible: true,
@@ -313,6 +320,7 @@ describe("#getSchemaItemFor", () => {
       sourceData: "John",
       isCustomField: false,
       name: "firstName",
+      accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
       position: -1,
@@ -345,6 +353,7 @@ describe("#getSchemaItemFor", () => {
       sourceData: "John",
       isCustomField: true,
       name: "firstName",
+      accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
       position: -1,
@@ -378,6 +387,7 @@ describe("#getSchemaItemFor", () => {
       sourceData: "John",
       isCustomField: true,
       name: "firstName",
+      accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
       position: -1,
@@ -413,6 +423,7 @@ describe("#getSchemaItemFor", () => {
       sourceData: ["one", "two"],
       isCustomField: false,
       name: "hobbies",
+      accessor: "hobbies",
       identifier: "hobbies",
       originalIdentifier: "hobbies",
       position: -1,
@@ -451,6 +462,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       sourceData: "John",
       isCustomField: false,
       name: "firstName",
+      accessor: "firstName",
       identifier: "firstName",
       originalIdentifier: "firstName",
       position: -1,
@@ -485,6 +497,7 @@ describe("#getUnModifiedSchemaItemFor", () => {
       sourceData: "John",
       isCustomField: false,
       name: "hobbies",
+      accessor: "hobbies",
       identifier: "hobbies",
       originalIdentifier: "hobbies",
       position: -1,
@@ -539,6 +552,7 @@ describe("#convertArrayToSchema", () => {
             sourceData: "John",
             isCustomField: false,
             name: "firstName",
+            accessor: "firstName",
             identifier: "firstName",
             originalIdentifier: "firstName",
             position: 0,
@@ -553,6 +567,7 @@ describe("#convertArrayToSchema", () => {
         },
         isCustomField: false,
         name: "__array_item__",
+        accessor: "__array_item__",
         identifier: "__array_item__",
         originalIdentifier: "__array_item__",
         position: -1,
@@ -596,6 +611,7 @@ describe("#convertArrayToSchema", () => {
             sourceData: "John",
             isCustomField: false,
             name: "name",
+            accessor: "name",
             identifier: "firstName",
             originalIdentifier: "firstName",
             position: 0,
@@ -612,6 +628,7 @@ describe("#convertArrayToSchema", () => {
         },
         isCustomField: false,
         name: "__array_item__",
+        accessor: "__array_item__",
         identifier: "__array_item__",
         originalIdentifier: "__array_item__",
         position: -1,
@@ -636,6 +653,7 @@ describe("#convertArrayToSchema", () => {
             sourceData: "John",
             isCustomField: false,
             name: "name",
+            accessor: "name",
             identifier: "firstName",
             originalIdentifier: "firstName",
             position: 0,
@@ -654,6 +672,7 @@ describe("#convertArrayToSchema", () => {
             sourceData: "Doe",
             isCustomField: false,
             name: "lastName",
+            accessor: "lastName",
             identifier: "lastName",
             originalIdentifier: "lastName",
             position: 1,
@@ -670,6 +689,7 @@ describe("#convertArrayToSchema", () => {
         },
         isCustomField: false,
         name: "__array_item__",
+        accessor: "__array_item__",
         identifier: "__array_item__",
         originalIdentifier: "__array_item__",
         position: -1,
@@ -709,6 +729,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "John",
         isCustomField: false,
         name: "firstName",
+        accessor: "firstName",
         identifier: "firstName",
         originalIdentifier: "firstName",
         position: 0,
@@ -745,6 +766,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "John",
         isCustomField: false,
         name: "name",
+        accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
         position: 0,
@@ -765,6 +787,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "John",
         isCustomField: false,
         name: "name",
+        accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
         position: 0,
@@ -784,6 +807,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "Doe",
         isCustomField: false,
         name: "lastName",
+        accessor: "lastName",
         identifier: "lastName",
         originalIdentifier: "lastName",
         position: 1,
@@ -822,6 +846,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "John",
         isCustomField: false,
         name: "name",
+        accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
         position: 0,
@@ -841,6 +866,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "Doe",
         isCustomField: false,
         name: "__",
+        accessor: "__",
         identifier: "__",
         originalIdentifier: "##",
         position: 1,
@@ -860,6 +886,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "John",
         isCustomField: false,
         name: "name",
+        accessor: "name",
         identifier: "firstName",
         originalIdentifier: "firstName",
         position: 0,
@@ -879,6 +906,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "Doe",
         isCustomField: false,
         name: "__",
+        accessor: "__",
         identifier: "__",
         originalIdentifier: "##",
         position: 1,
@@ -897,6 +925,7 @@ describe("#convertObjectToSchema", () => {
         sourceData: "Some other value",
         isCustomField: false,
         name: "__1",
+        accessor: "__1",
         identifier: "__1",
         originalIdentifier: "%%",
         position: 2,
@@ -1153,7 +1182,7 @@ describe(".getKeysFromSchema", () => {
 
     const result = getKeysFromSchema(
       testData.initialDataset.schemaOutput.__root_schema__.children,
-      "originalIdentifier",
+      ["originalIdentifier"],
       { includeCustomField: false },
     );
 
@@ -1161,7 +1190,7 @@ describe(".getKeysFromSchema", () => {
   });
 
   it("return empty array for empty schema", () => {
-    const result = getKeysFromSchema({}, "originalIdentifier", {
+    const result = getKeysFromSchema({}, ["originalIdentifier"], {
       includeCustomField: false,
     });
 
@@ -1185,7 +1214,7 @@ describe(".getKeysFromSchema", () => {
       "address",
     ];
 
-    const result = getKeysFromSchema(schema, "originalIdentifier", {
+    const result = getKeysFromSchema(schema, ["originalIdentifier"], {
       includeCustomField: false,
     });
 
@@ -1210,7 +1239,7 @@ describe(".getKeysFromSchema", () => {
       "address",
     ];
 
-    const result = getKeysFromSchema(schema, "originalIdentifier", {
+    const result = getKeysFromSchema(schema, ["originalIdentifier"], {
       includeCustomField: true,
     });
 

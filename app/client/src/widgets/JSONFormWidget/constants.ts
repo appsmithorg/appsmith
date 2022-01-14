@@ -72,16 +72,34 @@ export type BaseFieldComponentProps<TProps = any> = {
 
 export type Schema = Record<string, SchemaItem>;
 
+/**
+ * dataType - result of "typeof value" -> string/number/boolean etc.
+ * fieldType - the field component that this represents -> Text/Switch/Email etc.
+ * sourceData - the data that is used to compute initial dataType and fieldType.
+ * isCustomField - this is set to true only for fields created using the "Add new field" in Property Pane
+ * name - this is a sanitized value used to identify a field uniquely -> firstName, age etc.
+ * position - a number from 0..n specifying the order in a form.
+ * originalIdentifier - This is derived from the sourceData key, in it's unsanitized form.
+ *    It is used as a marker to identify this field in the sourceData to detect any change. As the actual
+ *    identifier used can be modified during sanitization process.
+ * identifier - This is derived from the sourceData key, in it's sanitized form. This acts as a marker
+ *    in the schema and helps identifying from nested property changes.
+ * accessor - This is very similar to the name property. This is directly exposed in the property pane to be
+ *    modified at free will. It acts as a staging state for the name, as name cannot have invalid values. So
+ *    when accessor is updated, it checks if this value can be used as name and then updates it, else keeps the
+ *    name property intact for data sanity.
+ */
 export type SchemaItem = FieldComponentBaseProps & {
+  accessor: string;
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
-  sourceData: any;
+  identifier: string;
   isCustomField: boolean;
   name: string;
-  position: number;
-  identifier: string;
   originalIdentifier: string;
+  position: number;
+  sourceData: any;
 };
 
 export type ComponentDefaultValuesFnProps<TSourceData = any> = {

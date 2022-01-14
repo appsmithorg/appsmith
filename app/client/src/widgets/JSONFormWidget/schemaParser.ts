@@ -198,7 +198,7 @@ export const fieldTypeFor = (value: any) => {
 
 export const getKeysFromSchema = (
   schema: Schema,
-  keyProperty: keyof SchemaItem,
+  keyProperties: (keyof SchemaItem)[],
   { includeCustomField = false },
 ) => {
   return Object.values(schema).reduce<string[]>((keys, schemaItem) => {
@@ -206,7 +206,10 @@ export const getKeysFromSchema = (
       includeCustomField ||
       (!includeCustomField && !schemaItem.isCustomField)
     ) {
-      return [...keys, schemaItem[keyProperty]];
+      const propertyKeys = keyProperties.map(
+        (keyProperty) => schemaItem[keyProperty],
+      );
+      return [...keys, ...propertyKeys];
     }
 
     return keys;
@@ -262,6 +265,17 @@ export const checkIfArrayAndSubDataTypeChanged = (
 
 export const hasNullOrUndefined = (items: any[]) =>
   items.includes(null) || items.includes(undefined);
+
+export const sanitizeSchemaItemKey = (key: string, schema: Schema) => {
+  const existingKeys = [
+    ...getKeysFromSchema(schema, ["identifier", "name"], {
+      includeCustomField: true,
+    }),
+    ...RESTRICTED_KEYS,
+  ];
+
+  return sanitizeKey(key, { existingKeys });
+};
 
 class SchemaParser {
   static parse = (
@@ -329,11 +343,12 @@ class SchemaParser {
     });
 
     const oldSchemaItemProperties = pick(schemaItem, [
-      "name",
-      "position",
+      "accessor",
       "identifier",
-      "originalIdentifier",
       "label",
+      "name",
+      "originalIdentifier",
+      "position",
     ]);
 
     if (schemaItem.isCustomField) {
@@ -422,6 +437,7 @@ class SchemaParser {
       sourceData: currSourceData,
       isCustomField,
       name: sanitizedKey,
+      accessor: sanitizedKey,
       identifier: sanitizedKey,
       position: -1,
       originalIdentifier: key,
@@ -508,7 +524,7 @@ class SchemaParser {
     const currObj = currSourceData as Obj;
 
     const currKeys = Object.keys(currSourceData);
-    const prevKeys = getKeysFromSchema(prevSchema, "originalIdentifier", {
+    const prevKeys = getKeysFromSchema(prevSchema, ["originalIdentifier"], {
       includeCustomField: false,
     });
 
@@ -576,22 +592,17 @@ class SchemaParser {
     });
 
     const newSanitizedKeys: string[] = [];
-    const existingKeys = [
-      ...getKeysFromSchema(schema, "identifier", { includeCustomField: true }),
-      ...RESTRICTED_KEYS,
-    ];
     newKeys.forEach((newKey) => {
       const schemaItem = SchemaParser.getSchemaItemFor(newKey, {
         ...rest,
         currSourceData: currObj[newKey],
         sourceDataPath: getSourcePath(newKey, sourceDataPath),
-        sanitizedKey: sanitizeKey(newKey, { existingKeys }),
+        sanitizedKey: sanitizeSchemaItemKey(newKey, schema),
         widgetName,
       });
 
       schema[schemaItem.identifier] = schemaItem;
       newSanitizedKeys.push(schemaItem.identifier);
-      existingKeys.push(schemaItem.identifier);
     });
 
     applyPositions(schema, newSanitizedKeys);
