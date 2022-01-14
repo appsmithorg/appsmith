@@ -56,10 +56,9 @@ const SearchComponentWrapper = styled.div<{
 
   & .${Classes.INPUT}:active, & .${Classes.INPUT}:focus {
     border-radius: ${({ borderRadius }) => borderRadius};
-    border: 1px solid !important;
+    border: 0px solid !important;
     border-color: ${({ primaryColor }) => primaryColor} !important;
-    box-shadow: ${({ primaryColor }) =>
-      `0px 0px 0px 2px ${lightenColor(primaryColor)} !important;`};
+    box-shadow: none !important;
   }
 `;
 

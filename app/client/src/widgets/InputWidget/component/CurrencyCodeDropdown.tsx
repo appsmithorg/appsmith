@@ -13,12 +13,9 @@ const DropdownTriggerIconWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  line-height: 18px;
+  line-height: normal;
   letter-spacing: -0.24px;
   color: #090707;
-  > * {
-    margin-left: 5px;
-  }
 
   .dropdown {
     svg {
@@ -71,9 +68,6 @@ export const PopoverStyles = createGlobalStyle<{
     props.portalClassName
   }  .${Classes.INPUT}:active {
       border: 1px solid ${props.primaryColor} !important;
-      box-shadow:  0px 0px 0px 2px ${lightenColor(
-        props.primaryColor,
-      )} !important;
     }
 
     .${props.portalClassName} .t--dropdown-option:hover,
@@ -162,13 +156,14 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
         onSelect={props.onCurrencyTypeChange}
         optionWidth="340px"
         options={props.options}
+        portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
         searchPlaceholder="Search by currency or country"
         selected={props.selected}
         showLabelOnly
       />
       <PopoverStyles
         borderRadius={props.borderRadius}
-        portalClassName={`currency-type-filter-dropdown-${props.widgetId}`}
+        portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
         primaryColor={props.primaryColor}
       />
     </>

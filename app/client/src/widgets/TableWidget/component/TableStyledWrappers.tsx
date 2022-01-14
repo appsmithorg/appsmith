@@ -20,9 +20,7 @@ export const TableWrapper = styled.div<{
   height: 100%;
   background: white;
   border: ${({ boxShadow }) =>
-    boxShadow === "none"
-      ? `1px solid ${Colors.GEYSER_LIGHT}`
-      : `1px solid transparent`};
+    boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
@@ -129,6 +127,11 @@ export const TableWrapper = styled.div<{
       z-index: 1;
     }
   }
+
+  .tbody .tr:last-child .td {
+    border-bottom: none;
+  }
+
   .draggable-header,
   .hidden-header {
     width: 100%;

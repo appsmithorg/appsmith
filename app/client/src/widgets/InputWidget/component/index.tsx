@@ -102,6 +102,13 @@ const InputComponentWrapper = styled((props) => (
     }
   }
 
+  .currency-type-filter .bp3-popover-open > div,
+  .country-type-filter .bp3-popover-open > div {
+    border: 0px solid !important;
+    box-shadow: none !important;
+    background-color: #fafafa;
+  }
+
   .${Classes.INPUT} {
     ${(props) =>
       props.inputType === InputTypes.CURRENCY &&
@@ -233,7 +240,7 @@ const StyledNumericInput = styled(NumericInput)`
         border-right: 0;
       }
       input:not(:first-child) {
-        padding-left: 5px;
+        padding-left: 0px;
         z-index: 16;
         line-height: 16px;
       }
@@ -335,7 +342,7 @@ class InputComponent extends React.Component<
   decimalSeparator: string;
   constructor(props: InputComponentProps) {
     super(props);
-    this.state = { showPassword: false };
+    this.state = { showPassword: false, dropdownActive: false };
     const separators = getSeparators();
     this.groupSeparator = separators.groupSeparator;
     this.decimalSeparator = separators.decimalSeparator;
@@ -719,6 +726,7 @@ class InputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
+  dropdownActive: boolean;
 }
 
 export interface InputComponentProps extends ComponentProps {

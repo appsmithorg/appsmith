@@ -15,6 +15,7 @@ import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
 import { lightenColor, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
+import { DEFAULT_FONT_NAME } from "utils/hooks/useGoogleFont";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -66,16 +67,8 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     ${(props) =>
       props.isValid
         ? `
-        &:hover {
-          border: 1px solid ${Colors.GREY_5};
-        }
-        &:focus {
-          border: 1px solid ${props.primaryColor};
-          box-shadow: 0px 0px 0px 3px ${lightenColor(
-            props.primaryColor,
-          )} !important;
-          outline: 0;
-        }
+        &:hover { border: 1px solid ${Colors.GREY_5}; }
+        &:focus { outline: 0; }
       `
         : ""};
   }
@@ -86,6 +79,9 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
       !props.hasError
         ? `
         border: 1px solid ${props.primaryColor};
+        box-shadow: 0px 0px 0px 3px ${lightenColor(
+          props.primaryColor,
+        )} !important;
       `
         : `border: 1px solid ${Colors.DANGER_SOLID};`}
   }
@@ -157,7 +153,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     background: white;
     border-radius: ${({ borderRadius }) => borderRadius} !important;
-    font-family: ${({ fontFamily }) => fontFamily ?? "inherit"} !important;
+    font-family: ${({ fontFamily }) =>
+      fontFamily === DEFAULT_FONT_NAME ? "inherit" : fontFamily} !important;
     overflow: hidden;
 
     & .${Classes.POPOVER_CONTENT} {
@@ -213,8 +210,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
         border-radius: ${({ borderRadius }) => borderRadius} !important;
         &:focus {
           border: ${({ primaryColor }) => `1px solid ${primaryColor}`};
-          box-shadow: ${({ primaryColor }) =>
-            `0px 0px 0px 3px ${lightenColor(primaryColor)} !important;`};
+          box-shadow: none;
         }
       }
     }

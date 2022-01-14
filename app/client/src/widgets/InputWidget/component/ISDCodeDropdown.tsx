@@ -155,7 +155,6 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         optionWidth="340px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
-        searchAutoFocus
         searchPlaceholder="Search by ISD code or country"
         selected={props.selected}
         showLabelOnly
