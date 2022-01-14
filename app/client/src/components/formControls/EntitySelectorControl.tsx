@@ -27,14 +27,6 @@ const EntitySelectorContainer = styled.div`
   justify-content: space-between;
 `;
 
-// container for the two entity selector dropdown
-const EntitySelectorDropdownContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: min-content;
-  justify-content: space-between;
-`;
-
 export const StyledBottomLabel = styled(FormLabel)`
   margin-top: 5px;
   margin-left: 5px;
@@ -56,32 +48,31 @@ function EntitySelectorComponent(props: any) {
     <EntitySelectorContainer>
       {schema &&
         schema.length > 0 &&
-        schema.map((singleSchema: any, index: number) => (
-          <EntitySelectorDropdownContainer key={index}>
-            {allowedControlTypes.includes(singleSchema.controlType) &&
-              (singleSchema.controlType === "DROP_DOWN" ? (
-                <FormControl
-                  config={{
-                    ...dropDownFieldConfig,
-                    ...singleSchema,
-                    customStyles,
-                    configProperty: `${configProperty}.column_${index + 1}`,
-                  }}
-                  formName={props.formName}
-                />
-              ) : (
-                <FormControl
-                  config={{
-                    ...inputFieldConfig,
-                    ...singleSchema,
-                    customStyles,
-                    configProperty: `${configProperty}.column_${index + 1}`,
-                  }}
-                  formName={props.formName}
-                />
-              ))}
-          </EntitySelectorDropdownContainer>
-        ))}
+        schema.map(
+          (singleSchema: any, index: number) =>
+            allowedControlTypes.includes(singleSchema.controlType) &&
+            (singleSchema.controlType === "DROP_DOWN" ? (
+              <FormControl
+                config={{
+                  ...dropDownFieldConfig,
+                  ...singleSchema,
+                  customStyles,
+                  configProperty: `${configProperty}.column_${index + 1}`,
+                }}
+                formName={props.formName}
+              />
+            ) : (
+              <FormControl
+                config={{
+                  ...inputFieldConfig,
+                  ...singleSchema,
+                  customStyles,
+                  configProperty: `${configProperty}.column_${index + 1}`,
+                }}
+                formName={props.formName}
+              />
+            )),
+        )}
     </EntitySelectorContainer>
   );
 }
