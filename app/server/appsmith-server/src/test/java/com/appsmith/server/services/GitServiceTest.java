@@ -1969,7 +1969,5 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
-
-
     // TODO TCs for merge is pending
 }

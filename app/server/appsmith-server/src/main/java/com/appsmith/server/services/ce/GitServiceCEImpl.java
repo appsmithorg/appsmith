@@ -2082,8 +2082,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     log.debug("Error while checking if the repo is private: ", e);
                                 }
 
+                                Mono<ApplicationJson> applicationJsonMono;
+                                try {
+                                    applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), repoName, defaultBranch);
+                                } catch (GitAPIException | IOException e) {
+                                    log.error("Error while constructing application from git repo", e);
+                                    return detachRemote(application.getId())
+                                            .then(applicationPageService.deleteApplication(application.getId()))
+                                            .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
+                                }
+
                                 // Set branchName for each application resource
-                                return importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                                return applicationJsonMono
                                         .flatMap(applicationJson -> {
                                             applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                             return importExportApplicationService
