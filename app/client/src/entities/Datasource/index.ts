@@ -1,6 +1,17 @@
 import { APIResponseError } from "api/ApiResponses";
 import { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
+
+export enum AuthType {
+  OAUTH2 = "oAuth2",
+  DBAUTH = "dbAuth",
+}
+
+export enum AuthenticationStatus {
+  NONE = "NONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  SUCCESS = "SUCCESS",
+}
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -11,6 +22,7 @@ export interface DatasourceAuthentication {
   addTo?: string;
   bearerToken?: string;
   authenticationStatus?: string;
+  authenticationType?: string;
 }
 
 export interface DatasourceColumns {
