@@ -182,7 +182,7 @@ function MultiSelectComponent({
       });
       setFilteredOptions(filtered);
     },
-    serverSideFiltering ? [options] : [filter],
+    serverSideFiltering ? [options] : [filter, options],
   );
 
   const onQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
