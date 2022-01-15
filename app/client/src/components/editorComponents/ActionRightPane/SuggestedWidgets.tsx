@@ -68,42 +68,42 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "listData",
     widgetName: "List",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/list.svg",
+      "https://assets.appsmith.com/widgetSuggestion/list.svg",
   },
   TABLE_WIDGET: {
     label: "tabledata",
     propertyName: "tableData",
     widgetName: "Table",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table.svg",
+      "https://assets.appsmith.com/widgetSuggestion/table.svg",
   },
   CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
     widgetName: "Chart",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/chart.svg",
+      "https://assets.appsmith.com/widgetSuggestion/chart.svg",
   },
   DROP_DOWN_WIDGET: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/dropdown.svg",
+      "https://assets.appsmith.com/widgetSuggestion/dropdown.svg",
   },
   TEXT_WIDGET: {
     label: "text",
     propertyName: "text",
     widgetName: "Text",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/text.svg",
+      "https://assets.appsmith.com/widgetSuggestion/text.svg",
   },
   INPUT_WIDGET: {
     label: "text",
     propertyName: "defaultText",
     widgetName: "Input",
     image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/input.svg",
+      "https://assets.appsmith.com/widgetSuggestion/input.svg",
   },
 };
 

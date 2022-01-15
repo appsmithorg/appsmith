@@ -118,7 +118,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       ],
       image: {
         src:
-          "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/new-query.gif",
+          "https://assets.appsmith.com/new-query.gif",
       },
       skipLabel: "Skip tour",
       cheatAction: {
