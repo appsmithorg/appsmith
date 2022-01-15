@@ -1,32 +1,21 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  StyledPropertyPaneButton,
-  StyledDragIcon,
-  StyledDeleteIcon,
-  StyledEditIcon,
-  StyledOptionControlInputGroup,
-} from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _, { debounce } from "lodash";
+import _ from "lodash";
 import { Category, Size } from "components/ads/Button";
 import { Colors } from "constants/Colors";
 import { ButtonPlacementTypes } from "components/constants";
+import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
   width: 100%;
   justify-content: center;
   margin-top: 10px;
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
 `;
 
 const ButtonListWrapper = styled.div`
@@ -39,113 +28,6 @@ const AddNewButton = styled(StyledPropertyPaneButton)`
   justify-content: center;
   flex-grow: 1;
 `;
-
-type RenderComponentProps = {
-  focusedIndex: number | null | undefined;
-  index: number;
-  isDragging: boolean;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateFocus?: (index: number, isFocused: boolean) => void;
-
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
-};
-
-function GroupButtonComponent(props: RenderComponentProps) {
-  const {
-    deleteOption,
-    focusedIndex,
-    index,
-    isDragging,
-    item,
-    updateFocus,
-    updateOption,
-  } = props;
-  const ref = useRef<HTMLInputElement | null>(null);
-  const [value, setValue] = useState(item.label);
-  const [isEditing, setEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isEditing && item && item.label) setValue(item.label);
-  }, [item?.label, isEditing]);
-
-  useEffect(() => {
-    if (focusedIndex !== null && focusedIndex === index && !isDragging) {
-      if (ref && ref.current) {
-        ref?.current.focus();
-      }
-    } else if (isDragging && focusedIndex === index) {
-      if (ref && ref.current) {
-        ref?.current.blur();
-      }
-    }
-  }, [focusedIndex, isDragging]);
-
-  const debouncedUpdate = debounce(updateOption, 1000);
-  const onChange = useCallback(
-    (index: number, value: string) => {
-      setValue(value);
-      debouncedUpdate(index, value);
-    },
-    [updateOption],
-  );
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
-
-  const onFocus = () => {
-    setEditing(true);
-    if (updateFocus) {
-      updateFocus(index, true);
-    }
-  };
-
-  const onBlur = () => {
-    if (!isDragging) {
-      setEditing(false);
-      if (updateFocus) {
-        updateFocus(index, false);
-      }
-    }
-  };
-
-  return (
-    <ButtonWrapper>
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        onBlur={onBlur}
-        onChange={(value: string) => {
-          onChange(index, value);
-        }}
-        onFocus={onFocus}
-        placeholder="Button label"
-        ref={ref}
-        value={value}
-      />
-      <StyledDeleteIcon
-        className="t--delete-tab-btn"
-        height={20}
-        marginRight={12}
-        onClick={() => {
-          deleteOption(index);
-        }}
-        width={20}
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={handleChange}
-        width={20}
-      />
-    </ButtonWrapper>
-  );
-}
 
 type State = {
   focusedIndex: number | null;
@@ -209,7 +91,13 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
           itemHeight={45}
           items={menuItems}
           onEdit={this.onEdit}
-          renderComponent={GroupButtonComponent}
+          renderComponent={(props) =>
+            DraggableListCard({
+              ...props,
+              isDelete: true,
+              placeholder: "Button label",
+            })
+          }
           toggleVisibility={this.toggleVisibility}
           updateFocus={this.updateFocus}
           updateItems={this.updateItems}
