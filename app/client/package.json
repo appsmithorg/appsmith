@@ -280,7 +280,7 @@
     "msw": "^0.28.0",
     "patch-package": "^6.4.7",
     "plop": "^2.7.4",
-    "postcss": "^7",
+    "postcss": "^8",
     "postinstall-postinstall": "^2.1.0",
     "raw-loader": "^4.0.2",
     "react-docgen-typescript-loader": "^3.6.0",
