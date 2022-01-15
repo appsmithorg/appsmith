@@ -7,7 +7,7 @@ export const CONFIG = {
   name: "MultiSelect",
   iconSVG: IconSVG,
   needsMeta: true,
-  // hideCard: true,
+  hideCard: true,
   defaults: {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
