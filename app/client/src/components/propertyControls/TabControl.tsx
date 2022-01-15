@@ -1,33 +1,22 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  StyledPropertyPaneButton,
-  StyledDragIcon,
-  StyledDeleteIcon,
-  StyledEditIcon,
-  StyledOptionControlInputGroup,
-} from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName, noop } from "utils/AppsmithUtils";
-import _, { debounce, orderBy } from "lodash";
+import _, { orderBy } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
   width: 100%;
   justify-content: flex-end;
   margin-top: 10px;
-`;
-
-const ItemWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
 `;
 
 const TabsWrapper = styled.div`
@@ -77,14 +66,7 @@ function AddTabButtonComponent({ widgetId }: any) {
 }
 
 function TabControlComponent(props: RenderComponentProps) {
-  const {
-    focusedIndex,
-    index,
-    isDragging,
-    item,
-    updateFocus,
-    updateOption,
-  } = props;
+  const { index, item } = props;
   const dispatch = useDispatch();
   const deleteOption = () => {
     dispatch({
@@ -92,83 +74,14 @@ function TabControlComponent(props: RenderComponentProps) {
       payload: { ...item, index },
     });
   };
-  const ref = useRef<HTMLInputElement | null>(null);
-  const [value, setValue] = useState(item.label);
-  const [isEditing, setEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isEditing && item && item.label) setValue(item.label);
-  }, [item?.label, isEditing]);
-
-  const debouncedUpdate = debounce(updateOption, 1000);
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
-
-  useEffect(() => {
-    if (focusedIndex !== null && focusedIndex === index && !isDragging) {
-      if (ref && ref.current) {
-        ref?.current.focus();
-      }
-    } else if (isDragging && focusedIndex === index) {
-      if (ref && ref.current) {
-        ref?.current.blur();
-      }
-    }
-  }, [focusedIndex, isDragging]);
-
-  const onChange = useCallback(
-    (index: number, value: string) => {
-      setValue(value);
-      debouncedUpdate(index, value);
-    },
-    [updateOption],
-  );
-
-  const onFocus = () => {
-    setEditing(false);
-    if (updateFocus) {
-      updateFocus(index, true);
-    }
-  };
-
-  const onBlur = () => {
-    if (!isDragging) {
-      setEditing(false);
-      if (updateFocus) {
-        updateFocus(index, false);
-      }
-    }
-  };
 
   return (
-    <ItemWrapper>
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        onBlur={onBlur}
-        onChange={(value: string) => {
-          onChange(index, value);
-        }}
-        onFocus={onFocus}
-        placeholder="Tab Title"
-        ref={ref}
-        value={value}
-      />
-      <StyledDeleteIcon
-        className="t--delete-tab-btn"
-        height={20}
-        marginRight={12}
-        onClick={deleteOption}
-        width={20}
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={handleChange}
-        width={20}
-      />
-    </ItemWrapper>
+    <DraggableListCard
+      {...props}
+      deleteOption={deleteOption}
+      isDelete
+      placeholder="Tab Title"
+    />
   );
 }
 
