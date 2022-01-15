@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { clamp } from "lodash-es";
 import swap from "lodash-move";
 import { useDrag } from "react-use-gesture";
-import { useSprings, animated, to } from "react-spring";
+import { useSprings, animated, interpolate } from "react-spring";
 import styled from "styled-components";
 import { debounce, get } from "lodash";
 
@@ -149,7 +149,9 @@ function DraggableList(props: any) {
             // Scroll inside container till container cannnot be scrolled more towards bottom
             if (
               container.scrollTop <=
-              springs.length * itemHeight - container.clientHeight - itemHeight
+              springs.length * itemHeight -
+                container.clientHeight -
+                itemHeight / 2
             ) {
               container.scrollTop += itemHeight / 10;
             }
