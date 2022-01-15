@@ -67,7 +67,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.OBJECT,
               params: {
-                required: true,
                 allowedKeys: [
                   {
                     name: "label",
@@ -297,15 +296,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   componentDidMount() {
     this.changeSelectedOption();
   }
-  // componentDidUpdate(prevProps: SelectWidgetProps): void {
-  //   // removing selectedOptionValue if defaultValueChanges
-  //   if (
-  //     prevProps.defaultOptionValue !== this.props.defaultOptionValue ||
-  //     prevProps.option !== this.props.option
-  //   ) {
-  //     this.changeSelectedOption();
-  //   }
-  // }
 
   changeSelectedOption = () => {
     this.props.updateWidgetMetaProperty("optionValue", this.props.optionValue);
