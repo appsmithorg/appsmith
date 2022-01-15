@@ -84,7 +84,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     image:
       "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/chart.svg",
   },
-  SELECT_WIDGET: {
+  DROP_DOWN_WIDGET: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
@@ -139,7 +139,7 @@ function getWidgetProps(
           dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
-    case "SELECT_WIDGET":
+    case "DROP_DOWN_WIDGET":
       return {
         type: suggestedWidget.type,
         props: {
