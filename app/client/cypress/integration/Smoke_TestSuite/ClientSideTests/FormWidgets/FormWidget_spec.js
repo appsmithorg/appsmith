@@ -28,6 +28,7 @@ describe("Form Widget Functionality", function() {
       x: 100,
       y: 100,
     });
+    cy.wait(1000);
     cy.dragAndDropToWidget("inputwidget", "formwidget", { x: 50, y: 200 });
     cy.get(formWidgetsPage.multiselectwidgetv2).should("be.visible");
     cy.get(widgetsPage.inputWidget).should("be.visible");
