@@ -39,7 +39,7 @@ describe("Git", function() {
 
   it("shows remote is ahead warning and conflict error during commit and push", function() {
     cy.createGitBranch(tempBranch);
-    cy.get(explorerLocators.addWidget).click();
+    cy.get(explorerLocators.widgetSwitchId).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.createGitBranch(tempBranch0);
     cy.widgetText(
@@ -77,6 +77,7 @@ describe("Git", function() {
 
   it("detect conflicts when merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
+    cy.get(explorerLocators.widgetSwitchId).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.createGitBranch(tempBranch1);
     cy.widgetText(
@@ -120,7 +121,7 @@ describe("Git", function() {
 
   it("enables pulling remote changes from bottom bar", function() {
     cy.createGitBranch(tempBranch3);
-    cy.get(explorerLocators.addWidget).click();
+    cy.get(explorerLocators.widgetSwitchId).click();
     cy.dragAndDropToCanvas("inputwidget", { x: 300, y: 300 });
     cy.wait("@updateLayout");
 
