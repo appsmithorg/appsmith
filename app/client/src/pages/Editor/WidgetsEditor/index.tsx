@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import * as log from "loglevel";
 
 import {
   getIsFetchingPage,
@@ -101,8 +100,6 @@ function WidgetsEditor() {
     },
     [allowDragToSelect],
   );
-
-  log.debug("Canvas rendered");
 
   PerformanceTracker.stopTracking();
   return (
