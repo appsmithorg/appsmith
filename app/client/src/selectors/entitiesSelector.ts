@@ -114,6 +114,21 @@ export const getPluginNameFromId = (
   return plugin.name;
 };
 
+export const getPluginTypeFromDatasourceId = (
+  state: AppState,
+  datasourceId: string,
+): PluginType | undefined => {
+  const datasource = state.entities.datasources.list.find(
+    (datasource) => datasource.id === datasourceId,
+  );
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === datasource?.pluginId,
+  );
+
+  if (!plugin) return undefined;
+  return plugin.type;
+};
+
 export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
