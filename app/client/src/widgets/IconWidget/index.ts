@@ -1,11 +1,10 @@
 import Widget from "./widget";
-import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Icon",
-  iconSVG: IconSVG,
+  iconSVG: null,
   hideCard: true,
   defaults: {
     widgetName: "Icon",
