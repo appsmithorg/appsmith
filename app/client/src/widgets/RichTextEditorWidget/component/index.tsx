@@ -21,7 +21,7 @@ const StyledRTEditor = styled.div`
 `;
 
 export interface RichtextEditorComponentProps {
-  defaultValue?: string;
+  value?: string;
   placeholder?: string;
   widgetId: string;
   isDisabled?: boolean;
@@ -39,7 +39,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help";
 
   useEffect(() => {
-    if (!value) return;
+    if (!value && !props.value) return;
     // Prevent calling onTextChange when initialized
     if (!isInit.current) return;
     const timeOutId = setTimeout(() => props.onValueChange(value), 1000);
