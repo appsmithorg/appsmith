@@ -478,17 +478,24 @@ export default class DataTreeEvaluator {
           dependencies[`${entityName}.${key}`] = [];
         });
       }
+
       Object.entries(entity.overridingProperties).forEach(
-        ([overridingProperty, overriddenProperty]) => {
-          const existingDependencies =
-            dependencies[`${entityName}.${overriddenProperty}`] || [];
-          existingDependencies.push(`${entityName}.${overridingProperty}`);
-          dependencies[
-            `${entityName}.${overriddenProperty}`
-          ] = existingDependencies;
+        ([overridingPropertyKey, overriddenPropertiesKey]) => {
+          overriddenPropertiesKey.forEach((overriddenPropertyKey) => {
+            const existingDependenciesSet = new Set(
+              dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
+            );
+            existingDependenciesSet.add(
+              `${entityName}.${overridingPropertyKey}`,
+            );
+            dependencies[`${entityName}.${overriddenPropertyKey}`] = [
+              ...existingDependenciesSet,
+            ];
+          });
         },
       );
     }
+
     if (isAction(entity) || isJSAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
         ([path, entityDependencies]) => {
@@ -1513,8 +1520,15 @@ export default class DataTreeEvaluator {
     currentTree: DataTree,
   ) {
     if (propertyPath in entity.overridingProperties) {
-      const path = `${entity.widgetName}.${entity.overridingProperties[propertyPath]}`;
-      _.set(currentTree, path, value);
+      const overridingPropertyPaths = entity.overridingProperties[propertyPath];
+
+      overridingPropertyPaths.forEach((overridingPropertyPath) => {
+        _.set(
+          currentTree,
+          `${entity.widgetName}.${overridingPropertyPath}`,
+          value,
+        );
+      });
     }
   }
 }

@@ -75,13 +75,16 @@ export interface DataTreeJSAction {
 export interface MetaArgs {
   arguments: Variable[];
 }
+
+export type OverridingProperties = Record<string, string[]>;
+
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
-  overridingProperties: Record<string, string>;
+  overridingProperties: OverridingProperties;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {

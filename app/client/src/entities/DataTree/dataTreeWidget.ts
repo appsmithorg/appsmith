@@ -2,8 +2,13 @@ import WidgetFactory from "utils/WidgetFactory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import _ from "lodash";
-import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeWidget,
+  ENTITY_TYPE,
+  OverridingProperties,
+} from "entities/DataTree/dataTreeFactory";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { setOverridingProperty } from "./utils";
 
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
@@ -12,8 +17,7 @@ export const generateDataTreeWidget = (
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};
-  const unInitializedOverridingMetaProps: Record<string, undefined> = {};
-  const overridingProperties: Record<string, string> = {};
+  const overridingProperties: OverridingProperties = {};
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
@@ -65,20 +69,30 @@ export const generateDataTreeWidget = (
         unInitializedDefaultProps[defaultPropertyName] = undefined;
       }
       // defaultProperty on eval needs to override the widget's property eg: defaultText overrides text
-      overridingProperties[defaultPropertyName] = propertyName;
+      setOverridingProperty({
+        overridingProperties,
+        key: defaultPropertyName,
+        newValue: propertyName,
+      });
+
       if (propertyName in defaultMetaProps) {
         // Overriding properties will override the values of a property when evaluated
-        overridingProperties[`meta.${propertyName}`] = propertyName;
-        unInitializedOverridingMetaProps[propertyName] = undefined;
+        setOverridingProperty({
+          overridingProperties,
+          key: `meta.${propertyName}`,
+          newValue: propertyName,
+        });
         overridingMetaPropsMap[propertyName] = true;
       }
     },
   );
   const nonOverridingMetaProps: Record<string, unknown> = {};
   const overridingMetaProps: Record<string, unknown> = {};
+
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
-      overridingMetaProps[key] = value;
+      overridingMetaProps[key] =
+        key in widgetMetaProps ? widgetMetaProps[key] : value;
     } else {
       nonOverridingMetaProps[key] = value;
     }
@@ -110,8 +124,8 @@ export const generateDataTreeWidget = (
       ...blockedDerivedProps,
     },
     meta: {
-      ...unInitializedOverridingMetaProps,
       ...overridingMetaProps,
+      // ...overridingMetaProps,
     },
     overridingProperties,
     bindingPaths,
