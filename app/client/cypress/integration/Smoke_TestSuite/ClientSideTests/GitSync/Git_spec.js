@@ -135,12 +135,9 @@ describe("Git", function() {
 
     cy.switchGitBranch(mainBranch);
 
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("exist");
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
+    cy.get(gitSyncLocators.gitPullCount);
 
     cy.get(gitSyncLocators.bottomBarPullButton).click();
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("exist");
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
 
     cy.get(".bp3-spinner").should("exist");
     cy.get(".bp3-spinner").should("not.exist");
@@ -172,17 +169,14 @@ describe("Git", function() {
     );
 
     cy.commitAndPush(true);
-    1;
+
     // reset git status
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
 
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("exist");
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
+    cy.get(gitSyncLocators.gitPullCount);
 
     cy.get(gitSyncLocators.bottomBarPullButton).click();
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("exist");
-    cy.get(gitSyncLocators.loaderQuickGitAction).should("not.exist");
 
     cy.contains(Cypress.env("MESSAGES").GIT_CONFLICTING_INFO());
     cy.get("body").type("{esc}");
