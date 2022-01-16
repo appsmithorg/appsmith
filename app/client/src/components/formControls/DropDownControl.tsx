@@ -13,14 +13,18 @@ import { DynamicValues } from "reducers/evaluationReducers/formEvaluationReducer
 
 const DropdownSelect = styled.div`
   font-size: 14px;
-  width: 50vh;
+  width: 20vw;
 `;
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    let width = "50vh";
-    if (this.props.customStyles && this.props?.customStyles?.width) {
-      width = this.props?.customStyles?.width;
+    let width = "20vw";
+    if (
+      "customStyles" in this.props &&
+      !!this.props.customStyles &&
+      "width" in this.props.customStyles
+    ) {
+      width = this.props.customStyles.width;
     }
 
     // Options will be set dynamically if the config has fetchOptionsConditionally set to true
@@ -54,7 +58,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 function renderDropdown(props: {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
-  props: DropDownControlProps & { width?: string };
+  props: DropDownControlProps;
+  width: string;
   formName: string;
   isLoading?: boolean;
   options: DropdownOption[];
@@ -80,12 +85,12 @@ function renderDropdown(props: {
       isLoading={props.isLoading}
       isMultiSelect={props?.props?.isMultiSelect}
       onSelect={props.input?.onChange}
-      optionWidth="50vh"
+      optionWidth={props.width}
       options={props.options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
-      width={props?.props?.width ? props?.props?.width : "50vh"}
+      width={props.width}
     />
   );
 }
