@@ -111,7 +111,7 @@ function KeyValueRow(
           >
             <div
               data-replay-id={btoa(keyTextFieldName)}
-              style={{ width: "50vh" }}
+              style={{ width: "20vw" }}
             >
               <Field
                 component={renderTextInput}
@@ -129,7 +129,7 @@ function KeyValueRow(
               />
             </div>
             {!props.actionConfig && (
-              <div style={{ marginLeft: "16px", width: "50vh" }}>
+              <div style={{ marginLeft: "16px", width: "20vw" }}>
                 <div
                   data-replay-id={valueTextFieldName}
                   style={{ display: "flex", flexDirection: "row" }}
