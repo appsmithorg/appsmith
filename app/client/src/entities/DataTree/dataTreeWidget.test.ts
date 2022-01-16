@@ -204,7 +204,7 @@ describe("generateDataTreeWidget", () => {
         "meta.text": EvaluationSubstitutionType.TEMPLATE,
       },
       meta: {
-        text: undefined,
+        text: "Tester",
       },
       triggerPaths: {
         onSubmit: true,
@@ -256,8 +256,8 @@ describe("generateDataTreeWidget", () => {
         text: "defaultText",
       },
       overridingProperties: {
-        defaultText: "text",
-        "meta.text": "text",
+        defaultText: ["text"],
+        "meta.text": ["text"],
       },
     };
 
