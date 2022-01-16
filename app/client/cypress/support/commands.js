@@ -326,9 +326,11 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
+  /*
   cy.wait("@createNewApplication").should((interception) => {
     assertApiResponseStatusCode(interception, 201);
   });
+  */
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -347,9 +349,11 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
+  /*
   cy.wait("@createNewApplication").should((interception) => {
     assertApiResponseStatusCode(interception, 201);
   });
+  */
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
