@@ -10,8 +10,14 @@ import {
   UPDATES,
   WIDGETS,
 } from "../replayUtils";
+import { AppTheme } from "entities/AppTheming";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
+export type CanvasReplayState = {
+  widgets: CanvasWidgetsReduxState;
+  theme: AppTheme;
+};
+export type CanvasDiff = Diff<CanvasReplayState, CanvasReplayState>;
 export type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
 
 const positionProps = [
@@ -39,26 +45,57 @@ const positionProps = [
 function isPositionUpdate(widgetProperty: string) {
   return positionProps.indexOf(widgetProperty) !== -1;
 }
-export default class ReplayCanvas extends ReplayEntity<
-  CanvasWidgetsReduxState
-> {
-  public constructor(entity: CanvasWidgetsReduxState) {
+export default class ReplayCanvas extends ReplayEntity<CanvasReplayState> {
+  public constructor(entity: CanvasReplayState) {
     super(entity, ENTITY_TYPE.WIDGET);
   }
 
-  public processDiff(diff: DSLDiff, replay: any, isUndo: boolean) {
-    if (!diff || !diff.path || !diff.path.length || diff.path[0] === "0")
+  public processDiff(diff: CanvasDiff, replay: any, isUndo: boolean) {
+    console.log({ DIFF: diff });
+    if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
 
-    const widgetId = diff.path[0];
+    if (diff.path.indexOf("widgets") > -1) {
+      return this.processDiffForWidgets(diff, replay, isUndo);
+    }
+
+    if (diff.path.indexOf("theme") > -1) {
+      return this.processDiffForTheme(diff, replay, isUndo);
+    }
+  }
+
+  /**
+   * process diff related to app theme
+   *
+   * @param diff
+   * @param replay
+   * @param isUndo
+   */
+  public processDiffForTheme(diff: CanvasDiff, replay: any, isUndo: boolean) {
+    console.log("diff for app theme");
+  }
+
+  /**
+   * process diffs related to DSL ( widgets )
+   *
+   * @param diff
+   * @param replay
+   * @param isUndo
+   * @returns
+   */
+  public processDiffForWidgets(diff: CanvasDiff, replay: any, isUndo: boolean) {
+    if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
+      return;
+
+    const widgetId = diff.path[1];
 
     switch (diff.kind) {
       // new elements is added in dsl
       case "N":
-        if (diff.path.length == 1) {
+        if (diff.path.length == 2) {
           const toast = this.createToast(
             diff.rhs,
-            this.entity[widgetId],
+            this.entity.widgets[widgetId],
             widgetId,
             isUndo,
             !isUndo,
@@ -70,10 +107,10 @@ export default class ReplayCanvas extends ReplayEntity<
         break;
       // element is deleted in dsl
       case "D":
-        if (diff.path.length == 1) {
+        if (diff.path.length == 2) {
           const toast = this.createToast(
             diff.lhs,
-            this.entity[widgetId],
+            this.entity.widgets[widgetId],
             widgetId,
             isUndo,
             isUndo,
@@ -85,7 +122,7 @@ export default class ReplayCanvas extends ReplayEntity<
         break;
       // element is edited
       case "E":
-        if (isPositionUpdate(diff.path[diff.path.length - 1])) {
+        if (isPositionUpdate(diff.path[diff.path.length - 2])) {
           set(replay, [WIDGETS, widgetId, FOCUSES], true);
         } else {
           setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
@@ -96,7 +133,7 @@ export default class ReplayCanvas extends ReplayEntity<
     }
   }
   private createToast(
-    diffWidget: CanvasWidgetsReduxState,
+    diffWidget: any,
     dslWidget: CanvasWidgetsReduxState | undefined,
     widgetId: string,
     isUndo: boolean,

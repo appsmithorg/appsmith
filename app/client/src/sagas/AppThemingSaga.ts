@@ -10,10 +10,14 @@ import {
 } from "constants/ReduxActionConstants";
 import { AppTheme } from "entities/AppTheming";
 // import ThemingApi from "api/AppThemingApi";
-import { all, takeLatest, put } from "redux-saga/effects";
+import { all, takeLatest, put, select } from "redux-saga/effects";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { CHANGE_APP_THEME, createMessage } from "constants/messages";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { updateReplayEntity } from "actions/pageActions";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 // import { getAppMode } from "selectors/applicationSelectors";
 // import { APP_MODE } from "entities/App";
 
@@ -1047,14 +1051,21 @@ export function* updateSelectedTheme(
 ) {
   // eslint-disable-next-line
   const { applicationId, theme } = action.payload;
+  const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
-    // yield ThemingApi.updateTheme(applicationId, theme);
-
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
       payload: theme,
     });
+
+    yield put(
+      updateReplayEntity(
+        "canvas",
+        { widgets: canvasWidgets, theme },
+        ENTITY_TYPE.WIDGET,
+      ),
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_SELECTED_APP_THEME_ERROR,

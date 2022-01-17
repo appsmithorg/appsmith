@@ -88,6 +88,7 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
           shouldReplay = true,
+          theme,
           unevalTree,
           widgets,
           widgetTypeConfigMap,
@@ -99,10 +100,11 @@ ctx.addEventListener(
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
         let jsUpdates: Record<string, any> = {};
+
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
-            replayMap[CANVAS] = new ReplayCanvas(widgets);
+            replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
@@ -115,7 +117,7 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else if (dataTreeEvaluator.hasCyclicalDependency) {
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
@@ -128,7 +130,7 @@ ctx.addEventListener(
           } else {
             dataTree = {};
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
@@ -282,6 +284,8 @@ ctx.addEventListener(
         } else {
           replayMap[entityId] = new ReplayEditor(entity, entityType);
         }
+
+        console.log({ replayMap });
         break;
       case EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION:
         const { version } = requestData;

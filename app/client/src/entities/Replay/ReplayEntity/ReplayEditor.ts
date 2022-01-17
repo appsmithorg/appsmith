@@ -8,13 +8,17 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import isEmpty from "lodash/isEmpty";
 
 /*
- This type represents all the form objects that can be undone/redone. 
+ This type represents all the form objects that can be undone/redone.
  (Action, datasource, jsAction etc)
 */
 export type Replayable =
   | Partial<JSActionConfig>
   | Partial<Datasource>
-  | Partial<Action>;
+  | Partial<Action>
+  | Partial<{
+      widgets: any;
+      theme: any;
+    }>;
 
 type ReplayEditorDiff = Diff<Replayable, Replayable>;
 
