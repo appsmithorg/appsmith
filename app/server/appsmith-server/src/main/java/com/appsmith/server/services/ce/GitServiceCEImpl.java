@@ -2182,8 +2182,8 @@ public class GitServiceCEImpl implements GitServiceCE {
             Long matchCount = existingDataSources
                     .stream()
                     .filter(
-                            datasource1 -> datasource.getName().equals(datasource.getName())
-                                    && datasource1.getPluginId().equals(datasource.getPluginId())
+                            datasource1 -> datasource1.getName().equals(datasource.getName())
+                                    && !datasource1.getPluginId().equals(datasource.getPluginId())
                     ).count();
             if(matchCount > 0 ) {
                 return true;
