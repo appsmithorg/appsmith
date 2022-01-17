@@ -5,7 +5,7 @@ const { typeIntoDraftEditor } = require("../Comments/utils");
 const newCommentText1 = "new comment text 1";
 
 let repoName;
-describe("Git sync connect to repo", function() {
+describe("Git sync:", function() {
   before(() => {
     cy.generateUUID().then((uid) => {
       repoName = uid;

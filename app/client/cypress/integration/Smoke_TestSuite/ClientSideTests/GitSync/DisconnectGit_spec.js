@@ -2,7 +2,7 @@ import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 let repoName;
 let windowOpenSpy;
-describe("Git Disconnect modal", function() {
+describe("Git disconnect modal:", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createOrg();
@@ -16,7 +16,7 @@ describe("Git Disconnect modal", function() {
     });
   });
 
-  it("modal should be opened with proper components", function() {
+  it("should be opened with proper components", function() {
     cy.connectToGitRepo(repoName, false);
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
 
@@ -61,7 +61,7 @@ describe("Git Disconnect modal", function() {
     cy.get(gitSyncLocators.closeDisconnectModal).click();
   });
 
-  it("Validate of disconnect button enabling", function() {
+  it("should have disconnect repo button", function() {
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
 

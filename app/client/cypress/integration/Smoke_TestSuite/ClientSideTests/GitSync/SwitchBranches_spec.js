@@ -10,7 +10,7 @@ const childBranchKey = "ChildBranch";
 const branchQueryKey = "branch";
 
 let repoName;
-describe("Git sync connect to repo", function() {
+describe("Git sync:", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createOrg();

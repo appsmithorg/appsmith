@@ -20,7 +20,7 @@ const inputNameTempBranch3 = "inputNameTempBranch3";
 const inputNameTempBranch31 = "inputNameTempBranch31";
 
 let repoName;
-describe("Git", function() {
+describe("Git sync:", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createOrg();
