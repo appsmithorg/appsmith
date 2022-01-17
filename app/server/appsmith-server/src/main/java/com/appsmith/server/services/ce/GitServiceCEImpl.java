@@ -2040,12 +2040,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 error.getClass().getName(),
                                 error.getMessage(),
                                 false)
-                                .flatMap(user -> detachRemote(application.getId())
-                                        .then(applicationPageService.deleteApplication(application.getId()))
-                                )
+                                .flatMap(user -> fileUtils.detachRemote(repoPath)
+                                        .then(applicationPageService.deleteApplication(application.getId())))
                                 .flatMap(application1 -> {
                                     if (error instanceof TransportException) {
-                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
                                     }
                                     if (error instanceof InvalidRemoteException) {
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
