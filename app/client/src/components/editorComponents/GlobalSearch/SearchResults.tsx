@@ -25,6 +25,7 @@ import {
   pageIcon,
   apiIcon,
   jsIcon,
+  EntityIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -429,6 +430,11 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
   display: flex;
   align-items: center;
   width: 100%;
+  .action-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
   .operation-title {
     padding: 0 10px;
     max-width: 50%;
@@ -454,7 +460,9 @@ function ActionOperationItem({ isActiveItem, item }: any) {
   const icon = item.pluginId && getPluginIcon(pluginGroups[item.pluginId]);
   return (
     <ActionOperation isActive={isActiveItem}>
-      {item.icon || icon}
+      <div className="action-icon">
+        {item.icon ? item.icon : <EntityIcon>{icon}</EntityIcon>}
+      </div>
       <span className="operation-title t--file-operation">{item.title}</span>
       {item.desc && <span className="operation-desc"> ~ {item.desc}</span>}
     </ActionOperation>

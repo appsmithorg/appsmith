@@ -17,13 +17,16 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import WidgetFactory from "utils/WidgetFactory";
-import { apiIcon, curlIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { EntityIcon, jsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { getCurlImportPageURL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
+import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
+import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
+import { IconWrapper } from "constants/IconConstants";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -332,20 +335,30 @@ export const actionOperations = [
   {
     title: "New Blank API",
     desc: "Create a new API",
-    icon: apiIcon,
+    icon: (
+      <EntityIcon>
+        <IconWrapper height={18} width={18}>
+          <ApisIcon />
+        </IconWrapper>
+      </EntityIcon>
+    ),
     action: (pageId: string, location: EventLocation) =>
       createNewApiAction(pageId, location),
   },
   {
     title: "New JS Object",
     desc: "Create a new JS Object",
-    icon: jsIcon,
+    icon: jsFileIconV2,
     action: (pageId: string) => createNewJSCollection(pageId),
   },
   {
     title: "New cURL Import",
     desc: "Import a cURL Request",
-    icon: curlIcon,
+    icon: (
+      <EntityIcon>
+        <CurlIcon />
+      </EntityIcon>
+    ),
     redirect: (pageId: string, from: EventLocation, applicationId: string) => {
       const queryParams = getQueryParams();
       const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
