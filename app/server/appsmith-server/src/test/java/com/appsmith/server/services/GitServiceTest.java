@@ -2133,14 +2133,13 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
-        ApplicationJson applicationJson = new ApplicationJson();
-        BeanCopyUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
+        ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(new ApplicationJson()));
+                .thenReturn(Mono.just(applicationJson));
 
         Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 
@@ -2165,8 +2164,7 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
-        ApplicationJson applicationJson = new ApplicationJson();
-        BeanCopyUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
+        ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo");
 
         Application testApplication = new Application();
