@@ -1150,10 +1150,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     defaultActionResource.setApplicationId(null);
                     defaultActionResource.setActionId(null);
                     defaultActionResource.setBranchName(null);
-                    if (StringUtils.isEmpty(defaultActionResource.getPageId())) {
+                    if (!StringUtils.hasLength(defaultActionResource.getPageId())) {
                         defaultActionResource.setPageId(action.getPageId());
                     }
-                    if (StringUtils.isEmpty(defaultActionResource.getCollectionId())) {
+                    if (!StringUtils.hasLength(defaultActionResource.getCollectionId())) {
                         defaultActionResource.setCollectionId(action.getCollectionId());
                     }
                     action.setDefaultResources(defaultActionResource);
@@ -1163,7 +1163,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     BeanCopyUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
                     defaults.setPageId(null);
                     defaults.setCollectionId(null);
-                    if (StringUtils.isEmpty(defaults.getApplicationId())) {
+                    if (!StringUtils.hasLength(defaults.getApplicationId())) {
                         defaults.setApplicationId(newAction.getApplicationId());
                     }
                     newAction.setDefaultResources(defaults);
