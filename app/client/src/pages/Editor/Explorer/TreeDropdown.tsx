@@ -183,6 +183,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
   return (
     <StyledPopover
+      boundary="viewport"
+      canEscapeKeyClose
       className={props.className}
       content={menuItems}
       isOpen={isOpen}
@@ -191,7 +193,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       onClose={() => {
         setIsOpen(false);
       }}
-      position={PopoverPosition.AUTO_END}
+      position={PopoverPosition.RIGHT_TOP}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

@@ -90,7 +90,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "rename",
           onSelect: editActionName,
-          label: "Rename",
+          label: "Edit Name",
         },
         {
           value: "showBinding",

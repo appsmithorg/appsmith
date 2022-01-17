@@ -34,12 +34,24 @@ export enum EntityClassNames {
   TOOLTIP = "t--entity-tooltp",
 }
 
+const ContextMenuWrapper = styled.div`
+  height: 100%;
+`;
+
 const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+  ${ContextMenuWrapper} {
+    width: 0;
+  }
+  &: hover {
+    & > div > ${ContextMenuWrapper} {
+      min-width: 30px;
+      width: auto;
+    }
+  }
 `;
 
 export const entityTooltipCSS = css`
-  width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -153,11 +165,6 @@ const IconWrapper = styled.span`
     height: 16px;
   }
   margin-right: 4px;
-`;
-
-const ContextMenuWrapper = styled.div`
-  min-width: 30px;
-  height: 100%;
 `;
 
 export type EntityProps = {

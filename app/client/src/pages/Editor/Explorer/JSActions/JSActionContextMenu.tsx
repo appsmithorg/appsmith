@@ -89,7 +89,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         {
           value: "rename",
           onSelect: editJSCollectionName,
-          label: "Rename",
+          label: "Edit Name",
         },
         {
           value: "showBinding",

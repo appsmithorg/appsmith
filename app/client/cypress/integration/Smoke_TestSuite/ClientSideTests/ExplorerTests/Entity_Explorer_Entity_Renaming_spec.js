@@ -15,7 +15,7 @@ describe("Api Naming conflict on a page test", function() {
 
     // try to rename one of the APIs with an existing API name
     cy.hoverAndClickParticularIndex(2);
-    cy.selectAction("Rename");
+    cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity)
       .last()
@@ -63,7 +63,7 @@ describe("Entity Naming conflict test", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
     cy.hoverAndClickParticularIndex(2);
-    cy.selectAction("Rename");
+    cy.selectAction("Edit Name");
     cy.get(explorer.editEntity)
       .last()
       .type(secondApiName, { force: true });

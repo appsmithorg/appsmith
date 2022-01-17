@@ -16,7 +16,7 @@ describe("Tab widget test", function() {
   it("Tab Widget Functionality To rename Tabs from entity explorer", function() {
     cy.GlobalSearchEntity("Tab1");
     cy.hoverAndClickParticularIndex(2);
-    cy.selectAction("Rename");
+    cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity)
       .last()
@@ -36,7 +36,7 @@ describe("Tab widget test", function() {
   it("Tab Widget Functionality To delete Tabs from entity explorer", function() {
     cy.GlobalSearchEntity("Tab2");
     cy.hoverAndClickParticularIndex(3);
-    cy.selectAction("Rename");
+    cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity)
       .last()
