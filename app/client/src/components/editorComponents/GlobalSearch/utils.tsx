@@ -24,9 +24,8 @@ import { EventLocation } from "utils/AnalyticsUtil";
 import { getCurlImportPageURL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
-import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
+import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
-import { IconWrapper } from "constants/IconConstants";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -337,9 +336,7 @@ export const actionOperations = [
     desc: "Create a new API",
     icon: (
       <EntityIcon>
-        <IconWrapper height={18} width={18}>
-          <ApisIcon />
-        </IconWrapper>
+        <ApisIcon />
       </EntityIcon>
     ),
     action: (pageId: string, location: EventLocation) =>
