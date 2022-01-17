@@ -874,7 +874,10 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
           hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
         }),
       );
-      AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
+        source:
+          typeof callback === "function" ? "SLASH_COMMAND" : "SNIPPET_BUTTON",
+      });
       const effectRaceResult: { failure: any; success: any } = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),

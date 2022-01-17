@@ -46,7 +46,7 @@ import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
 import { getCanCreateApplications } from "utils/helpers";
 
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 

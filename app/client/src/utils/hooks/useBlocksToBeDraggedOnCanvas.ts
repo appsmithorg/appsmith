@@ -10,7 +10,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { getDragDetails, getWidgets } from "sagas/selectors";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
   WidgetOperationParams,
@@ -18,7 +18,7 @@ import {
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { XYCord } from "utils/hooks/useCanvasDragging";
-import { isEmpty } from "lodash";
+import { isEmpty, isEqual } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -26,6 +26,9 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
+import { stopReflowAction } from "actions/reflowActions";
+import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -53,6 +56,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const dispatch = useDispatch();
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
+  const lastDraggedCanvas = useRef<string | undefined>(undefined);
 
   // check any table filter is open or not
   // if filter pane open, close before property pane open
@@ -62,7 +66,21 @@ export const useBlocksToBeDraggedOnCanvas = ({
   // which canvas is active(being dragged on),
   // which widget is grabbed while dragging started,
   // relative position of mouse pointer wrt to the last grabbed widget.
-  const dragDetails = useSelector(getDragDetails);
+  const dragDetails: DragDetails = useSelector(getDragDetails);
+  const draggingCanvas = useSelector(
+    getWidgetByID(dragDetails.draggedOn || ""),
+  );
+  const isReflowing = useSelector(getIsReflowing);
+  useEffect(() => {
+    if (
+      dragDetails.draggedOn &&
+      draggingCanvas &&
+      draggingCanvas.parentId &&
+      ![widgetId, MAIN_CONTAINER_WIDGET_ID].includes(dragDetails.draggedOn)
+    ) {
+      lastDraggedCanvas.current = draggingCanvas.parentId;
+    }
+  }, [dragDetails.draggedOn]);
   const defaultHandlePositions = {
     top: 20,
     left: 20,
@@ -76,7 +94,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const occupiedSpaces = useSelector(getOccupiedSpaces) || {};
+  const occupiedSpaces = useSelector(getOccupiedSpaces, isEqual) || {};
   const isNewWidget = !!newWidget && !dragParent;
   const childrenOccupiedSpaces: OccupiedSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];
@@ -160,19 +178,45 @@ export const useBlocksToBeDraggedOnCanvas = ({
     (each) => !selectedWidgets.includes(each.id),
   );
   const { updateDropTargetRows } = useContext(DropTargetContext);
-
-  const onDrop = (drawingBlocks: WidgetDraggingBlock[]) => {
-    const cannotDrop = drawingBlocks.some((each) => {
+  const stopReflowing = () => {
+    if (isReflowing) dispatch(stopReflowAction());
+  };
+  const onDrop = (
+    drawingBlocks: WidgetDraggingBlock[],
+    reflowedPositionsUpdatesWidgets: OccupiedSpace[],
+  ) => {
+    const reflowedBlocks: WidgetDraggingBlock[] = reflowedPositionsUpdatesWidgets.map(
+      (each) => {
+        const widget = allWidgets[each.id];
+        return {
+          left: each.left * snapColumnSpace,
+          top: each.top * snapRowSpace,
+          width: (each.right - each.left) * snapColumnSpace,
+          height: (each.bottom - each.top) * snapRowSpace,
+          columnWidth: snapColumnSpace,
+          rowHeight: snapRowSpace,
+          widgetId: widget.widgetId,
+          isNotColliding: true,
+          detachFromLayout: widget.detachFromLayout,
+        };
+      },
+    );
+    const reflowedIds = reflowedPositionsUpdatesWidgets.map((each) => each.id);
+    const allUpdatedBlocks = [...drawingBlocks, ...reflowedBlocks];
+    const cannotDrop = allUpdatedBlocks.some((each) => {
       return !each.isNotColliding;
     });
     if (!cannotDrop) {
-      const draggedBlocksToUpdate = drawingBlocks
+      const draggedBlocksToUpdate = allUpdatedBlocks
         .sort(
           (each1, each2) =>
             each1.top + each1.height - (each2.top + each2.height),
         )
         .map((each) => {
-          const widget = newWidget ? newWidget : allWidgets[each.widgetId];
+          const widget =
+            newWidget && !reflowedIds.includes(each.widgetId)
+              ? newWidget
+              : allWidgets[each.widgetId];
           const updateWidgetParams = widgetOperationParams(
             widget,
             { x: each.left, y: each.top },
@@ -180,6 +224,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
             snapColumnSpace,
             snapRowSpace,
             widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
+            { width: each.width, height: each.height },
           );
 
           return {
@@ -195,7 +240,15 @@ export const useBlocksToBeDraggedOnCanvas = ({
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   ) => {
     if (isNewWidget) {
-      addNewWidget(draggedBlocksToUpdate[0]);
+      const newWidget = draggedBlocksToUpdate.find(
+        (each) => each.updateWidgetParams.operation === "ADD_CHILD",
+      );
+      const movedWidgets = draggedBlocksToUpdate.filter(
+        (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
+      );
+      if (newWidget) {
+        addNewWidget(newWidget, movedWidgets);
+      }
     } else {
       bulkMoveWidgets(draggedBlocksToUpdate);
     }
@@ -213,14 +266,29 @@ export const useBlocksToBeDraggedOnCanvas = ({
     });
   };
 
-  const addNewWidget = (newWidget: WidgetDraggingUpdateParams) => {
+  const addNewWidget = (
+    newWidget: WidgetDraggingUpdateParams,
+    movedWidgets: WidgetDraggingUpdateParams[],
+  ) => {
     const { updateWidgetParams } = newWidget;
-    updateWidget &&
-      updateWidget(
-        updateWidgetParams.operation,
-        updateWidgetParams.widgetId,
-        updateWidgetParams.payload,
-      );
+    if (movedWidgets && movedWidgets.length) {
+      dispatch({
+        type: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
+        payload: {
+          newWidget: updateWidgetParams.payload,
+          draggedBlocksToUpdate: movedWidgets,
+          canvasId: widgetId,
+        },
+      });
+    } else {
+      updateWidget &&
+        updateWidget(
+          updateWidgetParams.operation,
+          updateWidgetParams.widgetId,
+          updateWidgetParams.payload,
+        );
+    }
+
     // close filter pane if any open, before property pane open
     tableFilterPaneState.isVisible &&
       dispatch({
@@ -238,7 +306,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
       didDrop: true,
     });
   };
-  const updateRows = (drawingBlocks: WidgetDraggingBlock[], rows: number) => {
+  const updateRelativeRows = (
+    drawingBlocks: WidgetDraggingBlock[],
+    rows: number,
+  ) => {
     if (drawingBlocks.length) {
       const sortedByTopBlocks = drawingBlocks.sort(
         (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
@@ -253,9 +324,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
         } as XYCord,
         { x: 0, y: 0 },
       );
-      if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
-        return updateDropTargetRows && updateDropTargetRows(widgetId, top);
-      }
+      return updateBottomRow(top, rows);
+    }
+  };
+  const updateBottomRow = (bottom: number, rows: number) => {
+    if (bottom > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
+      return updateDropTargetRows && updateDropTargetRows(widgetId, bottom);
     }
   };
   const rowRef = useRef(snapRows);
@@ -312,11 +386,17 @@ export const useBlocksToBeDraggedOnCanvas = ({
     isNewWidget,
     isNewWidgetInitialTargetCanvas,
     isResizing,
+    lastDraggedCanvas,
     occSpaces,
     onDrop,
     parentDiff,
     relativeStartPoints,
     rowRef,
-    updateRows,
+    stopReflowing,
+    updateBottomRow,
+    updateRelativeRows,
+    widgetOccupiedSpace: childrenOccupiedSpaces.filter(
+      (each) => each.id === dragCenter?.widgetId,
+    )[0],
   };
 };

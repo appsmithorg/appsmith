@@ -110,6 +110,7 @@
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype .bp3-popover-target",
+  "recaptchaVersion": ".t--property-control-googlerecaptchaversion .bp3-popover-target",
   "evaluateMsg": ".t--evaluatedPopup-error",
   "globalSearchModal": ".t--global-search-modal",
   "globalSearchInput": ".t--global-search-input",
@@ -146,5 +147,8 @@
   "selectInner": ".t--draggable-dropdownwidget span.t--widget-name, Select1",
   "toastifyError": "//div[@class='Toastify']//span]",
   "dropdownWidget": ".t--draggable-dropdownwidget",
-  "textWidget": ".t--draggable-textwidget"
+  "textWidget": ".t--draggable-textwidget",
+  "filepickerv2": ".t--draggable-filepickerwidgetv2",
+  "dashboardItemName": ".uppy-Dashboard-Item-name",
+  "mapChartShowLabels": ".t--property-control-showlabels input"
 }
