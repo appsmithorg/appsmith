@@ -30,7 +30,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
-import { InputType, InputTypes, LABEL_MAX_WIDTH_RATE } from "../constants";
+import { InputType, InputTypes } from "../constants";
 
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
@@ -45,7 +45,11 @@ import ISDCodeDropdown, {
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { limitDecimalValue, getSeparators } from "./utilities";
-import { LabelPosition, LabelPositionTypes } from "components/constants";
+import {
+  LabelPosition,
+  LabelPositionTypes,
+  LABEL_MAX_WIDTH_RATE,
+} from "components/constants";
 
 /**
  * All design system component specific logic goes here.
@@ -326,8 +330,8 @@ const TextLabelWrapper = styled.div<{
         : `width: 100%;`
     }
     ${position === LabelPositionTypes.Left &&
-      `${width && `width: ${width}px`}; justify-content: ${alignment ===
-        Alignment.RIGHT && `flex-end;`}`}
+      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
+        `justify-content: flex-end`};`}
   `}
 `;
 

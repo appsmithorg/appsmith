@@ -28,7 +28,7 @@ import {
   getDecimalSeparator,
   getLocale,
 } from "../component/utilities";
-import { LabelPositionTypes } from "components/constants";
+import { LabelPosition, LabelPositionTypes } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -888,7 +888,7 @@ export interface InputWidgetProps extends WidgetProps {
   maxNum?: number;
   onTextChanged?: string;
   label: string;
-  labelPosition?: LabelPositionTypes;
+  labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
   labelTextColor?: string;
   labelTextSize?: TextSize;

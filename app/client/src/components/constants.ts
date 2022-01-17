@@ -95,3 +95,5 @@ export enum LabelPositionTypes {
 }
 
 export type LabelPosition = keyof typeof LabelPositionTypes;
+
+export const LABEL_MAX_WIDTH_RATE = 70;
