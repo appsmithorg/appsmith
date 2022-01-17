@@ -14,7 +14,6 @@ import {
   getAllPageWidgets,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import { EventLocation } from "utils/AnalyticsUtil";
 import history from "utils/history";
@@ -31,7 +30,6 @@ import { Colors } from "constants/Colors";
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
-  const currentUser = useSelector(getCurrentUser);
   return useMemo(() => {
     let fileOperations: any =
       actionOperations.filter((op) =>
