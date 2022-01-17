@@ -35,7 +35,7 @@ export function InputText(props: {
   const { dataType, disabled, name, placeholder } = props;
 
   return (
-    <div data-cy={name} style={{ width: "50vh" }}>
+    <div data-cy={name} style={{ width: "20vw" }}>
       <Field
         component={renderComponent}
         datatype={dataType}
