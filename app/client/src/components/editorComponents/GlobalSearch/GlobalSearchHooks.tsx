@@ -62,12 +62,6 @@ export const useFilteredFileOperations = (query = "") => {
     if (otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        {
-          title: `CREATE A QUERY ON DATASOURCES FROM ${
-            currentUser?.name ? currentUser?.name.toUpperCase() + "'S" : ""
-          } ORGANIZATION`,
-          kind: SEARCH_ITEM_TYPES.sectionTitle,
-        },
         ...otherFilteredDS.map((ds: any) => ({
           title: `New ${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
