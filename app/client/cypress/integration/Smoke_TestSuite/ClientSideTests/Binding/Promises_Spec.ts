@@ -36,7 +36,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             return res+ " Earth"
         }).then((res)=> {
             showAlert(res, 'success')
-        })}}`, true, true);
+        }).catch(err => { showAlert(err, 'error')});
+    }}`, true, true);
         agHelper.ClickButton('Submit')
         cy.get(locator._toastMsg)
             .should("have.length", 1)
@@ -101,7 +102,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
     });
 
-    it("6. Bug 9789: Verify .then & .catch (show alert no trigger) via JS Objects without return keyword", () => {
+    //Skipping until this bug is closed!
+    it.skip("6. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
         cy.fixture('promisesBtn').then((val: any) => {
             agHelper.AddDsl(val)
         });
@@ -112,7 +114,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
             jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
         });
         agHelper.ClickButton('Submit')
-        cy.get(locator._toastMsg).should("have.length", 0)
+        cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
     });
 
     it("6. Verify Promise.race via direct Promises", () => {

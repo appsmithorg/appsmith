@@ -107,4 +107,23 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     //   });
   });
 
+  it.skip("5. Bug 10284 - Verify timeout issue with running JS Objects", function () {
+    cy.fixture('formInputTableDsl').then((val: any) => {
+      agHelper.AddDsl(val)
+    });
+    agHelper.Sleep(2000)
+    jsEditor.CreateJSObject('return "Success";', true);
+    agHelper.expandCollapseEntity("Form1")
+    agHelper.SelectEntityByName("Input2")
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsEditor.EnterJSContext("defaulttext", "{{" + jsObjName + ".myFun1()}}")
+    });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success');
+  });
+
 });

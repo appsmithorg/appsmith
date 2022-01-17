@@ -91,8 +91,7 @@ export class JSEditor {
                     }
                 });
         });
-        agHelper.WaitAutoSave()
-        //agHelper.Sleep(2500);//Allowing time for Evaluate value to capture value
+        agHelper.WaitAutoSave()//Allowing time for Evaluate value to capture value
     }
 
     public RenameJSObjFromForm(renameVal: string) {
