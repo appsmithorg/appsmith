@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -979,8 +980,9 @@ public class GitServiceTest {
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMergeAble(true);
 
-        ApplicationJson applicationJson = validAppJson;
-        applicationJson.getExportedApplication().setName("pullChanges_upstreamChangesAvailable_pullSuccess");
+        ApplicationJson applicationJson = new ApplicationJson();
+        BeanCopyUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
+        applicationJson.getExportedApplication().setName("upstreamChangesAvailable_pullSuccess");
 
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
         gitStatusDTO.setAheadCount(2);
@@ -990,7 +992,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(applicationJson));
+                .thenReturn(Mono.just(validAppJson));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatusDTO));
@@ -1922,8 +1924,10 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
-        ApplicationJson applicationJson = validAppJson;
+        ApplicationJson applicationJson = new ApplicationJson();
+        BeanCopyUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
         applicationJson.getExportedApplication().setName("testRepo");
+
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -1952,7 +1956,8 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
-        ApplicationJson applicationJson = validAppJson;
+        ApplicationJson applicationJson = new ApplicationJson();
+        BeanCopyUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
         applicationJson.getExportedApplication().setName("testGitRepo");
 
         Application testApplication = new Application();
