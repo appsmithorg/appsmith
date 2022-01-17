@@ -31,7 +31,6 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
       //cy.log("value to test returned is :" + value)
     })
     jsEditor.CreateJSObject("return Api1.data.users;", false);
-    jsEditor.GetJSObjectName()
     cy.get("@jsObjName").then((jsObj) => {
       jsName = jsObj;
       cy.log("jsName returned is :" + jsName)
@@ -87,7 +86,6 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     });
     agHelper.Sleep(2000)
     jsEditor.CreateJSObject('return "Success";', false);
-    jsEditor.GetJSObjectName()
     agHelper.SelectEntityByName("Widgets")//to expand widgets
     agHelper.expandCollapseEntity("Form1")
     agHelper.SelectEntityByName("Input2")

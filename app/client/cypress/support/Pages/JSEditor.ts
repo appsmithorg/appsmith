@@ -51,6 +51,7 @@ export class JSEditor {
         })
         cy.get(locator._empty).should('not.exist')
         cy.get(locator._toastMsg).should("have.length", 0)
+        this.GetJSObjectName()
     }
 
     public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
