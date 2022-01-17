@@ -64,9 +64,6 @@ function FormControl(props: FormControlProps) {
     }
   }
 
-  // eslint-disable-next-line no-console
-  console.log(configErrors, "erooorrrrrrrrrrrrrr!!!!!!!!!");
-
   const hidden = isHidden(formValues, props.config.hidden);
 
   if (hidden) return null;
