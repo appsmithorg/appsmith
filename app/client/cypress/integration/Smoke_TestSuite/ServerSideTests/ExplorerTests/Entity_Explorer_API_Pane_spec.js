@@ -48,7 +48,7 @@ describe("Entity explorer API pane related testcases", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
       .click();
-    AHelper.ActionContextMenuByEntityName("FirstAPI", "Rename");
+    AHelper.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");
     cy.xpath(apiwidget.popover)
       .last()

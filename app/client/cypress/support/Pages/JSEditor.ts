@@ -117,7 +117,7 @@ export class JSEditor {
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
-    agHelper.ActionContextMenuByEntityName("RenamedJSObject", "Rename");
+    agHelper.ActionContextMenuByEntityName("RenamedJSObject", "Edit Name");
     cy.xpath(locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );

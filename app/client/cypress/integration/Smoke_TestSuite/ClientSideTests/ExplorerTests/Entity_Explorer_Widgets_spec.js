@@ -28,7 +28,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
       .contains("Text1")
       .trigger("mouseover");
     cy.hoverAndClickParticularIndex(4);
-    cy.selectAction("Rename");
+    cy.selectAction("Edit Name");
     cy.EditApiNameFromExplorer("TextUpdated");
     cy.get(".t--entity-name")
       .contains("TextUpdated")

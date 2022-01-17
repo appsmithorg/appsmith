@@ -43,6 +43,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       200,
     );
     cy.get("body").type(`{${modifierKey}}z`);
+    cy.selectEntityByName("WIDGETS");
     cy.get(".t--entity-name")
       .contains("FormTestCopy")
       .trigger("mouseover");

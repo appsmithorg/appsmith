@@ -17,7 +17,7 @@ import { PluginType } from "entities/Action";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
-    enabled: true,
+    enabled: false,
     offset: 200,
   },
 

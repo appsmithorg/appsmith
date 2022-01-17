@@ -14,7 +14,6 @@ import {
   getAllPageWidgets,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import { EventLocation } from "utils/AnalyticsUtil";
 import history from "utils/history";
@@ -31,7 +30,6 @@ import { Colors } from "constants/Colors";
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const applicationId = useSelector(getCurrentApplicationId);
-  const currentUser = useSelector(getCurrentUser);
   return useMemo(() => {
     let fileOperations: any =
       actionOperations.filter((op) =>
@@ -62,12 +60,6 @@ export const useFilteredFileOperations = (query = "") => {
     if (otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        {
-          title: `CREATE A QUERY ON DATASOURCES FROM ${
-            currentUser?.name ? currentUser?.name.toUpperCase() + "'S" : ""
-          } ORGANIZATION`,
-          kind: SEARCH_ITEM_TYPES.sectionTitle,
-        },
         ...otherFilteredDS.map((ds: any) => ({
           title: `New ${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,

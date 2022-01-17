@@ -81,7 +81,7 @@ export function WidgetContextMenu(props: {
     {
       value: "rename",
       onSelect: editWidgetName,
-      label: "Rename",
+      label: "Edit Name",
     },
     {
       value: "showBinding",

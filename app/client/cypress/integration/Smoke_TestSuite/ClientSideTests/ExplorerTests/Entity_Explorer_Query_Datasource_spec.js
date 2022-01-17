@@ -24,10 +24,10 @@ describe("Entity explorer tests related to query and datasource", function() {
 
   it.only("1. Create a page/moveQuery/rename/delete in explorer", function() {
     cy.Createpage(pageid);
+    cy.wait(2000);
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
-    cy.wait(2000);
+      .click({ force: true });
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
@@ -100,7 +100,7 @@ describe("Entity explorer tests related to query and datasource", function() {
       expect($lis.eq(3)).to.contain("{{Query1.run()}}");
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
-    AHelper.ActionContextMenuByEntityName("Query1", "Rename");
+    AHelper.ActionContextMenuByEntityName("Query1", "Edit Name");
     cy.EditApiNameFromExplorer("MyQuery");
     AHelper.ActionContextMenuByEntityName("MyQuery", "Move to page", pageid);
     cy.get(".t--entity-name")

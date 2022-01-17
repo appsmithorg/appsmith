@@ -28,7 +28,7 @@ describe("API Panel Test Functionality", function() {
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.get(".t--entity-name:contains('FirstAPI')").should("be.visible");
     cy.hoverAndClick();
-    cy.selectAction("Rename");
+    cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity)
       .last()

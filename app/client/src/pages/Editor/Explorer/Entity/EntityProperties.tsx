@@ -21,10 +21,14 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
+const BindingContainerMaxHeight = 300;
+const EntityHeight = 36;
+const BottomBarHeight = 34;
+
 const EntityInfoContainer = styled.div`
-  min-width: 240px;
+  min-width: 220px;
   max-width: 400px;
-  max-height: 300px;
+  max-height: ${BindingContainerMaxHeight}px;
   overflow-y: hidden;
   border: 1px solid rgba(229, 231, 235, var(--tw-border-opacity));
   box-shadow: 4px 0px 10px 2px #ebebeb;
@@ -54,6 +58,12 @@ export function EntityProperties() {
     }
   });
 
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, [show]);
+
   const actionEntity = useSelector((state: AppState) =>
     state.entities.actions.find((action) => action.config.id === entityId),
   );
@@ -70,23 +80,38 @@ export function EntityProperties() {
     });
   }, []);
 
+  const handleOutsideClick = (e: MouseEvent) => {
+    const appBody = document.getElementById("app-body") as HTMLElement;
+    const paths = e.composedPath();
+    if (
+      ref &&
+      ref.current &&
+      !paths?.includes(appBody) &&
+      !paths?.includes(ref.current)
+    )
+      closeContainer(e);
+  };
+
   useEffect(() => {
     const element = document.getElementById(entityId);
     const rect = element?.getBoundingClientRect();
     if (ref.current && rect) {
       const top = rect?.top;
       let bottom;
-      if (top + 300 > window.innerHeight - 34) {
-        bottom = window.innerHeight - rect?.bottom - 36;
+      if (
+        top + BindingContainerMaxHeight >
+        window.innerHeight - BottomBarHeight
+      ) {
+        bottom = window.innerHeight - rect?.bottom - EntityHeight;
       }
       if (bottom) {
         ref.current.style.bottom = bottom + "px";
         ref.current.style.top = "unset";
       } else {
-        ref.current.style.top = top - 36 + "px";
+        ref.current.style.top = top - EntityHeight + "px";
         ref.current.style.bottom = "unset";
       }
-      ref.current.style.left = (rect ? rect?.width + 0 : 0) + "px";
+      ref.current.style.left = (rect ? rect?.width ?? 0 : 0) + "px";
     }
   }, [entityId]);
 

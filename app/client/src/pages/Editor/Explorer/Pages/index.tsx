@@ -41,7 +41,6 @@ const StyledEntity = styled(Entity)`
     }
   }
   &.page .${EntityClassNames.PRE_RIGHT_ICON} {
-    position: absolute;
     width: 20px;
     right: 0;
   }

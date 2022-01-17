@@ -322,7 +322,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click();
       cy.get(homePage.portalMenuItem)
-        .contains("Rename", { matchCase: false })
+        .contains("Edit Name", { matchCase: false })
         .click();
     }
   });
