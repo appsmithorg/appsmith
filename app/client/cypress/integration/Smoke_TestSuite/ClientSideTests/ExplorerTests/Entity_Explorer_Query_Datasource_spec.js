@@ -24,10 +24,10 @@ describe("Entity explorer tests related to query and datasource", function() {
 
   it.only("1. Create a page/moveQuery/rename/delete in explorer", function() {
     cy.Createpage(pageid);
+    cy.wait(2000);
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
-    cy.wait(2000);
+      .click({ force: true });
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
