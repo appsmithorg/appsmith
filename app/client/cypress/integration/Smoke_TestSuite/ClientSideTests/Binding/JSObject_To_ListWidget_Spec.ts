@@ -85,6 +85,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     cy.fixture('formInputTableDsl').then((val: any) => {
       agHelper.AddDsl(val)
     });
+    agHelper.Sleep(2000)
     jsEditor.CreateJSObject('return "Success";', false);
     jsEditor.GetJSObjectName()
     agHelper.SelectEntityByName("Widgets")//to expand widgets
