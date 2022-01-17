@@ -17,7 +17,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import WidgetFactory from "utils/WidgetFactory";
-import { EntityIcon, jsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
@@ -348,7 +348,7 @@ export const actionOperations = [
   {
     title: "New JS Object",
     desc: "Create a new JS Object",
-    icon: jsFileIconV2,
+    icon: JsFileIconV2,
     action: (pageId: string) => createNewJSCollection(pageId),
   },
   {
