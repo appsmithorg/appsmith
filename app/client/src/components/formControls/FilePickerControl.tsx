@@ -105,7 +105,7 @@ function RenderFilePicker(props: RenderFilePickerProps) {
     <>
       <div
         className={replayHighlightClass}
-        style={{ flexDirection: "row", display: "flex", width: "50vh" }}
+        style={{ flexDirection: "row", display: "flex", width: "20vw" }}
       >
         <StyledDiv>{props?.input?.value?.name}</StyledDiv>
         <SelectButton

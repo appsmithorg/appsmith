@@ -197,6 +197,12 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
+                  },
                 },
                 {
                   propertyName: "isDisabled",
@@ -208,6 +214,12 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
+                  },
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -230,6 +242,12 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.BOOLEAN,
+                    },
+                  },
                   isTriggerProperty: false,
                   dependencies: [
                     "primaryColumns",
@@ -347,6 +365,36 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: [
+                          "Epoch",
+                          "Milliseconds",
+                          "YYYY-MM-DD",
+                          "YYYY-MM-DD HH:mm",
+                          "YYYY-MM-DDTHH:mm:ss.sssZ",
+                          "YYYY-MM-DDTHH:mm:ss",
+                          "YYYY-MM-DD hh:mm:ss",
+                          "Do MMM YYYY",
+                          "DD/MM/YYYY",
+                          "DD/MM/YYYY HH:mm",
+                          "LLL",
+                          "LL",
+                          "D MMMM, YYYY",
+                          "H:mm A D MMMM, YYYY",
+                          "MM-DD-YYYY",
+                          "DD-MM-YYYY",
+                          "MM/DD/YYYY",
+                          "DD/MM/YYYY",
+                          "DD/MM/YY",
+                          "MM/DD/YY",
+                        ],
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -454,6 +502,36 @@ export default [
                     "columnType",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: [
+                          "Epoch",
+                          "Milliseconds",
+                          "YYYY-MM-DD",
+                          "YYYY-MM-DD HH:mm",
+                          "YYYY-MM-DDTHH:mm:ss.sssZ",
+                          "YYYY-MM-DDTHH:mm:ss",
+                          "YYYY-MM-DD hh:mm:ss",
+                          "Do MMM YYYY",
+                          "DD/MM/YYYY",
+                          "DD/MM/YYYY HH:mm",
+                          "LLL",
+                          "LL",
+                          "D MMMM, YYYY",
+                          "H:mm A D MMMM, YYYY",
+                          "MM-DD-YYYY",
+                          "DD-MM-YYYY",
+                          "MM/DD/YYYY",
+                          "DD/MM/YYYY",
+                          "DD/MM/YY",
+                          "MM/DD/YY",
+                        ],
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -526,6 +604,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["LEFT", "CENTER", "RIGHT"],
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -574,6 +661,21 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: [
+                          "HEADING1",
+                          "HEADING2",
+                          "HEADING3",
+                          "PARAGRAPH",
+                          "PARAGRAPH2",
+                        ],
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "fontStyle",
@@ -603,6 +705,12 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                    },
+                  },
                 },
                 {
                   propertyName: "verticalAlignment",
@@ -632,6 +740,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["TOP", "CENTER", "BOTTOM"],
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -647,6 +764,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -662,6 +788,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
               ],
@@ -797,6 +932,15 @@ export default [
                     "columnOrder",
                   ],
                   isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -872,12 +1016,15 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                      },
                     },
                   },
                 },
@@ -899,19 +1046,22 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
                     params: {
-                      allowedValues: [
-                        "NONE",
-                        "VARIANT1",
-                        "VARIANT2",
-                        "VARIANT3",
-                        "VARIANT4",
-                        "VARIANT5",
-                      ],
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: [
+                          "NONE",
+                          "VARIANT1",
+                          "VARIANT2",
+                          "VARIANT3",
+                          "VARIANT4",
+                          "VARIANT5",
+                        ],
+                      },
                     },
                   },
                 },
@@ -932,7 +1082,16 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
+                    },
+                  },
                   isTriggerProperty: false,
                 },
                 {
@@ -954,6 +1113,15 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
+                    },
+                  },
                 },
 
                 {
@@ -962,11 +1130,19 @@ export default [
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-                  validation: { type: ValidationTypes.TEXT },
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        regex: /^(?![<|{{]).+/,
+                      },
+                    },
+                  },
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
@@ -1545,32 +1721,40 @@ export default [
         propertyName: "isVisibleSearch",
         label: "Search",
         controlType: "SWITCH",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "Toggle visibility of the filters",
         propertyName: "isVisibleFilters",
         label: "Filters",
         controlType: "SWITCH",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "Toggle visibility of the data download",
         propertyName: "isVisibleDownload",
         label: "Download",
         controlType: "SWITCH",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "Toggle visibility of the pagination",
         propertyName: "isVisiblePagination",
         label: "Pagination",
         controlType: "SWITCH",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         propertyName: "delimiter",
