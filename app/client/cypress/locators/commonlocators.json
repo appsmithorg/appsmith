@@ -150,5 +150,6 @@
   "textWidget": ".t--draggable-textwidget",
   "filepickerv2": ".t--draggable-filepickerwidgetv2",
   "dashboardItemName": ".uppy-Dashboard-Item-name",
-  "mapChartShowLabels": ".t--property-control-showlabels input"
+  "mapChartShowLabels": ".t--property-control-showlabels input",
+  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle"
 }

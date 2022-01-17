@@ -793,10 +793,21 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
+  cy.get(commonlocators.widgetSection)
+    .invoke("attr", "name")
+    .then((name) => {
+      if (name === "arrow-right") {
+        cy.get(commonlocators.widgetSection).click({ force: true });
+      }
+    });
+});
+
 Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   cy.get(commonlocators.entityExplorersearch)
     .clear({ force: true })
     .type(apiname1, { force: true });
+  cy.CheckAndUnfoldWidgets();
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).scrollIntoView({ easing: "linear" });
@@ -816,7 +827,7 @@ Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.get(".t--entity-name").click({ multiple: true });
+  cy.CheckAndUnfoldWidgets();
   cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
