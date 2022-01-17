@@ -12,7 +12,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
     it("1. Verify storeValue via .then via direct Promises", () => {
         let date = new Date().toDateString();
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         agHelper.SelectEntityByName("Widgets")//to expand widgets
@@ -26,7 +26,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     it("2. Verify resolve & chaining via direct Promises", () => {
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         agHelper.SelectEntityByName("Button1");
@@ -45,7 +45,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     it("3. Verify Async Await via direct Promises", () => {
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser")
@@ -66,7 +66,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     it("4. Verify .then & .catch via direct Promises", () => {
-        cy.fixture('promisesBtnImg').then((val: any) => {
+        cy.fixture('promisesBtnImgDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://source.unsplash.com/collection/8439505", "Christmas")
@@ -87,7 +87,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     it("5. Verify .then & .catch via JS Objects with return keyword", () => {
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes")
@@ -104,7 +104,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
     //Skipping until this bug is closed!
     it.skip("6. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         jsEditor.CreateJSObject(`const user = 'You';
@@ -118,7 +118,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     it("6. Verify Promise.race via direct Promises", () => {
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://api.agify.io?name={{this.params.person}}", "Agify")
@@ -130,7 +130,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     it("7. Verify maintaining context via direct Promises", () => {
-        cy.fixture('promisesBtnList').then((val: any) => {
+        cy.fixture('promisesBtnListDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         apiPage.CreateAndFillApi("https://api.jikan.moe/v3/search/anime?q={{this.params.name}}", "GetAnime")
@@ -165,7 +165,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     it("8: Verify Promise.all via direct Promises", () => {
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         agHelper.SelectEntityByName("Widgets")//to expand widgets
@@ -185,7 +185,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
     //Skipping until this bug is closed!
     it.skip("9. Bug 10150: Verify Promise.all via JSObjects", () => {
-        cy.fixture('promisesBtn').then((val: any) => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
         jsEditor.CreateJSObject(`let allFuncs = [Genderize.run({country: 'India'}), 
