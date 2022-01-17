@@ -1,8 +1,8 @@
 import React, { ReactNode, useState, useEffect, useRef, useMemo } from "react";
 import styled, { StyledComponent } from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useDrag } from "react-use-gesture";
 import { animated, Spring } from "react-spring";
+import { useDrag } from "react-use-gesture";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
