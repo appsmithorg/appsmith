@@ -49,7 +49,14 @@ describe("Table Widget property pane feature validation", function() {
     // Open column details of "id".
     cy.editColumn("id");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    /* cy.get(commonlocators.changeColType)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
+      .children()
+      .contains("Plain Text")
+      .click();
+    cy.changeColumnType("Button"); */
     const color1 = "rgb(255, 0, 0)";
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })

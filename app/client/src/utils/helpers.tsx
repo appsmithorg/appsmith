@@ -18,7 +18,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
 import log from "loglevel";

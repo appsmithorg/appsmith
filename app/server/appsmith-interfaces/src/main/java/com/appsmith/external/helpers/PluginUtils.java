@@ -242,7 +242,7 @@ public class PluginUtils {
     public static Condition parseWhereClause(Map<String, Object> whereClause) {
         Condition condition = new Condition();
 
-        Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.toString());
+        Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.name());
 
         ConditionalOperator operator;
         try {

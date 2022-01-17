@@ -203,6 +203,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -283,6 +284,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -447,6 +449,13 @@ export const entityDefinitions: Record<string, unknown> = {
     videoDataURL: "string",
     videoRawBinary: "string",
   },
+  MAP_CHART_WIDGET: {
+    "!doc":
+      "Map Chart widget shows the graphical representation of your data on the map.",
+    "!url": "https://docs.appsmith.com/widget-reference/map-chart",
+    isVisible: isVisible,
+    selectedDataPoint: "mapChartDataPoint",
+  },
 };
 
 export const GLOBAL_DEFS = {
@@ -480,6 +489,13 @@ export const GLOBAL_DEFS = {
     data: "string",
     name: "text",
     type: "file",
+  },
+  mapChartDataPoint: {
+    id: "string",
+    label: "string",
+    originalId: "string",
+    shortLabel: "string",
+    value: "number",
   },
 };
 
