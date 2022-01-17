@@ -30,6 +30,7 @@ class CircularProgressWidget extends BaseWidget<
             placeholderText: "Value:",
             isBindProperty: true,
             isTriggerProperty: false,
+            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
