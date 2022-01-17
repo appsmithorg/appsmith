@@ -283,7 +283,7 @@ class DropDownComponent extends React.Component<
     }
 
     if (
-      prevProps.columns !== this.props.columns ||
+      prevProps.width !== this.props.width ||
       prevProps.labelText !== this.props.labelText ||
       prevProps.labelPosition !== this.props.labelPosition ||
       prevProps.labelWidth !== this.props.labelWidth
@@ -501,7 +501,6 @@ export interface DropDownComponentProps extends ComponentProps {
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
-  columns: number;
   labelAlignment?: Alignment;
   labelPosition?: LabelPosition;
   labelText: string;

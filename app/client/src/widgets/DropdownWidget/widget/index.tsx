@@ -375,7 +375,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
-        columns={this.props.rightColumn - this.props.leftColumn}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /

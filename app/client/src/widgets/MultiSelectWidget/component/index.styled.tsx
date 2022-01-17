@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox, Classes, Label } from "@blueprintjs/core";
+import { Alignment, Checkbox, Classes, Label } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
@@ -8,6 +8,12 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import {
+  LabelPosition,
+  LabelPositionTypes,
+  LABEL_MAX_WIDTH_RATE,
+} from "components/constants";
+import Tooltip from "components/ads/Tooltip";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -232,20 +238,38 @@ ${({ dropDownWidth, id, parentWidth }) => `
 export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
+  labelPosition?: LabelPosition;
 }>`
   display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  flex-direction: ${(props) =>
+    props.labelPosition === LabelPositionTypes.Left
+      ? "row"
+      : props.labelPosition === LabelPositionTypes.Top
+      ? "column"
+      : props.compactMode
+      ? "row"
+      : "column"};
+  align-items: ${({ compactMode, labelPosition }) =>
+    labelPosition === LabelPositionTypes.Top
+      ? `flex-start`
+      : compactMode || labelPosition === LabelPositionTypes.Left
+      ? `center`
+      : `flex-start`};
+  ${({ compactMode, labelPosition }) =>
+    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
+      labelPosition === LabelPositionTypes.Top) &&
+    `overflow-x: hidden; overflow-y: auto;`}
 
-  label.tree-multiselect-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  label.multiselect-label {
+    margin-bottom: ${({ compactMode }) => (compactMode ? "0px" : "5px")};
+    margin-right: ${({ compactMode, labelPosition }) =>
+      compactMode || labelPosition === LabelPositionTypes.Left ? "5px" : "0px"};
   }
+
   .rc-select {
     display: inline-block;
     font-size: 12px;
     width: 100%;
-    height: 100%;
     position: relative;
     cursor: pointer;
     .rc-select-selection-placeholder {
@@ -495,10 +519,22 @@ export const inputIcon = (): JSX.Element => (
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
+  alignment?: Alignment;
+  position?: LabelPosition;
+  width?: number;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
   display: flex;
+  ${({ alignment, compactMode, position, width }) => `
+    ${
+      position !== LabelPositionTypes.Top &&
+      (position === LabelPositionTypes.Left || compactMode)
+        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        : `width: 100%;`
+    }
+    ${position === LabelPositionTypes.Left &&
+      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
+        `justify-content:  flex-end`};`}
+  `}
 `;
 
 export const StyledLabel = styled(Label)<{
@@ -525,4 +561,8 @@ export const StyledLabel = styled(Label)<{
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+`;
+
+export const StyledTooltip = styled(Tooltip)`
+  overflow: hidden;
 `;

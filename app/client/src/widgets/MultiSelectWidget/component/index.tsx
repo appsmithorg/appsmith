@@ -8,6 +8,7 @@ import {
   StyledCheckbox,
   TextLabelWrapper,
   StyledLabel,
+  StyledTooltip,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
@@ -16,10 +17,11 @@ import {
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes, Position } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
+import { LabelPosition } from "components/constants";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -39,13 +41,17 @@ export interface MultiSelectProps
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
   width: number;
-  labelText?: string;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
   isValid: boolean;
   allowSelectAll?: boolean;
+  widgetId: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -57,10 +63,13 @@ function MultiSelectComponent({
   dropdownStyle,
   dropDownWidth,
   isValid,
+  labelAlignment,
+  labelPosition,
   labelStyle,
   labelText,
   labelTextColor,
   labelTextSize,
+  labelWidth,
   loading,
   onChange,
   onFilterChange,
@@ -68,10 +77,43 @@ function MultiSelectComponent({
   placeholder,
   serverSideFiltering,
   value,
+  widgetId,
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+
   const _menu = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (
+      !isSelectAll &&
+      options.length &&
+      value.length &&
+      options.length === value.length
+    ) {
+      setIsSelectAll(true);
+    }
+    if (isSelectAll && options.length !== value.length) {
+      setIsSelectAll(false);
+    }
+  }, [options, value]);
+
+  useEffect(() => {
+    setHasLabelEllipsis(checkHasLabelEllipsis());
+  }, [width, labelText, labelPosition, labelWidth]);
+
+  const checkHasLabelEllipsis = useCallback(() => {
+    const labelElement = document.querySelector(
+      `.appsmith_widget_${widgetId} .multiselect-label`,
+    );
+
+    if (labelElement) {
+      return labelElement.scrollWidth > labelElement.clientWidth;
+    }
+
+    return false;
+  }, []);
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -91,19 +133,6 @@ function MultiSelectComponent({
     }
     return onChange([]);
   };
-  useEffect(() => {
-    if (
-      !isSelectAll &&
-      options.length &&
-      value.length &&
-      options.length === value.length
-    ) {
-      setIsSelectAll(true);
-    }
-    if (isSelectAll && options.length !== value.length) {
-      setIsSelectAll(false);
-    }
-  }, [options, value]);
 
   const dropdownRender = useCallback(
     (
@@ -154,6 +183,7 @@ function MultiSelectComponent({
       className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
       isValid={isValid}
+      labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
@@ -162,20 +192,47 @@ function MultiSelectComponent({
         parentWidth={width - WidgetContainerDiff}
       />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode}>
-          <StyledLabel
-            $compactMode={compactMode}
-            $disabled={disabled}
-            $labelStyle={labelStyle}
-            $labelText={labelText}
-            $labelTextColor={labelTextColor}
-            $labelTextSize={labelTextSize}
-            className={`tree-multiselect-label ${
-              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }`}
-          >
-            {labelText}
-          </StyledLabel>
+        <TextLabelWrapper
+          alignment={labelAlignment}
+          compactMode={compactMode}
+          position={labelPosition}
+          width={labelWidth}
+        >
+          {hasLabelEllipsis ? (
+            <StyledTooltip
+              content={labelText}
+              hoverOpenDelay={200}
+              position={Position.TOP}
+            >
+              <StyledLabel
+                $compactMode={compactMode}
+                $disabled={disabled}
+                $labelStyle={labelStyle}
+                $labelText={labelText}
+                $labelTextColor={labelTextColor}
+                $labelTextSize={labelTextSize}
+                className={`multiselect-label ${
+                  loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+                }`}
+              >
+                {labelText}
+              </StyledLabel>
+            </StyledTooltip>
+          ) : (
+            <StyledLabel
+              $compactMode={compactMode}
+              $disabled={disabled}
+              $labelStyle={labelStyle}
+              $labelText={labelText}
+              $labelTextColor={labelTextColor}
+              $labelTextSize={labelTextSize}
+              className={`multiselect-label ${
+                loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+              }`}
+            >
+              {labelText}
+            </StyledLabel>
+          )}
         </TextLabelWrapper>
       )}
       <Select
