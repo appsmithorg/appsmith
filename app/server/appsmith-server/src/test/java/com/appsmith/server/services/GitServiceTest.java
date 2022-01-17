@@ -2140,7 +2140,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(applicationJson));
+                .thenReturn(Mono.just(new ApplicationJson()));
 
         Mono<Application> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
 

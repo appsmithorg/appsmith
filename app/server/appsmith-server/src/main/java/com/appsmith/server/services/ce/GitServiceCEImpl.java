@@ -5,6 +5,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
@@ -38,6 +39,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
@@ -70,6 +72,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
@@ -109,6 +112,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final AnalyticsService analyticsService;
     private final GitCloudServicesUtils gitCloudServicesUtils;
     private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final DatasourceService datasourceService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -1978,8 +1982,6 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
         }
 
-        String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
-
         Mono<Application> importedApplicationMono = getSSHKeyForCurrentUser()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
@@ -2020,7 +2022,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     Application application = tuple.getT2();
                     GitAuth gitAuth = tuple.getT1();
-
+                    String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                     Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), repoName);
                     Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
                     Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
@@ -2078,29 +2080,43 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     log.debug("Error while checking if the repo is private: ", e);
                                 }
 
-                                Mono<ApplicationJson> applicationJsonMono;
-                                try {
-                                    applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), repoName, defaultBranch);
-                                } catch (GitAPIException | IOException e) {
-                                    log.error("Error while constructing application from git repo", e);
-                                    return detachRemote(application.getId())
-                                            .then(applicationPageService.deleteApplication(application.getId()))
-                                            .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
-                                }
-
-                                // Set branchName for each application resource
-                                return applicationJsonMono
-                                        .flatMap(applicationJson -> {
-                                            applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
-                                            return importExportApplicationService
-                                                    .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch);
-                                        })
-                                        .zipWith(profileMono);
+                                application.setGitApplicationMetadata(gitApplicationMetadata);
+                                return Mono.just(application).zipWith(profileMono);
                             });
                 })
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
+
+                    try {
+                        Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
+
+                        return fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
+                                .zipWith(datasourceMono)
+                                .flatMap(data -> {
+                                    List<Datasource> datasourceList = data.getT2();
+                                    ApplicationJson applicationJson = data.getT1();
+                                    // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
+                                    if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList())) {
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                " --import",
+                                                " Datasource already exists with the same name"));
+                                    }
+                                    applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                    return importExportApplicationService
+                                            .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch);
+                                });
+
+                    } catch (GitAPIException | IOException e) {
+                        log.error("Error while constructing application from git repo", e);
+                        return detachRemote(application.getId())
+                                .then(applicationPageService.deleteApplication(application.getId()))
+                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
+                    }
+                })
                 // Add analytics event
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
+                .flatMap(application -> {
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_IMPORT.getEventName(),
                             application.getOrganizationId(),
@@ -2159,6 +2175,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     throw error;
                 });
+    }
+
+    private boolean checkIsDatasourceNameConflict(List<Datasource> existingDataSources, List<Datasource> importedDataSources) {
+        // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
+        for( Datasource datasource : importedDataSources) {
+            Long matchCount = existingDataSources
+                    .stream()
+                    .filter(
+                            datasource1 -> datasource.getName().equals(datasource.getName())
+                                    && datasource1.getPluginId().equals(datasource.getPluginId())
+                    ).count();
+            if(matchCount > 0 ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {
