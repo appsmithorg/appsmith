@@ -14,6 +14,7 @@ import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
 import FileDataTypes from "./FileDataTypes";
+import log from "loglevel";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class FilePickerWidget extends BaseWidget<
@@ -328,14 +329,17 @@ class FilePickerWidget extends BaseWidget<
       .use(Url, { companionUrl: "https://companion.uppy.io" })
       .use(OneDrive, {
         companionUrl: "https://companion.uppy.io/",
-      })
-      .use(Webcam, {
+      });
+
+    if (location.protocol === "https:") {
+      this.state.uppy.use(Webcam, {
         onBeforeSnapshot: () => Promise.resolve(),
         countdown: false,
         mirror: true,
         facingMode: "user",
         locale: {},
       });
+    }
 
     this.state.uppy.on("file-removed", (file: any) => {
       const updatedFiles = this.props.selectedFiles
@@ -440,7 +444,11 @@ class FilePickerWidget extends BaseWidget<
   }
 
   componentDidMount() {
-    this.initializeUppyEventListeners();
+    try {
+      this.initializeUppyEventListeners();
+    } catch (e) {
+      log.debug("Error in initializing uppy");
+    }
   }
 
   componentWillUnmount() {
