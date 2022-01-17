@@ -1,6 +1,6 @@
 import React from "react";
 import FormControl from "pages/Editor/FormControl";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
@@ -108,9 +108,9 @@ export default function EntitySelectorControl(
   props: EntitySelectorControlProps,
 ) {
   const {
-    configProperty,
-    formName, // JSON path for the where clause data
-    schema, // Name of the form, used by redux-form lib to store the data in redux store
+    configProperty, // JSON path for the where clause data
+    formName, // Name of the form, used by redux-form lib to store the data in redux store
+    schema, // Schema is the array of objects that contains specific data for the ES
   } = props;
 
   return (
