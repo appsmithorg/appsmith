@@ -85,9 +85,6 @@ describe("Entity explorer tests related to copy query", function() {
       .contains("Page1")
       .click();
     cy.wait(2000);
-    cy.get(".t--entity-name")
-      .contains(datasourceName)
-      .click();
     cy.generateUUID().then((uid) => {
       updatedName = uid;
       cy.log("complete uid :" + updatedName);
@@ -95,7 +92,8 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.wait(2000);
-      agHelper.ActionContextMenuByEntityName(updatedName, "Delete", "", true);
+      cy.hoverAndClick();
+      cy.get(apiwidget.delete).click({ force: true });
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
