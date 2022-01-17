@@ -45,6 +45,9 @@ import SortingControl, {
 import EntitySelectorControl, {
   EntitySelectorControlProps,
 } from "components/formControls/EntitySelectorControl";
+import ProjectionSelectorControl, {
+  ProjectionSelectorControlProps,
+} from "components/formControls/ProjectionSelectorControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -141,6 +144,13 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("SORTING", {
       buildPropertyControl(controlProps: SortingControlProps): JSX.Element {
         return <SortingControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("PROJECTION", {
+      buildPropertyControl(
+        controlProps: ProjectionSelectorControlProps,
+      ): JSX.Element {
+        return <ProjectionSelectorControl {...controlProps} />;
       },
     });
   }
