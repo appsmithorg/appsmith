@@ -269,6 +269,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 actionCollection.setApplicationId(null);
                                 actionCollection.setUpdatedAt(null);
 
+                                // Set unique ids for actionCollection, also populate collectionIdToName map which will
+                                // be used to replace collectionIds in action
                                 if (actionCollection.getUnpublishedCollection() != null) {
                                     ActionCollectionDTO actionCollectionDTO = actionCollection.getUnpublishedCollection();
                                     actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + PublishType.UNPUBLISHED));
@@ -313,7 +315,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
                                 );
 
-                                // Set unique id for action using
+                                // Set unique id for action
                                 if (newAction.getUnpublishedAction() != null) {
                                     ActionDTO actionDTO = newAction.getUnpublishedAction();
                                     actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.UNPUBLISHED));
@@ -386,6 +388,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
                                                         .forEach(actionDTO -> {
                                                             actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
+                                                            actionDTO.setId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
                                                         })
                                                 );
                                             }
@@ -400,6 +403,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
                                                         .forEach(actionDTO -> {
                                                             actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
+                                                            actionDTO.setId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
                                                         })
                                                 );
                                             }
