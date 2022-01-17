@@ -211,13 +211,15 @@ const InputComponentWrapper = styled((props) => (
     }
     height: 100%;
 
-    align-items: ${({ compactMode, labelPosition }) =>
+    align-items: ${({ compactMode, inputType, labelPosition }) =>
       labelPosition === LabelPositionTypes.Top
         ? `flex-start`
         : compactMode
         ? `center`
         : labelPosition === LabelPositionTypes.Left
-        ? `stretch`
+        ? inputType === InputTypes.TEXT
+          ? `stretch`
+          : `center`
         : `flex-start`};
 
 
@@ -333,10 +335,12 @@ const StyledTooltip = styled(Tooltip)`
   overflow: hidden;
 `;
 
-const TextInputWrapper = styled.div`
+const TextInputWrapper = styled.div<{ numeric?: boolean }>`
   width: 100%;
   display: flex;
   flex: 1;
+  overflow-x: hidden;
+  ${({ numeric }) => numeric && `&&& {flex-grow: 0;}`}
 `;
 
 export const isNumberInputType = (inputType: InputType) => {
@@ -761,7 +765,7 @@ class InputComponent extends React.Component<
             )}
           </TextLabelWrapper>
         )}
-        <TextInputWrapper>
+        <TextInputWrapper numeric={isNumberInputType(inputType)}>
           <ErrorTooltip
             isOpen={isInvalid && showError}
             message={
