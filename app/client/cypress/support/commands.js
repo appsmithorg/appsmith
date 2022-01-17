@@ -609,7 +609,7 @@ Cypress.Commands.add("GlobalSearchEntity", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.get(".t--entity-name").click({ multiple: true });
+  cy.CheckAndUnfoldWidgets();
   cy.wait(500);
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
@@ -837,6 +837,29 @@ Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
     .first()
     .children(commonlocators.entityCollapseToggle)
     .last()
+    .click({ force: true });
+});
+
+Cypress.Commands.add("OpenBindings", (apiname1) => {
+  cy.wait(500);
+  cy.get(commonlocators.entityExplorersearch)
+    .clear({ force: true })
+    .type(apiname1, { force: true });
+  cy.CheckAndUnfoldWidgets();
+  cy.wait(500);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .parents(commonlocators.entityItem)
+    .first()
+    .trigger("mouseover")
+    .find(commonlocators.entityContextMenu)
+    .last()
+    .click({ force: true });
+  cy.get(commonlocators.entityContextMenuContent)
+    .children("li")
+    .contains("Show Bindings")
     .click({ force: true });
 });
 

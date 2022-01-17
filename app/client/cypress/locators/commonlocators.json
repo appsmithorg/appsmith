@@ -105,6 +105,8 @@
   "entityName": ".t--entity-name",
   "entityItem": ".t--entity-item",
   "entityCollapseToggle": ".t--entity-collapse-toggle",
+  "entityContextMenu": ".t--context-menu",
+  "entityContextMenuContent": ".t--entity-context-menu",
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",

@@ -165,7 +165,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   }
 
   const list = optionTree.map(renderTreeOption);
-  const menuItems = <StyledMenu>{list}</StyledMenu>;
+  const menuItems = (
+    <StyledMenu className="t--entity-context-menu">{list}</StyledMenu>
+  );
   const defaultToggle = (
     <StyledDropDownContainer>
       <BlueprintButton
