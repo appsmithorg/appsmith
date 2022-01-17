@@ -12,7 +12,7 @@ import {
 import { getJSCollection } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import { JSCollection } from "entities/JSCollection";
-import { jsFileIconV2 } from "../ExplorerIcons";
+import { JsFileIconV2 } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 
 type ExplorerJSCollectionEntityProps = {
@@ -54,7 +54,7 @@ export const ExplorerJSCollectionEntity = memo(
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}
-        icon={jsFileIconV2}
+        icon={JsFileIconV2}
         key={jsAction.id}
         name={jsAction.name}
         searchKeyword={props.searchKeyword}

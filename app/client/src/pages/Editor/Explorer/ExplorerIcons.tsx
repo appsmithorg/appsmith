@@ -265,8 +265,8 @@ const EntityIconWrapper = styled.div<{
 
   svg,
   img {
-    height: 14px;
-    width: 14px;
+    height: 12px !important;
+    width: 12px !important;
   }
 `;
 
@@ -299,7 +299,7 @@ export function ApiMethodIcon(props: { type: typeof HTTP_METHODS[number] }) {
   );
 }
 
-export const jsFileIconV2 = (
+export const JsFileIconV2 = (
   <EntityIcon>
     <EntityIcon.textIcon>JS</EntityIcon.textIcon>
   </EntityIcon>
