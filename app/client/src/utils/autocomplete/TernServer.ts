@@ -162,7 +162,7 @@ class TernServer {
     let ch, line, e;
     let found = false;
     const argPos = lex.pos || 0,
-      tabSize = cm.getOption("tabSize") as number; // check if valid
+      tabSize = cm.getOption("tabSize") as number;
     for (
       line = cm.getCursor().line, e = Math.max(0, line - 9);
       line >= e;
@@ -186,9 +186,6 @@ class TernServer {
     // debugger;
 
     const start = Pos(line, ch);
-    const cache = this.cachedArgHints;
-    if (cache && cache.doc == cm.getDoc() && cmpPos(start, cache.start) == 0)
-      return this.showArgHints(cm, argPos, start);
 
     this.request(
       cm,
@@ -199,30 +196,36 @@ class TernServer {
       (error, data) => {
         // debugger;
         if (error || !data.type || !/^fn\(/.test(data.type)) return;
-        this.cachedArgHints = {
+        this.showArgHints(cm, argPos, start, {
           start: start,
           type: this.parseFnType(data.type),
           name: data.exprName || data.name || "fn",
           guess: data.guess,
           doc: cm.getDoc(),
-        };
-        this.showArgHints(cm, argPos, start);
+        });
       },
       start,
     );
   }
 
-  showArgHints(cm: CodeMirror.Editor, pos: number, start: CodeMirror.Position) {
+  showArgHints(
+    cm: CodeMirror.Editor,
+    pos: number,
+    start: CodeMirror.Position,
+    argHints: ArgHints,
+  ) {
     this.closeArgHints();
-    if (!this.cachedArgHints) return;
 
-    const cache = this.cachedArgHints,
-      tp = cache.type,
+    const tp = argHints.type,
       hasNoArgs = tp.args.length < 1;
     const tip = this.elt(
       "span",
-      cache.guess ? cls + "fhint-guess" : null,
-      this.elt("span", `${cls}fname`, `${cache.name}(${hasNoArgs ? "" : " "}`),
+      argHints.guess ? cls + "fhint-guess" : null,
+      this.elt(
+        "span",
+        `${cls}fname`,
+        `${argHints.name}(${hasNoArgs ? "" : " "}`,
+      ),
     );
     for (let i = 0; i < tp.args.length; ++i) {
       if (i) tip.appendChild(document.createTextNode(", "));
