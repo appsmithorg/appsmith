@@ -18,6 +18,10 @@ import { FormIcons } from "icons/FormIcons";
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
 import _ from "lodash";
+import {
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 interface FormControlProps {
   config: ControlProps;
   formName: string;
@@ -34,7 +38,7 @@ function FormControl(props: FormControlProps) {
 
   // action that corresponds to this form control
   let action: any;
-  let configErrors: string[] = [];
+  let configErrors: EvaluationError[] = [];
 
   // if form value exists, use the name of the form(which is the action's name) to get the action details
   // from the data tree, then store it in the action variable
@@ -60,6 +64,9 @@ function FormControl(props: FormControlProps) {
     }
   }
 
+  // eslint-disable-next-line no-console
+  console.log(configErrors, "erooorrrrrrrrrrrrrr!!!!!!!!!");
+
   const hidden = isHidden(formValues, props.config.hidden);
 
   if (hidden) return null;
@@ -84,7 +91,7 @@ function FormControl(props: FormControlProps) {
 
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
-  configErrors: string[];
+  configErrors: EvaluationError[];
 }
 // top contains label, subtitle, urltext, tooltip, dispaly type
 // bottom contains the info and error text
@@ -197,7 +204,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
 
 function renderFormConfigBottom(props: {
   config: ControlProps;
-  configErrors?: string[];
+  configErrors?: EvaluationError[];
 }) {
   const { info } = { ...props.config };
   return (
@@ -205,9 +212,15 @@ function renderFormConfigBottom(props: {
       {info && <FormInputHelperText>{info}</FormInputHelperText>}
       {props.configErrors &&
         props.configErrors.length > 0 &&
-        props.configErrors.map((errorText, index) => (
-          <FormInputErrorText key={index}>{errorText}</FormInputErrorText>
-        ))}
+        props.configErrors
+          .filter(
+            (err) => err.errorType === PropertyEvaluationErrorType.VALIDATION,
+          )
+          .map((errorText, index) => (
+            <FormInputErrorText key={index}>
+              {`* ${errorText?.errorMessage}`}
+            </FormInputErrorText>
+          ))}
     </>
   );
 }
