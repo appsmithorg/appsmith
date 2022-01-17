@@ -87,6 +87,7 @@ const disableDrag = {
   // Draggable true is required to invoke onDragStart
   draggable: true,
   onDragStart: (e: DragEvent<HTMLDivElement>) => {
+    // Stop drag event propagation to prevent click events
     e.stopPropagation();
   },
 };
