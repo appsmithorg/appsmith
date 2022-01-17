@@ -18,23 +18,14 @@ describe("RadioGroup widget testing", function() {
   it("Radio widget check selection with value property as integer", function() {
     cy.openPropertyPane("radiogroupwidget");
 
-    //Check the DSV is {{1}} on page load and radio with value=1 is selected
-    cy.validateCodeEditorContent(
-      ".t--property-control-defaultselectedvalue",
-      "{{1}}",
-    );
+    //Check radio with value=1 is selected
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "1");
 
     //Change the DSV to {{2}}
     cy.updateCodeInput(".t--property-control-defaultselectedvalue", "{{2}}");
     cy.wait(200);
 
-    //Check the DSV if {{2}} and radio with value=2 is selected
-    cy.validateCodeEditorContent(
-      ".t--property-control-defaultselectedvalue",
-      "{{2}}",
-    );
-    cy.wait(200);
+    //Radio with value=2 is selected
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "2");
 
     //Check option 1 and then check it's value:
@@ -66,22 +57,14 @@ describe("RadioGroup widget testing", function() {
     //Change the DSV to 1.
     cy.updateCodeInput(".t--property-control-defaultselectedvalue", "1");
 
-    //Check if the DSV=1 and radio with value=1 is selected
-    cy.validateCodeEditorContent(
-      ".t--property-control-defaultselectedvalue",
-      "1",
-    );
+    //Check radio with value=1 is selected
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "1");
 
     //Change the DSV to 2.
     cy.updateCodeInput(".t--property-control-defaultselectedvalue", "2");
     cy.wait(200);
 
-    //Check if the DSV=2 and radio with value=2 is selected
-    cy.validateCodeEditorContent(
-      ".t--property-control-defaultselectedvalue",
-      "2",
-    );
+    //Check radio with value=2 is selected
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "2");
 
     //Check option 1 and then check it's value:

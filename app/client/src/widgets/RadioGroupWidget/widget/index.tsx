@@ -12,13 +12,10 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { isArray, compact, isNumber } from "lodash";
 /**
- * Validation requirement for the options property of this widget:
+ * Validation rules:
  * 1. This property will take the value in the following format: Array<{ "label": "string", "value": "string" | number}>
  * 2. The `value` property should consists of unique values only.
- * 3. The `value` property can accept strings or numbers.
- * 4. Label can be a type of string.
- * 5. Data types of all the value props should be the same.
- * 6. Label and value property should be present in the same order as mention in 1.
+ * 3. Data types of all the value props should be the same.
  */
 function optionsCustomValidation(
   options: unknown,
@@ -27,6 +24,7 @@ function optionsCustomValidation(
 ): ValidationResponse {
   const validationUtil = (
     options: { label: string; value: string | number }[],
+    _: any,
   ) => {
     let _isValid = true;
     let message = "";
@@ -44,6 +42,7 @@ function optionsCustomValidation(
       } else {
         _isValid = false;
         message = "path:value must be unique. Duplicate values found";
+        break;
       }
 
       //Check if the required field "label" is present:
@@ -56,8 +55,7 @@ function optionsCustomValidation(
 
       //Validation checks for the the label.
       if (
-        label === undefined ||
-        label === null ||
+        _.isNil(value) ||
         label === "" ||
         (typeof label !== "string" && typeof label !== "number")
       ) {
@@ -77,7 +75,7 @@ function optionsCustomValidation(
       }
 
       //Check if the each object has value property.
-      if (!value && value !== "") {
+      if (_.isNil(value)) {
         _isValid = false;
         message =
           'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>';
@@ -99,31 +97,19 @@ function optionsCustomValidation(
       'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
     ],
   };
-  if (options === undefined || options === null || options === "") {
-    return {
-      isValid: true,
-      messages: [],
-      parsed: options,
-    };
-  }
-
   try {
     if (_.isString(options)) {
       options = JSON.parse(options as string);
     }
 
     if (Array.isArray(options)) {
-      return validationUtil(options);
+      return validationUtil(options, _);
+    } else {
+      return invalidResponse;
     }
   } catch (e) {
     return invalidResponse;
   }
-
-  return {
-    isValid: true,
-    messages: [],
-    parsed: options,
-  };
 }
 function defaultOptionValidation(value: unknown): ValidationResponse {
   /**
@@ -183,7 +169,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               params: {
                 fn: defaultOptionValidation,
                 expected: {
-                  type: "string | number",
+                  type: `string |\nnumber (only works in mustache syntax)`,
                   example: `abc | {{1}}`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
