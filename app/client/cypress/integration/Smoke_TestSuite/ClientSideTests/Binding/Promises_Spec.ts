@@ -184,7 +184,9 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
 
     //Skipping until this bug is closed!
+
     it.skip("9. Bug 10150: Verify Promise.all via JSObjects", () => {
+        let date = new Date().toDateString();
         cy.fixture('promisesBtnDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
@@ -192,15 +194,35 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
         RandomUser.run(),
         GetAnime.run({name: 'Odd Taxi'}),
         InspiringQuotes.run(),
-        Agify.run({person: 'Automation'}),
+        Agify.run({person: 'Scripty'}),
         Christmas.run()
         ]
-return Promise.all(allFuncs).then("Wonderful! all apis executed", "success").catch("Please check your api's again", "error")`)
+return Promise.all(allFuncs).then(()=> showAlert("Wonderful! all apis executed", "success")).catch(()=> showAlert("Please check your api's again", "error"));`)
         agHelper.SelectEntityByName("Button1");
         cy.get("@jsObjName").then((jsObjName) => {
-            jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
+            jsEditor.EnterJSContext('onclick', "{{storeValue('date', Date()).then(() => { showAlert(appsmith.store.date, 'success'); " + jsObjName + ".myFun1()})}}", true, true);
         });
         agHelper.ClickButton('Submit')
-        cy.get(locator._toastMsg).should("have.length", 1).contains(/Wonderful|Please check/g)
+        cy.get(locator._toastMsg).should("have.length", 2)
+        cy.get(locator._toastMsg).first().should('contain.text', date)
+        cy.get(locator._toastMsg).last().contains(/Wonderful|Please check/g)
+    });
+
+    //To skip until clarified
+    it.skip("10. Verify Promises.any via direct Promises", () => {
+        cy.fixture('promisesBtnDsl').then((val: any) => {
+            agHelper.AddDsl(val)
+        });
+        agHelper.SelectEntityByName("Button1");
+        jsEditor.EnterJSContext('onclick', `{{const promise1 = Promise.reject(0);
+            const promise2 = new Promise((resolve) => setTimeout(resolve, 100, 'quick'));
+            const promise3 = new Promise((resolve) => setTimeout(resolve, 500, 'slow'));
+            const promises = [promise1, promise2, promise3];
+            Promise.any(promises).then((value) => showAlert("Resolved promise is:"+ value));            
+    }}`, true, true);
+        agHelper.ClickButton('Submit')
+        cy.get(locator._toastMsg)
+            .should("have.length", 1)
+            .should("contain.text", "We are on planet Earth");
     });
 });
