@@ -387,8 +387,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             if (layout.getLayoutOnLoadActions() != null) {
                                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
                                                         .forEach(actionDTO -> {
-                                                            actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
-                                                            actionDTO.setId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
+                                                            if (actionIdToNameMap.containsKey(actionDTO.getId())) {
+                                                                actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
+                                                            }
+                                                            if (collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                                                actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
+                                                            }
                                                         })
                                                 );
                                             }
@@ -402,8 +406,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             if (layout.getLayoutOnLoadActions() != null) {
                                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
                                                         .forEach(actionDTO -> {
-                                                            actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
-                                                            actionDTO.setId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
+                                                            if (actionIdToNameMap.containsKey(actionDTO.getId())) {
+                                                                actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
+                                                            }
+                                                            if (collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                                                actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
+                                                            }
                                                         })
                                                 );
                                             }
