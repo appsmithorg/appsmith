@@ -149,7 +149,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
               params: {
                 allowedValues: ["nc", "arrow", "dot"],
                 required: true,
-                default: "arrow",
+                default: "nc",
               },
             },
           },
