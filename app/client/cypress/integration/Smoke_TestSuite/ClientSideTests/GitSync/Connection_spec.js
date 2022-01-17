@@ -1,6 +1,5 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import homePage from "../../../../locators/HomePage";
-const commonLocators = require("../../../../locators/commonlocators.json");
 
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
@@ -14,7 +13,6 @@ const GITHUB_API_BASE = "https://api.github.com";
 let repoName;
 let generatedKey;
 let windowOpenSpy;
-let githubDeployKeyId;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 describe("Git sync modal: connect tab", function() {
   before(() => {
@@ -253,8 +251,6 @@ describe("Git sync modal: connect tab", function() {
         key: generatedKey,
         read_only: true,
       },
-    }).then((response) => {
-      githubDeployKeyId = response.body.id;
     });
 
     cy.get(gitSyncLocators.connectSubmitBtn).click();

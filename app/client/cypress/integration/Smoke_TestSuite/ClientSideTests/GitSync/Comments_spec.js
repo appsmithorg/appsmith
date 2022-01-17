@@ -1,7 +1,5 @@
 const commonLocators = require("../../../../locators/commonlocators.json");
 const commentsLocators = require("../../../../locators/commentsLocators.json");
-import homePage from "../../../../locators/HomePage";
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
 const { typeIntoDraftEditor } = require("../Comments/utils");
 
 const newCommentText1 = "new comment text 1";

@@ -1,8 +1,6 @@
 import homePage from "../../../../locators/HomePage";
 const commonLocators = require("../../../../locators/commonlocators.json");
 
-// import { matchViewerPath } from "../../../../../src/constants/routes";
-// import { trimQueryString } from "../../../../../src/utils/helpers";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 describe("Pre git connection spec:", function() {
@@ -19,7 +17,6 @@ describe("Pre git connection spec:", function() {
 
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
-        // const viewerPathMatch = matchViewerPath(trimQueryString(url));
         expect(!!url).to.be.true;
       });
     });
