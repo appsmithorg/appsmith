@@ -295,7 +295,7 @@ export function* deleteDatasourceSaga(
       text: error.message,
       source: {
         id: actionPayload.payload.id,
-        name: datasource.name,
+        name: datasource?.name,
         type: ENTITY_TYPE.DATASOURCE,
       },
     });
