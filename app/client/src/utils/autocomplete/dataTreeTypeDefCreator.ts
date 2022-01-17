@@ -75,9 +75,6 @@ export const dataTreeTypeDefCreator = (
           "",
         );
         jsOptions[key] = `fn(${functionParams}) -> void`;
-
-        // jsOptions[key] =
-        //   "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
       }
 
       for (let i = 0; i < entity.variables.length; i++) {
