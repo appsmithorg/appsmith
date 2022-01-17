@@ -3439,6 +3439,7 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
+    .first()
     .scrollIntoView()
     .click({ force: true });
 });
