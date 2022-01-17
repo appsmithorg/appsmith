@@ -1978,6 +1978,8 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
         }
 
+        String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
+
         Mono<Application> importedApplicationMono = getSSHKeyForCurrentUser()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
@@ -2019,7 +2021,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Application application = tuple.getT2();
                     GitAuth gitAuth = tuple.getT1();
 
-                    String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                     Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), repoName);
                     Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
                     Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
@@ -2029,34 +2030,26 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitAuth.getPublicKey()
                     ).onErrorResume(error -> {
                         log.error("Error while cloning the remote repo, {}", error.getMessage());
-                        Mono<Application> deleteApplicationMono = detachRemote(application.getId())
-                                .then(applicationPageService.deleteApplication(application.getId()));
-                        if (error instanceof TransportException) {
-                            return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                    application.getOrganizationId(),
-                                    application.getId(),
-                                    application.getId(),
-                                    error.getClass().getName(),
-                                    error.getMessage(),
-                                    false
-                            ).flatMap(user -> deleteApplicationMono
-                                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION))));
-                        }
-                        if (error instanceof InvalidRemoteException) {
-                            return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                    application.getOrganizationId(),
-                                    application.getId(),
-                                    application.getId(),
-                                    error.getClass().getName(),
-                                    error.getMessage(),
-                                    false
-                            ).flatMap(user -> deleteApplicationMono
-                                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"))));
-                        }
-                        return deleteApplicationMono
-                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT)));
+                        return addAnalyticsForGitOperation(
+                                AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                application.getOrganizationId(),
+                                application.getId(),
+                                application.getId(),
+                                error.getClass().getName(),
+                                error.getMessage(),
+                                false)
+                                .flatMap(user -> detachRemote(application.getId())
+                                        .then(applicationPageService.deleteApplication(application.getId()))
+                                )
+                                .flatMap(application1 -> {
+                                    if (error instanceof TransportException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
+                                    }
+                                    if (error instanceof InvalidRemoteException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
+                                    }
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                });
                     });
 
                     return defaultBranchMono
