@@ -123,7 +123,7 @@ describe("RadioGroup widget testing", function() {
 
     const inputOutputValues = [
       {
-        //Case 1:When datatypes are not same for value property
+        //Case 1.0:When datatypes are not same for value property
         input: `[
           {
             "label": "Yes",
@@ -135,6 +135,20 @@ describe("RadioGroup widget testing", function() {
           }
         ]`,
         message: "All value properties in options must have the same type",
+      },
+      {
+        //Case 1.1:When datatypes are not same for value property
+        input: `[
+          {
+            "label": "Yes",
+            "value": ""
+          },
+          {
+            "label": "No",
+            "value": 2
+          }
+        ]`,
+        message: `All value properties in options must have the same type`,
       },
       {
         //Case 2:When duplicate values is given
@@ -151,7 +165,7 @@ describe("RadioGroup widget testing", function() {
         message: "path:value must be unique. Duplicate values found",
       },
       {
-        //Case 3:When invalid value is given
+        //Case 3.0:When invalid value is given
         input: `[
           {
             "label": "Yes",
@@ -165,21 +179,7 @@ describe("RadioGroup widget testing", function() {
         message: `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
       },
       {
-        //Case 3:When invalid value is given
-        input: `[
-          {
-            "label": "Yes",
-            "value": ""
-          },
-          {
-            "label": "No",
-            "value": 2
-          }
-        ]`,
-        message: `All value properties in options must have the same type`,
-      },
-      {
-        //Case 3:When invalid value is given
+        //Case 3.1:When invalid value is given
         input: `[
           {
             "label": "Yes",

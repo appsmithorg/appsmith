@@ -11,79 +11,84 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { isArray, compact, isNumber } from "lodash";
-
+/**
+ * Validation requirement for the options property of this widget:
+ * 1. This property will take the value in the following format: Array<{ "label": "string", "value": "string" | number}>
+ * 2. The `value` property should consists of unique values only.
+ * 3. The `value` property can accept strings or numbers.
+ * 4. Label can be a type of string.
+ * 5. Data types of all the value props should be the same.
+ * 6. Label and value property should be present in the same order as mention in 1.
+ */
 function optionsCustomValidation(
-  value: unknown,
+  options: unknown,
   props: any,
   _: any,
 ): ValidationResponse {
   const validationUtil = (
-    value: { label: string; value: string | number }[],
+    options: { label: string; value: string | number }[],
   ) => {
     let _isValid = true;
-    const _messages: string[] = [];
+    let message = "";
     let valueType = "";
-    //Checks the uniqueness of the object elements in the array.
-    const shouldBeUnique = value.map((entry) => entry.value);
-    const uniqValues = Array.from(new Set(shouldBeUnique));
-    if (uniqValues.length !== value.length) {
-      _isValid = false;
-      _messages.push("path:value must be unique. Duplicate values found");
-    }
+    const uniqueLabels: Record<string | number, string> = {};
 
-    for (let i = 0; i < value.length; i++) {
+    for (let i = 0; i < options.length; i++) {
+      const { label, value } = options[i];
       if (!valueType) {
-        valueType = typeof value[i].value;
+        valueType = typeof value;
       }
-      //Check if the required field "label" is present:
-      if (!("label" in value[i])) {
+      //Checks the uniqueness all the values in the options
+      if (!uniqueLabels.hasOwnProperty(value)) {
+        uniqueLabels[value] = "";
+      } else {
         _isValid = false;
-        _messages.push(
-          "Invalid entry at index: " + i + ". Missing required key: label",
-        );
+        message = "path:value must be unique. Duplicate values found";
+      }
+
+      //Check if the required field "label" is present:
+      if (!label) {
+        _isValid = false;
+        message =
+          "Invalid entry at index: " + i + ". Missing required key: label";
         break;
       }
 
       //Validation checks for the the label.
       if (
-        value[i].label === undefined ||
-        value[i].label === null ||
-        value[i].label === "" ||
-        (typeof value[i].label !== "string" &&
-          typeof value[i].label !== "number")
+        label === undefined ||
+        label === null ||
+        label === "" ||
+        (typeof label !== "string" && typeof label !== "number")
       ) {
         _isValid = false;
-        _messages.push(
+        message =
           "Invalid entry at index: " +
-            i +
-            ". Value of key: label is invalid: This value does not evaluate to type string",
-        );
+          i +
+          ". Value of key: label is invalid: This value does not evaluate to type string";
         break;
       }
 
       //Check if all the data types for the value prop is the same.
-      if (typeof value[i].value !== valueType) {
+      if (typeof value !== valueType) {
         _isValid = false;
-        _messages.push(
-          "All value properties in options must have the same type",
-        );
+        message = "All value properties in options must have the same type";
         break;
       }
 
       //Check if the each object has value property.
-      if (!("value" in value[i])) {
+      if (!value && value !== "") {
         _isValid = false;
-        _messages.push(
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
-        );
+        message =
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>';
         break;
       }
     }
 
     return {
       isValid: _isValid,
-      parsed: _isValid ? value : [],
-      messages: _messages,
+      parsed: _isValid ? options : [],
+      messages: [message],
     };
   };
 
@@ -94,38 +99,30 @@ function optionsCustomValidation(
       'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
     ],
   };
-  if (value === undefined || value === null || value === "") {
+  if (options === undefined || options === null || options === "") {
     return {
       isValid: true,
       messages: [],
-      parsed: value,
+      parsed: options,
     };
   }
-  if (_.isString(value)) {
-    try {
-      const _value = JSON.parse(value as string);
-      if (Array.isArray(_value)) {
-        const results = validationUtil(_value);
-        return results;
-      }
-    } catch (e) {
-      return invalidResponse;
-    }
-  }
 
-  if (Array.isArray(value)) {
-    try {
-      const results = validationUtil(value);
-      return results;
-    } catch (e) {
-      return invalidResponse;
+  try {
+    if (_.isString(options)) {
+      options = JSON.parse(options as string);
     }
+
+    if (Array.isArray(options)) {
+      return validationUtil(options);
+    }
+  } catch (e) {
+    return invalidResponse;
   }
 
   return {
     isValid: true,
     messages: [],
-    parsed: value,
+    parsed: options,
   };
 }
 function defaultOptionValidation(value: unknown): ValidationResponse {
