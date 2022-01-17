@@ -54,6 +54,12 @@ export function EntityProperties() {
     }
   });
 
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, [show]);
+
   const actionEntity = useSelector((state: AppState) =>
     state.entities.actions.find((action) => action.config.id === entityId),
   );
@@ -69,6 +75,18 @@ export function EntityProperties() {
       payload: { show: false },
     });
   }, []);
+
+  const handleOutsideClick = (e: MouseEvent) => {
+    const appBody = document.getElementById("app-body") as HTMLElement;
+    const paths = e.composedPath();
+    if (
+      ref &&
+      ref.current &&
+      !paths?.includes(appBody) &&
+      !paths?.includes(ref.current)
+    )
+      closeContainer(e);
+  };
 
   useEffect(() => {
     const element = document.getElementById(entityId);
