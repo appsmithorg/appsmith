@@ -192,10 +192,10 @@ public class GitControllerCE {
         return service.generateSSHKey().map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
-    @PostMapping("/import/{organisationId}")
-    public Mono<ResponseDTO<Application>> importApplicationFromGit(@PathVariable String organisationId,
+    @PostMapping("/import/{organizationId}")
+    public Mono<ResponseDTO<Application>> importApplicationFromGit(@PathVariable String organizationId,
                                                                    @RequestBody GitConnectDTO gitConnectDTO) {
-        return service.importApplicationFromGit(organisationId, gitConnectDTO)
+        return service.importApplicationFromGit(organizationId, gitConnectDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
