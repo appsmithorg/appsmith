@@ -104,6 +104,12 @@ class ProgressBarWidget extends BaseWidget<
             isBindProperty: true,
             isJSConvertible: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
         ],
       },
