@@ -74,9 +74,9 @@ const StyledMenu = styled(Menu)`
 
     &.t--apiFormDeleteBtn,
     &.t--apiFormDeleteBtn:hover {
-      color: ${Colors.DANGER_SOLID};
+      color: ${Colors.DANGER_SOLID} !important;
       .${Classes.ICON} svg {
-        fill: ${Colors.DANGER_SOLID};
+        fill: ${Colors.DANGER_SOLID} !important;
       }
     }
 
