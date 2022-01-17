@@ -150,6 +150,8 @@ type State = {
   isOpened: boolean;
   autoCompleteVisible: boolean;
   hinterOpen: boolean;
+  // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
+  changeStarted: boolean;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -171,6 +173,7 @@ class CodeEditor extends Component<Props, State> {
       isOpened: false,
       autoCompleteVisible: false,
       hinterOpen: false,
+      changeStarted: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -395,9 +398,12 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      value !== inputValue &&
-      this.state.isFocused
+      ((value !== inputValue && this.state.isFocused) ||
+        this.state.changeStarted)
     ) {
+      this.setState({
+        changeStarted: false,
+      });
       this.props.input.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
@@ -408,8 +414,17 @@ class CodeEditor extends Component<Props, State> {
   startChange = (instance?: any, changeObj?: any) => {
     /* This action updates the status of the savingEntity to true so that any
       shortcut commands do not execute before updating the entity in the store */
-    const entity = this.getEntityInformation();
-    if (entity.entityId) {
+    const value = this.editor.getValue() || "";
+    const inputValue = this.props.input.value || "";
+    if (
+      this.props.input.onChange &&
+      value !== inputValue &&
+      this.state.isFocused &&
+      !this.state.changeStarted
+    ) {
+      this.setState({
+        changeStarted: true,
+      });
       this.props.startingEntityUpdation();
     }
     this.handleDebouncedChange(instance, changeObj);

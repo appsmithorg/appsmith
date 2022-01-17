@@ -92,6 +92,7 @@ export const StyledText = styled(Text)<{
   span {
     width: 100%;
     line-height: 1.2;
+    white-space: pre-wrap;
   }
 `;
 
