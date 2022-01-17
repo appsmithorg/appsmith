@@ -345,7 +345,10 @@ function TreeDropdown(props: TreeDropdownProps) {
       [option.isChildrenOpen],
     );
 
-    const optionClickHandler = useCallback(handleOptionClick(option), []);
+    const optionClickHandler = useCallback(handleOptionClick(option), [
+      optionTree,
+      handleSelect,
+    ]);
 
     const mouseEnterHandler = useCallback(() => {
       if (!isKeyPressed.current) {
