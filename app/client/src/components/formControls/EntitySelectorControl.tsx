@@ -1,9 +1,10 @@
 import React from "react";
 import FormControl from "pages/Editor/FormControl";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const dropDownFieldConfig: any = {
   label: "",
@@ -19,10 +20,21 @@ const inputFieldConfig: any = {
 
 const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
+// Component for the icons
+const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
+  margin: 13px;
+  align-self: end;
+  &.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+  color: ${Colors.GREY_7};
+`;
+
 // main container for the entity selector component
 const EntitySelectorContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: min-content;
   justify-content: space-between;
 `;
@@ -39,9 +51,13 @@ export const StyledBottomLabel = styled(FormLabel)`
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
 
+  const maxWidthOfComponents = 45;
+  let width = 15;
+  if (schema.length > 0) {
+    width = maxWidthOfComponents / schema.length;
+  }
   const customStyles = {
-    width: `100%`,
-    height: "30px",
+    width: `${width}vw`,
   };
 
   return (
@@ -50,28 +66,39 @@ function EntitySelectorComponent(props: any) {
         schema.length > 0 &&
         schema.map(
           (singleSchema: any, index: number) =>
-            allowedControlTypes.includes(singleSchema.controlType) &&
-            (singleSchema.controlType === "DROP_DOWN" ? (
-              <FormControl
-                config={{
-                  ...dropDownFieldConfig,
-                  ...singleSchema,
-                  customStyles,
-                  configProperty: `${configProperty}.column_${index + 1}`,
-                }}
-                formName={props.formName}
-              />
-            ) : (
-              <FormControl
-                config={{
-                  ...inputFieldConfig,
-                  ...singleSchema,
-                  customStyles,
-                  configProperty: `${configProperty}.column_${index + 1}`,
-                }}
-                formName={props.formName}
-              />
-            )),
+            allowedControlTypes.includes(singleSchema.controlType) && (
+              <>
+                {singleSchema.controlType === "DROP_DOWN" ? (
+                  <FormControl
+                    config={{
+                      ...dropDownFieldConfig,
+                      ...singleSchema,
+                      customStyles,
+                      configProperty: `${configProperty}.column_${index + 1}`,
+                      key: `${configProperty}.column_${index + 1}`,
+                    }}
+                    formName={props.formName}
+                  />
+                ) : (
+                  <FormControl
+                    config={{
+                      ...inputFieldConfig,
+                      ...singleSchema,
+                      customStyles,
+                      configProperty: `${configProperty}.column_${index + 1}`,
+                      key: `${configProperty}.column_${index + 1}`,
+                    }}
+                    formName={props.formName}
+                  />
+                )}
+                {index < schema.length - 1 && (
+                  <CenteredIcon
+                    name="double-arrow-right"
+                    size={IconSize.SMALL}
+                  />
+                )}
+              </>
+            ),
         )}
     </EntitySelectorContainer>
   );
@@ -90,6 +117,7 @@ export default function EntitySelectorControl(
     <EntitySelectorComponent
       configProperty={configProperty}
       formName={formName}
+      key={configProperty}
       name={configProperty}
       schema={schema}
     />
