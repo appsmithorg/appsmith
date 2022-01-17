@@ -49,7 +49,7 @@ describe("Table Widget property pane feature validation", function() {
     // Open column details of "id".
     cy.editColumn("id");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    cy.changeColumnType("Icon Button");
     const color1 = "rgb(255, 0, 0)";
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
