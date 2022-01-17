@@ -176,7 +176,7 @@ describe("RadioGroup widget testing", function() {
             "value": 2
           }
         ]`,
-        message: `Invalid entry at index: 0. Value of key: value is invalid: This value does not evaluate to type string or number`,
+        message: `All value properties in options must have the same type`,
       },
       {
         //Case 3:When invalid value is given
