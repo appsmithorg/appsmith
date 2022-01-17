@@ -211,11 +211,12 @@ function renderFormConfigBottom(props: {
         props.configErrors.length > 0 &&
         props.configErrors
           .filter(
-            (err) => err.errorType === PropertyEvaluationErrorType.VALIDATION,
+            (error) =>
+              error.errorType === PropertyEvaluationErrorType.VALIDATION,
           )
-          .map((errorText, index) => (
+          .map((error, index) => (
             <FormInputErrorText key={index}>
-              {`* ${errorText?.errorMessage}`}
+              {`* ${error?.errorMessage}`}
             </FormInputErrorText>
           ))}
     </>
