@@ -283,7 +283,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + PublishType.PUBLISHED));
                                     actionCollectionDTO.setPluginId(pluginMap.get(actionCollectionDTO.getPluginId()));
 
-                                    if (!collectionIdToNameMap.containsKey(actionCollection.getId())) {
+                                    if (!collectionIdToNameMap.containsValue(actionCollection.getId())) {
                                         final String updatedCollectionId = actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
                                         collectionIdToNameMap.put(actionCollection.getId(), updatedCollectionId);
                                         actionCollection.setId(updatedCollectionId);
@@ -336,7 +336,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
                                     }
 
-                                    if (!actionIdToNameMap.containsKey(newAction.getId())) {
+                                    if (!actionIdToNameMap.containsValue(newAction.getId())) {
                                         final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getName();
                                         actionIdToNameMap.put(newAction.getId(), updatedActionId);
                                         newAction.setId(updatedActionId);
@@ -1270,6 +1270,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             });
         }
 
+        layoutOnLoadActions.remove(null);
         return Flux.fromIterable(layoutOnLoadActions)
                 .flatMap(newActionService::findById)
                 .map(newAction -> {
