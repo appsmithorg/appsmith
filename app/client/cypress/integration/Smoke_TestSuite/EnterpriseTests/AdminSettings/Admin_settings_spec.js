@@ -23,9 +23,8 @@ describe("Admin settings page", function() {
     cy.visit("/settings/general");
     cy.get(AdminsSettingsLocators.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(EnterpriseAdminSettingsLocators.ssoButton).should(
-      "contain",
-      "UPGRADE",
-    );
+    cy.get(EnterpriseAdminSettingsLocators.ssoUpgradeButton)
+      .should("be.visible")
+      .should("contain", "UPGRADE");
   });
 });
