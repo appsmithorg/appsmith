@@ -3390,10 +3390,6 @@ Cypress.Commands.add(
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click({ force: true });
 
-    // todo: check for the initial state: init git connection button, regular deploy button
-    // add the test repo and click on submit btn
-    // intercept just the connect api
-
     cy.intercept(
       {
         url: "api/v1/git/connect/*",

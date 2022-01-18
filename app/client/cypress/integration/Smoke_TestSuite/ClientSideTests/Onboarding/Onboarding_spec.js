@@ -8,7 +8,6 @@ describe("Onboarding", function() {
   it("Onboarding flow - manual without using do it for me option", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
 
-    // cy.get(gitSyncLocators.connectGitBottomBar).should("exist");
     cy.get(".t--welcome-tour").click();
     cy.get(".t--onboarding-action").click();
     cy.get(".t--close--button").should("not.exist");
@@ -137,8 +136,6 @@ describe("Onboarding", function() {
     cy.get(".t--side-sticky-bar")
       .should("be.visible")
       .click();
-
-    // cy.get(".t--onboarding-secondary-action").click();
   });
 
   it("Connect git modal should show post submit", function() {
