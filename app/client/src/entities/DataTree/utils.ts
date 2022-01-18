@@ -38,7 +38,7 @@ export const setOverridingProperty = ({
       break;
     default:
   }
-  if (Array.isArray(overridingPropertyPaths[overriddenPropertyKey])) {
+  if (Array.isArray(overridingPropertyPaths[overridingPropertyKey])) {
     const updatedOverridingProperty = new Set(
       overridingPropertyPaths[overridingPropertyKey],
     );
