@@ -24,7 +24,7 @@
         "inputType": "TEXT",
         "label": "",
         "widgetName": "Input1",
-        "type": "INPUT_WIDGET",
+        "type": "INPUT_WIDGET_V2",
         "isLoading": false,
         "parentColumnSpace": 74,
         "parentRowSpace": 40,
