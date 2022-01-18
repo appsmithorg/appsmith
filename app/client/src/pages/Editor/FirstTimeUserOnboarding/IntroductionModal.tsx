@@ -55,7 +55,7 @@ const StyledImgWrapper = styled.div`
   text-align: center;
 `;
 
-const StyledImg = styled.img`
+const StyledImg = styled.img<{ width: number }>`
   width: ${(props) => props.width}px;
   vertical-align: middle;
 `;
@@ -129,15 +129,15 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           <ModalBody>
             <ModalImgWrapper>
               <StyledImgWrapper className="flex">
-                <StyledImg src={getConnectDataImg()} />
-                <StyledImg src={getArrowImg()} />
+                <StyledImg src={getConnectDataImg()} width={135} />
+                <StyledImg src={getArrowImg()} width={42} />
               </StyledImgWrapper>
               <StyledImgWrapper className="flex flex-grow px-5">
-                <StyledImg src={getQueryDataImg()} />
+                <StyledImg src={getQueryDataImg()} width={330} />
               </StyledImgWrapper>
               <StyledImgWrapper className="flex pr-12">
-                <StyledImg src={getArrowImg()} />
-                <StyledImg src={getPublishAppsImg()} />
+                <StyledImg src={getArrowImg()} width={42} />
+                <StyledImg src={getPublishAppsImg()} width={92} />
               </StyledImgWrapper>
             </ModalImgWrapper>
             <ModalContentWrapper className="flex">
