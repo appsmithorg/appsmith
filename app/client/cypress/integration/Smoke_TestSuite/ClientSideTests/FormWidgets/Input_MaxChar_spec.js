@@ -17,7 +17,7 @@ describe("Input Widget Max Char Functionality", function() {
   });
 
   it("Number Input will not show error for maxChar validation", () => {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.selectDropdownValue(commonlocators.dataType, "Number");
     cy.get(".bp3-popover-content").should("not.exist");
   });

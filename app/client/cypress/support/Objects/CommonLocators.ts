@@ -16,6 +16,7 @@ export class CommonLocators {
     _propertyControl = ".t--property-control-"
     _textWidget = ".t--draggable-textwidget span"
     _inputWidget = ".t--draggable-inputwidget input"
+    _inputWidgetV2 = ".t--draggable-inputwidgetv2 span"
     _publishButton = ".t--application-publish-btn"
     _textWidgetInDeployed = ".t--widget-textwidget span"
     _inputWidgetInDeployed = ".t--widget-inputwidget input"
