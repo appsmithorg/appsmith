@@ -996,7 +996,8 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 47) {
-    //We're skipping this to fix a bad table migration.
+    // We're skipping this to fix a bad table migration.
+    // skipped migration is added as version 50
     currentDSL.version = 48;
   }
 
