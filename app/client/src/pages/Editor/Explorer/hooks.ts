@@ -23,6 +23,7 @@ import {
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
+import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -336,5 +337,11 @@ export function useActiveAction() {
   );
   if (jsMatch?.params?.collectionId) {
     return jsMatch.params.collectionId;
+  }
+  const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
+    path: SAAS_EDITOR_API_ID_PATH,
+  });
+  if (saasMatch?.params?.apiId) {
+    return saasMatch.params.apiId;
   }
 }
