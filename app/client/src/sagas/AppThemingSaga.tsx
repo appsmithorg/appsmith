@@ -1050,12 +1050,7 @@ export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
   // eslint-disable-next-line
-  const {
-    applicationId,
-    theme,
-    shouldReplay = true,
-    isNewThemeApplied,
-  } = action.payload;
+  const { isNewThemeApplied, shouldReplay = true, theme } = action.payload;
   const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
