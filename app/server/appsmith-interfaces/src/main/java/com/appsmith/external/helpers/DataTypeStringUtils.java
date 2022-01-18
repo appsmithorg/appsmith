@@ -80,7 +80,7 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        input = input.trim().replaceAll(",","");    //To handle comma delimited numbers
+        input = input.trim();
 
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
