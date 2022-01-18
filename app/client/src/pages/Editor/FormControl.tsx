@@ -214,8 +214,8 @@ function renderFormConfigBottom(props: {
             (error) =>
               error.errorType === PropertyEvaluationErrorType.VALIDATION,
           )
-          .map((error) => (
-            <FormInputErrorText key={error?.errorMessage}>
+          .map((error, index) => (
+            <FormInputErrorText key={index}>
               {`* ${error?.errorMessage}`}
             </FormInputErrorText>
           ))}
