@@ -18,7 +18,7 @@ describe("Binding the multiple input Widget", function() {
   });
 
   it("Cyclic depedancy error message validation", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
@@ -30,7 +30,7 @@ describe("Binding the multiple input Widget", function() {
   });
 
   it("Binding input widget1 and validating", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", testdata.defaultdata);
 
     cy.wait("@updateLayout").should(

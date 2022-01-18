@@ -166,7 +166,7 @@
                 "isRequired": false,
                 "isDisabled": false,
                 "allowCurrencyChange": false,
-                "type": "INPUT_WIDGET",
+                "type": "INPUT_WIDGET_V2",
                 "isLoading": false,
                 "parentColumnSpace": 14.90625,
                 "parentRowSpace": 10,
