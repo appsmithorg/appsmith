@@ -28,7 +28,6 @@ import Button, { Category, Size } from "components/ads/Button";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
-  // setShowRepoLimitErrorModal,
   showConnectGitModal,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
