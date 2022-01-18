@@ -53,14 +53,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   }, [props.value]);
 
   const onEditorChange = (newValue: string) => {
-    if (!isInit.current) {
-      isInit.current = true;
-      return;
-    }
+    // Prevents cursur shift in Markdown
     if (newValue === "" && props.isMarkdown) {
       setValue(initValue);
     } else {
-      // Prevents cursur shift in Markdown
       setValue(newValue);
     }
   };
@@ -86,6 +82,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         onEditorChange={onEditorChange}
         onInit={(evt, editor) => {
           editorRef.current = editor;
+          isInit.current = true;
         }}
         tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
         toolbar={props.isToolbarHidden ? false : toolbarConfig}
