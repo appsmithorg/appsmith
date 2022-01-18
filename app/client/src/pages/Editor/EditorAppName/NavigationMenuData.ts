@@ -24,15 +24,9 @@ import {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import getFeatureFlags from "utils/featureFlags";
-import {
-  setIsGitSyncModalOpen,
-  // setShowRepoLimitErrorModal,
-} from "actions/gitSyncActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import {
-  getIsGitConnected,
-  // getShouldShowRepoLimitError,
-} from "selectors/gitSyncSelectors";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
   createMessage,
   DEPLOY_MENU_OPTION,
@@ -62,18 +56,12 @@ export const GetNavigationMenuData = ({
   const params = useParams<ExplorerURLParams>();
 
   const isGitConnected = useSelector(getIsGitConnected);
-  // const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
 
   const openGitConnectionPopup = () => {
     AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
       source: "Application name menu (top left)",
     });
 
-    // if (isLimitExceeded) {
-    //   dispatch(setShowRepoLimitErrorModal(true));
-    // } else {
-
-    // }
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,

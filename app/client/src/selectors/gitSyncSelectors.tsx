@@ -131,31 +131,6 @@ export const getCountOfChangesToCommit = (state: AppState) => {
   return modifiedPages + modifiedQueries;
 };
 
-export const getShouldShowRepoLimitError = (state: AppState) => {
-  const curApp = state.ui.applications.currentApplication;
-  const userOrgs = state.ui.applications.userOrgs;
-  if (userOrgs) {
-    const org: any = userOrgs.find((organizationObject: any) => {
-      const { organization } = organizationObject;
-      return organization.id === curApp?.organizationId;
-    });
-
-    const privateGitConnectedApps =
-      org?.applications.filter((application: ApplicationPayload) => {
-        return (
-          application.gitApplicationMetadata &&
-          application.gitApplicationMetadata.remoteUrl &&
-          application.gitApplicationMetadata.branchName &&
-          application.gitApplicationMetadata.repoName &&
-          application.gitApplicationMetadata.isRepoPrivate
-        );
-      }) || [];
-    return privateGitConnectedApps.length > 2;
-  } else {
-    return false;
-  }
-};
-
 export const getShowRepoLimitErrorModal = (state: AppState) =>
   state.ui.gitSync.showRepoLimitErrorModal;
 

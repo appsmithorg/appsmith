@@ -40,7 +40,6 @@ import {
   getIsFetchingGitStatus,
   getPullFailed,
   getCountOfChangesToCommit,
-  // getShouldShowRepoLimitError,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inOnboarding } from "sagas/OnboardingSagas";
@@ -233,7 +232,6 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInOnboarding = useSelector(inOnboarding);
-  // const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
 
   const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
   const tooltipContent = !isInOnboarding ? (
@@ -270,11 +268,7 @@ function ConnectGitPlaceholder() {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
                   source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
-                // if (isLimitExceeded) {
-                //   dispatch(setShowRepoLimitErrorModal(true));
-                // } else {
-                //   dispatch(showConnectGitModal());
-                // }
+
                 dispatch(showConnectGitModal());
               }}
               size={Size.small}

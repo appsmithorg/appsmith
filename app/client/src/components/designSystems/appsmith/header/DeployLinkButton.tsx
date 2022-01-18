@@ -3,15 +3,9 @@ import styled, { withTheme } from "styled-components";
 import { Icon, Popover, PopoverPosition } from "@blueprintjs/core";
 import { Theme } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  getIsGitConnected,
-  // getShouldShowRepoLimitError,
-} from "../../../../selectors/gitSyncSelectors";
+import { getIsGitConnected } from "../../../../selectors/gitSyncSelectors";
 import getFeatureFlags from "utils/featureFlags";
-import {
-  setIsGitSyncModalOpen,
-  // setShowRepoLimitErrorModal,
-} from "actions/gitSyncActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { Colors } from "constants/Colors";
 
@@ -79,7 +73,6 @@ export const DeployLinkButton = withTheme((props: Props) => {
   const dispatch = useDispatch();
 
   const isGitConnected = useSelector(getIsGitConnected);
-  // const isLimitExceeded = useSelector(getShouldShowRepoLimitError);
 
   const onClose = () => {
     setIsOpen(false);
@@ -90,12 +83,6 @@ export const DeployLinkButton = withTheme((props: Props) => {
     AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
       source: "Deploy button",
     });
-    // todo update if we can determine the number of allowed repos in advance
-    // if (isLimitExceeded) {
-    //   dispatch(setShowRepoLimitErrorModal(true));
-    // } else {
-
-    // }
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,
