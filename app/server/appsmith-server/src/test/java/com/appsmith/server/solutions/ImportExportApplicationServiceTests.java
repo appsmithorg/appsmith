@@ -28,6 +28,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -312,7 +313,7 @@ public class ImportExportApplicationServiceTests {
     
     @Test
     @WithUserDetails(value = "api_user")
-    public void createExportAppJsonWithActionsAndDatasourceTest() {
+    public void createExportAppJsonWithActionAndActionCollectionTest() {
         
         Organization newOrganization = new Organization();
         newOrganization.setName("template-org-with-ds");
@@ -516,7 +517,10 @@ public class ImportExportApplicationServiceTests {
 
                 NewPage newPage = pageList.get(0);
 
-                assertThat(applicationJson.getVersion()).isNotNull();
+                assertThat(applicationJson.getFileFormatVersion()).isNotNull();
+                assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+
                 assertThat(exportedApp.getName()).isNotNull();
                 assertThat(exportedApp.getOrganizationId()).isNull();
                 assertThat(exportedApp.getPages()).isNull();
@@ -1000,6 +1004,19 @@ public class ImportExportApplicationServiceTests {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_incompatibleJsonFile_throwException() {
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
+        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INCOMPATIBLE_IMPORTED_JSON.getMessage()))
+                .verify();
     }
 
     private FilePart createFilePart(String filePath) {

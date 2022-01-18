@@ -4,7 +4,7 @@
   "richTextEditorWidget": ".t--widget-richtexteditorwidget",
   "datepickerWidget": ".t--widget-datepickerwidget",
   "backToEditor": ".t--back-to-editor",
-  "inputWidget": ".t--widget-inputwidget",
+  "inputWidget": ".t--widget-inputwidgetv2",
   "checkboxWidget": ".t--widget-checkboxwidget",
   "switchwidget": ".t--widget-switchwidget",
   "radioWidget": ".t--widget-radiogroupwidget",

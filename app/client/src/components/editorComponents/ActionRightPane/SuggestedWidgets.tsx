@@ -98,7 +98,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     image:
       "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/text.svg",
   },
-  INPUT_WIDGET: {
+  INPUT_WIDGET_V2: {
     label: "text",
     propertyName: "defaultText",
     widgetName: "Input",

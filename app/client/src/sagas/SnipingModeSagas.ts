@@ -82,6 +82,10 @@ export function* bindDataToWidgetSaga(
       propertyPath = "defaultText";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
+    case WidgetTypes.INPUT_WIDGET_V2:
+      propertyPath = "defaultText";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
     case WidgetTypes.LIST_WIDGET:
       propertyPath = "items";
       propertyValue = `{{${currentAction.config.name}.data}}`;
