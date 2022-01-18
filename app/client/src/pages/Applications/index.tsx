@@ -80,6 +80,7 @@ import { useIntiateOnboarding } from "components/editorComponents/Onboarding/uti
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
+import ImportApplicationModalOld from "./ImportApplicationModalOld";
 import {
   createMessage,
   DOCUMENTATION,
@@ -600,6 +601,10 @@ function ApplicationsSection(props: any) {
     );
   };
 
+  const ImportModal = getFeatureFlags().GIT_IMPORT
+    ? ImportApplicationModal
+    : ImportApplicationModalOld;
+
   function OrgMenuTarget(props: {
     orgName: string;
     disabled?: boolean;
@@ -697,7 +702,7 @@ function ApplicationsSection(props: any) {
                 </Dialog>
               )}
               {selectedOrgIdForImportApplication && (
-                <ImportApplicationModal
+                <ImportModal
                   isModalOpen={
                     selectedOrgIdForImportApplication === organization.id
                   }
