@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import { isHidden } from "components/formControls/utils";
 import { useSelector } from "react-redux";
@@ -66,6 +66,16 @@ function FormControl(props: FormControlProps) {
 
   const hidden = isHidden(formValues, props.config.hidden);
 
+  const FormConfigMemoizedValue = useMemo(
+    () =>
+      FormControlFactory.createControl(
+        props.config,
+        props.formName,
+        props?.multipleConfig,
+      ),
+    [],
+  );
+
   if (hidden) return null;
 
   return (
@@ -76,11 +86,7 @@ function FormControl(props: FormControlProps) {
       multipleConfig={props?.multipleConfig}
     >
       <div className={`t--form-control-${props.config.controlType}`}>
-        {FormControlFactory.createControl(
-          props.config,
-          props.formName,
-          props?.multipleConfig,
-        )}
+        {FormConfigMemoizedValue}
       </div>
     </FormConfig>
   );
@@ -149,7 +155,7 @@ function FormConfig(props: FormConfigProps) {
   );
 }
 
-export default FormControl;
+export default memo(FormControl);
 
 function renderFormConfigTop(props: { config: ControlProps }) {
   const {
