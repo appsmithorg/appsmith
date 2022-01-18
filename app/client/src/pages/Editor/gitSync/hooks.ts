@@ -61,7 +61,6 @@ export const useSSHKeyPair = () => {
         onErrorCallback: onGenerateSSHKeyFailure,
       }),
     );
-    AnalyticsUtil.logEvent("GENERATE_KEY_BUTTON_CLICK");
     // }
   }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey]);
 
