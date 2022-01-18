@@ -16,7 +16,6 @@ import {
 } from "./Constants";
 import TableDataDownload from "./TableDataDownload";
 import { Colors } from "constants/Colors";
-import { lightenColor } from "widgets/WidgetUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 const PageNumberInputWrapper = styled(NumericInput)<{

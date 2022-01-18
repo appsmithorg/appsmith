@@ -31,7 +31,7 @@ export function ThemePropertyPane() {
     }
   }, [themingMode]);
 
-  return <div className="relative py-3 space-y-4">{propertyPane}</div>;
+  return <div className="relative">{propertyPane}</div>;
 }
 
 ThemePropertyPane.displayName = "ThemePropertyPane";

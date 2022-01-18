@@ -16,6 +16,7 @@ export type UpdateSelectedAppThemeAction = {
   applicationId: string;
   theme: AppTheme;
   shouldReplay?: boolean;
+  isNewThemeApplied?: boolean;
 };
 
 export type ChangeSelectedAppThemeAction = {
@@ -39,7 +40,7 @@ export type HydrateSelectedAppThemeAction = {
  * @param mode
  * @returns
  */
-export const setAppThemingModeStack = (stack: AppThemingMode[]) => ({
+export const setAppThemingModeStackAction = (stack: AppThemingMode[]) => ({
   type: ReduxActionTypes.SET_APP_THEMING_STACK,
   payload: stack,
 });

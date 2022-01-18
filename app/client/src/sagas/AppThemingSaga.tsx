@@ -1,7 +1,7 @@
+import React from "react";
 import {
   FetchSelectedAppThemeAction,
   UpdateSelectedAppThemeAction,
-  ChangeSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import {
   ReduxAction,
@@ -15,9 +15,9 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { CHANGE_APP_THEME, createMessage } from "constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { updateReplayEntity } from "actions/pageActions";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { undoAction, updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
+import store from "store";
 // import { getAppMode } from "selectors/applicationSelectors";
 // import { APP_MODE } from "entities/App";
 
@@ -1050,7 +1050,12 @@ export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
   // eslint-disable-next-line
-  const { applicationId, theme, shouldReplay = true } = action.payload;
+  const {
+    applicationId,
+    theme,
+    shouldReplay = true,
+    isNewThemeApplied,
+  } = action.payload;
   const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
@@ -1068,40 +1073,19 @@ export function* updateSelectedTheme(
         ),
       );
     }
+
+    if (isNewThemeApplied) {
+      Toaster.show({
+        text: createMessage(CHANGE_APP_THEME, theme.name),
+        variant: Variant.success,
+        actionElement: (
+          <span onClick={() => store.dispatch(undoAction())}>Undo</span>
+        ),
+      });
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_SELECTED_APP_THEME_ERROR,
-      payload: { error },
-    });
-  }
-}
-
-/**
- * change the selected theme of the application
- *
- * @param action
- */
-export function* changeSelectedTheme(
-  action: ReduxAction<ChangeSelectedAppThemeAction>,
-) {
-  // eslint-disable-next-line
-  const { applicationId, theme } = action.payload;
-
-  try {
-    // yield ThemingApi.changeTheme(applicationId, theme);
-
-    yield put({
-      type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
-      payload: theme,
-    });
-
-    Toaster.show({
-      text: createMessage(CHANGE_APP_THEME, theme.name),
-      variant: Variant.success,
-    });
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.CHANGE_SELECTED_APP_THEME_ERROR,
       payload: { error },
     });
   }
@@ -1117,10 +1101,6 @@ export default function* appThemingSaga() {
     takeLatest(
       ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT,
       updateSelectedTheme,
-    ),
-    takeLatest(
-      ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
-      changeSelectedTheme,
     ),
   ]);
 }

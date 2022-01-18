@@ -11,6 +11,7 @@ interface SettingSectionProps {
 }
 
 export function SettingSection(props: SettingSectionProps) {
+  const { className = "" } = props;
   const [isOpen, setOpen] = useState(props.isOpen);
 
   /**
@@ -21,7 +22,7 @@ export function SettingSection(props: SettingSectionProps) {
   }, [setOpen, isOpen]);
 
   return (
-    <div className={`px-3 py-3 ${props.className}`}>
+    <div className={`${className}`}>
       <div
         className={` cursor-pointer flex items-center justify-between capitalize text-base text-gray-800 `}
         onClick={toggleCollapse}

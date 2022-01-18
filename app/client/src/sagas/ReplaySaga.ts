@@ -75,8 +75,11 @@ import {
   SAAS_EDITOR_FORM,
 } from "constants/forms";
 import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { updateSelectedAppThemeAction } from "actions/appThemingActions";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  setAppThemingModeStackAction,
+  updateSelectedAppThemeAction,
+} from "actions/appThemingActions";
+import { AppThemingMode } from "selectors/appThemingSelectors";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -201,9 +204,13 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       timeTaken,
     } = workerResponse;
 
-    console.log({ replayEntityType });
-
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
+
+    if (replay.theme) {
+      yield call(replayThemeSaga, replayEntity, replay);
+
+      return;
+    }
     switch (replayEntityType) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
@@ -225,9 +232,6 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
           updateJSCollectionBody(replayEntity.body, replayEntity.id, true),
         );
         break;
-      case ENTITY_TYPE.THEME:
-        yield call(replayThemeSaga, replayEntity, replay);
-        break;
     }
   } catch (e) {
     log.error(e);
@@ -243,6 +247,17 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
  */
 function* replayThemeSaga(replayEntity: Canvas, replay: any) {
   const applicationId: string = yield select(getCurrentApplicationId);
+
+  // if theme is changed, open the theme selector
+  if (replay.themeChanged) {
+    yield put(
+      setAppThemingModeStackAction([AppThemingMode.APP_THEME_SELECTION]),
+    );
+  } else {
+    yield put(setAppThemingModeStackAction([]));
+  }
+
+  yield put(selectWidgetAction());
 
   yield put(
     updateSelectedAppThemeAction({

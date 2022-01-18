@@ -185,7 +185,6 @@ const entityTypeLinkMap = {
   [ENTITY_TYPE.ACTION]: ActionLink,
   [ENTITY_TYPE.DATASOURCE]: DatasourceLink,
   [ENTITY_TYPE.JSACTION]: JSCollectionLink,
-  [ENTITY_TYPE.THEME]: JSCollectionLink,
 };
 
 function EntityLink(props: EntityLinkProps) {

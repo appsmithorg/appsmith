@@ -13,7 +13,7 @@ import {
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import {
-  setAppThemingModeStack,
+  setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppTheme } from "entities/AppTheming";
@@ -27,13 +27,6 @@ function ThemeEditor() {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const themingStack = useSelector(getAppThemingStack);
 
-  /**
-   * sets the mode to THEME_EDIT
-   */
-  const onClickBack = useCallback(() => {
-    dispatch(setAppThemingModeStack(themingStack.slice(0, -1)));
-  }, [setAppThemingModeStack]);
-
   const updateSelectedTheme = useCallback(
     (theme: AppTheme) => {
       dispatch(updateSelectedAppThemeAction({ applicationId, theme }));
@@ -46,12 +39,12 @@ function ThemeEditor() {
    */
   const onClickChangeThemeButton = useCallback(() => {
     dispatch(
-      setAppThemingModeStack([
+      setAppThemingModeStackAction([
         ...themingStack,
         AppThemingMode.APP_THEME_SELECTION,
       ]),
     );
-  }, [setAppThemingModeStack]);
+  }, [setAppThemingModeStackAction]);
 
   return (
     <div className="">
@@ -70,7 +63,7 @@ function ThemeEditor() {
       </div>
       <main className="mt-1">
         {/* COLORS */}
-        <SettingSection className="" title="Colour">
+        <SettingSection className="px-3 py-3 " title="Colour">
           <section className="space-y-2">
             <ThemeColorControl
               theme={selectedTheme}
@@ -80,7 +73,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BORDER RADIUS */}
-        <SettingSection className="border-t" title="Border Radius">
+        <SettingSection className="px-3 py-3 border-t " title="Border Radius">
           {Object.keys(selectedTheme.config.borderRadius).map(
             (borderRadiusSectionName: string, index: number) => {
               return (
@@ -107,7 +100,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BOX SHADOW */}
-        <SettingSection className="border-t" title="Box Shadow">
+        <SettingSection className="px-3 py-3 border-t " title="Box Shadow">
           {Object.keys(selectedTheme.config.boxShadow).map(
             (boxShadowSectionName: string, index: number) => {
               return (
@@ -134,7 +127,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* FONT  */}
-        <SettingSection className="border-t" title="Font">
+        <SettingSection className="px-3 py-3 border-t" title="Font">
           {Object.keys(selectedTheme.config.fontFamily).map(
             (fontFamilySectionName: string, index: number) => {
               return (

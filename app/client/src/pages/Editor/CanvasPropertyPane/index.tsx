@@ -1,15 +1,10 @@
-import * as Sentry from "@sentry/react";
 import React from "react";
-import { useSelector } from "react-redux";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import * as Sentry from "@sentry/react";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
-import { ThemeCard } from "../ThemePropertyPane/ThemeCard";
 import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
 
 export function CanvasPropertyPane() {
-  const selectedTheme = useSelector(getSelectedAppTheme);
-
   return (
     <div className="relative ">
       <h3 className="px-3 py-3 text-sm font-medium uppercase">Properties</h3>

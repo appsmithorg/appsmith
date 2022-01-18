@@ -67,7 +67,7 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
     }
 
     if (diff.path.indexOf("theme") > -1) {
-      return this.processDiffForTheme(diff, replay, isUndo);
+      return this.processDiffForTheme(diff, replay);
     }
   }
 
@@ -78,8 +78,15 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
    * @param replay
    * @param isUndo
    */
-  public processDiffForTheme(diff: CanvasDiff, replay: any, isUndo: boolean) {
-    this.replayEntityType = ENTITY_TYPE.THEME;
+  public processDiffForTheme(diff: CanvasDiff, replay: any) {
+    if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
+      return;
+
+    set(replay, "theme", true);
+
+    if (diff.path.join(".") === "theme.name") {
+      set(replay, "themeChanged", true);
+    }
   }
 
   /**
@@ -93,8 +100,6 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
   public processDiffForWidgets(diff: CanvasDiff, replay: any, isUndo: boolean) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
-
-    this.replayEntityType = ENTITY_TYPE.WIDGET;
 
     const widgetId = diff.path[1];
 
