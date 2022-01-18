@@ -85,7 +85,7 @@
                 "inputType": "TEXT",
                 "label": "",
                 "widgetName": "Input1",
-                "type": "INPUT_WIDGET",
+                "type": "INPUT_WIDGET_V2",
                 "isLoading": false,
                 "parentColumnSpace": 29.875,
                 "parentRowSpace": 40,
@@ -94,14 +94,16 @@
                 "topRow": 1,
                 "bottomRow": 2,
                 "parentId": "4lvpg75cy5",
-                "widgetId": "a7hpuqqo8r"
+                "widgetId": "a7hpuqqo8r",
+                "defaultText": "Hello",
+                "dynamicBindingPathList": []
               },
               {
                 "isVisible": true,
                 "inputType": "TEXT",
                 "label": "",
                 "widgetName": "Input2",
-                "type": "INPUT_WIDGET",
+                "type": "INPUT_WIDGET_V2",
                 "isLoading": false,
                 "parentColumnSpace": 29.875,
                 "parentRowSpace": 40,

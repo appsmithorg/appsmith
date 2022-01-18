@@ -4,6 +4,7 @@ import { GenericApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { DropdownOption } from "components/ads/Dropdown";
 
 export type PluginId = string;
 export type PluginPackageName = string;
@@ -59,6 +60,13 @@ class PluginsApi extends Api {
       addValidationConfig(response.data.settings);
       return response;
     });
+  }
+
+  // Definition to fetch the dynamic data via the URL passed in the config
+  static fetchDynamicFormValues(
+    url: string,
+  ): AxiosPromise<GenericApiResponse<DropdownOption[]>> {
+    return Api.get(url);
   }
 }
 
