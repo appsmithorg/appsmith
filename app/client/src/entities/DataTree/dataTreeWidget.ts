@@ -123,7 +123,7 @@ export const generateDataTreeWidget = (
     ...widget,
     ...unInitializedDefaultProps,
     ...defaultMetaProps,
-    ...nonOverridingMetaProps, // instead of widgetMetaProps
+    ...widgetMetaProps,
     ...derivedProps,
     defaultProps,
     defaultMetaProps: Object.keys(defaultMetaProps),
