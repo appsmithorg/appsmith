@@ -88,6 +88,7 @@ import {
 } from "actions/explorerActions";
 import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
+import { isMac } from "utils/helpers";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -352,13 +353,15 @@ export function EditorHeader(props: EditorHeaderProps) {
           <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
             <TooltipComponent
               content={
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <span>
                     {!pinned
                       ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
                       : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
                   </span>
-                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+                  <span className="ml-4 text-xs text-gray-300">
+                    {isMac() ? "Cmd" : "Ctrl"} + /
+                  </span>
                 </div>
               }
               position="bottom-left"

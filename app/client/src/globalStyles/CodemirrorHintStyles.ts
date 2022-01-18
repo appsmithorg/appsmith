@@ -63,11 +63,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     font-family: ${(props) => props.theme.fonts.text};
     ${(props) => getTypographyByKey(props, "p3")}
     &.CodeMirror-hint-active {
-      svg {
-        path {
-          fill: #ffffff;
-        }
-      }
       .shortcut {
         color: #ffffff;
       }
@@ -84,19 +79,16 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       img {
         height: 12px;
         width: 12px;
-        margin-right: 7px;
       }
       svg {
         height: 12px;
         width: 12px;
-        margin-right: 7px;
       }
     }
     .shortcut {
       font-style: italic;
       font-size: 10px;
       color: #a9a7a7;
-      margin-left: auto;
     }
   }
 

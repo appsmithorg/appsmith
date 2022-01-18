@@ -252,16 +252,19 @@ function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
 const EntityIconWrapper = styled.div<{
   borderColor?: string;
   width?: string;
+  height?: string;
+  noBorder?: boolean;
 }>`
-  height: 18px;
+  height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
   background: ${Colors.WHITE};
-  border: 1.5px solid
-    ${({ borderColor }) => (borderColor ? borderColor : Colors.SCORPION)};
+  border: ${({ borderColor, noBorder }) =>
+    noBorder ? "none" : `1.5px solid ${borderColor ?? Colors.SCORPION}`};
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 
   svg,
   img {
@@ -274,11 +277,18 @@ type EntityIconType = {
   children: React.ReactNode;
   borderColor?: string;
   width?: string;
+  height?: string;
+  noBorder?: boolean;
 };
 
 function EntityIcon(props: EntityIconType): JSX.Element {
   return (
-    <EntityIconWrapper borderColor={props.borderColor} width={props.width}>
+    <EntityIconWrapper
+      borderColor={props.borderColor}
+      height={props.height}
+      noBorder={props.noBorder}
+      width={props.width}
+    >
       {props.children}
     </EntityIconWrapper>
   );

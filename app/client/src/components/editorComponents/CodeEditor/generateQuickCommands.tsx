@@ -8,12 +8,12 @@ import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
-import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -85,9 +85,21 @@ const generateCreateNewCommand = ({
 });
 
 const iconsByType = {
-  [Shortcuts.BINDING]: <Binding />,
-  [Shortcuts.PLUS]: <NewPlus />,
-  [Shortcuts.FUNCTION]: <Snippet className="snippet-icon" />,
+  [Shortcuts.BINDING]: (
+    <EntityIcon noBorder>
+      <Binding className="shortcut" />
+    </EntityIcon>
+  ),
+  [Shortcuts.PLUS]: (
+    <EntityIcon noBorder>
+      <NewPlus className="shortcut" />
+    </EntityIcon>
+  ),
+  [Shortcuts.FUNCTION]: (
+    <EntityIcon noBorder>
+      <Snippet className="snippet-icon shortcut" />
+    </EntityIcon>
+  ),
 };
 
 function Command(props: {
@@ -103,14 +115,22 @@ function Command(props: {
         {props.pluginType &&
           {
             DB: <DataSourcesColoredIcon />,
-            API: <ApisIcon />,
+            API: (
+              <EntityIcon>
+                <ApisIcon />
+              </EntityIcon>
+            ),
             SAAS: <DataSourcesColoredIcon />,
             REMOTE: <DataSourcesColoredIcon />,
-            JS: <JsIcon />,
+            JS: JsFileIconV2,
           }[props.pluginType]}
-        {props.imgSrc && <img src={props.imgSrc} />}
+        {props.imgSrc && (
+          <EntityIcon>
+            <img src={props.imgSrc} />
+          </EntityIcon>
+        )}
         {props.shortcut && iconsByType[props.shortcut]}
-        <span>{props.name}</span>
+        <span className="ml-1">{props.name}</span>
       </div>
     </div>
   );
