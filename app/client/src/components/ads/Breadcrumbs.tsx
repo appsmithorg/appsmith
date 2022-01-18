@@ -69,14 +69,18 @@ function BreadcrumbList(props: BreadcrumbProps) {
     return acc;
   }, []);
 
-  return <StyledBreadcrumbList>{childrenNew}</StyledBreadcrumbList>;
+  return (
+    <StyledBreadcrumbList className="t--breadcrumb-list">
+      {childrenNew}
+    </StyledBreadcrumbList>
+  );
 }
 
 function Breadcrumbs(props: BreadcrumbsProps) {
   return (
     <BreadcrumbList>
       {props.items.map(({ href, text }) => (
-        <Link key={href} to={href}>
+        <Link className="t--breadcrumb-item" key={href} to={href}>
           {text}
         </Link>
       ))}

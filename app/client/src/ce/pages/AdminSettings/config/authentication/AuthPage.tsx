@@ -150,6 +150,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                 </MethodDetailsWrapper>
                 {method.isConnected ? (
                   <EditButton
+                    className={`t--settings-sub-category-${method.category}`}
                     onClick={() =>
                       history.push(
                         getAdminSettingsCategoryUrl(
@@ -169,7 +170,9 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                         ? Category.primary
                         : Category.tertiary
                     }
-                    className={"add-button"}
+                    className={`add-button t--settings-sub-category-${
+                      method.needsUpgrade ? "upgrade" : method.category
+                    }`}
                     data-cy="add-auth-account"
                     onClick={() =>
                       !method.needsUpgrade &&
