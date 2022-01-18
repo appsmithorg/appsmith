@@ -1,7 +1,10 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
-import { getShowRepoLimitErrorModal } from "selectors/gitSyncSelectors";
+import {
+  getRepoLimitedDocUrl,
+  getShowRepoLimitErrorModal,
+} from "selectors/gitSyncSelectors";
 import {
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
@@ -14,12 +17,16 @@ import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES,
+  CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
+  DISCONNECT_CAUSE_APPLICATION_BREAK,
+  DISCONNECT_GIT,
+  LEARN_MORE,
   REPOSITORY_LIMIT_REACHED,
   REPOSITORY_LIMIT_REACHED_INFO,
-  REVOKE_ACCESS,
-  REVOKE_EXISTING_REPOSITORIES,
-  REVOKE_EXISTING_REPOSITORIES_INFO,
+  DISCONNECT_EXISTING_REPOSITORIES,
+  DISCONNECT_EXISTING_REPOSITORIES_INFO,
+  CONTACT_SALES_MESSAGE_ON_INTERCOM,
 } from "constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
@@ -33,6 +40,8 @@ import {
   ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import InfoWrapper from "./components/InfoWrapper";
 
 const Container = styled.div`
   height: 600px;
@@ -78,19 +87,23 @@ function RepoLimitExceededErrorModal() {
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
   const userOrgs = useSelector(getUserApplicationsOrgs);
+  const repoLimitDocumentUrl = useSelector(getRepoLimitedDocUrl);
+  const [orgName, setOrgName] = useState("");
   const applications = useMemo(() => {
     if (userOrgs) {
       const org: any = userOrgs.find((organizationObject: any) => {
         const { organization } = organizationObject;
         return organization.id === application?.organizationId;
       });
+      setOrgName(org?.organization.name || "");
       return (
         org?.applications.filter((application: ApplicationPayload) => {
           return (
             application.gitApplicationMetadata &&
             application.gitApplicationMetadata.remoteUrl &&
             application.gitApplicationMetadata.branchName &&
-            application.gitApplicationMetadata.repoName
+            application.gitApplicationMetadata.repoName &&
+            application.gitApplicationMetadata.isRepoPrivate
           );
         }) || []
       );
@@ -101,6 +114,9 @@ function RepoLimitExceededErrorModal() {
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
+      AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
+        source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
+      });
       dispatch(setShowRepoLimitErrorModal(false));
       dispatch(
         setDisconnectingGitApplication({
@@ -119,6 +135,16 @@ function RepoLimitExceededErrorModal() {
       type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
     });
   }, []);
+
+  const openIntercom = () => {
+    if (window.Intercom) {
+      window.Intercom(
+        "showNewMessage",
+        createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, orgName),
+      );
+    }
+  };
+
   return (
     <Dialog
       canEscapeKeyClose
@@ -141,10 +167,38 @@ function RepoLimitExceededErrorModal() {
           >
             {createMessage(REPOSITORY_LIMIT_REACHED_INFO)}
           </Text>
+          <InfoWrapper
+            style={{
+              margin: `${theme.spaces[7]}px 0px`,
+              paddingTop: theme.spaces[6],
+              paddingBottom: theme.spaces[6],
+            }}
+          >
+            <Icon
+              fillColor={Colors.YELLOW_LIGHT}
+              name="info"
+              size={IconSize.XXXL}
+            />
+            <div style={{ display: "block" }}>
+              <Text
+                color={Colors.BROWN}
+                style={{ marginRight: theme.spaces[2] }}
+                type={TextType.P3}
+              >
+                {createMessage(CONTACT_SUPPORT_TO_UPGRADE)}
+              </Text>
+            </div>
+          </InfoWrapper>
           <ButtonContainer>
             <Button
               category={Category.tertiary}
               className="t--contact-sales-button"
+              onClick={() => {
+                AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
+                  source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
+                });
+                openIntercom();
+              }}
               size={Size.large}
               tag="button"
               text={createMessage(CONTACT_SALES)}
@@ -152,18 +206,35 @@ function RepoLimitExceededErrorModal() {
           </ButtonContainer>
           <Text
             color={Colors.BLACK}
-            style={{ marginTop: theme.spaces[17] + 20 }}
+            style={{ marginTop: theme.spaces[17] }}
             type={TextType.H1}
           >
-            {createMessage(REVOKE_EXISTING_REPOSITORIES)}
+            {createMessage(DISCONNECT_EXISTING_REPOSITORIES)}
           </Text>
           <Text
             color={Colors.BLACK}
             style={{ marginTop: theme.spaces[3], width: 410 }}
             type={TextType.P1}
           >
-            {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
+            {createMessage(DISCONNECT_EXISTING_REPOSITORIES_INFO)}
           </Text>
+          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px` }}>
+            <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
+            <div style={{ display: "block" }}>
+              <Text
+                color={Colors.CRIMSON}
+                style={{ marginRight: theme.spaces[2] }}
+                type={TextType.P3}
+              >
+                {createMessage(DISCONNECT_CAUSE_APPLICATION_BREAK)}
+              </Text>
+              <Link
+                color={Colors.CRIMSON}
+                link={repoLimitDocumentUrl}
+                text={createMessage(LEARN_MORE)}
+              />
+            </div>
+          </InfoWrapper>
           {applications.map((application: ApplicationPayload) => {
             const { gitApplicationMetadata } = application;
             return (
@@ -187,7 +258,7 @@ function RepoLimitExceededErrorModal() {
                   onClick={() =>
                     openDisconnectGitModal(application.id, application.name)
                   }
-                  text={createMessage(REVOKE_ACCESS)}
+                  text={createMessage(DISCONNECT_GIT)}
                 />
               </ApplicationWrapper>
             );

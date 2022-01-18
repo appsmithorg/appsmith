@@ -19,6 +19,12 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // Git remote url will be used while pushing and pulling changes
     String remoteUrl;
 
+    // Git remote https url will be used while checking if the repo is public or private
+    String browserSupportedRemoteUrl;
+
+    // If remote repo is private and will be stored only with default application
+    Boolean isRepoPrivate;
+
     // The name of git repo
     String repoName;
 
@@ -26,7 +32,8 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
     String defaultApplicationId;
 
-    // Git credentials used to push changes to remote repo
+    // Git credentials used to push changes to remote repo and will be stored with default application only to optimise
+    // space requirement and update operation
     @JsonIgnore
     GitAuth gitAuth;
 

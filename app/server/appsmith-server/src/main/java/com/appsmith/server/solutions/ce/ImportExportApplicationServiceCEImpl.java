@@ -14,12 +14,14 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -27,11 +29,14 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -43,13 +48,13 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
@@ -89,6 +94,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
+    private final ThemeRepository themeRepository;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -129,13 +135,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
 
+        // Set json schema version which will be used to check the compatibility while importing the JSON
+        applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+
         return pluginRepository
                 .findAll()
                 .map(plugin -> {
-                    pluginMap.put(plugin.getId(), plugin.getPackageName());
+                    pluginMap.put(plugin.getId(), plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName());
                     return plugin;
                 })
                 .then(applicationMono)
+                .flatMap(application -> themeRepository.findById(application.getEditModeThemeId())
+                        .zipWith(themeRepository.findById(application.getPublishedModeThemeId()))
+                        .map(themesTuple -> {
+                            Theme editModeTheme = exportTheme(themesTuple.getT1());
+                            Theme publishedModeTheme = exportTheme(themesTuple.getT2());
+                            applicationJson.setEditModeTheme(editModeTheme);
+                            applicationJson.setPublishedTheme(publishedModeTheme);
+                            return themesTuple;
+                        }).thenReturn(application))
                 .flatMap(application -> {
 
                     // Assign the default page names for published and unpublished field in applicationJson object
@@ -364,8 +383,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
 
-        final Flux<DataBuffer> contentCache = filePart.content().cache();
-        Mono<String> stringifiedFile = DataBufferUtils.join(contentCache)
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
                 .map(dataBuffer -> {
                     byte[] data = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(data);
@@ -373,14 +391,34 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
-        return stringifiedFile
+        Mono<Application> importedApplicationMono = stringifiedFile
                 .flatMap(data -> {
-                    Gson gson = new Gson();
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                            .create();
+
+
+                    /*
+                    // Use JsonObject to migrate when we remove some field from the collection which is being exported
+                    JsonObject json = gson.fromJson(data, JsonObject.class);
+                    JsonObject update = new JsonObject();
+                    update.addProperty("slug", "update_name");
+                    update.addProperty("name", "update name");
+
+                    ((JsonObject) json.get("exportedApplication")).add("name", update);
+                    json.get("random") == null => true
+
+                    ((JsonArray) json.get("pageList"))
+                    */
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile);
                 });
+
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
@@ -398,23 +436,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * This function will take the application reference object to hydrate the application in mongoDB
      *
      * @param organizationId organization to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
+     * @param applicationJson    application resource which contains necessary information to save the application
      * @param applicationId  application which needs to be saved with the updated resources
      * @return Updated application
      */
     public Mono<Application> importApplicationInOrganization(String organizationId,
-                                                             ApplicationJson importedDoc,
+                                                             ApplicationJson applicationJson,
                                                              String applicationId,
                                                              String branchName) {
 
         /*
-            1. Fetch organization by id
-            2. Extract datasources and update plugin information
-            3. Create new datasource if same datasource is not present
-            4. Extract and save application
-            5. Extract and save pages in the application
-            6. Extract and save actions in the application
+            1. Migrate resource to latest schema
+            2. Fetch organization by id
+            3. Extract datasources and update plugin information
+            4. Create new datasource if same datasource is not present
+            5. Extract and save application
+            6. Extract and save pages in the application
+            7. Extract and save actions in the application
          */
+        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
@@ -450,11 +491,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         }
 
-        return pluginRepository.findAll()
+        Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
-                    pluginMap.put(plugin.getPackageName(), plugin.getId());
+                    final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
+                    pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
+                .then(importThemes(importedApplication, importedDoc))
                 .then(organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
@@ -646,6 +689,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     assert importedNewActionList != null;
 
                     return Flux.fromIterable(importedNewActionList)
+                            .filter(action -> action.getUnpublishedAction() != null
+                                    && !StringUtils.isEmpty(action.getUnpublishedAction().getPageId()))
                             .flatMap(newAction -> {
                                 NewPage parentPage = new NewPage();
                                 if (newAction.getDefaultResources() != null) {
@@ -753,6 +798,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
 
                     return Flux.fromIterable(importedActionCollectionList)
+                            .filter(actionCollection -> actionCollection.getUnpublishedCollection() != null
+                                    && !StringUtils.isEmpty(actionCollection.getUnpublishedCollection().getPageId()))
                             .flatMap(actionCollection -> {
                                 if (actionCollection.getDefaultResources() != null) {
                                     actionCollection.getDefaultResources().setBranchName(branchName);
@@ -878,6 +925,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .then(applicationService.update(importedApplication.getId(), importedApplication));
                 });
+
+        // Import Application is currently a slow API because it needs to import and create application, pages, actions
+        // and action collection. This process may take time and the client may cancel the request. This leads to the flow
+        // getting stopped mid way producing corrupted objects in DB. The following ensures that even though the client may have
+        // cancelled the flow, the importing the application should proceed uninterrupted and whenever the user refreshes
+        // the page, the imported application is available and is in sane state.
+        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
+        // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     /**
@@ -1037,7 +1095,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<ActionCollection> saveNewCollectionAndUpdateDefaultResources(ActionCollection actionCollection, String branchName) {
-        return actionCollectionService.save(actionCollection)
+        return actionCollectionService.create(actionCollection)
                 .flatMap(actionCollection1 -> {
                     if (actionCollection1.getDefaultResources() == null) {
                         ActionCollection update = new ActionCollection();
@@ -1327,4 +1385,46 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return null;
     }
 
+    /**
+     * Removes internal fields e.g. database ID from the provided Theme object.
+     * @param srcTheme Theme object from DB that'll be exported
+     * @return Theme DTO with null or empty value in internal fields
+     */
+    private Theme exportTheme(Theme srcTheme) {
+        srcTheme.setId(null);
+        if(srcTheme.isSystemTheme()) {
+            // for system theme, we only need theme name and isSystemTheme properties so set null to others
+            srcTheme.setProperties(null);
+            srcTheme.setConfig(null);
+            srcTheme.setStylesheet(null);
+        }
+        // set null to base domain properties also
+        srcTheme.setCreatedAt(null);
+        srcTheme.setCreatedBy(null);
+        srcTheme.setUpdatedAt(null);
+        srcTheme.setModifiedBy(null);
+        srcTheme.setUserPermissions(null);
+        return srcTheme;
+    }
+
+    private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson) {
+        Mono<Theme> importedEditModeTheme = getOrSaveTheme(importedApplicationJson.getEditModeTheme());
+        Mono<Theme> importedPublishedModeTheme = getOrSaveTheme(importedApplicationJson.getPublishedTheme());
+
+        return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).map(importedThemesTuple -> {
+            application.setEditModeThemeId(importedThemesTuple.getT1().getId());
+            application.setPublishedModeThemeId(importedThemesTuple.getT2().getId());
+            return application;
+        });
+    }
+
+    private Mono<Theme> getOrSaveTheme(Theme theme) {
+        if(theme == null) { // this application was exported without theme, assign the legacy theme to it
+            return themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
+        } else if (theme.isSystemTheme()) {
+            return themeRepository.getSystemThemeByName(theme.getName());
+        } else {
+            return themeRepository.save(theme);
+        }
+    }
 }

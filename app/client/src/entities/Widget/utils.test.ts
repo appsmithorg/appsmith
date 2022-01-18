@@ -4,6 +4,7 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -130,9 +131,14 @@ describe("getAllPathsFromPropertyConfig", () => {
         animateLoading: EvaluationSubstitutionType.TEMPLATE,
         primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleDownload: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleFilters: EvaluationSubstitutionType.TEMPLATE,
+        isVisiblePagination: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleSearch: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.verticalAlignment":
@@ -150,6 +156,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.createdAt.outputFormat":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.fontStyle":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
@@ -210,56 +218,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
           type: "FUNCTION",
         },
-        "primaryColumns.createdAt.cellBackground": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.createdAt.horizontalAlignment": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              allowedValues: ["LEFT", "CENTER", "RIGHT"],
-              default: "LEFT",
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.createdAt.isCellVisible": {
-          type: "TABLE_PROPERTY",
-          params: {
-            type: "BOOLEAN",
-          },
-        },
-        "primaryColumns.createdAt.textColor": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.createdAt.textSize": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              allowedValues: [
-                "HEADING1",
-                "HEADING2",
-                "HEADING3",
-                "PARAGRAPH",
-                "PARAGRAPH2",
-              ],
-              default: "PARAGRAPH",
-            },
-            type: "TEXT",
-          },
-        },
         isVisible: {
           type: "BOOLEAN",
         },
@@ -269,103 +227,17 @@ describe("getAllPathsFromPropertyConfig", () => {
             default: true,
           },
         },
-        "primaryColumns.createdAt.verticalAlignment": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              allowedValues: ["TOP", "CENTER", "BOTTOM"],
-            },
-            type: "TEXT",
-          },
+        isVisibleDownload: {
+          type: "BOOLEAN",
         },
-        "primaryColumns.name.cellBackground": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-            type: "TEXT",
-          },
+        isVisibleFilters: {
+          type: "BOOLEAN",
         },
-        "primaryColumns.name.horizontalAlignment": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              allowedValues: ["LEFT", "CENTER", "RIGHT"],
-              default: "LEFT",
-            },
-            type: "TEXT",
-          },
+        isVisiblePagination: {
+          type: "BOOLEAN",
         },
-        "primaryColumns.name.isCellVisible": {
-          type: "TABLE_PROPERTY",
-          params: {
-            type: "BOOLEAN",
-          },
-        },
-        "primaryColumns.name.textColor": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.name.textSize": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              allowedValues: [
-                "HEADING1",
-                "HEADING2",
-                "HEADING3",
-                "PARAGRAPH",
-                "PARAGRAPH2",
-              ],
-              default: "PARAGRAPH",
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.name.verticalAlignment": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              allowedValues: ["TOP", "CENTER", "BOTTOM"],
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.status.buttonColor": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.status.buttonLabelColor": {
-          type: "TABLE_PROPERTY",
-          params: {
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-            type: "TEXT",
-          },
-        },
-        "primaryColumns.status.isCellVisible": {
-          type: "TABLE_PROPERTY",
-          params: {
-            type: "BOOLEAN",
-          },
-        },
-        "primaryColumns.status.isDisabled": {
-          type: "TABLE_PROPERTY",
-          params: {
-            type: "BOOLEAN",
-          },
+        isVisibleSearch: {
+          type: "BOOLEAN",
         },
         primaryColumnId: {
           type: "TEXT",
@@ -399,6 +271,224 @@ describe("getAllPathsFromPropertyConfig", () => {
               default: "PARAGRAPH",
             },
             type: "TEXT",
+          },
+        },
+        "primaryColumns.createdAt.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.name.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.status.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.status.isDisabled": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.BOOLEAN,
+          },
+        },
+        "primaryColumns.createdAt.inputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.outputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
+        "primaryColumns.name.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+          },
+        },
+        "primaryColumns.name.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+              default: "LEFT",
+            },
+          },
+        },
+        "primaryColumns.createdAt.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+          },
+        },
+        "primaryColumns.createdAt.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+              default: "LEFT",
+            },
+          },
+        },
+        "primaryColumns.name.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "HEADING1",
+                "HEADING2",
+                "HEADING3",
+                "PARAGRAPH",
+                "PARAGRAPH2",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+          },
+        },
+        "primaryColumns.name.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+          },
+        },
+        "primaryColumns.createdAt.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.name.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.createdAt.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.name.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.status.buttonColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.status.buttonLabelColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
           },
         },
       },

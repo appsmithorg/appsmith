@@ -211,10 +211,16 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                     // Default pageId will be taken from publishedCollection.defaultResources
                                     DefaultResources defaults = actionCollection.getDefaultResources();
                                     // Consider a situation when collection is not published but user is viewing in deployed mode
-                                    if (publishedCollection.getDefaultResources() != null) {
+                                    if (publishedCollection.getDefaultResources() != null && defaults != null) {
                                         defaults.setPageId(publishedCollection.getDefaultResources().getPageId());
                                     } else {
-                                        defaults.setPageId(null);
+                                        log.debug("Unreachable state, unable to find default ids for actionCollection: {}", actionCollection.getId());
+                                        if (defaults == null) {
+                                            defaults = new DefaultResources();
+                                            defaults.setApplicationId(actionCollection.getApplicationId());
+                                            defaults.setCollectionId(actionCollection.getId());
+                                        }
+                                        defaults.setPageId(actionCollection.getPublishedCollection().getPageId());
                                     }
                                     actionCollectionViewDTO.setDefaultResources(defaults);
                                     return Flux.fromIterable(publishedCollection.getDefaultToBranchedActionIdsMap().values())

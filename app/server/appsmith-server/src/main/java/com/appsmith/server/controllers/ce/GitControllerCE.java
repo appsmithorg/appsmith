@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -46,7 +47,7 @@ public class GitControllerCE {
 
     @PostMapping("/profile/default")
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@RequestBody GitProfile gitProfile) {
-        //Add to the userData object - git config data
+        log.debug("Going to add default git profile for user");
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile)
                 .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
@@ -54,14 +55,14 @@ public class GitControllerCE {
     @PutMapping("/profile/{defaultApplicationId}")
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@PathVariable String defaultApplicationId,
                                                                      @RequestBody GitProfile gitProfile) {
-        // Add to the userData object - git config data
+        log.debug("Going to add repo specific git profile for application: {}", defaultApplicationId);
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile, defaultApplicationId)
                 .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
     }
 
     @GetMapping("/profile/default")
     public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
-        return service.getGitProfileForUser()
+        return service.getDefaultGitProfileOrCreateIfEmpty()
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 
@@ -147,9 +148,10 @@ public class GitControllerCE {
 
     @GetMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
-                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
+                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches,
+                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches))
+        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches), branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -183,6 +185,11 @@ public class GitControllerCE {
         log.debug("Going to create conflicted state branch {} for application {}", branchName, defaultApplicationId);
         return service.createConflictedBranch(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @GetMapping("/import/keys")
+    public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport() {
+        return service.generateSSHKey().map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
 
