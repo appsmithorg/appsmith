@@ -11,7 +11,6 @@ import {
   AppThemingMode,
   getAppThemes,
   getAppThemingStack,
-  getPreviewAppTheme,
 } from "selectors/appThemingSelectors";
 import Button from "components/ads/Button";
 import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
@@ -20,7 +19,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 function ThemeSelector() {
   const dispatch = useDispatch();
   const themes = useSelector(getAppThemes);
-  const previewTheme = useSelector(getPreviewAppTheme);
   const themingStack = useSelector(getAppThemingStack);
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -36,21 +34,18 @@ function ThemeSelector() {
    * saves the preview theme
    */
   const onClickSave = useCallback(() => {
-    if (previewTheme) {
-      dispatch(
-        changeSelectedAppThemeAction({ applicationId, theme: previewTheme }),
-      );
-
-      // we want user to always go to theme editor after selecting a theme
-      let newStack = themingStack.slice(0, -1);
-
-      if (newStack.indexOf(AppThemingMode.APP_THEME_EDIT) < 0) {
-        newStack = newStack.concat(AppThemingMode.APP_THEME_EDIT);
-      }
-
-      dispatch(setAppThemingModeStack(newStack));
-    }
-  }, [changeSelectedAppThemeAction, previewTheme, applicationId]);
+    // if (previewTheme) {
+    //   dispatch(
+    //     changeSelectedAppThemeAction({ applicationId, theme: previewTheme }),
+    //   );
+    //   // we want user to always go to theme editor after selecting a theme
+    //   let newStack = themingStack.slice(0, -1);
+    //   if (newStack.indexOf(AppThemingMode.APP_THEME_EDIT) < 0) {
+    //     newStack = newStack.concat(AppThemingMode.APP_THEME_EDIT);
+    //   }
+    //   dispatch(setAppThemingModeStack(newStack));
+    // }
+  }, [changeSelectedAppThemeAction, applicationId]);
 
   return (
     <>
@@ -63,13 +58,6 @@ function ThemeSelector() {
           <ArrowLeft className="w-4 h-4 transition-all transform" />
           <h3 className="text-xs font-medium uppercase">Back</h3>
         </button>
-
-        <Button
-          className="t--save-theme-btn"
-          disabled={!previewTheme}
-          onClick={onClickSave}
-          text="Save Changes"
-        />
       </header>
       <header className="px-3 space-y-2">
         <h3 className="text-sm font-medium uppercase">Themes</h3>

@@ -284,8 +284,6 @@ ctx.addEventListener(
         } else {
           replayMap[entityId] = new ReplayEditor(entity, entityType);
         }
-
-        console.log({ replayMap });
         break;
       case EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION:
         const { version } = requestData;

@@ -15,10 +15,15 @@ export type FetchSelectedAppThemeAction = {
 export type UpdateSelectedAppThemeAction = {
   applicationId: string;
   theme: AppTheme;
+  shouldReplay?: boolean;
 };
 
 export type ChangeSelectedAppThemeAction = {
   applicationId: string;
+  theme: AppTheme;
+};
+
+export type HydrateSelectedAppThemeAction = {
   theme: AppTheme;
 };
 

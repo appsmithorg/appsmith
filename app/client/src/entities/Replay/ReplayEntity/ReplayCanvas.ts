@@ -13,11 +13,11 @@ import {
 import { AppTheme } from "entities/AppTheming";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
-export type CanvasReplayState = {
+export type Canvas = {
   widgets: CanvasWidgetsReduxState;
   theme: AppTheme;
 };
-export type CanvasDiff = Diff<CanvasReplayState, CanvasReplayState>;
+export type CanvasDiff = Diff<Canvas, Canvas>;
 export type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
 
 const positionProps = [
@@ -45,13 +45,20 @@ const positionProps = [
 function isPositionUpdate(widgetProperty: string) {
   return positionProps.indexOf(widgetProperty) !== -1;
 }
-export default class ReplayCanvas extends ReplayEntity<CanvasReplayState> {
-  public constructor(entity: CanvasReplayState) {
+export default class ReplayCanvas extends ReplayEntity<Canvas> {
+  public constructor(entity: Canvas) {
     super(entity, ENTITY_TYPE.WIDGET);
   }
 
+  /**
+   * process the diff
+   *
+   * @param diff
+   * @param replay
+   * @param isUndo
+   * @returns
+   */
   public processDiff(diff: CanvasDiff, replay: any, isUndo: boolean) {
-    console.log({ DIFF: diff });
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
 
@@ -65,14 +72,14 @@ export default class ReplayCanvas extends ReplayEntity<CanvasReplayState> {
   }
 
   /**
-   * process diff related to app theme
+   * process diff related to app theming
    *
    * @param diff
    * @param replay
    * @param isUndo
    */
   public processDiffForTheme(diff: CanvasDiff, replay: any, isUndo: boolean) {
-    console.log("diff for app theme");
+    this.replayEntityType = ENTITY_TYPE.THEME;
   }
 
   /**
@@ -86,6 +93,8 @@ export default class ReplayCanvas extends ReplayEntity<CanvasReplayState> {
   public processDiffForWidgets(diff: CanvasDiff, replay: any, isUndo: boolean) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
+
+    this.replayEntityType = ENTITY_TYPE.WIDGET;
 
     const widgetId = diff.path[1];
 
@@ -132,6 +141,7 @@ export default class ReplayCanvas extends ReplayEntity<CanvasReplayState> {
         break;
     }
   }
+
   private createToast(
     diffWidget: any,
     dslWidget: CanvasWidgetsReduxState | undefined,

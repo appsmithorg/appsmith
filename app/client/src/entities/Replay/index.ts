@@ -12,7 +12,7 @@ export default abstract class ReplayEntity<T> {
   private diffMap: any;
   private undoManager: UndoManager;
   protected entity: T;
-  private replayEntityType: ENTITY_TYPE;
+  protected replayEntityType: ENTITY_TYPE;
   logs: any[] = [];
   protected abstract processDiff(
     diff: Diff<T, T>,

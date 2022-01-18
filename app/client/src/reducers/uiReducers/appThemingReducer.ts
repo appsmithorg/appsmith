@@ -9,7 +9,6 @@ export type AppThemingState = {
   themes: AppTheme[];
   themesLoading: boolean;
   selectedThemeLoading: boolean;
-  previewTheme?: AppTheme;
 };
 
 const initialState: AppThemingState = {
@@ -17,7 +16,6 @@ const initialState: AppThemingState = {
   themes: [],
   themesLoading: false,
   selectedThemeLoading: false,
-  previewTheme: undefined,
   selectedTheme: {
     id: "",
     name: "",
@@ -74,24 +72,16 @@ const themeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT]: () => {
     //
   },
-  [ReduxActionTypes.SET_PREVIEW_APP_THEME]: (
-    state: AppThemingState,
-    action: ReduxAction<AppTheme | undefined>,
-  ) => {
-    state.previewTheme = action.payload;
-  },
   [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {
-    state.previewTheme = undefined;
     state.selectedTheme = action.payload;
   },
   [ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {
-    state.previewTheme = undefined;
     state.selectedTheme = action.payload;
   },
 });

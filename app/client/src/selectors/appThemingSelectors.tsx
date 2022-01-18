@@ -36,25 +36,13 @@ export const getSelectedAppTheme = (state: AppState) => {
 };
 
 /**
- * get the preview theme
- *
- * @param state
- * @returns
- */
-export const getPreviewAppTheme = (state: AppState) => {
-  return state.ui.appTheming.previewTheme;
-};
-
-/**
  * get the selected theme stylsheet
  *
  * @param state
  * @returns
  */
 export const getSelectedAppThemeStylesheet = (state: AppState) => {
-  return state.ui.appTheming.previewTheme
-    ? state.ui.appTheming.previewTheme.stylesheet
-    : state.ui.appTheming.selectedTheme.stylesheet;
+  return state.ui.appTheming.selectedTheme.stylesheet;
 };
 
 /**
@@ -64,7 +52,5 @@ export const getSelectedAppThemeStylesheet = (state: AppState) => {
  * @returns
  */
 export const getSelectedAppThemeProperties = (state: AppState) => {
-  return state.ui.appTheming.previewTheme
-    ? state.ui.appTheming.previewTheme.properties
-    : state.ui.appTheming.selectedTheme.properties;
+  return state.ui.appTheming.selectedTheme.properties;
 };

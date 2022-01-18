@@ -5,6 +5,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import { ThemeCard } from "../ThemePropertyPane/ThemeCard";
+import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
 
 export function CanvasPropertyPane() {
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -19,10 +20,7 @@ export function CanvasPropertyPane() {
           <MainContainerLayoutControl />
         </div>
 
-        <div className="px-3 space-y-2">
-          <p className="text-sm text-gray-700">Theme</p>
-          <ThemeCard changeable editable theme={selectedTheme} />
-        </div>
+        <ThemeEditor />
       </div>
     </div>
   );

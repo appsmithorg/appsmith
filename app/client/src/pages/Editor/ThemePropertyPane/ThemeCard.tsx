@@ -148,7 +148,7 @@ export function ThemeCard(props: ThemeCard) {
   return (
     <div
       className={classNames({
-        "ring-1 p-0.5 relative group hover:shadow-xl transition-all cursor-pointer t--theme-card": true,
+        "border relative group hover:shadow-xl transition-all cursor-pointer t--theme-card": true,
         "ring-gray-700 ring-2": props.isSelected,
         "ring-gray-200": !props.isSelected,
         "overflow-hidden": !selectable,
@@ -162,14 +162,13 @@ export function ThemeCard(props: ThemeCard) {
         }`}
       >
         <HeaderContainer
-          className="flex p-3 text-white"
+          className="flex h-3 text-white"
           primaryColor={primaryColor}
-        >
-          <h3 className="flex-grow">{theme.name}</h3>
-          <aside>@appsmith</aside>
-        </HeaderContainer>
+        />
         <section className="flex justify-between px-3 pt-3">
-          <MainText backgroundColor={backgroundColor}>AaBbCc</MainText>
+          <MainText backgroundColor={backgroundColor} className="text-base">
+            AaBbCc
+          </MainText>
           <div className="flex items-center space-x-2">
             {Object.keys(userDefinedColors).map((colorKey, index) => (
               <ThemeColorCircle
@@ -235,7 +234,7 @@ export function ThemeCard(props: ThemeCard) {
         }`}
       >
         <div className="py-1 text-xs tracking-wide text-white uppercase">
-          Preview Theme
+          Apply Theme
         </div>
       </aside>
       {props.isSelected && (

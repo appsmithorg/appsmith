@@ -16,10 +16,7 @@ import { useSelector } from "react-redux";
 
 import { trimQueryString } from "utils/helpers";
 import { getPageURL } from "utils/AppsmithUtils";
-import {
-  getPreviewAppTheme,
-  getSelectedAppTheme,
-} from "selectors/appThemingSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -148,19 +145,10 @@ export function PageTabs(props: Props) {
   const appMode = useSelector(getAppMode);
   const [query, setQuery] = useState("");
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const previewTheme = useSelector(getPreviewAppTheme);
 
   useEffect(() => {
     setQuery(window.location.search);
   }, [location]);
-
-  /**
-   * returns the current theme
-   * Note: preview theme will take priority over selected theme
-   */
-  const currentTheme = useMemo(() => {
-    return previewTheme ? previewTheme : selectedTheme;
-  }, [selectedTheme, previewTheme]);
 
   return (
     <div
@@ -192,7 +180,7 @@ export function PageTabs(props: Props) {
           >
             <PageTabName
               name={page.pageName}
-              primaryColor={currentTheme.properties.colors.primaryColor}
+              primaryColor={selectedTheme.properties.colors.primaryColor}
             />
           </PageTab>
         </PageTabContainer>

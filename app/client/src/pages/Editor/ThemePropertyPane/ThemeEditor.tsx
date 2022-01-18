@@ -8,6 +8,7 @@ import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  AppThemingMode,
   getAppThemingStack,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
@@ -18,7 +19,7 @@ import {
 import { AppTheme } from "entities/AppTheming";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
+import Button, { Category, Size } from "components/ads/Button";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
@@ -40,25 +41,36 @@ function ThemeEditor() {
     [updateSelectedAppThemeAction],
   );
 
+  /**
+   * sets the mode to THEME_EDIT
+   */
+  const onClickChangeThemeButton = useCallback(() => {
+    dispatch(
+      setAppThemingModeStack([
+        ...themingStack,
+        AppThemingMode.APP_THEME_SELECTION,
+      ]),
+    );
+  }, [setAppThemingModeStack]);
+
   return (
-    <>
-      <header className="flex items-center justify-between px-3 ">
-        <button
-          className="inline-flex items-center h-5 space-x-1 text-gray-500 cursor-pointer"
-          onClick={onClickBack}
-          type="button"
-        >
-          <ArrowLeft className="w-4 h-4 transition-all transform" />
-          <h3 className="text-xs font-medium uppercase">Back</h3>
-        </button>
-      </header>
+    <div className="">
       <header className="px-3 space-y-2">
         <h3 className="text-sm font-medium uppercase">Current Theme</h3>
         <ThemeCard changeable theme={selectedTheme} />
       </header>
-      <main>
+      <div className="px-3 mt-4">
+        <Button
+          category={Category.tertiary}
+          className="t--change-theme-btn"
+          onClick={onClickChangeThemeButton}
+          size={Size.medium}
+          text="Change Theme"
+        />
+      </div>
+      <main className="mt-1">
         {/* COLORS */}
-        <SettingSection className="border-t" isOpen title="Colour">
+        <SettingSection className="" title="Colour">
           <section className="space-y-2">
             <ThemeColorControl
               theme={selectedTheme}
@@ -68,7 +80,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BORDER RADIUS */}
-        <SettingSection className="border-t" isOpen title="Border Radius">
+        <SettingSection className="border-t" title="Border Radius">
           {Object.keys(selectedTheme.config.borderRadius).map(
             (borderRadiusSectionName: string, index: number) => {
               return (
@@ -95,7 +107,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BOX SHADOW */}
-        <SettingSection className="border-t" isOpen title="Box Shadow">
+        <SettingSection className="border-t" title="Box Shadow">
           {Object.keys(selectedTheme.config.boxShadow).map(
             (boxShadowSectionName: string, index: number) => {
               return (
@@ -122,7 +134,7 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* FONT  */}
-        <SettingSection className="border-t" isOpen title="Font">
+        <SettingSection className="border-t" title="Font">
           {Object.keys(selectedTheme.config.fontFamily).map(
             (fontFamilySectionName: string, index: number) => {
               return (
@@ -148,7 +160,7 @@ function ThemeEditor() {
           )}
         </SettingSection>
       </main>
-    </>
+    </div>
   );
 }
 

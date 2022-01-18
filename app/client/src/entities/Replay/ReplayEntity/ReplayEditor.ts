@@ -6,6 +6,7 @@ import { JSActionConfig } from "entities/JSCollection";
 import { Datasource } from "entities/Datasource";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import isEmpty from "lodash/isEmpty";
+import { Canvas } from "./ReplayCanvas";
 
 /*
  This type represents all the form objects that can be undone/redone.
@@ -15,10 +16,7 @@ export type Replayable =
   | Partial<JSActionConfig>
   | Partial<Datasource>
   | Partial<Action>
-  | Partial<{
-      widgets: any;
-      theme: any;
-    }>;
+  | Partial<Canvas>;
 
 type ReplayEditorDiff = Diff<Replayable, Replayable>;
 

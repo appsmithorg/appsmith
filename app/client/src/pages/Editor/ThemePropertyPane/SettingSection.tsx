@@ -23,10 +23,10 @@ export function SettingSection(props: SettingSectionProps) {
   return (
     <div className={`px-3 py-3 ${props.className}`}>
       <div
-        className={` cursor-pointer flex items-center justify-between uppercase text-md `}
+        className={` cursor-pointer flex items-center justify-between capitalize text-base text-gray-800 `}
         onClick={toggleCollapse}
       >
-        <div className="font-semibold">{props.title}</div>
+        <div className="font-normal">{props.title}</div>
         <div>
           <ArrowRight
             className={` transform transition-all ${isOpen ? "rotate-90" : ""}`}

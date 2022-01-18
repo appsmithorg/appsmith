@@ -16,10 +16,7 @@ import { initPageLevelSocketConnection } from "actions/websocketActions";
 import { collabShareUserPointerEvent } from "actions/appCollabActions";
 import { getIsPageLevelSocketConnected } from "../../selectors/websocketSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import {
-  getPreviewAppTheme,
-  getSelectedAppTheme,
-} from "selectors/appThemingSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import { previewModeSelector } from "selectors/editorSelectors";
 
@@ -70,7 +67,7 @@ const Canvas = memo((props: CanvasProps) => {
   const { pageId } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const previewTheme = useSelector(getPreviewAppTheme);
+
   const shareMousePointer = useShareMousePointerEvent();
   const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   const currentGitBranch = useSelector(getCurrentGitBranch);
@@ -90,10 +87,8 @@ const Canvas = memo((props: CanvasProps) => {
   const backgroundForCanvas = useMemo(() => {
     if (isPreviewMode) return "initial";
 
-    return previewTheme
-      ? previewTheme.properties.colors.backgroundColor
-      : selectedTheme.properties.colors.backgroundColor;
-  }, [selectedTheme, previewTheme, isPreviewMode]);
+    return selectedTheme.properties.colors.backgroundColor;
+  }, [selectedTheme]);
 
   try {
     return (

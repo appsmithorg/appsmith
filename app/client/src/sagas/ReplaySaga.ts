@@ -36,7 +36,10 @@ import {
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import { findFieldInfo, REPLAY_FOCUS_DELAY } from "entities/Replay/replayUtils";
 import { setActionProperty, updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
@@ -71,6 +74,9 @@ import {
   QUERY_EDITOR_FORM_NAME,
   SAAS_EDITOR_FORM,
 } from "constants/forms";
+import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
+import { updateSelectedAppThemeAction } from "actions/appThemingActions";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -195,6 +201,8 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       timeTaken,
     } = workerResponse;
 
+    console.log({ replayEntityType });
+
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
     switch (replayEntityType) {
       case ENTITY_TYPE.WIDGET: {
@@ -217,11 +225,32 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
           updateJSCollectionBody(replayEntity.body, replayEntity.id, true),
         );
         break;
+      case ENTITY_TYPE.THEME:
+        yield call(replayThemeSaga, replayEntity, replay);
+        break;
     }
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
   }
+}
+
+/**
+ * replay theme actions
+ *
+ * @param replayEntity
+ * @param replay
+ */
+function* replayThemeSaga(replayEntity: Canvas, replay: any) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+
+  yield put(
+    updateSelectedAppThemeAction({
+      theme: replayEntity.theme,
+      shouldReplay: false,
+      applicationId,
+    }),
+  );
 }
 
 function* replayActionSaga(

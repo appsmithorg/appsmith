@@ -1050,7 +1050,7 @@ export function* updateSelectedTheme(
   action: ReduxAction<UpdateSelectedAppThemeAction>,
 ) {
   // eslint-disable-next-line
-  const { applicationId, theme } = action.payload;
+  const { applicationId, theme, shouldReplay = true } = action.payload;
   const canvasWidgets = yield select(getCanvasWidgets);
 
   try {
@@ -1059,13 +1059,15 @@ export function* updateSelectedTheme(
       payload: theme,
     });
 
-    yield put(
-      updateReplayEntity(
-        "canvas",
-        { widgets: canvasWidgets, theme },
-        ENTITY_TYPE.WIDGET,
-      ),
-    );
+    if (shouldReplay) {
+      yield put(
+        updateReplayEntity(
+          "canvas",
+          { widgets: canvasWidgets, theme },
+          ENTITY_TYPE.WIDGET,
+        ),
+      );
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_SELECTED_APP_THEME_ERROR,
