@@ -2138,6 +2138,7 @@ public class GitServiceTest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
+        applicationJson.setDatasourceList(new ArrayList<>());
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
@@ -2169,6 +2170,7 @@ public class GitServiceTest {
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo (1)");
+        applicationJson.setDatasourceList(new ArrayList<>());
 
         Application testApplication = new Application();
         testApplication.setName("testGitRepo");
@@ -2205,7 +2207,10 @@ public class GitServiceTest {
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
-        applicationJson.getDatasourceList().get(0).setName("testGitImportRepo");
+        List<Datasource> datasourceList = applicationJson.getDatasourceList();
+        datasourceList.get(0).setName("testGitImportRepo");
+        datasourceList.get(0).setPluginId("mongo-plugin");
+        applicationJson.setDatasourceList(datasourceList);
 
         Datasource datasource = new Datasource();
         datasource.setName("testGitImportRepo");

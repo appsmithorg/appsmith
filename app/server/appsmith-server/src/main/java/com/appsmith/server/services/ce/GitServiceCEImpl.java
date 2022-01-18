@@ -20,6 +20,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -42,6 +43,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -113,6 +115,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final GitCloudServicesUtils gitCloudServicesUtils;
     private final GitDeployKeysRepository gitDeployKeysRepository;
     private final DatasourceService datasourceService;
+    private final PluginService pluginService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -2090,14 +2093,16 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     try {
                         Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
-
-                        return fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
-                                .zipWith(datasourceMono)
+                        Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
+                        Mono<ApplicationJson> applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch);
+                        return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
                                 .flatMap(data -> {
                                     List<Datasource> datasourceList = data.getT2();
                                     ApplicationJson applicationJson = data.getT1();
+                                    List<Plugin> pluginList = data.getT3();
+
                                     // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
-                                    if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList())) {
+                                    if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
                                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
                                                 " --import",
                                                 " Datasource already exists with the same name"));
@@ -2109,7 +2114,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     } catch (GitAPIException | IOException e) {
                         log.error("Error while constructing application from git repo", e);
-                        return detachRemote(application.getId())
+                        return fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
                                 .then(applicationPageService.deleteApplication(application.getId()))
                                 .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
                     }
@@ -2176,18 +2181,28 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    private boolean checkIsDatasourceNameConflict(List<Datasource> existingDataSources, List<Datasource> importedDataSources) {
+    private boolean checkIsDatasourceNameConflict(List<Datasource> existingDataSources,
+                                                  List<Datasource> importedDataSources,
+                                                  List<Plugin> pluginList) {
         // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
         for( Datasource datasource : importedDataSources) {
-            Long matchCount = existingDataSources
-                    .stream()
-                    .filter(
-                            datasource1 -> datasource1.getName().equals(datasource.getName())
-                                    && !datasource1.getPluginId().equals(datasource.getPluginId())
-                    ).count();
-            if(matchCount > 0 ) {
-                return true;
-            }
+            // Collect the datasource(existing in organization) which has same as of imported datasource
+             List<Datasource> filteredDataSource = existingDataSources
+                     .stream()
+                     .filter(datasource1 -> datasource1.getName().equals(datasource.getName()))
+                     .collect(Collectors.toList());
+
+             // Check if both of the datasource's are of the same type
+             if (filteredDataSource.size() > 0) {
+                 Long matchCount = pluginList.stream()
+                         .filter(plugin -> plugin.getId().equals(filteredDataSource.get(0).getPluginId())
+                                 && !datasource.getPluginId().equals(plugin.getPackageName()))
+                         .count();
+                 if (matchCount > 0) {
+                     return true;
+                 }
+             }
+
         }
         return false;
     }
