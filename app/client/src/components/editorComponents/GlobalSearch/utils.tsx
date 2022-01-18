@@ -77,11 +77,7 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
   [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + P</>,
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + K</>,
-  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
-    <>
-      {modText()} + {altText()} + N
-    </>
-  ),
+  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: <>{altText()} + Shift + N</>,
 };
 
 export type Snippet = {
