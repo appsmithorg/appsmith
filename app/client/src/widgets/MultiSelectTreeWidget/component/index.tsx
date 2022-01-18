@@ -12,6 +12,7 @@ import {
   StyledIcon,
   StyledLabel,
   TextLabelWrapper,
+  StyledTooltip,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
@@ -22,11 +23,12 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes, Position } from "@blueprintjs/core";
 import _ from "lodash";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
+import { LabelPosition } from "components/constants";
 
 export interface TreeSelectProps
   extends Required<
@@ -44,7 +46,10 @@ export interface TreeSelectProps
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
   expandAll: boolean;
   mode: CheckedStrategy;
-  labelText?: string;
+  labelText: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
@@ -52,6 +57,7 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
+  widgetId: string;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -97,19 +103,25 @@ function MultiTreeSelectComponent({
   dropDownWidth,
   expandAll,
   isValid,
+  labelAlignment,
+  labelPosition,
   labelStyle,
   labelText,
   labelTextColor,
   labelTextSize,
+  labelWidth,
   loading,
   mode,
   onChange,
   options,
   placeholder,
   value,
+  widgetId,
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
+  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+
   const _menu = useRef<HTMLElement | null>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -117,6 +129,22 @@ function MultiTreeSelectComponent({
   useEffect(() => {
     setKey(Math.random());
   }, [expandAll]);
+
+  useEffect(() => {
+    setHasLabelEllipsis(checkHasLabelEllipsis());
+  }, [width, labelText, labelPosition, labelWidth]);
+
+  const checkHasLabelEllipsis = useCallback(() => {
+    const labelElement = document.querySelector(
+      `.appsmith_widget_${widgetId} .multitree-select-label`,
+    );
+
+    if (labelElement) {
+      return labelElement.scrollWidth > labelElement.clientWidth;
+    }
+
+    return false;
+  }, []);
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -130,11 +158,13 @@ function MultiTreeSelectComponent({
 
   const onClear = useCallback(() => onChange([], []), []);
   const id = _.uniqueId();
+
   return (
     <TreeSelectContainer
       allowClear={allowClear}
       compactMode={compactMode}
       isValid={isValid}
+      labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
@@ -143,21 +173,49 @@ function MultiTreeSelectComponent({
         parentWidth={width - WidgetContainerDiff}
       />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode}>
-          <StyledLabel
-            $compactMode={compactMode}
-            $disabled={disabled}
-            $labelStyle={labelStyle}
-            $labelText={labelText}
-            $labelTextColor={labelTextColor}
-            $labelTextSize={labelTextSize}
-            className={`tree-select-label ${
-              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }`}
-            disabled={disabled}
-          >
-            {labelText}
-          </StyledLabel>
+        <TextLabelWrapper
+          alignment={labelAlignment}
+          compactMode={compactMode}
+          position={labelPosition}
+          width={labelWidth}
+        >
+          {hasLabelEllipsis ? (
+            <StyledTooltip
+              content={labelText}
+              hoverOpenDelay={200}
+              position={Position.TOP}
+            >
+              <StyledLabel
+                $compactMode={compactMode}
+                $disabled={disabled}
+                $labelStyle={labelStyle}
+                $labelText={labelText}
+                $labelTextColor={labelTextColor}
+                $labelTextSize={labelTextSize}
+                className={`multitree-select-label ${
+                  loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+                }`}
+                disabled={disabled}
+              >
+                {labelText}
+              </StyledLabel>
+            </StyledTooltip>
+          ) : (
+            <StyledLabel
+              $compactMode={compactMode}
+              $disabled={disabled}
+              $labelStyle={labelStyle}
+              $labelText={labelText}
+              $labelTextColor={labelTextColor}
+              $labelTextSize={labelTextSize}
+              className={`multitree-select-label ${
+                loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+              }`}
+              disabled={disabled}
+            >
+              {labelText}
+            </StyledLabel>
+          )}
         </TextLabelWrapper>
       )}
       <TreeSelect
