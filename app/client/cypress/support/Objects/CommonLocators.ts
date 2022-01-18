@@ -15,7 +15,7 @@ export class CommonLocators {
     _entityExplorersearch = "#entity-explorer-search"
     _propertyControl = ".t--property-control-"
     _textWidget = ".t--draggable-textwidget span"
-    _inputWidget = ".t--draggable-inputwidget span"
+    _inputWidget = ".t--draggable-inputwidgetv2 span"
     _publishButton = ".t--application-publish-btn"
     _textWidgetInDeployed = ".t--widget-textwidget span"
     _backToEditor = ".t--back-to-editor"
