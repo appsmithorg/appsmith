@@ -6,7 +6,6 @@ import {
   getCurrentApplication,
 } from "./applicationSelectors";
 import { Branch } from "entities/GitSync";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
