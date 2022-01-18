@@ -261,9 +261,12 @@ export const MultiSelectContainer = styled.div<{
     `overflow-x: hidden; overflow-y: auto;`}
 
   label.multiselect-label {
-    margin-bottom: ${({ compactMode }) => (compactMode ? "0px" : "5px")};
-    margin-right: ${({ compactMode, labelPosition }) =>
-      compactMode || labelPosition === LabelPositionTypes.Left ? "5px" : "0px"};
+    ${({ compactMode, labelPosition }) =>
+      labelPosition === LabelPositionTypes.Top
+        ? `margin-bottom: 5px; margin-right: 0px`
+        : compactMode || labelPosition === LabelPositionTypes.Left
+        ? `margin-bottom: 0px; margin-right: 5px`
+        : `margin-bottom: 5px; margin-right: 0px`};
   }
 
   .rc-select {

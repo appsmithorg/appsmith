@@ -249,9 +249,12 @@ const DropdownContainer = styled.div<{
     `overflow-x: hidden; overflow-y: auto;`}
 
   label.select-label {
-    margin-bottom: ${({ compactMode }) => (compactMode ? "0px" : "5px")};
-    margin-right: ${({ compactMode, labelPosition }) =>
-      compactMode || labelPosition === LabelPositionTypes.Left ? "5px" : "0px"};
+    ${({ compactMode, labelPosition }) =>
+      labelPosition === LabelPositionTypes.Top
+        ? `margin-bottom: 5px; margin-right: 0px`
+        : compactMode || labelPosition === LabelPositionTypes.Left
+        ? `margin-bottom: 0px; margin-right: 5px`
+        : `margin-bottom: 5px; margin-right: 0px`};
   }
 `;
 const DEBOUNCE_TIMEOUT = 800;

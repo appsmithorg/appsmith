@@ -94,6 +94,13 @@ const InputComponentWrapper = styled((props) => (
       labelPosition === LabelPositionTypes.Top) &&
     `overflow-y: auto;`}
 
+  ${({ compactMode, labelPosition }) =>
+    labelPosition === LabelPositionTypes.Top
+      ? `gap: 5px`
+      : compactMode || labelPosition === LabelPositionTypes.Left
+      ? `gap: 0px`
+      : `gap: 5px`};
+
   &&&& {
     .currency-type-filter,
     .country-type-filter {
@@ -226,11 +233,16 @@ const InputComponentWrapper = styled((props) => (
           : `center`
         : `flex-start`};
 
-
-
     label {
       ${labelStyle}
-      margin-right: 5px;
+
+      ${({ compactMode, labelPosition }) =>
+        labelPosition === LabelPositionTypes.Top
+          ? `margin-right: 0px`
+          : compactMode || labelPosition === LabelPositionTypes.Left
+          ? `margin-right: 5px`
+          : `margin-right: 0px`};
+
       text-align: right;
       align-self: flex-start;
       color: ${(props) =>
@@ -345,6 +357,7 @@ const TextInputWrapper = styled.div<{ numeric?: boolean }>`
   flex: 1;
   overflow-x: hidden;
   ${({ numeric }) => numeric && `&&& {flex-grow: 0;}`}
+  min-height: 36px;
 `;
 
 export const isNumberInputType = (inputType: InputType) => {
