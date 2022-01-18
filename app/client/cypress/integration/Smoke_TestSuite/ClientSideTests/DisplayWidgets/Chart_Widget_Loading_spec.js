@@ -13,10 +13,6 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  beforeEach(() => {
-    cy.openPropertyPane("chartwidget");
-  });
-
   it("Test case while reloading and on submission", function() {
     /**
      * Use case:
