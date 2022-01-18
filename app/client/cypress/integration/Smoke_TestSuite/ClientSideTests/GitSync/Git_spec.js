@@ -199,7 +199,7 @@ describe("Git sync:", function() {
   after(() => {
     cy.deleteTestGithubRepo(repoName);
 
-    // TODO remove
+    // TODO remove when app deletion with conflicts is fixed
     cy.get(homePage.homeIcon).click({ force: true });
     cy.get(homePage.createNew)
       .first()
