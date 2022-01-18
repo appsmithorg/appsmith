@@ -772,7 +772,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         <FormInputContainer>
-          <div style={{ width: "50vh" }}>
+          <div style={{ width: "20vw" }}>
             <FormLabel>
               Redirect URL
               <br />

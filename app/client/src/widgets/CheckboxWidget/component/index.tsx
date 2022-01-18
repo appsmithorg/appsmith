@@ -6,9 +6,10 @@ import { AlignWidget } from "widgets/constants";
 import { Colors } from "constants/Colors";
 
 type StyledCheckboxProps = {
-  rowSpace: number;
-  disabled?: boolean;
   checked?: boolean;
+  disabled?: boolean;
+  indeterminate?: boolean;
+  rowSpace: number;
 };
 
 type StyledCheckboxContainerProps = {
@@ -41,22 +42,27 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
     border-radius: 0;
     border: 1px solid ${Colors.GREY_3};
-    box-shadow: none;
+    box-shadow: none !important;
     outline: none !important;
     background: transparent;
 
-    ${({ checked }) =>
-      checked
+    ${({ checked, indeterminate }) =>
+      checked || indeterminate
         ? `
         background-color: ${Colors.GREEN_SOLID} !important;
         background-image: none;
-        box-shadow: none;
         border: none !important;
-        &::before {
-          background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A") !important;
-        }
         `
         : ``}
+
+    ${({ checked }) =>
+      checked &&
+      `
+      &::before {
+          background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A") !important;
+        }
+    `}
+
     ${({ disabled }) => (disabled ? `opacity: 0.5;` : ``)}
   }
 
@@ -64,15 +70,14 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
     &.bp3-control.bp3-checkbox .bp3-control-indicator {
       ${({ disabled }) =>
         disabled ? "" : `border: 1px solid ${Colors.GREY_5}`};
-      ${({ checked }) =>
-        checked
+      ${({ checked, indeterminate }) =>
+        checked || indeterminate
           ? `
         background-image: linear-gradient(
           0deg,
           rgba(0, 0, 0, 0.2),
           rgba(0, 0, 0, 0.2)
         );
-        box-shadow: none;
         `
           : ""};
     }

@@ -8,13 +8,13 @@ describe("FilePicker Widget Functionality with different file types", function()
 
   it("Check file upload of type jpeg", function() {
     cy.SearchEntityandOpen("FilePicker1");
-    const fixturePath = "Vase.jpeg";
+    const fixturePath = "FlowerVase.jpeg";
     cy.get(commonlocators.filepickerv2).click();
     cy.get(commonlocators.filePickerInput)
       .first()
       .attachFile(fixturePath);
     cy.get(commonlocators.filePickerUploadButton).click();
-    cy.get(commonlocators.dashboardItemName).contains("Vase.jpeg");
+    cy.get(commonlocators.dashboardItemName).contains("FlowerVase.jpeg");
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get("button").contains("Upload 1 file");

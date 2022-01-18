@@ -410,6 +410,17 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        SSHKeyPair: null,
+      },
+    };
+  },
   [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<GetSSHKeyResponseData>,
