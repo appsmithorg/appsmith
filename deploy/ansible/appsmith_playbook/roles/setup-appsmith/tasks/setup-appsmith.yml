@@ -11,6 +11,7 @@
     mode: 0440
 
 - name: Start Appsmith
-  shell: docker-compose up -d
+  shell: /usr/local/bin/docker-compose up -d
   args:
     chdir: '{{ install_dir }}'
+  notify: "Start Appsmith with docker-compose"

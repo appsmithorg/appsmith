@@ -1,5 +1,6 @@
 ---
 - name: Configure the self-hosted server
   hosts: appsmith
+  become: yes
   roles:
     - setup-appsmith
