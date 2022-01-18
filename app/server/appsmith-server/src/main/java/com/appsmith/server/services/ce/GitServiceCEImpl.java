@@ -2103,13 +2103,18 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                     // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
                                     if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
-                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                                " --import",
-                                                " Datasource already exists with the same name"));
+                                        return fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
+                                                .then(applicationPageService.deleteApplication(application.getId()))
+                                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                        " --import",
+                                                        " Datasource already exists with the same name")));
                                     }
                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                     return importExportApplicationService
-                                            .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch);
+                                            .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
+                                            .onErrorResume(throwable -> fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
+                                                    .then(applicationPageService.deleteApplication(application.getId()))
+                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR))));
                                 });
 
                     } catch (GitAPIException | IOException e) {
