@@ -28,6 +28,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
       .click({ force: true });
+    cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
