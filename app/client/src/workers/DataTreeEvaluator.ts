@@ -69,6 +69,7 @@ import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { addWidgetPropertyDependencies } from "./evaluationUtils";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -467,7 +468,7 @@ export default class DataTreeEvaluator {
     entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
     entityName: string,
   ): DependencyMap {
-    const dependencies: DependencyMap = {};
+    let dependencies: DependencyMap = {};
 
     if (isWidget(entity)) {
       // Adding the dynamic triggers in the dependency list as they need linting whenever updated
@@ -477,22 +478,15 @@ export default class DataTreeEvaluator {
           dependencies[`${entityName}.${key}`] = [];
         });
       }
+      const widgetDependencies = addWidgetPropertyDependencies({
+        entity,
+        entityName,
+      });
 
-      Object.entries(entity.overridingProperties).forEach(
-        ([overridingPropertyKey, overriddenPropertiesKey]) => {
-          overriddenPropertiesKey.forEach((overriddenPropertyKey) => {
-            const existingDependenciesSet = new Set(
-              dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
-            );
-            existingDependenciesSet.add(
-              `${entityName}.${overridingPropertyKey}`,
-            );
-            dependencies[`${entityName}.${overriddenPropertyKey}`] = [
-              ...existingDependenciesSet,
-            ];
-          });
-        },
-      );
+      dependencies = {
+        ...dependencies,
+        ...widgetDependencies,
+      };
     }
 
     if (isAction(entity) || isJSAction(entity)) {
@@ -1507,15 +1501,33 @@ export default class DataTreeEvaluator {
     value: unknown,
     currentTree: DataTree,
   ) {
-    if (propertyPath in entity.overridingProperties) {
-      const overridingPropertyPaths = entity.overridingProperties[propertyPath];
+    if (propertyPath in entity.overridingPropertyPaths) {
+      const overridingPropertyPaths =
+        entity.overridingPropertyPaths[propertyPath];
 
-      overridingPropertyPaths.forEach((overridingPropertyPath) => {
-        _.set(
-          currentTree,
-          `${entity.widgetName}.${overridingPropertyPath}`,
-          value,
-        );
+      overridingPropertyPaths.forEach((overriddenPropertyKey) => {
+        const overriddenPropertyKeyMap =
+          entity.propertiesOverridingKeyMap[overriddenPropertyKey];
+        const isMetaPropertyPath =
+          propertyPath === overriddenPropertyKeyMap.META;
+        if (
+          value === undefined &&
+          isMetaPropertyPath &&
+          overriddenPropertyKeyMap.DEFAULT
+        ) {
+          const defaultValue = entity[overriddenPropertyKeyMap.DEFAULT];
+          _.set(
+            currentTree,
+            `${entity.widgetName}.${overriddenPropertyKey}`,
+            defaultValue, // set to default eval value when meta value is reset i.e., is undefined onChange.
+          );
+        } else {
+          _.set(
+            currentTree,
+            `${entity.widgetName}.${overriddenPropertyKey}`,
+            value,
+          );
+        }
       });
     }
   }

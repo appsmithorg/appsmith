@@ -222,7 +222,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
 };
 
 const BASE_WIDGET: DataTreeWidget = {
-  overridingProperties: {},
   logBlackList: {},
   widgetId: "randomID",
   widgetName: "randomWidgetName",
@@ -241,6 +240,8 @@ const BASE_WIDGET: DataTreeWidget = {
   triggerPaths: {},
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  propertiesOverridingKeyMap: {},
+  overridingPropertyPaths: {},
 };
 
 const BASE_ACTION: DataTreeAction = {

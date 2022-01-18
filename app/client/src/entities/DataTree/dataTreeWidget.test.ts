@@ -168,7 +168,7 @@ describe("generateDataTreeWidget", () => {
       version: 0,
       widgetId: "123",
       widgetName: "Input1",
-      defaultText: "Tester",
+      defaultText: "",
     };
 
     const widgetMetaProps: Record<string, unknown> = {
@@ -236,12 +236,18 @@ describe("generateDataTreeWidget", () => {
       isDirty: true,
       isFocused: false,
       isValid: "{{true}}",
-      text: "Tester",
+      text: undefined,
       bottomRow: 0,
       isLoading: false,
       leftColumn: 0,
       parentColumnSpace: 0,
       parentRowSpace: 0,
+      propertiesOverridingKeyMap: {
+        text: {
+          DEFAULT: "defaultText",
+          META: "meta.text",
+        },
+      },
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
@@ -250,19 +256,18 @@ describe("generateDataTreeWidget", () => {
       widgetId: "123",
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-      defaultText: "Tester",
+      defaultText: "",
       defaultMetaProps: ["text", "isDirty", "isFocused"],
       defaultProps: {
         text: "defaultText",
       },
-      overridingProperties: {
+      overridingPropertyPaths: {
         defaultText: ["text"],
         "meta.text": ["text"],
       },
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);
-
     expect(result).toStrictEqual(expected);
   });
 });
