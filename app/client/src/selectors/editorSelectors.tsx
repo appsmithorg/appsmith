@@ -402,8 +402,7 @@ const createLoadingWidget = (
     validationPaths: {},
     logBlackList: {},
     isLoading: true,
-    propertiesOverridingKeyMap: {},
-    overridingPropertyPaths: {},
+    overridingProperties: {},
   };
 };
 
