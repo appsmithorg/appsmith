@@ -843,9 +843,6 @@ export function updateListWidgetPropertiesOnChildDelete(
     // delete widget in template of list
     if (listWidget && widgetName in listWidget.template) {
       listWidget.template[widgetName] = undefined;
-
-      // delete from privateWidgets
-      listWidget.privateWidgets[widgetName] = undefined;
     }
 
     // delete dynamic binding path if any
