@@ -157,21 +157,17 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
-    let value = this.props.text || "";
+    let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       const converter = new showdown.Converter();
       value = converter.makeHtml(value);
     }
-    let defaultText = this.props.defaultText || "";
-    if (this.props.inputType === RTEFormats.MARKDOWN) {
-      const converter = new showdown.Converter();
-      defaultText = converter.makeHtml(defaultText);
-    }
+
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
-          defaultText={defaultText}
           isDisabled={this.props.isDisabled}
+          isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}

@@ -22,16 +22,17 @@ const StyledRTEditor = styled.div`
 
 export interface RichtextEditorComponentProps {
   value?: string;
+  isMarkdown: boolean;
   placeholder?: string;
   widgetId: string;
   isDisabled?: boolean;
-  defaultText?: string;
   isVisible?: boolean;
   isToolbarHidden: boolean;
   onValueChange: (valueAsString: string) => void;
 }
+const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
-  const [value, setValue] = React.useState<string>(props.defaultText as string);
+  const [value, setValue] = React.useState<string>(props.value as string);
   const editorRef = useRef<any>(null);
   const isInit = useRef<boolean>(false);
 
@@ -47,17 +48,21 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   }, [value]);
 
   useEffect(() => {
-    if (!props.defaultText) return;
-    setValue(props.defaultText);
-  }, [props.defaultText]);
+    if (!editorRef.current) return;
+    setValue(props.value as string);
+  }, [props.value]);
 
   const onEditorChange = (newValue: string) => {
     if (!isInit.current) {
       isInit.current = true;
       return;
     }
-    if (newValue === value) return;
-    setValue(newValue);
+    if (newValue === "" && props.isMarkdown) {
+      setValue(initValue);
+    } else {
+      // Prevents cursur shift in Markdown
+      setValue(newValue);
+    }
   };
   return (
     <StyledRTEditor className={`container-${props.widgetId}`}>
