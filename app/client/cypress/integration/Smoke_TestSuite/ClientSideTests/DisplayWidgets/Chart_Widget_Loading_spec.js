@@ -94,10 +94,11 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
     cy.reload();
 
     //Step12:
+    cy.wait(2000);
     cy.get(".t--widget-chartwidget div[class*='bp3-skeleton']").should("exist");
 
     //Step13:
-    /* cy.openPropertyPane("chartwidget");
+    cy.openPropertyPane("chartwidget");
     cy.updateCodeInput(".t--property-control-chart-series-data-control", "");
     cy.openPropertyPane("buttonwidget");
     cy.get(".t--property-control-onclick .t--js-toggle").click({ force: true });
@@ -122,6 +123,6 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
       .last()
       .click({ force: true });
     cy.wait(150);
-    cy.get(".t--datasource-option-delete").click({ force: true }); */
+    cy.get(".t--datasource-option-delete").click({ force: true });
   });
 });
