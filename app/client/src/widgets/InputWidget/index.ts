@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  hideCard: true,
   defaults: {
     inputType: "TEXT",
     rows: GRID_DENSITY_MIGRATION_V1,

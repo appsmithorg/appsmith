@@ -15,7 +15,13 @@ import {
   FormInputSwitchToJsonButton,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
-
+import { AppState } from "reducers";
+import { Action } from "entities/Action";
+import _ from "lodash";
+import {
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 interface FormControlProps {
   config: ControlProps;
   formName: string;
@@ -23,9 +29,41 @@ interface FormControlProps {
 }
 
 function FormControl(props: FormControlProps) {
-  const formValues = useSelector((state) =>
+  const formValues: Partial<Action> = useSelector((state: AppState) =>
     getFormValues(props.formName)(state),
   );
+
+  // get the datatree from the state
+  const dataTree = useSelector((state: AppState) => state.evaluations.tree);
+
+  // action that corresponds to this form control
+  let action: any;
+  let configErrors: EvaluationError[] = [];
+
+  // if form value exists, use the name of the form(which is the action's name) to get the action details
+  // from the data tree, then store it in the action variable
+  if (formValues && formValues.name) {
+    if (formValues.name in dataTree) {
+      // get action details from data tree
+      action = dataTree[formValues.name];
+
+      // extract the error object from the action's details object.
+      const actionError = action && action?.__evaluation__?.errors;
+
+      // get the configProperty for this form control and format it to resemble the format used in the action details errors object.
+      const formattedConfig = _.replace(
+        props?.config?.configProperty,
+        "actionConfiguration",
+        "config",
+      );
+
+      // grab the errors specific to this configProperty and store it in configErrors.
+      if (actionError && formattedConfig in actionError) {
+        configErrors = actionError[formattedConfig];
+      }
+    }
+  }
+
   const hidden = isHidden(formValues, props.config.hidden);
 
   if (hidden) return null;
@@ -33,6 +71,7 @@ function FormControl(props: FormControlProps) {
   return (
     <FormConfig
       config={props.config}
+      configErrors={configErrors}
       formName={props.formName}
       multipleConfig={props?.multipleConfig}
     >
@@ -49,6 +88,7 @@ function FormControl(props: FormControlProps) {
 
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
+  configErrors: EvaluationError[];
 }
 // top contains label, subtitle, urltext, tooltip, dispaly type
 // bottom contains the info and error text
@@ -101,7 +141,10 @@ function FormConfig(props: FormConfigProps) {
           </>
         )}
       </div>
-      {renderFormConfigBottom({ config: props.config })}
+      {renderFormConfigBottom({
+        config: props.config,
+        configErrors: props.configErrors,
+      })}
     </div>
   );
 }
@@ -156,12 +199,26 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   );
 }
 
-function renderFormConfigBottom(props: { config: ControlProps }) {
-  const { errorText, info, showError } = { ...props.config };
+function renderFormConfigBottom(props: {
+  config: ControlProps;
+  configErrors?: EvaluationError[];
+}) {
+  const { info } = { ...props.config };
   return (
     <>
       {info && <FormInputHelperText>{info}</FormInputHelperText>}
-      {showError && <FormInputErrorText>{errorText}</FormInputErrorText>}
+      {props.configErrors &&
+        props.configErrors.length > 0 &&
+        props.configErrors
+          .filter(
+            (error) =>
+              error.errorType === PropertyEvaluationErrorType.VALIDATION,
+          )
+          .map((error, index) => (
+            <FormInputErrorText key={index}>
+              {`* ${error?.errorMessage}`}
+            </FormInputErrorText>
+          ))}
     </>
   );
 }
