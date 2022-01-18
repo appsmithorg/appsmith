@@ -205,6 +205,7 @@ describe("Admin settings page", function() {
   });
 
   it("should test that breadcrumbs work properly", () => {
+    // checking settings default page
     cy.visit("/settings/general");
     cy.get(AdminsSettingsLocators.breadcrumbList)
       .children()
@@ -217,14 +218,15 @@ describe("Admin settings page", function() {
           .eq(0)
           .contains("Homepage")
           .should("have.attr", "href")
-          .and("include", "/applications");
+          .and("eq", "/applications");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
           .contains("Settings")
           .should("have.attr", "href")
-          .and("include", "/settings/general");
+          .and("eq", "/settings/general");
       });
 
+    // checking settings category page
     cy.visit("/settings/authentication");
     cy.get(AdminsSettingsLocators.breadcrumbList)
       .children()
@@ -237,19 +239,20 @@ describe("Admin settings page", function() {
           .eq(0)
           .contains("Homepage")
           .should("have.attr", "href")
-          .and("include", "/applications");
+          .and("eq", "/applications");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
           .contains("Settings")
           .should("have.attr", "href")
-          .and("include", "/settings/general");
+          .and("eq", "/settings/general");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(2)
           .contains("Authentication")
           .should("have.attr", "href")
-          .and("include", "/settings/authentication");
+          .and("eq", "/settings/authentication");
       });
 
+    // checking settings subcategory page
     cy.visit("/settings/authentication/google-auth");
     cy.get(AdminsSettingsLocators.breadcrumbList)
       .children()
@@ -262,22 +265,22 @@ describe("Admin settings page", function() {
           .eq(0)
           .contains("Homepage")
           .should("have.attr", "href")
-          .and("include", "/applications");
+          .and("eq", "/applications");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(1)
           .contains("Settings")
           .should("have.attr", "href")
-          .and("include", "/settings/general");
+          .and("eq", "/settings/general");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(2)
           .contains("Authentication")
           .should("have.attr", "href")
-          .and("include", "/settings/authentication");
+          .and("eq", "/settings/authentication");
         cy.get(AdminsSettingsLocators.breadcrumbItem)
           .eq(3)
           .contains("Google Authentication")
           .should("have.attr", "href")
-          .and("include", "/settings/authentication/google-auth");
+          .and("eq", "/settings/authentication/google-auth");
       });
   });
 });
