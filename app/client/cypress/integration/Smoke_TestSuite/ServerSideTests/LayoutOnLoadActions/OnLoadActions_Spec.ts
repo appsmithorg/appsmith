@@ -1,8 +1,10 @@
 import { ApiPage } from "../../../../support/Pages/ApiPage";
 import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
+import { HomePage } from "../../../../support/Pages/HomePage";
 
 const apiPage = new ApiPage();
 const agHelper = new AggregateHelper();
+const homePage = new HomePage();
 
 describe("Layout OnLoad Actions tests", function () {
     let dsl: any;
@@ -80,8 +82,8 @@ describe("Layout OnLoad Actions tests", function () {
     });
 
     it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
-        agHelper.NavigateToHome()
-        agHelper.CreateNewApplication()
+        homePage.NavigateToHome()
+        homePage.CreateNewApplication()
         agHelper.AddDsl(dsl)
 
         apiPage.CreateAndFillApi("https://source.unsplash.com/collection/1599413", "RandomFlora")

@@ -1,4 +1,5 @@
 import 'cypress-wait-until';
+const uuid = require("uuid");
 import { CommonLocators } from "../Objects/CommonLocators";
 
 const locator = new CommonLocators();
@@ -45,6 +46,7 @@ export class AggregateHelper {
     public StartServerAndRoutes() {
         cy.intercept("POST", "/api/v1/actions").as("createNewApi");
         cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
+        //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
     }
 
     public RenameWithInPane(renameVal: string) {
@@ -75,23 +77,6 @@ export class AggregateHelper {
     public ValidateEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
         cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
             .should("have.length", 1);
-    }
-
-    public NavigateToHome() {
-        cy.get(locator._homeIcon).click({ force: true });
-        this.Sleep(3000)
-        cy.wait("@applications");
-        cy.get(locator._homePageAppCreateBtn).should("be.visible").should("be.enabled");
-        //cy.get(this._homePageAppCreateBtn);
-    }
-
-    public CreateNewApplication() {
-        cy.get(locator._homePageAppCreateBtn).click({ force: true })
-        cy.wait("@createNewApplication").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-        );
     }
 
     public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
@@ -147,7 +132,7 @@ export class AggregateHelper {
     }
 
     public ClickButton(btnVisibleText: string) {
-        cy.xpath(locator._buttonClick(btnVisibleText))
+        cy.xpath(locator._spanButton(btnVisibleText))
             .scrollIntoView()
             .click({ force: true });
     }
@@ -242,7 +227,7 @@ export class AggregateHelper {
     }
 
     public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
-        cy.get(locator._openNavigationTab('widgets')).click({force: true})
+        cy.get(locator._openNavigationTab('widgets')).click({ force: true })
         this.Sleep()
         cy.get(locator._widgetPageIcon(widgetType)).first()
             .trigger("dragstart", { force: true })
@@ -272,6 +257,12 @@ export class AggregateHelper {
     public NavigateBacktoEditor() {
         cy.get(locator._backToEditor).click({ force: true });
         this.Sleep(2000)
+    }
+
+    public GenerateUUID() {
+        let id = uuid.v4();
+        id = id.split("-")[0];
+        cy.wrap(id).as("guid")
     }
 
     public GetObjectName() {

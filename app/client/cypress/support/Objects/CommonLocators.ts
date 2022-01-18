@@ -6,8 +6,6 @@ export class CommonLocators {
     _queryName = ".t--action-name-edit-field span"
     _queryNameTxt = ".t--action-name-edit-field input"
     _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
-    _homeIcon = ".t--appsmith-logo"
-    _homePageAppCreateBtn = ".t--applications-container .createnew"
     _saveStatusSuccess = ".t--save-status-success"
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"
@@ -28,7 +26,7 @@ export class CommonLocators {
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
     _toastMsg = ".t--toast-action"
     _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
-    _buttonClick = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
+    _spanButton = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
     _empty = "span[name='no-response']"
     _selectDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button"
     _dropDownValue = (ddOption: string) => ".single-select:contains('" + ddOption + "')"
@@ -41,4 +39,5 @@ export class CommonLocators {
     _widgetInDeployed =  (widgetType: string) => `.t--widget-${widgetType}`
     _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
     _openNavigationTab = (tabToOpen: string) =>  `#switcher--${tabToOpen}`
+
 }
