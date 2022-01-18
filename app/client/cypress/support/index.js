@@ -60,8 +60,6 @@ before(function() {
         Cypress.env("TESTPASSWORD2"),
       );
       cy.LogOut();
-      cy.SignupFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      cy.LogOut();
     }
   });
 });
