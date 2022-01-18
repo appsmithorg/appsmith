@@ -14288,8 +14288,7 @@ react-transition-group@^4, react-transition-group@^4.3.0:
 
 react-use-gesture@^7.0.4:
   version "7.0.16"
-  resolved "https://registry.yarnpkg.com/react-use-gesture/-/react-use-gesture-7.0.16.tgz#501985261ef9c815a377b6ff9be6df5a85fbb54f"
-  integrity sha512-gwgX+E+WQG0T1uFVl3z8j3ZwH3QQGIgVl7VtQEC2m0IscSs668sSps4Ss3CFp3Vns8xx0j9TVK4aBXH6+YrpEg==
+  resolved "https://registry.npmjs.org/react-use-gesture/-/react-use-gesture-7.0.16.tgz"
 
 react-virtualized-auto-sizer@^1.0.2:
   version "1.0.2"
