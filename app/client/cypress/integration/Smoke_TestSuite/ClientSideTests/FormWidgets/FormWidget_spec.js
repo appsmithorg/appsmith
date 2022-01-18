@@ -10,6 +10,9 @@ describe("Form Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+  beforeEach(() => {
+    cy.wait(7000);
+  });
   it("Defult Form text,  Reset and Close button Validation", function() {
     cy.get(widgetsPage.textWidget).should("be.visible");
     cy.get(widgetsPage.formButtonWidget)
@@ -28,8 +31,9 @@ describe("Form Widget Functionality", function() {
       x: 100,
       y: 100,
     });
+    cy.wait(500);
     cy.dragAndDropToWidget("inputwidgetv2", "formwidget", { x: 50, y: 200 });
-    cy.get(formWidgetsPage.multiselectWidget).should("be.visible");
+    cy.get(formWidgetsPage.multiselectwidgetv2).should("be.visible");
     cy.get(widgetsPage.inputWidget).should("be.visible");
     cy.PublishtheApp();
   });
