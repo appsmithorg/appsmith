@@ -226,6 +226,7 @@ export const CONFIG = {
             widgets: { [widgetId: string]: FlattenedWidgetProps },
           ) => {
             let template = {};
+            const privateWidgets: PrivateWidgets = {};
             const logBlackListMap: any = {};
             const container = get(
               widgets,
@@ -281,6 +282,10 @@ export const CONFIG = {
                 };
               });
 
+            Object.keys(template).forEach((childWidgetName) => {
+              privateWidgets[childWidgetName] = true;
+            });
+
             updatePropertyMap = [
               {
                 widgetId: widget.widgetId,
@@ -291,6 +296,11 @@ export const CONFIG = {
                 widgetId: widget.widgetId,
                 propertyName: "template",
                 propertyValue: template,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "privateWidgets",
+                propertyValue: privateWidgets,
               },
             ];
 
