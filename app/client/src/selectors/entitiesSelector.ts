@@ -20,6 +20,7 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { JSCollection } from "entities/JSCollection";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
+import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -568,3 +569,50 @@ export const getPageActions = (pageId = "") => {
     });
   };
 };
+
+export const getValidationConfig = (state: AppState, action: any) => {
+  const pluginId = action.pluginId;
+  return extractValidationConfigFromPlugin(
+    state.entities.plugins.editorConfigs[pluginId],
+    {},
+  );
+};
+
+export const getAllActionValidationConfigs = (state: AppState) => {
+  const allActions = state.entities.actions;
+  const allValidationConfigs: {
+    [actionId: string]: ActionValidationConfigMap;
+  } = {};
+  for (let i = 0; i < allActions.length; i++) {
+    const pluginId = allActions[i].config.pluginId;
+    let validationConfigs: any = {};
+    validationConfigs = extractValidationConfigFromPlugin(
+      state.entities.plugins.editorConfigs[pluginId],
+      {},
+    );
+    allValidationConfigs[allActions[i].config.id] = validationConfigs;
+  }
+  return allValidationConfigs;
+};
+
+function extractValidationConfigFromPlugin(
+  editorConfigs: any,
+  validationConfigs: ActionValidationConfigMap,
+): ActionValidationConfigMap {
+  let newValidationConfigs: any = { ...validationConfigs };
+  for (let i = 0; i < editorConfigs.length; i++) {
+    if (editorConfigs[i].validationConfig) {
+      const configProperty = editorConfigs[i].configProperty;
+      newValidationConfigs[configProperty] = editorConfigs[i].validationConfig;
+    }
+
+    if (editorConfigs[i].children) {
+      const lv = extractValidationConfigFromPlugin(
+        editorConfigs[i].children,
+        validationConfigs,
+      );
+      newValidationConfigs = { ...newValidationConfigs, ...lv };
+    }
+  }
+  return newValidationConfigs;
+}
