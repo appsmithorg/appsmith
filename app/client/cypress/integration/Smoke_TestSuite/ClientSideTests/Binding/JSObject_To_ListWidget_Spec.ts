@@ -59,7 +59,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
   });
 
   it("3. Validate the List widget ", function () {
-    cy.get(locator._backToEditor).click({ force: true });
+    agHelper.NavigateBacktoEditor()
     agHelper.SelectEntityByName("Widgets")//to expand widgets
     agHelper.SelectEntityByName("List1");
     jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
@@ -77,7 +77,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
       .then((text) => {
         expect(text).to.equal((valueToTest as string).trimEnd());
       });
-    cy.get(locator._backToEditor).click({ force: true });
+    agHelper.NavigateBacktoEditor()
   });
 
   it("4. Bind Input widget with JSObject", function () {

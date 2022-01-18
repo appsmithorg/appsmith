@@ -34,5 +34,11 @@ export class CommonLocators {
     _dropDownValue = (ddOption: string) => ".single-select:contains('" + ddOption + "')"
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
-
+    _openWidget=  ".widgets .t--entity-add-btn"            
+    _widgetPageIcon = (widgetType: string) => `.t--widget-card-draggable-${widgetType}`
+    _dropHere= "#canvas-dragging-0"
+    _widgetInCanvas=  (widgetType: string) => `.t--draggable-${widgetType}`
+    _widgetInDeployed =  (widgetType: string) => `.t--widget-${widgetType}`
+    _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
+    _openNavigationTab = (tabToOpen: string) =>  `#switcher--${tabToOpen}`
 }

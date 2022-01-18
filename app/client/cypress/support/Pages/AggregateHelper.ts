@@ -65,7 +65,11 @@ export class AggregateHelper {
         cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
             .click({ multiple: true })
-        this.Sleep(2000)
+        this.Sleep()
+    }
+
+    public NavigateToExplorer() {
+        cy.get(locator._openNavigationTab('explorer')).click()
     }
 
     public ValidateEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
@@ -235,6 +239,39 @@ export class AggregateHelper {
             .first()
             .click({ force: true });
         this.Sleep()
+    }
+
+    public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
+        cy.get(locator._openNavigationTab('widgets')).click({force: true})
+        this.Sleep()
+        cy.get(locator._widgetPageIcon(widgetType)).first()
+            .trigger("dragstart", { force: true })
+            .trigger("mousemove", x, y, { force: true });
+        cy.get(locator._dropHere)
+            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+            .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+        this.WaitAutoSave()//settling time for widget on canvas!
+        cy.get(locator._widgetInCanvas(widgetType)).should('exist')
+    }
+
+    public ToggleOrDisable(propertyName: string, check = true) {
+        if (check) {
+            cy.get(locator._propertyToggle(propertyName))
+                .check({ force: true })
+                .should("be.checked");
+        }
+        else {
+            cy.get(locator._propertyToggle(propertyName))
+                .uncheck({ force: true })
+                .should("not.checked");
+        }
+        this.WaitAutoSave()
+    }
+
+    public NavigateBacktoEditor() {
+        cy.get(locator._backToEditor).click({ force: true });
+        this.Sleep(2000)
     }
 
     public GetObjectName() {
