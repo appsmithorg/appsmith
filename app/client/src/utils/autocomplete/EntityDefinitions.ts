@@ -521,7 +521,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
     isVisible: isVisible,
     progress: "number",
-  }
+  },
 };
 
 export const GLOBAL_DEFS = {
