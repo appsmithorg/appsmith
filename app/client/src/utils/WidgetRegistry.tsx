@@ -133,6 +133,9 @@ import CurrencyInputWidget, {
 import CameraWidget, {
   CONFIG as CAMERA_WIDGET_CONFIG,
 } from "widgets/CameraWidget";
+import CircularProgressWidget, {
+  CONFIG as CIRCULAR_PROGRESS_WIDGET_CONFIG,
+} from "widgets/CircularProgressWidget";
 import MapChartWidget, {
   CONFIG as MAP_CHART_WIDGET_CONFIG,
 } from "widgets/MapChartWidget";
@@ -187,6 +190,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [MapChartWidget, MAP_CHART_WIDGET_CONFIG],
   [SelectWidget, SELECT_WIDGET_CONFIG],
   [MultiSelectWidgetV2, MULTI_SELECT_WIDGET_V2_CONFIG],
+  [CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG],
   [InputWidgetV2, INPUT_WIDGET_V2_CONFIG],
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
