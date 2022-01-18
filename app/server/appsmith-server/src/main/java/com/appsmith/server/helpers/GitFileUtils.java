@@ -305,12 +305,10 @@ public class GitFileUtils {
         return applicationReference;
     }
 
-    private Boolean isVersionCompatible(ApplicationJson metadata) {
-        Integer importedJsonVersion = metadata == null ? null : metadata.getVersion();
+    private boolean isVersionCompatible(ApplicationJson metadata) {
+        Integer importedFileFormatVersion = metadata == null ? null : metadata.getFileFormatVersion();
+        Integer currentFileFormatVersion = new ApplicationJson().getFileFormatVersion();
 
-        if (importedJsonVersion == null || importedJsonVersion.equals(new ApplicationJson().getVersion())) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        return (importedFileFormatVersion == null || importedFileFormatVersion.equals(currentFileFormatVersion));
     }
 }
