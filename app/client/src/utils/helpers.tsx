@@ -634,3 +634,31 @@ export function unFocus(document: Document, window: Window) {
 export function getLogToSentryFromResponse(response?: ApiResponse) {
   return response && response?.responseMeta?.status >= 500;
 }
+
+/*
+ *  Function to merge property pane config of a widget
+ *
+ */
+export const mergeWidgetConfig = (target: any, source: any) => {
+  const sectionMap: Record<string, any> = {};
+
+  target.forEach((section: { sectionName: string }) => {
+    sectionMap[section.sectionName] = section;
+  });
+
+  source.forEach((section: { sectionName: string; children: any[] }) => {
+    const targetSection = sectionMap[section.sectionName];
+
+    if (targetSection) {
+      Array.prototype.push.apply(targetSection.children, section.children);
+    } else {
+      target.push(section);
+    }
+  });
+
+  return target;
+};
+
+export const getLocale = () => {
+  return navigator.languages?.[0] || "en-US";
+};

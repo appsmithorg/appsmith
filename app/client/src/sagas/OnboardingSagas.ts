@@ -216,7 +216,7 @@ function* listenForAddInputWidget() {
     const widgets = yield select(getWidgets);
 
     const inputWidget: any = Object.values(widgets).find(
-      (widget: any) => widget.type === "INPUT_WIDGET",
+      (widget: any) => widget.type === "INPUT_WIDGET_V2",
     );
 
     const isOnBuilder = matchBuilderPath(window.location.pathname);
@@ -230,7 +230,7 @@ function* listenForAddInputWidget() {
 
     if (
       inputWidget &&
-      inputWidget.type === "INPUT_WIDGET" &&
+      inputWidget.type === "INPUT_WIDGET_V2" &&
       canvasWidgets[inputWidget.widgetId]
     ) {
       if (!isOnBuilder) {
@@ -777,7 +777,7 @@ function* addTableWidget() {
 
 function* addInputWidget() {
   yield call(addWidget, {
-    type: WidgetTypes.INPUT_WIDGET,
+    type: WidgetTypes.INPUT_WIDGET_V2,
     widgetName: "Standup_Input",
     ...getStandupInputDimensions(),
     props: getStandupInputProps(),
@@ -815,7 +815,7 @@ function* addOnSubmitHandler() {
 
     const widgets = yield select(getWidgets);
     const inputWidget: any = Object.values(widgets).find(
-      (widget: any) => widget.type === "INPUT_WIDGET",
+      (widget: any) => widget.type === "INPUT_WIDGET_V2",
     );
 
     if (inputWidget) {

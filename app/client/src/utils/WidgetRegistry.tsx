@@ -114,6 +114,16 @@ import ProgressBarWidget, {
 import SwitchGroupWidget, {
   CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
 } from "widgets/SwitchGroupWidget";
+import InputWidgetV2, {
+  CONFIG as INPUT_WIDGET_V2_CONFIG,
+} from "widgets/InputWidgetV2";
+import PhoneInputWidget, {
+  CONFIG as PHONE_INPUT_WIDGET_V2_CONFIG,
+} from "widgets/PhoneInputWidget";
+import CurrencyInputWidget, {
+  CONFIG as CURRENCY_INPUT_WIDGET_V2_CONFIG,
+} from "widgets/CurrencyInputWidget";
+
 import CameraWidget, {
   CONFIG as CAMERA_WIDGET_CONFIG,
 } from "widgets/CameraWidget";
@@ -169,6 +179,9 @@ export const ALL_WDIGETS_AND_CONFIG = [
   [ProgressBarWidget, PROGRESSBAR_WIDGET_CONFIG],
   [CameraWidget, CAMERA_WIDGET_CONFIG],
   [MapChartWidget, MAP_CHART_WIDGET_CONFIG],
+  [InputWidgetV2, INPUT_WIDGET_V2_CONFIG],
+  [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
+  [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
 ];
 
 export const registerWidgets = () => {
