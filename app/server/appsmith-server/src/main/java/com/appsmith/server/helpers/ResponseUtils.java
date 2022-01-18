@@ -17,7 +17,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exceptions.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -30,8 +29,6 @@ import java.util.List;
 @Slf4j
 @Component
 public class ResponseUtils {
-
-    private final GlobalExceptionHandler globalExceptionHandler;
 
     public PageDTO updatePageDTOWithDefaultResources(PageDTO page) {
         DefaultResources defaultResourceIds = page.getDefaultResources();
@@ -71,9 +68,11 @@ public class ResponseUtils {
                 || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
                 || StringUtils.isEmpty(defaultResourceIds.getPageId())
         ) {
-            log.error("Unable to find default ids for page: {}", newPage.getId());
-            globalExceptionHandler
-                    .doLog(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId()), "defaultResourceIds");
+            log.error(
+                    "Unable to find default ids for page: {}",
+                    newPage.getId(),
+                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId())
+            );
 
             if (defaultResourceIds == null) {
                 return newPage;
@@ -100,9 +99,11 @@ public class ResponseUtils {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
         for (PageNameIdDTO page : pageNameIdList) {
             if (StringUtils.isEmpty(page.getDefaultPageId())) {
-                log.error("Unable to find default pageId for applicationPage: {}", page.getId());
-                globalExceptionHandler
-                        .doLog(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId()), "defaultResourcesIds");
+                log.error(
+                        "Unable to find default pageId for applicationPage: {}",
+                        page.getId(),
+                        new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId())
+                );
                 continue;
             }
             page.setId(page.getDefaultPageId());
@@ -194,10 +195,12 @@ public class ResponseUtils {
         if (defaultResourceIds == null
                 || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
                 || StringUtils.isEmpty(defaultResourceIds.getActionId())) {
-            log.error("Unable to find default ids for newAction: {}", newAction.getId());
+            log.error(
+                    "Unable to find default ids for newAction: {}",
+                    newAction.getId(),
+                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "newAction", newAction.getId())
+            );
 
-            globalExceptionHandler
-                    .doLog(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "newAction", newAction.getId()), "defaultResourcesIds");
             if (defaultResourceIds == null) {
                 return newAction;
             }
@@ -225,10 +228,12 @@ public class ResponseUtils {
         if (defaultResourceIds == null
                 || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
                 || StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
-            log.error("Unable to find default ids for actionCollection: {}", actionCollection.getId());
+            log.error(
+                    "Unable to find default ids for actionCollection: {}",
+                    actionCollection.getId(),
+                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", actionCollection.getId())
+            );
 
-            globalExceptionHandler
-                    .doLog(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", actionCollection.getId()), "defaultResourcesIds");
             if (defaultResourceIds == null) {
                 return actionCollection;
             }

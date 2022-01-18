@@ -10,7 +10,6 @@ import io.sentry.SentryLevel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,14 +33,13 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    public void doLog(Throwable error, String source) {
+    private void doLog(Throwable error) {
         log.error("", error);
 
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         error.printStackTrace(printWriter);
         String stringStackTrace = stringWriter.toString();
-        String src = StringUtils.hasLength(source) ? source : "appsmith-internal-server";
 
         Sentry.configureScope(
                 scope -> {
@@ -51,7 +49,7 @@ public class GlobalExceptionHandler {
                      * */
                     scope.setExtra("Stack Trace", stringStackTrace);
                     scope.setLevel(SentryLevel.ERROR);
-                    scope.setTag("source", src);
+                    scope.setTag("source", "appsmith-internal-server");
                 }
         );
 
@@ -62,10 +60,6 @@ public class GlobalExceptionHandler {
         } else {
             Sentry.captureException(error);
         }
-    }
-
-    private void doLog(Throwable error) {
-        this.doLog(error, null);
     }
 
     /**
