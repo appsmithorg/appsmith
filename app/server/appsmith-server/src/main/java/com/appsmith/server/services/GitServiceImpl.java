@@ -34,10 +34,12 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           AnalyticsService analyticsService,
                           GitCloudServicesUtils gitCloudServicesUtils,
                           GitDeployKeysRepository gitDeployKeysRepository,
-                          DatasourceService datasourceService) {
+                          DatasourceService datasourceService,
+                          PluginService pluginService) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
-                gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository, datasourceService);
+                gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
+                datasourceService, pluginService);
     }
 }
