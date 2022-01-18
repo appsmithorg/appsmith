@@ -41,7 +41,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   useEffect(() => {
     if (!value && !props.value) return;
-    // Prevent calling onTextChange when initialized
+    // This Prevents calling onTextChange when initialized
     if (!isInit.current) return;
     const timeOutId = setTimeout(() => props.onValueChange(value), 1000);
     return () => clearTimeout(timeOutId);
