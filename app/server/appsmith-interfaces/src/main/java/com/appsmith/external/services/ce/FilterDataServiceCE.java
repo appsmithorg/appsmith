@@ -24,6 +24,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,12 +92,23 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     public ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
+        return filterData(items, conditionList, null);
+    }
+
+    /**
+     * overloaded to handle google sheet filters
+     * @param items
+     * @param conditionList
+     * @param source
+     * @return
+     */
+    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList, String source) {
 
         if (items == null || items.size() == 0) {
             return items;
         }
 
-        Map<String, DataType> schema = generateSchema(items);
+        Map<String, DataType> schema = generateSchema(items, source);
 
         if (!validConditionList(conditionList, schema)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
@@ -641,8 +654,17 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         executeDbQuery(dropTableQuery);
     }
 
-
     public Map<String, DataType> generateSchema(ArrayNode items) {
+        return generateSchema(items, null);
+    }
+
+    /**
+     * Overloaded to handle googleSheet filters
+     * @param items
+     * @param source
+     * @return
+     */
+    public Map<String, DataType> generateSchema(ArrayNode items, String source) {
 
         JsonNode item = items.get(0);
 
@@ -683,7 +705,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                         // Default to string
                                         return DataType.STRING;
                                     } else {
-                                        return stringToKnownDataTypeConverter(value);
+                                        return stringToKnownDataTypeConverter(value, source);
                                     }
                                 },
                                 (u, v) -> {
@@ -703,7 +725,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             for (JsonNode entry : items) {
                 String value = entry.get(columnName).asText();
                 if (!StringUtils.isEmpty(value)) {
-                    DataType dataType = stringToKnownDataTypeConverter(value);
+                    DataType dataType = stringToKnownDataTypeConverter(value, source);
                     schema.put(columnName, dataType);
                     missingColumnDataTypes.remove(columnName);
                 }
@@ -748,7 +770,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 }
                 case FLOAT:
                 case DOUBLE: {
-                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                    DecimalFormat decimalFmt = new DecimalFormat("###,###.###");
+                    decimalFmt.setParseBigDecimal(true);
+                    preparedStatement.setBigDecimal(index, (BigDecimal) decimalFmt.parse(value));
                     break;
                 }
                 case BOOLEAN: {
@@ -769,6 +793,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         } catch (IllegalArgumentException e) {
             // The data type recognized does not match the data type of the value being set via Prepared Statement
             // Add proper handling here.
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Error while interacting with value " + value + " : " + e.getMessage() +
+                            ". The data type value was being parsed to was : " + dataType);
+        } catch (ParseException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                     "Error while interacting with value " + value + " : " + e.getMessage() +
                             ". The data type value was being parsed to was : " + dataType);

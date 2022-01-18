@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.external.constants.FieldName.GOOGLE_SHEET;
+
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
  */
@@ -208,7 +210,7 @@ public class GetValuesMethod implements Method {
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions());
+            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions(), GOOGLE_SHEET);
         }
 
         return preFilteringResponse;

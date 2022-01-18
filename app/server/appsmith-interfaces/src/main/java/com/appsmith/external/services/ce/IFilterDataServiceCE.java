@@ -15,6 +15,8 @@ public interface IFilterDataServiceCE {
 
     ArrayNode filterData(ArrayNode items, List<Condition> conditionList);
 
+    ArrayNode filterData(ArrayNode items, List<Condition> conditionList, String source);
+
     ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams);
 
     List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String,
@@ -27,6 +29,8 @@ public interface IFilterDataServiceCE {
     void dropTable(String tableName);
 
     Map<String, DataType> generateSchema(ArrayNode items);
+
+    Map<String, DataType> generateSchema(ArrayNode items, String source);
 
     boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema);
 
