@@ -1,8 +1,9 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Alignment, Button, Classes, Menu, MenuItem } from "@blueprintjs/core";
+import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
+import { VirtuosoGrid, VirtuosoGridHandle } from "react-virtuoso";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
@@ -37,7 +38,7 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: minmax(50px, auto);
@@ -53,6 +54,9 @@ const StyledMenu = styled(Menu)`
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     background-color: #939090;
+  }
+  & li {
+    list-style: none;
   }
 `;
 
@@ -99,11 +103,15 @@ class IconSelectControl extends BaseControl<
   IconSelectControlState
 > {
   private iconSelectTargetRef: React.RefObject<HTMLButtonElement>;
+  private virtuosoRef: React.RefObject<VirtuosoGridHandle>;
+  private initialItemIndex: number;
   private timer?: number;
 
   constructor(props: IconSelectControlProps) {
     super(props);
     this.iconSelectTargetRef = React.createRef();
+    this.virtuosoRef = React.createRef();
+    this.initialItemIndex = 0;
     this.state = { popoverTargetWidth: 0 };
   }
 
@@ -139,7 +147,6 @@ class IconSelectControl extends BaseControl<
           itemPredicate={this.filterIconName}
           itemRenderer={this.renderIconItem}
           items={ICON_NAMES}
-          noResults={<MenuItem disabled text="No results" />}
           onItemSelect={this.handleIconChange}
           popoverProps={{ minimal: true }}
         >
@@ -151,6 +158,7 @@ class IconSelectControl extends BaseControl<
             elementRef={this.iconSelectTargetRef}
             fill
             icon={iconName || defaultIconName}
+            onClick={this.handleButtonClick}
             rightIcon="caret-down"
             text={iconName || defaultIconName || NONE}
           />
@@ -159,14 +167,33 @@ class IconSelectControl extends BaseControl<
     );
   }
 
+  private handleButtonClick = () => {
+    setTimeout(() => {
+      if (this.virtuosoRef.current) {
+        this.virtuosoRef.current.scrollToIndex(this.initialItemIndex);
+      }
+    }, 0);
+  };
+
   private renderMenu: ItemListRenderer<IconType> = ({
-    items,
-    itemsParentRef,
+    activeItem,
+    filteredItems,
     renderItem,
   }) => {
-    const renderedItems = items.map(renderItem).filter((item) => item != null);
+    this.initialItemIndex = filteredItems.findIndex((x) => x === activeItem);
 
-    return <StyledMenu ulRef={itemsParentRef}>{renderedItems}</StyledMenu>;
+    return (
+      <VirtuosoGrid
+        components={{
+          List: StyledMenu,
+        }}
+        computeItemKey={(index) => filteredItems[index]}
+        itemContent={(index) => renderItem(filteredItems[index], index)}
+        ref={this.virtuosoRef}
+        style={{ height: "165px" }}
+        totalCount={filteredItems.length}
+      />
+    );
   };
 
   private renderIconItem: ItemRenderer<IconName | typeof NONE> = (
