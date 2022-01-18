@@ -12,7 +12,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("Input widget test with default value from table widget", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
