@@ -236,7 +236,7 @@ describe("generateDataTreeWidget", () => {
       isDirty: true,
       isFocused: false,
       isValid: "{{true}}",
-      text: undefined,
+      text: "Tester",
       bottomRow: 0,
       isLoading: false,
       leftColumn: 0,
