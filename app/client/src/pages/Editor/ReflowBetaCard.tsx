@@ -106,7 +106,10 @@ export function ReflowBetaCard() {
   const shouldShowReflowCard = useSelector(getIsShowReflowCard);
 
   const openReflowDocs = () => {
-    window.open("https://www.google.com", "_blank");
+    window.open(
+      "https://docs.appsmith.com/core-concepts/designing-an-application",
+      "_blank",
+    );
   };
 
   const reflowBetaToggle = (isChecked: boolean) => {
