@@ -456,6 +456,72 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     selectedDataPoint: "mapChartDataPoint",
   },
+  INPUT_WIDGET_V2: {
+    "!doc":
+      "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+  },
+  CURRENCY_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The formatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    value: {
+      "!type": "number",
+      "!doc": "The value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Currency",
+    },
+    currencyCode: {
+      "!type": "string",
+      "!doc": "Selected Currency code",
+    },
+  },
+  PHONE_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number",
+    },
+    dialCode: {
+      "!type": "string",
+      "!doc": "Selected dialing code for Phone Number",
+    },
+  },
+  CIRCULAR_PROGRESS_WIDGET: {
+    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    progress: "number",
+  },
 };
 
 export const GLOBAL_DEFS = {
