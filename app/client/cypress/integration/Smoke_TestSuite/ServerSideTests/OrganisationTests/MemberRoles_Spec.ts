@@ -35,11 +35,11 @@ describe("Create new org and invite user & validate all roles", () => {
         homePage.LogOutviaAPI()
     });
 
-    it("3. Login as Org owner and Update the Invited user role to Developer", function() {
-        homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"))
-        homePage.FilterApplication(appid, orgid)
-        homePage.UpdateUserRoleInOrg(orgid, Cypress.env("TESTUSERNAME1"), 'App Viewer', 'Developer');
-        homePage.LogOutviaAPI()
-      });
+    // it("3. Login as Org owner and Update the Invited user role to Developer", function() {
+    //     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"))
+    //     homePage.FilterApplication(appid, orgid)
+    //     homePage.UpdateUserRoleInOrg(orgid, Cypress.env("TESTUSERNAME1"), 'App Viewer', 'Developer');
+    //     homePage.LogOutviaAPI()
+    //   });
 
 });
