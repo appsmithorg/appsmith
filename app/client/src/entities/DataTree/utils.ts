@@ -1,5 +1,5 @@
 import {
-  OverridingKeysMap,
+  PropertyOverrideDependency,
   OverridingPropertyPaths,
   OverridingPropertyType,
 } from "./dataTreeFactory";
@@ -7,47 +7,53 @@ import {
 type SetOverridingPropertyParams = {
   key: string;
   value: string;
-  overridingKeysMap: OverridingKeysMap;
+  propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   type: OverridingPropertyType;
 };
 
 export const setOverridingProperty = ({
-  key: overriddenPropertyKey,
-  overridingKeysMap,
+  key: propertyName,
   overridingPropertyPaths,
+  propertyOverrideDependency,
   type,
   value: overridingPropertyKey,
 }: SetOverridingPropertyParams) => {
-  if (!(overriddenPropertyKey in overridingKeysMap)) {
-    overridingKeysMap[overriddenPropertyKey] = {
+  if (!(propertyName in propertyOverrideDependency)) {
+    propertyOverrideDependency[propertyName] = {
       [OverridingPropertyType.DEFAULT]: undefined,
       [OverridingPropertyType.META]: undefined,
     };
   }
   switch (type) {
     case OverridingPropertyType.DEFAULT:
-      overridingKeysMap[overriddenPropertyKey][
+      propertyOverrideDependency[propertyName][
         OverridingPropertyType.DEFAULT
       ] = overridingPropertyKey;
       break;
 
     case OverridingPropertyType.META:
-      overridingKeysMap[overriddenPropertyKey][
+      propertyOverrideDependency[propertyName][
         OverridingPropertyType.META
       ] = overridingPropertyKey;
 
       break;
     default:
   }
+
   if (Array.isArray(overridingPropertyPaths[overridingPropertyKey])) {
     const updatedOverridingProperty = new Set(
       overridingPropertyPaths[overridingPropertyKey],
     );
     overridingPropertyPaths[overridingPropertyKey] = [
-      ...updatedOverridingProperty.add(overriddenPropertyKey),
+      ...updatedOverridingProperty.add(propertyName),
     ];
   } else {
-    overridingPropertyPaths[overridingPropertyKey] = [overriddenPropertyKey];
+    overridingPropertyPaths[overridingPropertyKey] = [propertyName];
+  }
+  // if property dependent on metaProperty also has defaultProperty then defaultProperty will also override metaProperty on eval.
+  const defaultPropertyName = propertyOverrideDependency[propertyName].DEFAULT;
+  if (type === OverridingPropertyType.META && defaultPropertyName) {
+    overridingPropertyPaths[defaultPropertyName].push(overridingPropertyKey);
   }
 };

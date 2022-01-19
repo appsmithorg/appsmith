@@ -7,7 +7,7 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { setOverridingProperty } from "./utils";
 import {
   OverridingPropertyPaths,
-  OverridingKeysMap,
+  PropertyOverrideDependency,
   OverridingPropertyType,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -20,7 +20,7 @@ export const generateDataTreeWidget = (
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};
-  const overridingKeysMap: OverridingKeysMap = {};
+  const propertyOverrideDependency: PropertyOverrideDependency = {};
   const overridingPropertyPaths: OverridingPropertyPaths = {};
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
@@ -74,7 +74,7 @@ export const generateDataTreeWidget = (
       }
       // defaultProperty on eval needs to override the widget's property eg: defaultText overrides text
       setOverridingProperty({
-        overridingKeysMap,
+        propertyOverrideDependency,
         overridingPropertyPaths,
         value: defaultPropertyName,
         key: propertyName,
@@ -84,7 +84,7 @@ export const generateDataTreeWidget = (
       if (propertyName in defaultMetaProps) {
         // Overriding properties will override the values of a property when evaluated
         setOverridingProperty({
-          overridingKeysMap,
+          propertyOverrideDependency,
           overridingPropertyPaths,
           value: `meta.${propertyName}`,
           key: propertyName,
@@ -135,7 +135,7 @@ export const generateDataTreeWidget = (
     meta: {
       ...overridingMetaProps,
     },
-    overridingKeysMap,
+    propertyOverrideDependency,
     overridingPropertyPaths,
     bindingPaths,
     triggerPaths,

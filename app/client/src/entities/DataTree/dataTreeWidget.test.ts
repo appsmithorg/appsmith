@@ -242,7 +242,7 @@ describe("generateDataTreeWidget", () => {
       leftColumn: 0,
       parentColumnSpace: 0,
       parentRowSpace: 0,
-      overridingKeysMap: {
+      propertyOverrideDependency: {
         text: {
           DEFAULT: "defaultText",
           META: "meta.text",
