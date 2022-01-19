@@ -2835,6 +2835,12 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
       .should("have.text", value);
   });
 });
+Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
+  cy.window().then((win) => {
+    const editor = win.tinymce.editors[tinyMceId];
+    editor.setContent(content);
+  });
+});
 
 Cypress.Commands.add("startRoutesForDatasource", () => {
   cy.server();
