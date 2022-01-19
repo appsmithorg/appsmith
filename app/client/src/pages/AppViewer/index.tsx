@@ -43,16 +43,19 @@ import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section<{ hasPages: boolean }>`
+const AppViewerBody = styled.section<{ hasPages: boolean; isEmbeded: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(
-    100vh -
-      ${(props) =>
-        !props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
-  );
+  ${(props) =>
+    props.isEmbeded
+      ? // embeded page will not have top header
+        "height: 100vh"
+      : `height: calc(
+        100vh -
+          ${!props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
+      );`}
 `;
 
 const ContainerWithComments = styled.div`
@@ -149,7 +152,8 @@ class AppViewer extends Component<Props> {
   };
 
   public render() {
-    const { isInitialized } = this.props;
+    const { isInitialized, location } = this.props;
+    const isEmbeded = location.search.indexOf("embed=true") !== -1;
     return (
       <ThemeProvider theme={this.props.lightTheme}>
         <GlobalHotKeys>
@@ -164,7 +168,10 @@ class AppViewer extends Component<Props> {
             <ContainerWithComments>
               <AppViewerCommentsSidebar />
               <AppViewerBodyContainer>
-                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                <AppViewerBody
+                  hasPages={this.props.pages.length > 1}
+                  isEmbeded={isEmbeded}
+                >
                   {isInitialized && this.state.registered && (
                     <Switch>
                       <SentryRoute
