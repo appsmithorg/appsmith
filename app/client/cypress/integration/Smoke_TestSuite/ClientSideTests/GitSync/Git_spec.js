@@ -125,7 +125,7 @@ describe("Git sync:", function() {
     cy.createGitBranch(tempBranch3);
     cy.get(explorerLocators.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
-    cy.dragAndDropToCanvas("inputwidget", { x: 300, y: 300 });
+    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.wait("@updateLayout");
 
     cy.commitAndPush();

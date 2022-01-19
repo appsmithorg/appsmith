@@ -186,32 +186,39 @@ describe("Git sync:", function() {
 
   it("test sync and prune branches", () => {
     // uncomment once prune branch flow is complete
-    // const tempBranch = "featureA";
-    // const tempBranchRenamed = "newFeatureA";
-    // cy.goToEditFromPublish();
-    // cy.createGitBranch(tempBranch);
-    // cy.switchGitBranch("master");
-    // cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
-    // cy.get(gitSyncLocators.branchButton).click();
-    // cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
-    // const tempBranchRegex = new RegExp(`^${tempBranch}$`);
-    // const tempBranchRenamedRegex = new RegExp(`^${tempBranchRenamed}$`);
-    // cy.get(gitSyncLocators.branchListItem).contains(tempBranchRegex);
-    // cy.get(gitSyncLocators.syncBranches).click();
-    // cy.get(gitSyncLocators.branchListItem).contains(tempBranchRegex).should("not.exist");
-    // cy.get(gitSyncLocators.branchListItem).contains(tempBranchRenamedRegex).should("exist");
-    // cy.get(gitSyncLocators.closeBranchList).click();
-    // cy.switchGitBranch(`origin/${tempBranch}`, true);
-    // // cy.switchGitBranch("master");
-    // // cy.switchGitBranch(`origin/${tempBranchRenamed}`);
-    // // assert error toast
-    // cy.contains(`origin/${tempBranch} already exists`);
+    const tempBranch = "featureA";
+    const tempBranchRenamed = "newFeatureA";
+    cy.goToEditFromPublish();
+    cy.createGitBranch(tempBranch);
+    cy.createGitBranch(`${tempBranch}-1`);
+    cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
+    cy.get(gitSyncLocators.branchButton).click();
+    cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
+    const tempBranchRegex = new RegExp(`^${tempBranch}$`);
+    const tempBranchRenamedRegex = new RegExp(`^${tempBranchRenamed}$`);
+    const remoteTempBranchRenamedRegex = new RegExp(
+      `^origin/${tempBranchRenamed}$`,
+    );
+    cy.get(gitSyncLocators.branchListItem).contains(tempBranchRegex);
+    cy.get(gitSyncLocators.syncBranches).click();
+    cy.get(gitSyncLocators.branchListItem)
+      .contains(tempBranchRegex)
+      .should("not.exist");
+    cy.get(gitSyncLocators.branchListItem)
+      .contains(remoteTempBranchRenamedRegex)
+      .should("exist");
+
+    cy.get(gitSyncLocators.closeBranchList).click();
+    cy.switchGitBranch(`origin/${tempBranchRenamed}`);
+    cy.switchGitBranch(`origin/${tempBranchRenamed}`, true);
+    // assert error toast
+    cy.contains(`origin/${tempBranchRenamed} already exists`);
+    cy.get(gitSyncLocators.closeBranchList).click();
   });
 
   // Validate the error faced when user switches between the branches
   it("error faced when user switches branch with new page", function() {
     cy.generateUUID().then((uuid) => {
-      cy.goToEditFromPublish();
       cy.createGitBranch(childBranchKey);
       cy.Createpage(uuid);
       cy.switchGitBranch("master");

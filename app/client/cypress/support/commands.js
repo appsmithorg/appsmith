@@ -3475,18 +3475,22 @@ Cypress.Commands.add(
 Cypress.Commands.add("createGitBranch", (branch) => {
   cy.get(gitSyncLocators.branchButton).click();
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
-  cy.get(".bp3-spinner").should("exist");
-  cy.get(".bp3-spinner").should("not.exist");
+  // increasing timeout to reduce flakyness
+  cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
+  cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
 });
 
-Cypress.Commands.add("switchGitBranch", (branch) => {
+Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   cy.get(gitSyncLocators.branchButton).click();
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
   cy.get(gitSyncLocators.branchListItem)
     .contains(branch)
     .click();
-  cy.get(".bp3-spinner").should("exist");
-  cy.get(".bp3-spinner").should("not.exist");
+  if (!expectError) {
+    // increasing timeout to reduce flakyness
+    cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
+    cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
+  }
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
