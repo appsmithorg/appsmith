@@ -1,17 +1,15 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-  GRID_DENSITY_MIGRATION_V1,
-} from "widgets/constants";
-import { WidgetProps } from "widgets/BaseWidget";
 import { cloneDeep, get, indexOf, isString } from "lodash";
-
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { WidgetProps } from "widgets/BaseWidget";
+import {
+  BlueprintOperationTypes,
+  FlattenedWidgetProps,
+} from "widgets/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -22,8 +20,8 @@ export const CONFIG = {
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
-    rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 40,
+    columns: 24,
     animateLoading: true,
     gridType: "vertical",
     template: {},
@@ -113,8 +111,8 @@ export const CONFIG = {
                 {
                   type: "CONTAINER_WIDGET",
                   size: {
-                    rows: 3 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 16 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 12,
+                    cols: 64,
                   },
                   position: { top: 0, left: 0 },
                   props: {
@@ -142,8 +140,8 @@ export const CONFIG = {
                                 {
                                   type: "IMAGE_WIDGET",
                                   size: {
-                                    rows: 2.1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 8,
+                                    cols: 16,
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
@@ -163,12 +161,12 @@ export const CONFIG = {
                                 {
                                   type: "TEXT_WIDGET",
                                   size: {
-                                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 4,
+                                    cols: 12,
                                   },
                                   position: {
                                     top: 0,
-                                    left: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    left: 16,
                                   },
                                   props: {
                                     text: "{{currentItem.name}}",
@@ -185,12 +183,12 @@ export const CONFIG = {
                                 {
                                   type: "TEXT_WIDGET",
                                   size: {
-                                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 4,
+                                    cols: 8,
                                   },
                                   position: {
-                                    top: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    left: 4 * GRID_DENSITY_MIGRATION_V1,
+                                    top: 4,
+                                    left: 16,
                                   },
                                   props: {
                                     text: "{{currentItem.id}}",

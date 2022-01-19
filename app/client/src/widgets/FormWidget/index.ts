@@ -1,8 +1,7 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -11,8 +10,8 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 40,
+    columns: 24,
     animateLoading: true,
     widgetName: "Form",
     backgroundColor: "white",
@@ -33,8 +32,8 @@ export const CONFIG = {
                 {
                   type: "TEXT_WIDGET",
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 24,
                   },
                   position: { top: 1, left: 1.5 },
                   props: {
@@ -46,12 +45,12 @@ export const CONFIG = {
                 {
                   type: "FORM_BUTTON_WIDGET",
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 16,
                   },
                   position: {
-                    top: 8.25 * GRID_DENSITY_MIGRATION_V1,
-                    left: 11.6 * GRID_DENSITY_MIGRATION_V1,
+                    top: 33,
+                    left: 46,
                   },
                   props: {
                     text: "Submit",
@@ -66,12 +65,12 @@ export const CONFIG = {
                 {
                   type: "FORM_BUTTON_WIDGET",
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 16,
                   },
                   position: {
-                    top: 8.25 * GRID_DENSITY_MIGRATION_V1,
-                    left: 7.5 * GRID_DENSITY_MIGRATION_V1,
+                    top: 33,
+                    left: 30,
                   },
                   props: {
                     text: "Reset",
