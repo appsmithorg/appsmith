@@ -4,11 +4,6 @@ import { TreeDropdownOption } from "components/ads/TreeDropdown";
 import TreeStructure from "components/utils/TreeStructure";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
 import { PluginType } from "entities/Action";
 import { Datasource } from "entities/Datasource";
 import { isString, keyBy } from "lodash";
@@ -39,7 +34,6 @@ import {
   getNextModalName,
 } from "selectors/widgetSelectors";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import history from "utils/history";
 import Fields, {
   ACTION_ANONYMOUS_FUNC_REGEX,
   ACTION_TRIGGER_REGEX,
