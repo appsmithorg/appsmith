@@ -174,9 +174,9 @@ public class RestApiPlugin extends BasePlugin {
 
                     actionConfiguration.setBody(updatedBody);
                 }
+            } else {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
             }
-
-            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // If the action is paginated, update the configurations to update the correct URL.
             if (actionConfiguration.getPaginationType() != null &&
