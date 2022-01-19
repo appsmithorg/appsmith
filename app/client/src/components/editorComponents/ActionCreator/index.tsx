@@ -72,6 +72,8 @@ import {
   STORE_VALUE,
   WATCH_GEO_LOCATION,
 } from "constants/messages";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -607,12 +609,9 @@ function useIntegrationsOptionTree() {
             });
           }
         } else {
-          history.push(
-            INTEGRATION_EDITOR_URL(
-              applicationId,
-              pageId,
-              INTEGRATION_TABS.NEW,
-              INTEGRATION_EDITOR_MODES.AUTO,
+          dispatch(
+            toggleShowGlobalSearchModal(
+              filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
             ),
           );
         }
