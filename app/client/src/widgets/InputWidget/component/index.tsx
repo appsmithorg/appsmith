@@ -410,7 +410,7 @@ class InputComponent extends React.Component<
       }
     }
     if (
-      prevProps.columns !== this.props.columns ||
+      prevProps.width !== this.props.width ||
       prevProps.label !== this.props.label ||
       prevProps.labelPosition !== this.props.labelPosition ||
       prevProps.labelWidth !== this.props.labelWidth ||
@@ -850,7 +850,7 @@ export interface InputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
-  columns: number;
+  width: number;
 }
 
 export default InputComponent;

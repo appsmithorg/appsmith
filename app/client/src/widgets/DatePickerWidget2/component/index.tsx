@@ -1,17 +1,23 @@
 import React from "react";
 import styled from "styled-components";
+import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
 import {
-  labelStyle,
-  IntentColors,
-  getBorderCSSShorthand,
-} from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
+  ControlGroup,
+  Classes,
+  Label,
+  Alignment,
+  Position,
+} from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType, TimePrecision } from "../constants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -19,8 +25,46 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
+import {
+  LabelPosition,
+  LabelPositionTypes,
+  LABEL_MAX_WIDTH_RATE,
+} from "components/constants";
+import Tooltip from "components/ads/Tooltip";
 
-const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
+const StyledControlGroup = styled(ControlGroup)<{
+  isValid: boolean;
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  display: flex;
+  flex-direction: ${(props) =>
+    props.labelPosition === LabelPositionTypes.Left
+      ? "row"
+      : props.labelPosition === LabelPositionTypes.Top
+      ? "column"
+      : props.compactMode
+      ? "row"
+      : "column"};
+  align-items: ${({ compactMode, labelPosition }) =>
+    labelPosition === LabelPositionTypes.Top
+      ? `flex-start`
+      : compactMode || labelPosition === LabelPositionTypes.Left
+      ? `center`
+      : `flex-start`};
+  ${({ compactMode, labelPosition }) =>
+    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
+      labelPosition === LabelPositionTypes.Top) &&
+    `overflow-x: hidden; overflow-y: auto;`}
+
+  label.datepicker-label {
+    ${({ compactMode, labelPosition }) =>
+      labelPosition === LabelPositionTypes.Top
+        ? `margin-bottom: 5px; margin-right: 0px`
+        : compactMode || labelPosition === LabelPositionTypes.Left
+        ? `margin-bottom: 0px; margin-right: 5px`
+        : `margin-bottom: 5px; margin-right: 0px`};
+  }
   &&& {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
@@ -58,14 +102,6 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    label {
-      ${labelStyle}
-      flex: 0 1 30%;
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
-      text-align: right;
-      align-self: flex-start;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
-    }
   }
   &&& {
     input {
@@ -78,6 +114,58 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   }
 `;
 
+export const TextLabelWrapper = styled.div<{
+  compactMode: boolean;
+  alignment?: Alignment;
+  position?: LabelPosition;
+  width?: number;
+}>`
+  display: flex;
+  ${({ alignment, compactMode, position, width }) => `
+    ${
+      position !== LabelPositionTypes.Top &&
+      (position === LabelPositionTypes.Left || compactMode)
+        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        : `&&& {flex:0; width: 100%;}`
+    }
+    ${position === LabelPositionTypes.Left &&
+      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
+        `justify-content:  flex-end`};`}
+  `}
+`;
+
+export const StyledLabel = styled(Label)<{
+  $compactMode: boolean;
+  $disabled: boolean;
+  $labelText?: string;
+  $labelTextColor?: string;
+  $labelTextSize?: TextSize;
+  $labelStyle?: string;
+  disabled?: boolean;
+}>`
+  overflow-y: hidden;
+  text-overflow: ellipsis;
+  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
+  text-align: left;
+  color: ${(props) =>
+    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
+  font-size: ${(props) =>
+    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+  font-weight: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-style: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+`;
+
+export const StyledTooltip = styled(Tooltip)`
+  overflow: hidden;
+`;
+
+export const DateInputWrapper = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
 class DatePickerComponent extends React.Component<
   DatePickerComponentProps,
   DatePickerComponentState
@@ -86,7 +174,12 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
+      hasLabelEllipsis: false,
     };
+  }
+
+  componentDidMount() {
+    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
@@ -99,7 +192,28 @@ class DatePickerComponent extends React.Component<
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
+
+    if (
+      prevProps.width !== this.props.width ||
+      prevProps.labelText !== this.props.labelText ||
+      prevProps.labelPosition !== this.props.labelPosition ||
+      prevProps.labelWidth !== this.props.labelWidth
+    ) {
+      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    }
   }
+
+  checkHasLabelEllipsis = () => {
+    const labelElement = document.querySelector(
+      `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
+    );
+
+    if (labelElement) {
+      return labelElement.scrollWidth > labelElement.clientWidth;
+    }
+
+    return false;
+  };
 
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
@@ -107,6 +221,18 @@ class DatePickerComponent extends React.Component<
   };
 
   render() {
+    const {
+      compactMode,
+      isDisabled,
+      isLoading,
+      labelAlignment,
+      labelPosition,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
+      labelWidth,
+    } = this.props;
     const now = moment();
     const year = now.get("year");
     const minDate = this.props.minDate
@@ -130,24 +256,63 @@ class DatePickerComponent extends React.Component<
         : null;
     return (
       <StyledControlGroup
+        compactMode={this.props.compactMode}
         fill
         isValid={isValid}
+        labelPosition={this.props.labelPosition}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
       >
-        {this.props.label && (
-          <Label
-            className={
-              this.props.isLoading
-                ? Classes.SKELETON
-                : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }
+        {labelText && (
+          <TextLabelWrapper
+            alignment={labelAlignment}
+            compactMode={compactMode}
+            position={labelPosition}
+            width={labelWidth}
           >
-            {this.props.label}
-          </Label>
+            {this.state.hasLabelEllipsis ? (
+              <StyledTooltip
+                content={labelText}
+                hoverOpenDelay={200}
+                position={Position.TOP}
+              >
+                <StyledLabel
+                  $compactMode={compactMode}
+                  $disabled={isDisabled}
+                  $labelStyle={labelStyle}
+                  $labelText={labelText}
+                  $labelTextColor={labelTextColor}
+                  $labelTextSize={labelTextSize}
+                  className={`datepicker-label ${
+                    isLoading
+                      ? Classes.SKELETON
+                      : Classes.TEXT_OVERFLOW_ELLIPSIS
+                  }`}
+                  disabled={isDisabled}
+                >
+                  {labelText}
+                </StyledLabel>
+              </StyledTooltip>
+            ) : (
+              <StyledLabel
+                $compactMode={compactMode}
+                $disabled={isDisabled}
+                $labelStyle={labelStyle}
+                $labelText={labelText}
+                $labelTextColor={labelTextColor}
+                $labelTextSize={labelTextSize}
+                className={`datepicker-label ${
+                  isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+                }`}
+                disabled={isDisabled}
+              >
+                {labelText}
+              </StyledLabel>
+            )}
+          </TextLabelWrapper>
         )}
-        {
+        <DateInputWrapper>
           <ErrorTooltip
             isOpen={!isValid}
             message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
@@ -179,7 +344,7 @@ class DatePickerComponent extends React.Component<
               value={value}
             />
           </ErrorTooltip>
-        }
+        </DateInputWrapper>
       </StyledControlGroup>
     );
   }
@@ -251,7 +416,14 @@ class DatePickerComponent extends React.Component<
 }
 
 interface DatePickerComponentProps extends ComponentProps {
-  label: string;
+  compactMode: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
   dateFormat: string;
   selectedDate?: string;
   minDate?: string;
@@ -266,10 +438,12 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  width?: number;
 }
 
 interface DatePickerComponentState {
   selectedDate?: string;
+  hasLabelEllipsis: boolean;
 }
 
 export default DatePickerComponent;

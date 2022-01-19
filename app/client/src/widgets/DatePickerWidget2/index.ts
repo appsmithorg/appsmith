@@ -13,7 +13,7 @@ export const CONFIG = {
     isDisabled: false,
     datePickerType: "DATE_PICKER",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    label: "",
+    labelText: "",
     dateFormat: "YYYY-MM-DD HH:mm",
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "DatePicker",
