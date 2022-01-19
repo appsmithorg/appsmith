@@ -1,6 +1,14 @@
-export * from "ce/configs/index";
+import { AppsmithUIConfigs } from "./types";
+import {
+  INJECTED_CONFIGS as CE_INJECTED_CONFIGS,
+  getAppsmithConfigs as CE_getAppsmithConfigs,
+  getConfigsFromEnvVars as CE_getConfigsFromEnvVars,
+} from "ce/configs/index";
 import { EvaluationVersion } from "api/ApplicationApi";
-import { INJECTED_CONFIGS } from "ce/configs/index";
+
+export interface INJECTED_CONFIGS extends CE_INJECTED_CONFIGS {
+  enableKeycloakOAuth: boolean;
+}
 
 declare global {
   interface Window {
@@ -10,3 +18,23 @@ declare global {
     Sentry: any;
   }
 }
+
+export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
+  return {
+    ...CE_getConfigsFromEnvVars(),
+    enableKeycloakOAuth: process.env.REACT_APP_OAUTH2_KEYCLOAK_CLIENT_ID
+      ? process.env.REACT_APP_OAUTH2_KEYCLOAK_CLIENT_ID.length > 0
+      : false,
+  };
+};
+
+export const getAppsmithConfigs = (): AppsmithUIConfigs => {
+  const { APPSMITH_FEATURE_CONFIGS } = window;
+  const ENV_CONFIG = getConfigsFromEnvVars();
+  return {
+    ...CE_getAppsmithConfigs(),
+    enableKeycloakOAuth:
+      ENV_CONFIG.enableKeycloakOAuth ||
+      APPSMITH_FEATURE_CONFIGS.enableKeycloakOAuth,
+  };
+};
