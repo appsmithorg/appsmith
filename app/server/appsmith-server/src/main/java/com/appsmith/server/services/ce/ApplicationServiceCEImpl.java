@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -393,26 +394,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      */
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId) {
-        JSch jsch = new JSch();
-        KeyPair kpair;
-        try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
-        } catch (JSchException e) {
-            log.error("failed to generate RSA key pair", e);
-            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
-        }
-
-        StringOutputStream privateKeyOutput = new StringOutputStream();
-        StringOutputStream publicKeyOutput = new StringOutputStream();
-
-        kpair.writePrivateKey(privateKeyOutput);
-        kpair.writePublicKey(publicKeyOutput, "appsmith");
-
-        GitAuth gitAuth = new GitAuth();
-        gitAuth.setPublicKey(publicKeyOutput.toString());
-        gitAuth.setPrivateKey(privateKeyOutput.toString());
-        gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(

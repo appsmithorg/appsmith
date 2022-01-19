@@ -48,10 +48,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -77,7 +79,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Slf4j
 @DirtiesContext
 public class LayoutActionServiceTest {
-    @Autowired
+    @SpyBean
     NewActionService newActionService;
 
     @Autowired
@@ -1381,6 +1383,136 @@ public class LayoutActionServiceTest {
                     final Object fieldValue = ((JSONObject) ((ArrayList) dsl.get("children")).get(0)).getAsString("testField");
                     // Make sure the DSL got updated
                     Assert.assertEquals("{{ firstWidget.testField }}", fieldValue);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This method tests the following case:
+     * o create action1 and action2.
+     * o make action2 dependent on action1 by adding {{action1.data}} in action2's body.
+     * o set both action1 and action2 to run on page load via settings tab. Do not reference action1 and action2 data
+     * in any other widget or action.
+     * @throws JsonProcessingException
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testExecuteOnPageLoadOrderWhenAllActionsAreOnlyExplicitlySetToExecute() throws JsonProcessingException {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // Configure action1
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setExecuteOnLoad(true);
+        action1.setDatasource(datasource);
+
+        // Configure action2
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("secondAction");
+        action2.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        actionConfiguration2.setBody("{{ firstAction.data }}"); // make action2 dependent on action1
+        action2.setActionConfiguration(actionConfiguration2);
+        action2.setDynamicBindingPathList(List.of(new Property("body", null)));
+        action2.setExecuteOnLoad(true);
+        action2.setDatasource(datasource);
+
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block(); // create action1
+        createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        NewAction newAction1 = new NewAction();
+        newAction1.setUnpublishedAction(createdAction1);
+        newAction1.setDefaultResources(createdAction1.getDefaultResources());
+
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block(); // create action2
+        createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        NewAction newAction2 = new NewAction();
+        newAction2.setUnpublishedAction(createdAction2);
+        newAction2.setDefaultResources(createdAction2.getDefaultResources());
+
+        NewAction[] newActionArray = new NewAction[2];
+        newActionArray[0] = newAction1;
+        newActionArray[1] = newAction2;
+        Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+
+                    // Assert that both the actions don't belong to the same set. They should be run iteratively.
+                    DslActionDTO actionDTO1 = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO1.getName()).isEqualTo("firstAction");
+
+                    DslActionDTO actionDTO2 = updatedLayout.getLayoutOnLoadActions().get(1).iterator().next();
+                    assertThat(actionDTO2.getName()).isEqualTo("secondAction");
+
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This method tests the following scenario:
+     * o create `action1`.
+     * o set `action1` to run on page load via settings tab.
+     * o bind `{{action1.data}}` in one of the widget fields.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPageLoadActionWhenSetBothWaysExplicitlyAndImplicitlyViaWidget() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ firstAction.data }}");
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        createdAction1.setUserSetOnLoad(true);
+        NewAction newAction1 = new NewAction();
+        newAction1.setUnpublishedAction(createdAction1);
+        newAction1.setDefaultResources(createdAction1.getDefaultResources());
+
+        NewAction[] newActionArray = new NewAction[1];
+        newActionArray[0] = newAction1;
+        Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+
+                    // Assert that both the actions don't belong to the same set. They should be run iteratively.
+                    DslActionDTO actionDTO1 = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO1.getName()).isEqualTo("firstAction");
                 })
                 .verifyComplete();
     }

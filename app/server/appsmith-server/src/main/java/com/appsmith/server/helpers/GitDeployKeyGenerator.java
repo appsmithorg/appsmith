@@ -3,7 +3,6 @@ package com.appsmith.server.helpers;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.jcraft.jsch.JSch;
@@ -19,11 +18,12 @@ public class GitDeployKeyGenerator {
     public static GitAuth generateSSHKey() {
         JSch jsch = new JSch();
         KeyPair kpair;
+
         try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
+            kpair = KeyPair.genKeyPair(jsch, KeyPair.ECDSA, 256);
         } catch (JSchException e) {
-            log.error("failed to generate RSA key pair", e);
-            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
+            log.error("failed to generate ECDSA key pair", e);
+            throw new AppsmithException(AppsmithError.SSH_KEY_ERROR);
         }
 
         StringOutputStream privateKeyOutput = new StringOutputStream();
