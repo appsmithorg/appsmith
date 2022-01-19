@@ -6,16 +6,10 @@ const agHelper = new AggregateHelper();
 const jsEditor = new JSEditor();
 const locator = new CommonLocators();
 
-let dataSet: any;
-
 describe("Validate Create Api and Bind to Table widget via JSObject", () => {
   before(() => {
     cy.fixture('formInputTableDsl').then((val: any) => {
       agHelper.AddDsl(val)
-    });
-
-    cy.fixture("example").then(function (data: any) {
-      dataSet = data;
     });
   });
 
