@@ -36,8 +36,8 @@ export class HomePage {
     private _searchInput = "input[type='text']"
     _appHoverIcon = (action: string) => ".t--application-" + action + "-link"
     private _deleteUser = (email: string) => "//td[text()='" + email + "']/following-sibling::td//span[contains(@class, 't--deleteUser')]"
-    //private _userRoleDropDown = (email: string, role: string) => "//td[text()='" + email + "']/following-sibling::td//span[text()='" + role + "']"
-    private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
+    private _userRoleDropDown = (email: string, role: string) => "//td[text()='" + email + "']/following-sibling::td//span[text()='" + role + "']"
+    //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
     private _leaveOrgConfirmModal = ".t--member-delete-confirmation-modal"
     private _leaveOrgConfirmButton = "[data - cy= t--org-leave - button]"
     private _lastOrgInHomePage = "//div[contains(@class, 't--org-section')][last()]//span/span"
@@ -251,8 +251,8 @@ export class HomePage {
             "response.body.responseMeta.status",
             200,
         );
-        //cy.get(this._userRoleDropDown(email, currentRole)).first().click({ force: true });
-        cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
+        cy.get(this._userRoleDropDown(email, currentRole)).first().click({ force: true });
+        //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
         cy.get(this._visibleTextSpan(newRole)).last().click({force: true});
         agHelper.Sleep()
         this.NavigateToHome()
