@@ -55,11 +55,7 @@ class PluginsApi extends Api {
   static fetchFormConfig(
     id: string,
   ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
-    return Api.get(PluginsApi.url + `/${id}/form`).then((response: any) => {
-      addValidationConfig(response.data.editor);
-      addValidationConfig(response.data.settings);
-      return response;
-    });
+    return Api.get(PluginsApi.url + `/${id}/form`);
   }
 
   // Definition to fetch the dynamic data via the URL passed in the config
@@ -71,21 +67,3 @@ class PluginsApi extends Api {
 }
 
 export default PluginsApi;
-
-function addValidationConfig(editorConfig: any): any {
-  if (!editorConfig || !editorConfig.length) return;
-
-  for (let i = 0; i < editorConfig.length; i++) {
-    if (editorConfig[i].configProperty) {
-      editorConfig[i]["validationConfig"] = {
-        type: ValidationTypes.TEXT,
-        params: {
-          required: true,
-        },
-      };
-    }
-    if (editorConfig[i].children) {
-      addValidationConfig(editorConfig[i].children);
-    }
-  }
-}
