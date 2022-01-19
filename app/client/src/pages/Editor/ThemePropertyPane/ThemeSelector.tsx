@@ -45,7 +45,7 @@ function ThemeSelector() {
         </SettingSection>
       </header>
       <header className="relative px-3 py-3 space-y-3">
-        <h3 className="text-sm font-medium uppercase">Other Themes</h3>
+        <h3 className="text-sm font-medium uppercase">Featured Themes</h3>
         <ThemeList themes={themes} />
       </header>
     </div>

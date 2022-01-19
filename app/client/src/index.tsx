@@ -20,6 +20,7 @@ import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
+import { ChakraProvider } from "@chakra-ui/react";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
@@ -50,20 +51,22 @@ class ThemedApp extends React.Component<{
   }
   render() {
     return (
-      <ThemeProvider theme={this.props.currentTheme}>
-        <StyledToastContainer
-          autoClose={5000}
-          closeButton={false}
-          draggable={false}
-          hideProgressBar
-          pauseOnHover={false}
-          transition={Slide}
-        />
-        <GlobalStyles />
-        <AppErrorBoundary>
-          <AppRouter />
-        </AppErrorBoundary>
-      </ThemeProvider>
+      <ChakraProvider>
+        <ThemeProvider theme={this.props.currentTheme}>
+          <StyledToastContainer
+            autoClose={5000}
+            closeButton={false}
+            draggable={false}
+            hideProgressBar
+            pauseOnHover={false}
+            transition={Slide}
+          />
+          <GlobalStyles />
+          <AppErrorBoundary>
+            <AppRouter />
+          </AppErrorBoundary>
+        </ThemeProvider>
+      </ChakraProvider>
     );
   }
 }

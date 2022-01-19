@@ -4,6 +4,7 @@ import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export type AppThemingState = {
+  isSaving: boolean;
   stack: AppThemingMode[];
   selectedTheme: AppTheme;
   themes: AppTheme[];
@@ -14,6 +15,7 @@ export type AppThemingState = {
 const initialState: AppThemingState = {
   stack: [],
   themes: [],
+  isSaving: false,
   themesLoading: false,
   selectedThemeLoading: false,
   selectedTheme: {
@@ -69,13 +71,16 @@ const themeReducer = createImmerReducer(initialState, {
     state.themesLoading = false;
     state.selectedTheme = action.payload;
   },
-  [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT]: () => {
-    //
+  [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT]: (
+    state: AppThemingState,
+  ) => {
+    state.isSaving = true;
   },
   [ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<AppTheme>,
   ) => {
+    state.isSaving = false;
     state.selectedTheme = action.payload;
   },
   [ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS]: (
