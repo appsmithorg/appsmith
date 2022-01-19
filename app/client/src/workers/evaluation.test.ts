@@ -240,7 +240,7 @@ const BASE_WIDGET: DataTreeWidget = {
   triggerPaths: {},
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-  propertiesOverridingKeyMap: {},
+  overridingKeysMap: {},
   overridingPropertyPaths: {},
 };
 

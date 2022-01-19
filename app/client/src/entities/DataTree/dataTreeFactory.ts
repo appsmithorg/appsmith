@@ -83,7 +83,7 @@ export enum OverridingPropertyType {
   DEFAULT = "DEFAULT",
 }
 
-export type PropertiesOverridingKeyMap = Record<
+export type OverridingKeysMap = Record<
   string,
   {
     DEFAULT: string | undefined;
@@ -97,7 +97,7 @@ export interface DataTreeWidget extends WidgetProps {
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
-  propertiesOverridingKeyMap: PropertiesOverridingKeyMap;
+  overridingKeysMap: OverridingKeysMap;
   overridingPropertyPaths: OverridingPropertyPaths;
 }
 

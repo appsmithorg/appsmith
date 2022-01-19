@@ -1516,13 +1516,12 @@ export default class DataTreeEvaluator {
         );
       });
     } else if (
-      propertyPath in entity.propertiesOverridingKeyMap &&
+      propertyPath in entity.overridingKeysMap &&
       value === undefined
     ) {
       // when value is undefined and has default value then set value to default value.
       // this is for resetForm
-      const propertyOverridingKeyMap =
-        entity.propertiesOverridingKeyMap[propertyPath];
+      const propertyOverridingKeyMap = entity.overridingKeysMap[propertyPath];
       if (propertyOverridingKeyMap.DEFAULT) {
         const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
         if (defaultValue !== undefined) {

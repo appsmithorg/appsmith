@@ -720,7 +720,7 @@ export const addWidgetPropertyDependencies = ({
 }) => {
   const dependencies: DependencyMap = {};
 
-  Object.entries(entity.propertiesOverridingKeyMap).forEach(
+  Object.entries(entity.overridingKeysMap).forEach(
     ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
       const existingDependenciesSet = new Set(
         dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
@@ -735,6 +735,10 @@ export const addWidgetPropertyDependencies = ({
         existingDependenciesSet.add(
           `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
         );
+
+      // if(overridingPropertyKeyMap.META  && overridingPropertyKeyMap.DEFAULT ){
+
+      // }
 
       dependencies[`${entityName}.${overriddenPropertyKey}`] = [
         ...existingDependenciesSet,

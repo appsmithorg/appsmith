@@ -31,10 +31,12 @@ export const setOverridingProperty = ({
         OverridingPropertyType.DEFAULT
       ] = overridingPropertyKey;
       break;
+
     case OverridingPropertyType.META:
       propertiesOverridingKeyMap[overriddenPropertyKey][
         OverridingPropertyType.META
       ] = overridingPropertyKey;
+
       break;
     default:
   }
