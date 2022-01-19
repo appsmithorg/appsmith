@@ -31,6 +31,7 @@ export class AggregateHelper {
                 });
             });
         });
+        this.Sleep(2000)//settling time for dsl
     }
 
     public NavigateToCreateNewTabPage() {

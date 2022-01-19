@@ -22,7 +22,6 @@ export class JSEditor {
 
     public CreateJSObject(JSCode: string, paste = true) {
         this.NavigateToJSEditor();
-        agHelper.Sleep()
         cy.get(locator._codeMirrorTextArea)
             .first()
             .focus()
@@ -37,18 +36,18 @@ export class JSEditor {
                     agHelper.Paste(el, JSCode)
                 } else {
                     input.type(JSCode, {
-                        parseSpecialCharSequences: false, delay: 100
+                        parseSpecialCharSequences: false, delay: 150
                     });
                 }
             });
 
-
+        agHelper.Sleep()
         //clicking 2 times each with interval of 1 second!
         Cypress._.times(2, () => {
             cy.xpath(this._runButton)
                 .first()
                 .click()
-                .wait(1000)
+                .wait(3000)
         })
         cy.get(locator._empty).should('not.exist')
         cy.get(locator._toastMsg).should("have.length", 0)
