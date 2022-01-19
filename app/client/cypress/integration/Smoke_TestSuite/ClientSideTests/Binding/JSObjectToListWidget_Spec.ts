@@ -80,4 +80,4 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     agHelper.NavigateBacktoEditor()
   });
 
-});
+ });
