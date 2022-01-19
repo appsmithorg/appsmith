@@ -135,7 +135,6 @@ export const TextLabelWrapper = styled.div<{
 `;
 
 export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
   $disabled: boolean;
   $labelText?: string;
   $labelTextColor?: string;
@@ -145,7 +144,6 @@ export const StyledLabel = styled(Label)<{
 }>`
   overflow-y: hidden;
   text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
   text-align: left;
   color: ${(props) =>
     props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
@@ -278,7 +276,6 @@ class DatePickerComponent extends React.Component<
                 position={Position.TOP}
               >
                 <StyledLabel
-                  $compactMode={compactMode}
                   $disabled={isDisabled}
                   $labelStyle={labelStyle}
                   $labelText={labelText}
@@ -296,7 +293,6 @@ class DatePickerComponent extends React.Component<
               </StyledTooltip>
             ) : (
               <StyledLabel
-                $compactMode={compactMode}
                 $disabled={isDisabled}
                 $labelStyle={labelStyle}
                 $labelText={labelText}

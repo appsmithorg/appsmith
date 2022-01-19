@@ -1,8 +1,24 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
+import {
+  LabelPosition,
+  LabelPositionTypes,
+  LABEL_MAX_WIDTH_RATE,
+} from "components/constants";
+import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
+import Tooltip from "components/ads/Tooltip";
+import { Colors } from "constants/Colors";
 
-const StyledRTEditor = styled.div`
+const StyledRTEditor = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
   && {
     width: 100%;
     height: 100%;
@@ -11,6 +27,7 @@ const StyledRTEditor = styled.div`
     }
   }
   .tox {
+    width: 100%;
     .tox-tbtn {
       cursor: pointer;
       .tox-tbtn__select-label {
@@ -18,20 +35,127 @@ const StyledRTEditor = styled.div`
       }
     }
   }
+
+  display: flex;
+  flex-direction: ${(props) =>
+    props.labelPosition === LabelPositionTypes.Left
+      ? "row"
+      : props.labelPosition === LabelPositionTypes.Top
+      ? "column"
+      : props.compactMode
+      ? "row"
+      : "column"};
+  align-items: ${({ compactMode, labelPosition }) =>
+    labelPosition === LabelPositionTypes.Top
+      ? `flex-start`
+      : compactMode
+      ? `center`
+      : `flex-start`};
+
+  ${({ compactMode, labelPosition }) =>
+    ((labelPosition !== LabelPositionTypes.Left && !compactMode) ||
+      labelPosition === LabelPositionTypes.Top) &&
+    `overflow-x: hidden; overflow-y: auto;`}
+
+  label.rich-text-editor-label {
+    ${({ compactMode, labelPosition }) =>
+      labelPosition === LabelPositionTypes.Top
+        ? `margin-bottom: 5px; margin-right: 0px`
+        : compactMode || labelPosition === LabelPositionTypes.Left
+        ? `margin-bottom: 0px; margin-right: 5px`
+        : `margin-bottom: 5px; margin-right: 0px`};
+  }
+`;
+
+export const TextLabelWrapper = styled.div<{
+  compactMode: boolean;
+  alignment?: Alignment;
+  position?: LabelPosition;
+  width?: number;
+}>`
+  display: flex;
+  ${({ alignment, compactMode, position, width }) => `
+    ${
+      position !== LabelPositionTypes.Top &&
+      (position === LabelPositionTypes.Left || compactMode)
+        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        : `width: 100%;`
+    }
+    ${position === LabelPositionTypes.Left &&
+      `${width && `width: ${width}px`}; ${alignment === Alignment.RIGHT &&
+        `justify-content:  flex-end`};`}
+  `}
+`;
+
+export const StyledLabel = styled(Label)<{
+  $disabled: boolean;
+  $labelText?: string;
+  $labelTextColor?: string;
+  $labelTextSize?: TextSize;
+  $labelStyle?: string;
+  disabled?: boolean;
+}>`
+  overflow-y: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  color: ${(props) =>
+    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
+  font-size: ${(props) =>
+    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+  font-weight: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-style: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+`;
+
+export const StyledTooltip = styled(Tooltip)`
+  overflow: hidden;
+`;
+
+export const RichTextEditorInputWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
 `;
 
 export interface RichtextEditorComponentProps {
   defaultValue?: string;
   placeholder?: string;
   widgetId: string;
-  isDisabled?: boolean;
+  isDisabled: boolean;
   defaultText?: string;
   isVisible?: boolean;
+  compactMode: boolean;
   isToolbarHidden: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  width: number;
   onValueChange: (valueAsString: string) => void;
 }
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
-  const [value, setValue] = React.useState<string>(props.defaultText as string);
+  const {
+    compactMode,
+    isDisabled,
+    labelAlignment,
+    labelPosition,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
+    labelWidth,
+    widgetId,
+    width,
+  } = props;
+
+  const [value, setValue] = useState<string>(props.defaultText as string);
+  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+
   const editorRef = useRef<any>(null);
   const isInit = useRef<boolean>(false);
 
@@ -51,6 +175,22 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     setValue(props.defaultText);
   }, [props.defaultText]);
 
+  useEffect(() => {
+    setHasLabelEllipsis(checkHasLabelEllipsis());
+  }, [width, labelText, labelPosition, labelWidth]);
+
+  const checkHasLabelEllipsis = useCallback(() => {
+    const labelElement = document.querySelector(
+      `.appsmith_widget_${widgetId} .rich-text-editor-label`,
+    );
+
+    if (labelElement) {
+      return labelElement.scrollWidth > labelElement.clientWidth;
+    }
+
+    return false;
+  }, []);
+
   const onEditorChange = (newValue: string) => {
     if (!isInit.current) {
       isInit.current = true;
@@ -59,33 +199,80 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     if (newValue === value) return;
     setValue(newValue);
   };
+
   return (
-    <StyledRTEditor className={`container-${props.widgetId}`}>
-      <Editor
-        disabled={props.isDisabled}
-        id={`rte-${props.widgetId}`}
-        init={{
-          height: "100%",
-          menubar: false,
-          toolbar_mode: "sliding",
-          forced_root_block: false,
-          branding: false,
-          resize: false,
-          plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
-            "searchreplace visualblocks code fullscreen",
-            "insertdatetime media table paste code help",
-          ],
-        }}
-        key={`editor_${props.isToolbarHidden}`}
-        onEditorChange={onEditorChange}
-        onInit={(evt, editor) => {
-          editorRef.current = editor;
-        }}
-        tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
-        toolbar={props.isToolbarHidden ? false : toolbarConfig}
-        value={value}
-      />
+    <StyledRTEditor
+      className={`container-${props.widgetId}`}
+      compactMode={compactMode}
+      labelPosition={labelPosition}
+    >
+      {labelText && (
+        <TextLabelWrapper
+          alignment={labelAlignment}
+          compactMode={compactMode}
+          position={labelPosition}
+          width={labelWidth}
+        >
+          {hasLabelEllipsis ? (
+            <StyledTooltip
+              content={labelText}
+              hoverOpenDelay={200}
+              position={Position.TOP}
+            >
+              <StyledLabel
+                $disabled={isDisabled}
+                $labelStyle={labelStyle}
+                $labelText={labelText}
+                $labelTextColor={labelTextColor}
+                $labelTextSize={labelTextSize}
+                className={`rich-text-editor-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
+                disabled={isDisabled}
+              >
+                {labelText}
+              </StyledLabel>
+            </StyledTooltip>
+          ) : (
+            <StyledLabel
+              $disabled={isDisabled}
+              $labelStyle={labelStyle}
+              $labelText={labelText}
+              $labelTextColor={labelTextColor}
+              $labelTextSize={labelTextSize}
+              className={`rich-text-editor-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
+              disabled={isDisabled}
+            >
+              {labelText}
+            </StyledLabel>
+          )}
+        </TextLabelWrapper>
+      )}
+      <RichTextEditorInputWrapper>
+        <Editor
+          disabled={props.isDisabled}
+          id={`rte-${props.widgetId}`}
+          init={{
+            height: "100%",
+            menubar: false,
+            toolbar_mode: "sliding",
+            forced_root_block: false,
+            branding: false,
+            resize: false,
+            plugins: [
+              "advlist autolink lists link image charmap print preview anchor",
+              "searchreplace visualblocks code fullscreen",
+              "insertdatetime media table paste code help",
+            ],
+          }}
+          key={`editor_${props.isToolbarHidden}`}
+          onEditorChange={onEditorChange}
+          onInit={(evt, editor) => {
+            editorRef.current = editor;
+          }}
+          tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
+          toolbar={props.isToolbarHidden ? false : toolbarConfig}
+          value={value}
+        />
+      </RichTextEditorInputWrapper>
     </StyledRTEditor>
   );
 }

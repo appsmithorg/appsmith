@@ -18,6 +18,7 @@ export const CONFIG = {
     widgetName: "RichTextEditor",
     isDefaultClickDisabled: true,
     inputType: "html",
+    labelText: "",
     version: 1,
   },
   properties: {
