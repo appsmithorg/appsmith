@@ -54,7 +54,6 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1960,9 +1959,9 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<Application> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
-        // 1. Check count limit for repo
-        // 2. create application, Then clone application
-        // 3. On clone and do import
+        // 1. Check private repo limit for organization
+        // 2. Create dummy application, clone repo from remote
+        // 3. Re-hydrate application to DB from local repo
         //    1. Save the ssh keys in application object with other details
         //    2. During import-export need to handle the DS(empty vs non-empty)
         // 4. Return application
@@ -1984,7 +1983,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Application newApplication = new Application();
                     newApplication.setName(GitUtils.getRepoName(gitConnectDTO.getRemoteUrl()));
                     newApplication.setOrganizationId(organizationId);
-                    Mono<Application> applicationMono = createSuffixedApplication(newApplication);
+                    Mono<Application> applicationMono = applicationPageService.createSuffixedApplication(newApplication, newApplication.getName(), 0);
                     try {
                         if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
                             return Mono.just(gitAuth).zipWith(applicationMono);
@@ -2133,8 +2132,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                     gitDeployKeys.setEmail(user.getEmail());
                     return gitDeployKeysRepository.findByEmail(user.getEmail())
                             .switchIfEmpty(gitDeployKeysRepository.save(gitDeployKeys))
-                            // Over write the existing keys
                             .flatMap(gitDeployKeys1 -> {
+                                if (gitDeployKeys.equals(gitDeployKeys1)) {
+                                    return Mono.just(gitDeployKeys1);
+                                }
+                                // Over write the existing keys
                                 gitDeployKeys1.setGitAuth(gitDeployKeys.getGitAuth());
                                 return gitDeployKeysRepository.save(gitDeployKeys1);
                             });
@@ -2146,23 +2148,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private Mono<GitAuth> getSSHKeyForCurrentUser() {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> gitDeployKeysRepository.findByEmail(user.getEmail()))
-                .map(gitDeployKeys -> gitDeployKeys.getGitAuth());
-    }
-
-    private Mono<Application> createSuffixedApplication(Application application) {
-        return createSuffixedApplication(application, application.getName(), 0);
-    }
-
-    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-        return applicationPageService.createApplication(application)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null) {
-                        return createSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
+                .map(GitDeployKeys::getGitAuth);
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {

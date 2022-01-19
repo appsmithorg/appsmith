@@ -57,4 +57,6 @@ public interface ApplicationPageServiceCE {
 
     Mono<Application> deleteApplicationByResource(Application application);
 
+    Mono<Application> createSuffixedApplication(Application application, String applicationName, int suffix);
+
 }

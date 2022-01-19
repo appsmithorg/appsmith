@@ -2,7 +2,6 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.constants.Assets;
-import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -24,7 +23,7 @@ public class GitDeployKeyGenerator {
             kpair = KeyPair.genKeyPair(jsch, KeyPair.ECDSA, 256);
         } catch (JSchException e) {
             log.error("failed to generate ECDSA key pair", e);
-            throw new AppsmithException(AppsmithError.SSH_KEY_ERROR);
+            throw new AppsmithException(AppsmithError.SSH_KEY_GENERATION_ERROR);
         }
 
         StringOutputStream privateKeyOutput = new StringOutputStream();
