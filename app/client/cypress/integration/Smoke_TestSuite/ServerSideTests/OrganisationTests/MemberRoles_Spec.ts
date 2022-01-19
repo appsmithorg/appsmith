@@ -27,7 +27,7 @@ describe("Create new org and invite user & validate all roles", () => {
     });
 
     it("2. Login as Invited user and then validate Viewer role", function () {
-        homePage.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"))
+        homePage.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"), 'App Viewer')
         homePage.FilterApplication(appid, orgid)
         cy.get(homePage._applicationCard).first().trigger("mouseover");
         cy.get(homePage._appHoverIcon('edit')).should("not.exist");
@@ -35,11 +35,36 @@ describe("Create new org and invite user & validate all roles", () => {
         homePage.LogOutviaAPI()
     });
 
-    it("3. Login as Org owner and Update the Invited user role to Developer", function() {
+    it("3. Login as Org owner and Update the Invited user role to Developer", function () {
         homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"))
         homePage.FilterApplication(appid, orgid)
         homePage.UpdateUserRoleInOrg(orgid, Cypress.env("TESTUSERNAME1"), 'App Viewer', 'Developer');
         homePage.LogOutviaAPI()
-      });
+    });
+
+    it("4. Login as Invited user and then validate Developer role", function () {
+        homePage.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"), 'Developer')
+        homePage.FilterApplication(appid, orgid)
+        cy.get(homePage._applicationCard).first().trigger("mouseover");
+        cy.get(homePage._appHoverIcon('edit')).first()
+            .click({ force: true });
+        cy.xpath(homePage._editPageLanding).should("exist");
+        homePage.LogOutviaAPI()
+    });
+
+    it("5. Login as Org owner and Update the Invited user role to Administrator", function () {
+        homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"))
+        homePage.FilterApplication(appid, orgid)
+        homePage.UpdateUserRoleInOrg(orgid, Cypress.env("TESTUSERNAME1"), 'Developer', 'Administrator');
+        homePage.LogOutviaAPI()
+    });
+
+    it("6. Login as Invited user and then validate Administrator role", function () {
+        homePage.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"), 'Administrator')
+        homePage.FilterApplication(appid, orgid)
+        cy.get(homePage._applicationCard).first().trigger("mouseover");
+        homePage.InviteUserToOrg(orgid, Cypress.env("TESTUSERNAME2"), 'App Viewer');
+        homePage.LogOutviaAPI()
+    });
 
 });

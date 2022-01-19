@@ -41,11 +41,7 @@ export class HomePage {
     private _leaveOrgConfirmModal = ".t--member-delete-confirmation-modal"
     private _leaveOrgConfirmButton = "[data - cy= t--org-leave - button]"
     private _lastOrgInHomePage = "//div[contains(@class, 't--org-section')][last()]//span/span"
-
-    // "adminRole": "//div[contains(@class, 'label-container')]//span[1][text()='Administrator']",
-    // "viewerRole": "//div[contains(@class, 'label-container')]//span[1][text()='App Viewer']",
-    // "developerRole": "//div[contains(@class, 'label-container')]//span[1][text()='Developer']",
-
+    _editPageLanding = "//h2[text()='Drag and drop a widget here']"
 
     public CreateNewOrg(orgNewName: string) {
         let oldName: string = ""
@@ -176,7 +172,7 @@ export class HomePage {
         agHelper.Sleep()//for logout to complete!
     }
 
-    public LogintoApp(uname: string, pswd: string) {
+    public LogintoApp(uname: string, pswd: string, role: 'App Viewer' | 'Developer' | 'Administrator' = 'Administrator') {
         agHelper.Sleep() //waiting for window to load
         cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
         cy.wait("@postLogout");
@@ -186,7 +182,8 @@ export class HomePage {
         cy.get(this._submitBtn).click();
         cy.wait("@getUser");
         agHelper.Sleep(3000)
-        cy.get(this._homePageAppCreateBtn).should("be.visible").should("be.enabled");
+        if (role != 'App Viewer')
+            cy.get(this._homePageAppCreateBtn).should("be.visible").should("be.enabled");
     }
 
     public FilterApplication(appName: string, orgId: string) {
@@ -251,9 +248,9 @@ export class HomePage {
             "response.body.responseMeta.status",
             200,
         );
-        cy.get(this._userRoleDropDown(email, currentRole)).first().click({ force: true });
+        cy.xpath(this._userRoleDropDown(email, currentRole)).first().click({ force: true });
         //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-        cy.get(this._visibleTextSpan(newRole)).last().click({force: true});
+        cy.get(this._visibleTextSpan(newRole)).last().click({ force: true });
         agHelper.Sleep()
         this.NavigateToHome()
     }
