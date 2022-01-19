@@ -887,7 +887,7 @@ export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
 export const REFLOW_INFO_CARD_CONTENT_1 = () =>
   "When dropping a new widget, other widgets now automatically move out of the way.";
 export const REFLOW_INFO_CARD_CONTENT_2 = () =>
-  "Widgets next to the canvas edge will shrink to make space for new widget.";
+  "Widgets next to the canvas edge will shrink to make space for the new widget.";
 export const REFLOW_LEARN_MORE = () => "LEARN MORE";
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
