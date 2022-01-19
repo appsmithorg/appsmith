@@ -516,6 +516,12 @@ export const entityDefinitions: Record<string, unknown> = {
       "!doc": "Selected dialing code for Phone Number",
     },
   },
+  CIRCULAR_PROGRESS_WIDGET: {
+    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    progress: "number",
+  },
 };
 
 export const GLOBAL_DEFS = {
