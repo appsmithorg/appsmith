@@ -3517,12 +3517,16 @@ Cypress.Commands.add(
   "actionContextMenuByEntityName",
   (entityNameinLeftSidebar, action = "Delete") => {
     cy.wait(2000);
-    cy.xpath(
-      "//div[text()='" +
-        entityNameinLeftSidebar +
-        "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
+    cy.get(
+      commonlocators.entitySearchResult
+        .concat(entityNameinLeftSidebar)
+        .concat("')"),
     )
+      .parents(commonlocators.entityItem)
       .first()
+      .trigger("mouseover")
+      .find(commonlocators.entityContextMenu)
+      .last()
       .click({ force: true });
 
     cy.xpath(
