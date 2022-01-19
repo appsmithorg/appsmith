@@ -604,19 +604,22 @@ export default class DataTreeEvaluator {
           }
           if (isWidget(entity) && !isATriggerPath) {
             if (propertyPath) {
-              const parsedValue = this.validateAndParseWidgetProperty({
+              let parsedValue = this.validateAndParseWidgetProperty({
                 fullPropertyPath,
                 widget: entity,
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
               });
-              this.overrideWidgetProperties(
+              const overwriteObj = this.overrideWidgetProperties(
                 entity,
                 propertyPath,
                 parsedValue,
                 currentTree,
               );
+              if (overwriteObj && overwriteObj.overwriteParsedValue) {
+                parsedValue = overwriteObj.newValue;
+              }
               return _.set(currentTree, fullPropertyPath, parsedValue);
             }
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
@@ -1506,29 +1509,31 @@ export default class DataTreeEvaluator {
         entity.overridingPropertyPaths[propertyPath];
 
       overridingPropertyPaths.forEach((overriddenPropertyKey) => {
-        const overriddenPropertyKeyMap =
-          entity.propertiesOverridingKeyMap[overriddenPropertyKey];
-        const isMetaPropertyPath =
-          propertyPath === overriddenPropertyKeyMap.META;
-        if (
-          value === undefined &&
-          isMetaPropertyPath &&
-          overriddenPropertyKeyMap.DEFAULT
-        ) {
-          const defaultValue = entity[overriddenPropertyKeyMap.DEFAULT];
-          _.set(
-            currentTree,
-            `${entity.widgetName}.${overriddenPropertyKey}`,
-            defaultValue, // set to default eval value when meta value is reset i.e., is undefined onChange.
-          );
-        } else {
-          _.set(
-            currentTree,
-            `${entity.widgetName}.${overriddenPropertyKey}`,
-            value,
-          );
-        }
+        _.set(
+          currentTree,
+          `${entity.widgetName}.${overriddenPropertyKey}`,
+          value,
+        );
       });
+    } else if (
+      propertyPath in entity.propertiesOverridingKeyMap &&
+      value === undefined
+    ) {
+      // when value is undefined and has default value then set value to default value.
+      // this is for resetForm
+      const propertyOverridingKeyMap =
+        entity.propertiesOverridingKeyMap[propertyPath];
+      if (propertyOverridingKeyMap.DEFAULT) {
+        const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
+        if (defaultValue !== undefined) {
+          _.set(
+            currentTree,
+            `${entity.widgetName}.${propertyPath}`,
+            defaultValue,
+          );
+          return { overwriteParsedValue: true, newValue: defaultValue };
+        }
+      }
     }
   }
 }
