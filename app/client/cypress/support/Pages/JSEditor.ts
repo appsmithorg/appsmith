@@ -17,7 +17,7 @@ export class JSEditor {
             .last()
             .click({ force: true });
         //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
-        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 2000)
+        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 1000)
     }
 
     public CreateJSObject(JSCode: string, paste = true) {
@@ -41,9 +41,9 @@ export class JSEditor {
                 }
             });
 
-        agHelper.Sleep()
+        agHelper.Sleep(5000)//Ample wait due to open bug # 10284
         //clicking 2 times each with interval of 1 second!
-        Cypress._.times(2, () => {
+        Cypress._.times(1, () => {
             cy.xpath(this._runButton)
                 .first()
                 .click()

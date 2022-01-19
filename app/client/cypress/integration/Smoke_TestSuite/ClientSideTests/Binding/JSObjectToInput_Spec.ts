@@ -19,8 +19,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     });
   });
 
-  //Skipping tests until bug 10284 is fixed
-  it.skip("1. Bind Input widget with JSObject", function () {
+  it("1. Bind Input widget with JSObject", function () {
     jsEditor.CreateJSObject('return "Success";', false);
     agHelper.SelectEntityByName("Widgets")//to expand widgets
     agHelper.expandCollapseEntity("Form1")
