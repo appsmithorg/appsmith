@@ -16,6 +16,8 @@ export class JSEditor {
         cy.get(this._addEntityJSEditor)
             .last()
             .click({ force: true });
+        //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
+        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 2000)
     }
 
     public CreateJSObject(JSCode: string, paste = true) {
@@ -40,8 +42,7 @@ export class JSEditor {
                 }
             });
 
-        //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
-        agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 2000)
+
         //clicking 2 times each with interval of 1 second!
         Cypress._.times(2, () => {
             cy.xpath(this._runButton)
