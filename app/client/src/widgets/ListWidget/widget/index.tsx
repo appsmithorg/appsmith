@@ -12,6 +12,7 @@ import {
   omit,
   floor,
   isEmpty,
+  isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
@@ -40,6 +41,12 @@ import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
+
+/* in the List Widget, "children.0.children.0.children.0.children" is the path to the list of all
+  widgets present in the List Widget
+*/
+const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
+  "children.0.children.0.children.0.children";
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
@@ -74,6 +81,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     this.generateChildrenDefaultPropertiesMap(this.props);
     this.generateChildrenMetaPropertiesMap(this.props);
     this.generateChildrenEntityDefinitions(this.props);
+
+    // add privateWidgets to ListWidget
     this.addPrivateWidgetsForChildren(this.props);
   }
 
@@ -115,17 +124,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   }
 
+  // updates the "privateWidgets" field of the List Widget
   addPrivateWidgetsForChildren(props: ListWidgetProps<WidgetProps>) {
-    const template = props.template;
     const privateWidgets: PrivateWidgets = {};
+    const listWidgetChildren: WidgetProps[] = get(
+      props,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+    listWidgetChildren.map((child) => {
+      privateWidgets[child.widgetName] = true;
+    });
 
-    if (template) {
-      Object.keys(template).map((key: string) => {
-        privateWidgets[key] = true;
-      });
-
-      super.updateWidgetProperty("privateWidgets", privateWidgets);
-    }
+    super.updateWidgetProperty("privateWidgets", privateWidgets);
   }
 
   generateChildrenDefaultPropertiesMap = (
@@ -189,6 +199,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
+    const currentListWidgetChildren: WidgetProps[] = get(
+      this.props,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+
+    const previousListWidgetChildren: WidgetProps[] = get(
+      prevProps,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+
     if (
       xor(
         Object.keys(get(prevProps, "template", {})),
@@ -198,7 +218,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.generateChildrenDefaultPropertiesMap(this.props);
       this.generateChildrenMetaPropertiesMap(this.props);
       this.generateChildrenEntityDefinitions(this.props);
-      this.addPrivateWidgetsForChildren(this.props);
     }
 
     if (this.props.serverSidePaginationEnabled) {
@@ -248,6 +267,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           },
         },
       );
+    }
+
+    // Update privateWidget field if there is a change in the List widget children
+    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
+      this.addPrivateWidgetsForChildren(this.props);
     }
   }
 
