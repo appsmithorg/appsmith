@@ -177,7 +177,8 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             defaultValue: "0",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: DividerWidgetProps) => props.capType === "nc",
+            hidden: (props: DividerWidgetProps) =>
+              props.capType !== "arrow" && props.capType !== "dot",
             dependencies: ["capType"],
           },
         ],
