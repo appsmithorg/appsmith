@@ -37,7 +37,6 @@ import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -74,7 +73,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     this.generateChildrenDefaultPropertiesMap(this.props);
     this.generateChildrenMetaPropertiesMap(this.props);
     this.generateChildrenEntityDefinitions(this.props);
-    this.addPrivateWidgetsForChildren(this.props);
   }
 
   /**
@@ -112,19 +110,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         "childrenEntityDefinitions",
         childrenEntityDefinitions,
       );
-    }
-  }
-
-  addPrivateWidgetsForChildren(props: ListWidgetProps<WidgetProps>) {
-    const template = props.template;
-    const privateWidgets: PrivateWidgets = {};
-
-    if (template) {
-      Object.keys(template).map((key: string) => {
-        privateWidgets[key] = true;
-      });
-
-      super.updateWidgetProperty("privateWidgets", privateWidgets);
     }
   }
 
@@ -198,7 +183,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.generateChildrenDefaultPropertiesMap(this.props);
       this.generateChildrenMetaPropertiesMap(this.props);
       this.generateChildrenEntityDefinitions(this.props);
-      this.addPrivateWidgetsForChildren(this.props);
     }
 
     if (this.props.serverSidePaginationEnabled) {

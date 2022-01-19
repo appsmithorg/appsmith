@@ -474,11 +474,11 @@ export default class DataTreeEvaluator {
     return dependencyMap;
   }
 
-  getPrivateWidgets(dataTree: DataTree): Record<string, true> {
+  getPrivateWidgets(dataTree: DataTree): PrivateWidgets {
     let privateWidgets: PrivateWidgets = {};
     Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
-      if (isWidget(entity) && entity.privateWidgets) {
+      if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
         privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
       }
     });
