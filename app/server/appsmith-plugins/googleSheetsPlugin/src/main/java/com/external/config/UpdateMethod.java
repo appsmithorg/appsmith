@@ -184,7 +184,7 @@ public class UpdateMethod implements Method {
         final List<String> objects = new ArrayList<>(rowObject.getValueMap().values());
 
         return webClient.method(HttpMethod.PUT)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.fromValue(Map.of(
                         "range", methodConfig.getSpreadsheetRange(),
                         "majorDimension", "ROWS",

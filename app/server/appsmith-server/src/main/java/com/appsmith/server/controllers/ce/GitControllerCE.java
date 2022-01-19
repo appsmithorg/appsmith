@@ -148,9 +148,10 @@ public class GitControllerCE {
 
     @GetMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
-                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
+                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches,
+                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches))
+        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches), branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -192,10 +193,10 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
-    @PostMapping("/import/{organisationId}")
-    public Mono<ResponseDTO<Application>> importApplicationFromGit(@PathVariable String organisationId,
+    @PostMapping("/import/{organizationId}")
+    public Mono<ResponseDTO<Application>> importApplicationFromGit(@PathVariable String organizationId,
                                                                    @RequestBody GitConnectDTO gitConnectDTO) {
-        return service.importApplicationFromGit(organisationId, gitConnectDTO)
+        return service.importApplicationFromGit(organizationId, gitConnectDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 

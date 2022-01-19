@@ -52,6 +52,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
@@ -520,14 +521,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 datasource.setOrganizationId(organizationId);
 
                                 // Check if any decrypted fields are present for datasource
-                                if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+                                if (importedDoc.getDecryptedFields()!= null
+                                        && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
 
                                     DecryptedSensitiveFields decryptedFields =
                                             importedDoc.getDecryptedFields().get(datasource.getName());
 
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId, applicationId);
                             })
                             .map(datasource -> {
                                 datasourceMap.put(datasource.getName(), datasource.getId());
@@ -1246,7 +1248,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 Datasource datasource,
-                                                                String organizationId) {
+                                                                String organizationId,
+                                                                String applicationId) {
 
         /*
             1. If same datasource is present return
@@ -1270,7 +1273,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return ds;
                 })
-                .filter(ds -> ds.softEquals(datasource))
+                // For git import exclude datasource configuration
+                .filter(ds -> applicationId != null ? ds.getName().equals(datasource.getName()) : ds.softEquals(datasource))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {

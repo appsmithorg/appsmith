@@ -5,6 +5,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
@@ -19,6 +20,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -38,8 +40,10 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -69,6 +73,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
@@ -108,6 +113,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final AnalyticsService analyticsService;
     private final GitCloudServicesUtils gitCloudServicesUtils;
     private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final DatasourceService datasourceService;
+    private final PluginService pluginService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -1203,7 +1210,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
-            return listBranchForApplication(defaultApplicationId, false)
+            return listBranchForApplication(defaultApplicationId, false, branchName)
                     .flatMap(gitBranchDTOList -> {
                         long branchMatchCount = gitBranchDTOList
                                 .stream()
@@ -1488,7 +1495,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches) {
+    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches, String currentBranch) {
         Mono<List<GitBranchDTO>> branchMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1567,7 +1574,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .collect(Collectors.toList());
 
                         localBranch.removeAll(remoteBranches);
+
+                        // Exclude the current checked out branch and the appsmith default application
                         localBranch.remove(gitApplicationMetadata.getBranchName());
+                        localBranch.remove(currentBranch);
 
                         // Remove the branches which are not in remote from the list before sending
                         gitBranchListDTOS = gitBranchListDTOS.stream()
@@ -2014,7 +2024,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     Application application = tuple.getT2();
                     GitAuth gitAuth = tuple.getT1();
-
                     String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                     Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), repoName);
                     Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
@@ -2025,34 +2034,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitAuth.getPublicKey()
                     ).onErrorResume(error -> {
                         log.error("Error while cloning the remote repo, {}", error.getMessage());
-                        Mono<Application> deleteApplicationMono = detachRemote(application.getId())
-                                .then(applicationPageService.deleteApplication(application.getId()));
-                        if (error instanceof TransportException) {
-                            return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                    application.getOrganizationId(),
-                                    application.getId(),
-                                    application.getId(),
-                                    error.getClass().getName(),
-                                    error.getMessage(),
-                                    false
-                            ).flatMap(user -> deleteApplicationMono
-                                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION))));
-                        }
-                        if (error instanceof InvalidRemoteException) {
-                            return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                    application.getOrganizationId(),
-                                    application.getId(),
-                                    application.getId(),
-                                    error.getClass().getName(),
-                                    error.getMessage(),
-                                    false
-                            ).flatMap(user -> deleteApplicationMono
-                                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"))));
-                        }
-                        return deleteApplicationMono
-                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT)));
+                        return addAnalyticsForGitOperation(
+                                AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                application.getOrganizationId(),
+                                application.getId(),
+                                application.getId(),
+                                error.getClass().getName(),
+                                error.getMessage(),
+                                false)
+                                .flatMap(user -> fileUtils.detachRemote(repoPath)
+                                        .then(applicationPageService.deleteApplication(application.getId())))
+                                .flatMap(application1 -> {
+                                    if (error instanceof TransportException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
+                                    }
+                                    if (error instanceof InvalidRemoteException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
+                                    }
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                });
                     });
 
                     return defaultBranchMono
@@ -2081,29 +2081,50 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     log.debug("Error while checking if the repo is private: ", e);
                                 }
 
-                                Mono<ApplicationJson> applicationJsonMono;
-                                try {
-                                    applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), repoName, defaultBranch);
-                                } catch (GitAPIException | IOException e) {
-                                    log.error("Error while constructing application from git repo", e);
-                                    return detachRemote(application.getId())
-                                            .then(applicationPageService.deleteApplication(application.getId()))
-                                            .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
-                                }
-
-                                // Set branchName for each application resource
-                                return applicationJsonMono
-                                        .flatMap(applicationJson -> {
-                                            applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
-                                            return importExportApplicationService
-                                                    .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch);
-                                        })
-                                        .zipWith(profileMono);
+                                application.setGitApplicationMetadata(gitApplicationMetadata);
+                                return Mono.just(application).zipWith(profileMono);
                             });
                 })
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
+
+                    try {
+                        Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
+                        Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
+                        Mono<ApplicationJson> applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch);
+                        return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
+                                .flatMap(data -> {
+                                    List<Datasource> datasourceList = data.getT2();
+                                    ApplicationJson applicationJson = data.getT1();
+                                    List<Plugin> pluginList = data.getT3();
+
+                                    // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
+                                    if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
+                                        return fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
+                                                .then(applicationPageService.deleteApplication(application.getId()))
+                                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                        " --import",
+                                                        " Datasource already exists with the same name")));
+                                    }
+                                    applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                    return importExportApplicationService
+                                            .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
+                                            .onErrorResume(throwable -> fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
+                                                    .then(applicationPageService.deleteApplication(application.getId()))
+                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR))));
+                                });
+
+                    } catch (GitAPIException | IOException e) {
+                        log.error("Error while constructing application from git repo", e);
+                        return fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
+                                .then(applicationPageService.deleteApplication(application.getId()))
+                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
+                    }
+                })
                 // Add analytics event
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
+                .flatMap(application -> {
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_IMPORT.getEventName(),
                             application.getOrganizationId(),
@@ -2149,6 +2170,32 @@ public class GitServiceCEImpl implements GitServiceCE {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> gitDeployKeysRepository.findByEmail(user.getEmail()))
                 .map(GitDeployKeys::getGitAuth);
+    }
+
+    private boolean checkIsDatasourceNameConflict(List<Datasource> existingDataSources,
+                                                  List<Datasource> importedDataSources,
+                                                  List<Plugin> pluginList) {
+        // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
+        for( Datasource datasource : importedDataSources) {
+            // Collect the datasource(existing in organization) which has same as of imported datasource
+             List<Datasource> filteredDataSource = existingDataSources
+                     .stream()
+                     .filter(datasource1 -> datasource1.getName().equals(datasource.getName()))
+                     .collect(Collectors.toList());
+
+             // Check if both of the datasource's are of the same type
+             if (filteredDataSource.size() > 0) {
+                 Long matchCount = pluginList.stream()
+                         .filter(plugin -> plugin.getId().equals(filteredDataSource.get(0).getPluginId())
+                                 && !datasource.getPluginId().equals(plugin.getPackageName()))
+                         .count();
+                 if (matchCount > 0) {
+                     return true;
+                 }
+             }
+
+        }
+        return false;
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {
