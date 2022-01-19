@@ -1,20 +1,51 @@
-import { OverridingProperties } from "./dataTreeFactory";
+import {
+  PropertiesOverridingKeyMap,
+  OverridingPropertyPaths,
+  OverridingPropertyType,
+} from "./dataTreeFactory";
 
 type SetOverridingPropertyParams = {
   key: string;
-  newValue: string;
-  overridingProperties: OverridingProperties;
+  value: string;
+  propertiesOverridingKeyMap: PropertiesOverridingKeyMap;
+  overridingPropertyPaths: OverridingPropertyPaths;
+  type: OverridingPropertyType;
 };
 
 export const setOverridingProperty = ({
-  key,
-  newValue,
-  overridingProperties,
+  key: overriddenPropertyKey,
+  overridingPropertyPaths,
+  propertiesOverridingKeyMap,
+  type,
+  value: overridingPropertyKey,
 }: SetOverridingPropertyParams) => {
-  if (Array.isArray(overridingProperties[key])) {
-    const updatedOverridingProperty = new Set(overridingProperties[key]);
-    overridingProperties[key] = [...updatedOverridingProperty.add(newValue)];
+  if (!(overriddenPropertyKey in propertiesOverridingKeyMap)) {
+    propertiesOverridingKeyMap[overriddenPropertyKey] = {
+      [OverridingPropertyType.DEFAULT]: undefined,
+      [OverridingPropertyType.META]: undefined,
+    };
+  }
+  switch (type) {
+    case OverridingPropertyType.DEFAULT:
+      propertiesOverridingKeyMap[overriddenPropertyKey][
+        OverridingPropertyType.DEFAULT
+      ] = overridingPropertyKey;
+      break;
+    case OverridingPropertyType.META:
+      propertiesOverridingKeyMap[overriddenPropertyKey][
+        OverridingPropertyType.META
+      ] = overridingPropertyKey;
+      break;
+    default:
+  }
+  if (Array.isArray(overridingPropertyPaths[overridingPropertyKey])) {
+    const updatedOverridingProperty = new Set(
+      overridingPropertyPaths[overridingPropertyKey],
+    );
+    overridingPropertyPaths[overridingPropertyKey] = [
+      ...updatedOverridingProperty.add(overriddenPropertyKey),
+    ];
   } else {
-    overridingProperties[key] = [newValue];
+    overridingPropertyPaths[overridingPropertyKey] = [overriddenPropertyKey];
   }
 };

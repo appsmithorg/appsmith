@@ -76,7 +76,20 @@ export interface MetaArgs {
   arguments: Variable[];
 }
 
-export type OverridingProperties = Record<string, string[]>;
+export type OverridingPropertyPaths = Record<string, string[]>;
+
+export enum OverridingPropertyType {
+  META = "META",
+  DEFAULT = "DEFAULT",
+}
+
+export type PropertiesOverridingKeyMap = Record<
+  string,
+  {
+    DEFAULT: string | undefined;
+    META: string | undefined;
+  }
+>;
 
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
@@ -84,7 +97,8 @@ export interface DataTreeWidget extends WidgetProps {
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
-  overridingProperties: OverridingProperties;
+  propertiesOverridingKeyMap: PropertiesOverridingKeyMap;
+  overridingPropertyPaths: OverridingPropertyPaths;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {

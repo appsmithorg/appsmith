@@ -711,35 +711,35 @@ export const removeFunctionsAndVariableJSCollection = (
   return modifiedDataTree;
 };
 
-// export const addWidgetPropertyDependencies = ({
-//   entity,
-//   entityName,
-// }: {
-//   entity: DataTreeWidget;
-//   entityName: string;
-// }) => {
-//   const dependencies: DependencyMap = {};
+export const addWidgetPropertyDependencies = ({
+  entity,
+  entityName,
+}: {
+  entity: DataTreeWidget;
+  entityName: string;
+}) => {
+  const dependencies: DependencyMap = {};
 
-//   Object.entries(entity.propertiesOverridingKeyMap).forEach(
-//     ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
-//       const existingDependenciesSet = new Set(
-//         dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
-//       );
-//       // add meta dependency
-//       overridingPropertyKeyMap.META &&
-//         existingDependenciesSet.add(
-//           `${entityName}.${overridingPropertyKeyMap.META}`,
-//         );
-//       // add default dependency
-//       overridingPropertyKeyMap.DEFAULT &&
-//         existingDependenciesSet.add(
-//           `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
-//         );
+  Object.entries(entity.propertiesOverridingKeyMap).forEach(
+    ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
+      const existingDependenciesSet = new Set(
+        dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
+      );
+      // add meta dependency
+      overridingPropertyKeyMap.META &&
+        existingDependenciesSet.add(
+          `${entityName}.${overridingPropertyKeyMap.META}`,
+        );
+      // add default dependency
+      overridingPropertyKeyMap.DEFAULT &&
+        existingDependenciesSet.add(
+          `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
+        );
 
-//       dependencies[`${entityName}.${overriddenPropertyKey}`] = [
-//         ...existingDependenciesSet,
-//       ];
-//     },
-//   );
-//   return dependencies;
-// };
+      dependencies[`${entityName}.${overriddenPropertyKey}`] = [
+        ...existingDependenciesSet,
+      ];
+    },
+  );
+  return dependencies;
+};
