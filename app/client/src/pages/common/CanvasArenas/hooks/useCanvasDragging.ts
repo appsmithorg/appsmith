@@ -601,6 +601,9 @@ export const useCanvasDragging = (
             const topOffset = getAbsolutePixels(
               stickyCanvasRef.current.style.top,
             );
+            const leftOffset = getAbsolutePixels(
+              stickyCanvasRef.current.style.left,
+            );
             const snappedXY = getSnappedXY(
               snapColumnSpace,
               snapRowSpace,
@@ -618,7 +621,9 @@ export const useCanvasDragging = (
               blockDimensions.isNotColliding ? "rgb(104,	113,	239, 0.6)" : "red"
             }`;
             canvasCtx.fillRect(
-              blockDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              blockDimensions.left -
+                leftOffset +
+                (noPad ? 0 : CONTAINER_GRID_PADDING),
               blockDimensions.top -
                 topOffset +
                 (noPad ? 0 : CONTAINER_GRID_PADDING),
@@ -632,7 +637,10 @@ export const useCanvasDragging = (
             canvasCtx.setLineDash([3]);
             canvasCtx.strokeStyle = "rgb(104,	113,	239)";
             canvasCtx.strokeRect(
-              snappedXY.X + strokeWidth + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              snappedXY.X -
+                leftOffset +
+                strokeWidth +
+                (noPad ? 0 : CONTAINER_GRID_PADDING),
               snappedXY.Y -
                 topOffset +
                 strokeWidth +

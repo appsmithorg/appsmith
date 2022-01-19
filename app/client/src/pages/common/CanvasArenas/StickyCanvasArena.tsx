@@ -58,7 +58,12 @@ export const StickyCanvasArena = forwardRef(
     const repositionSliderCanvas = (entry: IntersectionObserverEntry) => {
       stickyCanvasRef.current.style.width = entry.intersectionRect.width + "px";
       stickyCanvasRef.current.style.position = "absolute";
-      stickyCanvasRef.current.style.left = "0px";
+      const calculatedLeftOffset =
+        entry.intersectionRect.left - entry.boundingClientRect.left;
+      const leftOffset =
+        calculatedLeftOffset > entry.intersectionRect.width
+          ? entry.boundingClientRect.width - entry.intersectionRect.width
+          : calculatedLeftOffset;
       const calculatedTopOffset =
         entry.intersectionRect.top - entry.boundingClientRect.top;
       const topOffset =
@@ -66,6 +71,7 @@ export const StickyCanvasArena = forwardRef(
           ? entry.boundingClientRect.height - entry.intersectionRect.height
           : calculatedTopOffset;
       stickyCanvasRef.current.style.top = topOffset + "px";
+      stickyCanvasRef.current.style.left = leftOffset + "px";
       stickyCanvasRef.current.style.height =
         entry.intersectionRect.height + "px";
     };

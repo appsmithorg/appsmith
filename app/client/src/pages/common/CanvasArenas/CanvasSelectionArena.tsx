@@ -22,7 +22,7 @@ import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import { commentModeSelector } from "../../../selectors/commentsSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
-import { getCanvasTopOffset } from "./utils";
+import { getAbsolutePixels } from "utils/helpers";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -206,27 +206,30 @@ export function CanvasSelectionArena({
       };
 
       const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {
-        const strokeWidth = 1;
-        const topOffset = getCanvasTopOffset(
-          slidingArenaRef,
-          stickyCanvasRef,
-          canExtend,
-        );
-        canvasCtx.setLineDash([5]);
-        canvasCtx.strokeStyle = "rgba(125,188,255,1)";
-        canvasCtx.strokeRect(
-          selectionDimensions.left - strokeWidth,
-          selectionDimensions.top - strokeWidth - topOffset,
-          selectionDimensions.width + 2 * strokeWidth,
-          selectionDimensions.height + 2 * strokeWidth,
-        );
-        canvasCtx.fillStyle = "rgb(84, 132, 236, 0.06)";
-        canvasCtx.fillRect(
-          selectionDimensions.left,
-          selectionDimensions.top - topOffset,
-          selectionDimensions.width,
-          selectionDimensions.height,
-        );
+        if (stickyCanvasRef.current) {
+          const strokeWidth = 1;
+          const topOffset = getAbsolutePixels(
+            stickyCanvasRef.current.style.top,
+          );
+          const leftOffset = getAbsolutePixels(
+            stickyCanvasRef.current.style.left,
+          );
+          canvasCtx.setLineDash([5]);
+          canvasCtx.strokeStyle = "rgba(125,188,255,1)";
+          canvasCtx.strokeRect(
+            selectionDimensions.left - strokeWidth - leftOffset,
+            selectionDimensions.top - strokeWidth - topOffset,
+            selectionDimensions.width + 2 * strokeWidth,
+            selectionDimensions.height + 2 * strokeWidth,
+          );
+          canvasCtx.fillStyle = "rgb(84, 132, 236, 0.06)";
+          canvasCtx.fillRect(
+            selectionDimensions.left - leftOffset,
+            selectionDimensions.top - topOffset,
+            selectionDimensions.width,
+            selectionDimensions.height,
+          );
+        }
       };
 
       const onMouseLeave = () => {
