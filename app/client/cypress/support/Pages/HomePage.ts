@@ -252,8 +252,8 @@ export class HomePage {
             200,
         );
         //cy.get(this._userRoleDropDown(email, currentRole)).first().click({ force: true });
-        cy.xpath(this._userRoleDropDown(email)).first().click();
-        cy.get(this._visibleTextSpan(newRole)).last().click();
+        cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
+        cy.get(this._visibleTextSpan(newRole)).last().click({force: true});
         agHelper.Sleep()
         this.NavigateToHome()
     }
