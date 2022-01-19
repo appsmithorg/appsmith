@@ -86,7 +86,9 @@ export interface IconSelectControlProps extends ControlProps {
 }
 
 export interface IconSelectControlState {
+  activeIcon: IconType;
   popoverTargetWidth: number | undefined;
+  isOpen: boolean;
 }
 
 const NONE = "(none)";
@@ -105,14 +107,22 @@ class IconSelectControl extends BaseControl<
   private iconSelectTargetRef: React.RefObject<HTMLButtonElement>;
   private virtuosoRef: React.RefObject<VirtuosoGridHandle>;
   private initialItemIndex: number;
+  private filteredItems: Array<IconType>;
+  private searchInput: React.RefObject<HTMLInputElement>;
   private timer?: number;
 
   constructor(props: IconSelectControlProps) {
     super(props);
     this.iconSelectTargetRef = React.createRef();
     this.virtuosoRef = React.createRef();
+    this.searchInput = React.createRef();
     this.initialItemIndex = 0;
-    this.state = { popoverTargetWidth: 0 };
+    this.filteredItems = [];
+    this.state = {
+      activeIcon: props.propertyValue ?? NONE,
+      popoverTargetWidth: 0,
+      isOpen: false,
+    };
   }
 
   componentDidMount() {
@@ -126,29 +136,41 @@ class IconSelectControl extends BaseControl<
         };
       });
     }, 0);
+    document.addEventListener("keydown", this.handleKeydown);
   }
 
   componentWillUnmount() {
     if (this.timer) {
       clearTimeout(this.timer);
     }
+    document.removeEventListener("keydown", this.handleKeydown);
   }
 
   public render() {
     const { defaultIconName, propertyValue: iconName } = this.props;
-    const { popoverTargetWidth } = this.state;
+    const { activeIcon, popoverTargetWidth } = this.state;
     return (
       <>
         <IconSelectContainerStyles targetWidth={popoverTargetWidth} />
         <TypedSelect
-          activeItem={iconName || defaultIconName || NONE}
+          activeItem={activeIcon || defaultIconName || NONE}
           className="icon-select-container"
+          inputProps={{
+            inputRef: this.searchInput,
+          }}
           itemListRenderer={this.renderMenu}
           itemPredicate={this.filterIconName}
           itemRenderer={this.renderIconItem}
           items={ICON_NAMES}
           onItemSelect={this.handleIconChange}
-          popoverProps={{ minimal: true }}
+          popoverProps={{
+            enforceFocus: false,
+            minimal: true,
+            isOpen: this.state.isOpen,
+            onInteraction: (state) => {
+              this.setState({ isOpen: state });
+            },
+          }}
         >
           <StyledButton
             alignText={Alignment.LEFT}
@@ -167,6 +189,125 @@ class IconSelectControl extends BaseControl<
     );
   }
 
+  private handleKeydown = (e: KeyboardEvent) => {
+    if (this.state.isOpen) {
+      switch (e.key) {
+        case "Tab":
+          e.preventDefault();
+          this.setState({ isOpen: false });
+          break;
+        case "ArrowDown":
+        case "Down": {
+          if (document.activeElement === this.searchInput.current) {
+            (document.activeElement as HTMLElement).blur();
+            if (this.initialItemIndex < 0) this.initialItemIndex = -4;
+            else break;
+          }
+          const nextIndex = this.initialItemIndex + 4;
+          if (nextIndex < this.filteredItems.length) {
+            this.setState(
+              {
+                activeIcon: this.filteredItems[nextIndex],
+              },
+              () => {
+                if (this.virtuosoRef.current) {
+                  this.virtuosoRef.current.scrollToIndex(nextIndex);
+                }
+              },
+            );
+          }
+          e.preventDefault();
+          break;
+        }
+        case "ArrowUp":
+        case "Up": {
+          if (document.activeElement === this.searchInput.current) {
+            break;
+          } else if (e.shiftKey && this.searchInput.current) {
+            this.searchInput.current.focus();
+            break;
+          }
+          const nextIndex = this.initialItemIndex - 4;
+          if (nextIndex >= 0) {
+            this.setState(
+              {
+                activeIcon: this.filteredItems[nextIndex],
+              },
+              () => {
+                if (this.virtuosoRef.current) {
+                  this.virtuosoRef.current.scrollToIndex(nextIndex);
+                }
+              },
+            );
+          }
+          e.preventDefault();
+          break;
+        }
+        case "ArrowRight":
+        case "Right": {
+          if (document.activeElement === this.searchInput.current) {
+            break;
+          }
+          const nextIndex = this.initialItemIndex + 1;
+          if (nextIndex < this.filteredItems.length) {
+            this.setState(
+              {
+                activeIcon: this.filteredItems[nextIndex],
+              },
+              () => {
+                if (this.virtuosoRef.current) {
+                  this.virtuosoRef.current.scrollToIndex(nextIndex);
+                }
+              },
+            );
+          }
+          e.preventDefault();
+          break;
+        }
+        case "ArrowLeft":
+        case "Left": {
+          if (document.activeElement === this.searchInput.current) {
+            break;
+          }
+          const nextIndex = this.initialItemIndex - 1;
+          if (nextIndex >= 0) {
+            this.setState(
+              {
+                activeIcon: this.filteredItems[nextIndex],
+              },
+              () => {
+                if (this.virtuosoRef.current) {
+                  this.virtuosoRef.current.scrollToIndex(nextIndex);
+                }
+              },
+            );
+          }
+          e.preventDefault();
+          break;
+        }
+        case " ":
+        case "Enter": {
+          if (this.searchInput.current === document.activeElement) break;
+          this.setState({ isOpen: false });
+          this.handleIconChange(this.filteredItems[this.initialItemIndex]);
+          e.preventDefault();
+          e.stopPropagation();
+          break;
+        }
+        case "Escape": {
+          // TODO: Esc closes the entire property pane if the focus is on the icon
+          // stopPropagation / stopImmediatePropagation doesn't prevent this behaviour
+          this.setState({ isOpen: false });
+        }
+      }
+    } else if (
+      this.iconSelectTargetRef.current === document.activeElement &&
+      (e.key === "ArrowUp" || e.key === "ArrowDown")
+    ) {
+      this.setState({ isOpen: true });
+    }
+  };
+
   private handleButtonClick = () => {
     setTimeout(() => {
       if (this.virtuosoRef.current) {
@@ -180,6 +321,7 @@ class IconSelectControl extends BaseControl<
     filteredItems,
     renderItem,
   }) => {
+    this.filteredItems = filteredItems;
     this.initialItemIndex = filteredItems.findIndex((x) => x === activeItem);
 
     return (
@@ -191,6 +333,7 @@ class IconSelectControl extends BaseControl<
         itemContent={(index) => renderItem(filteredItems[index], index)}
         ref={this.virtuosoRef}
         style={{ height: "165px" }}
+        tabIndex={-1}
         totalCount={filteredItems.length}
       />
     );
@@ -226,11 +369,13 @@ class IconSelectControl extends BaseControl<
     return iconName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
   };
 
-  private handleIconChange = (icon: IconType) =>
+  private handleIconChange = (icon: IconType) => {
+    this.setState({ activeIcon: icon });
     this.updateProperty(
       this.props.propertyName,
       icon === NONE ? undefined : icon,
     );
+  };
 
   static getControlType() {
     return "ICON_SELECT";
