@@ -77,7 +77,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     // going  to the query create page
     cy.contains(commonlocators.entityName, "Query1").click();
 
-    cy.get("@getPluginForm").should(
+    cy.wait("@getPluginForm").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
