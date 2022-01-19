@@ -40,6 +40,7 @@ function LinkWrapper(props: Props) {
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
+      className="cell-wrapper"
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
@@ -91,6 +92,7 @@ function AutoToolTipComponent(props: Props) {
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
+      className="cell-wrapper"
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isTextType

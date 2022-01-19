@@ -65,6 +65,12 @@ export const TableWrapper = styled.div<{
       }
       &:hover {
         background: ${Colors.NARVIK_GREEN};
+
+        .td {
+          .cell-wrapper {
+            background: ${Colors.NARVIK_GREEN};
+          }
+        }
       }
     }
     .th,
@@ -106,6 +112,7 @@ export const TableWrapper = styled.div<{
       height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
       line-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
       padding: 0;
+      transition: background-color 0.3s ease;
     }
     .thead {
       position: sticky;

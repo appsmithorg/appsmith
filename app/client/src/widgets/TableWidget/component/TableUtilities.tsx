@@ -68,6 +68,7 @@ export const renderCell = (
         return (
           <CellWrapper
             cellProperties={cellProperties}
+            className="cell-wrapper"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
           />
@@ -76,6 +77,7 @@ export const renderCell = (
         return (
           <CellWrapper
             cellProperties={cellProperties}
+            className="cell-wrapper"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
           >
@@ -90,6 +92,7 @@ export const renderCell = (
       return (
         <CellWrapper
           cellProperties={cellProperties}
+          className="cell-wrapper"
           isCellVisible={isCellVisible}
           isHidden={isHidden}
         >
@@ -131,6 +134,7 @@ export const renderCell = (
         return (
           <CellWrapper
             cellProperties={cellProperties}
+            className="cell-wrapper"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
           />
@@ -139,7 +143,7 @@ export const renderCell = (
         return (
           <CellWrapper
             cellProperties={cellProperties}
-            className="video-cell"
+            className="video-cell cell-wrapper"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
           >
@@ -150,6 +154,7 @@ export const renderCell = (
         return (
           <CellWrapper
             cellProperties={cellProperties}
+            className="cell-wrapper"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
           >
