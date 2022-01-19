@@ -85,6 +85,7 @@ import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
+import { updateMetaProperty } from "../actions/metaActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -133,6 +134,8 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+
+  yield put(updateMetaProperty(dataTree));
 
   const updatedDataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });

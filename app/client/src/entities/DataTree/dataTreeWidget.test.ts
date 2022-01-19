@@ -262,7 +262,7 @@ describe("generateDataTreeWidget", () => {
         text: "defaultText",
       },
       overridingPropertyPaths: {
-        defaultText: ["text"],
+        defaultText: ["text", "meta.text"],
         "meta.text": ["text"],
       },
     };
