@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import styled from "constants/DefaultTheme";
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
 
@@ -48,9 +47,14 @@ export const StickyCanvasArena = forwardRef(
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
 
-    const observer = useRef(
+    const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
         entries.forEach(updateCanvasStylesIntersection);
+      }),
+    );
+    const resizeObserver = useRef(
+      new ResizeObserver(() => {
+        observeSlider();
       }),
     );
     const { devicePixelRatio: scale = 1 } = window;
@@ -60,18 +64,10 @@ export const StickyCanvasArena = forwardRef(
       stickyCanvasRef.current.style.position = "absolute";
       const calculatedLeftOffset =
         entry.intersectionRect.left - entry.boundingClientRect.left;
-      const leftOffset =
-        calculatedLeftOffset > entry.intersectionRect.width
-          ? entry.boundingClientRect.width - entry.intersectionRect.width
-          : calculatedLeftOffset;
       const calculatedTopOffset =
         entry.intersectionRect.top - entry.boundingClientRect.top;
-      const topOffset =
-        calculatedTopOffset > entry.intersectionRect.height
-          ? entry.boundingClientRect.height - entry.intersectionRect.height
-          : calculatedTopOffset;
-      stickyCanvasRef.current.style.top = topOffset + "px";
-      stickyCanvasRef.current.style.left = leftOffset + "px";
+      stickyCanvasRef.current.style.top = calculatedTopOffset + "px";
+      stickyCanvasRef.current.style.left = calculatedLeftOffset + "px";
       stickyCanvasRef.current.style.height =
         entry.intersectionRect.height + "px";
     };
@@ -97,10 +93,9 @@ export const StickyCanvasArena = forwardRef(
         }
       }
     };
-
     const observeSlider = () => {
-      observer.current.disconnect();
-      observer.current.observe(slidingArenaRef.current);
+      interSectionObserver.current.disconnect();
+      interSectionObserver.current.observe(slidingArenaRef.current);
     };
 
     useEffect(() => {
@@ -114,9 +109,11 @@ export const StickyCanvasArena = forwardRef(
         parentCanvas?.addEventListener("scroll", observeSlider, false);
         parentCanvas?.addEventListener("mouseover", observeSlider, false);
       }
+      resizeObserver.current.observe(slidingArenaRef.current);
       return () => {
         parentCanvas?.removeEventListener("scroll", observeSlider);
         parentCanvas?.removeEventListener("mouseover", observeSlider);
+        resizeObserver.current.unobserve(slidingArenaRef.current);
       };
     }, []);
 
