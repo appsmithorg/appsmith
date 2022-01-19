@@ -50,6 +50,11 @@ describe("Entity explorer tests related to widgets and validation", function() {
   });
 
   it("Toggle between widgets in different pages using search functionality", function() {
+    cy.get(".t--entity-name")
+      .contains("Page1")
+      .click({ force: true });
+    cy.wait(2000);
+    cy.SearchEntityandOpen("Text1");
     cy.OpenBindings("Text1");
     cy.get(explorer.property)
       .last()
