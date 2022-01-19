@@ -1,5 +1,5 @@
 import {
-  PropertiesOverridingKeyMap,
+  OverridingKeysMap,
   OverridingPropertyPaths,
   OverridingPropertyType,
 } from "./dataTreeFactory";
@@ -7,33 +7,33 @@ import {
 type SetOverridingPropertyParams = {
   key: string;
   value: string;
-  propertiesOverridingKeyMap: PropertiesOverridingKeyMap;
+  overridingKeysMap: OverridingKeysMap;
   overridingPropertyPaths: OverridingPropertyPaths;
   type: OverridingPropertyType;
 };
 
 export const setOverridingProperty = ({
   key: overriddenPropertyKey,
+  overridingKeysMap,
   overridingPropertyPaths,
-  propertiesOverridingKeyMap,
   type,
   value: overridingPropertyKey,
 }: SetOverridingPropertyParams) => {
-  if (!(overriddenPropertyKey in propertiesOverridingKeyMap)) {
-    propertiesOverridingKeyMap[overriddenPropertyKey] = {
+  if (!(overriddenPropertyKey in overridingKeysMap)) {
+    overridingKeysMap[overriddenPropertyKey] = {
       [OverridingPropertyType.DEFAULT]: undefined,
       [OverridingPropertyType.META]: undefined,
     };
   }
   switch (type) {
     case OverridingPropertyType.DEFAULT:
-      propertiesOverridingKeyMap[overriddenPropertyKey][
+      overridingKeysMap[overriddenPropertyKey][
         OverridingPropertyType.DEFAULT
       ] = overridingPropertyKey;
       break;
 
     case OverridingPropertyType.META:
-      propertiesOverridingKeyMap[overriddenPropertyKey][
+      overridingKeysMap[overriddenPropertyKey][
         OverridingPropertyType.META
       ] = overridingPropertyKey;
 
