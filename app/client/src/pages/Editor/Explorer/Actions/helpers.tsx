@@ -1,5 +1,10 @@
 import React, { ReactNode, useMemo } from "react";
-import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
+import {
+  dbQueryIcon,
+  ApiMethodIcon,
+  EntityIcon,
+  DefaultApiIcon,
+} from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import {
@@ -26,7 +31,6 @@ import { groupBy } from "lodash";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { trimQueryString } from "utils/helpers";
-import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
@@ -102,13 +106,8 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
 
-      const method = action.actionConfiguration.httpMethod;
-      if (!method)
-        return (
-          <EntityIcon>
-            <ApisIcon />
-          </EntityIcon>
-        );
+      const method = action?.actionConfiguration?.httpMethod;
+      if (!method) return <DefaultApiIcon />;
       return <ApiMethodIcon type={method} />;
     },
     generateCreatePageURL: INTEGRATION_EDITOR_URL,

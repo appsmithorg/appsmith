@@ -13,14 +13,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
-    font-size: 90%;
     font-family: monospace;
     max-height: 20em;
     overflow-y: auto;
     background: ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? "#FAFAFA" : "#262626"};
-    box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
-    border-radius: 0px;
+      props.editorTheme === EditorTheme.LIGHT ? "#fafafa" : "#262626"};
+    box-shadow: 0px 0px 2px 2px #ebebeb;
+    border-radius: 1px;
   }
 
   .CodeMirror-hint {
@@ -71,14 +70,18 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding:5px 0;
       flex: 1;
     }
     .command {
       display: flex;
       align-items: center;
-      img {
-        height: 12px;
-        width: 12px;
+      > div {
+        padding: 0 2px;
+        img {
+          height: 14px;
+          width: 14px;
+        }
       }
       svg {
         height: 12px;

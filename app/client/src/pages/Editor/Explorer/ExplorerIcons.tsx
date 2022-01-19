@@ -13,6 +13,8 @@ import {
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
+import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
+import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -60,11 +62,6 @@ export const hiddenPageIcon = (
 const WidgetIcon = MenuIcons.WIDGETS_ICON;
 export const widgetIcon = (
   <WidgetIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
-);
-
-const ApiIcon = MenuIcons.APIS_COLORED_ICON;
-export const apiIcon = (
-  <ApiIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const DBQueryIcon = MenuIcons.DATASOURCE_ICON_v2;
@@ -214,11 +211,6 @@ export const SortFileIcon = (
   />
 );
 
-const CurlIcon = MenuIcons.CURL_ICON;
-export const curlIcon = (
-  <CurlIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
-);
-
 /**
  * Entity Icon components
  */
@@ -254,10 +246,11 @@ const EntityIconWrapper = styled.div<{
   width?: string;
   height?: string;
   noBorder?: boolean;
+  bgColor?: string;
 }>`
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
-  background: ${Colors.WHITE};
+  background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
   border: ${({ borderColor, noBorder }) =>
     noBorder ? "none" : `1.5px solid ${borderColor ?? Colors.SCORPION}`};
   box-sizing: border-box;
@@ -279,11 +272,13 @@ type EntityIconType = {
   width?: string;
   height?: string;
   noBorder?: boolean;
+  bgColor?: string;
 };
 
 function EntityIcon(props: EntityIconType): JSX.Element {
   return (
     <EntityIconWrapper
+      bgColor={props.bgColor}
       borderColor={props.borderColor}
       height={props.height}
       noBorder={props.noBorder}
@@ -305,6 +300,22 @@ export function ApiMethodIcon(props: { type: typeof HTTP_METHODS[number] }) {
       <EntityIcon.textIcon textColor={HTTP_METHOD_COLOR_MAP[props.type]}>
         {props.type}
       </EntityIcon.textIcon>
+    </EntityIcon>
+  );
+}
+
+export function DefaultApiIcon() {
+  return (
+    <EntityIcon>
+      <ApiIcon />
+    </EntityIcon>
+  );
+}
+
+export function CurlIconV2() {
+  return (
+    <EntityIcon>
+      <CurlIcon />
     </EntityIcon>
   );
 }

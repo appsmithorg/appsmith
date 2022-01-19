@@ -14,8 +14,9 @@ import { Datasource } from "entities/Datasource";
 import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  apiIcon,
+  DefaultApiIcon,
   getPluginIcon,
+  JsFileIconV2,
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import React, { useMemo } from "react";
@@ -428,7 +429,7 @@ function getIntegrationOptionsWithChildren(
 ) {
   const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
   const createJSObject: TreeDropdownOption = {
-    label: "Create New JS Object",
+    label: "New JS Object",
     value: "JSObject",
     id: "create",
     icon: "plus",
@@ -463,12 +464,14 @@ function getIntegrationOptionsWithChildren(
         value: api.config.name,
         type: option.value,
         icon:
-          api.config.pluginType === PluginType.API
-            ? apiIcon
-            : getActionConfig(api.config.pluginType)?.getIcon(
-                api.config,
-                plugins[(api as any).config.datasource.pluginId],
-              ),
+          api.config.pluginType === PluginType.API ? (
+            <DefaultApiIcon />
+          ) : (
+            getActionConfig(api.config.pluginType)?.getIcon(
+              api.config,
+              plugins[(api as any).config.datasource.pluginId],
+            )
+          ),
       } as TreeDropdownOption);
     });
     queries.forEach((query) => {
@@ -516,12 +519,13 @@ function getIntegrationOptionsWithChildren(
     jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
-        const jsObject: TreeDropdownOption = {
+        const jsObject = {
           label: jsAction.config.name,
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
-        };
+          icon: JsFileIconV2,
+        } as TreeDropdownOption;
         (jsOption.children as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
           //don't remove this will be used soon
@@ -589,7 +593,7 @@ function useIntegrationsOptionTree() {
     jsActions,
     datasources,
     {
-      label: "Create New Query",
+      label: "New Query",
       value: "datasources",
       id: "create",
       icon: "plus",

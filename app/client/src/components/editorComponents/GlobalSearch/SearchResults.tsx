@@ -23,9 +23,8 @@ import {
   getPluginIcon,
   homePageIcon,
   pageIcon,
-  apiIcon,
-  jsIcon,
   EntityIcon,
+  JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -33,6 +32,7 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
+import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -202,13 +202,6 @@ function WidgetItem(props: {
   );
 }
 
-const ActionIconWrapper = styled.div`
-  & > div {
-    display: flex;
-    align-items: center;
-  }
-`;
-
 function ActionItem(props: {
   query: string;
   item: SearchItem;
@@ -222,12 +215,16 @@ function ActionItem(props: {
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon =
-    pluginType === PluginType.API
-      ? apiIcon
-      : getActionConfig(pluginType)?.getIcon(
-          item.config,
-          pluginGroups[item.config.datasource.pluginId],
-        );
+    pluginType === PluginType.API ? (
+      <EntityIcon>
+        <ApisIcon />
+      </EntityIcon>
+    ) : (
+      getActionConfig(pluginType)?.getIcon(
+        item.config,
+        pluginGroups[item.config.datasource.pluginId],
+      )
+    );
 
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
@@ -235,7 +232,7 @@ function ActionItem(props: {
 
   return (
     <>
-      <ActionIconWrapper>{icon}</ActionIconWrapper>
+      {icon}
       <ItemTitle>
         <TextWrapper>
           <Highlight className="text" match={query} text={title} />
@@ -254,14 +251,13 @@ function JSCollectionItem(props: {
 }) {
   const { item, query } = props;
   const { config } = item || {};
-  const icon = jsIcon;
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
   const subText = `${pageName}`;
 
   return (
     <>
-      <ActionIconWrapper>{icon}</ActionIconWrapper>
+      {JsFileIconV2}
       <ItemTitle>
         <TextWrapper>
           <Highlight className="text" match={query} text={title} />
