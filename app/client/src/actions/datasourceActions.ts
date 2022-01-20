@@ -139,9 +139,10 @@ export const setDatsourceEditorMode = (payload: {
   };
 };
 
-export const fetchDatasources = () => {
+export const fetchDatasources = (payload?: { orgId?: string }) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
+    payload,
   };
 };
 

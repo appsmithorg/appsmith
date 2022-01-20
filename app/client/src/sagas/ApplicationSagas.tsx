@@ -37,12 +37,8 @@ import { AppState } from "reducers";
 import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
-  generateSSHKeyPairSuccess,
-  getSSHKeyPairSuccess,
-  getSSHKeyPairError,
-  GenerateSSHKeyPairReduxAction,
-  GetSSHKeyPairReduxAction,
   FetchApplicationReduxAction,
+  initDatasourceConnectionDuringImportSuccess,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -76,6 +72,9 @@ import {
 } from "selectors/onboardingSelectors";
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { getIsImportAppViaGitModalOpen } from "selectors/gitSyncSelectors";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import { fetchDatasources } from "actions/datasourceActions";
+import { failFastApiCalls } from "./InitSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -614,57 +613,6 @@ export function* importApplicationSaga(
   }
 }
 
-export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.getSSHKeyPair,
-      applicationId,
-    );
-    const isValidResponse = yield validateResponse(response, false);
-    if (isValidResponse) {
-      yield put(getSSHKeyPairSuccess(response.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
-      }
-    }
-  } catch (error) {
-    yield put(getSSHKeyPairError({ error, show: false }));
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
-  }
-}
-
-export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
-  let response: ApiResponse | undefined;
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const isImporting: boolean = yield select(getIsImportAppViaGitModalOpen);
-    response = yield call(
-      ApplicationApi.generateSSHKeyPair,
-      applicationId,
-      isImporting,
-    );
-    const isValidResponse: boolean = yield validateResponse(
-      response,
-      true,
-      response?.responseMeta?.status === 500,
-    );
-    if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response?.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response as ApiResponse);
-      }
-    }
-  } catch (error) {
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
-    yield call(handleRepoLimitReachedError, response);
-  }
-}
-
 function* fetchReleases() {
   try {
     const response: FetchUsersApplicationsOrgsResponse = yield call(
@@ -686,6 +634,32 @@ function* fetchReleases() {
       },
     });
   }
+}
+
+function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
+  const orgId = action.payload;
+
+  const pluginsAndDatasourcesCalls = yield failFastApiCalls(
+    [fetchPlugins({ orgId }), fetchDatasources({ orgId })],
+    [
+      ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
+      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
+      ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+    ],
+  );
+  if (!pluginsAndDatasourcesCalls) return;
+
+  const pluginFormCall = yield failFastApiCalls(
+    [fetchPluginFormConfigs()],
+    [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
+  );
+  if (!pluginFormCall) return;
+
+  yield put(initDatasourceConnectionDuringImportSuccess());
 }
 
 export default function* applicationSagas() {
@@ -717,11 +691,10 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
-      generateSSHKeyPairSaga,
-    ),
-    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
+    takeLatest(
+      ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
+      initDatasourceConnectionDuringImport,
+    ),
   ]);
 }

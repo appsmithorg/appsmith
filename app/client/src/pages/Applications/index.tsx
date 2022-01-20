@@ -98,7 +98,6 @@ import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import GitImportModal from "pages/Editor/gitSync/GitImportModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 
 const OrgDropDown = styled.div`
@@ -842,21 +841,6 @@ function ApplicationsSection(props: any) {
                                 text="Import Application"
                               />
                             )}
-                            {/* {!getFeatureFlags().IMPORT_AT_ONEC &&
-                              getFeatureFlags().GIT_IMPORT && (
-                                <MenuItem
-                                  cypressSelector="t--org-import-app-git"
-                                  icon="upload"
-                                  onSelect={() =>
-                                    dispatch(
-                                      setIsImportAppViaGitModalOpen({
-                                        isOpen: true,
-                                      }),
-                                    )
-                                  }
-                                  text="Import Via GIT"
-                                />
-                              )} */}
                             <MenuItem
                               icon="share"
                               onSelect={() => setSelectedOrgId(organization.id)}
@@ -973,7 +957,6 @@ function ApplicationsSection(props: any) {
       {organizationsListComponent}
       <WelcomeHelper />
       {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
-      {getFeatureFlags().GIT_IMPORT && <GitImportModal />}
       {getFeatureFlags().GIT_IMPORT && <ReconnectDatasourceModal />}
     </ApplicationContainer>
   );

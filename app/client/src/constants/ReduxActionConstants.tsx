@@ -11,6 +11,10 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST:
+    "INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST",
+  INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS:
+    "INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS",
   DISCONNECT_GIT: "DISCONNECT_GIT",
   SHOW_CONNECT_GIT_MODAL: "SHOW_CONNECT_GIT_MODAL",
   SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL:
@@ -941,11 +945,6 @@ export interface ApplicationPayload {
   applicationId?: string;
   modifiedBy?: string;
   modifiedAt?: string;
-}
-
-export interface CurrentApplicationData extends ApplicationPayload {
-  SSHKeyPair?: string;
-  deployKeyDocUrl?: string;
 }
 
 export type OrganizationDetails = {

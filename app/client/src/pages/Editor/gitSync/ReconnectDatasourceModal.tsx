@@ -29,6 +29,9 @@ import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "../DataSourceEditor/JSONtoForm";
 import DBForm from "../DataSourceEditor/DBForm";
+import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
+import { debug } from "loglevel";
+import { getFetchingDatasourceConfigForImport } from "selectors/applicationSelectors";
 
 const Container = styled.div`
   height: 804px;
@@ -114,9 +117,21 @@ function ReconnectDatasourceModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const organizationId = useSelector(getOrganizationIdForImport);
+  // todo use for loading state
+  // const isFetchingDatasourceConfigForImport = useSelector(getFetchingDatasourceConfigForImport);
+
+  // todo uncomment this to fetch datasource config
+  // useEffect(() => {
+  //   if (isModalOpen && organizationId) {
+  //     dispatch(
+  //       initDatasourceConnectionDuringImportRequest(organizationId as string),
+  //     );
+  //   }
+  // }, [organizationId, isModalOpen]);
+
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-  }, [dispatch, setIsReconnectingDatasourcesModalOpen]);
+  }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
   const dataSources = useSelector(getDatasources);
   const pluginImages = useSelector(getPluginImages);
