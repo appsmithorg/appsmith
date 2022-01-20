@@ -5,6 +5,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
+import { GetSSHKeyResponseData } from "actions/gitSyncActions";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -378,6 +379,27 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isGitImportOpen: action.payload,
   }),
+
+  [ReduxActionTypes.FETCH_SSH_KEY_PAIR_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GetSSHKeyResponseData>,
+  ) => {
+    return {
+      ...state,
+      SSHKeyPair: action.payload.publicKey,
+      deployKeyDocUrl: action.payload.docUrl,
+    };
+  },
+  [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GetSSHKeyResponseData>,
+  ) => {
+    return {
+      ...state,
+      SSHKeyPair: action.payload.publicKey,
+      deployKeyDocUrl: action.payload.docUrl,
+    };
+  },
 });
 
 export type GitStatusData = {
@@ -446,6 +468,9 @@ export type GitSyncReducerState = {
   useGlobalProfile?: boolean;
 
   isGitImportOpen?: boolean;
+
+  SSHKeyPair?: string;
+  deployKeyDocUrl?: string;
 };
 
 export default gitSyncReducer;

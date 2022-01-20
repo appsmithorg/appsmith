@@ -943,11 +943,6 @@ export interface ApplicationPayload {
   modifiedAt?: string;
 }
 
-export interface CurrentApplicationData extends ApplicationPayload {
-  SSHKeyPair?: string;
-  deployKeyDocUrl?: string;
-}
-
 export type OrganizationDetails = {
   organization: Org;
   applications: any[];

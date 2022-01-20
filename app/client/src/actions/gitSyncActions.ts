@@ -1,12 +1,13 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
+import {
+  ReduxActionWithCallbacks,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { ReduxActionErrorTypes } from "../constants/ReduxActionConstants";
-
-// test comment
+import { ResponseMeta } from "../api/ApiResponses";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
@@ -270,4 +271,106 @@ export const importAppFromGit = ({
   payload,
   onSuccessCallback,
   onErrorCallback,
+});
+
+type ErrorPayload = string;
+export type GetSSHKeyResponseData = {
+  docUrl: string;
+  publicKey?: string;
+};
+
+export type GenerateSSHKeyPairResponsePayload<T> = {
+  responseMeta: ResponseMeta;
+  data: T;
+};
+
+export type GenerateSSHKeyPairReduxAction = ReduxActionWithCallbacks<
+  undefined,
+  GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ErrorPayload
+>;
+
+export type GenerateKeyParams = {
+  onErrorCallback?: (payload: ErrorPayload) => void;
+  onSuccessCallback?: (
+    payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ) => void;
+  payload?: undefined;
+};
+
+export const generateSSHKeyPair = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: GenerateKeyParams): GenerateSSHKeyPairReduxAction => {
+  return {
+    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
+    payload,
+    onErrorCallback,
+    onSuccessCallback,
+  };
+};
+
+export const generateSSHKeyPairSuccess = (
+  payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+) => {
+  return {
+    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS,
+    payload,
+  };
+};
+
+export type GetSSHKeyPairResponsePayload<T> = {
+  responseMeta: ResponseMeta;
+  data: T;
+};
+
+export type GetSSHKeyPairReduxAction = ReduxActionWithCallbacks<
+  undefined,
+  GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ErrorPayload
+>;
+
+export type GetKeyParams = {
+  onErrorCallback?: (payload: ErrorPayload) => void;
+  onSuccessCallback?: (
+    payload: GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ) => void;
+  payload?: undefined;
+};
+
+export const getSSHKeyPair = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: GetKeyParams): GetSSHKeyPairReduxAction => {
+  return {
+    type: ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT,
+    payload,
+    onErrorCallback,
+    onSuccessCallback,
+  };
+};
+
+export const getSSHKeyPairSuccess = (
+  payload: GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+) => {
+  return {
+    type: ReduxActionTypes.FETCH_SSH_KEY_PAIR_SUCCESS,
+    payload,
+  };
+};
+
+export const getSSHKeyPairError = (payload: {
+  error: string;
+  show: boolean;
+}) => {
+  return {
+    type: ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR,
+    payload,
+  };
+};
+
+export const initSSHKeyPairWithNull = () => ({
+  type: ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL,
 });

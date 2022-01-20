@@ -37,11 +37,6 @@ import { AppState } from "reducers";
 import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
-  generateSSHKeyPairSuccess,
-  getSSHKeyPairSuccess,
-  getSSHKeyPairError,
-  GenerateSSHKeyPairReduxAction,
-  GetSSHKeyPairReduxAction,
   FetchApplicationReduxAction,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -614,57 +609,6 @@ export function* importApplicationSaga(
   }
 }
 
-export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.getSSHKeyPair,
-      applicationId,
-    );
-    const isValidResponse = yield validateResponse(response, false);
-    if (isValidResponse) {
-      yield put(getSSHKeyPairSuccess(response.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
-      }
-    }
-  } catch (error) {
-    yield put(getSSHKeyPairError({ error, show: false }));
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
-  }
-}
-
-export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
-  let response: ApiResponse | undefined;
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const isImporting: boolean = yield select(getIsImportAppViaGitModalOpen);
-    response = yield call(
-      ApplicationApi.generateSSHKeyPair,
-      applicationId,
-      isImporting,
-    );
-    const isValidResponse: boolean = yield validateResponse(
-      response,
-      true,
-      response?.responseMeta?.status === 500,
-    );
-    if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response?.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response as ApiResponse);
-      }
-    }
-  } catch (error) {
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
-    yield call(handleRepoLimitReachedError, response);
-  }
-}
-
 function* fetchReleases() {
   try {
     const response: FetchUsersApplicationsOrgsResponse = yield call(
@@ -717,11 +661,6 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
-      generateSSHKeyPairSaga,
-    ),
-    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
   ]);
 }

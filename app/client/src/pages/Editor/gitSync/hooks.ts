@@ -1,11 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useCallback, useEffect } from "react";
-import { generateSSHKeyPair, getSSHKeyPair } from "actions/applicationActions";
+import { generateSSHKeyPair, getSSHKeyPair } from "actions/gitSyncActions";
 import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  getSSHKeyDeployDocUrl,
+  getSshKeyPair,
+} from "selectors/gitSyncSelectors";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
@@ -13,14 +14,8 @@ export const useSSHKeyPair = () => {
 
   const dispatch = useDispatch();
 
-  const currentApplication = useSelector(getCurrentApplication);
-  //
-  //
-  // TODO: MAINTAIN SSHKeyPair in GitSyncReducer
-  //
-  //
-  const SSHKeyPair = currentApplication?.SSHKeyPair;
-  const deployKeyDocUrl = currentApplication?.deployKeyDocUrl || DOCS_BASE_URL;
+  const SSHKeyPair = useSelector(getSshKeyPair);
+  const deployKeyDocUrl = useSelector(getSSHKeyDeployDocUrl);
 
   const [generatingSSHKey, setIsGeneratingSSHKey] = useState(false);
 
