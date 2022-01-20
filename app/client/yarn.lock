@@ -1958,7 +1958,7 @@
     "@chakra-ui/react-env" "1.1.1"
     "@chakra-ui/utils" "1.9.1"
 
-"@chakra-ui/menu@1.8.3", "@chakra-ui/menu@^1.8.3":
+"@chakra-ui/menu@1.8.3":
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/@chakra-ui/menu/-/menu-1.8.3.tgz#0248fb9cb4583fc1e52aa02a8bf47136074375c7"
   integrity sha512-TehcqHLKlMdkeXTtCYXzWNa6nbAk1cpjGz6OPl2ua0eisoOKgPolpkreCfYrWV9NNk0BmzZn+Su+z60jbhqggA==
