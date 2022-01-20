@@ -47,25 +47,30 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   showGuidedTourMessage: boolean;
+  isEmbeded: boolean;
 }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(
-    100vh -
-      ${(props) => {
-        let height = !props.hasPages
-          ? `${props.theme.smallHeaderHeight} - 1px`
-          : "72px";
+  height: ${(props) => {
+    // embeded page will not have top header
+    if (props.isEmbeded) return "100vh;";
 
-        if (props.showGuidedTourMessage) {
-          height += " - 100px";
-        }
+    let offsetHeight = "";
 
-        return height;
-      }}
-  );
+    if (!props.hasPages) {
+      offsetHeight = `${props.theme.smallHeaderHeight} - 1px`;
+    } else {
+      offsetHeight = "72px";
+    }
+
+    if (props.showGuidedTourMessage) {
+      offsetHeight += " - 100px";
+    }
+
+    return `calc(100vh - ${offsetHeight});`;
+  }};
 `;
 
 const ContainerWithComments = styled.div`
@@ -163,7 +168,8 @@ class AppViewer extends Component<Props> {
   };
 
   public render() {
-    const { isInitialized } = this.props;
+    const { isInitialized, location } = this.props;
+    const isEmbeded = location.search.indexOf("embed=true") !== -1;
     return (
       <ThemeProvider theme={this.props.lightTheme}>
         <GlobalHotKeys>
@@ -180,6 +186,7 @@ class AppViewer extends Component<Props> {
               <AppViewerBodyContainer>
                 <AppViewerBody
                   hasPages={this.props.pages.length > 1}
+                  isEmbeded={isEmbeded}
                   showGuidedTourMessage={this.props.showGuidedTourMessage}
                 >
                   {isInitialized && this.state.registered && (
