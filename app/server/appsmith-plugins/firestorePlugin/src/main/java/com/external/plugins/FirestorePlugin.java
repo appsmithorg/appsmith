@@ -3,6 +3,8 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -14,6 +16,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -61,11 +64,13 @@ import static com.external.constants.FieldName.DELETE_KEY_PATH;
 import static com.external.constants.FieldName.END_BEFORE;
 import static com.external.constants.FieldName.LIMIT_DOCUMENTS;
 import static com.external.constants.FieldName.ORDER_BY;
+import static com.external.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static com.external.constants.FieldName.WHERE;
 import static com.external.constants.FieldName.WHERE_CHILDREN;
 import static com.external.utils.WhereConditionUtils.applyWhereConditional;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -87,7 +92,7 @@ public class FirestorePlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
+    public static class FirestorePluginExecutor implements PluginExecutor<Firestore>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
@@ -100,11 +105,60 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, null);
+        }
+
+        @Override
         public Mono<ActionExecutionResult> executeParameterized(
                 Firestore connection,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Boolean smartBsonSubstitution = TRUE;
+            if (smartSubstitutionObject instanceof Boolean) {
+                smartBsonSubstitution = (Boolean) smartSubstitutionObject;
+            } else if (smartSubstitutionObject instanceof String) {
+                // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
+                // directly. This is to ensure we are backward compatible
+                smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
+            }
+
+            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+            if (TRUE.equals(smartBsonSubstitution)) {
+                if (actionConfiguration.getBody() != null) {
+
+                    // First extract all the bindings in order
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
+
+                    try {
+                        updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        return Mono.just(errorResult);
+                    }
+
+                    actionConfiguration.setBody(updatedBody);
+                }
+            }
 
             // Do the template substitutions.
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
@@ -116,7 +170,6 @@ public class FirestorePlugin extends BasePlugin {
             final String path = actionConfiguration.getPath();
             requestData.put("path", path == null ? "" : path);
 
-            Map<String, Object> formData = actionConfiguration.getFormData();
             String command = getValueSafelyFromFormData(formData, COMMAND, String.class);
 
             if (isBlank(command)) {
