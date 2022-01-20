@@ -28,7 +28,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     derivedProperties: {},
     metaProperties: {},
   },
-  INPUT_WIDGET: {
+  INPUT_WIDGET_V2: {
     defaultProperties: {
       text: "defaultText",
     },
@@ -440,7 +440,7 @@ describe("DataTreeEvaluator", () => {
         text: undefined,
         defaultText: "Default value",
         widgetName: "Input1",
-        type: "INPUT_WIDGET",
+        type: "INPUT_WIDGET_V2",
         bindingPaths: {
           defaultText: EvaluationSubstitutionType.TEMPLATE,
           isValid: EvaluationSubstitutionType.TEMPLATE,
