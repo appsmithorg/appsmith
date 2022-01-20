@@ -96,9 +96,13 @@ import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
 
-function* fetchDatasourcesSaga() {
+function* fetchDatasourcesSaga(
+  action: ReduxAction<{ orgId?: string } | undefined>,
+) {
   try {
-    const orgId = yield select(getCurrentOrgId);
+    let orgId = yield select(getCurrentOrgId);
+    if (action.payload?.orgId) orgId = action.payload?.orgId;
+
     const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
       orgId,
     );

@@ -153,3 +153,6 @@ export const getIsSavingOrgInfo = (state: AppState) =>
 
 export const showAppInviteUsersDialogSelector = (state: AppState) =>
   state.ui.applications.showAppInviteUsersDialog;
+
+export const getFetchingDatasourceConfigForImport = (state: AppState) =>
+  state.ui.applications.fetchingDatasourceConfigForImport;

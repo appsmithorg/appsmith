@@ -34,6 +34,7 @@ const initialState: ApplicationsReduxState = {
   showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
   organizationIdForImport: null,
+  fetchingDatasourceConfigForImport: false,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -421,6 +422,18 @@ const applicationsReducer = createReducer(initialState, {
       },
     },
   }),
+  [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    fetchingDatasourceConfigForImport: true,
+  }),
+  [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    fetchingDatasourceConfigForImport: false,
+  }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;
@@ -446,6 +459,7 @@ export interface ApplicationsReduxState {
   showAppInviteUsersDialog: boolean;
   isImportAppModalOpen: boolean;
   organizationIdForImport: any;
+  fetchingDatasourceConfigForImport: boolean;
 }
 
 export interface Application {

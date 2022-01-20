@@ -38,6 +38,7 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   FetchApplicationReduxAction,
+  initDatasourceConnectionDuringImportSuccess,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -71,6 +72,9 @@ import {
 } from "selectors/onboardingSelectors";
 import { handleRepoLimitReachedError } from "./GitSyncSagas";
 import { getIsImportAppViaGitModalOpen } from "selectors/gitSyncSelectors";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import { fetchDatasources } from "actions/datasourceActions";
+import { failFastApiCalls } from "./InitSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -632,6 +636,32 @@ function* fetchReleases() {
   }
 }
 
+function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
+  const orgId = action.payload;
+
+  const pluginsAndDatasourcesCalls = yield failFastApiCalls(
+    [fetchPlugins({ orgId }), fetchDatasources({ orgId })],
+    [
+      ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
+      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
+      ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+    ],
+  );
+  if (!pluginsAndDatasourcesCalls) return;
+
+  const pluginFormCall = yield failFastApiCalls(
+    [fetchPluginFormConfigs()],
+    [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
+  );
+  if (!pluginFormCall) return;
+
+  yield put(initDatasourceConnectionDuringImportSuccess());
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -662,5 +692,9 @@ export default function* applicationSagas() {
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
+    takeLatest(
+      ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
+      initDatasourceConnectionDuringImport,
+    ),
   ]);
 }

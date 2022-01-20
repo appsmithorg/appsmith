@@ -118,3 +118,14 @@ export const setShowAppInviteUsersDialog = (payload: boolean) => ({
   type: ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL,
   payload,
 });
+
+export const initDatasourceConnectionDuringImportRequest = (
+  payload: string,
+) => ({
+  type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
+  payload,
+});
+
+export const initDatasourceConnectionDuringImportSuccess = () => ({
+  type: ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS,
+});
