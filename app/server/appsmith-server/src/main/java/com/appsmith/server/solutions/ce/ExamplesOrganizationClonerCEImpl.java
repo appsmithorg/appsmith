@@ -285,6 +285,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                         log.info("Creating clone of action collection {}", originalCollectionId);
                                                         // Sanitize them
                                                         makePristine(actionCollection);
+                                                        actionCollection.setPublishedCollection(null);
                                                         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                                                         unpublishedCollection.setPageId(savedPage.getId());
 

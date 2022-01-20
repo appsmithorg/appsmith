@@ -39,6 +39,11 @@ export enum EvaluationSubstitutionType {
   SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
 }
 
+// Private widgets do not get evaluated
+// For example, for widget Button1 in a List widget List1, List1.template.Button1.text gets evaluated,
+// so there is no need to evaluate Button1.text
+export type PrivateWidgets = Record<string, true>;
+
 export interface DataTreeAction
   extends Omit<ActionDataWithMeta, "data" | "config"> {
   data: ActionResponse["body"];
@@ -103,6 +108,7 @@ export interface DataTreeWidget extends WidgetProps {
   logBlackList: Record<string, true>;
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
+  privateWidgets: PrivateWidgets;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {

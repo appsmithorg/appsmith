@@ -19,6 +19,7 @@ import {
   ENTITY_TYPE,
   DataTreeJSAction,
   EvaluationSubstitutionType,
+  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -736,14 +737,21 @@ export const addWidgetPropertyDependencies = ({
           `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
         );
 
-      // if(overridingPropertyKeyMap.META  && overridingPropertyKeyMap.DEFAULT ){
-
-      // }
-
       dependencies[`${entityName}.${overriddenPropertyKey}`] = [
         ...existingDependenciesSet,
       ];
     },
   );
   return dependencies;
+};
+
+export const isPrivateEntityPath = (
+  privateWidgets: PrivateWidgets,
+  fullPropertyPath: string,
+) => {
+  const entityName = fullPropertyPath.split(".")[0];
+  if (Object.keys(privateWidgets).indexOf(entityName) !== -1) {
+    return true;
+  }
+  return false;
 };
