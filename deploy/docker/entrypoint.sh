@@ -23,41 +23,18 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" > "$TEMPLATES_PATH/docker.env.temp"
-    
-    if [[ -z "${APPSMITH_DISABLE_TELEMETRY}" ]]; then
-      export APPSMITH_DISABLE_TELEMETRY=false
-    fi
-
-    if [[ -z "${APPSMITH_MONGODB_URI}" ]]; then
-      export APPSMITH_MONGODB_URI=mongodb://appsmith:$AUTO_GEN_MONGO_PASSWORD@localhost/appsmith
-    fi
-
-    if [[ -z "${APPSMITH_REDIS_URL}" ]]; then
-      export APPSMITH_REDIS_URL=redis://127.0.0.1:6379
-    fi
-
-    if [[ -z "${APPSMITH_ENCRYPTION_PASSWORD}" ]]; then
-      export APPSMITH_ENCRYPTION_PASSWORD=$AUTO_GEN_ENCRYPTION_PASSWORD
-    fi
-
-    if [[ -z "$APPSMITH_ENCRYPTION_SALT" ]]; then
-      export APPSMITH_ENCRYPTION_SALT=$AUTO_GEN_ENCRYPTION_SALT
-    fi
-    cat "$TEMPLATES_PATH/docker.env.temp" | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\$APPSMITH_[A-Z0-9_]*||g' > "$ENV_PATH"
-  else
-    # Write existing environment variables which is loaded by predefined/system environment variables (ConfigMap in K8S/Docker environment file)
-    echo "Generating configuration file based on config from system environment variables"
-    bash "$TEMPLATES_PATH/docker.env.sh" > "$TEMPLATES_PATH/docker.env.temp"
-    
-    echo 'Load former environment configuration'
-    set -o allexport
-    . "$ENV_PATH"
-    set +o allexport
-
-    echo "Write former environment variables into temporary .env"
-    cat "$TEMPLATES_PATH/docker.env.temp" | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\$APPSMITH_[A-Z0-9_]*||g' > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
   fi
+
+  printenv | grep -Eo '^APPSMITH_[A-Z0-9_]+=.*|^MONGO_[A-Z0-9_]+=.*' > "$TEMPLATES_PATH/pre-define.env"
+ 
+  echo 'Load environment configuration'
+  set -o allexport
+  . "$ENV_PATH"
+  . "$TEMPLATES_PATH/pre-define.env"
+  set +o allexport
+
+  printenv | grep -Eo '^APPSMITH_[A-Z0-9_]+=.*|^MONGO_[A-Z0-9_]+=.*' > "$ENV_PATH" 
 }
 
 load_configuration() {

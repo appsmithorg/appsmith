@@ -174,19 +174,10 @@ helm install -f values.yaml stable-appsmith/appsmith --generate-name
 To change Appsmith configurations, you can use configuration UI in application or update value in values.yaml(The available configurations is listed below). 
 |	Name																										|	Value									|
 |	----------------------------------------------------		|	---------------------	|
-|	`applicationConfig.APPSMITH_SENTRY_DSN`									| `""`									|
-| `applicationConfig.APPSMITH_SMART_LOOK_ID`							| `""`									|
 | `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID`		| `""`									|
 | `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET`| `""`									|
 | `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_ID`		| `""`									|
 | `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET`| `""`									|
-| `applicationConfig.APPSMITH_SEGMENT_KEY`								| `""`									|
-| `applicationConfig.APPSMITH_RAPID_API_KEY_VALUE`				| `""`									|
-| `applicationConfig.APPSMITH_MARKETPLACE_ENABLED`				| `""`									|
-| `applicationConfig.APPSMITH_OPTIMIZELY_KEY`							| `""`									|
-| `applicationConfig.APPSMITH_ALGOLIA_API_ID`							| `""`									|
-| `applicationConfig.APPSMITH_ALGOLIA_API_KEY`						| `""`									|
-| `applicationConfig.APPSMITH_ALGOLIA_SEARCH_INDEX_NAME`	| `""`									|
 | `applicationConfig.APPSMITH_CLIENT_LOG_LEVEL`						| `""`									|
 | `applicationConfig.APPSMITH_GOOGLE_MAPS_API_KEY`				| `""`									|
 | `applicationConfig.APPSMITH_MAIL_ENABLED`								| `""`									|
