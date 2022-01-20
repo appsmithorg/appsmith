@@ -32,7 +32,6 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-
 let pageidcopy = " ";
 const chainStart = Symbol();
 
@@ -140,7 +139,7 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getRoles").should(
+  cy.wait("@getMembers").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -833,7 +832,7 @@ Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   return cy
     .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
     .dblclick()
-    .get("input")
+    .get("input[type=text]")
     .last();
 });
 
@@ -2903,7 +2902,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
+  cy.route("POST", "/api/v1/applications?orgId=*").as("createNewApplication");
   cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
@@ -3328,6 +3327,9 @@ Cypress.Commands.add("startInterceptRoutesForS3", () => {
   cy.intercept("PUT", "/api/v1/datasources/datasource-query/*").as(
     "put_datasources",
   );
+  cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+    "getDatasourceStructure",
+  );
   cy.intercept("PUT", "/api/v1/pages/crud-page/*").as("put_replaceLayoutCRUD");
   cy.intercept("POST", "/api/v1/pages/crud-page").as("post_replaceLayoutCRUD");
   cy.intercept("GET", "/api/v1/actions*").as("get_Actions");
@@ -3616,6 +3618,6 @@ Cypress.Commands.add("isInViewport", (element) => {
 //   return originalFn(element, clearedText, options);
 // });
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.2, // threshold for entire image
+  failureThreshold: 0.1, // threshold for entire image
   failureThresholdType: "percent",
 });

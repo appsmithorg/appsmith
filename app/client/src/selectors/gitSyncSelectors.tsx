@@ -138,3 +138,37 @@ export const getDisconnectingGitApplication = (state: AppState) =>
 
 export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
+
+// git connect ssh key deploy url
+export const getSSHKeyDeployDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl;
+
+// git connect remote url
+export const getRemoteUrlDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  "https://docs.appsmith.com/";
+
+// git deploy conflict doc url
+export const getConflictFoundDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  "https://docs.appsmith.com/";
+
+// git disconnect learn more doc url
+export const getDisconnectDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  "https://docs.appsmith.com/";
+
+// git disconnect learn more doc url
+export const getRepoLimitedDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  "https://docs.appsmith.com/";
+
+// git disconnect learn more doc url
+export const getConnectingErrorDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  "https://docs.appsmith.com/";
+
+// git disconnect learn more doc url
+export const getUpstreamErrorDocUrl = (state: AppState) =>
+  state.ui.applications.currentApplication?.deployKeyDocUrl ||
+  "https://docs.appsmith.com/";
