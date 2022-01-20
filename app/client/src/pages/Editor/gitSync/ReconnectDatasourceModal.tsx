@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import { getOrganizationIdForImport } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,9 +23,9 @@ import {
   getDatasources,
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
+  getPluginNames,
 } from "selectors/entitiesSelector";
 import { setIsReconnectingDatasourcesModalOpen } from "actions/metaActions";
-import { Menu, MenuItem } from "@blueprintjs/core";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "../DataSourceEditor/JSONtoForm";
 import DBForm from "../DataSourceEditor/DBForm";
@@ -37,7 +37,7 @@ const Container = styled.div`
   flex-direction: column;
   position: relative;
   overflow-y: hidden;
-  padding: 0px 10px 0px 10px;
+  padding: 0px 10px 0px 0px;
 `;
 
 const Section = styled.div`
@@ -47,15 +47,18 @@ const Section = styled.div`
 const BodyContainer = styled.div`
   flex: 3;
   height: calc(100% - ${MENU_HEIGHT}px);
+  padding-left: ${(props) => props.theme.spaces[8]}px;
 `;
 
 const TabsContainer = styled.div`
   height: ${MENU_HEIGHT}px;
+  padding-left: ${(props) => props.theme.spaces[8]}px;
 `;
 
 const ContentWrapper = styled.div`
   height: calc(100% - 76px);
   display: flex;
+  margin-left: -${(props) => props.theme.spaces[8]}px;
 `;
 
 const ListContainer = styled.div`
@@ -65,8 +68,32 @@ const ListContainer = styled.div`
 `;
 
 const ListItem = styled.div`
+  display: flex;
   height: 64px;
   width: 100%;
+  padding: 10px 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  &.active,
+  &:hover {
+    background-color: ${Colors.GEYSER_LIGHT};
+  }
+  img {
+    width: 24pxx;
+    height: 22.5px;
+    margin-right: ${(props) => props.theme.spaces[3]}px;
+  }
+`;
+
+const ListLabels = styled.div`
+  display: flex;
+  flex-direction: column;
+  .t--ds-list-description {
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 const ButtonContainer = styled.div<{ topMargin: number }>`
@@ -93,10 +120,17 @@ function ReconnectDatasourceModal() {
 
   const dataSources = useSelector(getDatasources);
   const pluginImages = useSelector(getPluginImages);
+  const pluginNames = useSelector(getPluginNames);
   const [
     selectedDatasource,
     setSelectedDatasource,
   ] = useState<Datasource | null>(null);
+
+  useEffect(() => {
+    if (!selectedDatasource && dataSources.length) {
+      setSelectedDatasource(dataSources[0]);
+    }
+  }, [selectedDatasource, dataSources]);
 
   const menuOptions = [
     {
@@ -139,11 +173,33 @@ function ReconnectDatasourceModal() {
               <ListContainer>
                 {dataSources.map((ds: Datasource) => {
                   return (
-                    <ListItem key={ds.id}>
+                    <ListItem
+                      className={`t--ds-list ${
+                        ds.id === selectedDatasource?.id ? "active" : ""
+                      }`}
+                      key={ds.id}
+                      onClick={() => setSelectedDatasource(ds)}
+                    >
                       <PluginImage
                         alt="Datasource"
                         src={pluginImages[ds.pluginId]}
                       />
+                      <ListLabels>
+                        <Text
+                          color={Colors.GRAY_800}
+                          style={{ marginBottom: 2 }}
+                          type={TextType.H4}
+                        >
+                          {pluginNames[ds.pluginId]}
+                        </Text>
+                        <Text
+                          className="t--ds-list-description"
+                          color={Colors.GRAY_700}
+                          type={TextType.H5}
+                        >
+                          {ds.name}
+                        </Text>
+                      </ListLabels>
                     </ListItem>
                   );
                 })}

@@ -257,6 +257,16 @@ export const getPluginImages = createSelector(getPlugins, (plugins) => {
   return pluginImages;
 });
 
+export const getPluginNames = createSelector(getPlugins, (plugins) => {
+  const pluginNames: Record<string, string> = {};
+
+  plugins.forEach((plugin) => {
+    pluginNames[plugin.id] = plugin?.name;
+  });
+
+  return pluginNames;
+});
+
 export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
   const pluginTemplates: Record<string, any> = {};
 
