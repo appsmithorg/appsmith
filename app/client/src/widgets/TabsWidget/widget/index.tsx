@@ -12,6 +12,7 @@ import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 
 export function selectedTabValidation(
@@ -211,9 +212,13 @@ class TabsWidget extends BaseWidget<
   }
 
   getPageView() {
+    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
+
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
+      width:
+        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
     return (
       <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>

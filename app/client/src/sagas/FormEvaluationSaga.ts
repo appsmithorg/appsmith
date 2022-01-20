@@ -7,10 +7,16 @@ import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "../selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
-import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  ConditionalOutput,
+  DynamicValues,
+  FormEvalOutput,
+  FormEvaluationState,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
 import { ActionConfig } from "entities/Action";
 import { FormConfig } from "components/formControls/BaseControl";
+import PluginsApi from "api/PluginApi";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
 
@@ -26,6 +32,22 @@ const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
 // Function to set isEvaluating flag
 const setIsEvaluating = (newState: boolean) => {
   isEvaluating = newState;
+};
+
+// Function to extract all the objects that have to fetch dynamic values
+const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
+  let output: Record<string, ConditionalOutput> = {};
+  Object.entries(evalOutput).forEach(([key, value]) => {
+    if (
+      "fetchDynamicValues" in value &&
+      !!value.fetchDynamicValues &&
+      "allowedToFetch" in value.fetchDynamicValues &&
+      value.fetchDynamicValues.allowedToFetch
+    ) {
+      output = { ...output, [key]: value };
+    }
+  });
+  return output;
 };
 
 function* setFormEvaluationSagaAsync(
@@ -61,12 +83,77 @@ function* setFormEvaluationSagaAsync(
           FormEvalActionPayload
         >;
         yield fork(setFormEvaluationSagaAsync, nextAction);
+      } else {
+        // Once all the actions are done, extract the actions that need to be fetched dynamically
+        const formId = action.payload.formId;
+        const evalOutput = workerResponse[formId];
+        const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
+          evalOutput,
+        );
+        // Pass the queue to the saga to fetch the dynamic values
+        yield call(
+          fetchDynamicValuesSaga,
+          queueOfValuesToBeFetched,
+          formId,
+          evalOutput,
+        );
       }
     } catch (e) {
       log.error(e);
       setIsEvaluating(false);
     }
   }
+}
+
+// Function to fetch the dynamic values one by one from the queue
+function* fetchDynamicValuesSaga(
+  queueOfValuesToBeFetched: Record<string, ConditionalOutput>,
+  formId: string,
+  evalOutput: FormEvalOutput,
+) {
+  for (const key of Object.keys(queueOfValuesToBeFetched)) {
+    evalOutput = yield call(
+      fetchDynamicValueSaga,
+      queueOfValuesToBeFetched[key],
+      key,
+      evalOutput,
+    );
+  }
+  // Set the values to the state once all values are fetched
+  yield put({
+    type: ReduxActionTypes.SET_FORM_EVALUATION,
+    payload: { [formId]: evalOutput },
+  });
+}
+
+function* fetchDynamicValueSaga(
+  value: ConditionalOutput,
+  key: string,
+  evalOutput: FormEvalOutput,
+) {
+  try {
+    const { config } = value.fetchDynamicValues as DynamicValues;
+    const { url } = config;
+
+    (evalOutput[key].fetchDynamicValues as DynamicValues).hasStarted = true;
+
+    // Call the API to fetch the dynamic values
+    const response = yield call(PluginsApi.fetchDynamicFormValues, url);
+    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
+    if (!!response) {
+      (evalOutput[key].fetchDynamicValues as DynamicValues).data = response;
+    } else {
+      (evalOutput[key]
+        .fetchDynamicValues as DynamicValues).hasFetchFailed = true;
+      (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
+    }
+  } catch (e) {
+    log.error(e);
+    (evalOutput[key].fetchDynamicValues as DynamicValues).hasFetchFailed = true;
+    (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
+    (evalOutput[key].fetchDynamicValues as DynamicValues).data = [];
+  }
+  return evalOutput;
 }
 
 function* formEvaluationChangeListenerSaga() {

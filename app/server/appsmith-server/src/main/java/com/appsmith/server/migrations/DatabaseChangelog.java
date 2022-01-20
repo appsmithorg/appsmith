@@ -26,6 +26,8 @@ import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -63,6 +65,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -4707,7 +4710,7 @@ public class DatabaseChangelog {
                 Datasource.class
         );
     }
-  
+
     /**
      * This migration was required because migration numbered 104 failed on prod due to ClassCastException on some
      * unexpected / bad older data.
@@ -4738,7 +4741,7 @@ public class DatabaseChangelog {
         // Update plugin data.
         mongockTemplate.save(firestorePlugin);
     }
-  
+
     @ChangeSet(order = "108", id = "create-system-themes", author = "")
     public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
         Index uniqueApplicationIdIndex = new Index()
@@ -4903,6 +4906,47 @@ public class DatabaseChangelog {
                 makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
                         .named("defaultApplicationId_branchName_deleted_compound_index")
         );
+    }
+
+    @ChangeSet(order = "111", id = "update-mockdb-endpoint-2", author = "")
+    public void updateMockdbEndpoint2(MongockTemplate mongockTemplate) {
+        // Doing this again as another migration since it appears some new datasource were created with the old
+        // endpoint around 14-Dec-2021 to 16-Dec-2021.
+        updateMockdbEndpoint(mongockTemplate);
+    }
+
+    @ChangeSet(order = "111", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
+    public void migrateFromRSASha1ToECDSASha2Protocol(MongockTemplate mongockTemplate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
+        query.addCriteria(Criteria.where("deleted").is(FALSE));
+
+        for (Application application : mongockTemplate.find(query, Application.class)) {
+            if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
+                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                gitApplicationMetadata.setGitAuth(gitAuth);
+                application.setGitApplicationMetadata(gitApplicationMetadata);
+                mongockTemplate.save(application);
+            }
+        }
+    }
+
+    @ChangeSet(order = "113", id = "use-assets-cdn-for-plugin-icons", author = "")
+    public void useAssetsCDNForPluginIcons(MongockTemplate mongockTemplate) {
+        final Query query = query(new Criteria());
+        query.fields().include(fieldName(QPlugin.plugin.iconLocation));
+        List<Plugin> plugins = mongockTemplate.find(query, Plugin.class);
+        for (final Plugin plugin : plugins) {
+            if (plugin.getIconLocation() != null && plugin.getIconLocation().startsWith("https://s3.us-east-2.amazonaws.com/assets.appsmith.com")) {
+                final String cdnUrl = plugin.getIconLocation().replace("s3.us-east-2.amazonaws.com/", "");
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QPlugin.plugin.id)).is(plugin.getId())),
+                        update(fieldName(QPlugin.plugin.iconLocation), cdnUrl),
+                        Plugin.class
+                );
+            }
+        }
     }
 
 }
