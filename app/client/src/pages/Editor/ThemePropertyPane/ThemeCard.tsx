@@ -107,7 +107,7 @@ export function ThemeCard(props: ThemeCard) {
   }, [updateSelectedAppThemeAction, theme]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {selectable && (
         <h3 className="text-base text-gray-600">{props.theme.name}</h3>
       )}

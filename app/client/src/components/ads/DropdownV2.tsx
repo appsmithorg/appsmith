@@ -26,6 +26,12 @@ function DropdownList(props: MenuListProps) {
 function DropdownItem(props: MenuItemProps) {
   return (
     <MenuItem
+      _active={{
+        background: Colors.GREY_2,
+      }}
+      _focus={{
+        background: Colors.GREY_2,
+      }}
       _hover={{
         background: Colors.GREY_2,
       }}

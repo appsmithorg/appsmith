@@ -34,3 +34,5 @@ export const WELCOME_FORM_USECASE_FIELD_NAME = "useCase";
 
 export const SETTINGS_FORM_NAME = "SettingsForm";
 export const WELCOME_NON_SUPER_FORM_NAME = "WelcomeNonSuperSetupForm";
+
+export const SAVE_THEME_FORM_NAME = "SaveThemeForm";

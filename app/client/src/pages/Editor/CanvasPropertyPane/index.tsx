@@ -9,7 +9,7 @@ export function CanvasPropertyPane() {
     <div className="relative ">
       <h3 className="px-3 py-3 text-sm font-medium uppercase">Properties</h3>
 
-      <div className="space-y-4">
+      <div className="mt-3 space-y-6">
         <div className="px-3 space-y-2">
           <p className="text-sm text-gray-700">Canvas Size</p>
           <MainContainerLayoutControl />

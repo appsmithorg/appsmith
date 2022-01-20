@@ -6,7 +6,7 @@
 * ---------------------------------------------------------------------------------------------------
 */
 body, html {
-  @apply overflow-x-hidden;
+  @apply w-full h-full overflow-x-hidden;
 }
 
 
