@@ -294,7 +294,7 @@ function MultiSelectDropdown(props: DropdownProps) {
           break;
       }
     },
-    [isOpen, props.options, currentItemIndex],
+    [isOpen, props.options, props.selected, currentItemIndex],
   );
 
   const isItemSelected = (item?: string) => {
