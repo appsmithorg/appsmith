@@ -97,6 +97,7 @@ export const generateDataTreeWidget = (
   const nonOverridingMetaProps: Record<string, unknown> = {};
   const overridingMetaProps: Record<string, unknown> = {};
 
+  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
