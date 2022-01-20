@@ -722,3 +722,18 @@ export const isPrivateEntityPath = (
   }
   return false;
 };
+
+export const getAllPrivateWidgetsInDataTree = (
+  dataTree: DataTree,
+): PrivateWidgets => {
+  let privateWidgets: PrivateWidgets = {};
+
+  Object.keys(dataTree).forEach((entityName) => {
+    const entity = dataTree[entityName];
+    if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
+      privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
+    }
+  });
+
+  return privateWidgets;
+};

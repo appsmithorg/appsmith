@@ -12,6 +12,8 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
+import { getAllPrivateWidgetsInDataTree } from "workers/evaluationUtils";
+import _ from "lodash";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,

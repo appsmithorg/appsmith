@@ -3,6 +3,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
+  getAllPrivateWidgetsInDataTree,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -16,7 +17,7 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { find, get, some } from "lodash";
+import { find, get, some, omit } from "lodash";
 import LOG_TYPE from "../entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import {
@@ -367,7 +368,13 @@ export function* updateTernDefinitions(
   }
   if (shouldUpdate) {
     const start = performance.now();
-    const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
+    // remove private widgets from dataTree used for autocompletion
+    const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
+    const privateWidgetNames = Object.keys(privateWidgets);
+    const treeWithoutPrivateWidgets = omit(dataTree, privateWidgetNames);
+    const { def, entityInfo } = dataTreeTypeDefCreator(
+      treeWithoutPrivateWidgets,
+    );
     TernServer.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();
     log.debug("Tern", { updates });
