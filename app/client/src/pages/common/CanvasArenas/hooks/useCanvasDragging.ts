@@ -1,25 +1,25 @@
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
+import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
-import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
-import { useReflow, ReflowInterface } from "utils/hooks/useReflow";
 import { useSelector } from "react-redux";
+import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
+import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { getNearestParentCanvas } from "utils/generators";
+import { getAbsolutePixels } from "utils/helpers";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
 import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { isReflowEnabled } from "selectors/widgetReflowSelectors";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { getAbsolutePixels } from "utils/helpers";
 
 export interface XYCord {
   x: number;
@@ -597,7 +597,6 @@ export const useCanvasDragging = (
             canvasIsDragging
           ) {
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
-            stickyCanvasRef.current.style.top;
             const topOffset = getAbsolutePixels(
               stickyCanvasRef.current.style.top,
             );
