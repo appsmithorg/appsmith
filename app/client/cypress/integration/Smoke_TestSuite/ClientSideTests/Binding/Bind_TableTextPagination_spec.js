@@ -50,6 +50,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function() {
     cy.PublishtheApp();
+    cy.wait(500);
     // Make sure onPageLoad action has run before validating the data
     cy.wait("@postExecute");
     cy.ValidatePublishTableData("1");
