@@ -21,6 +21,7 @@ export interface DatasourceDataState {
   isFetchingMockDataSource: false;
   mockDatasourceList: any[];
   executingDatasourceQuery: boolean;
+  isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
 }
 
 const initialState: DatasourceDataState = {
@@ -34,6 +35,7 @@ const initialState: DatasourceDataState = {
   isFetchingMockDataSource: false,
   mockDatasourceList: [],
   executingDatasourceQuery: false,
+  isReconnectingModalOpen: false,
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -297,6 +299,15 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       executingDatasourceQuery: false,
+    };
+  },
+  [ReduxActionTypes.SET_IS_RECONNECTING_DATASOURCES_MODAL_OPEN]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ isOpen: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isReconnectingModalOpen: action.payload.isOpen,
     };
   },
 });

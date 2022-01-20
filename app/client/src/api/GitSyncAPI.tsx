@@ -28,7 +28,6 @@ export type ConnectToGitPayload = {
     authorName: string;
     authorEmail: string;
   };
-  isImport?: boolean;
   isDefaultProfile?: boolean;
 };
 
@@ -130,6 +129,10 @@ class GitSyncAPI extends Api {
 
   static disconnectGit({ applicationId }: { applicationId: string }) {
     return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
+  }
+
+  static importApp(payload: ConnectToGitPayload, orgId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/import/${orgId}`, payload);
   }
 }
 

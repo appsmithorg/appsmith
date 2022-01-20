@@ -449,6 +449,10 @@ export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
 export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
 export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
   "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
+  "Reconnect missing datasource credentials";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
+  "Fill these with utmost care as the application will not behave normally otherwsie";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;

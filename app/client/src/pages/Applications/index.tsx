@@ -98,6 +98,7 @@ import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import GitImportModal from "pages/Editor/gitSync/GitImportModal";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -968,6 +969,7 @@ function ApplicationsSection(props: any) {
       <WelcomeHelper />
       {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
       {getFeatureFlags().GIT_IMPORT && <GitImportModal />}
+      {getFeatureFlags().GIT_IMPORT && <ReconnectDatasourceModal />}
     </ApplicationContainer>
   );
 }

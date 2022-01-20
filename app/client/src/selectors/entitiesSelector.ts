@@ -573,6 +573,9 @@ export const getIsOnboardingTasksView = createSelector(
   },
 );
 
+export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
+  state.entities.datasources.isReconnectingModalOpen;
+
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 

@@ -62,6 +62,7 @@ import {
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getOrganizationIdForImport,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
@@ -598,6 +599,68 @@ function* disconnectGitSaga() {
   }
 }
 
+function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
+  let response: ApiResponse | undefined;
+  try {
+    const organizationIdForImport: string = yield select(
+      getOrganizationIdForImport,
+    );
+
+    response = yield GitSyncAPI.importApp(
+      action.payload,
+      organizationIdForImport,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+
+    if (isValidResponse) {
+      yield put(connectToGitSuccess(response?.data));
+      yield put({
+        type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
+        payload: {
+          importedApplication: null,
+        },
+      });
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback(response?.data);
+      }
+
+      // after successful should open add datasources
+    }
+  } catch (error) {
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error as string);
+    }
+
+    yield put({ type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR });
+
+    const isRepoLimitReachedError: boolean = yield call(
+      handleRepoLimitReachedError,
+      response,
+    );
+    if (isRepoLimitReachedError) return;
+
+    // Api error
+    // Display on the UI
+    if (response && !response?.responseMeta?.success) {
+      yield put({
+        type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
+        payload: {
+          error: response?.responseMeta.error,
+          show: false,
+        },
+      });
+    } else {
+      // Unexpected non api error: report to sentry
+      throw error;
+    }
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -627,5 +690,9 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
     takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
+    takeLatest(
+      ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
+      importAppFromGitSaga,
+    ),
   ]);
 }

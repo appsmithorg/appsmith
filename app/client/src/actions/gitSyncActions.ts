@@ -260,3 +260,14 @@ export const setIsGitImportModalOpen = (payload: boolean) => ({
   type: ReduxActionTypes.SET_IS_GIT_IMPORT_MODAL_OPEN,
   payload,
 });
+
+export const importAppFromGit = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: ConnectToGitRequestParams): ConnectToGitReduxAction => ({
+  type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
+  payload,
+  onSuccessCallback,
+  onErrorCallback,
+});

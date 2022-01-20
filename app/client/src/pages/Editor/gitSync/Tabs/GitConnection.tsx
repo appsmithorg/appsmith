@@ -34,6 +34,7 @@ import Text, { TextType } from "components/ads/Text";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
+  importAppFromGit,
   remoteUrlInputValue,
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
@@ -52,9 +53,7 @@ import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
-  // getIsGitSyncModalOpen,
   getLocalGitConfig,
-  getRemoteUrlDocUrl,
   getTempRemoteUrl,
   getUseGlobalProfile,
 } from "selectors/gitSyncSelectors";
@@ -65,10 +64,10 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
 import Link from "../components/Link";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-// import { initSSHKeyPairWithNull } from "actions/applicationActions";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -164,7 +163,6 @@ function GitConnection({ isImport }: Props) {
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
-  const RepoUrlDocumentUrl = useSelector(getRemoteUrlDocUrl);
 
   const {
     deployKeyDocUrl,
@@ -224,16 +222,9 @@ function GitConnection({ isImport }: Props) {
     dispatch(fetchLocalGitConfigInit());
   }, []);
 
-  // init ssh key when close without git connection
-  // useEffect(() => {
-  //   if (!isModalOpen && !isGitConnected) {
-  //     dispatch(initSSHKeyPairWithNull());
-  //   }
-  // }, [isModalOpen, isGitConnected]);
-
   useEffect(() => {
     // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
-    if (!SSHKeyPair && isGitConnected) {
+    if (!SSHKeyPair && !isImport) {
       fetchSSHKeyPair();
     }
   }, [SSHKeyPair, isImport]);
@@ -250,7 +241,7 @@ function GitConnection({ isImport }: Props) {
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
     }
-    AnalyticsUtil.logEvent("GS_COPY_SSH_KEY_BUTTON_CLICK");
+    AnalyticsUtil.logEvent("COPY_SSH_KEY_BUTTON_CLICK");
   };
 
   const isAuthorInfoUpdated = useCallback(() => {
@@ -265,7 +256,7 @@ function GitConnection({ isImport }: Props) {
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
-    AnalyticsUtil.logEvent("GS_REPO_URL_EDIT", {
+    AnalyticsUtil.logEvent("REPO_URL_EDIT", {
       repoUrl: value,
     });
   };
@@ -310,7 +301,7 @@ function GitConnection({ isImport }: Props) {
   const onSubmit = useCallback(() => {
     if (isConnectingToGit || submitButtonDisabled) return;
     setTriedSubmit(true);
-    AnalyticsUtil.logEvent("GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
+    AnalyticsUtil.logEvent("CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
     if (!isAuthorInfoValid) return;
 
     if (isGitConnected) {
@@ -324,12 +315,21 @@ function GitConnection({ isImport }: Props) {
         }),
       );
     } else {
-      connectToGit({
-        remoteUrl,
-        gitProfile: authorInfo,
-        isImport,
-        isDefaultProfile: useGlobalConfigInputVal,
-      });
+      isImport
+        ? dispatch(
+            importAppFromGit({
+              payload: {
+                remoteUrl,
+                gitProfile: authorInfo,
+                isDefaultProfile: useGlobalConfigInputVal,
+              },
+            }),
+          )
+        : connectToGit({
+            remoteUrl,
+            gitProfile: authorInfo,
+            isDefaultProfile: useGlobalConfigInputVal,
+          });
     }
   }, [
     updateLocalGitConfigInit,
@@ -341,7 +341,7 @@ function GitConnection({ isImport }: Props) {
 
   const toggleHandler = useCallback(() => {
     setUseGlobalConfigInputVal(!useGlobalConfigInputVal);
-    AnalyticsUtil.logEvent("GS_DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED", {
+    AnalyticsUtil.logEvent("DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED", {
       value: !useGlobalConfigInputVal,
     });
   }, [setUseGlobalConfigInputVal, useGlobalConfigInputVal]);
@@ -361,9 +361,6 @@ function GitConnection({ isImport }: Props) {
   }, [scrollWrapperRef]);
 
   const openDisconnectGitModal = useCallback(() => {
-    AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
-      source: "GIT_CONNECTION_MODAL",
-    });
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(
       setDisconnectingGitApplication({
@@ -380,7 +377,7 @@ function GitConnection({ isImport }: Props) {
         <StickyMenuWrapper>
           <Title>
             {createMessage(
-              isImport ? IMPORT_FROM_GIT_REPOSITORY : CONNECT_TO_GIT_SUBTITLE,
+              isImport ? IMPORT_FROM_GIT_REPOSITORY : CONNECT_TO_GIT,
             )}
           </Title>
           <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
@@ -399,12 +396,10 @@ function GitConnection({ isImport }: Props) {
             <Link
               color={Colors.PRIMARY_ORANGE}
               hasIcon={false}
-              link={RepoUrlDocumentUrl || ""}
+              link={DOCS_BASE_URL}
               onClick={() => {
-                AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
-                  source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
-                });
-                window.open(RepoUrlDocumentUrl, "_blank");
+                AnalyticsUtil.logEvent("LEARN_MORE_LINK_FOR_REMOTEURL_CLICK");
+                window.open(DOCS_BASE_URL, "_blank");
               }}
               text={createMessage(LEARN_MORE)}
             />
@@ -446,10 +441,7 @@ function GitConnection({ isImport }: Props) {
                 category={Category.primary}
                 className="t--submit-repo-url-button"
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
-                onClick={() => {
-                  generateSSHKey();
-                  AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
-                }}
+                onClick={() => generateSSHKey()}
                 size={Size.large}
                 tag="button"
                 text={createMessage(GENERATE_KEY)}
