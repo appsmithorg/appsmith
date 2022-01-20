@@ -79,7 +79,7 @@ describe("Onboarding", function() {
         cy.get(".t--property-control-onsubmit .t--open-dropdown-Select-Action")
           .click({ force: true })
           .selectOnClickOption("Execute a query")
-          .selectOnClickOption("Create New Query");
+          .selectOnClickOption("New Query");
 
         cy.contains(
           ".t--onboarding-helper-title",
