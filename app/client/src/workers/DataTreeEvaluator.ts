@@ -1303,10 +1303,14 @@ export default class DataTreeEvaluator {
     unEvalTree: DataTree,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
+
+    // References of few values were leading to unexpected updates of few values.
+    const newEvalTree = JSON.parse(JSON.stringify(this.evalTree));
+
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       // Apply the changes into the evalTree so that it gets the latest changes
-      applyChange(this.evalTree, undefined, d);
+      applyChange(newEvalTree, undefined, d);
 
       changePaths.add(convertPathToString(d.path));
       // If this is a property path change, simply add for evaluation and move on
@@ -1337,6 +1341,8 @@ export default class DataTreeEvaluator {
         });
       }
     }
+
+    this.evalTree = newEvalTree;
 
     // If a nested property path has changed and someone (say x) is dependent on the parent of the said property,
     // x must also be evaluated. For example, the following relationship exists in dependency map:
