@@ -880,7 +880,16 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
-
+//Reflow Beta Screen
+export const REFLOW_BETA_CHECKBOX_LABEL = () =>
+  "Turn on new drag & drop exprerience";
+export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
+export const REFLOW_INFO_CARD_CONTENT_1 = () =>
+  "When dropping a new widget, other widgets now automatically move out of the way.";
+export const REFLOW_INFO_CARD_CONTENT_2 = () =>
+  "Widgets next to the canvas edge will shrink to make space for the new widget.";
+export const REFLOW_LEARN_MORE = () => "LEARN MORE";
+//
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
