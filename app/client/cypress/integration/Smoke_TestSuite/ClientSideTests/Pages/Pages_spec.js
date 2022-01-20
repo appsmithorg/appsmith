@@ -36,7 +36,7 @@ describe("Pages", function() {
 
     cy.get(".t--entity-name:contains(Page1 Copy)")
       .its("length")
-      .should("be", 1);
+      .should("eq", 1);
 
     cy.get(explorerLocators.addQuery)
       .last()

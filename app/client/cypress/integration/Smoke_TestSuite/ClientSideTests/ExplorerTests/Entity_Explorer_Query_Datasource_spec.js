@@ -22,7 +22,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.startRoutesForDatasource();
   });
 
-  it.only("1. Create a page/moveQuery/rename/delete in explorer", function() {
+  it("1. Create a page/moveQuery/rename/delete in explorer", function() {
     cy.Createpage(pageid);
     cy.wait(2000);
     cy.get(".t--entity-name")
@@ -110,7 +110,8 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.wait(2000);
     cy.runQuery();
 
-    cy.deleteQuery();
+    //cy.deleteQuery();
+    cy.deleteQueryUsingContext();
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.wait(500);
     cy.NavigateToQueryEditor();

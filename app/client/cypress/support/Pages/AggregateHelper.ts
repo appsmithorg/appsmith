@@ -127,9 +127,7 @@ export class AggregateHelper {
   public ActionContextMenuByEntityName(
     entityNameinLeftSidebar: string,
     action = "Delete",
-    subAction = "",
-    skipDeleteCheck = false,
-  ) {
+    subAction = "") {
     this.Sleep();
     cy.xpath(locator._contextMenu(entityNameinLeftSidebar))
       .first()
@@ -141,11 +139,10 @@ export class AggregateHelper {
       cy.xpath(locator._contextMenuItem(subAction))
         .click({ force: true })
         .wait(500);
+  }
 
-    if (action == "Delete" && !skipDeleteCheck)
-      cy.xpath("//div[text()='" + entityNameinLeftSidebar + "']").should(
-        "not.exist",
-      );
+  public ValidateEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
+    cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar)).should('not.exist');
   }
 
   public AddNewPage() {
