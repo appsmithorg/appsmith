@@ -51,7 +51,7 @@ public interface GitServiceCE {
 
     Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName);
 
-    Mono<GitPullDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
+    Mono<MergeStatusDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
     Mono<MergeStatusDTO> isBranchMergeable(String applicationId, GitMergeDTO gitMergeDTO);
 
