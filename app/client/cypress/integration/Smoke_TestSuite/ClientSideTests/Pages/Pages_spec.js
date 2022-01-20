@@ -1,7 +1,6 @@
 const pages = require("../../../../locators/Pages.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const { TRUE } = require("node-sass");
 
 describe("Pages", function() {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
@@ -37,7 +36,7 @@ describe("Pages", function() {
 
     cy.get(".t--entity-name:contains(Page1 Copy)")
       .its("length")
-      .should("be.gt", 1);
+      .should("be", 1);
 
     cy.get(explorerLocators.addQuery)
       .last()
