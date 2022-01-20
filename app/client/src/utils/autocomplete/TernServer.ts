@@ -263,13 +263,17 @@ class TernServer {
       tip,
       undefined,
       undefined,
+      // align tooltip to the right edge of the code editor
       `calc(100vw - ${editorCoords.right}px + 5px)`,
       `calc(100vh - ${cursorCoords.top}px)`,
     ) as ActiveArgHints);
 
+    // tooltip shouldn't be larger than the editor
     tooltip.style.maxWidth = `${editorCoords.width}px`;
+
     const tooltipCoords = tooltip.getBoundingClientRect();
     if (tooltipCoords.left > cursorCoords.left) {
+      // if tooltip is away from cursor, bring it closer
       tooltip.style.left = cursorCoords.left + "px";
       tooltip.style.right = "";
     }
