@@ -56,4 +56,6 @@ public interface ApplicationPageServiceCE {
     Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order, String branchName);
 
     Mono<Application> deleteApplicationByResource(Application application);
+
+    Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix);
 }

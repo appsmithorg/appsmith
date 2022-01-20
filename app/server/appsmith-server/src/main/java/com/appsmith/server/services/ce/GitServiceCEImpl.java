@@ -21,7 +21,6 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -58,7 +57,6 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1936,7 +1934,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     newApplication.setName(repoName);
                     newApplication.setOrganizationId(organizationId);
                     newApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-                    Mono<Application> applicationMono = this.createSuffixedApplication(newApplication, newApplication.getName(), 0);
+                    Mono<Application> applicationMono = applicationPageService
+                            .createOrUpdateSuffixedApplication(newApplication, newApplication.getName(), 0);
                     if(!isRepoPrivate) {
                         return Mono.just(gitAuth).zipWith(applicationMono);
                     }
@@ -2037,7 +2036,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
                                             .onErrorResume(throwable -> fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
                                                     .then(applicationPageService.deleteApplication(application.getId()))
-                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable))));
+                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()))));
                                 });
 
                     } catch (GitAPIException | IOException e) {
@@ -2121,30 +2120,6 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         }
         return false;
-    }
-
-    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-
-        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = applicationPageService
-                .setApplicationPolicies(userMono, application.getOrganizationId(), application);
-
-        return applicationWithPoliciesMono
-                .zipWith(userMono)
-                .flatMap(tuple -> {
-                    Application application1 = tuple.getT1();
-                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                    // assign the default theme id to edit mode
-                    return applicationService.save(application);
-                })
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null) {
-                        return this.createSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {

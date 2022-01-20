@@ -56,6 +56,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
@@ -667,7 +668,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // the changes from remote
                                                     // We are using the save instead of update as we are using @Encrypted
                                                     // for GitAuth
-                                                    return applicationService.save(existingApplication);
+                                                    return applicationService.save(existingApplication)
+                                                            .onErrorResume(DuplicateKeyException.class, error -> {
+                                                                if (error.getMessage() != null) {
+                                                                    return applicationPageService
+                                                                            .createOrUpdateSuffixedApplication(
+                                                                                    existingApplication,
+                                                                                    existingApplication.getName(),
+                                                                                    0
+                                                                            );
+                                                                }
+                                                                throw error;
+                                                            });
                                                 });
                                     }
                                     return applicationService
