@@ -27,10 +27,11 @@ export const metaReducer = createReducer(initialState, {
     Object.entries(updatedWidgetMetaState).forEach(
       ([entityWidgetId, entityMetaState]) => {
         if (isObject(newMetaState[entityWidgetId])) {
-          newMetaState[entityWidgetId] = {
-            ...newMetaState[entityWidgetId],
-            ...entityMetaState,
-          };
+          Object.keys(newMetaState[entityWidgetId]).forEach((key) => {
+            if (key in entityMetaState) {
+              newMetaState[entityWidgetId][key] = entityMetaState[key];
+            }
+          });
         }
       },
     );
