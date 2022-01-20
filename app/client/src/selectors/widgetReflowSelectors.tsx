@@ -11,6 +11,9 @@ export const isReflowEnabled = (state: any): boolean =>
 export const getIsReflowing = (state: AppState): boolean =>
   state.ui.widgetReflow.isReflowing;
 
+export const getIsShowReflowCard = (state: AppState): boolean =>
+  !state.ui.widgetReflow.cardShown;
+
 export const getReflowSelector = (widgetId: string) => {
   return createSelector(getReflow, (reflowState: widgetReflowState) => {
     if (reflowState?.reflowingWidgets) {

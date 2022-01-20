@@ -353,7 +353,6 @@ export const CONFIG = {
               ...get(parent, "template", {}),
               [widget.widgetName]: widget,
             };
-
             parent.template = template;
 
             // add logBlackList for the children being added
