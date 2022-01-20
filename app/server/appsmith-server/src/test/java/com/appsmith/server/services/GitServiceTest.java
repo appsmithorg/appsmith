@@ -87,7 +87,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -180,7 +179,7 @@ public class GitServiceTest {
         MockedStatic<GitUtils> gitUtilsMockedStatic = Mockito.mockStatic(GitUtils.class);
         gitUtilsMockedStatic.when(() -> GitUtils.isRepoPrivate(Mockito.anyString()))
                 .thenReturn(Boolean.FALSE);
-        gitUtilsMockedStatic.when(() -> GitUtils.convertSshUrlToHttpsCurlSupportedUrl(Mockito.anyString()))
+        gitUtilsMockedStatic.when(() -> GitUtils.convertSshUrlToBrowserSupportedUrl(Mockito.anyString()))
                 .thenReturn("https://test.com");
 
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
@@ -318,8 +317,13 @@ public class GitServiceTest {
 
         StepVerifier
                 .create(applicationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_GIT_SSH_CONFIGURATION.getMessage("origin")))
+                .expectErrorMatches(throwable -> {
+                    assertThat(throwable instanceof AppsmithException).isTrue();
+                    assertThat(throwable.getMessage())
+                            .contains(AppsmithError.INVALID_GIT_SSH_CONFIGURATION.getMessage("origin"));
+                    assertThat(((AppsmithException) throwable).getReferenceDoc()).isNotEmpty();
+                    return true;
+                })
                 .verify();
     }
 
@@ -386,7 +390,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", testUserProfile);
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
@@ -1484,7 +1488,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.GIT_ACTION_FAILED.getMessage("checkout", "origin/branchInLocal already exists")))
+                        && throwable.getMessage().equals(AppsmithError.GIT_ACTION_FAILED.getMessage("checkout", "origin/branchInLocal already exists in remote")))
                 .verify();
     }
 

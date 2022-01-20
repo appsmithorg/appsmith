@@ -683,6 +683,26 @@ export function EditorJSONtoForm(props: Props) {
     let enabled = true;
     let dynamicFetchedValues: DynamicValues | undefined;
     if (!!section) {
+      if ("schema" in section && section.schema.length > 0) {
+        section.schema.forEach((subSection: any, index: number) => {
+          const configPropertyOfSubSection = `${
+            section.configProperty
+          }.column_${index + 1}`;
+          const conditionalOutput = extractConditionalOutput({
+            ...subSection,
+            configProperty: configPropertyOfSubSection,
+          });
+          enabled = checkIfSectionIsEnabled(conditionalOutput);
+          dynamicFetchedValues = extractDynamicValuesIfPresent(
+            conditionalOutput,
+          );
+          subSection = modifySectionConfig(
+            subSection,
+            enabled,
+            dynamicFetchedValues,
+          );
+        });
+      }
       // If the component is not allowed to render, return null
       const conditionalOutput = extractConditionalOutput(section);
       if (!checkIfSectionCanRender(conditionalOutput)) return null;

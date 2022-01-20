@@ -29,6 +29,8 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -52,9 +54,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
@@ -122,6 +124,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceIdToNameMap = new HashMap<>();
         Map<String, String> pageIdToNameMap = new HashMap<>();
+        Map<String, String> actionIdToNameMap = new HashMap<>();
+        Map<String, String> collectionIdToNameMap = new HashMap<>();
 
         if (applicationId == null || applicationId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
@@ -133,6 +137,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 );
+
+        // Set json schema version which will be used to check the compatibility while importing the JSON
+        applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
         return pluginRepository
                 .findAll()
@@ -190,6 +198,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     application.setUserPermissions(null);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
+
+                    Set<String> dbNamesUsedInActions = new HashSet<>();
 
                     return newPageRepository.findByApplicationId(applicationId, MANAGE_PAGES)
                             .collectList()
@@ -256,42 +266,103 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
 
                                 applicationJson.setDatasourceList(datasourceList);
+                                return actionCollectionRepository
+                                        .findByApplicationId(applicationId, MANAGE_ACTIONS, null);
+                            })
+                            .map(actionCollection -> {
+                                // Remove references to ids since the serialized version does not have this information
+                                actionCollection.setOrganizationId(null);
+                                actionCollection.setPolicies(null);
+                                actionCollection.setApplicationId(null);
+                                actionCollection.setUpdatedAt(null);
+
+                                // Set unique ids for actionCollection, also populate collectionIdToName map which will
+                                // be used to replace collectionIds in action
+                                if (actionCollection.getUnpublishedCollection() != null) {
+                                    ActionCollectionDTO actionCollectionDTO = actionCollection.getUnpublishedCollection();
+                                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + PublishType.UNPUBLISHED));
+                                    actionCollectionDTO.setPluginId(pluginMap.get(actionCollectionDTO.getPluginId()));
+
+                                    final String updatedCollectionId = actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
+                                    collectionIdToNameMap.put(actionCollection.getId(), updatedCollectionId);
+                                    actionCollection.setId(updatedCollectionId);
+                                }
+                                if (actionCollection.getPublishedCollection() != null) {
+                                    ActionCollectionDTO actionCollectionDTO = actionCollection.getPublishedCollection();
+                                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + PublishType.PUBLISHED));
+                                    actionCollectionDTO.setPluginId(pluginMap.get(actionCollectionDTO.getPluginId()));
+
+                                    if (!collectionIdToNameMap.containsValue(actionCollection.getId())) {
+                                        final String updatedCollectionId = actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
+                                        collectionIdToNameMap.put(actionCollection.getId(), updatedCollectionId);
+                                        actionCollection.setId(updatedCollectionId);
+                                    }
+                                }
+
+                                return actionCollection;
+                            })
+                            .collectList()
+                            .flatMapMany(actionCollections -> {
+                                // This object won't have the list of actions but we don't care about that today
+                                // Because the actions will have a reference to the collection
+                                applicationJson.setActionCollectionList(actionCollections);
                                 return newActionRepository
                                         .findByApplicationId(applicationId, MANAGE_ACTIONS, null);
                             })
-                            .collectList()
-                            .flatMapMany(newActionList -> {
-                                Set<String> concernedDBNames = new HashSet<>();
-                                newActionList.forEach(newAction -> {
-                                    newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
-                                    newAction.setOrganizationId(null);
-                                    newAction.setPolicies(null);
-                                    newAction.setApplicationId(null);
-                                    newAction.setUpdatedAt(null);
-                                    concernedDBNames.add(
-                                            sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
-                                    );
-                                    concernedDBNames.add(
-                                            sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
-                                    );
+                            .map(newAction -> {
+                                newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
+                                newAction.setOrganizationId(null);
+                                newAction.setPolicies(null);
+                                newAction.setApplicationId(null);
+                                newAction.setUpdatedAt(null);
+                                dbNamesUsedInActions.add(
+                                        sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
+                                );
+                                dbNamesUsedInActions.add(
+                                        sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
+                                );
 
-                                    if (newAction.getUnpublishedAction() != null) {
-                                        ActionDTO actionDTO = newAction.getUnpublishedAction();
-                                        actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.UNPUBLISHED));
+                                // Set unique id for action
+                                if (newAction.getUnpublishedAction() != null) {
+                                    ActionDTO actionDTO = newAction.getUnpublishedAction();
+                                    actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.UNPUBLISHED));
+
+                                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())
+                                            && collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                        actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
                                     }
-                                    if (newAction.getPublishedAction() != null) {
-                                        ActionDTO actionDTO = newAction.getPublishedAction();
-                                        actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.PUBLISHED));
+
+                                    final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getName();
+                                    actionIdToNameMap.put(newAction.getId(), updatedActionId);
+                                    newAction.setId(updatedActionId);
+                                }
+                                if (newAction.getPublishedAction() != null) {
+                                    ActionDTO actionDTO = newAction.getPublishedAction();
+                                    actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.PUBLISHED));
+
+                                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())
+                                            && collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                        actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
                                     }
-                                });
+
+                                    if (!actionIdToNameMap.containsValue(newAction.getId())) {
+                                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getName();
+                                        actionIdToNameMap.put(newAction.getId(), updatedActionId);
+                                        newAction.setId(updatedActionId);
+                                    }
+                                }
+                                return newAction;
+                            })
+                            .collectList()
+                            .map(actionList -> {
+                                applicationJson.setActionList(actionList);
+
                                 // This is where we're removing global datasources that are unused in this application
                                 applicationJson
                                         .getDatasourceList()
-                                        .removeIf(datasource -> !concernedDBNames.contains(datasource.getName()));
+                                        .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
-                                applicationJson.setActionList(newActionList);
-
-
+                                // Save decrypted fields for datasources
                                 Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                 applicationJson.getDatasourceList().forEach(datasource -> {
                                     decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
@@ -314,34 +385,47 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 } else {
                                     applicationJson.setDecryptedFields(decryptedFields);
                                 }
-                                return actionCollectionRepository
-                                        .findByApplicationId(applicationId, MANAGE_ACTIONS, null);
-                            })
-                            .map(actionCollection -> {
-                                // Remove references to ids since the serialized version does not have this information
-                                actionCollection.setOrganizationId(null);
-                                actionCollection.setPolicies(null);
-                                actionCollection.setApplicationId(null);
-                                actionCollection.setUpdatedAt(null);
 
-                                if (actionCollection.getUnpublishedCollection() != null) {
-                                    ActionCollectionDTO actionCollectionDTO = actionCollection.getUnpublishedCollection();
-                                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + PublishType.UNPUBLISHED));
-                                    actionCollectionDTO.setPluginId(pluginMap.get(actionCollectionDTO.getPluginId()));
-                                }
-                                if (actionCollection.getPublishedCollection() != null) {
-                                    ActionCollectionDTO actionCollectionDTO = actionCollection.getPublishedCollection();
-                                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + PublishType.PUBLISHED));
-                                    actionCollectionDTO.setPluginId(pluginMap.get(actionCollectionDTO.getPluginId()));
+                                // Update ids for layoutOnLoadAction
+                                for (NewPage newPage : applicationJson.getPageList()) {
+                                    if (!CollectionUtils.isEmpty(newPage.getUnpublishedPage().getLayouts())) {
+
+                                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                            if (layout.getLayoutOnLoadActions() != null) {
+                                                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
+                                                        .forEach(actionDTO -> {
+                                                            if (actionIdToNameMap.containsKey(actionDTO.getId())) {
+                                                                actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
+                                                            }
+                                                            if (collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                                                actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
+                                                            }
+                                                        })
+                                                );
+                                            }
+                                        });
+                                    }
+
+                                    if (newPage.getPublishedPage() != null
+                                            && !CollectionUtils.isEmpty(newPage.getPublishedPage().getLayouts())) {
+
+                                        newPage.getPublishedPage().getLayouts().forEach(layout -> {
+                                            if (layout.getLayoutOnLoadActions() != null) {
+                                                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
+                                                        .forEach(actionDTO -> {
+                                                            if (actionIdToNameMap.containsKey(actionDTO.getId())) {
+                                                                actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
+                                                            }
+                                                            if (collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                                                actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
+                                                            }
+                                                        })
+                                                );
+                                            }
+                                        });
+                                    }
                                 }
 
-                                return actionCollection;
-                            })
-                            .collectList()
-                            .map(actionCollections -> {
-                                // This object won't have the list of actions but we don't care about that today
-                                // Because the actions will have a reference to the collection
-                                applicationJson.setActionCollectionList(actionCollections);
                                 return applicationJson;
                             });
                 })
@@ -391,6 +475,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
                             .create();
+
+
+                    /*
+                    // Use JsonObject to migrate when we remove some field from the collection which is being exported
+                    JsonObject json = gson.fromJson(data, JsonObject.class);
+                    JsonObject update = new JsonObject();
+                    update.addProperty("slug", "update_name");
+                    update.addProperty("name", "update name");
+
+                    ((JsonObject) json.get("exportedApplication")).add("name", update);
+                    json.get("random") == null => true
+
+                    ((JsonArray) json.get("pageList"))
+                    */
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
@@ -417,23 +515,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * This function will take the application reference object to hydrate the application in mongoDB
      *
      * @param organizationId organization to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
+     * @param applicationJson    application resource which contains necessary information to save the application
      * @param applicationId  application which needs to be saved with the updated resources
      * @return Updated application
      */
     public Mono<Application> importApplicationInOrganization(String organizationId,
-                                                             ApplicationJson importedDoc,
+                                                             ApplicationJson applicationJson,
                                                              String applicationId,
                                                              String branchName) {
 
         /*
-            1. Fetch organization by id
-            2. Extract datasources and update plugin information
-            3. Create new datasource if same datasource is not present
-            4. Extract and save application
-            5. Extract and save pages in the application
-            6. Extract and save actions in the application
+            1. Migrate resource to latest schema
+            2. Fetch organization by id
+            3. Extract datasources and update plugin information
+            4. Create new datasource if same datasource is not present
+            5. Extract and save application
+            6. Extract and save pages in the application
+            7. Extract and save actions in the application
          */
+        ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
@@ -567,7 +668,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // the changes from remote
                                                     // We are using the save instead of update as we are using @Encrypted
                                                     // for GitAuth
-                                                    return applicationService.save(existingApplication);
+                                                    return applicationService.save(existingApplication)
+                                                            .onErrorResume(DuplicateKeyException.class, error -> {
+                                                                if (error.getMessage() != null) {
+                                                                    return applicationPageService
+                                                                            .createOrUpdateSuffixedApplication(
+                                                                                    existingApplication,
+                                                                                    existingApplication.getName(),
+                                                                                    0
+                                                                            );
+                                                                }
+                                                                throw error;
+                                                            });
                                                 });
                                     }
                                     return applicationService
@@ -1030,80 +1142,36 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
+        NewPage update = new NewPage();
         return newPageService.save(newPage)
                 .flatMap(page -> {
-                    if (page.getDefaultResources() == null) {
-                        NewPage update = new NewPage();
-                        update.setDefaultResources(DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
-                        return newPageService.update(page.getId(), update);
-                    }
-                    return Mono.just(page);
+                    update.setDefaultResources(DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
+                    return newPageService.update(page.getId(), update);
                 });
     }
 
     private Mono<NewAction> saveNewActionAndUpdateDefaultResources(NewAction newAction, String branchName) {
         return newActionService.save(newAction)
                 .flatMap(action -> {
-                    if (action.getDefaultResources() == null) {
-                        NewAction update = new NewAction();
-                        update.setDefaultResources(
-                                DefaultResourcesUtils
-                                        .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action, branchName).getDefaultResources());
-                        if (action.getUnpublishedAction() != null) {
-                            update.setUnpublishedAction(action.getUnpublishedAction());
-                            update.getUnpublishedAction()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getUnpublishedAction(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        if (action.getPublishedAction() != null) {
-                            update.setPublishedAction(action.getPublishedAction());
-                            update.getPublishedAction()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getPublishedAction(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        return newActionService.update(action.getId(), update);
-                    }
-                    return Mono.just(action);
+                    NewAction update = new NewAction();
+                    update.setDefaultResources(
+                            DefaultResourcesUtils
+                                    .createDefaultIdsOrUpdateWithGivenResourceIds(action, branchName).getDefaultResources()
+                    );
+                    return newActionService.update(action.getId(), update);
                 });
     }
 
     private Mono<ActionCollection> saveNewCollectionAndUpdateDefaultResources(ActionCollection actionCollection, String branchName) {
         return actionCollectionService.create(actionCollection)
                 .flatMap(actionCollection1 -> {
-                    if (actionCollection1.getDefaultResources() == null) {
-                        ActionCollection update = new ActionCollection();
-                        update.setDefaultResources(
-                                DefaultResourcesUtils
-                                        .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1, branchName)
-                                        .getDefaultResources()
-                        );
-                        if (actionCollection1.getUnpublishedCollection() != null) {
-                            update.setUnpublishedCollection(actionCollection1.getUnpublishedCollection());
-                            update.getUnpublishedCollection()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getUnpublishedCollection(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        if (actionCollection1.getPublishedCollection() != null) {
-                            update.setPublishedCollection(actionCollection1.getPublishedCollection());
-                            update.getPublishedCollection()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getPublishedCollection(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        return actionCollectionService.update(actionCollection1.getId(), update);
-                    }
-                    return Mono.just(actionCollection1);
+                    ActionCollection update = new ActionCollection();
+                    update.setDefaultResources(
+                            DefaultResourcesUtils
+                                    .createDefaultIdsOrUpdateWithGivenResourceIds(actionCollection1, branchName)
+                                    .getDefaultResources()
+                    );
+                    return actionCollectionService.update(actionCollection1.getId(), update);
                 });
     }
 
@@ -1206,6 +1274,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             });
         }
 
+        layoutOnLoadActions.remove(null);
         return Flux.fromIterable(layoutOnLoadActions)
                 .flatMap(newActionService::findById)
                 .map(newAction -> {
