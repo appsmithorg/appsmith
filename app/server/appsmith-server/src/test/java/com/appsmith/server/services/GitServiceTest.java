@@ -87,7 +87,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -180,7 +179,7 @@ public class GitServiceTest {
         MockedStatic<GitUtils> gitUtilsMockedStatic = Mockito.mockStatic(GitUtils.class);
         gitUtilsMockedStatic.when(() -> GitUtils.isRepoPrivate(Mockito.anyString()))
                 .thenReturn(Boolean.FALSE);
-        gitUtilsMockedStatic.when(() -> GitUtils.convertSshUrlToHttpsCurlSupportedUrl(Mockito.anyString()))
+        gitUtilsMockedStatic.when(() -> GitUtils.convertSshUrlToBrowserSupportedUrl(Mockito.anyString()))
                 .thenReturn("https://test.com");
 
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);

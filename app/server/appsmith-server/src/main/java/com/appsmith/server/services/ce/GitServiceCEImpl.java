@@ -58,6 +58,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -69,6 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -78,7 +80,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
-import static com.appsmith.server.helpers.DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds;
+import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 /**
@@ -388,7 +390,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         try {
                             if (StringUtils.isEmptyOrNull(defaultGitMetadata.getBrowserSupportedRemoteUrl())) {
                                 defaultGitMetadata.setBrowserSupportedRemoteUrl(
-                                        GitUtils.convertSshUrlToHttpsCurlSupportedUrl(defaultGitMetadata.getRemoteUrl())
+                                        GitUtils.convertSshUrlToBrowserSupportedUrl(defaultGitMetadata.getRemoteUrl())
                                 );
                             }
                             Boolean isRepoPrivateCurrentStatus = GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl());
@@ -645,7 +647,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> {
                     // Check if the repo is public
                     try {
-                        if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
+                        if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
                             return Mono.just(application);
                         }
                     } catch (IOException e) {
@@ -745,7 +747,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
                                         gitApplicationMetadata.setBrowserSupportedRemoteUrl(
-                                                GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl())
+                                                GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())
                                         );
                                         try {
                                             gitApplicationMetadata.setIsRepoPrivate(
@@ -1051,15 +1053,36 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // will be deleted
                     Flux.fromIterable(application.getPages())
                             .flatMap(page -> newPageService.findById(page.getId(), MANAGE_PAGES))
-                            .map(newPage ->  createPristineDefaultIdsAndUpdateWithGivenResourceIds(newPage, null))
+                            .map(newPage -> {
+                                newPage.setDefaultResources(null);
+                                return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);
+                            })
                             .collectList()
                             .flatMapMany(newPageService::saveAll)
                             .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), MANAGE_ACTIONS)
-                                    .map(newAction -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(newAction, null))
+                                    .map(newAction -> {
+                                        newAction.setDefaultResources(null);
+                                        if (newAction.getUnpublishedAction() != null) {
+                                            newAction.getUnpublishedAction().setDefaultResources(null);
+                                        }
+                                        if (newAction.getPublishedAction() != null) {
+                                            newAction.getPublishedAction().setDefaultResources(null);
+                                        }
+                                        return createDefaultIdsOrUpdateWithGivenResourceIds(newAction, null);
+                                    })
                                     .collectList()
                                     .flatMapMany(newActionService::saveAll)
                                     .thenMany(actionCollectionService.findByPageId(newPage.getId()))
-                                    .map(actionCollection -> createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection, null))
+                                    .map(actionCollection -> {
+                                        actionCollection.setDefaultResources(null);
+                                        if (actionCollection.getUnpublishedCollection() != null) {
+                                            actionCollection.getUnpublishedCollection().setDefaultResources(null);
+                                        }
+                                        if (actionCollection.getPublishedCollection() != null) {
+                                            actionCollection.getPublishedCollection().setDefaultResources(null);
+                                        }
+                                        return createDefaultIdsOrUpdateWithGivenResourceIds(actionCollection, null);
+                                    })
                                     .collectList()
                                     .flatMapMany(actionCollectionService::saveAll)
                             )
@@ -1984,6 +2007,15 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
         }
 
+        boolean isRepoPrivateTemp;
+        try {
+            isRepoPrivateTemp = GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl()));
+        } catch (IOException e) {
+            log.error("Error while checking if the repo is private: ", e);
+            isRepoPrivateTemp = true;
+        }
+        final boolean isRepoPrivate = isRepoPrivateTemp;
+        final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
         Mono<Application> importedApplicationMono = getSSHKeyForCurrentUser()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
@@ -1991,15 +2023,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(gitAuth -> {
                     // Check if the repo is public
                     Application newApplication = new Application();
-                    newApplication.setName(GitUtils.getRepoName(gitConnectDTO.getRemoteUrl()));
+                    newApplication.setName(repoName);
                     newApplication.setOrganizationId(organizationId);
-                    Mono<Application> applicationMono = applicationPageService.createSuffixedApplication(newApplication, newApplication.getName(), 0);
-                    try {
-                        if(!GitUtils.isRepoPrivate(GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl()))) {
-                            return Mono.just(gitAuth).zipWith(applicationMono);
-                        }
-                    } catch (IOException e) {
-                        log.debug("Error while checking if the repo is private: ", e);
+                    Mono<Application> applicationMono = this.createSuffixedApplication(newApplication, newApplication.getName(), 0);
+                    if(!isRepoPrivate) {
+                        return Mono.just(gitAuth).zipWith(applicationMono);
                     }
                     return gitCloudServicesUtils.getPrivateRepoLimitForOrg(organizationId, true)
                             .flatMap(limitCount -> {
@@ -2022,11 +2050,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .flatMap(tuple -> {
-                    Application application = tuple.getT2();
                     GitAuth gitAuth = tuple.getT1();
-                    String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
+                    Application application = tuple.getT2();
                     Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), repoName);
                     Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
+
                     Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
                             repoPath,
                             gitConnectDTO.getRemoteUrl(),
@@ -2047,39 +2075,28 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .flatMap(application1 -> {
                                     if (error instanceof TransportException) {
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
-                                    }
-                                    if (error instanceof InvalidRemoteException) {
+                                    } else if (error instanceof InvalidRemoteException) {
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
+                                    } else if (error instanceof TimeoutException) {
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
                                     }
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", error));
                                 });
                     });
 
                     return defaultBranchMono
                             .flatMap(defaultBranch -> {
                                 GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                                GitAuth gitAuth1 = new GitAuth();
-                                gitAuth1.setPrivateKey(gitAuth.getPrivateKey());
-                                gitAuth1.setPublicKey(gitAuth.getPublicKey());
-                                gitAuth1.setDocUrl(gitAuth.getDocUrl());
-
-                                gitApplicationMetadata.setGitAuth(gitAuth1);
+                                gitApplicationMetadata.setGitAuth(gitAuth);
                                 gitApplicationMetadata.setDefaultApplicationId(application.getId());
                                 gitApplicationMetadata.setBranchName(defaultBranch);
                                 gitApplicationMetadata.setDefaultBranchName(defaultBranch);
                                 gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                 gitApplicationMetadata.setRepoName(repoName);
                                 gitApplicationMetadata.setBrowserSupportedRemoteUrl(
-                                        GitUtils.convertSshUrlToHttpsCurlSupportedUrl(gitConnectDTO.getRemoteUrl())
+                                        GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())
                                 );
-                                try {
-                                    gitApplicationMetadata.setIsRepoPrivate(
-                                            GitUtils.isRepoPrivate(gitApplicationMetadata.getBrowserSupportedRemoteUrl())
-                                    );
-                                } catch (IOException e) {
-                                    gitApplicationMetadata.setIsRepoPrivate(true);
-                                    log.debug("Error while checking if the repo is private: ", e);
-                                }
+                                gitApplicationMetadata.setIsRepoPrivate(isRepoPrivate);
 
                                 application.setGitApplicationMetadata(gitApplicationMetadata);
                                 return Mono.just(application).zipWith(profileMono);
@@ -2096,8 +2113,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                         Mono<ApplicationJson> applicationJsonMono = fileUtils.reconstructApplicationFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch);
                         return Mono.zip(applicationJsonMono, datasourceMono, pluginMono)
                                 .flatMap(data -> {
-                                    List<Datasource> datasourceList = data.getT2();
                                     ApplicationJson applicationJson = data.getT1();
+                                    List<Datasource> datasourceList = data.getT2();
                                     List<Plugin> pluginList = data.getT3();
 
                                     // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
@@ -2113,7 +2130,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
                                             .onErrorResume(throwable -> fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
                                                     .then(applicationPageService.deleteApplication(application.getId()))
-                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR))));
+                                                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable))));
                                 });
 
                     } catch (GitAPIException | IOException e) {
@@ -2172,22 +2189,27 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .map(GitDeployKeys::getGitAuth);
     }
 
-    private boolean checkIsDatasourceNameConflict(List<Datasource> existingDataSources,
-                                                  List<Datasource> importedDataSources,
+    private boolean checkIsDatasourceNameConflict(List<Datasource> existingDatasources,
+                                                  List<Datasource> importedDatasources,
                                                   List<Plugin> pluginList) {
         // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
-        for( Datasource datasource : importedDataSources) {
+        for( Datasource datasource : importedDatasources) {
             // Collect the datasource(existing in organization) which has same as of imported datasource
-             List<Datasource> filteredDataSource = existingDataSources
+             Datasource filteredDatasource = existingDatasources
                      .stream()
                      .filter(datasource1 -> datasource1.getName().equals(datasource.getName()))
-                     .collect(Collectors.toList());
+                     .findFirst()
+                     .orElse(null);
 
-             // Check if both of the datasource's are of the same type
-             if (filteredDataSource.size() > 0) {
-                 Long matchCount = pluginList.stream()
-                         .filter(plugin -> plugin.getId().equals(filteredDataSource.get(0).getPluginId())
-                                 && !datasource.getPluginId().equals(plugin.getPackageName()))
+             // Check if both of the datasource's are of the same plugin type
+             if (filteredDatasource != null) {
+                 long matchCount = pluginList.stream()
+                         .filter(plugin -> {
+                             final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
+
+                             return plugin.getId().equals(filteredDatasource.getPluginId())
+                                     && !datasource.getPluginId().equals(pluginReference);
+                         })
                          .count();
                  if (matchCount > 0) {
                      return true;
@@ -2196,6 +2218,30 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         }
         return false;
+    }
+
+    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Mono<Application> applicationWithPoliciesMono = applicationPageService
+                .setApplicationPolicies(userMono, application.getOrganizationId(), application);
+
+        return applicationWithPoliciesMono
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    // assign the default theme id to edit mode
+                    return applicationService.save(application);
+                })
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null) {
+                        return this.createSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {

@@ -52,7 +52,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
@@ -1030,80 +1029,36 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
+        NewPage update = new NewPage();
         return newPageService.save(newPage)
                 .flatMap(page -> {
-                    if (page.getDefaultResources() == null) {
-                        NewPage update = new NewPage();
-                        update.setDefaultResources(DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
-                        return newPageService.update(page.getId(), update);
-                    }
-                    return Mono.just(page);
+                    update.setDefaultResources(DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
+                    return newPageService.update(page.getId(), update);
                 });
     }
 
     private Mono<NewAction> saveNewActionAndUpdateDefaultResources(NewAction newAction, String branchName) {
         return newActionService.save(newAction)
                 .flatMap(action -> {
-                    if (action.getDefaultResources() == null) {
-                        NewAction update = new NewAction();
-                        update.setDefaultResources(
-                                DefaultResourcesUtils
-                                        .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action, branchName).getDefaultResources());
-                        if (action.getUnpublishedAction() != null) {
-                            update.setUnpublishedAction(action.getUnpublishedAction());
-                            update.getUnpublishedAction()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getUnpublishedAction(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        if (action.getPublishedAction() != null) {
-                            update.setPublishedAction(action.getPublishedAction());
-                            update.getPublishedAction()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getPublishedAction(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        return newActionService.update(action.getId(), update);
-                    }
-                    return Mono.just(action);
+                    NewAction update = new NewAction();
+                    update.setDefaultResources(
+                            DefaultResourcesUtils
+                                    .createDefaultIdsOrUpdateWithGivenResourceIds(action, branchName).getDefaultResources()
+                    );
+                    return newActionService.update(action.getId(), update);
                 });
     }
 
     private Mono<ActionCollection> saveNewCollectionAndUpdateDefaultResources(ActionCollection actionCollection, String branchName) {
         return actionCollectionService.create(actionCollection)
                 .flatMap(actionCollection1 -> {
-                    if (actionCollection1.getDefaultResources() == null) {
-                        ActionCollection update = new ActionCollection();
-                        update.setDefaultResources(
-                                DefaultResourcesUtils
-                                        .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1, branchName)
-                                        .getDefaultResources()
-                        );
-                        if (actionCollection1.getUnpublishedCollection() != null) {
-                            update.setUnpublishedCollection(actionCollection1.getUnpublishedCollection());
-                            update.getUnpublishedCollection()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getUnpublishedCollection(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        if (actionCollection1.getPublishedCollection() != null) {
-                            update.setPublishedCollection(actionCollection1.getPublishedCollection());
-                            update.getPublishedCollection()
-                                    .setDefaultResources(
-                                            DefaultResourcesUtils
-                                                    .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getPublishedCollection(), branchName)
-                                                    .getDefaultResources()
-                                    );
-                        }
-                        return actionCollectionService.update(actionCollection1.getId(), update);
-                    }
-                    return Mono.just(actionCollection1);
+                    ActionCollection update = new ActionCollection();
+                    update.setDefaultResources(
+                            DefaultResourcesUtils
+                                    .createDefaultIdsOrUpdateWithGivenResourceIds(actionCollection1, branchName)
+                                    .getDefaultResources()
+                    );
+                    return actionCollectionService.update(actionCollection1.getId(), update);
                 });
     }
 

@@ -78,7 +78,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         DefaultResources defaultResources = collection.getDefaultResources();
 
         if (defaultResources == null) {
-            DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(collection, null);
+            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(collection, null);
         }
 
         final String pageId = collection.getPageId();

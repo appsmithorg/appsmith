@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,6 +73,9 @@ public class GitFileUtils {
             3. Save application to git repo
          */
         ApplicationGitReference applicationReference = new ApplicationGitReference();
+
+        Application application = applicationJson.getExportedApplication();
+        removeUnwantedFieldsFromApplication(application);
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
 
@@ -125,10 +129,8 @@ public class GitFileUtils {
         resourceMap.clear();
 
         // Send datasources
-        applicationJson.getDatasourceList().forEach(
-                datasource -> {
-                    datasource.setUpdatedAt(null);
-                    datasource.setCreatedAt(null);
+        applicationJson.getDatasourceList().forEach(datasource -> {
+                    removeUnwantedFieldsFromDatasource(datasource);
                     resourceMap.put(datasource.getName(), datasource);
                 }
         );
@@ -234,6 +236,18 @@ public class GitFileUtils {
                     .getLayouts()
                     .forEach(this::removeUnwantedFieldsFromLayout);
         }
+    }
+
+    private void removeUnwantedFieldsFromApplication(Application application) {
+        // Don't commit application name as while importing we are using the repoName as application name
+        application.setName(null);
+    }
+
+    private void removeUnwantedFieldsFromDatasource(Datasource datasource) {
+        datasource.setPolicies(new HashSet<>());
+        datasource.setStructure(null);
+        datasource.setUpdatedAt(null);
+        datasource.setCreatedAt(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {

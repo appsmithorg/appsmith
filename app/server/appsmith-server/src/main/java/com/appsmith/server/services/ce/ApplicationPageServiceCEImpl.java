@@ -45,7 +45,6 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1006,18 +1005,4 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
-
-    public Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-        return this.createApplication(application)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null) {
-                        return createSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
-    }
-
-
 }
