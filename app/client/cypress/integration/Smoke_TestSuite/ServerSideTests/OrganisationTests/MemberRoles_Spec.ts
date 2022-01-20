@@ -67,4 +67,17 @@ describe("Create new org and invite user & validate all roles", () => {
         homePage.LogOutviaAPI()
     });
 
+    it("7. Login as Org owner and verify all 3 users are present", function () {
+        homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"))
+        homePage.FilterApplication(appid, orgid)
+        homePage.OpenMembersPageForOrg(orgid)
+        cy.get(homePage._usersEmailList).then(function ($list) {
+            expect($list).to.have.length(3);
+            expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));
+            expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
+            expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
+        });
+        homePage.NavigateToHome()
+    });
+
 });

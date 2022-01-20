@@ -42,6 +42,8 @@ export class HomePage {
     private _leaveOrgConfirmButton = "[data - cy= t--org-leave - button]"
     private _lastOrgInHomePage = "//div[contains(@class, 't--org-section')][last()]//span/span"
     _editPageLanding = "//h2[text()='Drag and drop a widget here']"
+    _usersEmailList = "[data-colindex='1']"
+
 
     public CreateNewOrg(orgNewName: string) {
         let oldName: string = ""
@@ -233,7 +235,7 @@ export class HomePage {
         this.NavigateToHome()
     }
 
-    public UpdateUserRoleInOrg(orgName: string, email: string, currentRole: string, newRole: string) {
+    public OpenMembersPageForOrg(orgName: string) {
         cy.get(this._appContainer).contains(orgName)
             .scrollIntoView()
             .should("be.visible");
@@ -248,6 +250,10 @@ export class HomePage {
             "response.body.responseMeta.status",
             200,
         );
+    }
+
+    public UpdateUserRoleInOrg(orgName: string, email: string, currentRole: string, newRole: string) {
+        this.OpenMembersPageForOrg(orgName)
         cy.xpath(this._userRoleDropDown(email, currentRole)).first().click({ force: true });
         //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
         cy.get(this._visibleTextSpan(newRole)).last().click({ force: true });
