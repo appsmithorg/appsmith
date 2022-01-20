@@ -6,6 +6,7 @@ import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.constants.AppsmithBotAsset;
 import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
@@ -61,9 +62,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     public static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
-    private final Scheduler scheduler = Schedulers.elastic();
-
-    private static final String MERGE_STATUS_BRANCH = "_merge";
+    private final Scheduler scheduler = Schedulers.boundedElastic();
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflict with the base branch.";
 
@@ -82,6 +81,9 @@ public class GitExecutorImpl implements GitExecutor {
                                           String authorName,
                                           String authorEmail,
                                           boolean isSuffixedPath) {
+
+        final String finalAuthorName = StringUtils.isEmptyOrNull(authorName) ? AppsmithBotAsset.APPSMITH_BOT_USERNAME : authorName;
+        final String finalAuthorEmail = StringUtils.isEmptyOrNull(authorEmail) ? AppsmithBotAsset.APPSMITH_BOT_EMAIL : authorEmail;
         return Mono.fromCallable(() -> {
             log.debug("Trying to commit to local repo path, {}", path);
             Path repoPath = path;
@@ -100,7 +102,7 @@ public class GitExecutorImpl implements GitExecutor {
                         .setMessage(commitMessage)
                         // Only make a commit if there are any updates
                         .setAllowEmpty(false)
-                        .setAuthor(authorName, authorEmail)
+                        .setAuthor(finalAuthorName, finalAuthorEmail)
                         .call();
                 return "Committed successfully!";
             }
@@ -346,7 +348,7 @@ public class GitExecutorImpl implements GitExecutor {
                         //On merge conflicts abort the merge => git merge --abort
                         git.getRepository().writeMergeCommitMsg(null);
                         git.getRepository().writeMergeHeads(null);
-                        throw new IOException("Conflicted files: " + mergeConflictFiles);
+                        throw new org.eclipse.jgit.errors.CheckoutConflictException(mergeConflictFiles.toString());
                     }
                     return mergeStatus;
             })
