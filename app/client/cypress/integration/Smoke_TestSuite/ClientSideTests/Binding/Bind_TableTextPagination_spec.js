@@ -26,7 +26,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     /**Bind Table with Textwidget with selected row */
     cy.SearchEntityandOpen("Text1");
-    cy.testJsontext("text", "{{Table1.selectedRow.url}}");
+    cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
     cy.SearchEntityandOpen("Table1");
     cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
@@ -34,9 +34,9 @@ describe("Test Create Api and Bind to Table widget", function() {
     });
     /**Validate Table data on current page(page1) */
     cy.ValidateTableData("1");
-    cy.get(commonlocators.tableNextPage).click({ force: true });
+    //cy.get(commonlocators.tableNextPage).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(5000);
+    //cy.wait(5000);
     /*
     cy.wait("@postExecute").should(
       "have.nested.property",
@@ -96,10 +96,10 @@ describe("Test Create Api and Bind to Table widget", function() {
     });
     cy.WaitAutoSave();
     cy.selectEntityByName("WIDGETS");
-    cy.get(".t--entity-name:contains(Text1)").click({ force: true });
+    //cy.get(".t--entity-name:contains(Text1)").click({ force: true });
     //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/
-    cy.testJsontext("text", "{{Table1.selectedRow.url}}");
+    //cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
     cy.get(".t--entity-name:contains(Table1)").click({ force: true });
     cy.testJsontext("tabledata", "{{Api2.data.users}}");
     cy.callApi("Api2");
@@ -107,10 +107,13 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Response URL", function() {
     /**Validate Response data with Table data in Text Widget */
+    cy.SearchEntityandOpen("Table1");
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationPrevTest);
     cy.PublishtheApp();
     cy.ValidatePaginationInputData();
     cy.get(publishPage.backToEditor).click({ force: true });
+    cy.wait(30000);
+    cy.SearchEntityandOpen("Table1");
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest);
     cy.wait(5000);
   });

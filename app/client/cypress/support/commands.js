@@ -3118,7 +3118,7 @@ Cypress.Commands.add("ValidatePublishTableData", (value) => {
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.get(".t--entity-name")
-    .contains("Api1")
+    .contains("Api2")
     .click({ force: true });
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -3515,6 +3515,7 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
+    .first()
     .scrollIntoView()
     .click({ force: true });
 });
