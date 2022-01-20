@@ -19,6 +19,7 @@ import {
   ENTITY_TYPE,
   DataTreeJSAction,
   EvaluationSubstitutionType,
+  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -709,4 +710,15 @@ export const removeFunctionsAndVariableJSCollection = (
   _.set(modifiedDataTree, `${entity.name}.dependencyMap.body`, dependencyMap);
   _.set(modifiedDataTree, `${entity.name}.meta`, meta);
   return modifiedDataTree;
+};
+
+export const isPrivateEntityPath = (
+  privateWidgets: PrivateWidgets,
+  fullPropertyPath: string,
+) => {
+  const entityName = fullPropertyPath.split(".")[0];
+  if (Object.keys(privateWidgets).indexOf(entityName) !== -1) {
+    return true;
+  }
+  return false;
 };
