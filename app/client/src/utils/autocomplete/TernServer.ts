@@ -248,19 +248,31 @@ class TernServer {
       ),
     );
     if (tp.rettype) tip.appendChild(this.elt("span", cls + "type", tp.rettype));
-    const place = cm.cursorCoords(start, "page") as {
+    const cursorCoords = cm.cursorCoords(start, "page") as {
       left: number;
       right: number;
       top: number;
       bottom: number;
     };
+    // @ts-ignore
+    const editorCoords: DOMRect = cm
+      .getWrapperElement()
+      .getBoundingClientRect();
+
     const tooltip = (this.activeArgHints = this.makeTooltip(
       tip,
-      place.left + "px",
       undefined,
       undefined,
-      `calc(100vh - ${place.top}px)`,
+      `calc(100vw - ${editorCoords.right}px + 5px)`,
+      `calc(100vh - ${cursorCoords.top}px)`,
     ) as ActiveArgHints);
+
+    tooltip.style.maxWidth = `${editorCoords.width}px`;
+    const tooltipCoords = tooltip.getBoundingClientRect();
+    if (tooltipCoords.left > cursorCoords.left) {
+      tooltip.style.left = cursorCoords.left + "px";
+      tooltip.style.right = "";
+    }
 
     setTimeout(() => {
       tooltip.clear = this.onEditorActivity(cm, () => {
