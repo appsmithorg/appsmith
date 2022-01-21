@@ -5,7 +5,7 @@ import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
 import ProfileForm, { PROFILE_FORM, fieldNames } from "./ProfileForm";
 import CommentsCarouselModal from "./CommentsCarouselModal";
 import ProgressiveImage, {
-  Container as ProgressiveImageContainer,
+  ProgressiveImageContainer,
 } from "components/ads/ProgressiveImage";
 
 import styled, { withTheme } from "styled-components";

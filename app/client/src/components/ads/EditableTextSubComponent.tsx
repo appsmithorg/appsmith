@@ -55,7 +55,7 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   isError?: boolean;
 };
 
-export const EditableTextWrapper = styled.div<{
+export const EditableTextSubComponentWrapper = styled.div<{
   filled: boolean;
 }>`
   ${(props) =>

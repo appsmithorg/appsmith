@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import styled from "styled-components";
 
-export const Container = styled.div`
+export const ProgressiveImageContainer = styled.div`
   position: relative;
   .progressive-image {
     position: absolute;
@@ -35,7 +35,7 @@ function ProgressiveImage(props: {
   }, [props.imageSource]);
 
   return (
-    <Container className="container-progressive-image">
+    <ProgressiveImageContainer className="container-progressive-image">
       <img
         alt={props.alt}
         className="progressive-image progressive-image--thumb"
@@ -51,7 +51,7 @@ function ProgressiveImage(props: {
         src={props.imageSource}
         style={{ opacity: isLoaded ? 1 : 0 }}
       />
-    </Container>
+    </ProgressiveImageContainer>
   );
 }
 export default ProgressiveImage;

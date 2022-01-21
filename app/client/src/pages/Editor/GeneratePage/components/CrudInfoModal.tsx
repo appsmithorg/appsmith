@@ -19,7 +19,7 @@ import {
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import ProgressiveImage, {
-  Container as ProgressiveImageContainer,
+  ProgressiveImageContainer,
 } from "components/ads/ProgressiveImage";
 import SuccessTick from "pages/common/SuccessTick";
 

@@ -153,7 +153,7 @@ const SquareBox = styled.div`
   position: relative;
 `;
 
-export type DropdownOption = {
+export type MultiSelectDropdownOption = {
   label?: string;
   value?: string;
   id?: string;
@@ -161,7 +161,7 @@ export type DropdownOption = {
 };
 
 type DropdownProps = CommonComponentProps & {
-  options: DropdownOption[];
+  options: MultiSelectDropdownOption[];
   selected: string[];
   onSelect: (value: string[]) => void;
   width?: string;
@@ -262,33 +262,35 @@ function MultiSelectDropdown(props: DropdownProps) {
         <DropdownWrapper
           width={props.optionWidth ? props.optionWidth : containerWidth}
         >
-          {props.options.map((option: DropdownOption, index: number) => {
-            return (
-              <MultiOptionWrapper
-                className="t--multi-dropdown-option"
-                key={index}
-                onClick={() => {
-                  optionClickHandler(option.value as string);
-                }}
-                selected={isItemSelected(option.value)}
-              >
-                <SquareBox className={Classes.MULTI_SELECT_BOX} />
-                {option.icon ? (
-                  <Icon name={option.icon} size={IconSize.LARGE} />
-                ) : null}
-                {props.showLabelOnly ? (
-                  <Text type={TextType.P3}>{option.label}</Text>
-                ) : option.label && option.value ? (
-                  <LabelWrapper className="label-container">
-                    <Text type={TextType.H5}>{option.value}</Text>
+          {props.options.map(
+            (option: MultiSelectDropdownOption, index: number) => {
+              return (
+                <MultiOptionWrapper
+                  className="t--multi-dropdown-option"
+                  key={index}
+                  onClick={() => {
+                    optionClickHandler(option.value as string);
+                  }}
+                  selected={isItemSelected(option.value)}
+                >
+                  <SquareBox className={Classes.MULTI_SELECT_BOX} />
+                  {option.icon ? (
+                    <Icon name={option.icon} size={IconSize.LARGE} />
+                  ) : null}
+                  {props.showLabelOnly ? (
                     <Text type={TextType.P3}>{option.label}</Text>
-                  </LabelWrapper>
-                ) : (
-                  <Text type={TextType.P3}>{option.value}</Text>
-                )}
-              </MultiOptionWrapper>
-            );
-          })}
+                  ) : option.label && option.value ? (
+                    <LabelWrapper className="label-container">
+                      <Text type={TextType.H5}>{option.value}</Text>
+                      <Text type={TextType.P3}>{option.label}</Text>
+                    </LabelWrapper>
+                  ) : (
+                    <Text type={TextType.P3}>{option.value}</Text>
+                  )}
+                </MultiOptionWrapper>
+              );
+            },
+          )}
         </DropdownWrapper>
       </Popover>
     </DropdownContainer>
