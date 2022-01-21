@@ -1951,6 +1951,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     false))
                             .flatMap(gitBranchDTOList -> {
                                 List<String> branchList = gitBranchDTOList.stream()
+                                        .filter(gitBranchDTO -> gitBranchDTO.getBranchName().contains("origin"))
                                         .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
                                         .collect(Collectors.toList());
                                 // Remove the default branch of Appsmith
@@ -1959,7 +1960,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return Flux.fromIterable(branchList)
                                         .flatMap(branchName -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, application.getId(), READ_APPLICATIONS)
                                                 // checkout the branch locally
-                                                .flatMap(application1 -> gitExecutor.checkoutToBranch(repoPath, branchName))
+                                                .flatMap(application1 -> {
+                                                    // Add the locally checked out branch to the branchList
+                                                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
+                                                    gitBranchDTO.setBranchName(branchName);
+                                                    gitBranchDTO.setDefault(false);
+                                                    gitBranchDTOList.add(gitBranchDTO);
+                                                    return gitExecutor.checkoutRemoteBranch(repoPath, branchName);
+                                                })
                                                 // Return empty mono when the branched application is not in db
                                                 .onErrorResume(throwable -> Mono.empty()))
                                         .then(Mono.just(gitBranchDTOList));
