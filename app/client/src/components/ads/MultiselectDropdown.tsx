@@ -186,7 +186,7 @@ function MultiSelectDropdown(props: DropdownProps) {
     }
   }, []);
 
-  const [currentItemIndex, setCurrentItemIndex] = useState<number>(0);
+  const [currentItemIndex, setCurrentItemIndex] = useState<number>(-1);
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const optionClickHandler = useCallback(
@@ -260,8 +260,11 @@ function MultiSelectDropdown(props: DropdownProps) {
                 props.options[currentItemIndex].value as string,
               );
             }
-            e.preventDefault();
+          } else {
+            setIsOpen(true);
+            setCurrentItemIndex((prev) => (prev < 0 ? 0 : prev));
           }
+          e.preventDefault();
           break;
         case "ArrowUp":
         case "Up":
@@ -272,6 +275,7 @@ function MultiSelectDropdown(props: DropdownProps) {
               return prevIndex - 1;
             });
           } else {
+            setCurrentItemIndex((prev) => (prev < 0 ? 0 : prev));
             setIsOpen(true);
           }
           break;
@@ -284,6 +288,7 @@ function MultiSelectDropdown(props: DropdownProps) {
               return prevIndex + 1;
             });
           } else {
+            setCurrentItemIndex((prev) => (prev < 0 ? 0 : prev));
             setIsOpen(true);
           }
           break;
@@ -321,7 +326,10 @@ function MultiSelectDropdown(props: DropdownProps) {
           className={props.className}
           disabled={props.disabled}
           isOpen={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            setCurrentItemIndex(-1);
+            setIsOpen(!isOpen);
+          }}
           onKeyDown={handleKeydown}
           ref={btnRef}
           role="listbox"
@@ -346,6 +354,7 @@ function MultiSelectDropdown(props: DropdownProps) {
                 key={index}
                 onClick={() => {
                   optionClickHandler(option.value as string);
+                  setCurrentItemIndex(index);
                 }}
                 role="option"
                 selected={isItemSelected(option.value)}
