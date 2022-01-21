@@ -1455,16 +1455,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath))
                             .onErrorResume(error -> {
                                 if (error instanceof RepositoryNotFoundException) {
-                                    return handleRepoNotFoundException(defaultApplicationId)
-                                            .flatMap(s -> {
-                                                Mono<List<GitBranchDTO>> branchListMono = gitExecutor.listBranches(
-                                                        repoPath,
-                                                        gitApplicationMetadata.getRemoteUrl(),
-                                                        gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                                        gitApplicationMetadata.getGitAuth().getPublicKey(),
-                                                        false);
-                                                return Mono.zip(branchListMono, Mono.just(application), Mono.just(repoPath));
-                                            });
+                                    Mono<List<GitBranchDTO>> branchListMono = handleRepoNotFoundException(defaultApplicationId);
+                                    return Mono.zip(branchListMono, Mono.just(application), Mono.just(repoPath));
                                 }
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED,
@@ -1940,7 +1932,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 );
     }
 
-    public Mono<Application> handleRepoNotFoundException(String defaultApplicationId) {
+    public Mono<List<GitBranchDTO>> handleRepoNotFoundException(String defaultApplicationId) {
 
         // clone application to the local filesystem again and update the defaultBranch for the application
         // list branch and compare with branch applications and checkout if not exists
@@ -1958,7 +1950,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     gitAuth.getPublicKey(),
                                     false))
                             .flatMap(gitBranchDTOList -> {
-                                List<String> branchList = gitBranchDTOList.stream().map(GitBranchDTO::getBranchName).collect(Collectors.toList());
+                                List<String> branchList = gitBranchDTOList.stream()
+                                        .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
+                                        .collect(Collectors.toList());
+                                // Remove the default branch of Appsmith
+                                branchList.remove(gitApplicationMetadata.getBranchName());
+
                                 return Flux.fromIterable(branchList)
                                         .flatMap(branchName -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, application.getId(), READ_APPLICATIONS)
                                                 .onErrorResume(throwable -> {
@@ -1966,7 +1963,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     gitBranchDTO.setBranchName(branchName);
                                                     return createBranch(application.getId(), gitBranchDTO, gitApplicationMetadata.getDefaultBranchName());
                                                 }))
-                                        .then(Mono.just(application));
+                                        .then(Mono.just(gitBranchDTOList));
                             });
                 });
     }
