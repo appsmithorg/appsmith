@@ -737,3 +737,12 @@ export const getAllPrivateWidgetsInDataTree = (
 
   return privateWidgets;
 };
+
+export const getDataTreeWithoutPrivateWidgets = (
+  dataTree: DataTree,
+): DataTree => {
+  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
+  const privateWidgetNames = Object.keys(privateWidgets);
+  const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
+  return treeWithoutPrivateWidgets;
+};
