@@ -15,16 +15,7 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { updateApplicationLayout } from "actions/applicationActions";
-
-import { setEnableReflowAction } from "actions/reflowActions";
-import Checkbox from "components/ads/Checkbox";
-import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
-import styled from "styled-components";
-import { isReflowEnabled } from "selectors/widgetReflowSelectors";
-import { setReflowBetaFlag } from "utils/storage";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
+import { ReflowBetaCard } from "./ReflowBetaCard";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -63,26 +54,12 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "mobile",
   },
 ];
-const ReflowBetaWrapper = styled.div`
-  display: inline-flex;
-  flex-direction: row;
-  .beta-icon {
-    fill: #feb811;
-    rect {
-      stroke: #feb811;
-    }
-    path {
-      fill: #fff;
-    }
-  }
-`;
 
 export function MainContainerLayoutControl() {
   const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const shouldResize = useSelector(isReflowEnabled);
-  const user: User | undefined = useSelector(getCurrentUser);
+
   /**
    * return selected layout. if there is no app
    * layout, use the default one ( fluid )
@@ -112,18 +89,6 @@ export function MainContainerLayoutControl() {
     },
     [dispatch, appLayout],
   );
-
-  const reflowBetaToggle = (isChecked: boolean) => {
-    if (user?.email) {
-      setReflowBetaFlag(user.email, isChecked);
-    }
-    dispatch(setEnableReflowAction(isChecked));
-    AnalyticsUtil.logEvent("REFLOW_BETA_FLAG", {
-      enabled: isChecked,
-    });
-  };
-  const appsmithEmailRegex = /@appsmith.com/g;
-  const canReflow = user && user.email && appsmithEmailRegex.test(user.email);
 
   return (
     <div className="px-3 space-y-2 t--layout-control-wrapper">
@@ -159,16 +124,7 @@ export function MainContainerLayoutControl() {
           );
         })}
       </div>
-      {canReflow && (
-        <ReflowBetaWrapper>
-          <Checkbox
-            isDefaultChecked={shouldResize}
-            label="New Reflow & Resize"
-            onCheckChange={reflowBetaToggle}
-          />
-          <BetaIcon className="beta-icon" />
-        </ReflowBetaWrapper>
-      )}
+      <ReflowBetaCard />
     </div>
   );
 }
