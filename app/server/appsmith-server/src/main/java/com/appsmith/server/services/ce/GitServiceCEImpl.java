@@ -1958,11 +1958,10 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                 return Flux.fromIterable(branchList)
                                         .flatMap(branchName -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, application.getId(), READ_APPLICATIONS)
-                                                .onErrorResume(throwable -> {
-                                                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
-                                                    gitBranchDTO.setBranchName(branchName);
-                                                    return createBranch(application.getId(), gitBranchDTO, gitApplicationMetadata.getDefaultBranchName());
-                                                }))
+                                                // checkout the branch locally
+                                                .flatMap(application1 -> gitExecutor.checkoutToBranch(repoPath, branchName))
+                                                // Return empty mono when the branched application is not in db
+                                                .onErrorResume(throwable -> Mono.empty()))
                                         .then(Mono.just(gitBranchDTOList));
                             });
                 });
