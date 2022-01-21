@@ -882,7 +882,7 @@ export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 //Reflow Beta Screen
 export const REFLOW_BETA_CHECKBOX_LABEL = () =>
-  "Turn on new drag & drop exprerience";
+  "Turn on new drag & drop experience";
 export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
 export const REFLOW_INFO_CARD_CONTENT_1 = () =>
   "When dropping a new widget, other widgets now automatically move out of the way.";
