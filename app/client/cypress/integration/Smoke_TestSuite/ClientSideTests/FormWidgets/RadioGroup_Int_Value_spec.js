@@ -187,8 +187,9 @@ describe("RadioGroup widget testing", function() {
     /**
      * Test cases:
      * 1. Object data type should be invalid
-     * 2. Integer should be valid
-     * 3. String should be valid
+     * 2. Boolean should be invalid
+     * 3. Integer should be valid
+     * 4. String should be valid
      */
 
     //Base-line scenario
@@ -223,12 +224,17 @@ describe("RadioGroup widget testing", function() {
         message: `This value does not evaluate to type: string or number`,
       },
       {
-        //Case 2:Integer should be valid
+        //Case 2: Boolean data type should be invalid
+        input: "{{true}}",
+        message: `This value does not evaluate to type: string or number`,
+      },
+      {
+        //Case 3:Integer should be valid
         input: "{{1}}",
         message: "",
       },
       {
-        //Case 3:Integer should be valid
+        //Case 4:String should be valid
         input: "1",
         message: "",
       },
