@@ -4,6 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { findIndex } from "lodash";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -177,8 +178,14 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             defaultValue: "0",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: DividerWidgetProps) =>
-              props.capType !== "arrow" && props.capType !== "dot",
+            hidden: (props: DividerWidgetProps) => {
+              const isCapTypeDynamic =
+                findIndex(props.dynamicPropertyPathList, ["key", "capType"]) !==
+                -1;
+              // for dynamic cap type always show capSide
+              if (isCapTypeDynamic) return false;
+              else return props.capType !== "arrow" && props.capType !== "dot";
+            },
             dependencies: ["capType"],
           },
         ],
