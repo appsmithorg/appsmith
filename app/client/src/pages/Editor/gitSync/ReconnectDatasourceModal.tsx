@@ -11,7 +11,7 @@ import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
+import _, { get } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
   createMessage,
@@ -20,8 +20,12 @@ import {
 } from "constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
+  getDatasource,
   getDatasources,
+  getIsDeletingDatasource,
   getIsReconnectingDatasourcesModalOpen,
+  getPlugin,
+  getPluginForm,
   getPluginImages,
   getPluginNames,
 } from "selectors/entitiesSelector";
@@ -32,6 +36,24 @@ import DBForm from "../DataSourceEditor/DBForm";
 import { initDatasourceConnectionDuringImportRequest } from "actions/applicationActions";
 import { debug } from "loglevel";
 import { getFetchingDatasourceConfigForImport } from "selectors/applicationSelectors";
+import { DatasourcePaneFunctions } from "../DataSourceEditor";
+import { AppState } from "reducers";
+import { DATASOURCE_DB_FORM } from "constants/forms";
+import { getFormValues, submit } from "redux-form";
+import {
+  deleteDatasource,
+  setDatsourceEditorMode,
+  switchDatasource,
+  testDatasource,
+  updateDatasource,
+} from "actions/datasourceActions";
+import { DatasourceComponentTypes } from "api/PluginApi";
+import { ReduxAction } from "constants/ReduxActionConstants";
+import {
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
+} from "actions/globalSearchActions";
+import { connect } from "react-redux";
 
 const Container = styled.div`
   height: 804px;
@@ -62,6 +84,12 @@ const ContentWrapper = styled.div`
   height: calc(100% - 76px);
   display: flex;
   margin-left: -${(props) => props.theme.spaces[8]}px;
+  .t--json-to-form {
+    width: 100%;
+    .t--close-editor {
+      display: none;
+    }
+  }
 `;
 
 const ListContainer = styled.div`
@@ -112,22 +140,138 @@ const CloseBtnContainer = styled.div`
   border-radius: ${(props) => props.theme.radii[1]}px;
 `;
 
+interface ReduxStateProps {
+  formData: Datasource;
+  isSaving: boolean;
+  isTesting: boolean;
+  formConfig: any[];
+  isDeleting: boolean;
+  isNewDatasource: boolean;
+  pluginImages: Record<string, string>;
+  pluginId: string;
+  viewMode: boolean;
+  pluginType: string;
+  pluginDatasourceForm: string;
+  pluginPackageName: string;
+  applicationId: string;
+}
+
+type DSProps = ReduxStateProps &
+  DatasourcePaneFunctions & { datasourceId: string };
+
+const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+  const { datasourcePane } = state.ui;
+  const { datasources, plugins } = state.entities;
+  const datasource = getDatasource(state, props.datasourceId);
+  const { formConfigs } = plugins;
+  const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
+  const pluginId = _.get(datasource, "pluginId", "");
+  const plugin = getPlugin(state, pluginId);
+  const newProps = {
+    pluginImages: getPluginImages(state),
+    formData,
+    pluginId,
+    isSaving: datasources.loading,
+    isDeleting: datasources.isDeleting,
+    isTesting: datasources.isTesting,
+    formConfig: formConfigs[pluginId] || [],
+    isNewDatasource: datasourcePane.newDatasource === props.datasourceId,
+    viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
+    pluginType: plugin?.type ?? "",
+    pluginDatasourceForm:
+      plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
+    pluginPackageName: plugin?.packageName ?? "",
+    applicationId: "",
+  };
+  if (datasource) {
+    newProps.formData = datasource;
+  }
+  return newProps;
+};
+
+const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
+  submitForm: (name: string) => dispatch(submit(name)),
+  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
+    dispatch(updateDatasource(formData, onSuccess));
+  },
+  redirectToNewIntegrations: (
+    applicationId: string,
+    pageId: string,
+    params: any,
+  ) => undefined,
+  testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
+  deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+  switchDatasource: (id: string) => dispatch(switchDatasource(id)),
+  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
+    dispatch(setDatsourceEditorMode({ id, viewMode: false })),
+  openOmnibarReadMore: (text: string) => {
+    dispatch(setGlobalSearchQuery(text));
+    dispatch(toggleShowGlobalSearchModal());
+  },
+});
+
+const DSForm = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)((props: DSProps) => {
+  const {
+    deleteDatasource,
+    formConfig,
+    formData,
+    isDeleting,
+    isNewDatasource,
+    isSaving,
+    isTesting,
+    openOmnibarReadMore,
+    pluginId,
+    pluginImages,
+    pluginType,
+    setDatasourceEditorMode,
+  } = props;
+
+  return (
+    <DBForm
+      applicationId={""}
+      datasourceId={props.datasourceId}
+      formConfig={formConfig}
+      formData={formData}
+      formName={DATASOURCE_DB_FORM}
+      handleDelete={deleteDatasource}
+      isDeleting={isDeleting}
+      isSaving={isSaving}
+      isTesting={isTesting}
+      onSave={() => undefined}
+      onSubmit={() => undefined}
+      onTest={props.testDatasource}
+      openOmnibarReadMore={openOmnibarReadMore}
+      pageId={""}
+      pluginImage={pluginImages[pluginId]}
+      pluginType={pluginType}
+      setDatasourceEditorMode={setDatasourceEditorMode}
+      viewMode={!!false}
+    />
+  );
+});
+
 function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
-  const organizationId = useSelector(getOrganizationIdForImport);
+  // const organizationId = useSelector(getOrganizationIdForImport);
+  const organizationId = "61e539ea33f03a13de18c3d0";
   // todo use for loading state
-  // const isFetchingDatasourceConfigForImport = useSelector(getFetchingDatasourceConfigForImport);
+  const isFetchingDatasourceConfigForImport = useSelector(
+    getFetchingDatasourceConfigForImport,
+  );
 
   // todo uncomment this to fetch datasource config
-  // useEffect(() => {
-  //   if (isModalOpen && organizationId) {
-  //     dispatch(
-  //       initDatasourceConnectionDuringImportRequest(organizationId as string),
-  //     );
-  //   }
-  // }, [organizationId, isModalOpen]);
+  useEffect(() => {
+    if (isModalOpen && organizationId) {
+      dispatch(
+        initDatasourceConnectionDuringImportRequest(organizationId as string),
+      );
+    }
+  }, [organizationId, isModalOpen]);
 
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
@@ -219,18 +363,8 @@ function ReconnectDatasourceModal() {
                   );
                 })}
               </ListContainer>
-              <DBForm />
+              <DSForm datasourceId={selectedDatasource?.id} />
             </ContentWrapper>
-            <ButtonContainer topMargin={10}>
-              <Button
-                category={Category.primary}
-                className="t--add-credential-button"
-                // onClick={() => generateSSHKey()}
-                size={Size.large}
-                tag="button"
-                text="Add credentials"
-              />
-            </ButtonContainer>
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon
