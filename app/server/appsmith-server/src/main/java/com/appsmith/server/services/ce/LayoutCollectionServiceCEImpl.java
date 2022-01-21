@@ -195,7 +195,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actions.forEach(actionDTO -> {
                                     // Update all the actions in the list to belong to actionCollectionService collection
                                     actionDTO.setCollectionId(actionCollection1.getId());
-                                    if (!StringUtils.isEmpty(actionDTO.getDefaultResources().getCollectionId())) {
+                                    if (StringUtils.isEmpty(actionDTO.getDefaultResources().getCollectionId())) {
                                         actionDTO.getDefaultResources().setCollectionId(actionCollection1.getId());
                                     }
                                 });
@@ -355,6 +355,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     final String oldPageId = actionCollectionDTO.getPageId();
                     actionCollectionDTO.setPageId(destinationPageId);
                     actionCollectionDTO.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
+                    actionCollectionDTO.setName(actionCollectionMoveDTO.getName());
 
                     return actionUpdatesFlux
                             .collectList()

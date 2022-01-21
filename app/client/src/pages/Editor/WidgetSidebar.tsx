@@ -99,7 +99,7 @@ function WidgetSidebar(props: IPanelProps) {
               key={card.key}
               show={
                 (card.type === "TABLE_WIDGET" && showTableWidget) ||
-                (card.type === "INPUT_WIDGET" && showInputWidget)
+                (card.type === "INPUT_WIDGET_V2" && showInputWidget)
               }
               step={OnboardingStep.DEPLOY}
             >
@@ -109,7 +109,7 @@ function WidgetSidebar(props: IPanelProps) {
                 show={
                   (card.type === "TABLE_WIDGET" &&
                     currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
-                  (card.type === "INPUT_WIDGET" &&
+                  (card.type === "INPUT_WIDGET_V2" &&
                     currentSubStep === 0 &&
                     currentStep === OnboardingStep.ADD_INPUT_WIDGET)
                 }

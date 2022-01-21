@@ -18,7 +18,7 @@ describe("dataTreeTypeDefCreator", () => {
       parentId: "123",
       renderMode: "CANVAS",
       text: "yo",
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       parentColumnSpace: 1,
       parentRowSpace: 2,
@@ -43,11 +43,11 @@ describe("dataTreeTypeDefCreator", () => {
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
-    expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET);
+    expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET_V2);
     expect(def).toHaveProperty("Input1.isDisabled");
     expect(entityInfo.get("Input1")).toStrictEqual({
       type: ENTITY_TYPE.WIDGET,
-      subType: "INPUT_WIDGET",
+      subType: "INPUT_WIDGET_V2",
     });
   });
 
