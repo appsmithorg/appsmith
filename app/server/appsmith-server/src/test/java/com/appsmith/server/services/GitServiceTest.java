@@ -2210,6 +2210,11 @@ public class GitServiceTest {
         applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
 
         String pluginId = pluginRepository.findByPackageName("mongo-plugin").block().getId();
+        Datasource datasource = new Datasource();
+        datasource.setName("db-auth-testGitImportRepo");
+        datasource.setPluginId(pluginId);
+        datasource.setOrganizationId(orgId);
+        datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
