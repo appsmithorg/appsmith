@@ -1,12 +1,12 @@
 import React, { ReactNode, useState, useEffect, forwardRef, Ref } from "react";
 import styled, { StyledComponent } from "styled-components";
 import { useDrag } from "react-use-gesture";
-import { Spring } from "react-spring/renderprops";
+import { Spring, animated } from "react-spring";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-const ResizeWrapper = styled.div<{ prevents: boolean }>`
+const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
   display: block;
   & {
     * {
