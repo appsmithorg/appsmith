@@ -1,3 +1,4 @@
+import _ from "lodash";
 import RadioGroupWidget from "./index";
 
 describe("unit test case for property config pane", () => {
@@ -12,7 +13,10 @@ describe("unit test case for property config pane", () => {
 
     const dsvValidationFunc = dsv.validation.params.fn;
 
-    expect(dsvValidationFunc(1)).toEqual({ isValid: true, parsed: 1 });
-    expect(dsvValidationFunc("1")).toEqual({ isValid: true, parsed: "1" });
+    expect(dsvValidationFunc(1, {}, _)).toEqual({ isValid: true, parsed: 1 });
+    expect(dsvValidationFunc("1", {}, _)).toEqual({
+      isValid: true,
+      parsed: "1",
+    });
   });
 });
