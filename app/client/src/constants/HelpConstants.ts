@@ -27,6 +27,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/input",
     searchKey: "Input",
   },
+  INPUT_WIDGET_V2: {
+    path: "/widget-reference/input",
+    searchKey: "Input",
+  },
   DATE_PICKER_WIDGET: {
     path: "/widget-reference/datepicker",
     searchKey: "DatePicker",
@@ -174,6 +178,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
   SWITCH_GROUP_WIDGET: {
     path: "/widget-reference/switch-group",
     searchKey: "Switch Group",
+  },
+  MAP_CHART_WIDGET: {
+    path: "/widget-reference/map-chart",
+    searchKey: "Map Chart",
   },
 };
 

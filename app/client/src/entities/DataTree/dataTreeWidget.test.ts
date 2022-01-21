@@ -164,7 +164,7 @@ describe("generateDataTreeWidget", () => {
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       version: 0,
       widgetId: "123",
       widgetName: "Input1",
@@ -241,7 +241,7 @@ describe("generateDataTreeWidget", () => {
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       version: 0,
       widgetId: "123",
       widgetName: "Input1",
@@ -251,6 +251,7 @@ describe("generateDataTreeWidget", () => {
       defaultProps: {
         text: "defaultText",
       },
+      privateWidgets: {},
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);

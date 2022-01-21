@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -147,9 +148,10 @@ public class GitControllerCE {
 
     @GetMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
-                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
+                                                        @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches,
+                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches))
+        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches), branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -162,7 +164,7 @@ public class GitControllerCE {
     }
 
     @PostMapping("/merge/{defaultApplicationId}")
-    public Mono<ResponseDTO<GitPullDTO>> merge(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<MergeStatusDTO>> merge(@PathVariable String defaultApplicationId,
                                                @RequestBody GitMergeDTO gitMergeDTO) {
         log.debug("Going to merge branch {} with branch {} for application {}", gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
         return service.mergeBranch(defaultApplicationId, gitMergeDTO)
@@ -183,6 +185,11 @@ public class GitControllerCE {
         log.debug("Going to create conflicted state branch {} for application {}", branchName, defaultApplicationId);
         return service.createConflictedBranch(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @GetMapping("/import/keys")
+    public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport() {
+        return service.generateSSHKey().map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
 
