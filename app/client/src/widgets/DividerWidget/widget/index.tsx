@@ -156,9 +156,9 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           },
           {
             helpText:
-              "Controls hide/show divider cap on start or end of divider",
+              "Changes the position of the cap if a valid cap is selected.",
             propertyName: "capSide",
-            label: "",
+            label: "Cap Position",
             controlType: "ICON_TABS",
             options: [
               {
