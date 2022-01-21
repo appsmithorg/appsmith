@@ -182,4 +182,69 @@ describe("RadioGroup widget testing", function() {
       cy.evaluateErrorMessage(useCase.message);
     });
   });
+
+  it("Check the value is string or integer for the default value", () => {
+    /**
+     * Test cases:
+     * 1. Object data type should be invalid
+     * 2. Integer should be valid
+     * 3. String should be valid
+     */
+
+    //Base-line scenario
+    cy.openPropertyPane("radiogroupwidget");
+
+    cy.updateCodeInput(
+      ".t--property-control-options",
+      `[
+         {
+           "label": "Yes",
+           "value": 1
+         },
+         {
+           "label": "No",
+           "value": 2
+         }
+       ]`,
+    );
+
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "{{1}}");
+    cy.wait(200);
+
+    const inputOutputValues = [
+      {
+        //Case 1.0: Object data type should be invalid
+        input: "{{[]}}",
+        message: "This value does not evaluate to type: string or number",
+      },
+      {
+        //Case 1.1: Object data type should be invalid
+        input: "{{{}}}",
+        message: `This value does not evaluate to type: string or number`,
+      },
+      {
+        //Case 2:Integer should be valid
+        input: "{{1}}",
+        message: "",
+      },
+      {
+        //Case 3:Integer should be valid
+        input: "1",
+        message: "",
+      },
+    ];
+
+    inputOutputValues.map((useCase) => {
+      cy.updateCodeInput(
+        ".t--property-control-defaultselectedvalue",
+        useCase.input,
+      );
+      if (useCase.message === "") {
+        cy.wait(200);
+        cy.get(".t--evaluatedPopup-error").should("not.exist");
+      } else {
+        cy.evaluateErrorMessage(useCase.message);
+      }
+    });
+  });
 });

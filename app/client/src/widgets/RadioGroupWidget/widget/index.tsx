@@ -55,7 +55,7 @@ function optionsCustomValidation(
 
       //Validation checks for the the label.
       if (
-        _.isNil(value) ||
+        _.isNil(label) ||
         label === "" ||
         (typeof label !== "string" && typeof label !== "number")
       ) {
@@ -111,11 +111,20 @@ function optionsCustomValidation(
     return invalidResponse;
   }
 }
-function defaultOptionValidation(value: unknown): ValidationResponse {
-  /**
-   * This is a placeholder validation function for keeping the values as is,
-   * And to display the expected structure and example.
-   */
+function defaultOptionValidation(
+  value: unknown,
+  props: any,
+  _: any,
+): ValidationResponse {
+  //Checks if the value is not of object type in {{}}
+  if (_.isObject(value)) {
+    return {
+      isValid: false,
+      parsed: JSON.stringify(value, null, 2),
+      messages: ["This value does not evaluate to type: string or number"],
+    };
+  }
+
   return {
     isValid: true,
     parsed: value,
