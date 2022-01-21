@@ -72,7 +72,7 @@ class ContainerWidget extends BaseWidget<
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
-            label: "Background Colour",
+            label: "Background Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -83,7 +83,7 @@ class ContainerWidget extends BaseWidget<
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Colour",
+            label: "Border Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -202,6 +202,7 @@ class ContainerWidget extends BaseWidget<
               canExtend={props.canExtend}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
+              parentId={props.parentId}
               snapRows={snapRows}
               widgetId={props.widgetId}
             />

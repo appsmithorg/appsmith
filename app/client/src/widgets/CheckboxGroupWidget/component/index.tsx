@@ -9,6 +9,8 @@ import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
+import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { Colors } from "constants/Colors";
 
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
@@ -43,14 +45,35 @@ const CheckboxGroupContainer = styled.div<
     `
     border: 1px solid ${theme.colors.error};
   `}
+
   .${Classes.CONTROL} {
     display: flex;
     align-items: center;
     margin-bottom: 0;
     margin: 0px 12px;
   }
+
+  & .bp3-control.bp3-checkbox {
+    margin-top: ${({ inline, optionCount }) =>
+      (inline || optionCount === 1) && `4px`};
+  }
+
+  & .select-all {
+    white-space: nowrap;
+    color: ${Colors.GREY_9} !important;
+  }
 `;
 
+export interface SelectAllProps {
+  checked: boolean;
+  disabled?: boolean;
+  indeterminate?: boolean;
+  inline?: boolean;
+  onChange: React.FormEventHandler<HTMLInputElement>;
+  rowSpace: number;
+  backgroundColor: string;
+  borderRadius: string;
+}
 export interface StyledCheckboxProps {
   disabled?: boolean;
   optionCount: number;
@@ -59,57 +82,43 @@ export interface StyledCheckboxProps {
   borderRadius: string;
 }
 
-// const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
-//   height: ${({ rowspace }) => rowspace}px;
-
-//   &.bp3-control.bp3-checkbox {
-//     color: ${({ theme }) => theme.colors.comments.resolved};
-//     margin-top: ${({ inline, optionCount }) =>
-//       (inline || optionCount === 1) && `4px`};
-
-//     .bp3-control-indicator {
-//       ${({ disabled }) =>
-//         !disabled && `border: 1.5px solid ${Colors.DARK_GRAY}`};
-//       background-image: none;
-//       box-shadow: none;
-//       border: 1px solid ${Colors.GREY_3};
-//       border-radius: ${({ borderRadius }) => borderRadius};
-//     }
-//   }
-
-//   &.bp3-control input:checked ~ .bp3-control-indicator {
-//     background-image: none;
-//     background-color: ${({ backgroundColor }) => backgroundColor};
-//     &::before {
-//       background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A") !important;
-//     }
-//   }
-
-//   &.bp3-control input:not(:disabled):active ~ .bp3-control-indicator {
-//     background: none;
-//   }
-
-//   &.bp3-control.bp3-checkbox
-//     input:disabled:indeterminate
-//     ~ .bp3-control-indicator {
-//     background: ${({ theme }) => theme.colors.checkbox.unchecked};
-//   }
-// `;
-
-export interface OptionProps {
-  /** Label text for this option. If omitted, `value` is used as the label. */
-  label?: string;
-
-  /** Value of this option. */
-  value: string;
+function SelectAll(props: SelectAllProps) {
+  const {
+    backgroundColor,
+    borderRadius,
+    checked,
+    disabled,
+    indeterminate,
+    inline,
+    onChange,
+    rowSpace,
+  } = props;
+  return (
+    <StyledCheckbox
+      backgroundColor={backgroundColor}
+      borderRadius={borderRadius}
+      checked={checked}
+      className="select-all"
+      disabled={disabled}
+      indeterminate={indeterminate}
+      inline={inline}
+      label="Select All"
+      onChange={onChange}
+      rowSpace={rowSpace}
+    />
+  );
 }
 
 export interface CheckboxGroupComponentProps extends ComponentProps {
   isDisabled?: boolean;
   isInline?: boolean;
+  isSelectAll?: boolean;
   isRequired?: boolean;
   isValid?: boolean;
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
+  onSelectAllChange: (
+    state: SelectAllState,
+  ) => React.FormEventHandler<HTMLInputElement>;
   options: OptionProps[];
   rowSpace: number;
   selectedValues: string[];
@@ -121,13 +130,24 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
     isDisabled,
     isInline,
+    isSelectAll,
     isValid,
     onChange,
+    onSelectAllChange,
     optionAlignment,
     options,
     rowSpace,
     selectedValues,
   } = props;
+
+  const selectAllChecked = selectedValues.length === options.length;
+  const selectAllIndeterminate =
+    !selectAllChecked && selectedValues.length >= 1;
+  const selectAllState = selectAllChecked
+    ? SelectAllStates.CHECKED
+    : selectAllIndeterminate
+    ? SelectAllStates.INDETERMINATE
+    : SelectAllStates.UNCHECKED;
 
   return (
     <CheckboxGroupContainer
@@ -137,6 +157,18 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       optionCount={options.length}
       valid={isValid}
     >
+      {isSelectAll && (
+        <SelectAll
+          backgroundColor={props.backgroundColor}
+          borderRadius={props.borderRadius}
+          checked={selectAllChecked}
+          disabled={isDisabled}
+          indeterminate={selectAllIndeterminate}
+          inline={isInline}
+          onChange={onSelectAllChange(selectAllState)}
+          rowSpace={rowSpace}
+        />
+      )}
       {options &&
         options.length > 0 &&
         [...options].map((option: OptionProps) => (

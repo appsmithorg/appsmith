@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -15,6 +15,8 @@ import { Spinner } from "@blueprintjs/core";
 import Canvas from "../Canvas";
 import { useParams } from "react-router";
 import classNames from "classnames";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { useDispatch } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 
@@ -42,6 +44,13 @@ function CanvasContainer() {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    return () => {
+      dispatch(forceOpenWidgetPanel(false));
+    };
+  }, []);
 
   const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
 

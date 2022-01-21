@@ -54,6 +54,7 @@ import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
+import { widgetReflowState } from "./uiReducers/reflowReducer";
 import SettingsReducer, { SettingsReduxState } from "./settingsReducer";
 import { AppThemingState } from "./uiReducers/appThemingReducer";
 
@@ -107,6 +108,7 @@ export interface AppState {
     gitSync: GitSyncReducerState;
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
+    widgetReflow: widgetReflowState;
     appTheming: AppThemingState;
   };
   entities: {

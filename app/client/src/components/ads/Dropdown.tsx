@@ -21,7 +21,7 @@ import Tooltip from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
-import { findIndex } from "lodash";
+import { findIndex, isArray } from "lodash";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -255,10 +255,15 @@ const Selected = styled.div<{
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
-  height: ${(props) => props.height || `38px`};
+  height: ${(props) => props.height || `auto`};
   position: relative;
   span.bp3-popover-target {
     display: inline-block;
+    width: 100%;
+  }
+
+  span.bp3-popover-wrapper {
+    width: 100%;
   }
 
   &:focus-visible ${Selected} {
@@ -270,6 +275,7 @@ const DropdownSelect = styled.div``;
 
 export const DropdownWrapper = styled.div<{
   width: string;
+  isOpen: boolean;
   wrapperBgColor?: string;
 }>`
   width: ${(props) => props.width};
@@ -278,6 +284,8 @@ export const DropdownWrapper = styled.div<{
   background-color: ${(props) => props.wrapperBgColor};
   border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
+  overflow: hidden;
+  display: ${(props) => (props.isOpen ? "inline-block" : "none")};
   .dropdown-search {
     margin: 4px 12px 8px;
     width: calc(100% - 24px);
@@ -631,12 +639,14 @@ function DefaultDropDownValueNode({
 
 interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   optionClickHandler: (option: DropdownOption) => void;
+  selectedOptionClickHandler: (option: DropdownOption) => void;
   renderOption?: RenderOption;
   headerLabel?: string;
   selected: DropdownOption | DropdownOption[];
   optionWidth: string;
   wrapperBgColor?: string;
   isMultiSelect?: boolean;
+  isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
@@ -662,6 +672,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      isOpen={props.isOpen}
       width={optionWidth}
       wrapperBgColor={props.wrapperBgColor}
     >
@@ -707,7 +718,12 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               aria-selected={isSelected}
               className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
               key={index}
-              onClick={() => props.optionClickHandler(option)}
+              onClick={
+                // users should be able to unselect a selected option by clicking the option again.
+                isSelected
+                  ? () => props.selectedOptionClickHandler(option)
+                  : () => props.optionClickHandler(option)
+              }
               role="option"
               selected={isSelected}
             >
@@ -805,7 +821,7 @@ export default function Dropdown(props: DropdownProps) {
     (option: DropdownOption) => {
       if (props.isMultiSelect) {
         // Multi select -> typeof selected is array of objects
-        if (!selected) {
+        if (isArray(selected) && selected.length < 1) {
           setSelected([option]);
         } else {
           const newOptions: DropdownOption[] = [
@@ -944,7 +960,7 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={errorFlag}
-        height={props.height || getMinHeight(props.isMultiSelect)}
+        height={props.height || "38px"}
         isMultiSelect={props.isMultiSelect}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
@@ -988,7 +1004,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={getMinHeight(props.isMultiSelect)}
+      height={"38px"}
       onKeyDown={handleKeydown}
       role="listbox"
       tabIndex={0}
@@ -1009,17 +1025,14 @@ export default function Dropdown(props: DropdownProps) {
         <RenderDropdownOptions
           {...props}
           isMultiSelect={props.isMultiSelect}
+          isOpen={isOpen}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
           selected={selected ? selected : { id: undefined, value: undefined }}
+          selectedOptionClickHandler={selectedOptionClickHandler}
           wrapperBgColor={wrapperBgColor}
         />
       </Popover>
     </DropdownContainer>
   );
-}
-
-function getMinHeight(isMultiSelect?: boolean): string {
-  if (isMultiSelect) return "44px";
-  return "38px";
 }

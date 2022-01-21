@@ -20,16 +20,16 @@ import { AppTheme } from "entities/AppTheming";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import Button, { Category, Size } from "components/ads/Button";
-// import {
-// Dropdown,
-// DropdownButton,
-// DropdownItem,
-// DropdownList,
-// } from "components/ads/DropdownV2";
+import {
+  Dropdown,
+  DropdownButton,
+  DropdownItem,
+  DropdownList,
+} from "components/ads/DropdownV2";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDisclosure } from "@chakra-ui/react";
 import DownloadIcon from "remixicon-react/DownloadLineIcon";
-// import SaveThemeModal from "./SaveThemeModal";
+import SaveThemeModal from "./SaveThemeModal";
 
 function ThemeEditor() {
   const dispatch = useDispatch();
@@ -63,7 +63,7 @@ function ThemeEditor() {
         <header className="px-3 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-normal capitalize">Theme Properties</h3>
-            {/* <Dropdown>
+            <Dropdown>
               <DropdownButton>
                 <MoreIcon className="w-5 h-5 text-gray-600" />
               </DropdownButton>
@@ -75,7 +75,7 @@ function ThemeEditor() {
                   Save theme
                 </DropdownItem>
               </DropdownList>
-            </Dropdown> */}
+            </Dropdown>
           </div>
           <ThemeCard changeable theme={selectedTheme} />
         </header>
@@ -181,7 +181,7 @@ function ThemeEditor() {
           </SettingSection>
         </main>
       </div>
-      {/* <SaveThemeModal isOpen={isOpen} onClose={onClose} /> */}
+      <SaveThemeModal isOpen={isOpen} onClose={onClose} />
     </>
   );
 }

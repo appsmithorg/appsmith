@@ -25,7 +25,7 @@ const PropertyPaneConfig = [
       },
       {
         propertyName: "itemBackgroundColor",
-        label: "Item Background",
+        label: "Item Background Color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -42,7 +42,6 @@ const PropertyPaneConfig = [
           },
         },
       },
-
       {
         helpText: "Spacing between items in Pixels",
         placeholderText: "0",

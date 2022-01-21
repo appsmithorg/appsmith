@@ -14,8 +14,8 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
      * @param{CheckboxPre Css} Assertion
      */
 
-    //Check if the cell background is #50AF6C
-    cy.selectColor("cellbackground");
+    //Check if the cell background is #03b365
+    cy.selectColor("cellbackgroundcolor");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
@@ -24,12 +24,12 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     );
 
     //Toggle to JS mode
-    cy.get(widgetsPage.toggleJsBcgColor)
+    cy.get(widgetsPage.cellBackgroundToggle)
       .click()
       .wait(200);
 
     //Check if the typed color red is reflecting in the background color and in the evaluated value
-    cy.updateCodeInput(".t--property-control-cellbackground", "red");
+    cy.updateCodeInput(widgetsPage.cellBackground, "red");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
@@ -39,8 +39,8 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
 
     cy.EvaluateCurrentValue("red");
 
-    //Check if the typed color #50AF6C is reflecting in the background color and in the evaluated value
-    cy.updateCodeInput(".t--property-control-cellbackground", "#50AF6C");
+    //Check if the typed color #03b365 is reflecting in the background color and in the evaluated value
+    cy.updateCodeInput(widgetsPage.cellBackground, "#03b365");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
@@ -51,7 +51,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     cy.EvaluateCurrentValue("#50AF6C");
 
     //Check if the typed color transparent is reflecting in the background color and in the evaluated value
-    cy.updateCodeInput(".t--property-control-cellbackground", "");
+    cy.updateCodeInput(widgetsPage.cellBackground, "");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",

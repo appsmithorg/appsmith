@@ -31,11 +31,13 @@ appInitializer();
 function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
-      <Provider store={store}>
-        <LayersContext.Provider value={Layers}>
-          <ThemedAppWithProps />
-        </LayersContext.Provider>
-      </Provider>
+      <ChakraProvider resetCSS={false}>
+        <Provider store={store}>
+          <LayersContext.Provider value={Layers}>
+            <ThemedAppWithProps />
+          </LayersContext.Provider>
+        </Provider>
+      </ChakraProvider>
     </Sentry.ErrorBoundary>
   );
 }
@@ -51,22 +53,20 @@ class ThemedApp extends React.Component<{
   }
   render() {
     return (
-      <ChakraProvider>
-        <ThemeProvider theme={this.props.currentTheme}>
-          <StyledToastContainer
-            autoClose={5000}
-            closeButton={false}
-            draggable={false}
-            hideProgressBar
-            pauseOnHover={false}
-            transition={Slide}
-          />
-          <GlobalStyles />
-          <AppErrorBoundary>
-            <AppRouter />
-          </AppErrorBoundary>
-        </ThemeProvider>
-      </ChakraProvider>
+      <ThemeProvider theme={this.props.currentTheme}>
+        <StyledToastContainer
+          autoClose={5000}
+          closeButton={false}
+          draggable={false}
+          hideProgressBar
+          pauseOnHover={false}
+          transition={Slide}
+        />
+        <GlobalStyles />
+        <AppErrorBoundary>
+          <AppRouter />
+        </AppErrorBoundary>
+      </ThemeProvider>
     );
   }
 }

@@ -130,9 +130,14 @@ class ButtonGroupWidget extends BaseWidget<
                         },
                       ],
                       isJSConvertible: true,
-                      isBindProperty: false,
+                      isBindProperty: true,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
+                      validation: {
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          allowedValues: ["SIMPLE", "MENU"],
+                        },
+                      },
                     },
                     {
                       propertyName: "isDisabled",

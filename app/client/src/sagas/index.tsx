@@ -42,8 +42,9 @@ import replaySaga from "./ReplaySaga";
 import draggingCanvasSagas from "./DraggingCanvasSagas";
 import gitSyncSagas from "./GitSyncSagas";
 import SuperUserSagas from "./SuperUserSagas";
-import formEvaluationChangeListener from "./FormEvaluationSaga";
 import appThemingSaga from "./AppThemingSaga";
+import formEvaluationChangeListener from "./FormEvaluationSaga";
+import reflowSagas from "./ReflowSagas";
 
 const sagas = [
   initSagas,
@@ -87,6 +88,7 @@ const sagas = [
   draggingCanvasSagas,
   gitSyncSagas,
   SuperUserSagas,
+  reflowSagas,
   appThemingSaga,
 ];
 

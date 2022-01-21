@@ -36,3 +36,5 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
 
   primaryColor: string;
 }
+
+export const SCROLL_NAV_CONTROL_CONTAINER_WIDTH = 30;

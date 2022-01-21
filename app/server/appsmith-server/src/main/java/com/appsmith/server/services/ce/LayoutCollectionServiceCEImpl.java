@@ -355,6 +355,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     final String oldPageId = actionCollectionDTO.getPageId();
                     actionCollectionDTO.setPageId(destinationPageId);
                     actionCollectionDTO.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
+                    actionCollectionDTO.setName(actionCollectionMoveDTO.getName());
 
                     return actionUpdatesFlux
                             .collectList()

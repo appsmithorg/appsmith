@@ -23,7 +23,7 @@ describe("Container Widget Functionality", function() {
     /**
      * @param{Text} Random Border Colour
      */
-    cy.get(widgetsPage.boadercolorPicker)
+    cy.get(widgetsPage.borderColorPickerNew)
       .first()
       .click({ force: true })
       .clear()
@@ -36,7 +36,7 @@ describe("Container Widget Functionality", function() {
     /**
      * @param{Text} Random Background Colour
      */
-    cy.get(widgetsPage.backgroundcolorPicker)
+    cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true })
       .clear()
