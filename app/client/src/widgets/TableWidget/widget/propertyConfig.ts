@@ -1652,6 +1652,7 @@ export default [
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],
+        isJSConvertible: true,
         isBindProperty: false,
         isTriggerProperty: false,
       },

@@ -269,35 +269,32 @@ describe("Table Widget property pane feature validation", function() {
   });
 
   it("Test to validate text color and text background", function() {
-    cy.get(widgetsPage.textColor)
-      .first()
-      .click({ force: true });
-    // Changing text color to GREEN and validate
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.openPropertyPane("tablewidget");
+
+    // Changing text color to #553de9 and validate
+    cy.selectColor("textcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(85, 61, 233)");
+
     // Changing text color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsColor).click();
     cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
-    // Changing Cell backgroud color to GREEN and validate
-    cy.get(widgetsPage.backgroundColor)
-      .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
-    cy.wait("@updateLayout");
+
+    // Changing Cell backgroud color to #553de9 and validate
+    cy.selectColor("cellbackground");
     cy.readTabledataValidateCSS(
       "1",
       "0",
       "background",
-      "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(85, 61, 233) none repeat scroll 0% 0% / auto padding-box border-box",
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsBcgColor).click();
-    cy.testCodeMirrorLast("purple");
+    cy.updateCodeInput(".t--property-control-cellbackground", "purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
@@ -334,7 +331,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
-      "rgb(236, 249, 243)",
+      "rgb(225, 221, 251)",
     );
     cy.get(publish.backToEditor)
       .first()
