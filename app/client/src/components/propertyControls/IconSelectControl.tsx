@@ -136,14 +136,15 @@ class IconSelectControl extends BaseControl<
         };
       });
     }, 0);
-    document.addEventListener("keydown", this.handleKeydown);
+    // keydown event is attached to body so that it will not interfere with the keydown handler in GlobalHotKeys
+    document.body.addEventListener("keydown", this.handleKeydown);
   }
 
   componentWillUnmount() {
     if (this.timer) {
       clearTimeout(this.timer);
     }
-    document.removeEventListener("keydown", this.handleKeydown);
+    document.body.removeEventListener("keydown", this.handleKeydown);
   }
 
   public render() {
@@ -295,9 +296,8 @@ class IconSelectControl extends BaseControl<
           break;
         }
         case "Escape": {
-          // TODO: Esc closes the entire property pane if the focus is on the icon
-          // stopPropagation / stopImmediatePropagation doesn't prevent this behaviour
           this.setState({ isOpen: false });
+          e.stopPropagation();
         }
       }
     } else if (
