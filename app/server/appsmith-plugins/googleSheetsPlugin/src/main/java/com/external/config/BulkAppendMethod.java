@@ -211,6 +211,7 @@ public class BulkAppendMethod implements Method {
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
+        uriBuilder.queryParam("insertDataOption", "INSERT_ROWS");
 
         final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
         List<List<Object>> collect = body1.stream()

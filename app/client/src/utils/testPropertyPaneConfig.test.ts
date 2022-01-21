@@ -74,16 +74,22 @@ function validateValidationStructure(
   }
   return true;
 }
-
+const isNotFloat = (n: any) => {
+  return Number(n) === n && n % 1 === 0;
+};
 describe("Tests all widget's propertyPane config", () => {
   ALL_WIDGETS_AND_CONFIG.forEach((widgetAndConfig) => {
-    const widget: any = widgetAndConfig[0];
+    const [widget, config]: any = widgetAndConfig;
     it(`Checks ${widget.getWidgetType()}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
       const validatedPropertyPaneConfig = validatePropertyPaneConfig(
         propertyPaneConfig,
       );
       expect(validatedPropertyPaneConfig).toStrictEqual(true);
+    });
+    it(`Check if ${widget.getWidgetType()}'s dimensions are always integers`, () => {
+      expect(isNotFloat(config.defaults.rows)).toBe(true);
+      expect(isNotFloat(config.defaults.columns)).toBe(true);
     });
   });
 });
