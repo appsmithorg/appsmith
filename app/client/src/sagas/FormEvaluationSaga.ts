@@ -140,8 +140,10 @@ function* fetchDynamicValueSaga(
     // Call the API to fetch the dynamic values
     const response = yield call(PluginsApi.fetchDynamicFormValues, url);
     (evalOutput[key].fetchDynamicValues as DynamicValues).isLoading = false;
-    if (!!response) {
+    if (!!response && response instanceof Array) {
       (evalOutput[key].fetchDynamicValues as DynamicValues).data = response;
+      (evalOutput[key]
+        .fetchDynamicValues as DynamicValues).hasFetchFailed = false;
     } else {
       (evalOutput[key]
         .fetchDynamicValues as DynamicValues).hasFetchFailed = true;
