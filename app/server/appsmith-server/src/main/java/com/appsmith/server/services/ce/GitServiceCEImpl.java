@@ -2027,9 +2027,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
                                         return fileUtils.detachRemote(Paths.get(application.getOrganizationId(), application.getId(), gitApplicationMetadata.getRepoName()))
                                                 .then(applicationPageService.deleteApplication(application.getId()))
-                                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                                        " --import",
-                                                        " Datasource already exists with the same name")));
+                                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                        "import",
+                                                        "Datasource already exists with the same name"))
+                                                );
                                     }
                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                     return importExportApplicationService
@@ -2047,13 +2048,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                 })
                 // Add analytics event
-                .flatMap(application -> {
-                    return addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_IMPORT.getEventName(),
-                            application,
-                            application.getGitApplicationMetadata().getIsRepoPrivate()
-                    ).thenReturn(application);
-                });
+                .flatMap(application -> addAnalyticsForGitOperation(
+                        AnalyticsEvents.GIT_IMPORT.getEventName(),
+                        application,
+                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                ));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
