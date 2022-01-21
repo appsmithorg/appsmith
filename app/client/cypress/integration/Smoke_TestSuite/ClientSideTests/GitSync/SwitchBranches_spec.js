@@ -169,7 +169,11 @@ describe("Git sync:", function() {
         .invoke("removeAttr", "target")
         .click();
 
-      cy.wait("@viewPage");
+      cy.wait("@getPagesForViewApp").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
 
       cy.get(".t--widget-tablewidget").should("not.exist");
 
@@ -177,7 +181,12 @@ describe("Git sync:", function() {
         const urlObject = new URL(url);
         urlObject.searchParams.set(branchQueryKey, parentBranchKey);
         cy.visit(urlObject.toString());
-        cy.wait("@viewPage");
+
+        cy.wait("@getPagesForViewApp").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
 
         cy.get(".t--widget-tablewidget").should("exist");
       });
