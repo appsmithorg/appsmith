@@ -2037,7 +2037,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                     return importExportApplicationService
                                             .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
-                                            .zipWith(findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceMono))
+                                            .zipWith(datasourceMono)
                                             .onErrorResume(throwable -> deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
                                                     .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()))));
                                 });
@@ -2047,6 +2047,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
                                 .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR)));
                     }
+                })
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    List<Datasource> datasourceMono = objects.getT2();
+                    return Mono.zip(Mono.just(application), findNonConfiguredDatasourceByApplicationId(application.getId(), datasourceMono));
                 })
                 // Add analytics event
                 .flatMap(objects -> {
@@ -2091,13 +2096,10 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
-                                                                             Mono<List<Datasource>> dataListMono) {
-        Mono<List<NewAction>> newActionList = newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null).collectList();
-
-        return Mono.zip(dataListMono, newActionList)
-                .flatMap(objects -> {
-                    List<Datasource> datasourceList = objects.getT1();
-                    List<NewAction> actionList = objects.getT2();
+                                                                             List<Datasource> datasourceList) {
+        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
+                .collectList()
+                .flatMap(actionList -> {
                     List<String> usedDatasource = actionList.stream()
                             .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
                             .collect(Collectors.toList());

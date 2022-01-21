@@ -2272,5 +2272,20 @@ public class GitServiceTest {
                 .verify();
     }
 
+    /*@Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_withUnConfiguredDataSources_Success() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportDatasource.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
+
+        ApplicationJson applicationJson =  createAppJson(filePath).block();
+        applicationJson.getExportedApplication().setName("testGitImportDatasource");
+        applicationJson.getDatasourceList().get(0).setName("testGitImportDatasource");
+
+        //Create an empty DS
+
+        //Create an action which refers to the DS
+    }*/
+
     // TODO TCs for merge is pending
 }
