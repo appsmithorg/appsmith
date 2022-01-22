@@ -84,7 +84,7 @@
     "memoize-one": "^5.2.1",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
-    "nanoid": "^2.0.4",
+    "nanoid": "^3.1.31",
     "node-forge": "^1.0.0",
     "node-sass": "^7.0.1",
     "normalizr": "^3.3.0",
