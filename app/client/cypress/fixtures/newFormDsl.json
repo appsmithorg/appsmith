@@ -73,7 +73,20 @@
                 "isVisible": true,
                 "label": "",
                 "selectionType": "SINGLE_SELECT",
-                "options": "",
+                "options": [
+                  {
+                    "label": "Option 1",
+                    "value": "Option 1"
+                  },
+                  {
+                    "label": "Option 2",
+                    "value": "Option2"
+                  },
+                  {
+                    "label": "Option 3",
+                    "value": "Option3"
+                  }
+                ],
                 "widgetName": "Dropdown1",
                 "type": "DROP_DOWN_WIDGET",
                 "isLoading": false,

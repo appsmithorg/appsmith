@@ -62,7 +62,7 @@ describe("API Panel Test Functionality", function() {
     );
     // Choose dynamic button
     cy.SearchEntityandOpen("DynamicButton");
-    cy.wait(2000);
+    cy.wait(3000);
     // toggle js of onClick
     cy.get(".t--property-control-onclick").scrollIntoView();
     cy.get(".t--property-control-onclick")

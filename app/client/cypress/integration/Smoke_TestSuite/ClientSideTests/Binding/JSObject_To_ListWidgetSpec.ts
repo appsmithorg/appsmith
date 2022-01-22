@@ -12,31 +12,31 @@ let dataSet: any, valueToTest: any;
 
 describe("Validate Create Api and Bind to Table widget via JSObject", () => {
   before(() => {
-    cy.fixture('listwidgetdsl').then((val: any) => {
-      agHelper.AddDsl(val)
+    cy.fixture("listwidgetdsl").then((val: any) => {
+      agHelper.AddDsl(val);
     });
 
-    cy.fixture("example").then(function (data: any) {
+    cy.fixture("example").then(function(data: any) {
       dataSet = data;
     });
   });
 
   it("1. Add users api and bind to JSObject", () => {
-    apiPage.CreateAndFillApi(dataSet.userApi + "/users")
-    apiPage.RunAPI()
+    apiPage.CreateAndFillApi(dataSet.userApi + "/users");
+    apiPage.RunAPI();
     apiPage.ReadApiResponsebyKey("name");
     cy.get("@apiResp").then((value) => {
       valueToTest = value;
-      cy.log("valueToTest to test returned is :" + valueToTest)
+      cy.log("valueToTest to test returned is :" + valueToTest);
       //cy.log("value to test returned is :" + value)
-    })
+    });
     jsEditor.CreateJSObject("return Api1.data.users;");
   });
 
-  it("2. Validate the Api data is updated on List widget", function () {
-    agHelper.SelectEntityByName("Widgets")//to expand widgets
+  it("2. Validate the Api data is updated on List widget", function() {
+    agHelper.SelectEntityByName("Widgets"); //to expand widgets
     agHelper.SelectEntityByName("List1");
-    jsEditor.EnterJSContext("items", "{{JSObject1.myFun1()}}")
+    jsEditor.EnterJSContext("items", "{{JSObject1.myFun1()}}");
     cy.get(locator._textWidget).should("have.length", 8);
     cy.get(locator._textWidget)
       .first()
@@ -54,11 +54,11 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
       });
   });
 
-  it("3. Validate the List widget ", function () {
+  it("3. Validate the List widget ", function() {
     cy.get(locator._backToEditor).click({ force: true });
-    agHelper.SelectEntityByName("Widgets")//to expand widgets
+    agHelper.SelectEntityByName("Widgets"); //to expand widgets
     agHelper.SelectEntityByName("List1");
-    jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
+    jsEditor.EnterJSContext("itemspacing\\(px\\)", "50");
     cy.get(locator._textWidget).should("have.length", 6);
     cy.get(locator._textWidget)
       .first()
@@ -68,7 +68,8 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
       });
     agHelper.DeployApp();
     cy.get(locator._textWidgetInDeployed).should("have.length", 6);
-    cy.get(locator._textWidgetInDeployed).first()
+    cy.get(locator._textWidgetInDeployed)
+      .first()
       .invoke("text")
       .then((text) => {
         expect(text).to.equal((valueToTest as string).trimEnd());
@@ -76,15 +77,15 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     cy.get(locator._backToEditor).click({ force: true });
   });
 
-  it("4. Bind Input widget with JSObject", function () {
-    cy.fixture('formInputTableDsl').then((val: any) => {
-      agHelper.AddDsl(val)
+  it("4. Bind Input widget with JSObject", function() {
+    cy.fixture("formInputTableDsl").then((val: any) => {
+      agHelper.AddDsl(val);
     });
     jsEditor.CreateJSObject('return "Success";', false);
-    agHelper.SelectEntityByName("Widgets")//to expand widgets
-    agHelper.expandCollapseEntity("Form1")
-    agHelper.SelectEntityByName("Input2")
-    jsEditor.EnterJSContext("defaulttext", "{{JSObject2.myFun1()}}")
+    agHelper.SelectEntityByName("Widgets"); //to expand widgets
+    agHelper.expandCollapseEntity("Form1");
+    agHelper.SelectEntityByName("Input2");
+    jsEditor.EnterJSContext("defaulttext", "{{JSObject2.myFun1()}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -95,8 +96,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
       .within(() => {
         cy.get("input")
           .invoke("attr", "value")
-          .should("equal", 'Success');
+          .should("equal", "Success");
       });
   });
-
 });
