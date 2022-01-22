@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Alignment } from "@blueprintjs/core";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -11,16 +12,18 @@ export const CONFIG = {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     animateLoading: true,
-    label: "",
     options: [
       { label: "Yes", value: "Y" },
       { label: "No", value: "N" },
     ],
     defaultOptionValue: "Y",
-    widgetName: "RadioGroup",
-    version: 1,
     isRequired: false,
     isDisabled: false,
+    isInline: true,
+    alignment: Alignment.LEFT,
+    labelText: "",
+    widgetName: "RadioGroup",
+    version: 1,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
