@@ -33,18 +33,6 @@ init_env_file() {
   . "$ENV_PATH"
   . "$TEMPLATES_PATH/pre-define.env"
   set +o allexport
-
-  printenv | grep -Eo '^APPSMITH_[A-Z0-9_]+=.*|^MONGO_[A-Z0-9_]+=.*' > "$ENV_PATH" 
-}
-
-load_configuration() {
-  if [[ -f "$ENV_PATH" ]]; then
-    sed -i 's/APPSMITH_MONGO_USERNAME/MONGO_INITDB_ROOT_USERNAME/; s/APPSMITH_MONGO_PASSWORD/MONGO_INITDB_ROOT_PASSWORD/; s/APPSMITH_MONGO_DATABASE/MONGO_INITDB_DATABASE/' "$ENV_PATH"
-    echo 'Load environment configuration'
-    set -o allexport
-    . "$ENV_PATH"
-    set +o allexport
-  fi
 }
 
 unset_unused_variables() {
@@ -155,7 +143,6 @@ configure_supervisord() {
 
 # Main Section
 init_env_file
-load_configuration
 unset_unused_variables
 init_mongodb
 mount_letsencrypt_directory
